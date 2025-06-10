@@ -1,0 +1,246 @@
+/* Mobile Modal and Sheet Styles - WHOOP Dark Theme */
+
+/* Bottom Sheet */
+.bottom-sheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--mobile-bg-secondary);
+  border-radius: 16px 16px 0 0;
+  transform: translateY(100%);
+  transition: transform var(--mobile-transition-base);
+  z-index: 1100;
+  overflow: hidden;
+}
+
+.bottom-sheet.open {
+  transform: translateY(0);
+}
+
+/* Sheet Handle */
+.sheet-handle {
+  width: 36px;
+  height: 4px;
+  background-color: var(--mobile-text-muted);
+  border-radius: 2px;
+  margin: 12px auto;
+}
+
+/* Sheet Header */
+.sheet-header {
+  padding: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sheet-title {
+  font-size: var(--mobile-font-size-lg);
+  font-weight: 600;
+  color: var(--mobile-text-primary);
+  text-align: center;
+}
+
+/* Sheet Content */
+.sheet-content {
+  padding: 16px;
+  max-height: 80vh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Modal Dialog */
+.modal-dialog {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.9);
+  width: 90%;
+  max-width: 360px;
+  background-color: var(--mobile-bg-secondary);
+  border-radius: 16px;
+  opacity: 0;
+  transition: all var(--mobile-transition-base);
+  z-index: 1100;
+  overflow: hidden;
+}
+
+.modal-dialog.open {
+  transform: translate(-50%, -50%) scale(1);
+  opacity: 1;
+}
+
+/* Modal Header */
+.modal-header {
+  padding: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.modal-title {
+  font-size: var(--mobile-font-size-lg);
+  font-weight: 600;
+  color: var(--mobile-text-primary);
+}
+
+.modal-close {
+  width: var(--touch-target-size);
+  height: var(--touch-target-size);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--mobile-text-muted);
+  cursor: pointer;
+}
+
+/* Modal Content */
+.modal-content {
+  padding: 16px;
+}
+
+/* Modal Actions */
+.modal-actions {
+  padding: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  gap: 12px;
+}
+
+.modal-button {
+  flex: 1;
+  min-height: var(--touch-target-size);
+  padding: 0 24px;
+  border-radius: 8px;
+  font-size: var(--mobile-font-size-base);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-button-primary {
+  background-color: var(--mobile-primary);
+  color: white;
+  border: none;
+}
+
+.modal-button-secondary {
+  background-color: var(--mobile-bg-tertiary);
+  color: var(--mobile-text-primary);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Alert Dialog */
+.alert-dialog {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.9);
+  width: 90%;
+  max-width: 320px;
+  background-color: var(--mobile-bg-secondary);
+  border-radius: 16px;
+  opacity: 0;
+  transition: all var(--mobile-transition-base);
+  z-index: 1100;
+  overflow: hidden;
+}
+
+.alert-dialog.open {
+  transform: translate(-50%, -50%) scale(1);
+  opacity: 1;
+}
+
+.alert-icon {
+  width: 48px;
+  height: 48px;
+  margin: 24px auto 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.alert-title {
+  font-size: var(--mobile-font-size-lg);
+  font-weight: 600;
+  color: var(--mobile-text-primary);
+  text-align: center;
+  padding: 0 24px;
+}
+
+.alert-message {
+  font-size: var(--mobile-font-size-base);
+  color: var(--mobile-text-secondary);
+  text-align: center;
+  padding: 8px 24px 24px;
+}
+
+/* Toast Messages */
+.toast-container {
+  position: fixed;
+  bottom: calc(env(safe-area-inset-bottom) + 16px);
+  left: 16px;
+  right: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 1200;
+  pointer-events: none;
+}
+
+.toast-message {
+  background-color: var(--mobile-bg-tertiary);
+  border-radius: 8px;
+  padding: 12px 16px;
+  color: var(--mobile-text-primary);
+  font-size: var(--mobile-font-size-base);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  opacity: 0;
+  transform: translateY(100%);
+  transition: all var(--mobile-transition-base);
+  pointer-events: auto;
+}
+
+.toast-message.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Backdrop */
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  transition: opacity var(--mobile-transition-base);
+  z-index: 1050;
+}
+
+.modal-backdrop.visible {
+  opacity: 1;
+}
+
+/* Battery Efficient Animations */
+@media (prefers-reduced-motion: reduce) {
+  .bottom-sheet,
+  .modal-dialog,
+  .alert-dialog,
+  .toast-message {
+    transition: none;
+  }
+}
+
+/* Platform Specific Styles */
+.ios-sheet {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.android-sheet {
+  padding-bottom: 16px;
+} 

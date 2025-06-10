@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Connect your money story to your life story with Mingus - the financial wellness app that understands your whole self. Join thousands building wealth through wellness.">
+    <meta name="keywords" content="financial wellness, money management, personal finance, wealth building, financial health">
+    <meta name="author" content="Mingus">
+    
+    <!-- Open Graph / Social Media -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Mingus - Financial Wellness for Your Whole Self">
+    <meta property="og:description" content="Connect your money story to your life story with Mingus - the financial wellness app that understands your whole self.">
+    <meta property="og:image" content="{{ url_for('static', filename='images/og-image.jpg') }}">
+    <meta property="og:url" content="{{ request.url }}">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Mingus - Financial Wellness for Your Whole Self">
+    <meta name="twitter:description" content="Connect your money story to your life story with Mingus.">
+    <meta name="twitter:image" content="{{ url_for('static', filename='images/twitter-card.jpg') }}">
+    
+    <title>Mingus - Financial Wellness for Your Whole Self</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='apple-touch-icon.png') }}">
+    <link rel="manifest" href="{{ url_for('static', filename='site.webmanifest') }}">
+    
+    <!-- Preload Critical Assets -->
+    <link rel="preload" href="{{ url_for('static', filename='fonts/inter-var.woff2') }}" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="{{ url_for('static', filename='css/base/animations.css') }}" as="style">
+    <link rel="preload" href="{{ url_for('static', filename='images/hero-pattern.svg') }}" as="image">
+    
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base/accessibility.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base/animations.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base/responsive.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/mobile/mobile-base.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/mobile/mobile-navigation.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/mobile/mobile-forms.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/mobile/mobile-modals.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/screens/welcome.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/components/onboarding-questions.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/components/difference-panels.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/components/testimonials.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/components/signup-form.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/components/cta-section.css') }}">
+    <script src="{{ url_for('static', filename='js/welcome.js') }}" defer></script>
+</head>
+<body class="welcome-container safe-area-inset optimize-gpu">
+    <!-- Skip to Main Content -->
+    <a href="#main-content" class="skip-to-main">Skip to main content</a>
+
+    <!-- Progress Bar -->
+    <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+        <div class="progress-fill"></div>
+    </div>
+
+    <main id="main-content">
+        <!-- Hero Section -->
+        <section class="hero-section section-padding section-reveal" aria-labelledby="hero-title">
+            <div class="container">
+                <div class="floating-icons stagger-children" aria-hidden="true">
+                    <div class="floating-icon float optimize-gpu">💪</div>
+                    <div class="floating-icon float optimize-gpu" style="animation-delay: 0.2s">❤️</div>
+                    <div class="floating-icon float optimize-gpu" style="animation-delay: 0.4s">🧘</div>
+                    <div class="floating-icon float optimize-gpu" style="animation-delay: 0.6s">💰</div>
+                </div>
+                
+                <div class="particles optimize-gpu" aria-hidden="true">
+                    <!-- Particles will be generated via JavaScript -->
+                </div>
+                
+                <div class="hero-content scroll-fade">
+                    <h1 id="hero-title" class="hero-title text-hero">
+                        Your money story is connected to your whole life story. Let's write a better chapter together.
+                    </h1>
+                    <p class="hero-subtitle text-subtitle">
+                        Mingus helps you build wealth by understanding your whole self - not just your numbers.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Onboarding Questions Section -->
+        <section class="onboarding-section section-padding section-reveal" aria-labelledby="onboarding-title">
+            <div class="container">
+                <h2 id="onboarding-title" class="onboarding-title text-title scroll-fade">Tell us about yourself</h2>
+                
+                <div class="questions-container grid stagger-children" role="group" aria-label="Onboarding questions">
+                    <!-- Question 1 -->
+                    <div class="question-card" 
+                         data-question="financial_challenge" 
+                         data-value="budgeting"
+                         role="button"
+                         tabindex="0"
+                         aria-pressed="false">
+                        <h3>What's your biggest financial challenge?</h3>
+                        <div class="options">
+                            <div class="option">Staying on budget</div>
+                            <div class="option">Managing debt</div>
+                            <div class="option">Growing savings</div>
+                        </div>
+                    </div>
+
+                    <!-- Question 2 -->
+                    <div class="question-card"
+                         data-question="stress_handling"
+                         data-value="mindfulness"
+                         role="button"
+                         tabindex="0"
+                         aria-pressed="false">
+                        <h3>How do you handle financial stress?</h3>
+                        <div class="options">
+                            <div class="option">Mindfulness practices</div>
+                            <div class="option">Exercise</div>
+                            <div class="option">Talking to friends</div>
+                        </div>
+                    </div>
+
+                    <!-- Question 3 -->
+                    <div class="question-card"
+                         data-question="motivation"
+                         data-value="goals"
+                         role="button"
+                         tabindex="0"
+                         aria-pressed="false">
+                        <h3>What motivates your financial decisions?</h3>
+                        <div class="options">
+                            <div class="option">Future goals</div>
+                            <div class="option">Family needs</div>
+                            <div class="option">Life experiences</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- The MINGUS Difference Section -->
+        <section class="difference-section section-padding section-reveal" aria-labelledby="difference-title">
+            <div class="container">
+                <h2 id="difference-title" class="difference-title text-title scroll-fade">The MINGUS Difference</h2>
+                
+                <div class="panels-container grid grid-3 stagger-children">
+                    <!-- Panel 1: Your Whole Self -->
+                    <div class="difference-panel fade-in-up panel-delay-1">
+                        <div class="interconnected-icon">
+                            <div class="circle circle-center"></div>
+                            <div class="circle circle-top"></div>
+                            <div class="circle circle-right"></div>
+                            <div class="circle circle-bottom"></div>
+                            <div class="circle circle-left"></div>
+                        </div>
+                        <h3 class="panel-title">Your Whole Self Affects Your Wealth</h3>
+                        <p class="panel-text">Connect your physical activity, relationships, and mindfulness to spending patterns for deeper insights.</p>
+                    </div>
+
+                    <!-- Panel 2: Real-Time Insights -->
+                    <div class="difference-panel fade-in-up panel-delay-2">
+                        <div class="panel-icon">💡</div>
+                        <h3 class="panel-title">Real-Time Insights, Real-Life Solutions</h3>
+                        <p class="panel-text">Get personalized suggestions like 'Consider a 10-minute walk before purchases over $50' based on your stress levels.</p>
+                    </div>
+
+                    <!-- Panel 3: Community -->
+                    <div class="difference-panel fade-in-up panel-delay-3">
+                        <div class="panel-icon">👥</div>
+                        <h3 class="panel-title">Your Community, Your Success</h3>
+                        <p class="panel-text">Plan for cultural celebrations, family goals, and community connections while building wealth.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Testimonials Section -->
+        <section class="testimonials-section section-padding section-reveal" aria-labelledby="testimonials-title">
+            <div class="container">
+                <h2 id="testimonials-title" class="testimonials-title text-title scroll-fade">What Our Community Says</h2>
+                
+                <div class="testimonials-container grid grid-2 stagger-children">
+                    <!-- Testimonial 1 -->
+                    <div class="testimonial-card fade-in-up card-delay-1">
+                        <p class="testimonial-quote">Finally, an app that gets that my financial stress isn't just about money - it's about everything.</p>
+                        <div class="testimonial-author">
+                            <span class="author-name">Ashley</span>
+                            <span class="author-separator">•</span>
+                            <span class="author-age">29</span>
+                            <span class="author-separator">•</span>
+                            <span class="testimonial-location">Atlanta</span>
+                        </div>
+                    </div>
+
+                    <!-- Testimonial 2 -->
+                    <div class="testimonial-card fade-in-up card-delay-2">
+                        <p class="testimonial-quote">Mingus helped me save for my daughter's school supplies while still having money for date nights with my husband.</p>
+                        <div class="testimonial-author">
+                            <span class="author-name">Marcus</span>
+                            <span class="author-separator">•</span>
+                            <span class="author-age">32</span>
+                            <span class="author-separator">•</span>
+                            <span class="testimonial-location">Houston</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Progressive Signup Section -->
+        <section class="signup-section section-padding section-reveal" aria-labelledby="signup-title">
+            <div class="container">
+                <h2 id="signup-title" class="signup-title text-title scroll-fade">Get Started in 60 Seconds</h2>
+                
+                <div class="signup-container optimize-gpu">
+                    <form id="signup-form" class="signup-form" novalidate>
+                        <!-- Step 1: Basic Info -->
+                        <div class="form-step active" data-step="1">
+                            <div class="form-group">
+                                <label for="name" class="form-label">Your Name</label>
+                                <input type="text" 
+                                       id="name" 
+                                       name="name" 
+                                       class="form-input" 
+                                       required 
+                                       minlength="2"
+                                       aria-describedby="name-error">
+                                <div id="name-error" class="form-error hidden"></div>
+                            </div>
+                            <div class="form-group">
+                                <label for="email" class="form-label">Email Address</label>
+                                <input type="email" 
+                                       id="email" 
+                                       name="email" 
+                                       class="form-input" 
+                                       required
+                                       aria-describedby="email-error">
+                                <div id="email-error" class="form-error hidden"></div>
+                            </div>
+                            <button type="button" 
+                                    class="next-btn" 
+                                    data-nav="next"
+                                    aria-label="Continue to next step">
+                                Continue
+                            </button>
+                        </div>
+
+                        <!-- Step 2: Bank Connection -->
+                        <div class="form-step" data-step="2">
+                            <button type="button" 
+                                    class="bank-connect-btn" 
+                                    data-nav="next"
+                                    aria-label="Connect your bank account">
+                                Connect Your Bank Account
+                            </button>
+                            <button type="button" 
+                                    class="back-btn" 
+                                    data-nav="prev"
+                                    aria-label="Go back to previous step">
+                                Back
+                            </button>
+                        </div>
+
+                        <!-- Step 3: Completion -->
+                        <div class="form-step" data-step="3">
+                            <div class="completion-message" role="alert" aria-live="polite">
+                                <h3>You're All Set!</h3>
+                                <p>We're preparing your personalized financial wellness journey.</p>
+                            </div>
+                            <button type="submit" 
+                                    class="submit-btn"
+                                    aria-label="Complete signup">
+                                Start My Journey
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- Call to Action Section -->
+        <section class="cta-section section-padding">
+            <div class="cta-sticky-container safe-area-inset">
+                <div class="container">
+                    <div class="cta-content scroll-fade">
+                        <button class="cta-button hover-scale optimize-gpu" 
+                                onclick="scrollToSignup()"
+                                aria-label="Start your financial wellness journey">
+                            Connect All The Parts of My Life to My Money
+                        </button>
+                        <p class="cta-secondary text-subtitle">Join thousands building wealth through wellness</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Generate particles
+        function createParticles() {
+            const particlesContainer = document.querySelector('.particles');
+            const particleCount = 20;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        // Handle mobile-specific interactions
+        document.addEventListener('DOMContentLoaded', () => {
+            createParticles();
+
+            // Detect platform and add specific class
+            const platform = /iPhone|iPad|iPod/.test(navigator.userAgent) ? 'ios' : 'android';
+            document.body.classList.add(`${platform}-specific`);
+
+            // Add parallax effect to floating icons
+            if (window.matchMedia('(min-width: 768px)').matches) {
+                document.addEventListener('mousemove', (e) => {
+                    const icons = document.querySelectorAll('.floating-icon');
+                    const mouseX = e.clientX / window.innerWidth - 0.5;
+                    const mouseY = e.clientY / window.innerHeight - 0.5;
+
+                    icons.forEach((icon, index) => {
+                        const depth = (index + 1) * 0.1;
+                        const translateX = mouseX * 50 * depth;
+                        const translateY = mouseY * 50 * depth;
+                        icon.style.transform = `translate(${translateX}px, ${translateY}px)`;
+                    });
+                });
+            }
+
+            // Add touch ripple effect
+            document.querySelectorAll('.hero-content').forEach(element => {
+                element.addEventListener('touchstart', (e) => {
+                    const rect = element.getBoundingClientRect();
+                    const ripple = document.createElement('div');
+                    ripple.className = 'ripple';
+                    ripple.style.left = `${e.touches[0].clientX - rect.left}px`;
+                    ripple.style.top = `${e.touches[0].clientY - rect.top}px`;
+                    element.appendChild(ripple);
+                    
+                    setTimeout(() => {
+                        ripple.remove();
+                    }, 1000);
+                });
+            });
+        });
+
+        // Optimize performance
+        let rafId = null;
+        const optimizeAnimation = (callback) => {
+            if (rafId) {
+                cancelAnimationFrame(rafId);
+            }
+            rafId = requestAnimationFrame(callback);
+        };
+
+        // Handle visibility changes
+        document.addEventListener('visibilitychange', () => {
+            const icons = document.querySelectorAll('.floating-icon');
+            icons.forEach(icon => {
+                icon.style.animationPlayState = document.hidden ? 'paused' : 'running';
+            });
+        });
+
+        // Onboarding Questions Handling
+        const userSelections = {
+            financial_challenge: null,
+            stress_handling: null,
+            motivation: null
+        };
+
+        function initializeOnboarding() {
+            const optionCards = document.querySelectorAll('.option-card');
+            const questionCards = document.querySelectorAll('.question-card');
+            
+            // Initialize progress bar
+            updateProgress();
+
+            // Add click handlers to option cards
+            optionCards.forEach(card => {
+                card.addEventListener('click', () => {
+                    const question = card.closest('.question-card').dataset.question;
+                    const value = card.dataset.value;
+                    
+                    // Remove selection from other options in the same question
+                    card.closest('.options-grid').querySelectorAll('.option-card').forEach(c => {
+                        c.classList.remove('selected');
+                    });
+                    
+                    // Select this option
+                    card.classList.add('selected');
+                    
+                    // Store the selection
+                    userSelections[question] = value;
+                    
+                    // Save to session storage
+                    sessionStorage.setItem('onboardingSelections', JSON.stringify(userSelections));
+                    
+                    // Update progress
+                    updateProgress();
+                    
+                    // Animate to next question
+                    animateToNextQuestion(card.closest('.question-card'));
+                });
+            });
+
+            // Add intersection observer for card animations
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('active');
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            questionCards.forEach(card => observer.observe(card));
+        }
+
+        function updateProgress() {
+            const totalQuestions = Object.keys(userSelections).length;
+            const answeredQuestions = Object.values(userSelections).filter(v => v !== null).length;
+            const progress = (answeredQuestions / totalQuestions) * 100;
+            
+            document.querySelector('.progress-fill').style.width = `${progress}%`;
+        }
+
+        function animateToNextQuestion(currentCard) {
+            const nextCard = currentCard.nextElementSibling;
+            if (nextCard && nextCard.classList.contains('question-card')) {
+                const offset = nextCard.offsetTop - 50;
+                window.scrollTo({
+                    top: offset,
+                    behavior: 'smooth'
+                });
+            }
+        }
+
+        // Testimonials Animation
+        function initializeTestimonials() {
+            const testimonialCards = document.querySelectorAll('.testimonial-card');
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, {
+                threshold: 0.2,
+                rootMargin: '0px 0px -50px 0px'
+            });
+
+            testimonialCards.forEach(card => observer.observe(card));
+        }
+
+        // CTA Section Handling
+        function initializeCTA() {
+            const ctaContent = document.querySelector('.cta-content');
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                        // Start pulse animation after fade in
+                        setTimeout(() => {
+                            document.querySelector('.cta-button').classList.add('pulse');
+                        }, 1000);
+                    }
+                });
+            }, {
+                threshold: 0.2
+            });
+
+            observer.observe(ctaContent);
+        }
+
+        function scrollToSignup() {
+            const signupSection = document.querySelector('.signup-section');
+            if (signupSection) {
+                signupSection.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        // Enhanced Animation Handling
+        function initializeAnimations() {
+            // Sections reveal on scroll
+            const revealSections = document.querySelectorAll('.section-reveal');
+            const scrollFadeElements = document.querySelectorAll('.scroll-fade');
+            const staggerContainers = document.querySelectorAll('.stagger-children');
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, {
+                threshold: 0.2,
+                rootMargin: '0px 0px -50px 0px'
+            });
+
+            // Observe all animated elements
+            revealSections.forEach(section => observer.observe(section));
+            scrollFadeElements.forEach(element => observer.observe(element));
+            staggerContainers.forEach(container => observer.observe(container));
+        }
+
+        // Enhanced Form Step Transitions
+        function nextStep(step) {
+            if (!validateStep(step)) return;
+
+            const currentStepElement = document.querySelector(`.form-step[data-step="${step}"]`);
+            const nextStepElement = document.querySelector(`.form-step[data-step="${step + 1}"]`);
+            
+            // Add transition classes
+            currentStepElement.classList.add('exiting');
+            nextStepElement.classList.add('entering');
+            
+            // Remove current step after animation
+            setTimeout(() => {
+                currentStepElement.classList.remove('active', 'exiting');
+                nextStepElement.classList.add('active');
+                nextStepElement.classList.remove('entering');
+                
+                currentStep = step + 1;
+                updateProgress();
+
+                if (currentStep === 3) {
+                    setTimeout(() => {
+                        document.querySelector('.completion-message').classList.add('visible');
+                    }, 300);
+                }
+            }, 300);
+        }
+
+        // Loading State Handling
+        function showLoading(button) {
+            button.classList.add('btn-loading');
+            button.disabled = true;
+        }
+
+        function hideLoading(button) {
+            button.classList.remove('btn-loading');
+            button.disabled = false;
+        }
+
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            createParticles();
+            initializeOnboarding();
+            initializeTestimonials();
+            initializeCTA();
+            initializeAnimations();
+
+            // Restore selections from session storage if they exist
+            const savedSelections = sessionStorage.getItem('onboardingSelections');
+            if (savedSelections) {
+                const selections = JSON.parse(savedSelections);
+                Object.entries(selections).forEach(([question, value]) => {
+                    if (value) {
+                        const card = document.querySelector(`.question-card[data-question="${question}"] .option-card[data-value="${value}"]`);
+                        if (card) {
+                            card.classList.add('selected');
+                        }
+                    }
+                });
+                updateProgress();
+            }
+        });
+
+        // Form Handling
+        let currentStep = 1;
+        const totalSteps = 3;
+
+        function updateProgress() {
+            const progress = ((currentStep - 1) / (totalSteps - 1)) * 100;
+            document.querySelector('.progress-bar').style.width = `${progress}%`;
+            
+            // Update step indicators
+            document.querySelectorAll('.step-indicator').forEach((indicator, index) => {
+                const step = index + 1;
+                indicator.classList.remove('active', 'completed');
+                if (step === currentStep) {
+                    indicator.classList.add('active');
+                } else if (step < currentStep) {
+                    indicator.classList.add('completed');
+                }
+            });
+        }
+
+        function validateStep(step) {
+            if (step === 1) {
+                const name = document.getElementById('name');
+                const email = document.getElementById('email');
+                const income = document.getElementById('income');
+                let isValid = true;
+
+                // Name validation
+                if (!name.value.trim()) {
+                    name.classList.add('invalid');
+                    name.nextElementSibling.nextElementSibling.classList.add('visible');
+                    isValid = false;
+                } else {
+                    name.classList.remove('invalid');
+                    name.nextElementSibling.nextElementSibling.classList.remove('visible');
+                }
+
+                // Email validation
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!email.value.trim() || !emailRegex.test(email.value)) {
+                    email.classList.add('invalid');
+                    email.nextElementSibling.nextElementSibling.classList.add('visible');
+                    isValid = false;
+                } else {
+                    email.classList.remove('invalid');
+                    email.nextElementSibling.nextElementSibling.classList.remove('visible');
+                }
+
+                // Income validation
+                if (!income.value) {
+                    income.classList.add('invalid');
+                    income.nextElementSibling.nextElementSibling.classList.add('visible');
+                    isValid = false;
+                } else {
+                    income.classList.remove('invalid');
+                    income.nextElementSibling.nextElementSibling.classList.remove('visible');
+                }
+
+                return isValid;
+            }
+            return true;
+        }
+
+        function prevStep(step) {
+            const currentStepElement = document.querySelector(`.form-step[data-step="${step}"]`);
+            const prevStepElement = document.querySelector(`.form-step[data-step="${step - 1}"]`);
+            
+            currentStepElement.classList.remove('active');
+            prevStepElement.classList.add('active');
+            
+            currentStep = step - 1;
+            updateProgress();
+        }
+
+        // Respect user's motion preferences
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+        
+        function handleReducedMotion() {
+            if (prefersReducedMotion.matches) {
+                // Remove all animations but keep the final states
+                document.body.classList.add('reduce-motion');
+            } else {
+                document.body.classList.remove('reduce-motion');
+            }
+        }
+
+        prefersReducedMotion.addListener(handleReducedMotion);
+        handleReducedMotion();
+
+        // Accessibility Enhancements
+        function setupAccessibility() {
+            // Handle keyboard navigation
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Tab') {
+                    document.body.classList.add('keyboard-user');
+                }
+            });
+            
+            // Handle mouse navigation
+            document.addEventListener('mousedown', () => {
+                document.body.classList.remove('keyboard-user');
+            });
+            
+            // Announce form errors to screen readers
+            function announceFormErrors(errors) {
+                const announcement = document.createElement('div');
+                announcement.setAttribute('role', 'alert');
+                announcement.classList.add('sr-only');
+                announcement.textContent = `Form has ${errors.length} error${errors.length === 1 ? '' : 's'}: ${errors.join(', ')}`;
+                document.body.appendChild(announcement);
+                
+                // Remove after announcement
+                setTimeout(() => {
+                    document.body.removeChild(announcement);
+                }, 1000);
+            }
+            
+            // Enhanced form validation
+            const form = document.getElementById('signup-form');
+            if (form) {
+                form.addEventListener('submit', (e) => {
+                    const errors = validateForm();
+                    if (errors.length > 0) {
+                        e.preventDefault();
+                        announceFormErrors(errors);
+                    }
+                });
+            }
+        }
+
+        // Initialize accessibility features
+        document.addEventListener('DOMContentLoaded', () => {
+            setupAccessibility();
+            // Previous initialization code remains unchanged
+        });
+    </script>
+</body>
+</html> 

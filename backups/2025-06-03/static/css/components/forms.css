@@ -1,0 +1,252 @@
+/* Form Group */
+.form-group {
+  margin-bottom: var(--spacing-md);
+}
+
+.form-label {
+  display: block;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  margin-bottom: var(--spacing-xs);
+}
+
+/* Text Inputs */
+.form-input {
+  width: 100%;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background-color: var(--color-bg-tertiary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-md);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-md);
+  transition: all var(--transition-fast);
+}
+
+.form-input::placeholder {
+  color: var(--color-text-muted);
+}
+
+.form-input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(0, 209, 255, 0.1);
+}
+
+.form-input--error {
+  border-color: var(--color-danger);
+}
+
+.form-input--success {
+  border-color: var(--color-success);
+}
+
+/* Select Dropdowns */
+.form-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23808080' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right var(--spacing-md) center;
+  padding-right: var(--spacing-xl);
+}
+
+/* Checkboxes */
+.form-checkbox {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  cursor: pointer;
+}
+
+.form-checkbox__input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.form-checkbox__indicator {
+  width: 20px;
+  height: 20px;
+  background-color: var(--color-bg-tertiary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-fast);
+}
+
+.form-checkbox__input:checked + .form-checkbox__indicator {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.form-checkbox__input:checked + .form-checkbox__indicator::after {
+  content: '';
+  width: 10px;
+  height: 10px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' fill='%23000000' viewBox='0 0 16 16'%3E%3Cpath d='M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z'/%3E%3C/svg%3E");
+}
+
+/* Radio Buttons */
+.form-radio {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  cursor: pointer;
+}
+
+.form-radio__input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.form-radio__indicator {
+  width: 20px;
+  height: 20px;
+  background-color: var(--color-bg-tertiary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-fast);
+}
+
+.form-radio__input:checked + .form-radio__indicator {
+  border-color: var(--color-primary);
+}
+
+.form-radio__input:checked + .form-radio__indicator::after {
+  content: '';
+  width: 10px;
+  height: 10px;
+  background-color: var(--color-primary);
+  border-radius: var(--border-radius-full);
+}
+
+/* Toggle Switch */
+.form-toggle {
+  position: relative;
+  display: inline-block;
+  width: 48px;
+  height: 24px;
+}
+
+.form-toggle__input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.form-toggle__slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--color-bg-tertiary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-full);
+  transition: all var(--transition-fast);
+}
+
+.form-toggle__slider::before {
+  content: '';
+  position: absolute;
+  height: 18px;
+  width: 18px;
+  left: 2px;
+  bottom: 2px;
+  background-color: var(--color-text-secondary);
+  border-radius: var(--border-radius-full);
+  transition: all var(--transition-fast);
+}
+
+.form-toggle__input:checked + .form-toggle__slider {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.form-toggle__input:checked + .form-toggle__slider::before {
+  transform: translateX(24px);
+  background-color: var(--color-bg-primary);
+}
+
+/* Date Picker */
+.form-date {
+  position: relative;
+}
+
+.form-date__input {
+  padding-right: var(--spacing-xl);
+}
+
+.form-date__icon {
+  position: absolute;
+  right: var(--spacing-md);
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-text-muted);
+  pointer-events: none;
+}
+
+/* File Upload */
+.form-file {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--spacing-lg);
+  border: 2px dashed var(--color-border);
+  border-radius: var(--border-radius-lg);
+  background-color: var(--color-bg-tertiary);
+  transition: all var(--transition-fast);
+}
+
+.form-file:hover {
+  border-color: var(--color-primary);
+}
+
+.form-file__input {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.form-file__icon {
+  color: var(--color-text-secondary);
+  margin-bottom: var(--spacing-sm);
+}
+
+.form-file__text {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  text-align: center;
+}
+
+/* Form Validation Messages */
+.form-message {
+  margin-top: var(--spacing-xs);
+  font-size: var(--font-size-sm);
+}
+
+.form-message--error {
+  color: var(--color-danger);
+}
+
+.form-message--success {
+  color: var(--color-success);
+}
+
+.form-message--warning {
+  color: var(--color-warning);
+} 

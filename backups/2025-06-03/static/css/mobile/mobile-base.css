@@ -1,0 +1,187 @@
+/* Mobile Base Styles - WHOOP Dark Theme */
+
+:root {
+  /* OLED-Optimized Dark Theme Colors */
+  --mobile-bg-primary: #000000; /* True black for OLED screens */
+  --mobile-bg-secondary: #121212; /* Slightly lighter for layering */
+  --mobile-bg-tertiary: #1F1F1F; /* For cards and elevated elements */
+  
+  /* Text Colors optimized for contrast */
+  --mobile-text-primary: #FFFFFF;
+  --mobile-text-secondary: rgba(255, 255, 255, 0.87);
+  --mobile-text-muted: rgba(255, 255, 255, 0.60);
+  
+  /* Interactive Colors */
+  --mobile-primary: #10B981;
+  --mobile-primary-dark: #059669;
+  --mobile-danger: #EF4444;
+  --mobile-warning: #F59E0B;
+  
+  /* Touch Target Sizes */
+  --touch-target-size: 44px;
+  --touch-target-spacing: 8px;
+  
+  /* Typography */
+  --mobile-font-size-base: 16px;
+  --mobile-font-size-lg: 18px;
+  --mobile-font-size-xl: 20px;
+  --mobile-font-size-2xl: 24px;
+  
+  /* Animation Timings */
+  --mobile-transition-fast: 200ms;
+  --mobile-transition-base: 300ms;
+  --mobile-transition-slow: 500ms;
+}
+
+/* Base Mobile Styles */
+body {
+  background-color: var(--mobile-bg-primary);
+  color: var(--mobile-text-primary);
+  font-size: var(--mobile-font-size-base);
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior-y: none;
+}
+
+/* Safe Area Handling */
+.safe-area-top {
+  padding-top: env(safe-area-inset-top);
+}
+
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Touch Target Sizing */
+.touch-target {
+  min-height: var(--touch-target-size);
+  min-width: var(--touch-target-size);
+  padding: var(--touch-target-spacing);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Text Styles */
+.text-base {
+  font-size: var(--mobile-font-size-base);
+  line-height: 1.5;
+}
+
+.text-lg {
+  font-size: var(--mobile-font-size-lg);
+  line-height: 1.4;
+}
+
+.text-xl {
+  font-size: var(--mobile-font-size-xl);
+  line-height: 1.3;
+}
+
+.text-2xl {
+  font-size: var(--mobile-font-size-2xl);
+  line-height: 1.2;
+}
+
+/* Interactive States */
+.active-state {
+  position: relative;
+  overflow: hidden;
+}
+
+.active-state::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--mobile-text-primary);
+  opacity: 0;
+  transition: opacity var(--mobile-transition-fast);
+}
+
+.active-state:active::after {
+  opacity: 0.1;
+}
+
+/* Loading States */
+.loading-skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--mobile-bg-secondary) 0%,
+    var(--mobile-bg-tertiary) 50%,
+    var(--mobile-bg-secondary) 100%
+  );
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Scrolling */
+.smooth-scroll {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.smooth-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* Pull to Refresh */
+.pull-to-refresh {
+  transform-origin: top;
+  transition: transform var(--mobile-transition-base);
+}
+
+.pull-to-refresh-indicator {
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--mobile-text-secondary);
+}
+
+/* Battery Efficient Animations */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Platform Specific Styles */
+.ios-specific {
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.android-specific {
+  font-family: Roboto, sans-serif;
+}
+
+/* Dark Mode Integration */
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+  }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  :root {
+    --mobile-text-primary: #FFFFFF;
+    --mobile-text-secondary: #FFFFFF;
+    --mobile-text-muted: rgba(255, 255, 255, 0.8);
+  }
+} 

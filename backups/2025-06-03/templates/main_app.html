@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mingus Financial - Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main_app.css') }}">
+</head>
+<body>
+    <div class="app-container">
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <img src="{{ url_for('static', filename='mingus-logo-small.png') }}" alt="Mingus Logo" class="logo">
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item active">
+                    <a href="/dashboard">
+                        <span class="icon">📊</span>
+                        Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/transactions">
+                        <span class="icon">💳</span>
+                        Transactions
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/budgets">
+                        <span class="icon">💰</span>
+                        Budgets
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/goals">
+                        <span class="icon">🎯</span>
+                        Goals
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/insights">
+                        <span class="icon">💡</span>
+                        Insights
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <main class="main-content">
+            <header class="main-header">
+                <div class="search-bar">
+                    <input type="search" placeholder="Search...">
+                </div>
+                <div class="user-menu">
+                    <button class="notifications">
+                        <span class="icon">🔔</span>
+                        <span class="badge">3</span>
+                    </button>
+                    <div class="user-profile">
+                        <img src="{{ url_for('static', filename='default-avatar.png') }}" alt="User Avatar">
+                        <span class="username">John Doe</span>
+                    </div>
+                </div>
+            </header>
+
+            <div class="dashboard-content">
+                <div class="quick-stats">
+                    <div class="stat-card">
+                        <h3>Total Balance</h3>
+                        <p class="amount">$12,345.67</p>
+                        <span class="trend positive">↑ 2.5%</span>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Monthly Spending</h3>
+                        <p class="amount">$2,456.78</p>
+                        <span class="trend negative">↓ 1.2%</span>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Savings Goal</h3>
+                        <p class="amount">$5,000.00</p>
+                        <div class="progress-bar">
+                            <div class="progress" style="width: 65%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="charts-section">
+                    <div class="chart-container">
+                        <h3>Spending by Category</h3>
+                        <div class="chart-placeholder">
+                            <!-- Chart will be rendered here -->
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <h3>Monthly Cash Flow</h3>
+                        <div class="chart-placeholder">
+                            <!-- Chart will be rendered here -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="recent-activity">
+                    <h3>Recent Activity</h3>
+                    <div class="activity-list">
+                        <div class="activity-item">
+                            <span class="icon">🛒</span>
+                            <div class="activity-details">
+                                <p>Grocery Shopping</p>
+                                <span class="amount">-$156.78</span>
+                            </div>
+                            <span class="time">2h ago</span>
+                        </div>
+                        <div class="activity-item">
+                            <span class="icon">💳</span>
+                            <div class="activity-details">
+                                <p>Monthly Salary</p>
+                                <span class="amount positive">+$4,500.00</span>
+                            </div>
+                            <span class="time">1d ago</span>
+                        </div>
+                        <!-- More activity items -->
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/main_app.js') }}"></script>
+</body>
+</html> 

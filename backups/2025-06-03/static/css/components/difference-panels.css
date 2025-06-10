@@ -1,0 +1,208 @@
+/* The MINGUS Difference Section Styles */
+
+.difference-section {
+  padding: 64px 24px;
+  background-color: var(--mobile-bg-primary);
+}
+
+.difference-title {
+  text-align: center;
+  color: var(--mobile-text-primary);
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 48px;
+  background: linear-gradient(135deg, var(--mobile-text-primary) 0%, rgba(255, 255, 255, 0.9) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.panels-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+  padding: 0 16px;
+}
+
+.difference-panel {
+  position: relative;
+  background: linear-gradient(
+    135deg,
+    rgba(30, 30, 30, 0.9) 0%,
+    rgba(20, 20, 20, 0.95) 100%
+  );
+  border-radius: 24px;
+  padding: 32px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  overflow: hidden;
+  min-height: 360px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.difference-panel::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    45deg,
+    rgba(var(--mobile-primary-rgb), 0.1) 0%,
+    rgba(var(--mobile-primary-rgb), 0.05) 100%
+  );
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.difference-panel:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.3);
+}
+
+.difference-panel:hover::before {
+  opacity: 1;
+}
+
+.panel-icon {
+  margin-bottom: 24px;
+  font-size: 48px;
+}
+
+/* Custom interconnected circles icon */
+.interconnected-icon {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  margin-bottom: 24px;
+}
+
+.circle {
+  position: absolute;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid var(--mobile-primary);
+  background: rgba(var(--mobile-primary-rgb), 0.1);
+  transition: transform 0.3s ease;
+}
+
+.circle-center {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 5;
+}
+
+.circle-top {
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.circle-right {
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
+}
+
+.circle-bottom {
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.circle-left {
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+}
+
+.difference-panel:hover .circle {
+  transform: scale(1.1);
+}
+
+.difference-panel:hover .circle-center {
+  transform: translate(-50%, -50%) scale(1.1);
+}
+
+.panel-title {
+  color: var(--mobile-text-primary);
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 16px;
+  position: relative;
+  z-index: 1;
+}
+
+.panel-text {
+  color: var(--mobile-text-secondary);
+  font-size: 1.125rem;
+  line-height: 1.6;
+  position: relative;
+  z-index: 1;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .panels-container {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .difference-section {
+    padding: 48px 16px;
+  }
+
+  .difference-title {
+    font-size: 2rem;
+    margin-bottom: 32px;
+  }
+
+  .panels-container {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .difference-panel {
+    min-height: 320px;
+    padding: 24px;
+  }
+}
+
+/* Animation Classes */
+.fade-in-up {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeInUp 0.6s ease forwards;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Panel Animation Delays */
+.panel-delay-1 {
+  animation-delay: 0.2s;
+}
+
+.panel-delay-2 {
+  animation-delay: 0.4s;
+}
+
+.panel-delay-3 {
+  animation-delay: 0.6s;
+} 

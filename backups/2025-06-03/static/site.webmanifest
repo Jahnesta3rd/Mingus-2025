@@ -1,0 +1,27 @@
+{
+    "name": "Mingus - Financial Wellness",
+    "short_name": "Mingus",
+    "description": "Connect your money story to your life story with Mingus - the financial wellness app that understands your whole self.",
+    "start_url": "/welcome",
+    "display": "standalone",
+    "background_color": "#000000",
+    "theme_color": "#6366F1",
+    "icons": [
+        {
+            "src": "/static/icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "/static/icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        },
+        {
+            "src": "/static/maskable-icon.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "maskable"
+        }
+    ]
+} 

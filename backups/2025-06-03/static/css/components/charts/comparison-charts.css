@@ -1,0 +1,185 @@
+/* Comparison Charts Styles - WHOOP Dark Theme */
+
+.comparison-chart {
+  position: relative;
+  width: 100%;
+  height: 300px;
+}
+
+/* Bar Chart Styles */
+.comparison-bar-group {
+  display: flex;
+  gap: 4px;
+}
+
+.comparison-bar {
+  transition: all var(--chart-transition);
+  cursor: pointer;
+}
+
+.comparison-bar-income {
+  fill: var(--chart-positive-primary);
+}
+
+.comparison-bar-expense {
+  fill: var(--chart-negative-primary);
+}
+
+.comparison-bar:hover {
+  filter: brightness(1.2);
+}
+
+/* Category Labels */
+.comparison-label {
+  color: var(--chart-text-secondary);
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-anchor: middle;
+}
+
+/* Value Labels */
+.comparison-value {
+  fill: var(--chart-text-primary);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-anchor: middle;
+}
+
+/* Trend Indicators */
+.trend-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.trend-up {
+  background-color: rgba(16, 185, 129, 0.1);
+  color: var(--chart-positive-primary);
+}
+
+.trend-down {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: var(--chart-negative-primary);
+}
+
+.trend-icon {
+  width: 16px;
+  height: 16px;
+}
+
+/* Grid Lines */
+.comparison-grid {
+  stroke: var(--chart-grid);
+  stroke-opacity: 0.2;
+  stroke-dasharray: 4;
+}
+
+/* Legend */
+.comparison-legend {
+  display: flex;
+  gap: 1.5rem;
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background: var(--chart-bg-darker);
+  border-radius: 6px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.legend-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+}
+
+.legend-color-income {
+  background-color: var(--chart-positive-primary);
+}
+
+.legend-color-expense {
+  background-color: var(--chart-negative-primary);
+}
+
+.legend-label {
+  color: var(--chart-text-secondary);
+  font-size: 0.875rem;
+}
+
+/* Summary Stats */
+.comparison-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.summary-item {
+  padding: 1rem;
+  background: var(--chart-bg-darker);
+  border-radius: 8px;
+  text-align: center;
+}
+
+.summary-label {
+  color: var(--chart-text-secondary);
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+}
+
+.summary-value {
+  color: var(--chart-text-primary);
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+/* Interactive Tooltip */
+.comparison-tooltip {
+  position: absolute;
+  pointer-events: none;
+  background: var(--chart-bg-darker);
+  border: 1px solid var(--chart-grid);
+  border-radius: 8px;
+  padding: 0.75rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+}
+
+.tooltip-category {
+  color: var(--chart-text-secondary);
+  font-size: 0.75rem;
+  margin-bottom: 0.25rem;
+}
+
+.tooltip-amount {
+  color: var(--chart-text-primary);
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+/* Responsive Design */
+@media (max-width: 640px) {
+  .comparison-chart {
+    height: 250px;
+  }
+  
+  .comparison-legend {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .comparison-summary {
+    grid-template-columns: 1fr;
+  }
+  
+  .summary-item {
+    padding: 0.75rem;
+  }
+} 

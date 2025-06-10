@@ -1,0 +1,106 @@
+/* Chart Base Styles - WHOOP Dark Theme */
+
+:root {
+  /* Financial Indicator Colors */
+  --chart-positive-primary: #10B981;
+  --chart-positive-light: #34D399;
+  --chart-positive-dark: #059669;
+  
+  --chart-warning-primary: #F59E0B;
+  --chart-warning-light: #FBBF24;
+  
+  --chart-negative-primary: #EF4444;
+  --chart-negative-light: #F87171;
+  
+  /* Neutral Colors */
+  --chart-bg-dark: #1F2937;
+  --chart-bg-darker: #111827;
+  --chart-grid: #374151;
+  --chart-text-primary: #FFFFFF;
+  --chart-text-secondary: #E5E5E5;
+  
+  /* Chart Dimensions */
+  --ring-size-sm: 120px;
+  --ring-size-md: 180px;
+  --ring-size-lg: 240px;
+  --ring-thickness-sm: 8px;
+  --ring-thickness-md: 12px;
+  --ring-thickness-lg: 16px;
+  
+  /* Animation Timings */
+  --chart-transition: 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  --chart-hover-transition: 0.3s ease;
+}
+
+/* Chart Container Base */
+.chart-container {
+  background-color: var(--chart-bg-dark);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin: 1rem 0;
+}
+
+/* Chart Title Styles */
+.chart-title {
+  color: var(--chart-text-primary);
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+/* Chart Tooltip Base */
+.chart-tooltip {
+  background-color: var(--chart-bg-darker);
+  border-radius: 8px;
+  padding: 0.75rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--chart-grid);
+  color: var(--chart-text-primary);
+  font-size: 0.875rem;
+}
+
+/* Chart Grid Lines */
+.chart-grid {
+  stroke: var(--chart-grid);
+  stroke-opacity: 0.2;
+  stroke-dasharray: 4;
+}
+
+/* Chart Axis Labels */
+.chart-axis {
+  color: var(--chart-text-secondary);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+/* Responsive Breakpoints */
+@media (max-width: 640px) {
+  .chart-container {
+    padding: 1rem;
+  }
+  
+  .chart-title {
+    font-size: 1rem;
+  }
+}
+
+/* Animation Keyframes */
+@keyframes chartFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes ringProgress {
+  from {
+    stroke-dashoffset: 100;
+  }
+  to {
+    stroke-dashoffset: var(--progress-offset);
+  }
+} 

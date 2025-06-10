@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Mingus Financial</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/splash.css') }}">
+</head>
+<body>
+    <div class="splash-container">
+        <header class="splash-header">
+            <img src="{{ url_for('static', filename='mingus-logo-small.png') }}" alt="Mingus Logo" class="logo">
+            <nav class="main-nav">
+                <a href="/login" class="nav-link">Login</a>
+                <a href="/signup" class="nav-link">Sign Up</a>
+            </nav>
+        </header>
+
+        <main class="splash-main">
+            <div class="hero-section">
+                <h1>Take Control of Your Financial Future</h1>
+                <p class="hero-text">
+                    Mingus helps you understand your finances, set meaningful goals, and build a secure future.
+                </p>
+                <div class="cta-buttons">
+                    <a href="/onboarding" class="cta-button primary">Get Started</a>
+                    <a href="/learn-more" class="cta-button secondary">Learn More</a>
+                </div>
+            </div>
+
+            <div class="features-section">
+                <div class="feature-card">
+                    <h3>Smart Budgeting</h3>
+                    <p>Understand your spending patterns and create personalized budgets that work for you.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Goal Setting</h3>
+                    <p>Set and track financial goals with intelligent recommendations and progress tracking.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Financial Insights</h3>
+                    <p>Get personalized insights and recommendations based on your financial behavior.</p>
+                </div>
+            </div>
+        </main>
+
+        <footer class="splash-footer">
+            <div class="footer-content">
+                <p>&copy; 2025 Mingus Financial. All rights reserved.</p>
+                <nav class="footer-nav">
+                    <a href="/privacy">Privacy Policy</a>
+                    <a href="/terms">Terms of Service</a>
+                    <a href="/contact">Contact Us</a>
+                </nav>
+            </div>
+        </footer>
+    </div>
+</body>
+</html> 

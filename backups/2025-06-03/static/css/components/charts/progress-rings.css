@@ -1,0 +1,131 @@
+/* Progress Ring Styles - WHOOP Dark Theme */
+
+.progress-ring {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Ring Base Sizes */
+.progress-ring-sm {
+  width: var(--ring-size-sm);
+  height: var(--ring-size-sm);
+}
+
+.progress-ring-md {
+  width: var(--ring-size-md);
+  height: var(--ring-size-md);
+}
+
+.progress-ring-lg {
+  width: var(--ring-size-lg);
+  height: var(--ring-size-lg);
+}
+
+/* SVG Circle Styles */
+.progress-ring circle {
+  transition: stroke-dashoffset var(--chart-transition);
+  transform: rotate(-90deg);
+  transform-origin: 50% 50%;
+}
+
+.progress-ring-background {
+  stroke: var(--chart-grid);
+  stroke-opacity: 0.2;
+}
+
+/* Ring Score Display */
+.progress-ring-score {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--chart-text-primary);
+  text-align: center;
+}
+
+.progress-ring-sm .progress-ring-score {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.progress-ring-md .progress-ring-score {
+  font-size: 2.25rem;
+  font-weight: 700;
+}
+
+.progress-ring-lg .progress-ring-score {
+  font-size: 3rem;
+  font-weight: 700;
+}
+
+/* Ring Label */
+.progress-ring-label {
+  color: var(--chart-text-secondary);
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+  text-align: center;
+}
+
+/* Ring Color States */
+.progress-ring[data-score="excellent"] circle.progress-ring-progress {
+  stroke: var(--chart-positive-primary);
+}
+
+.progress-ring[data-score="good"] circle.progress-ring-progress {
+  stroke: var(--chart-positive-light);
+}
+
+.progress-ring[data-score="fair"] circle.progress-ring-progress {
+  stroke: var(--chart-warning-primary);
+}
+
+.progress-ring[data-score="poor"] circle.progress-ring-progress {
+  stroke: var(--chart-negative-primary);
+}
+
+/* Ring Animation */
+.progress-ring.animate circle.progress-ring-progress {
+  animation: ringProgress var(--chart-transition) forwards;
+}
+
+/* Ring Hover Effects */
+.progress-ring:hover circle.progress-ring-progress {
+  filter: brightness(1.2);
+  transition: filter var(--chart-hover-transition);
+}
+
+/* Ring Container Layout */
+.progress-ring-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 2rem;
+  padding: 1.5rem;
+}
+
+/* Ring Group Title */
+.progress-ring-group-title {
+  color: var(--chart-text-primary);
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 640px) {
+  .progress-ring-container {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  .progress-ring-lg {
+    width: var(--ring-size-md);
+    height: var(--ring-size-md);
+  }
+  
+  .progress-ring-lg .progress-ring-score {
+    font-size: 2.25rem;
+  }
+} 
