@@ -55,3 +55,5 @@ schema*.json
 
 # Test files
 TESTING*.docx
+backups/2025-06-09-backup/
+test-clone/

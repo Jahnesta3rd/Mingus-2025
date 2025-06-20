@@ -1,0 +1,190 @@
+/* Import theme variables */
+@import url('../global/theme.css');
+
+/* Cards */
+.card {
+  background-color: var(--background-dark);
+  border: 1px solid var(--subtle-gray);
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-lg);
+  transition: transform var(--transition-normal);
+}
+
+.card:hover {
+  transform: translateY(-2px);
+}
+
+.card-header {
+  margin-bottom: var(--spacing-md);
+}
+
+.card-title {
+  color: var(--text-white);
+  font-size: var(--font-size-h3);
+  font-weight: var(--font-weight-semibold);
+}
+
+.card-content {
+  color: var(--text-light-gray);
+}
+
+/* Buttons */
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-sm) var(--spacing-lg);
+  border-radius: 8px;
+  font-size: var(--font-size-button);
+  font-weight: var(--font-weight-bold);
+  transition: all var(--transition-normal);
+  cursor: pointer;
+  border: none;
+  min-height: 40px;
+  gap: var(--spacing-sm);
+}
+
+.button-primary {
+  background-color: var(--accent-green);
+  color: var(--text-white);
+}
+
+.button-primary:hover {
+  transform: translateY(-1px);
+  filter: brightness(110%);
+}
+
+.button-secondary {
+  background-color: var(--subtle-gray);
+  color: var(--text-white);
+}
+
+.button-secondary:hover {
+  transform: translateY(-1px);
+  background-color: var(--text-muted);
+}
+
+.button-danger {
+  background-color: var(--danger-red);
+  color: var(--text-white);
+}
+
+.button-danger:hover {
+  transform: translateY(-1px);
+  filter: brightness(110%);
+}
+
+/* Form Elements */
+.form-group {
+  margin-bottom: var(--spacing-md);
+}
+
+.form-label {
+  display: block;
+  margin-bottom: var(--spacing-sm);
+  color: var(--text-white);
+  font-weight: var(--font-weight-semibold);
+}
+
+.form-input {
+  width: 100%;
+  background-color: var(--background-dark);
+  border: 1px solid var(--subtle-gray);
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-sm) var(--spacing-md);
+  color: var(--text-white);
+  font-size: var(--font-size-body);
+  transition: all var(--transition-normal);
+  min-height: 40px;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--accent-green);
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.1);
+}
+
+.form-input::placeholder {
+  color: var(--text-muted);
+}
+
+.form-input:disabled {
+  background-color: var(--subtle-gray);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* Status Indicators */
+.status-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.status-text {
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-semibold);
+}
+
+/* Status Colors */
+.status-success .status-dot {
+  background-color: var(--accent-green);
+}
+
+.status-warning .status-dot {
+  background-color: var(--warning-amber);
+}
+
+.status-danger .status-dot {
+  background-color: var(--danger-red);
+}
+
+.status-neutral .status-dot {
+  background-color: var(--text-muted);
+}
+
+/* Status Text Colors */
+.status-success .status-text {
+  color: var(--accent-green);
+}
+
+.status-warning .status-text {
+  color: var(--warning-amber);
+}
+
+.status-danger .status-text {
+  color: var(--danger-red);
+}
+
+.status-neutral .status-text {
+  color: var(--text-muted);
+}
+
+/* Form Validation States */
+.form-input.is-valid {
+  border-color: var(--accent-green);
+}
+
+.form-input.is-invalid {
+  border-color: var(--danger-red);
+}
+
+.validation-message {
+  font-size: var(--font-size-small);
+  margin-top: var(--spacing-xs);
+}
+
+.validation-message.is-valid {
+  color: var(--accent-green);
+}
+
+.validation-message.is-invalid {
+  color: var(--danger-red);
+} 

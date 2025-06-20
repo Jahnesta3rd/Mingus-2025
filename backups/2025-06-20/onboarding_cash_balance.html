@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Onboarding: Cash Balance</title>
+  <link rel="stylesheet" href="static/css/form.css">
+  <style>
+    body {
+      background: #181a1b;
+      color: #fff;
+      font-family: 'Inter', Arial, sans-serif;
+      min-height: 100vh;
+      margin: 0;
+    }
+    .form-container {
+      max-width: 600px;
+      margin: 3rem auto;
+      background: #23272a;
+      padding: 2.5rem 2rem;
+      border-radius: 18px;
+      box-shadow: 0 4px 32px rgba(0,0,0,0.25);
+      border: 3px solid #ff2d2d;
+    }
+    h2, label {
+      color: #00e676;
+    }
+    h2 {
+      font-weight: 700;
+      margin-top: 2rem;
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+    .error-message {
+      background: rgba(255, 59, 48, 0.1);
+      border: 1px solid rgba(255, 59, 48, 0.2);
+      color: #ff3b30;
+      padding: 12px;
+      border-radius: 8px;
+      margin: 10px 0;
+      text-align: center;
+      display: none;
+      animation: fadeIn 0.3s ease-in-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    button {
+      background: #00e676;
+      color: #181a1b;
+      border: none;
+      border-radius: 8px;
+      padding: 0.75rem 2rem;
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-top: 2rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    button:hover {
+      background: #00c060;
+    }
+  </style>
+</head>
+<body>
+  <form id="cash-balance-form" class="form-container">
+    <h2>What's your balance in your main checking account right now?</h2>
+    <label for="balance">Current Balance ($)</label>
+    <input type="number" id="balance" name="balance" min="0" step="0.01" required placeholder="e.g. 1500.00" />
+    <div id="error-message" class="error-message"></div>
+    <button type="submit">Save Balance</button>
+  </form>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <script>
+    const supabase = supabase.createClient('YOUR_SUPABASE_URL', 'YOUR_SUPABASE_ANON_KEY');
+    document.getElementById('cash-balance-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const balance = parseFloat(document.getElementById('balance').value);
+      const errorDiv = document.getElementById('error-message');
+      errorDiv.style.display = 'none';
+      if (isNaN(balance) || balance < 0) {
+        errorDiv.textContent = 'Please enter a valid, non-negative balance.';
+        errorDiv.style.display = 'block';
+        return;
+      }
+      try {
+        const user = await supabase.auth.getUser();
+        if (!user.data.user) throw new Error('User not authenticated.');
+        const { error } = await supabase.from('user_cash_balances').insert([
+          {
+            user_id: user.data.user.id,
+            balance,
+            as_of_date: new Date().toISOString().slice(0,10)
+          }
+        ]);
+        if (error) throw error;
+        window.location.href = 'dashboard.html';
+      } catch (err) {
+        errorDiv.textContent = err.message || 'Failed to save balance.';
+        errorDiv.style.display = 'block';
+      }
+    });
+  </script>
+</body>
+</html> 

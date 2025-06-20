@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to MINGUS - Financial Wellness Platform</title>
+    <link rel="stylesheet" href="css/welcome.css">
+    <meta name="description" content="MINGUS - Where your health, wealth, and career connect. Financial wellness for the culture.">
+</head>
+<body>
+    <div class="welcome-container">
+        <header class="header">
+            <div class="logo">
+                <img src="images/mingus-logo-small.png" 
+                     alt="MINGUS" 
+                     class="logo-image">
+            </div>
+        </header>
+
+        <main class="main-content">
+            <section class="hero" aria-label="Welcome message">
+                <div class="sequence-text">
+                    <span class="sequence-item">BE.</span>
+                    <span class="sequence-item">DO.</span>
+                    <span class="sequence-item">HAVE.</span>
+                </div>
+                <h1 class="headline">Underdogs deserve a shot too...</h1>
+                <p class="subheading">Where your health, wealth, and career connect</p>
+            </section>
+
+            <section class="value-props" aria-label="Key features">
+                <div class="card" data-card="cashflow">
+                    <div class="card-icon">
+                        <svg class="icon-chart" viewBox="0 0 24 24">
+                            <path d="M3 12l3-3 4 4 6-6 5 5"></path>
+                        </svg>
+                    </div>
+                    <h2>See Your Financial Future</h2>
+                    <p>Get 12-month cash flow forecasts that show exactly when money comes and goes. No more paycheck-to-paycheck surprises.</p>
+                </div>
+
+                <div class="card" data-card="wellness">
+                    <div class="card-icon">
+                        <svg class="icon-heart" viewBox="0 0 24 24">
+                            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"></path>
+                        </svg>
+                    </div>
+                    <h2>Your Health and Wealth are INSEPERABLE..</h2>
+                    <p>Track how your physical activity, relationships, and mindfulness impact your spending habits and financial decisions.</p>
+                </div>
+
+                <div class="card" data-card="planning">
+                    <div class="card-icon">
+                        <svg class="icon-calendar" viewBox="0 0 24 24">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                        </svg>
+                    </div>
+                    <h2>Plan for What Matters</h2>
+                    <p>Budget for birthdays, family trips, Greek life assessments, and community events without stress or financial strain.</p>
+                </div>
+            </section>
+
+            <section class="trust-section" aria-label="Trust and security">
+                <div class="progress-ring">
+                    <svg class="ring" viewBox="0 0 100 100">
+                        <circle class="ring-path" cx="50" cy="50" r="45"></circle>
+                    </svg>
+                </div>
+                <p class="trust-statement">Your data stays private and secure. Built by people who understand your financial journey.</p>
+            </section>
+
+            <section class="cta-section" aria-label="Get started">
+                <button class="cta-primary" data-action="start-forecast">Start My Forecast</button>
+                <a href="#learn-more" class="cta-secondary">Learn More</a>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Sequence text animation
+            const sequenceItems = document.querySelectorAll('.sequence-item');
+            sequenceItems.forEach((item, index) => {
+                setTimeout(() => {
+                    item.classList.add('visible');
+                }, index * 600);
+            });
+
+            // Card entrance animations
+            const cards = document.querySelectorAll('.card');
+            const observerOptions = {
+                threshold: 0.2,
+                rootMargin: '0px'
+            };
+
+            const cardObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                        cardObserver.unobserve(entry.target);
+                    }
+                });
+            }, observerOptions);
+
+            cards.forEach(card => cardObserver.observe(card));
+
+            // CTA button handling
+            document.querySelector('.cta-primary').addEventListener('click', function() {
+                window.location.href = "income_sources.html";
+            });
+        });
+    </script>
+</body>
+</html> 
