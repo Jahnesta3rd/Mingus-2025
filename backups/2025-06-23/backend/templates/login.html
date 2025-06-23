@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mingus Login / Signup</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+  <link href="https://fonts.googleapis.com/css?family=Inter:400,600,700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <script>
+    console.log('Supabase script loaded:', typeof window.supabase);
+  </script>
+  <style>
+    body, html {
+      background: #0A0A0A;
+      color: #fff;
+      font-family: 'Inter', Arial, sans-serif;
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+    }
+    .gradient-bg {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      z-index: -1;
+      background: radial-gradient(ellipse at 60% 10%, #00D4FF33 0%, transparent 70%),
+                  radial-gradient(ellipse at 20% 80%, #00FF8833 0%, transparent 70%),
+                  linear-gradient(135deg, #0A0A0A 0%, #1A1A1A 100%);
+      animation: bgmove 12s linear infinite alternate;
+    }
+    @keyframes bgmove {
+      0% { background-position: 60% 10%, 20% 80%; }
+      100% { background-position: 65% 15%, 25% 85%; }
+    }
+    main {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.5em;
+    }
+    .login-container {
+      background: rgba(26,26,26,0.98);
+      border-radius: 1.2em;
+      box-shadow: 0 4px 32px #000a 0.5;
+      padding: 2.2em 1.5em 1.5em 1.5em;
+      max-width: 370px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      animation: fadein 0.7s;
+    }
+    @keyframes fadein { from { opacity: 0; transform: translateY(30px);} to { opacity: 1; transform: none;} }
+    @media (max-width: 600px) {
+      .login-container { padding: 1.2em 0.5em 1em 0.5em; }
+      .modal-content { padding: 1.2em 0.5em 0.7em 0.5em; }
+      .logo { font-size: 1.5em; }
+      .subtitle { font-size: 1em; }
+    }
+    @media (min-width: 601px) {
+      main { padding: 2em 0; }
+      .login-container { max-width: 400px; }
+    }
+    .social-login {
+      display: flex;
+      flex-direction: column;
+      gap: 0.7em;
+      margin-bottom: 1.2em;
+    }
+    .social-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.7em;
+      border: none;
+      border-radius: 0.7em;
+      height: 2.7em;
+      background: #222;
+      color: #fff;
+      font-size: 1.1em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      box-shadow: 0 1px 6px #0004;
+      position: relative;
+      padding: 0 1.2em;
+    }
+    .social-btn:active { transform: scale(0.97); }
+    .social-btn.google { background: #fff; color: #222; }
+    .social-btn.linkedin { background: #0077b5; }
+    .social-icon {
+      width: 1.3em;
+      height: 1.3em;
+      display: inline-block;
+      vertical-align: middle;
+      margin-right: 0.5em;
+      border-radius: 0.2em;
+      background: #fff;
+    }
+    @media (min-width: 500px) {
+      .social-login {
+        flex-direction: row;
+      }
+      .social-btn {
+        flex: 1;
+        min-width: 0;
+      }
+    }
+    .error-message {
+      background: rgba(255, 59, 48, 0.1);
+      border: 1px solid rgba(255, 59, 48, 0.2);
+      color: #ff3b30;
+      padding: 12px;
+      border-radius: 8px;
+      margin: 10px 0;
+      text-align: center;
+      display: none;
+      animation: fadeIn 0.3s ease-in-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    /* Button styling for the two separate buttons */
+    .main-btn {
+      display: block;
+      margin: 0.7em auto 0.7em auto;
+      width: 80%;
+      max-width: 300px;
+      min-width: 140px;
+      background: linear-gradient(90deg, #00D4FF 0%, #00FF88 100%);
+      color: #0A0A0A;
+      font-weight: 700;
+      font-size: 1.1em;
+      border: none;
+      border-radius: 0.7em;
+      padding: 0.9em 0;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      box-shadow: 0 2px 12px #00d4ff22;
+    }
+    .main-btn:active {
+      transform: scale(0.98);
+    }
+    .new-user-btn {
+      display: block;
+      margin: 0.7em auto 1.1em auto;
+      width: 80%;
+      max-width: 300px;
+      min-width: 140px;
+      background: linear-gradient(90deg, #00D4FF 0%, #00FF88 100%);
+      color: #0A0A0A;
+      font-weight: 700;
+      font-size: 1.1em;
+      border: none;
+      border-radius: 0.7em;
+      padding: 0.9em 0;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      box-shadow: 0 2px 12px #00d4ff22;
+    }
+    .new-user-btn:active {
+      transform: scale(0.98);
+    }
+    
+    /* Input styling for dark theme */
+    .input-group {
+      margin-bottom: 1.1em;
+      display: flex;
+      flex-direction: column;
+    }
+    input[type=email], input[type=password] {
+      background: #1A1A1A;
+      border: 1.5px solid #2A2A2A;
+      border-radius: 0.7em;
+      color: #fff;
+      font-size: 1.1em;
+      padding: 0.9em 1em;
+      outline: none;
+      transition: border 0.2s;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    input[type=email]:focus, input[type=password]:focus {
+      border: 1.5px solid #00D4FF;
+    }
+    
+    /* Terms row styling */
+    .terms-row {
+      display: flex;
+      align-items: center;
+      font-size: 0.98em;
+      margin-bottom: 1.2em;
+      color: #aaa;
+    }
+    .terms-row input[type=checkbox] {
+      accent-color: #00FF88;
+      margin-right: 0.6em;
+      width: 1.1em;
+      height: 1.1em;
+    }
+    .terms-row a {
+      color: #00D4FF;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+    
+    /* Logo and subtitle styling */
+    .logo {
+      font-size: 2.2em;
+      font-weight: 700;
+      letter-spacing: -1px;
+      color: #00D4FF;
+      text-align: center;
+      margin-bottom: 0.2em;
+      text-shadow: 0 2px 16px #00d4ff33;
+    }
+    .subtitle {
+      text-align: center;
+      color: #aaa;
+      font-size: 1.1em;
+      margin-bottom: 1.5em;
+      font-weight: 400;
+    }
+    
+    /* Divider styling */
+    .divider {
+      text-align: center;
+      color: #444;
+      margin: 0.7em 0 1em 0;
+      position: relative;
+    }
+    .divider span {
+      background: #1A1A1A;
+      padding: 0 1em;
+      position: relative;
+      z-index: 1;
+    }
+    .divider:before {
+      content: '';
+      display: block;
+      position: absolute;
+      left: 0; right: 0; top: 50%;
+      height: 1px;
+      background: #222;
+      z-index: 0;
+    }
+    
+    /* Footer styling */
+    .footer-text {
+      text-align: center;
+      color: #aaa;
+      font-size: 0.9em;
+      margin: 1em 0 0.5em 0;
+    }
+    .footer-links {
+      text-align: center;
+      color: #666;
+      font-size: 0.8em;
+    }
+    .footer-links a {
+      color: #00D4FF;
+      text-decoration: none;
+    }
+    .footer-links a:hover {
+      text-decoration: underline;
+    }
+    
+    /* Modal styling */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 100;
+      left: 0; top: 0; width: 100vw; height: 100vh;
+      background: rgba(10,10,10,0.85);
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-content {
+      background: #181818;
+      color: #fff;
+      border-radius: 1em;
+      padding: 2em 1.2em 1.2em 1.2em;
+      max-width: 95vw;
+      width: 350px;
+      position: relative;
+      animation: fadein 0.3s;
+    }
+    .close {
+      position: absolute;
+      right: 1em; top: 1em;
+      font-size: 1.5em;
+      color: #00D4FF;
+      cursor: pointer;
+    }
+    .terms-text {
+      color: #aaa;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+  <div class="gradient-bg"></div>
+  <main>
+    <div class="login-container">
+      <h1 class="logo">Mingus</h1>
+      <p class="subtitle">Financial Wellness, Reimagined</p>
+      <form id="login-form" action="/api/auth/login" method="POST" autocomplete="off">
+        <div class="input-group">
+          <input type="email" id="email" name="email" placeholder="Email address" required autocomplete="username">
+        </div>
+        <div class="input-group">
+          <input type="password" id="password" name="password" placeholder="Password" required autocomplete="current-password">
+        </div>
+        <div class="terms-row">
+          <input type="checkbox" id="terms" required>
+          <label for="terms">I agree to the <a href="#" id="show-terms">Terms & Conditions</a></label>
+        </div>
+        <button type="submit" class="main-btn" data-cy="login-button">Sign In</button>
+        <button type="button" class="new-user-btn" id="new-user-btn" data-cy="new-user">New User</button>
+      </form>
+      <div class="divider"><span>or</span></div>
+<div class="social-login">
+  <button class="social-btn google" id="google-login" title="Sign in with Google">
+    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxOCIgaGVpZ2h0PSIxOCIgdmlld0JveD0iMCAwIDQ4IDQ4Ij48cGF0aCBmaWxsPSIjRUE0MzM1IiBkPSJNMjQgOS41YzMuNTQgMCA2LjcxIDEuMjIgOS4yMSAzLjZsNi44NS02Ljg1QzM1LjkgMi4zOCAzMC40NyAwIDI0IDAgMTQuNjIgMCA2LjUxIDUuMzggMi41NiAxMy4yMmw3Ljk4IDYuMTlDMTIuNDMgMTMuNzIgMTcuNzQgOS41IDI0IDkuNXoiLz48cGF0aCBmaWxsPSIjNDI4NUY0IiBkPSJNNDYuOTggMjQuNTVjMC0xLjU3LS4xNS0zLjA5LS40My00LjU1SDI0djkuMDJoMTIuOTdjLS41MSAyLjk2LTIuNjYgNS40OC01LjcyIDcuMThsNy43MyA2YzQuNTEtNC4xOCA3LjA5LTEwLjM2IDcuMDktMTcuNjV6Ii8+PHBhdGggZmlsbD0iI0ZCQkM1RiIgZD0iTTEwLjUzIDI4LjU5Yy0uNDgtMS40NS0uNzYtMi45OS0uNzYtNC41OXMuMjctMy4xNC43Ni00LjU5bC03Ljk4LTYuMTlDLjkyIDE2LjQ2IDAgMjAuMTIgMCAyNGMwIDMuODguOTIgNy41NCAyLjU2IDEwLjc4bDcuOTctNi4xOXoiLz48cGF0aCBmaWxsPSIjMzRBODUzIiBkPSJNMjQgNDhjNi40OCAwIDExLjkzLTIuMTMgMTUuODktNS44MWwtNy43My02Yy0yLjE1IDEuNDUtNC45MiAyLjMtOC4xNiAyLjMtNi4yNiAwLTExLjU3LTQuMjItMTMuNDctOS45MWwtNy45OCA2LjE5QzYuNTEgNDIuNjIgMTQuNjIgNDggMjQgNDh6Ii8+PHBhdGggZmlsbD0ibm9uZSIgZD0iTTAgMGg0OHY0OEgweiIvPjwvc3ZnPg==" alt="Google" class="social-icon" style="background: none;">
+    <span>Google</span>
+  </button>
+  <button class="social-btn linkedin" id="linkedin-login" title="Sign in with LinkedIn">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/c/ca/LinkedIn_logo_initials.png" alt="LinkedIn" class="social-icon" style="background: none;">
+    <span>LinkedIn</span>
+  </button>
+</div>
+      <p class="footer-text">By signing in, you agree to our <a href="#" id="show-terms">Terms & Conditions</a>.</p>
+      <div class="footer-links">
+        <a href="#">Privacy Policy</a> | <a href="#">Help</a>
+      </div>
+<div id="login-error" class="error-message"></div>
+    </div>
+  </main>
+  <div id="terms-modal" class="modal">
+    <div class="modal-content">
+      <span class="close" id="close-terms">&times;</span>
+      <h2>Terms & Conditions</h2>
+      <div class="terms-text">
+        <!-- Insert your terms here -->
+        <p>By using Mingus, you agree to our privacy policy and terms of service. Your data is protected and will never be sold.</p>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Wait for Supabase to load
+    window.addEventListener('load', function() {
+      console.log('Window loaded, checking Supabase:', typeof window.supabase);
+      if (typeof window.supabase === 'undefined') {
+        console.error('Supabase failed to load');
+        document.getElementById('login-error').textContent = 'Authentication service failed to load. Please refresh the page.';
+      }
+    });
+    
+    // Handle New User button click
+    document.getElementById('new-user-btn').addEventListener('click', function() {
+      window.location.href = '/api/auth/register';
+    });
+  </script>
+  <script src="{{ url_for('static', filename='js/login.js') }}"></script>
+</body>
+</html>

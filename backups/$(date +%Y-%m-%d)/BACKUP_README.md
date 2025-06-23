@@ -1,50 +1,147 @@
-# Backup - $(date +%Y-%m-%d)
+# Mingus Application Backup - 2025-06-23
 
-## Changes Made
+## Backup Summary
+This backup contains all the fixes and improvements made to resolve Flask backend issues and successfully run Cypress tests.
 
-### 1. Updated Registration Form
-- **File**: `templates/register.html` and `backend/templates/register.html`
-- **Change**: Split "Full Name" field into separate "First Name" and "Last Name" fields
-- **Reason**: Better user experience and data structure consistency
+## Key Fixes Applied
 
-### 2. Updated Backend Auth Route
-- **File**: `backend/routes/auth.py`
-- **Change**: Modified registration endpoint to handle `first_name` and `last_name` instead of `full_name`
-- **Reason**: Align backend with new form structure
+### 1. Request Logger Middleware Fixes
+- **Issue**: "Working outside of request context" errors in middleware
+- **Fix**: Refactored `RequestLoggerMiddleware` class to properly handle Flask request context
+- **Files Modified**: `backend/middleware/request_logger.py`
+- **Changes**:
+  - Renamed class from `RequestLogger` to `RequestLoggerMiddleware`
+  - Removed conflicting legacy functions
+  - Fixed request context handling in `__call__` method
+  - Added proper error handling for performance monitoring
 
-### 3. Updated Cypress Tests
-- **File**: `Mingus-Cypress-Tests/cypress/e2e/simple-user-journey.cy.js`
-- **Change**: Updated test to use `first_name` and `last_name` fields
-- **Reason**: Ensure tests work with updated form structure
+### 2. Database Schema Issues
+- **Issue**: "NOT NULL constraint failed: users.id" errors
+- **Fix**: Verified User model has proper autoincrement on id field
+- **Files Verified**: `backend/models/user.py`
+- **Status**: User model correctly configured with `autoincrement=True`
 
-### 4. Fixed Template Conflicts
-- **Issue**: Flask was serving outdated `backend/templates/register.html` instead of updated `templates/register.html`
-- **Solution**: Updated both templates to use consistent field structure
+### 3. Missing Dependencies
+- **Issue**: "No module named 'psutil'" errors
+- **Fix**: Installed psutil dependency
+- **Command**: `pip install psutil`
+- **Status**: Dependency now available
 
-## Key Features
-- ✅ Registration form now uses First Name and Last Name fields
-- ✅ Backend properly handles the new field structure
-- ✅ JavaScript form submission with proper error handling
-- ✅ Responsive design for mobile devices
-- ✅ Cypress tests updated to match new structure
+### 4. Cypress Test Infrastructure
+- **Issue**: Cypress not properly configured for project
+- **Fix**: Set up complete Cypress testing infrastructure
+- **Files Added/Modified**:
+  - `package.json` (root level)
+  - `cypress.config.js`
+  - `cypress/package.json`
+  - `cypress/e2e/` test files
+- **Dependencies**: Installed Cypress v13.6.0
 
-## Database Schema
-- User model expects `full_name` field (combined from first_name + last_name)
-- Backend combines the two fields before saving to database
+### 5. Port Management
+- **Issue**: Port 5002 conflicts preventing Flask app startup
+- **Fix**: Implemented proper port cleanup procedures
+- **Commands Added**:
+  - `lsof -ti :5002 | xargs kill -9` (kill processes on port)
+  - `pkill -f "python app.py"` (kill Flask processes)
 
-## Testing
-- Cypress tests updated to work with new field structure
-- Manual testing confirms form works correctly
-- Backend registration endpoint properly validates and processes data
+## Test Results Summary
 
-## Files Modified
-1. `templates/register.html` - Main registration template
-2. `backend/templates/register.html` - Backend registration template
-3. `backend/routes/auth.py` - Registration endpoint
-4. `Mingus-Cypress-Tests/cypress/e2e/simple-user-journey.cy.js` - Test file
+### Cypress Test Execution (2025-06-23)
+- **Total Tests**: 143 tests across 23 spec files
+- **Passing**: 124 tests (87%)
+- **Failing**: 19 tests (13%)
+- **Duration**: 13 minutes, 16 seconds
+
+### Test Categories Results:
+1. **Cypress Example Tests**: ✅ All passing (100+ tests)
+2. **Onboarding Workflow**: 2/5 tests passing
+3. **Job Security Workflow**: 0/10 tests passing (features not fully implemented)
+4. **Complete Onboarding Workflow**: 0/5 tests failing
+5. **Cypress API Test**: 9/10 tests passing
+
+### Backend Status
+- ✅ Flask app running successfully on port 5002
+- ✅ Authentication endpoints responding correctly
+- ✅ Registration form accessible
+- ✅ Basic API functionality working
+- ⚠️ Some onboarding flow content issues identified
+- ⚠️ Job security features need implementation
+
+## Files Included in Backup
+
+### Core Application Files
+- `app.py` - Main Flask application entry point
+- `package.json` - Node.js dependencies (Cypress)
+- `cypress.config.js` - Cypress configuration
+
+### Backend Directory
+- `backend/` - Complete backend directory with all fixes
+  - `middleware/` - Fixed request logger middleware
+  - `models/` - Database models
+  - `routes/` - API routes
+  - `services/` - Business logic services
+  - `app_factory.py` - Flask app factory
+  - All other backend components
+
+### Cypress Testing Directory
+- `cypress/` - Complete Cypress testing setup
+  - `e2e/` - End-to-end test files
+  - `fixtures/` - Test data
+  - `support/` - Custom commands and utilities
+  - `package.json` - Cypress-specific dependencies
+
+## Known Issues Remaining
+
+1. **Onboarding Flow Content**:
+   - Expected text "Choose Your Wellness Goals" not found
+   - Dashboard redirect not working properly
+   - Progress tracking CSS values mismatch
+
+2. **Job Security Features**:
+   - All job security tests failing (features not implemented)
+   - Need to implement job security dashboard and functionality
+
+3. **API Endpoints**:
+   - Some health-related endpoints returning 404
+   - Authentication flow needs refinement
+
+4. **Static Assets**:
+   - Missing CSS/JS files for login page (404 errors)
 
 ## Next Steps
-- Test registration flow end-to-end
-- Verify onboarding redirect works correctly
-- Run full Cypress test suite
-- Deploy to production if all tests pass 
+
+1. **Fix Onboarding Flow**: Update onboarding templates and JavaScript
+2. **Implement Job Security Features**: Complete job security dashboard and functionality
+3. **Add Missing API Endpoints**: Implement health dashboard and correlation endpoints
+4. **Add Static Assets**: Create missing CSS/JS files for login page
+5. **Improve Test Coverage**: Add more comprehensive test cases
+
+## Environment Information
+- **Python Version**: 3.13
+- **Flask Version**: Latest
+- **Cypress Version**: 13.6.0
+- **Node.js**: Available for Cypress
+- **Database**: SQLite with SQLAlchemy ORM
+- **OS**: macOS (darwin 24.5.0)
+
+## Commands to Restore/Test
+
+```bash
+# Start Flask backend
+python app.py
+
+# Run Cypress tests
+npx cypress run
+
+# Kill processes on port 5002 if needed
+lsof -ti :5002 | xargs kill -9
+
+# Install dependencies if needed
+pip install psutil
+npm install cypress --save-dev
+```
+
+## Backup Created
+**Date**: 2025-06-23  
+**Time**: $(date)  
+**Status**: ✅ Complete backup with all fixes applied 
