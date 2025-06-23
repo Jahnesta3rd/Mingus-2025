@@ -44,61 +44,75 @@ def register_form():
 def register():
     """Register new user"""
     try:
-        data = request.get_json()
+        # Track performance metrics
+        from backend.monitoring.performance_monitoring import performance_monitor
+        from backend.optimization.cache_manager import cache_manager
         
-        if not data:
-            return jsonify({'error': 'No data provided'}), 400
-        
-        # Validate required fields
-        required_fields = ['email', 'password', 'first_name', 'last_name']
-        for field in required_fields:
-            if not data.get(field):
-                return jsonify({'error': f'{field} is required'}), 400
-        
-        email = data.get('email', '').strip().lower()
-        password = data.get('password', '')
-        first_name = data.get('first_name', '').strip()
-        last_name = data.get('last_name', '').strip()
-        phone_number = data.get('phone_number', '').strip()
-        
-        # Combine first and last name for full_name
-        full_name = f"{first_name} {last_name}".strip()
-        
-        # Validate email format
-        if not validate_email(email):
-            return jsonify({'error': 'Invalid email format'}), 400
-        
-        # Validate password strength
-        password_valid, password_message = validate_password_strength(password)
-        if not password_valid:
-            return jsonify({'error': password_message}), 400
-        
-        # Check if user already exists
-        existing_user = current_app.user_service.get_user_by_email(email)
-        if existing_user:
-            return jsonify({'error': 'User with this email already exists'}), 409
-        
-        # Create user
-        user_data = {
-            'email': email,
-            'password': password,
-            'full_name': full_name,
-            'phone_number': phone_number
-        }
-        
-        user = current_app.user_service.create_user(user_data)
-        
-        if user:
-            # Store user in session to persist login state
-            session['user_id'] = user['id']
-            session['user_email'] = user['email']
-            session['user_name'] = user['full_name']
-
-            # After user completes registration, redirect to onboarding
-            return redirect('/api/health/onboarding')
-        else:
-            return jsonify({'error': 'Failed to create user account'}), 500
+        with performance_monitor.api_timer('/api/auth/register', 'POST'):
+            data = request.get_json()
             
+            if not data:
+                return jsonify({'error': 'No data provided'}), 400
+            
+            # Validate required fields
+            required_fields = ['email', 'password', 'first_name', 'last_name']
+            for field in required_fields:
+                if not data.get(field):
+                    return jsonify({'error': f'{field} is required'}), 400
+            
+            email = data.get('email', '').strip().lower()
+            password = data.get('password', '')
+            first_name = data.get('first_name', '').strip()
+            last_name = data.get('last_name', '').strip()
+            phone_number = data.get('phone_number', '').strip()
+            
+            # Combine first and last name for full_name
+            full_name = f"{first_name} {last_name}".strip()
+            
+            # Validate email format
+            if not validate_email(email):
+                return jsonify({'error': 'Invalid email format'}), 400
+            
+            # Validate password strength
+            password_valid, password_message = validate_password_strength(password)
+            if not password_valid:
+                return jsonify({'error': password_message}), 400
+            
+            # Check if user already exists
+            existing_user = current_app.user_service.get_user_by_email(email)
+            if existing_user:
+                return jsonify({'error': 'User with this email already exists'}), 409
+            
+            # Create user
+            user_data = {
+                'email': email,
+                'password': password,
+                'full_name': full_name,
+                'phone_number': phone_number
+            }
+            
+            user = current_app.user_service.create_user(user_data)
+            
+            if user:
+                # Store user in session to persist login state
+                session['user_id'] = user['id']
+                session['user_email'] = user['email']
+                session['user_name'] = user['full_name']
+
+                # Track user registration
+                from backend.analytics.business_intelligence import business_intelligence
+                business_intelligence.track_user_metric(
+                    user['id'], 
+                    'registration', 
+                    1.0,
+                    {'email': email, 'full_name': full_name}
+                )
+                
+                # After user completes registration, redirect to onboarding
+                return redirect('/api/health/onboarding')
+            else:
+                return jsonify({'error': 'Failed to create user account'}), 500
+                
     except Exception as e:
         logger.error(f"Registration error: {str(e)}")
         return jsonify({'error': 'Internal server error'}), 500

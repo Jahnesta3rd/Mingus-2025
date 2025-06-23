@@ -1,63 +1,62 @@
 """
-Request logging for Flask application using built-in hooks
+Request logging middleware
 """
 
 import time
-import logging
+import json
+from datetime import datetime
 from flask import request, g
-from functools import wraps
+from loguru import logger
+from backend.monitoring.performance_monitoring import performance_monitor
+from backend.monitoring.alerting import alerting_system
 
-# Set up logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
-def setup_request_logging(app):
-    """
-    Set up request logging using Flask's built-in hooks
-    instead of WSGI middleware to avoid request context issues
-    """
+class RequestLogger:
+    """Request logging middleware"""
     
-    @app.before_request
-    def log_request_start():
-        """Log when request starts and store start time"""
-        g.start_time = time.time()
-        logger.info(f"REQUEST START: {request.method} {request.path}")
-        
-        # Log request headers if needed (optional)
-        if app.debug:
-            logger.debug(f"Headers: {dict(request.headers)}")
+    def __init__(self, app):
+        self.app = app
     
-    @app.after_request
-    def log_request_end(response):
-        """Log when request ends with response info"""
-        duration = time.time() - g.start_time if hasattr(g, 'start_time') else 0
+    def __call__(self, environ, start_response):
+        # Get request start time
+        start_time = time.time()
         
-        logger.info(
-            f"REQUEST END: {request.method} {request.path} "
-            f"- Status: {response.status_code} "
-            f"- Duration: {duration:.3f}s"
-        )
-        
-        return response
-    
-    @app.errorhandler(500)
-    def log_server_error(error):
-        """Log 500 errors with more detail"""
-        duration = time.time() - g.start_time if hasattr(g, 'start_time') else 0
-        
-        logger.error(
-            f"SERVER ERROR: {request.method} {request.path} "
-            f"- Error: {str(error)} "
-            f"- Duration: {duration:.3f}s"
-        )
-        
-        return "Internal Server Error", 500
+        # Create Flask request context
+        with self.app.request_context(environ):
+            # Log request start
+            logger.info(f"REQUEST START: {request.method} {request.path}")
+            
+            # Track API performance
+            user_id = None
+            if hasattr(g, 'user_id'):
+                user_id = g.user_id
+            
+            with performance_monitor.api_timer(request.path, request.method, user_id):
+                # Process request
+                response = self.app(environ, start_response)
+                
+                # Calculate response time
+                response_time = time.time() - start_time
+                
+                # Update performance metrics
+                performance_monitor.update_metric('api_response_time', response_time, {
+                    'endpoint': request.path,
+                    'method': request.method,
+                    'status_code': response[1] if len(response) > 1 else 200
+                })
+                
+                # Check for performance alerts
+                if response_time > 2.0:  # Alert if response time > 2 seconds
+                    alerting_system.update_metric('api_response_time', response_time)
+                
+                # Log request end
+                logger.info(f"REQUEST END: {request.method} {request.path} - Status: {response[1] if len(response) > 1 else 200} - Duration: {response_time:.3f}s")
+                
+                return response
 
 # Legacy compatibility - keeping the old function names for any existing imports
 def RequestLogger(app):
     """Legacy function for backward compatibility"""
-    setup_request_logging(app)
-    return app
+    return RequestLogger(app)
 
 def log_response(response):
     """Legacy function for backward compatibility"""

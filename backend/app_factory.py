@@ -140,21 +140,22 @@ def register_blueprints(app: Flask) -> None:
     Args:
         app: Flask application instance
     """
-    # Import blueprints here to avoid circular imports
-    from backend.routes.auth import auth_bp
-    from backend.routes.onboarding import onboarding_bp
-    from backend.routes.user import user_bp
-    from backend.routes.health import health_bp
-    from backend.routes.health_insights import health_insights_bp
-    
-    # Register blueprints
-    app.register_blueprint(auth_bp, url_prefix='/api/auth')
-    app.register_blueprint(onboarding_bp, url_prefix='/api/onboarding')
-    app.register_blueprint(user_bp, url_prefix='/api/user')
-    app.register_blueprint(health_bp, url_prefix='/api/health')
-    app.register_blueprint(health_insights_bp)
-    
-    logger.info("Blueprints registered successfully")
+    try:
+        from backend.routes.auth import auth_bp
+        from backend.routes.health import health_bp
+        from backend.routes.onboarding import onboarding_bp
+        from backend.monitoring.dashboard import dashboard_bp
+        
+        app.register_blueprint(auth_bp, url_prefix='/api/auth')
+        app.register_blueprint(health_bp, url_prefix='/api/health')
+        app.register_blueprint(onboarding_bp, url_prefix='/api/onboarding')
+        app.register_blueprint(dashboard_bp, url_prefix='/api/monitoring')
+        
+        logger.info("Blueprints registered successfully")
+        
+    except Exception as e:
+        logger.error(f"Failed to register blueprints: {e}")
+        raise
 
 def register_root_routes(app: Flask) -> None:
     """

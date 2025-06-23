@@ -116,121 +116,44 @@ def checkin_form():
 
 @health_bp.route('/checkin', methods=['POST'])
 @require_auth
-def submit_checkin():
-    """
-    Submit a health check-in (weekly check-in system)
-    """
+def submit_health_checkin():
+    """Submit health check-in data"""
     try:
-        # Get the current user from session
-        user_id = request.session.get('user_id')
-        if not user_id:
-            return jsonify({'error': 'User not authenticated'}), 401
-        
-        # Get JSON data from request
+        user_id = get_current_user_id()
         data = request.get_json()
+        
         if not data:
             return jsonify({'error': 'No data provided'}), 400
         
-        # Validate required fields
-        required_fields = [
-            'relationships_rating', 'stress_level', 
-            'energy_level', 'mood_rating'
-        ]
+        # Track performance metrics
+        from backend.monitoring.performance_monitoring import performance_monitor
+        from backend.optimization.cache_manager import cache_manager
         
-        for field in required_fields:
-            if field not in data or data[field] is None:
-                return jsonify({'error': f'Missing required field: {field}'}), 400
-        
-        # Validate numeric ranges
-        numeric_fields = {
-            'relationships_rating': (1, 10),
-            'stress_level': (1, 10),
-            'energy_level': (1, 10),
-            'mood_rating': (1, 10),
-            'physical_activity_minutes': (0, 480),
-            'mindfulness_minutes': (0, 120)
-        }
-        
-        for field, (min_val, max_val) in numeric_fields.items():
-            if field in data and data[field] is not None:
-                try:
-                    value = int(data[field])
-                    if value < min_val or value > max_val:
-                        return jsonify({
-                            'error': f'{field} must be between {min_val} and {max_val}'
-                        }), 400
-                except (ValueError, TypeError):
-                    return jsonify({
-                        'error': f'{field} must be a valid number'
-                    }), 400
-        
-        # Validate select fields
-        if 'physical_activity_level' in data and data['physical_activity_level']:
-            valid_levels = ['low', 'moderate', 'high']
-            if data['physical_activity_level'] not in valid_levels:
-                return jsonify({
-                    'error': 'physical_activity_level must be one of: low, moderate, high'
-                }), 400
-        
-        if 'mindfulness_type' in data and data['mindfulness_type']:
-            valid_types = ['meditation', 'prayer', 'journaling', 'other']
-            if data['mindfulness_type'] not in valid_types:
-                return jsonify({
-                    'error': 'mindfulness_type must be one of: meditation, prayer, journaling, other'
-                }), 400
-        
-        # Create the health check-in record
-        engine = current_app.config.get('DATABASE_ENGINE')
-        if not engine:
-            return jsonify({'error': 'Database not configured'}), 500
-        
-        SessionLocal = current_app.config.get('DATABASE_SESSION')
-        with SessionLocal() as db:
-            # Check if user already has a check-in for this week
-            today = date.today()
-            week_start = today - timedelta(days=today.weekday())  # Monday of current week
+        with performance_monitor.api_timer('/api/health/checkin', 'POST', user_id):
+            # Cache user health data
+            cache_key = f"health_data_{user_id}"
+            cache_manager.set(cache_key, data, ttl=3600)
             
-            existing_checkin = db.query(UserHealthCheckin)\
-                .filter(UserHealthCheckin.user_id == user_id)\
-                .filter(UserHealthCheckin.checkin_date >= week_start)\
-                .filter(UserHealthCheckin.checkin_date <= today)\
-                .first()
+            # Submit health data
+            result = current_app.health_service.submit_health_checkin(user_id, data)
             
-            if existing_checkin:
-                return jsonify({
-                    'error': 'You have already submitted a check-in for this week',
-                    'last_checkin_date': existing_checkin.checkin_date.isoformat()
-                }), 409
-            
-            # Create new check-in
-            checkin = UserHealthCheckin(
-                user_id=user_id,
-                checkin_date=today,
-                physical_activity_minutes=data.get('physical_activity_minutes', 0),
-                physical_activity_level=data.get('physical_activity_level'),
-                relationships_rating=data['relationships_rating'],
-                relationships_notes=data.get('relationships_notes', ''),
-                mindfulness_minutes=data.get('mindfulness_minutes', 0),
-                mindfulness_type=data.get('mindfulness_type'),
-                stress_level=data['stress_level'],
-                energy_level=data['energy_level'],
-                mood_rating=data['mood_rating']
+            # Track user engagement
+            from backend.analytics.business_intelligence import business_intelligence
+            business_intelligence.track_user_engagement(
+                user_id, 
+                session.get('session_id', 'unknown'),
+                'health_checkin',
+                usage_time=1.0
             )
-            
-            db.add(checkin)
-            db.commit()
-            
-            logger.info(f"Weekly health check-in submitted for user {user_id}")
-            
-            return jsonify({
-                'message': 'Weekly health check-in submitted successfully',
-                'checkin_id': checkin.id,
-                'checkin_date': checkin.checkin_date.isoformat(),
-                'week_start': week_start.isoformat()
-            }), 201
-    
+        
+        return jsonify({
+            'success': True,
+            'message': 'Health check-in submitted successfully',
+            'data': result
+        }), 200
+        
     except Exception as e:
-        logger.error(f"Error submitting health check-in: {str(e)}")
+        logger.error(f"Health check-in error: {str(e)}")
         return jsonify({'error': 'Internal server error'}), 500
 
 @health_bp.route('/checkin/latest', methods=['GET'])
