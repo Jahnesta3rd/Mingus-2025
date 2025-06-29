@@ -31,6 +31,9 @@ env/
 *.swp
 *.swo
 
+# Note: .cursor/ directory is explicitly tracked for chat history and AI data
+# Do not add .cursor/ to this ignore list
+
 # Environment variables
 .env
 .env.*
