@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Expense Profile</title>
+  <link rel="stylesheet" href="/static/css/form.css">
+  <style>
+    .expense-section { margin-bottom: 2rem; }
+    .expense-category { border: 1px solid #e0e0e0; padding: 1rem; margin-bottom: 1rem; border-radius: 8px; }
+    .expense-category.collapsed { max-height: 60px; overflow: hidden; }
+    .expense-category.expanded { max-height: none; }
+    .category-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+    .category-toggle { color: #2563eb; font-size: 1.2em; }
+    .tooltip { border-bottom: 1px dotted #888; cursor: help; }
+    .usd { font-family: monospace; }
+    .warning { color: #b91c1c; font-weight: bold; }
+    .monthly-conversion { color: #2563eb; font-size: 0.95em; margin-left: 0.5em; }
+    .progressive { display: none; }
+    .progressive.active { display: block; }
+    .btn-mingus-primary { background: #2563eb; color: #fff; border: none; border-radius: 6px; padding: 0.6em 1.5em; font-weight: 600; font-size: 1em; margin-right: 0.5em; transition: background 0.2s; }
+    .btn-mingus-primary:disabled { background: #a5b4fc; color: #fff; cursor: not-allowed; }
+    .btn-mingus-secondary { background: #f3f4f6; color: #1e293b; border: none; border-radius: 6px; padding: 0.6em 1.5em; font-weight: 600; font-size: 1em; margin-right: 0.5em; }
+    .btn-mingus-skip { background: #fffbe6; color: #b45309; border: 1px solid #fde68a; border-radius: 6px; padding: 0.6em 1.5em; font-weight: 600; font-size: 1em; }
+    .progress-bar-container { margin-bottom: 1.5em; }
+    .progress-bar { display: flex; flex-direction: column; align-items: flex-start; }
+    .progress-label { font-size: 1.1em; font-weight: 600; color: #2563eb; margin-bottom: 0.3em; }
+    .progress-track { width: 100%; height: 8px; background: #e0e7ff; border-radius: 4px; overflow: hidden; }
+    .progress-fill { height: 8px; background: #2563eb; border-radius: 4px; transition: width 0.3s; }
+    .saving-indicator { color: #2563eb; font-size: 0.95em; margin-left: 1em; }
+    .skip-warning { background: #fffbe6; color: #b45309; border: 1px solid #fde68a; border-radius: 6px; padding: 1em; margin-top: 1em; font-size: 1em; }
+    .field-error { color: #b91c1c; font-size: 0.85em; margin-top: 0.25em; }
+    .expense-total { background: #f8fafc; padding: 1rem; border-radius: 8px; margin: 1rem 0; border-left: 4px solid #2563eb; }
+    .expense-total h4 { margin: 0 0 0.5rem 0; color: #1e293b; }
+    .expense-breakdown { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
+    @media (max-width: 600px) {
+      .progress-bar-container { margin-bottom: 1em; }
+      .button-row { flex-direction: column; gap: 0.5em; }
+      .btn-mingus-primary, .btn-mingus-secondary, .btn-mingus-skip { width: 100%; margin-right: 0; }
+      .expense-breakdown { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <form id="expenseProfileForm" autocomplete="off">
+    <div class="progress-bar-container">
+      <div class="progress-bar" id="progressBar">
+        <span class="progress-label">Step 4 of 8</span>
+        <div class="progress-track">
+          <div class="progress-fill" style="width:50%"></div>
+        </div>
+      </div>
+    </div>
+    <h2>Expense Profile</h2>
+    
+    <!-- Starting Balance Section -->
+    <div class="expense-section">
+      <h3>Starting Cash Balance <span class="tooltip" title="Your current available cash balance to start with.">?</span></h3>
+      <label>
+        Current Balance (USD)
+        <input type="number" id="startingBalance" name="startingBalance" min="0" step="0.01" required placeholder="$0.00">
+      </label>
+    </div>
+
+    <!-- Essential Expenses Section -->
+    <div class="expense-section">
+      <h3>Essential Expenses <span class="tooltip" title="These are your must-pay expenses that keep you housed, fed, and safe.">?</span></h3>
+      
+      <div class="expense-category expanded" data-category="housing">
+        <div class="category-header" onclick="toggleCategory('housing')">
+          <h4>Housing & Utilities</h4>
+          <span class="category-toggle">−</span>
+        </div>
+        <div class="category-content">
+          <label>
+            Rent or Mortgage <span class="tooltip" title="Your monthly housing payment.">?</span>
+            <input type="number" id="rentOrMortgageExpense" name="rentOrMortgageExpense" min="0" step="0.01" placeholder="$0.00">
+            <span class="monthly-conversion" id="rentOrMortgageMonthly"></span>
+          </label>
+          <label>
+            Frequency
+            <select id="rentOrMortgageFrequency" name="rentOrMortgageFrequency">
+              <option value="monthly">Monthly</option>
+              <option value="bi-weekly">Bi-weekly</option>
+              <option value="weekly">Weekly</option>
+            </select>
+          </label>
+          <label>
+            Due Date
+            <input type="date" id="rentOrMortgageDueDate" name="rentOrMortgageDueDate">
+          </label>
+          
+          <label>
+            Utilities <span class="tooltip" title="Electricity, water, gas, internet, etc.">?</span>
+            <input type="number" id="utilitiesExpense" name="utilitiesExpense" min="0" step="0.01" placeholder="$0.00">
+            <span class="monthly-conversion" id="utilitiesMonthly"></span>
+          </label>
+          <label>
+            Frequency
+            <select id="utilitiesFrequency" name="utilitiesFrequency">
+              <option value="monthly">Monthly</option>
+              <option value="bi-weekly">Bi-weekly</option>
+              <option value="weekly">Weekly</option>
+            </select>
+          </label>
+          <label>
+            Due Date
+            <input type="date" id="utilitiesDueDate" name="utilitiesDueDate">
+          </label>
+        </div>
+      </div>
+
+      <div class="expense-category collapsed" data-category="transportation">
+        <div class="category-header" onclick="toggleCategory('transportation')">
+          <h4>Transportation</h4>
+          <span class="category-toggle">+</span>
+        </div>
+        <div class="category-content">
+          <label>
+            Auto Payment <span class="tooltip" title="Car loan or lease payment.">?</span>
+            <input type="number" id="autoPaymentExpense" name="autoPaymentExpense" min="0" step="0.01" placeholder="$0.00">
+            <span class="monthly-conversion" id="autoPaymentMonthly"></span>
+          </label>
+          <label>
+            Auto Insurance
+            <input type="number" id="autoInsuranceExpense" name="autoInsuranceExpense" min="0" step="0.01" placeholder="$0.00">
+            <span class="monthly-conversion" id="autoInsuranceMonthly"></span>
+          </label>
+          <label>
+            Auto Gas
+            <input type="number" id="autoGasExpense" name="autoGasExpense" min="0" step="0.01" placeholder="$0.00">
+            <span class="monthly-conversion" id="autoGasMonthly"></span>
+          </label>
+          <label>
+            Public Transit
+            <input type="number" id="busFareExpense" name="busFareExpense" min="0" step="0.01" placeholder="$0.00">
+            <span class="monthly-conversion" id="busFareMonthly"></span>
+          </label>
+          <label>
+            Rideshare (Uber/Lyft)
+            <input type="number" id="rideshareExpense" name="rideshareExpense" min="0" step="0.01" placeholder="$0.00">
+            <span class="monthly-conversion" id="rideshareMonthly"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="expense-category collapsed" data-category="insurance">
+        <div class="category-header" onclick="toggleCategory('insurance')">
+          <h4>Insurance & Healthcare</h4>
+          <span class="category-toggle">+</span>
+        </div>
+        <div class="category-content">
+          <label>
+            Health Insurance <span class="tooltip" title="Monthly health insurance premium.">?</span>
+            <input type="number" id="healthInsuranceExpense" name="healthInsuranceExpense" min="0" step="0.01" placeholder="$0.00">
+            <span class="monthly-conversion" id="healthInsuranceMonthly"></span>
+          </label>
+          <label>
+            Healthcare (Out of Pocket)
+            <input type="number" id="healthcareExpense" name="healthcareExpense" min="0" step="0.01" placeholder="$0.00">
+            <span class="monthly-conversion" id="healthcareMonthly"></span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Living Expenses Section -->
+    <div class="expense-section">
+      <h3>Living Expenses <span class="tooltip" title="Daily living costs for you and your family.">?</span></h3>
+      
+      <div class="expense-category collapsed" data-category="food">
+        <div class="category-header" onclick="toggleCategory('food')">
+          <h4>Food & Dining</h4>
+          <span class="category-toggle">+</span>
+        </div>
+        <div class="category-content">
+          <label>
+            Groceries <span class="tooltip" title="Food and household items from grocery stores.">?</span>
+            <input type="number" id="groceryExpense" name="groceryExpense" min="0" step="0.01" placeholder="$0.00">
+            <span class="monthly-conversion" id="groceryMonthly"></span>
+          </label>
+          <label>
+            Restaurant Meals
+            <input type="number" id="restaurantMealsExpense" name="restaurantMealsExpense" min="0" step="0.01" placeholder="$0.00">
+            <span class="monthly-conversion" id="restaurantMealsMonthly"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="expense-category collapsed" data-category="personal">
+        <div class="category-header" onclick="toggleCategory('personal')">
+          <h4>Personal Care</h4>
+          <span class="category-toggle">+</span>
+        </div>
+        <div class="category-content">
+          <label>
+            Personal Care <span class="tooltip" title="Haircuts, toiletries, etc.">?</span>
+            <input type="number" id="personalCareExpense" name="personalCareExpense" min="0" step="0.01" placeholder="$0.00">
+            <span class="monthly-conversion" id="personalCareMonthly"></span>
+          </label>
+          <label>
+            Self Care
+            <input type="number" id="selfcareExpense" name="selfcareExpense" min="0" step="0.01" placeholder="$0.00">
+            <span class="monthly-conversion" id="selfcareMonthly"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="expense-category collapsed" data-category="family">
+        <div class="category-header" onclick="toggleCategory('family')">
+          <h4>Family & Dependents</h4>
+          <span class="category-toggle">+</span>
+        </div>
+        <div class="category-content">
+          <label>
+            Daycare <span class="tooltip" title="Childcare costs.">?</span>
+            <input type="number" id="daycareExpense" name="daycareExpense" min="0" step="0.01" placeholder="$0.00">
+            <span class="monthly-conversion" id="daycareMonthly"></span>
+          </label>
+          <label>
+            Child Support (Paid)
+            <input type="number" id="childSupportExpense" name="childSupportExpense" min="0" step="0.01" placeholder="$0.00">
+            <span class="monthly-conversion" id="childSupportMonthly"></span>
+          </label>
+          <label>
+            Cash to Family
+            <input type="number" id="cashToFamilyExpense" name="cashToFamilyExpense" min="0" step="0.01" placeholder="$0.00">
+            <span class="monthly-conversion" id="cashToFamilyMonthly"></span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Debt & Subscriptions Section -->
+    <div class="expense-section">
+      <h3>Debt & Subscriptions <span class="tooltip" title="Regular payments for debts and services.">?</span></h3>
+      
+      <div class="expense-category collapsed" data-category="debt">
+        <div class="category-header" onclick="toggleCategory('debt')">
+          <h4>Debt Payments</h4>
+          <span class="category-toggle">+</span>
+        </div>
+        <div class="category-content">
+          <div id="creditCardList">
+            <h5>Credit Cards</h5>
+            <div class="credit-card-item">
+              <label>
+                Credit Card 1 Name
+                <input type="text" id="creditCard1Name" name="creditCard1Name" placeholder="e.g., Chase Visa">
+              </label>
+              <label>
+                Amount
+                <input type="number" id="creditCard1Expense" name="creditCard1Expense" min="0" step="0.01" placeholder="$0.00">
+                <span class="monthly-conversion" id="creditCard1Monthly"></span>
+              </label>
+            </div>
+            <button type="button" id="addCreditCard" class="btn-mingus-secondary">+ Add Another Credit Card</button>
+          </div>
+          
+          <div id="loanList">
+            <h5>Loans</h5>
+            <div class="loan-item">
+              <label>
+                Loan 1 Name
+                <input type="text" id="loan1Name" name="loan1Name" placeholder="e.g., Student Loan">
+              </label>
+              <label>
+                Amount
+                <input type="number" id="loan1Expense" name="loan1Expense" min="0" step="0.01" placeholder="$0.00">
+                <span class="monthly-conversion" id="loan1Monthly"></span>
+              </label>
+            </div>
+            <button type="button" id="addLoan" class="btn-mingus-secondary">+ Add Another Loan</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="expense-category collapsed" data-category="subscriptions">
+        <div class="category-header" onclick="toggleCategory('subscriptions')">
+          <h4>Subscriptions & Services</h4>
+          <span class="category-toggle">+</span>
+        </div>
+        <div class="category-content">
+          <label>
+            Subscriptions <span class="tooltip" title="Netflix, Spotify, gym memberships, etc.">?</span>
+            <input type="number" id="subscriptionsExpense" name="subscriptionsExpense" min="0" step="0.01" placeholder="$0.00">
+            <span class="monthly-conversion" id="subscriptionsMonthly"></span>
+          </label>
+          <label>
+            Mobile Phone
+            <input type="number" id="mobilePhoneExpense" name="mobilePhoneExpense" min="0" step="0.01" placeholder="$0.00">
+            <span class="monthly-conversion" id="mobilePhoneMonthly"></span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Discretionary Expenses Section -->
+    <div class="expense-section">
+      <h3>Discretionary Expenses <span class="tooltip" title="Non-essential expenses that improve your quality of life.">?</span></h3>
+      
+      <div class="expense-category collapsed" data-category="entertainment">
+        <div class="category-header" onclick="toggleCategory('entertainment')">
+          <h4>Entertainment & Lifestyle</h4>
+          <span class="category-toggle">+</span>
+        </div>
+        <div class="category-content">
+          <label>
+            Entertainment <span class="tooltip" title="Movies, concerts, hobbies, etc.">?</span>
+            <input type="number" id="entertainmentExpense" name="entertainmentExpense" min="0" step="0.01" placeholder="$0.00">
+            <span class="monthly-conversion" id="entertainmentMonthly"></span>
+          </label>
+          <label>
+            Gifts & Charity
+            <input type="number" id="giftOthersExpense" name="giftOthersExpense" min="0" step="0.01" placeholder="$0.00">
+            <span class="monthly-conversion" id="giftOthersMonthly"></span>
+          </label>
+          <label>
+            Career/Professional
+            <input type="number" id="careerExpense" name="careerExpense" min="0" step="0.01" placeholder="$0.00">
+            <span class="monthly-conversion" id="careerMonthly"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="expense-category collapsed" data-category="other">
+        <div class="category-header" onclick="toggleCategory('other')">
+          <h4>Other Expenses</h4>
+          <span class="category-toggle">+</span>
+        </div>
+        <div class="category-content">
+          <label>
+            Pet Expenses <span class="tooltip" title="Pet food, vet bills, grooming, etc.">?</span>
+            <input type="number" id="petExpense" name="petExpense" min="0" step="0.01" placeholder="$0.00">
+            <span class="monthly-conversion" id="petMonthly"></span>
+          </label>
+          <label>
+            Fraternity/Sorority
+            <input type="number" id="fraternitySororityExpense" name="fraternitySororityExpense" min="0" step="0.01" placeholder="$0.00">
+            <span class="monthly-conversion" id="fraternitySororityMonthly"></span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Expense Summary -->
+    <div class="expense-total">
+      <h4>Monthly Expense Summary</h4>
+      <div class="expense-breakdown">
+        <div><strong>Essential Expenses:</strong> <span id="essentialTotal">$0.00</span></div>
+        <div><strong>Living Expenses:</strong> <span id="livingTotal">$0.00</span></div>
+        <div><strong>Debt & Subscriptions:</strong> <span id="debtTotal">$0.00</span></div>
+        <div><strong>Discretionary:</strong> <span id="discretionaryTotal">$0.00</span></div>
+        <div><strong>Total Monthly:</strong> <span id="totalMonthlyExpenses">$0.00</span></div>
+      </div>
+    </div>
+
+    <div id="expenseWarnings" class="warning"></div>
+    
+    <div class="button-row">
+      <button type="button" id="prevBtn" class="btn-mingus-secondary">Previous</button>
+      <button type="button" id="skipBtn" class="btn-mingus-skip">Skip</button>
+      <button type="submit" id="nextBtn" class="btn-mingus-primary" disabled>Next</button>
+      <span id="savingIndicator" class="saving-indicator" style="display:none;">Saving...</span>
+    </div>
+  </form>
+  
+  <div id="skipWarning" class="skip-warning" style="display:none;">Are you sure you want to skip? Some features may be unavailable until this step is complete.</div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
+  <script>
+    // --- Supabase config ---
+    const SUPABASE_URL = 'https://wiemjrvxlqkpbsukdqnbs.supabase.co';
+    const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY'; // Replace with your actual key
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    let userId = null; // Set this from your auth/session logic
+
+    // --- Helper functions ---
+    function toMonthly(amount, frequency) {
+      if (!amount || !frequency) return '';
+      const amt = parseFloat(amount);
+      switch (frequency) {
+        case 'weekly': return (amt * 52 / 12).toFixed(2);
+        case 'bi-weekly': return (amt * 26 / 12).toFixed(2);
+        case 'semi-monthly': return (amt * 2).toFixed(2);
+        case 'monthly': return amt.toFixed(2);
+        case 'quarterly': return (amt / 3).toFixed(2);
+        default: return '';
+      }
+    }
+    
+    function formatUSD(val) {
+      if (!val) return '';
+      return '$' + parseFloat(val).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+    }
+
+    // --- Auto-save logic ---
+    let autoSaveTimer = null;
+    let isSaving = false;
+    let offline = false;
+    const LOCAL_KEY = 'mingus_expense_profile_autosave';
+
+    function showSavingIndicator(show) {
+      document.getElementById('savingIndicator').style.display = show ? '' : 'none';
+    }
+    
+    function saveToLocal(data) {
+      localStorage.setItem(LOCAL_KEY, JSON.stringify(data));
+    }
+    
+    function loadFromLocal() {
+      const data = localStorage.getItem(LOCAL_KEY);
+      return data ? JSON.parse(data) : null;
+    }
+    
+    function autoSave() {
+      if (isSaving) return;
+      isSaving = true;
+      showSavingIndicator(true);
+      const data = gatherFormData();
+      saveToLocal(data);
+      // Try to save to backend if online
+      if (navigator.onLine) {
+        fetch('/api/expense-profile', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        }).then(() => {
+          isSaving = false;
+          showSavingIndicator(false);
+        }).catch(() => {
+          isSaving = false;
+          showSavingIndicator(false);
+        });
+      } else {
+        offline = true;
+        isSaving = false;
+        showSavingIndicator(false);
+      }
+    }
+    
+    function scheduleAutoSave() {
+      if (autoSaveTimer) clearInterval(autoSaveTimer);
+      autoSaveTimer = setInterval(autoSave, 30000);
+    }
+
+    function gatherFormData() {
+      const data = {
+        startingBalance: parseFloat(document.getElementById('startingBalance').value) || 0,
+        expenses: {},
+        timestamp: new Date().toISOString()
+      };
+
+      // Gather all expense fields
+      const expenseFields = [
+        'rentOrMortgageExpense', 'utilitiesExpense', 'autoPaymentExpense', 'autoInsuranceExpense',
+        'autoGasExpense', 'busFareExpense', 'rideshareExpense', 'healthInsuranceExpense',
+        'healthcareExpense', 'groceryExpense', 'restaurantMealsExpense', 'personalCareExpense',
+        'selfcareExpense', 'daycareExpense', 'childSupportExpense', 'cashToFamilyExpense',
+        'creditCard1Expense', 'creditCard2Expense', 'creditCard3Expense', 'loan1Expense',
+        'loan2Expense', 'loan3Expense', 'subscriptionsExpense', 'mobilePhoneExpense',
+        'entertainmentExpense', 'giftOthersExpense', 'careerExpense', 'petExpense',
+        'fraternitySororityExpense'
+      ];
+
+      expenseFields.forEach(field => {
+        const amount = parseFloat(document.getElementById(field)?.value) || 0;
+        const frequency = document.getElementById(field.replace('Expense', 'Frequency'))?.value || 'monthly';
+        const dueDate = document.getElementById(field.replace('Expense', 'DueDate'))?.value || '';
+        
+        data.expenses[field] = {
+          amount: amount,
+          frequency: frequency,
+          dueDate: dueDate,
+          monthly: parseFloat(toMonthly(amount, frequency)) || 0
+        };
+      });
+
+      // Add text fields
+      const textFields = ['creditCard1Name', 'creditCard2Name', 'creditCard3Name', 'loan1Name', 'loan2Name', 'loan3Name'];
+      textFields.forEach(field => {
+        data.expenses[field] = document.getElementById(field)?.value || '';
+      });
+
+      // Calculate totals
+      data.totalMonthlyExpenses = Object.values(data.expenses)
+        .filter(exp => typeof exp === 'object' && exp.monthly)
+        .reduce((sum, exp) => sum + exp.monthly, 0);
+
+      return data;
+    }
+
+    function restoreFormData(data) {
+      if (!data) return;
+      
+      // Restore starting balance
+      if (data.startingBalance) {
+        document.getElementById('startingBalance').value = data.startingBalance;
+      }
+      
+      // Restore expenses
+      if (data.expenses) {
+        Object.keys(data.expenses).forEach(field => {
+          const element = document.getElementById(field);
+          if (element) {
+            if (typeof data.expenses[field] === 'object') {
+              element.value = data.expenses[field].amount || '';
+              const freqElement = document.getElementById(field.replace('Expense', 'Frequency'));
+              const dueElement = document.getElementById(field.replace('Expense', 'DueDate'));
+              if (freqElement) freqElement.value = data.expenses[field].frequency || 'monthly';
+              if (dueElement) dueElement.value = data.expenses[field].dueDate || '';
+            } else {
+              element.value = data.expenses[field] || '';
+            }
+          }
+        });
+      }
+      
+      updateExpenseTotals();
+    }
+
+    // Restore on load
+    window.addEventListener('DOMContentLoaded', () => {
+      const saved = loadFromLocal();
+      if (saved) {
+        restoreFormData(saved);
+      }
+      scheduleAutoSave();
+      validateForm();
+    });
+
+    // Save on blur and submit
+    document.getElementById('expenseProfileForm').addEventListener('focusout', autoSave, true);
+    document.getElementById('expenseProfileForm').addEventListener('submit', autoSave);
+    
+    // Listen for online/offline
+    window.addEventListener('online', () => { offline = false; autoSave(); });
+    window.addEventListener('offline', () => { offline = true; });
+
+    // --- Validation enhancements ---
+    function formatCurrencyInput(e) {
+      let val = e.target.value.replace(/[^\d.]/g, '');
+      if (val) {
+        val = parseFloat(val).toFixed(2);
+        e.target.value = formatUSD(val);
+      }
+    }
+    
+    document.querySelectorAll('input[type="number"]').forEach(input => {
+      input.addEventListener('input', formatCurrencyInput);
+    });
+
+    function validateForm() {
+      let valid = true;
+      let errors = [];
+      let warnings = [];
+      
+      clearErrorMessages();
+      
+      // Starting balance validation
+      const startingBalance = parseFloat(document.getElementById('startingBalance').value);
+      if (!startingBalance || startingBalance < 0) {
+        errors.push('Starting balance is required and must be $0 or greater.');
+        showFieldError('startingBalance', 'Starting balance is required');
+        valid = false;
+      }
+      
+      // Calculate totals for warnings
+      const data = gatherFormData();
+      const totalMonthly = data.totalMonthlyExpenses;
+      
+      if (totalMonthly > 0) {
+        if (totalMonthly > 10000) {
+          warnings.push('Your monthly expenses seem very high. Please review your entries.');
+        }
+        if (totalMonthly < 500) {
+          warnings.push('Your monthly expenses seem very low. Please make sure you\'ve included all expenses.');
+        }
+      }
+      
+      // Display errors and warnings
+      displayErrors(errors);
+      displayWarnings(warnings);
+      
+      // Enable/disable next button
+      document.getElementById('nextBtn').disabled = !valid;
+      
+      return valid;
+    }
+
+    function showFieldError(fieldId, message) {
+      const field = document.getElementById(fieldId);
+      if (field) {
+        field.style.borderColor = '#b91c1c';
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'field-error';
+        errorDiv.textContent = message;
+        field.parentNode.appendChild(errorDiv);
+      }
+    }
+
+    function clearErrorMessages() {
+      document.querySelectorAll('.field-error').forEach(el => el.remove());
+      document.querySelectorAll('input, select').forEach(field => {
+        field.style.borderColor = '';
+      });
+    }
+
+    function displayErrors(errors) {
+      const warningDiv = document.getElementById('expenseWarnings');
+      if (errors.length > 0) {
+        warningDiv.innerHTML = '<div style="color: #b91c1c; font-weight: bold; margin-bottom: 0.5em;">Please fix the following errors:</div>' + 
+                              errors.map(err => `<div style="color: #b91c1c; margin-bottom: 0.25em;">• ${err}</div>`).join('');
+        warningDiv.style.display = 'block';
+      } else {
+        warningDiv.style.display = 'none';
+      }
+    }
+
+    function displayWarnings(warnings) {
+      if (warnings.length > 0) {
+        const warningDiv = document.getElementById('expenseWarnings');
+        const currentContent = warningDiv.innerHTML;
+        const warningContent = '<div style="color: #b45309; font-weight: bold; margin-top: 1em; margin-bottom: 0.5em;">Warnings:</div>' + 
+                              warnings.map(warn => `<div style="color: #b45309; margin-bottom: 0.25em;">• ${warn}</div>`).join('');
+        warningDiv.innerHTML = currentContent + warningContent;
+        warningDiv.style.display = 'block';
+      }
+    }
+
+    // --- Category toggle functionality ---
+    function toggleCategory(category) {
+      const categoryDiv = document.querySelector(`[data-category="${category}"]`);
+      const toggle = categoryDiv.querySelector('.category-toggle');
+      
+      if (categoryDiv.classList.contains('collapsed')) {
+        categoryDiv.classList.remove('collapsed');
+        categoryDiv.classList.add('expanded');
+        toggle.textContent = '−';
+      } else {
+        categoryDiv.classList.remove('expanded');
+        categoryDiv.classList.add('collapsed');
+        toggle.textContent = '+';
+      }
+    }
+
+    // --- Expense total calculations ---
+    function updateExpenseTotals() {
+      const data = gatherFormData();
+      const expenses = data.expenses;
+      
+      let essentialTotal = 0;
+      let livingTotal = 0;
+      let debtTotal = 0;
+      let discretionaryTotal = 0;
+      
+      // Essential expenses
+      const essentialFields = ['rentOrMortgageExpense', 'utilitiesExpense', 'autoPaymentExpense', 'autoInsuranceExpense', 'autoGasExpense', 'healthInsuranceExpense'];
+      essentialFields.forEach(field => {
+        if (expenses[field] && expenses[field].monthly) {
+          essentialTotal += expenses[field].monthly;
+        }
+      });
+      
+      // Living expenses
+      const livingFields = ['groceryExpense', 'restaurantMealsExpense', 'personalCareExpense', 'daycareExpense', 'childSupportExpense', 'cashToFamilyExpense'];
+      livingFields.forEach(field => {
+        if (expenses[field] && expenses[field].monthly) {
+          livingTotal += expenses[field].monthly;
+        }
+      });
+      
+      // Debt & subscriptions
+      const debtFields = ['creditCard1Expense', 'creditCard2Expense', 'creditCard3Expense', 'loan1Expense', 'loan2Expense', 'loan3Expense', 'subscriptionsExpense', 'mobilePhoneExpense'];
+      debtFields.forEach(field => {
+        if (expenses[field] && expenses[field].monthly) {
+          debtTotal += expenses[field].monthly;
+        }
+      });
+      
+      // Discretionary
+      const discretionaryFields = ['entertainmentExpense', 'giftOthersExpense', 'careerExpense', 'petExpense', 'fraternitySororityExpense', 'selfcareExpense', 'healthcareExpense', 'busFareExpense', 'rideshareExpense'];
+      discretionaryFields.forEach(field => {
+        if (expenses[field] && expenses[field].monthly) {
+          discretionaryTotal += expenses[field].monthly;
+        }
+      });
+      
+      // Update display
+      document.getElementById('essentialTotal').textContent = formatUSD(essentialTotal);
+      document.getElementById('livingTotal').textContent = formatUSD(livingTotal);
+      document.getElementById('debtTotal').textContent = formatUSD(debtTotal);
+      document.getElementById('discretionaryTotal').textContent = formatUSD(discretionaryTotal);
+      document.getElementById('totalMonthlyExpenses').textContent = formatUSD(data.totalMonthlyExpenses);
+    }
+
+    // Update totals on any input change
+    document.getElementById('expenseProfileForm').addEventListener('input', () => {
+      updateExpenseTotals();
+      validateForm();
+    });
+
+    // --- Form submission handler ---
+    document.getElementById('expenseProfileForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      if (!validateForm()) {
+        return;
+      }
+      
+      const data = gatherFormData();
+      
+      try {
+        // Prepare data for Supabase
+        const expenseRow = {
+          user_id: userId,
+          starting_balance: data.startingBalance,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        };
+        
+        // Add all expense fields
+        Object.keys(data.expenses).forEach(field => {
+          if (typeof data.expenses[field] === 'object') {
+            expenseRow[field] = data.expenses[field].amount;
+            expenseRow[`${field.replace('Expense', '')}_frequency`] = data.expenses[field].frequency;
+            expenseRow[`${field.replace('Expense', '')}_due_date`] = data.expenses[field].dueDate;
+          } else {
+            expenseRow[field] = data.expenses[field];
+          }
+        });
+        
+        // Insert/update in Supabase
+        const { error } = await supabase.from('user_expense_items').upsert([expenseRow], {
+          onConflict: 'user_id'
+        });
+        
+        if (error) {
+          throw error;
+        }
+        
+        // Clear local storage after successful save
+        localStorage.removeItem(LOCAL_KEY);
+        
+        // Redirect to next step
+        window.location.href = '/onboarding/next-step';
+        
+      } catch (error) {
+        console.error('Error saving expense profile:', error);
+        alert('There was an error saving your expense profile. Please try again.');
+      }
+    });
+
+    // --- Navigation/progress bar logic ---
+    document.getElementById('prevBtn').onclick = function() {
+      window.location.href = '/onboarding/financial-profile';
+    };
+    
+    document.getElementById('nextBtn').onclick = function(e) {
+      if (!validateForm()) {
+        e.preventDefault();
+        return;
+      }
+      document.getElementById('expenseProfileForm').submit();
+    };
+    
+    document.getElementById('skipBtn').onclick = function() {
+      document.getElementById('skipWarning').style.display = '';
+      setTimeout(() => { document.getElementById('skipWarning').style.display = 'none'; }, 5000);
+    };
+  </script>
+</body>
+</html> 

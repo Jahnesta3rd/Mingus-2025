@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Financial Profile</title>
+  <link rel="stylesheet" href="/static/css/form.css">
+  <style>
+    .income-section, .child-support-section { margin-bottom: 2rem; }
+    .income-source { border: 1px solid #e0e0e0; padding: 1rem; margin-bottom: 1rem; border-radius: 8px; }
+    .remove-income { color: #b91c1c; cursor: pointer; margin-left: 1rem; }
+    .tooltip { border-bottom: 1px dotted #888; cursor: help; }
+    .usd { font-family: monospace; }
+    .warning { color: #b91c1c; font-weight: bold; }
+    .monthly-conversion { color: #2563eb; font-size: 0.95em; margin-left: 0.5em; }
+    .progressive { display: none; }
+    .progressive.active { display: block; }
+    .btn-mingus-primary { background: #2563eb; color: #fff; border: none; border-radius: 6px; padding: 0.6em 1.5em; font-weight: 600; font-size: 1em; margin-right: 0.5em; transition: background 0.2s; }
+    .btn-mingus-primary:disabled { background: #a5b4fc; color: #fff; cursor: not-allowed; }
+    .btn-mingus-secondary { background: #f3f4f6; color: #1e293b; border: none; border-radius: 6px; padding: 0.6em 1.5em; font-weight: 600; font-size: 1em; margin-right: 0.5em; }
+    .btn-mingus-skip { background: #fffbe6; color: #b45309; border: 1px solid #fde68a; border-radius: 6px; padding: 0.6em 1.5em; font-weight: 600; font-size: 1em; }
+    .progress-bar-container { margin-bottom: 1.5em; }
+    .progress-bar { display: flex; flex-direction: column; align-items: flex-start; }
+    .progress-label { font-size: 1.1em; font-weight: 600; color: #2563eb; margin-bottom: 0.3em; }
+    .progress-track { width: 100%; height: 8px; background: #e0e7ff; border-radius: 4px; overflow: hidden; }
+    .progress-fill { height: 8px; background: #2563eb; border-radius: 4px; transition: width 0.3s; }
+    .saving-indicator { color: #2563eb; font-size: 0.95em; margin-left: 1em; }
+    .skip-warning { background: #fffbe6; color: #b45309; border: 1px solid #fde68a; border-radius: 6px; padding: 1em; margin-top: 1em; font-size: 1em; }
+    @media (max-width: 600px) {
+      .progress-bar-container { margin-bottom: 1em; }
+      .button-row { flex-direction: column; gap: 0.5em; }
+      .btn-mingus-primary, .btn-mingus-secondary, .btn-mingus-skip { width: 100%; margin-right: 0; }
+    }
+  </style>
+</head>
+<body>
+  <form id="financialProfileForm" autocomplete="off">
+    <div class="progress-bar-container">
+      <div class="progress-bar" id="progressBar">
+        <span class="progress-label">Step 3 of 8</span>
+        <div class="progress-track">
+          <div class="progress-fill" style="width:37.5%"></div>
+        </div>
+      </div>
+    </div>
+    <h2>Financial Profile</h2>
+    <div class="income-section">
+      <h3>Primary Income <span class="tooltip" title="This is your main source of income, such as your main job or business.">?</span></h3>
+      <label>
+        Amount (USD) <span class="tooltip" title="Enter your gross pay before taxes.">?</span>
+        <input type="number" id="primaryIncomeAmount" name="primaryIncomeAmount" min="0.01" step="0.01" required placeholder="$0.00">
+        <span class="monthly-conversion" id="primaryMonthlyEquivalent"></span>
+      </label>
+      <label>
+        Frequency <span class="tooltip" title="How often do you receive this income?">?</span>
+        <select id="primaryIncomeFrequency" name="primaryIncomeFrequency" required>
+          <option value="">Select frequency</option>
+          <option value="weekly">Weekly</option>
+          <option value="bi-weekly">Bi-weekly</option>
+          <option value="semi-monthly">Semi-monthly</option>
+          <option value="monthly">Monthly</option>
+        </select>
+      </label>
+      <label>
+        Next Pay Date <span class="tooltip" title="When will you next receive this income?">?</span>
+        <input type="date" id="primaryNextPayDate" name="primaryNextPayDate" required>
+      </label>
+      <label>
+        How stable is your primary income? (1 = Not stable, 10 = Very stable)
+        <input type="range" id="primaryIncomeStability" name="primaryIncomeStability" min="1" max="10" value="7">
+        <span id="stabilityValue">7</span>/10
+      </label>
+    </div>
+    <div class="income-section">
+      <h3>Secondary Income Sources <span class="tooltip" title="Add any other sources of income, such as side gigs, rental income, etc.">?</span></h3>
+      <div id="secondaryIncomeList"></div>
+      <button type="button" id="addSecondaryIncome">+ Add Another Income Source</button>
+    </div>
+    <div id="incomeWarnings" class="warning"></div>
+    <div class="child-support-section">
+      <h3>Do you receive child support?</h3>
+      <label><input type="radio" name="hasChildSupport" value="yes" required> Yes</label>
+      <label><input type="radio" name="hasChildSupport" value="no" required> No</label>
+      <div id="childSupportFields" class="progressive">
+        <label>
+          Amount (USD)
+          <input type="number" id="childSupportAmount" name="childSupportAmount" min="0.01" step="0.01" placeholder="$0.00">
+          <span class="monthly-conversion" id="childSupportMonthlyEquivalent"></span>
+        </label>
+        <label>
+          Frequency
+          <select id="childSupportFrequency" name="childSupportFrequency">
+            <option value="">Select frequency</option>
+            <option value="weekly">Weekly</option>
+            <option value="bi-weekly">Bi-weekly</option>
+            <option value="semi-monthly">Semi-monthly</option>
+            <option value="monthly">Monthly</option>
+          </select>
+        </label>
+        <label>
+          Next Pay Date
+          <input type="date" id="childSupportNextPayDate" name="childSupportNextPayDate">
+        </label>
+      </div>
+    </div>
+    <div class="button-row">
+      <button type="button" id="prevBtn" class="btn-mingus-secondary">Previous</button>
+      <button type="button" id="skipBtn" class="btn-mingus-skip">Skip</button>
+      <button type="submit" id="nextBtn" class="btn-mingus-primary" disabled>Next</button>
+      <span id="savingIndicator" class="saving-indicator" style="display:none;">Saving...</span>
+    </div>
+  </form>
+  <div id="skipWarning" class="skip-warning" style="display:none;">Are you sure you want to skip? Some features may be unavailable until this step is complete.</div>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
+  <script>
+    // --- Mingus theme button styles ---
+    const style = document.createElement('style');
+    style.innerHTML = `
+      .btn-mingus-primary { background: #2563eb; color: #fff; border: none; border-radius: 6px; padding: 0.6em 1.5em; font-weight: 600; font-size: 1em; margin-right: 0.5em; transition: background 0.2s; }
+      .btn-mingus-primary:disabled { background: #a5b4fc; color: #fff; cursor: not-allowed; }
+      .btn-mingus-secondary { background: #f3f4f6; color: #1e293b; border: none; border-radius: 6px; padding: 0.6em 1.5em; font-weight: 600; font-size: 1em; margin-right: 0.5em; }
+      .btn-mingus-skip { background: #fffbe6; color: #b45309; border: 1px solid #fde68a; border-radius: 6px; padding: 0.6em 1.5em; font-weight: 600; font-size: 1em; }
+      .progress-bar-container { margin-bottom: 1.5em; }
+      .progress-bar { display: flex; flex-direction: column; align-items: flex-start; }
+      .progress-label { font-size: 1.1em; font-weight: 600; color: #2563eb; margin-bottom: 0.3em; }
+      .progress-track { width: 100%; height: 8px; background: #e0e7ff; border-radius: 4px; overflow: hidden; }
+      .progress-fill { height: 8px; background: #2563eb; border-radius: 4px; transition: width 0.3s; }
+      .saving-indicator { color: #2563eb; font-size: 0.95em; margin-left: 1em; }
+      .skip-warning { background: #fffbe6; color: #b45309; border: 1px solid #fde68a; border-radius: 6px; padding: 1em; margin-top: 1em; font-size: 1em; }
+      @media (max-width: 600px) {
+        .progress-bar-container { margin-bottom: 1em; }
+        .button-row { flex-direction: column; gap: 0.5em; }
+        .btn-mingus-primary, .btn-mingus-secondary, .btn-mingus-skip { width: 100%; margin-right: 0; }
+      }
+    `;
+    document.head.appendChild(style);
+
+    // --- Supabase config ---
+    const SUPABASE_URL = 'https://wiemjrvxlqkpbsukdqnbs.supabase.co';
+    const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY'; // Replace with your actual key
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    let userId = null; // Set this from your auth/session logic
+
+    // --- Helper functions ---
+    function toMonthly(amount, frequency) {
+      if (!amount || !frequency) return '';
+      const amt = parseFloat(amount);
+      switch (frequency) {
+        case 'weekly': return (amt * 52 / 12).toFixed(2);
+        case 'bi-weekly': return (amt * 26 / 12).toFixed(2);
+        case 'semi-monthly': return (amt * 2).toFixed(2);
+        case 'monthly': return amt.toFixed(2);
+        default: return '';
+      }
+    }
+    function formatUSD(val) {
+      if (!val) return '';
+      return '$' + parseFloat(val).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+    }
+
+    // --- Auto-save logic ---
+    let autoSaveTimer = null;
+    let isSaving = false;
+    let offline = false;
+    const LOCAL_KEY = 'mingus_financial_profile_autosave';
+
+    function showSavingIndicator(show) {
+      document.getElementById('savingIndicator').style.display = show ? '' : 'none';
+    }
+    function saveToLocal(data) {
+      localStorage.setItem(LOCAL_KEY, JSON.stringify(data));
+    }
+    function loadFromLocal() {
+      const data = localStorage.getItem(LOCAL_KEY);
+      return data ? JSON.parse(data) : null;
+    }
+    function autoSave() {
+      if (isSaving) return;
+      isSaving = true;
+      showSavingIndicator(true);
+      const data = gatherFormData();
+      saveToLocal(data);
+      // Try to save to backend if online
+      if (navigator.onLine) {
+        fetch('/api/financial-profile', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        }).then(() => {
+          isSaving = false;
+          showSavingIndicator(false);
+        }).catch(() => {
+          isSaving = false;
+          showSavingIndicator(false);
+        });
+      } else {
+        offline = true;
+        isSaving = false;
+        showSavingIndicator(false);
+      }
+    }
+    function scheduleAutoSave() {
+      if (autoSaveTimer) clearInterval(autoSaveTimer);
+      autoSaveTimer = setInterval(autoSave, 30000);
+    }
+    function gatherFormData() {
+      // Gather all form data for auto-save and submit
+      const data = {
+        // Primary income
+        primaryIncome: {
+          amount: parseFloat(document.getElementById('primaryIncomeAmount').value) || 0,
+          frequency: document.getElementById('primaryIncomeFrequency').value,
+          nextPayDate: document.getElementById('primaryNextPayDate').value,
+          stability: parseInt(document.getElementById('primaryIncomeStability').value) || 7
+        },
+        // Secondary incomes
+        secondaryIncomes: secondaryIncomes.map(inc => ({
+          amount: parseFloat(inc.amount) || 0,
+          frequency: inc.frequency,
+          nextPayDate: inc.nextPayDate
+        })),
+        // Child support
+        childSupport: {
+          hasChildSupport: document.querySelector('input[name="hasChildSupport"]:checked')?.value || 'no',
+          amount: parseFloat(document.getElementById('childSupportAmount').value) || 0,
+          frequency: document.getElementById('childSupportFrequency').value,
+          nextPayDate: document.getElementById('childSupportNextPayDate').value
+        },
+        // Calculated totals
+        totalMonthlyIncome: 0,
+        totalAnnualIncome: 0,
+        timestamp: new Date().toISOString()
+      };
+
+      // Calculate totals
+      let totalMonthly = 0;
+      
+      // Primary income
+      if (data.primaryIncome.amount && data.primaryIncome.frequency) {
+        totalMonthly += parseFloat(toMonthly(data.primaryIncome.amount, data.primaryIncome.frequency));
+      }
+      
+      // Secondary incomes
+      data.secondaryIncomes.forEach(inc => {
+        if (inc.amount && inc.frequency) {
+          totalMonthly += parseFloat(toMonthly(inc.amount, inc.frequency));
+        }
+      });
+      
+      // Child support
+      if (data.childSupport.hasChildSupport === 'yes' && data.childSupport.amount && data.childSupport.frequency) {
+        totalMonthly += parseFloat(toMonthly(data.childSupport.amount, data.childSupport.frequency));
+      }
+      
+      data.totalMonthlyIncome = totalMonthly;
+      data.totalAnnualIncome = totalMonthly * 12;
+      
+      return data;
+    }
+
+    function restoreFormData(data) {
+      if (!data) return;
+      
+      // Restore primary income
+      if (data.primaryIncome) {
+        document.getElementById('primaryIncomeAmount').value = data.primaryIncome.amount || '';
+        document.getElementById('primaryIncomeFrequency').value = data.primaryIncome.frequency || '';
+        document.getElementById('primaryNextPayDate').value = data.primaryIncome.nextPayDate || '';
+        document.getElementById('primaryIncomeStability').value = data.primaryIncome.stability || 7;
+        document.getElementById('stabilityValue').textContent = data.primaryIncome.stability || 7;
+        updatePrimaryMonthly();
+      }
+      
+      // Restore secondary incomes
+      if (data.secondaryIncomes && data.secondaryIncomes.length > 0) {
+        secondaryIncomes = data.secondaryIncomes.map(inc => ({
+          amount: inc.amount || '',
+          frequency: inc.frequency || '',
+          nextPayDate: inc.nextPayDate || ''
+        }));
+        renderSecondaryIncomes();
+      }
+      
+      // Restore child support
+      if (data.childSupport) {
+        const hasChildSupport = data.childSupport.hasChildSupport || 'no';
+        document.querySelector(`input[name="hasChildSupport"][value="${hasChildSupport}"]`).checked = true;
+        document.getElementById('childSupportFields').classList.toggle('active', hasChildSupport === 'yes');
+        
+        if (hasChildSupport === 'yes') {
+          document.getElementById('childSupportAmount').value = data.childSupport.amount || '';
+          document.getElementById('childSupportFrequency').value = data.childSupport.frequency || '';
+          document.getElementById('childSupportNextPayDate').value = data.childSupport.nextPayDate || '';
+          updateChildSupportMonthly();
+        }
+      }
+    }
+
+    // Restore on load
+    window.addEventListener('DOMContentLoaded', () => {
+      const saved = loadFromLocal();
+      if (saved) {
+        restoreFormData(saved);
+      }
+      scheduleAutoSave();
+      validateForm(); // Initial validation
+    });
+
+    // --- Validation enhancements ---
+    // Real-time currency formatting
+    function formatCurrencyInput(e) {
+      let val = e.target.value.replace(/[^\d.]/g, '');
+      if (val) {
+        val = parseFloat(val).toFixed(2);
+        e.target.value = formatUSD(val);
+      }
+    }
+    document.querySelectorAll('input[type="number"]').forEach(input => {
+      input.addEventListener('input', formatCurrencyInput);
+    });
+
+    // Real-time validation and error messages
+    function validateForm() {
+      let valid = true;
+      let errors = [];
+      let warnings = [];
+      
+      // Clear previous error messages
+      clearErrorMessages();
+      
+      // Primary income validation
+      const primaryAmount = parseFloat(document.getElementById('primaryIncomeAmount').value);
+      const primaryFrequency = document.getElementById('primaryIncomeFrequency').value;
+      const primaryNextPayDate = document.getElementById('primaryNextPayDate').value;
+      
+      if (!primaryAmount || primaryAmount <= 0) {
+        errors.push('Primary income amount is required and must be greater than $0.');
+        showFieldError('primaryIncomeAmount', 'Primary income is required');
+        valid = false;
+      }
+      
+      if (!primaryFrequency) {
+        errors.push('Primary income frequency is required.');
+        showFieldError('primaryIncomeFrequency', 'Frequency is required');
+        valid = false;
+      }
+      
+      if (!primaryNextPayDate) {
+        errors.push('Next pay date is required.');
+        showFieldError('primaryNextPayDate', 'Next pay date is required');
+        valid = false;
+      }
+      
+      // Validate secondary incomes
+      secondaryIncomes.forEach((inc, idx) => {
+        if (inc.amount && !inc.frequency) {
+          errors.push(`Secondary income #${idx + 1} frequency is required.`);
+          valid = false;
+        }
+        if (inc.frequency && (!inc.amount || inc.amount <= 0)) {
+          errors.push(`Secondary income #${idx + 1} amount is required.`);
+          valid = false;
+        }
+      });
+      
+      // Child support validation
+      const hasChildSupport = document.querySelector('input[name="hasChildSupport"]:checked')?.value;
+      if (!hasChildSupport) {
+        errors.push('Please select whether you receive child support.');
+        valid = false;
+      } else if (hasChildSupport === 'yes') {
+        const csAmount = parseFloat(document.getElementById('childSupportAmount').value);
+        const csFrequency = document.getElementById('childSupportFrequency').value;
+        const csNextPayDate = document.getElementById('childSupportNextPayDate').value;
+        
+        if (!csAmount || csAmount <= 0) {
+          errors.push('Child support amount is required.');
+          showFieldError('childSupportAmount', 'Amount is required');
+          valid = false;
+        }
+        
+        if (!csFrequency) {
+          errors.push('Child support frequency is required.');
+          showFieldError('childSupportFrequency', 'Frequency is required');
+          valid = false;
+        }
+        
+        if (!csNextPayDate) {
+          errors.push('Child support next pay date is required.');
+          showFieldError('childSupportNextPayDate', 'Next pay date is required');
+          valid = false;
+        }
+      }
+      
+      // Calculate total annual income for warnings
+      const data = gatherFormData();
+      const totalAnnual = data.totalAnnualIncome;
+      
+      if (totalAnnual > 0) {
+        if (totalAnnual < 20000) {
+          warnings.push('Total annual income is very low. Please check your entries.');
+        }
+        if (totalAnnual > 500000) {
+          warnings.push('Total annual income is very high. Please check your entries.');
+        }
+      }
+      
+      // Display errors and warnings
+      displayErrors(errors);
+      displayWarnings(warnings);
+      
+      // Update financial health score
+      updateFinancialHealthScore(data);
+      
+      // Enable/disable next button
+      document.getElementById('nextBtn').disabled = !valid;
+      
+      return valid;
+    }
+
+    function showFieldError(fieldId, message) {
+      const field = document.getElementById(fieldId);
+      if (field) {
+        field.style.borderColor = '#b91c1c';
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'field-error';
+        errorDiv.textContent = message;
+        errorDiv.style.color = '#b91c1c';
+        errorDiv.style.fontSize = '0.85em';
+        errorDiv.style.marginTop = '0.25em';
+        field.parentNode.appendChild(errorDiv);
+      }
+    }
+
+    function clearErrorMessages() {
+      // Remove field-specific errors
+      document.querySelectorAll('.field-error').forEach(el => el.remove());
+      // Reset field borders
+      document.querySelectorAll('input, select').forEach(field => {
+        field.style.borderColor = '';
+      });
+    }
+
+    function displayErrors(errors) {
+      const warningDiv = document.getElementById('incomeWarnings');
+      if (errors.length > 0) {
+        warningDiv.innerHTML = '<div style="color: #b91c1c; font-weight: bold; margin-bottom: 0.5em;">Please fix the following errors:</div>' + 
+                              errors.map(err => `<div style="color: #b91c1c; margin-bottom: 0.25em;">• ${err}</div>`).join('');
+        warningDiv.style.display = 'block';
+      } else {
+        warningDiv.style.display = 'none';
+      }
+    }
+
+    function displayWarnings(warnings) {
+      if (warnings.length > 0) {
+        const warningDiv = document.getElementById('incomeWarnings');
+        const currentContent = warningDiv.innerHTML;
+        const warningContent = '<div style="color: #b45309; font-weight: bold; margin-top: 1em; margin-bottom: 0.5em;">Warnings:</div>' + 
+                              warnings.map(warn => `<div style="color: #b45309; margin-bottom: 0.25em;">• ${warn}</div>`).join('');
+        warningDiv.innerHTML = currentContent + warningContent;
+        warningDiv.style.display = 'block';
+      }
+    }
+
+    function updateFinancialHealthScore(data) {
+      let score = 0;
+      let maxScore = 100;
+      
+      // Income stability (0-30 points)
+      if (data.primaryIncome.stability >= 8) score += 30;
+      else if (data.primaryIncome.stability >= 6) score += 20;
+      else if (data.primaryIncome.stability >= 4) score += 10;
+      
+      // Income diversity (0-20 points)
+      if (data.secondaryIncomes.length > 0) {
+        score += Math.min(20, data.secondaryIncomes.length * 10);
+      }
+      
+      // Income level (0-30 points)
+      const annualIncome = data.totalAnnualIncome;
+      if (annualIncome >= 50000) score += 30;
+      else if (annualIncome >= 35000) score += 20;
+      else if (annualIncome >= 25000) score += 10;
+      
+      // Child support (0-20 points)
+      if (data.childSupport.hasChildSupport === 'yes' && data.childSupport.amount > 0) {
+        score += 20;
+      }
+      
+      // Display score (you can add this to your HTML if needed)
+      const scorePercentage = Math.round((score / maxScore) * 100);
+      console.log(`Financial Health Score: ${scorePercentage}%`);
+    }
+
+    document.getElementById('financialProfileForm').addEventListener('input', validateForm);
+    document.getElementById('financialProfileForm').addEventListener('change', validateForm);
+
+    // --- Form submission handler ---
+    document.getElementById('financialProfileForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      if (!validateForm()) {
+        return;
+      }
+      
+      const data = gatherFormData();
+      
+      try {
+        // Save to Supabase
+        const incomes = [
+          {
+            income_type: 'salary',
+            amount: data.primaryIncome.amount,
+            frequency: data.primaryIncome.frequency,
+            start_date: data.primaryIncome.nextPayDate,
+            stability: data.primaryIncome.stability
+          },
+          ...data.secondaryIncomes.map(inc => ({
+            income_type: 'secondary',
+            amount: inc.amount,
+            frequency: inc.frequency,
+            start_date: inc.nextPayDate
+          }))
+        ];
+        
+        // Add child support if applicable
+        if (data.childSupport.hasChildSupport === 'yes') {
+          incomes.push({
+            income_type: 'child_support',
+            amount: data.childSupport.amount,
+            frequency: data.childSupport.frequency,
+            start_date: data.childSupport.nextPayDate
+          });
+        }
+        
+        // Insert/update incomes in Supabase
+        for (const inc of incomes) {
+          await supabase.from('user_income_due_dates').upsert({
+            user_id: userId,
+            income_type: inc.income_type,
+            amount: inc.amount,
+            frequency: inc.frequency,
+            start_date: inc.start_date,
+            stability: inc.stability || null
+          }, { onConflict: ['user_id', 'income_type', 'start_date'] });
+        }
+        
+        // Update onboarding profile summary
+        await supabase.from('user_onboarding_profiles').upsert({
+          user_id: userId,
+          monthly_income: data.totalMonthlyIncome
+        }, { onConflict: ['user_id'] });
+        
+        // Clear local storage after successful save
+        localStorage.removeItem(LOCAL_KEY);
+        
+        // Redirect to next step
+        window.location.href = '/onboarding/next-step';
+        
+      } catch (error) {
+        console.error('Error saving financial profile:', error);
+        alert('There was an error saving your financial profile. Please try again.');
+      }
+    });
+
+    // --- Navigation/progress bar logic ---
+    document.getElementById('prevBtn').onclick = function() {
+      window.location.href = '/onboarding/previous-step';
+    };
+    document.getElementById('nextBtn').onclick = function(e) {
+      if (!validateForm()) {
+        e.preventDefault();
+        return;
+      }
+      // Submit and go to next step
+      document.getElementById('financialProfileForm').submit();
+    };
+    document.getElementById('skipBtn').onclick = function() {
+      document.getElementById('skipWarning').style.display = '';
+      setTimeout(() => { document.getElementById('skipWarning').style.display = 'none'; }, 5000);
+    };
+    // Responsive progress bar already handled in CSS
+
+    // --- Dynamic secondary income sources ---
+    let secondaryIncomes = [];
+    function renderSecondaryIncomes() {
+      const list = document.getElementById('secondaryIncomeList');
+      list.innerHTML = '';
+      secondaryIncomes.forEach((inc, idx) => {
+        const div = document.createElement('div');
+        div.className = 'income-source';
+        div.innerHTML = `
+          <label>Amount (USD)
+            <input type="number" min="0.01" step="0.01" value="${inc.amount || ''}" data-idx="${idx}" class="secondaryAmount">
+            <span class="monthly-conversion" id="secondaryMonthly${idx}"></span>
+          </label>
+          <label>Frequency
+            <select data-idx="${idx}" class="secondaryFrequency">
+              <option value="">Select frequency</option>
+              <option value="weekly" ${inc.frequency==='weekly'?'selected':''}>Weekly</option>
+              <option value="bi-weekly" ${inc.frequency==='bi-weekly'?'selected':''}>Bi-weekly</option>
+              <option value="semi-monthly" ${inc.frequency==='semi-monthly'?'selected':''}>Semi-monthly</option>
+              <option value="monthly" ${inc.frequency==='monthly'?'selected':''}>Monthly</option>
+            </select>
+          </label>
+          <label>Next Pay Date
+            <input type="date" value="${inc.nextPayDate || ''}" data-idx="${idx}" class="secondaryNextPayDate">
+          </label>
+          <span class="remove-income" data-idx="${idx}">Remove</span>
+        `;
+        list.appendChild(div);
+      });
+    }
+    document.getElementById('addSecondaryIncome').onclick = function() {
+      secondaryIncomes.push({amount:'', frequency:'', nextPayDate:''});
+      renderSecondaryIncomes();
+    };
+    document.getElementById('secondaryIncomeList').addEventListener('input', function(e) {
+      const idx = e.target.getAttribute('data-idx');
+      if (e.target.classList.contains('secondaryAmount')) {
+        secondaryIncomes[idx].amount = e.target.value;
+      } else if (e.target.classList.contains('secondaryFrequency')) {
+        secondaryIncomes[idx].frequency = e.target.value;
+      } else if (e.target.classList.contains('secondaryNextPayDate')) {
+        secondaryIncomes[idx].nextPayDate = e.target.value;
+      }
+      // Update monthly equivalent
+      const monthly = toMonthly(secondaryIncomes[idx].amount, secondaryIncomes[idx].frequency);
+      document.getElementById('secondaryMonthly'+idx).textContent = monthly ? `≈ ${formatUSD(monthly)}/mo` : '';
+    });
+    document.getElementById('secondaryIncomeList').addEventListener('click', function(e) {
+      if (e.target.classList.contains('remove-income')) {
+        const idx = e.target.getAttribute('data-idx');
+        secondaryIncomes.splice(idx, 1);
+        renderSecondaryIncomes();
+      }
+    });
+
+    // --- Real-time monthly conversion for primary income ---
+    document.getElementById('primaryIncomeAmount').addEventListener('input', updatePrimaryMonthly);
+    document.getElementById('primaryIncomeFrequency').addEventListener('change', updatePrimaryMonthly);
+    function updatePrimaryMonthly() {
+      const amt = document.getElementById('primaryIncomeAmount').value;
+      const freq = document.getElementById('primaryIncomeFrequency').value;
+      const monthly = toMonthly(amt, freq);
+      document.getElementById('primaryMonthlyEquivalent').textContent = monthly ? `≈ ${formatUSD(monthly)}/mo` : '';
+    }
+
+    // --- Income stability slider value ---
+    document.getElementById('primaryIncomeStability').addEventListener('input', function(e) {
+      document.getElementById('stabilityValue').textContent = e.target.value;
+    });
+
+    // --- Child support progressive disclosure ---
+    document.querySelectorAll('input[name="hasChildSupport"]').forEach(radio => {
+      radio.addEventListener('change', function(e) {
+        document.getElementById('childSupportFields').classList.toggle('active', e.target.value === 'yes');
+      });
+    });
+    // Real-time monthly for child support
+    document.getElementById('childSupportAmount').addEventListener('input', updateChildSupportMonthly);
+    document.getElementById('childSupportFrequency').addEventListener('change', updateChildSupportMonthly);
+    function updateChildSupportMonthly() {
+      const amt = document.getElementById('childSupportAmount').value;
+      const freq = document.getElementById('childSupportFrequency').value;
+      const monthly = toMonthly(amt, freq);
+      document.getElementById('childSupportMonthlyEquivalent').textContent = monthly ? `≈ ${formatUSD(monthly)}/mo` : '';
+    }
+  </script>
+</body>
+</html> 

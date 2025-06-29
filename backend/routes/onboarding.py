@@ -2,8 +2,11 @@
 Onboarding routes blueprint
 """
 
-from flask import Blueprint, request, jsonify, session, current_app
+from flask import Blueprint, request, jsonify, session, current_app, render_template, redirect, url_for
 from loguru import logger
+from supabase import create_client
+import uuid
+from datetime import datetime
 
 onboarding_bp = Blueprint('onboarding', __name__)
 
@@ -326,4 +329,184 @@ def update_step(step_name):
             
     except Exception as e:
         logger.error(f"Update step error: {str(e)}")
-        return jsonify({'error': 'Internal server error'}), 500 
+        return jsonify({'error': 'Internal server error'}), 500
+
+@onboarding_bp.route('/onboarding/financial-profile', methods=['GET'])
+def financial_profile():
+    """Render the financial profile onboarding step (Step 3)"""
+    user_id = session.get('user_id')
+    if not user_id:
+        return redirect(url_for('onboarding.login'))
+    # Check onboarding progress
+    progress = get_onboarding_progress(user_id)
+    if progress.get('financial_profile_completed'):
+        return redirect(url_for('onboarding.next_step'))
+    # Render the template with progress info
+    return render_template('financial_profile.html', step=3, total_steps=8, progress=progress)
+
+@onboarding_bp.route('/api/financial-profile', methods=['POST'])
+def save_financial_profile():
+    """Save financial profile data from onboarding step 3"""
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'error': 'Not authenticated'}), 401
+    data = request.get_json()
+    if not data:
+        return jsonify({'error': 'No data provided'}), 400
+    # Save to Supabase (pseudo-code, replace with your actual Supabase logic)
+    supabase = create_client(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
+    # Upsert incomes
+    for inc in data.get('incomes', []):
+        supabase.table('user_income_due_dates').upsert({
+            'user_id': user_id,
+            'income_type': inc.get('income_type'),
+            'amount': inc.get('amount'),
+            'frequency': inc.get('frequency'),
+            'start_date': inc.get('start_date'),
+            'stability': inc.get('stability')
+        }, on_conflict=['user_id', 'income_type', 'start_date']).execute()
+    # Update onboarding profile summary
+    supabase.table('user_onboarding_profiles').upsert({
+        'user_id': user_id,
+        'monthly_income': data.get('total_monthly_income')
+    }, on_conflict=['user_id']).execute()
+    # Mark onboarding progress
+    update_onboarding_progress(user_id, step_name='financial_profile', is_completed=True, responses=data)
+    return jsonify({'success': True})
+
+@onboarding_bp.route('/onboarding/expense-profile', methods=['GET'])
+def expense_profile():
+    """Render the expense profile onboarding step (Step 4)"""
+    user_id = session.get('user_id')
+    if not user_id:
+        return redirect(url_for('onboarding.login'))
+    # Check onboarding progress
+    progress = get_onboarding_progress(user_id)
+    if progress < 3:
+        return redirect(url_for('onboarding.financial_profile'))
+    # Mark this as step 4 of 8
+    return render_template('expense_profile.html', step=4, total_steps=8, progress=progress)
+
+@onboarding_bp.route('/api/expense-profile', methods=['POST'])
+def save_expense_profile():
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'error': 'Not authenticated'}), 401
+    data = request.get_json()
+    if not data:
+        return jsonify({'error': 'No data provided'}), 400
+    # Save to Supabase (pseudo-code, replace with your actual supabase logic)
+    supabase = create_client()
+    expense_row = {
+        'user_id': user_id,
+        'starting_balance': data.get('startingBalance'),
+        'created_at': datetime.utcnow().isoformat(),
+        'updated_at': datetime.utcnow().isoformat()
+    }
+    for field, val in data.get('expenses', {}).items():
+        if isinstance(val, dict):
+            expense_row[field] = val.get('amount')
+            expense_row[f"{field.replace('Expense', '')}_frequency"] = val.get('frequency')
+            expense_row[f"{field.replace('Expense', '')}_due_date"] = val.get('dueDate')
+        else:
+            expense_row[field] = val
+    # Upsert into user_expense_items
+    supabase.table('user_expense_items').upsert([expense_row], on_conflict=['user_id'])
+    # Update onboarding progress
+    update_onboarding_progress(user_id, 4)
+    return jsonify({'success': True})
+
+@onboarding_bp.route('/onboarding/financial-goals', methods=['GET'])
+def financial_goals():
+    user_id = session.get('user_id')
+    if not user_id:
+        return redirect(url_for('onboarding.login'))
+    progress = get_onboarding_progress(user_id)
+    if progress < 4:
+        return redirect(url_for('onboarding.expense_profile'))
+    # Fetch existing goals from Supabase
+    supabase = create_client()
+    goals = supabase.table('user_financial_goals').select('*').eq('user_id', user_id).execute().data or []
+    return render_template('financial_goals.html', step=5, total_steps=8, progress=progress, goals=goals)
+
+@onboarding_bp.route('/api/financial-goals', methods=['GET'])
+def get_financial_goals():
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'error': 'Not authenticated'}), 401
+    supabase = create_client()
+    goals = supabase.table('user_financial_goals').select('*').eq('user_id', user_id).execute().data or []
+    return jsonify({'goals': goals})
+
+@onboarding_bp.route('/api/financial-goals', methods=['POST'])
+def save_financial_goals():
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'error': 'Not authenticated'}), 401
+    data = request.get_json()
+    if not data or 'goals' not in data:
+        return jsonify({'error': 'No goals provided'}), 400
+    supabase = create_client()
+    now = datetime.utcnow().isoformat()
+    upserted = []
+    for goal in data['goals']:
+        goal_row = {
+            'user_id': user_id,
+            'goal_name': goal.get('goal_name'),
+            'goal_category': goal.get('goal_category'),
+            'target_amount': goal.get('target_amount'),
+            'target_date': goal.get('target_date'),
+            'current_progress': goal.get('current_progress'),
+            'priority': goal.get('priority'),
+            'created_at': goal.get('created_at', now),
+            'updated_at': now,
+            'id': goal.get('id') or str(uuid.uuid4())
+        }
+        upserted.append(goal_row)
+    supabase.table('user_financial_goals').upsert(upserted, on_conflict=['id'])
+    update_onboarding_progress(user_id, 5)
+    return jsonify({'success': True})
+
+# Helper: Get onboarding progress (pseudo-code)
+def get_onboarding_progress(user_id):
+    # Replace with your actual logic
+    return {
+        'registration_completed': True,
+        'financial_profile_completed': False,
+        # ... other steps ...
+    }
+
+# Helper: Update onboarding progress (pseudo-code)
+def update_onboarding_progress(user_id, step_name, is_completed, responses):
+    # Replace with your actual logic
+    pass
+
+# Update main onboarding router to include this step
+@onboarding_bp.route('/onboarding/next', methods=['GET'])
+def next_step():
+    user_id = session.get('user_id')
+    progress = get_onboarding_progress(user_id)
+    if not progress.get('financial_profile_completed'):
+        return redirect(url_for('onboarding.financial_profile'))
+    # ... logic for next step ...
+    return redirect(url_for('onboarding.dashboard'))
+
+# Conditional access: Redirect incomplete users from dashboard
+@onboarding_bp.route('/dashboard', methods=['GET'])
+def dashboard():
+    user_id = session.get('user_id')
+    progress = get_onboarding_progress(user_id)
+    if not progress.get('financial_profile_completed'):
+        return redirect(url_for('onboarding.financial_profile'))
+    # ... render dashboard ...
+    return render_template('dashboard.html')
+
+# Update onboarding flow navigation logic
+@onboarding_bp.route('/onboarding/next-step', methods=['GET'])
+def onboarding_next_step():
+    user_id = session.get('user_id')
+    progress = get_onboarding_progress(user_id)
+    if progress == 4:
+        return redirect(url_for('onboarding.financial_goals'))
+    # ... existing logic for other steps ...
+    return redirect(url_for('dashboard')) 

@@ -6,6 +6,7 @@ from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from backend.models.user_profile import UserProfile
 from backend.models.onboarding_progress import OnboardingProgress
 import json
+from backend.routes.financial_profile import validate_profile
 
 class OnboardingService:
     def __init__(self, session_factory):
@@ -90,29 +91,28 @@ class OnboardingService:
         session = self._get_session()
         try:
             onboarding_record = session.query(OnboardingProgress).filter_by(user_id=user_id).first()
-
             if not onboarding_record:
                 logger.warning(f"No onboarding record found for user_id: {user_id} to update.")
                 return None
-
             onboarding_record.current_step = step_name
-            onboarding_record.is_completed = is_completed
-            
             if responses:
                 if onboarding_record.responses:
                     onboarding_record.responses.update(responses)
                 else:
                     onboarding_record.responses = responses
-            
-            if is_completed:
+            # Validate financial profile and mark completion
+            profile_valid = self.validate_financial_profile(user_id)['valid']
+            if step_name == 'financial_profile' and profile_valid:
+                onboarding_record.is_completed = True
                 onboarding_record.completed_at = datetime.now(timezone.utc)
-
+                self.trigger_welcome_email(user_id)
+            # Update completion percentage
+            progress = self.get_onboarding_progress(user_id)
+            onboarding_record.completion_percentage = self.get_completion_percentage(user_id)
             session.commit()
             session.refresh(onboarding_record)
-
             logger.info(f"Successfully updated onboarding progress for user_id: {user_id} at step: {step_name}")
             return onboarding_record.to_dict()
-
         except SQLAlchemyError as e:
             session.rollback()
             logger.error(f"Database error updating onboarding progress for user_id {user_id}: {e}")
@@ -189,3 +189,36 @@ class OnboardingService:
         """
         progress = self.get_onboarding_progress(user_id)
         return progress.get('is_completed', False) if progress else False
+
+    def validate_financial_profile(self, user_id: str) -> Dict[str, Any]:
+        """Validate the user's financial profile and return errors/suggestions."""
+        profile = self.get_user_profile(user_id)
+        errors = validate_profile(profile or {})
+        suggestions = self.generate_profile_suggestions(profile or {})
+        return {'valid': not errors, 'errors': errors, 'suggestions': suggestions}
+
+    def get_completion_percentage(self, user_id: str) -> int:
+        """Calculate onboarding completion percentage based on required steps."""
+        progress = self.get_onboarding_progress(user_id)
+        if not progress:
+            return 0
+        total_steps = progress.get('total_steps', 5)
+        completed_steps = progress.get('completed_steps', 0)
+        return int((completed_steps / total_steps) * 100) if total_steps else 0
+
+    def generate_profile_suggestions(self, profile: Dict[str, Any]) -> list:
+        """Generate suggestions for missing or incomplete financial profile data."""
+        suggestions = []
+        if not profile.get('income') or profile['income'] <= 0:
+            suggestions.append('Add your primary income to get started.')
+        if not profile.get('expenses') or profile['expenses'] < 0:
+            suggestions.append('Add your monthly expenses for accurate insights.')
+        if not profile.get('emergency_fund') or profile['emergency_fund'] < (profile.get('expenses', 0) * 3):
+            suggestions.append('Build an emergency fund of at least 3 months of expenses.')
+        # Add more as needed
+        return suggestions
+
+    def trigger_welcome_email(self, user_id: str):
+        """Trigger a welcome email when onboarding is complete."""
+        # TODO: Integrate with email service
+        logger.info(f"Triggering welcome email for user_id: {user_id}")

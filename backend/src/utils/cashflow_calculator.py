@@ -5,103 +5,109 @@ from backend.src.config.supabase_client import get_supabase_client
 
 def calculate_daily_cashflow(user_id: str, initial_balance: float, start_date: str = None) -> List[Dict[str, Any]]:
     """
-    Calculate daily cash flow for the next 12 months based on income and expense schedules.
-    
-    Args:
-        user_id: The user's UUID
-        initial_balance: Starting balance
-        start_date: Optional start date (YYYY-MM-DD), defaults to today
-    
-    Returns:
-        List of daily cash flow records
+    Calculate daily cash flow for the next 12 months based on financial profile, actual expenses, and goals.
     """
-    # Set start date to today if not provided
     if not start_date:
         start_date = datetime.now().strftime("%Y-%m-%d")
-    
-    # Convert start_date to datetime
     current_date = datetime.strptime(start_date, "%Y-%m-%d")
-    end_date = current_date + timedelta(days=365)  # 12 months from start
-    
+    end_date = current_date + timedelta(days=365)
     try:
         print(f"Calculating cashflow for user {user_id} from {start_date} to {end_date.strftime('%Y-%m-%d')}")
-        
-        # Get Supabase client
         supabase = get_supabase_client()
-        
-        # First, delete existing projections for this user and date range
-        delete_response = supabase.table('daily_cashflow') \
+        # Delete existing projections
+        supabase.table('daily_cashflow') \
             .delete() \
             .eq('user_id', user_id) \
             .gte('forecast_date', start_date) \
             .lte('forecast_date', end_date.strftime("%Y-%m-%d")) \
             .execute()
-        
-        print(f"Deleted existing records: {delete_response}")
-        
-        # Fetch all expense dates
-        expense_response = supabase.table('user_expense_due_dates') \
-            .select('*') \
-            .eq('user_id', user_id) \
-            .execute()
-        expense_schedules = expense_response.data
-
-        # Create a dictionary to store daily transactions
+        # --- Fetch financial profile (income, etc.) ---
+        profile_resp = supabase.table('user_financial_profiles').select('*').eq('user_id', user_id).single().execute()
+        profile = profile_resp.data or {}
+        # --- Fetch all expense schedules ---
+        expense_response = supabase.table('user_expense_due_dates').select('*').eq('user_id', user_id).execute()
+        expense_schedules = expense_response.data or []
+        # --- Fetch actual expense items (recurring, variable) ---
+        expense_items_resp = supabase.table('user_expense_items').select('*').eq('user_id', user_id).execute()
+        expense_items = expense_items_resp.data or []
+        # --- Fetch financial goals (future expenses) ---
+        goals_resp = supabase.table('user_financial_goals').select('*').eq('user_id', user_id).execute()
+        goals = goals_resp.data or []
+        # --- Build daily transactions ---
         daily_transactions = {}
-        
-        # Process expense schedules
+        # Income: add recurring income from profile
+        income = profile.get('income', 0)
+        income_frequency = profile.get('income_frequency', 'monthly')
+        # Convert income to daily
+        if income_frequency == 'monthly':
+            daily_income = income / 30.44
+        elif income_frequency == 'bi-weekly':
+            daily_income = (income * 26) / 365
+        elif income_frequency == 'weekly':
+            daily_income = (income * 52) / 365
+        else:
+            daily_income = income / 30.44
+        # Add daily income to each day
+        temp_date = current_date
+        while temp_date <= end_date:
+            date_str = temp_date.strftime("%Y-%m-%d")
+            if date_str not in daily_transactions:
+                daily_transactions[date_str] = {'income': 0, 'expenses': 0}
+            daily_transactions[date_str]['income'] += daily_income
+            temp_date += timedelta(days=1)
+        # Expenses: add scheduled and actual expenses
         for expense in expense_schedules:
-            # Get the day of the month for this expense
-            due_day = expense['due_date']
-            expense_type = expense['expense_type']
-            
-            # Set default amounts based on expense type
-            amount = {
-                'rent': 2500.00,
-                'utilities': 200.00,
-                'car_payment': 400.00
-            }.get(expense_type, 0.00)
-            
-            # Generate dates for the next 12 months
-            current = current_date
-            while current <= end_date:
-                # If this is the due day for this month
-                if current.day == due_day:
-                    date_str = current.strftime("%Y-%m-%d")
+            due_day = int(expense.get('due_date', 1))
+            amount = float(expense.get('amount', 0))
+            freq = expense.get('frequency', 'monthly')
+            temp_date = current_date
+            while temp_date <= end_date:
+                if temp_date.day == due_day:
+                    date_str = temp_date.strftime("%Y-%m-%d")
                     if date_str not in daily_transactions:
                         daily_transactions[date_str] = {'income': 0, 'expenses': 0}
                     daily_transactions[date_str]['expenses'] += amount
-                
-                # Move to next day
-                current += timedelta(days=1)
-
-        # Calculate daily balances
+                temp_date += timedelta(days=1)
+        # Add variable/one-off expenses from expense_items
+        for item in expense_items:
+            for field, val in item.items():
+                if field.endswith('_expense') and val:
+                    # Assume monthly for now
+                    temp_date = current_date
+                    while temp_date <= end_date:
+                        if temp_date.day == 1:
+                            date_str = temp_date.strftime("%Y-%m-%d")
+                            if date_str not in daily_transactions:
+                                daily_transactions[date_str] = {'income': 0, 'expenses': 0}
+                            daily_transactions[date_str]['expenses'] += float(val)
+                        temp_date += timedelta(days=1)
+        # --- Factor in financial goals as future expenses ---
+        for goal in goals:
+            target_date = goal.get('target_date')
+            target_amount = float(goal.get('target_amount', 0))
+            if target_date and target_amount > 0:
+                # Add as a one-time expense on the target date
+                if target_date not in daily_transactions:
+                    daily_transactions[target_date] = {'income': 0, 'expenses': 0}
+                daily_transactions[target_date]['expenses'] += target_amount
+        # --- Calculate daily balances ---
         cashflow_records = []
         running_balance = initial_balance
-        current = current_date
-        
-        while current <= end_date:
-            date_str = current.strftime("%Y-%m-%d")
-            
-            # Get transactions for the day (or default to 0)
+        temp_date = current_date
+        while temp_date <= end_date:
+            date_str = temp_date.strftime("%Y-%m-%d")
             daily_data = daily_transactions.get(date_str, {'income': 0, 'expenses': 0})
             income = daily_data['income']
             expenses = daily_data['expenses']
-            
-            # Calculate balances
             opening_balance = running_balance
             net_change = income - expenses
             closing_balance = opening_balance + net_change
-            
-            # Determine balance status
             if closing_balance >= 5000:
                 balance_status = 'healthy'
             elif closing_balance >= 0:
                 balance_status = 'warning'
             else:
                 balance_status = 'danger'
-            
-            # Create record
             record = {
                 'id': str(uuid.uuid4()),
                 'user_id': user_id,
@@ -113,28 +119,19 @@ def calculate_daily_cashflow(user_id: str, initial_balance: float, start_date: s
                 'net_change': net_change,
                 'balance_status': balance_status
             }
-            
             cashflow_records.append(record)
-            
-            # Update running balance for next day
             running_balance = closing_balance
-            current += timedelta(days=1)
-        
-        # Batch insert records with explicit handling
+            temp_date += timedelta(days=1)
+        # Batch insert
         batch_size = 50
         for i in range(0, len(cashflow_records), batch_size):
             batch = cashflow_records[i:i + batch_size]
             try:
-                insert_response = supabase.table('daily_cashflow') \
-                    .insert(batch) \
-                    .execute()
-                print(f"Inserted batch {i//batch_size + 1}: {len(batch)} records")
+                supabase.table('daily_cashflow').insert(batch).execute()
             except Exception as batch_error:
                 print(f"Error inserting batch {i//batch_size + 1}: {str(batch_error)}")
                 raise batch_error
-        
         return cashflow_records
-
     except Exception as e:
         print(f"Error in calculate_daily_cashflow: {str(e)}")
         raise e
