@@ -60,3 +60,4 @@ schema*.json
 TESTING*.docx
 backups/2025-06-09-backup/
 test-clone/
+Mingus-Cypress-Tests/node_modules/
