@@ -13,6 +13,83 @@ from loguru import logger
 import pandas as pd
 import numpy as np
 from scipy import stats
+import uuid
+from django.db import models
+from django.contrib.auth import get_user_model
+from django.core.validators import MinValueValidator, MaxValueValidator, RegexValidator
+
+User = get_user_model()
+
+class UserFinancialProfile(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='financial_profile')
+    monthly_income = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, validators=[MinValueValidator(0)])
+    income_frequency = models.CharField(
+        max_length=16,
+        choices=[
+            ('weekly', 'Weekly'),
+            ('bi_weekly', 'Bi-weekly'),
+            ('monthly', 'Monthly'),
+            ('semi_monthly', 'Semi-monthly')
+        ],
+        null=True, blank=True
+    )
+    income_sources = models.JSONField(null=True, blank=True, help_text="Array of {source, amount}")
+    monthly_fixed_expenses = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, validators=[MinValueValidator(0)])
+    monthly_variable_expenses = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, validators=[MinValueValidator(0)])
+    current_savings = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, validators=[MinValueValidator(0)])
+    current_debt = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, validators=[MinValueValidator(0)])
+    emergency_fund_months = models.DecimalField(max_digits=3, decimal_places=1, null=True, blank=True, validators=[MinValueValidator(0)])
+    financial_goals = models.JSONField(null=True, blank=True, help_text="Array of {goal, target_amount, target_date}")
+    risk_tolerance = models.CharField(
+        max_length=16,
+        choices=[
+            ('conservative', 'Conservative'),
+            ('moderate', 'Moderate'),
+            ('aggressive', 'Aggressive')
+        ],
+        null=True, blank=True
+    )
+    budgeting_experience = models.CharField(
+        max_length=16,
+        choices=[
+            ('none', 'None'),
+            ('basic', 'Basic'),
+            ('intermediate', 'Intermediate'),
+            ('advanced', 'Advanced')
+        ],
+        null=True, blank=True
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    # --- Model Methods for Calculations ---
+
+    def debt_to_income_ratio(self) -> float:
+        """Return debt-to-income ratio (monthly debt / monthly income) as a float, or 0 if not computable."""
+        if self.monthly_income and self.monthly_income > 0 and self.current_debt is not None:
+            return float(self.current_debt) / float(self.monthly_income)
+        return 0.0
+
+    def emergency_fund_coverage(self) -> float:
+        """Return emergency fund coverage in months (savings / (fixed + variable expenses)), or 0 if not computable."""
+        total_expenses = (self.monthly_fixed_expenses or 0) + (self.monthly_variable_expenses or 0)
+        if total_expenses > 0 and self.current_savings is not None:
+            return float(self.current_savings) / float(total_expenses)
+        return 0.0
+
+    def total_income_sources(self) -> float:
+        """Sum all income sources if present."""
+        if self.income_sources:
+            return sum(float(src.get('amount', 0)) for src in self.income_sources)
+        return float(self.monthly_income or 0)
+
+    def __str__(self):
+        return f"Financial Profile for {self.user.username}"
+
+    class Meta:
+        verbose_name = "User Financial Profile"
+        verbose_name_plural = "User Financial Profiles"
 
 @dataclass
 class UserMetric:
