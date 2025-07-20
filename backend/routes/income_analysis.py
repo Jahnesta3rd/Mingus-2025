@@ -51,6 +51,24 @@ def income_analysis_results():
             'error': 'Error loading income analysis results'
         }), 500
 
+@income_analysis_bp.route('/dashboard', methods=['GET'])
+@cross_origin()
+def comprehensive_dashboard():
+    """
+    Display the comprehensive career advancement dashboard
+    
+    Returns:
+        Rendered HTML template for comprehensive dashboard
+    """
+    try:
+        return render_template('comprehensive_career_dashboard.html')
+    except Exception as e:
+        logger.error(f"Error rendering comprehensive dashboard: {str(e)}")
+        return jsonify({
+            'success': False,
+            'error': 'Error loading comprehensive dashboard'
+        }), 500
+
 @income_analysis_bp.route('/analyze', methods=['POST'])
 @cross_origin()
 def analyze_income():
