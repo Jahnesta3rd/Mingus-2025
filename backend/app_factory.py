@@ -12,11 +12,21 @@ from typing import Optional
 
 from backend.services.user_service import UserService
 from backend.services.onboarding_service import OnboardingService
+from backend.services.audit_logging import AuditService
+from backend.services.verification_service import VerificationService
+from backend.middleware.security_middleware import SecurityMiddleware
 from backend.models import Base  # Import shared Base
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from config.development import DevelopmentConfig
+
+# Import new models
+from backend.models.reminder_schedule import ReminderSchedule
+from backend.models.user_preferences import UserPreferences
+
+# Import new routes
+from backend.routes.onboarding_completion import onboarding_completion_bp
 
 def create_app(config_name: str = None) -> Flask:
     """
@@ -41,6 +51,10 @@ def create_app(config_name: str = None) -> Flask:
             "allow_headers": ["Content-Type", "Authorization"]
         }
     })
+    
+    # Initialize security middleware
+    security_middleware = SecurityMiddleware()
+    security_middleware.init_app(app)
     
     # Initialize request logging using Flask hooks
     from backend.middleware.request_logger import setup_request_logging
@@ -96,6 +110,12 @@ def init_database(app: Flask) -> None:
             UserHealthCheckin, HealthSpendingCorrelation
         )
         
+        # Import encrypted models
+        from backend.models.encrypted_financial_models import (
+            EncryptedFinancialProfile, EncryptedIncomeSource, 
+            EncryptedDebtAccount, FinancialAuditLog
+        )
+        
         # Create all tables using the shared Base - MUCH SIMPLER!
         if app.config.get('CREATE_TABLES', True):
             Base.metadata.create_all(bind=engine)
@@ -127,6 +147,14 @@ def init_services(app: Flask) -> None:
         onboarding_service = OnboardingService(app.config['DATABASE_SESSION'])
         app.onboarding_service = onboarding_service
         
+        # Initialize AuditService
+        audit_service = AuditService(app.config['DATABASE_SESSION'])
+        app.audit_service = audit_service
+        
+        # Initialize VerificationService
+        verification_service = VerificationService(app.config['DATABASE_SESSION'])
+        app.verification_service = verification_service
+        
         logger.info("Services initialized successfully")
         
     except Exception as e:
@@ -144,17 +172,39 @@ def register_blueprints(app: Flask) -> None:
         from backend.routes.auth import auth_bp
         from backend.routes.health import health_bp
         from backend.routes.onboarding import onboarding_bp
+        from backend.routes.secure_financial import secure_financial_bp
+        from backend.routes.financial_questionnaire import financial_questionnaire_bp
         from backend.monitoring.dashboard import dashboard_bp
+        from backend.routes.insights import insights_bp
+        from backend.routes.tour import tour_bp
+        from backend.routes.checklist import checklist_bp
+        from backend.routes.resume_analysis import resume_analysis_bp
+        from backend.routes.intelligent_job_matching import intelligent_job_matching_bp
+        from backend.routes.career_advancement import career_advancement_bp
+        from backend.routes.job_recommendation_engine import job_recommendation_engine_bp
+        from backend.routes.enhanced_job_recommendations import enhanced_job_recommendations_bp
+        from backend.routes.income_analysis import income_analysis_bp
         
         app.register_blueprint(auth_bp, url_prefix='/api/auth')
         app.register_blueprint(health_bp, url_prefix='/api/health')
         app.register_blueprint(onboarding_bp, url_prefix='/api/onboarding')
-        app.register_blueprint(dashboard_bp, url_prefix='/api/monitoring')
+        app.register_blueprint(secure_financial_bp, url_prefix='/api/secure')
+        app.register_blueprint(financial_questionnaire_bp, url_prefix='/api/questionnaire')
+        app.register_blueprint(dashboard_bp, url_prefix='/api/dashboard')
+        app.register_blueprint(insights_bp, url_prefix='/api/insights')
+        app.register_blueprint(tour_bp, url_prefix='/api/tour')
+        app.register_blueprint(checklist_bp, url_prefix='/api/checklist')
+        app.register_blueprint(resume_analysis_bp, url_prefix='/api/resume')
+        app.register_blueprint(intelligent_job_matching_bp, url_prefix='/api/job-matching')
+        app.register_blueprint(career_advancement_bp, url_prefix='/api/career-advancement')
+        app.register_blueprint(job_recommendation_engine_bp, url_prefix='/api/job-recommendations')
+        app.register_blueprint(enhanced_job_recommendations_bp, url_prefix='/api/enhanced-recommendations')
+        app.register_blueprint(income_analysis_bp, url_prefix='/api/income-analysis')
         
-        logger.info("Blueprints registered successfully")
+        logger.info("All blueprints registered successfully")
         
     except Exception as e:
-        logger.error(f"Failed to register blueprints: {e}")
+        logger.error(f"Blueprint registration failed: {str(e)}")
         raise
 
 def register_root_routes(app: Flask) -> None:
@@ -164,12 +214,15 @@ def register_root_routes(app: Flask) -> None:
     Args:
         app: Flask application instance
     """
+    
     @app.route('/')
     def root():
-        from flask import redirect
-        return redirect('/api/auth/login')
-    
-    logger.info("Root routes registered successfully")
+        """Root endpoint"""
+        return {
+            'message': 'Mingus API is running',
+            'version': '1.0.0',
+            'status': 'healthy'
+        }
 
 def register_error_handlers(app: Flask) -> None:
     """
@@ -178,13 +231,13 @@ def register_error_handlers(app: Flask) -> None:
     Args:
         app: Flask application instance
     """
+    
     @app.errorhandler(404)
     def not_found(error):
         return {'error': 'Resource not found'}, 404
     
     @app.errorhandler(500)
     def internal_error(error):
-        logger.error(f"Internal server error: {str(error)}")
         return {'error': 'Internal server error'}, 500
     
     @app.errorhandler(400)
@@ -199,37 +252,26 @@ def register_error_handlers(app: Flask) -> None:
     def forbidden(error):
         return {'error': 'Forbidden'}, 403
     
-    logger.info("Error handlers registered successfully")
+    @app.errorhandler(429)
+    def too_many_requests(error):
+        return {'error': 'Too many requests'}, 429
 
 def get_user_service() -> Optional[UserService]:
-    """
-    Get UserService from Flask app context
-    
-    Returns:
-        UserService instance or None if not available
-    """
-    from flask import current_app
-    return getattr(current_app, 'user_service', None)
+    """Get UserService instance"""
+    return None
 
 def get_onboarding_service() -> Optional[OnboardingService]:
-    """
-    Get OnboardingService from Flask app context
-    
-    Returns:
-        OnboardingService instance or None if not available
-    """
-    from flask import current_app
-    return getattr(current_app, 'onboarding_service', None)
+    """Get OnboardingService instance"""
+    return None
+
+def get_audit_service() -> Optional[AuditService]:
+    """Get AuditService instance"""
+    return None
+
+def get_verification_service() -> Optional[VerificationService]:
+    """Get VerificationService instance"""
+    return None
 
 def get_db_session():
-    """
-    Get database session from Flask app context
-    
-    Returns:
-        Database session or None if not available
-    """
-    from flask import current_app
-    SessionLocal = current_app.config.get('DATABASE_SESSION')
-    if SessionLocal:
-        return SessionLocal()
+    """Get database session"""
     return None 
