@@ -130,7 +130,7 @@ def analyze_income():
             }), 400
         
         # Validate salary if provided
-        if current_salary:
+        if current_salary is not None:
             try:
                 current_salary = int(current_salary)
                 if current_salary <= 0:

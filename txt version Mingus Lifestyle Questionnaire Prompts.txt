@@ -1,0 +1,798 @@
+Mingus Lifestyle Questionnaire: Prompts & Questions Including Staggered Timing Schedule
+Overview
+This lifestyle questionnaire expands beyond the core wellness assessment to capture the full picture of how your daily life, values, and circumstances influence your financial decisions. It's designed specifically for African American professionals aged 25-35 navigating career growth, family obligations, and financial goals.
+
+Section 1: Living Situation & Housing
+Understanding your housing context and future plans
+Opening Prompt:
+"Your living situation significantly impacts your monthly expenses and long-term financial goals. Help us understand your current housing situation so we can provide more accurate forecasting and relevant recommendations."
+Questions:
+1. Current Housing Status
+* Own your home
+* Rent an apartment/house
+* Live with family/relatives
+* Live with roommates/housemates
+* Other: ________
+2. Housing Satisfaction (Scale: 1-10) "How satisfied are you with your current living situation?"
+* 1-3: Planning to move within 6 months
+* 4-6: Considering changes in the next year
+* 7-10: Happy with current situation
+3. Family Living Arrangements
+* Live alone
+* Live with romantic partner/spouse
+* Live with children
+* Live with extended family
+* Support family members financially
+* Multiple of the above
+4. Future Housing Goals (Select all that apply)
+* Buy my first home within 2 years
+* Move to a better neighborhood
+* Get my own place (currently living with others)
+* Downsize to save money
+* Move closer to work
+* Move for better schools/family
+* No housing changes planned
+
+Section 2: Career & Professional Life
+Your work situation and career aspirations
+Opening Prompt:
+"Your career trajectory and work environment directly influence your income potential and daily stress levels. This information helps us forecast income changes and work-related expenses."
+Questions:
+1. Employment Status
+* Full-time employee (one job)
+* Full-time employee with side gig
+* Multiple part-time jobs
+* Freelancer/Independent contractor
+* Graduate student with assistantship
+* Currently job searching
+* Other: ________
+2. Job Satisfaction (Scale: 1-10) "How satisfied are you with your current career situation?"
+* 1-3: Actively looking for new opportunities
+* 4-6: Open to better opportunities
+* 7-10: Happy with current path
+3. Income Stability (Scale: 1-10) "How predictable is your monthly income?"
+* 1-3: Highly variable (gig work, commission, irregular hours)
+* 4-6: Somewhat predictable with occasional fluctuations
+* 7-10: Very stable and predictable
+4. Career Growth Expectations
+* Expecting promotion/raise within 6 months
+* Working toward promotion/raise within 1-2 years
+* Planning career change within 1-2 years
+* Satisfied with current level
+* Uncertain about career progression
+5. Work-Related Expenses (Select all that apply)
+* Professional development/certifications
+* Work clothing/uniforms
+* Transportation/commuting costs
+* Professional memberships
+* Networking events
+* None of the above
+6. Side Hustle Activities (Select all that apply)
+* Ride-share driving (Uber, Lyft)
+* Food delivery (DoorDash, Uber Eats)
+* Freelance work in my field
+* Online selling (eBay, Facebook Marketplace)
+* Tutoring/teaching
+* Creative services (photography, design, etc.)
+* None currently, but interested
+* None and not interested
+
+Section 3: Family & Financial Responsibilities
+Understanding your family obligations and support systems
+Opening Prompt:
+"Family relationships and obligations significantly impact financial decisions in African American communities. Help us understand your responsibilities so we can create realistic forecasts."
+Questions:
+1. Relationship Status
+* Single, not dating
+* Single, casually dating
+* In a committed relationship (not living together)
+* Living with romantic partner
+* Married/domestic partnership
+* Separated/divorced
+* It's complicated
+2. Children/Dependents
+* No children or dependents
+* Planning for children within 2 years
+* 1 child
+* 2 children
+* 3+ children
+* Care for elderly parent/relative
+* Support adult siblings/family members
+3. Family Financial Support (Select all that apply)
+* Send money to parents regularly
+* Help siblings with expenses occasionally
+* Support extended family members
+* Contribute to family emergencies
+* Help with family celebrations/events
+* Receive financial support from family
+* No regular family financial obligations
+4. Financial Discussions in Relationships
+* We openly discuss all financial matters
+* We discuss major purchases only
+* We keep most finances separate
+* Money conversations cause stress
+* We avoid talking about money
+* Not applicable (single)
+5. Family Financial Pressure (Scale: 1-10) "How much pressure do you feel to financially support family members?"
+* 1-3: Little to no pressure
+* 4-6: Moderate pressure during emergencies
+* 7-10: Significant ongoing pressure
+
+Section 4: Social Life & Community
+Your social connections and spending patterns
+Opening Prompt:
+"Your social life and community connections influence both your happiness and your spending. Understanding these patterns helps us forecast entertainment and social expenses more accurately."
+Questions:
+1. Social Activity Level (Scale: 1-10) "How active is your social life?"
+* 1-3: Prefer staying home, occasional social activities
+* 4-6: Balanced social life with regular activities
+* 7-10: Very social, frequent plans and activities
+2. Typical Social Spending (Select all that apply)
+* Dining out with friends
+* Bars/clubs/nightlife
+* Group trips/vacations
+* Concerts/events/entertainment
+* Sports events/activities
+* Church/community events
+* Birthday parties/celebrations
+* Wedding-related expenses
+3. Friend Group Financial Dynamics
+* My friends have similar financial situations
+* My friends generally earn more than me
+* My friends generally earn less than me
+* Mixed group with varied financial situations
+* I often feel pressure to keep up financially
+* Money rarely comes up in our social activities
+4. Community Involvement (Select all that apply)
+* Active in church community
+* Member of professional organizations
+* Participate in community volunteering
+* Involved in cultural/heritage organizations
+* Member of alumni associations
+* Participate in sports leagues/fitness groups
+* Not currently involved in community activities
+5. Social Financial Pressure (Scale: 1-10) "How much do you feel pressure to spend money to maintain your social relationships?"
+* 1-3: Little pressure, friends understand financial limits
+* 4-6: Some pressure during special occasions
+* 7-10: Constant pressure to keep up socially
+
+Section 5: Health & Wellness Priorities
+Your approach to physical and mental health
+Opening Prompt:
+"Your health choices directly impact both your wellbeing and your spending patterns. This helps us understand your priorities and forecast health-related expenses."
+Questions:
+1. Health Insurance Status
+* Covered through employer
+* Covered through family member's plan
+* Individual marketplace plan
+* Medicaid/government program
+* Currently uninsured
+* Unsure of my coverage details
+2. Healthcare Access (Scale: 1-10) "How easy is it for you to access healthcare when needed?"
+* 1-3: Difficult due to cost, location, or other barriers
+* 4-6: Manageable but sometimes challenging
+* 7-10: Easy access to quality healthcare
+3. Mental Health Support (Select all that apply)
+* Regular therapy/counseling
+* Occasional therapy when needed
+* Medication for mental health
+* Support from religious/spiritual community
+* Support from family/friends
+* Self-care practices (meditation, journaling, etc.)
+* Currently seeking mental health support
+* Not currently using mental health support
+4. Fitness Preferences (Select all that apply)
+* Gym membership
+* Home workouts
+* Outdoor activities (running, hiking, etc.)
+* Group fitness classes
+* Sports leagues/teams
+* Walking/casual exercise
+* Currently inactive but want to change
+* Not prioritizing fitness currently
+5. Wellness Spending Priorities (Rank top 3)
+* Gym/fitness memberships
+* Healthy food/supplements
+* Mental health services
+* Spa/massage/self-care
+* Medical/dental care
+* Alternative health services
+* Wellness apps/programs
+
+Section 6: Financial Goals & Values
+Understanding your relationship with money and future plans
+Opening Prompt:
+"Your financial values and goals shape every money decision you make. Help us understand what matters most to you so we can provide personalized guidance."
+Questions:
+1. Top Financial Priorities (Rank top 3)
+* Building emergency fund
+* Paying off student loans
+* Buying a home
+* Starting/growing retirement savings
+* Supporting family members
+* Building credit score
+* Starting a business
+* Planning for children's future
+* Taking meaningful vacations
+2. Money Management Style
+* I track every dollar carefully
+* I budget monthly but allow flexibility
+* I monitor my accounts regularly but don't formal budget
+* I check my accounts occasionally
+* I prefer not to think about money details
+3. Financial Stress Triggers (Select all that apply)
+* Unexpected expenses
+* Monthly bill due dates
+* Student loan payments
+* Family financial requests
+* Social spending pressure
+* Irregular income
+* Investment/savings anxiety
+* Comparing myself to others financially
+4. Financial Confidence (Scale: 1-10) "How confident do you feel about making financial decisions?"
+* 1-3: Often uncertain and stressed about money choices
+* 4-6: Somewhat confident but seek advice on big decisions
+* 7-10: Very confident in my financial decision-making
+5. Future Financial Vision (Select primary goal)
+* Achieve complete financial independence
+* Own a home and have stable savings
+* Build generational wealth for my family
+* Have enough to live comfortably without stress
+* Start my own business
+* Travel and experience life while saving responsibly
+* Focus on the present, future will work itself out
+6. Relationship with Money (Select most accurate)
+* Money is a tool to achieve my goals
+* Money represents security and stability
+* Money is a source of stress and anxiety
+* Money enables me to help others
+* Money is necessary but not a priority
+* I have a complicated relationship with money
+
+Section 7: Technology & Learning Preferences
+How you prefer to manage finances and receive information
+Opening Prompt:
+"Understanding how you like to learn and manage information helps us customize your Mingus experience to fit your lifestyle."
+Questions:
+1. Financial Management Tools (Select all currently used)
+* Bank mobile apps
+* Credit card apps
+* Budgeting apps (Mint, YNAB, etc.)
+* Investment apps (Robinhood, Acorns, etc.)
+* Spreadsheets (Excel, Google Sheets)
+* Paper-based tracking
+* Mental tracking only
+* Nothing formal currently
+2. Preferred Learning Style (Select primary preference)
+* Reading articles and guides
+* Watching videos/tutorials
+* Interactive tools and calculators
+* One-on-one coaching/advice
+* Group workshops or classes
+* Podcasts during commute
+* Quick tips and notifications
+* Learning through trial and error
+3. Technology Comfort Level (Scale: 1-10) "How comfortable are you with using financial technology?"
+* 1-3: Prefer simple interfaces, minimal tech features
+* 4-6: Comfortable with basic features, cautious about complex tools
+* 7-10: Love trying new features and advanced functionality
+4. Information Frequency Preference
+* Daily check-ins and updates
+* Weekly summaries and insights
+* Monthly comprehensive reviews
+* Quarterly goal assessments
+* Only when I initiate or request information
+* As-needed alerts for important changes
+5. Motivation Style (Select most effective for you)
+* Celebrating small wins and progress
+* Clear goal tracking and milestones
+* Comparison with similar peers
+* Educational content that explains "why"
+* Gentle reminders and encouragement
+* Direct challenges and accountability
+* Visual progress tracking
+
+Closing Section: Additional Context
+Open-Ended Questions:
+1. Biggest Financial Challenge "What is your biggest financial challenge right now?" (Text response, 2-3 sentences)
+2. Success Definition "What would financial success look like for you in 3 years?" (Text response, 2-3 sentences)
+3. Support Needs "What kind of financial support or guidance would be most helpful to you?" (Text response, 2-3 sentences)
+4. Cultural Considerations "Is there anything about your cultural background or community that significantly influences your financial decisions?" (Optional text response)
+
+Implementation Notes
+Questionnaire Flow:
+* Estimated completion time: 8-12 minutes
+* Progress indicators: Show section completion (7 sections total)
+* Save and resume: Allow users to complete in multiple sessions
+* Mobile-optimized: Thumb-friendly interface for busy professionals
+Data Integration:
+* Wellness Assessment Correlation: Results inform wellness-spending multipliers
+* Cash Flow Forecasting: Lifestyle factors adjust category predictions
+* Personalization Engine: Responses customize app experience and recommendations
+Cultural Sensitivity:
+* Language: Conversational, non-judgmental tone throughout
+* Assumptions: Avoid assumptions about family structure, resources, or values
+* Representation: Questions reflect diverse experiences within target demographic
+* Privacy: Clear explanations of how personal information is used and protected
+Scoring and Analysis:
+* Risk Factors: Identify users at higher risk for financial stress
+* Opportunity Areas: Highlight potential for improvement and growth
+* Personalization Tags: Create user segments for customized experiences
+* Forecasting Inputs: Generate lifestyle-based spending multipliers for cash flow predictions
+
+Cursor Implementation Prompts for Mingus Progressive Questionnaire
+Overview
+These prompts will guide the development of a progressive questionnaire system in Cursor that onboards users quickly while collecting comprehensive data over 14 days through behavioral triggers.
+
+Prompt 1: Database Schema Design
+Purpose: Create the data structure for progressive questionnaire system
+Prompt: "Create a database schema for a progressive questionnaire system for a personal finance app called Mingus. The system needs to:
+Core Requirements:
+* Track user progress through 5 questionnaire sections over 14 days
+* Store questionnaire responses with timestamps
+* Track behavioral triggers (app opens, forecast views, feature usage)
+* Calculate completion percentages and forecast accuracy improvements
+* Handle partial completions and resumable sessions
+User Data Tables Needed:
+* User profiles with onboarding status
+* Questionnaire sections and their completion status
+* Individual question responses with metadata
+* User behavior tracking (triggers for next sections)
+* Forecast accuracy metrics before/after each section
+Key Fields:
+* User identification and registration date
+* Section completion timestamps and trigger events
+* Response data with question IDs and user answers
+* Behavioral metrics (forecast views, check-in completions, feature usage)
+* Forecast accuracy scores and improvements
+Technical Specs:
+* Use PostgreSQL as the database
+* Include proper indexing for performance
+* Add foreign key relationships
+* Include created_at and updated_at timestamps
+* Design for scalability with 10,000+ users
+Provide the complete SQL schema with table creation statements, indexes, and relationships. Include sample data inserts for testing."
+
+Prompt 2: Core Onboarding Component (Day 1)
+Purpose: Build the essential 5-minute onboarding flow
+Prompt: "Create a React component for the core onboarding questionnaire that collects minimum viable data for cash flow forecasting. Build:
+Component Requirements:
+* Multi-step form with progress indicator
+* Mobile-first design using Tailwind CSS
+* Form validation and error handling
+* Auto-save functionality for incomplete sessions
+* Integration with user registration flow
+Data Collection (5 minutes max):
+1. Income Information: Monthly amount, pay frequency (weekly/bi-weekly/monthly), next pay date
+2. Major Monthly Expenses: Rent/mortgage, utilities, car payment, student loans, groceries, phone bill (amount and due dates)
+3. Upcoming Milestones: Next 2-3 important dates (birthdays, trips, bills) with estimated costs
+4. Basic Wellness Check: 3 questions on 1-10 scale (physical activity this week, financial stress level, relationship satisfaction)
+UI/UX Features:
+* Clean, welcoming design that doesn't feel overwhelming
+* Input types: number inputs, dropdowns, date pickers, sliders for wellness questions
+* Visual progress bar showing steps completed
+* 'Skip for now' options on non-essential fields
+* Encouraging copy that explains value ('This helps us create your first forecast')
+* Mobile-optimized touch targets and keyboard handling
+Technical Integration:
+* API calls to save data incrementally
+* Generate initial cash flow forecast immediately upon completion
+* Redirect to forecast dashboard with success message
+* Error handling for network issues
+* TypeScript for type safety
+Include the complete React component with form handling, validation, styling, and API integration. Make it production-ready with proper error boundaries and loading states."
+
+Prompt 3: Behavioral Trigger System
+Purpose: Build the system that determines when to show each questionnaire section
+Prompt: "Create a behavioral trigger system that determines when users should see the next questionnaire section based on their app usage. Build:
+Trigger Logic Framework:
+* Day 3 (Housing & Career): Triggered after user views forecast 2+ times
+* Day 6 (Family & Goals): Triggered after completing first weekly check-in
+* Day 10 (Social & Health): Triggered after using 'what-if' scenarios feature
+* Day 14 (Tech Preferences): Time-based trigger with completion incentive
+Technical Components:
+1. Event Tracking Service: Records user actions (forecast views, check-ins, feature usage)
+2. Trigger Evaluation Engine: Checks conditions and determines when to show questionnaires
+3. Queue Management: Ensures only one questionnaire section is active at a time
+4. Notification System: In-app prompts and optional push notifications
+Implementation Requirements:
+* Real-time trigger evaluation when users perform tracked actions
+* Prevention of trigger spam (cooldown periods, user dismissal tracking)
+* Graceful handling of missed triggers (alternative paths to questionnaire access)
+* Analytics integration to track trigger effectiveness
+* User preference controls (can disable or delay questionnaires)
+Data Structures:
+* User behavior events table with timestamps and metadata
+* Trigger status tracking (pending, shown, completed, dismissed)
+* Questionnaire section availability and completion status
+* User notification preferences and history
+API Endpoints:
+* POST /api/events/track - Record user behavior events
+* GET /api/questionnaire/next - Check if user should see next section
+* POST /api/questionnaire/dismiss - Handle user dismissals
+* GET /api/questionnaire/status - Get overall completion status
+Use Node.js/Express for the backend with proper middleware for authentication, rate limiting, and error handling. Include comprehensive logging and monitoring. Provide the complete implementation with database integration and real-time event processing."
+
+Prompt 4: Progressive Questionnaire Components
+Purpose: Build the individual questionnaire section components
+Prompt: "Create React components for the four progressive questionnaire sections (Housing & Career, Family & Goals, Social & Health, Tech Preferences). Each component should:
+Shared Component Features:
+* 2-3 minute completion time per section
+* Consistent visual design with the core onboarding
+* Progress indicators within each section
+* Auto-save every 30 seconds
+* Mobile-optimized interface
+* Smooth transitions between questions
+Section 1: Housing & Career (Day 3) - 3 minutes Questions: Housing status, monthly housing cost, housing satisfaction, employment status, job satisfaction, income stability Response types: Multiple choice, slider scales, dropdown selections
+Section 2: Family & Goals (Day 6) - 3 minutes Questions: Relationship status, children/dependents, family financial support, top financial priorities, financial confidence Response types: Multiple choice, ranking interface, slider scales
+Section 3: Social & Health (Day 10) - 3 minutes Questions: Social activity level, typical social spending, health insurance status, healthcare access, fitness preferences Response types: Multiple choice with multi-select, slider scales, ranking
+Section 4: Tech Preferences (Day 14) - 2 minutes Questions: Financial management tools currently used, preferred learning style, technology comfort level, information frequency preference Response types: Multiple choice with multi-select, slider scales
+Advanced Features:
+* Smart defaults based on previous responses
+* Conditional logic (show certain questions based on previous answers)
+* Visual feedback when sections are completed
+* Integration with forecast accuracy improvements
+* Exit handling (save progress, offer to continue later)
+Technical Requirements:
+* TypeScript interfaces for all question types and responses
+* Reusable question components (SliderQuestion, MultiChoiceQuestion, RankingQuestion)
+* State management for complex form interactions
+* API integration for saving responses
+* Accessibility compliance (WCAG 2.1)
+* Error handling and retry mechanisms
+Styling Requirements:
+* Consistent with Mingus brand (use colors appropriate for African American professionals)
+* Touch-friendly controls (minimum 44px tap targets)
+* High contrast for readability
+* Smooth animations and micro-interactions
+* Loading states and success confirmations
+Provide complete React components with TypeScript, comprehensive styling, and full functionality. Include proper form validation, error handling, and integration with the trigger system."
+
+Prompt 5: Forecast Integration Engine
+Purpose: Connect questionnaire data to cash flow forecasting improvements
+Prompt: "Create a forecast integration engine that uses progressive questionnaire data to improve cash flow predictions and show users the value of completing sections. Build:
+Core Integration Logic:
+* Baseline forecast uses only core onboarding data
+* Each completed questionnaire section applies specific multipliers to spending categories
+* Real-time forecast updates when new sections are completed
+* Accuracy scoring system that improves with more data
+Spending Category Multipliers: Based on questionnaire responses, apply these adjustments:
+Housing & Career Section:
+* Unstable income (gig work) ? increase emergency fund recommendations by 1.5x
+* Job dissatisfaction ? increase professional development spending by 1.2x
+* High housing costs ? decrease discretionary spending categories by 0.9x
+Family & Goals Section:
+* Children/dependents ? increase family-related expenses by 1.3x
+* Family support obligations ? add monthly family support category
+* High financial stress ? increase impulse spending by 1.2x
+Social & Health Section:
+* High social activity ? increase entertainment/dining by 1.4x
+* Poor health access ? increase healthcare reserve by 1.5x
+* Fitness preferences ? add/adjust fitness-related spending
+Tech Preferences Section:
+* Learning preferences ? recommend appropriate financial education tools
+* Tech comfort level ? adjust app feature recommendations
+Technical Implementation:
+* Forecast calculation service that applies progressive multipliers
+* Accuracy measurement comparing predicted vs actual spending
+* Visual dashboard showing forecast improvements with each section
+* A/B testing framework for optimizing multipliers
+API Design:
+* GET /api/forecast/generate - Create forecast with current questionnaire data
+* POST /api/forecast/update - Recalculate when new section completed
+* GET /api/forecast/accuracy - Show accuracy improvements over time
+* GET /api/forecast/insights - Personalized insights based on questionnaire data
+User Experience:
+* Before/after forecast comparisons when sections are completed
+* Accuracy percentage display that improves with more data
+* Specific insights: 'Based on your social activity, we've adjusted your entertainment budget'
+* Visual indicators showing which data contributed to forecast changes
+Use TypeScript for type safety, include comprehensive testing, and ensure the system can handle complex questionnaire response combinations. Provide the complete forecasting engine with database integration and real-time calculation capabilities."
+
+Prompt 6: User Dashboard and Progress Tracking
+Purpose: Create interfaces that motivate completion and show value
+Prompt: "Create a user dashboard and progress tracking system that motivates questionnaire completion while showing immediate value. Build:
+Dashboard Components:
+1. Progress Overview Card: Visual progress through 5 questionnaire sections with completion percentages
+2. Forecast Accuracy Meter: Shows current accuracy and potential improvement
+3. Next Action Prompt: Clear call-to-action for the next available questionnaire section
+4. Insights Preview: Teaser of insights they'll get from completing sections
+5. Completion Incentive Tracker: Progress toward completion bonus (free month/premium features)
+Progress Visualization:
+* Circular progress indicator for overall completion (0-100%)
+* Section-by-section breakdown with checkmarks and timestamps
+* Forecast accuracy score that updates in real-time
+* Visual before/after spending category adjustments
+Motivational Elements:
+* Encouraging copy that celebrates progress ('Great job! Your forecast is now 40% more accurate')
+* Social proof ('Users who complete this section save an average of $200/month')
+* Value proposition reminders ('Complete your profile to unlock advanced budgeting features')
+* Completion countdown for time-sensitive incentives
+Interactive Features:
+* One-click access to next questionnaire section
+* Ability to preview questions before starting
+* Option to skip sections temporarily (with gentle reminders)
+* Edit/update previous responses
+* Share progress with accountability partners
+Technical Requirements:
+* Real-time updates when questionnaire sections are completed
+* Responsive design that works on mobile and desktop
+* Smooth animations and micro-interactions
+* Integration with notification system
+* Analytics tracking for engagement metrics
+Accessibility Features:
+* Screen reader compatibility
+* High contrast mode
+* Keyboard navigation
+* Touch-friendly controls for mobile users
+API Integration:
+* GET /api/user/progress - Fetch current questionnaire completion status
+* GET /api/user/insights - Get personalized insights based on completed sections
+* POST /api/user/actions - Track dashboard interactions for analytics
+Use React with TypeScript, implement with Tailwind CSS for styling, and ensure the dashboard loads quickly (under 2 seconds). Include proper error handling, loading states, and offline functionality where possible. Make the interface feel rewarding and encouraging rather than nagging or overwhelming."
+
+Prompt 7: Notification and Reminder System
+Purpose: Build gentle reminder system that doesn't create notification fatigue
+Prompt: "Create a notification and reminder system that encourages questionnaire completion without being pushy or creating notification fatigue. Build:
+Notification Types:
+1. In-App Prompts: Contextual messages that appear during natural app usage
+2. Push Notifications: Optional mobile notifications with user control
+3. Email Reminders: Weekly progress updates (opt-in only)
+4. Dashboard Banners: Subtle persistent reminders on main screens
+Timing and Frequency Rules:
+* Maximum 1 push notification per week about questionnaires
+* In-app prompts only when user is actively using relevant features
+* No notifications on weekends or outside business hours (9 AM - 8 PM)
+* Respect user's timezone and notification preferences
+* Automatic opt-out if user dismisses same prompt 3 times
+Message Tone and Content:
+* Encouraging, not demanding ('Ready to boost your forecast accuracy?')
+* Value-focused ('Unlock better budgeting insights in 3 minutes')
+* Culturally relevant for African American professionals
+* Avoid financial shame or pressure
+* Include specific time estimates and benefits
+Smart Scheduling:
+* Tuesday-Thursday optimal for engagement (avoid Mondays and Fridays)
+* Mid-morning (10 AM) or early evening (6 PM) timing
+* Adapt to user's historical app usage patterns
+* Pause notifications during detected high-stress periods (high spending, life events)
+User Control Features:
+* Granular notification preferences (by type, frequency, timing)
+* One-click unsubscribe from specific notification types
+* Snooze options (remind me tomorrow, next week, etc.)
+* Do Not Disturb mode integration
+* Complete opt-out while maintaining app functionality
+Technical Implementation:
+* Queue-based notification system with priority management
+* User preference database with default opt-in settings
+* Integration with mobile push notification services (FCM, APNS)
+* Email service integration (SendGrid, Mailgun)
+* Analytics tracking for notification effectiveness
+A/B Testing Framework:
+* Test different message variations
+* Optimize timing and frequency
+* Measure completion rates vs notification fatigue
+* Track long-term user retention impact
+API Endpoints:
+* POST /api/notifications/schedule - Queue notifications based on triggers
+* GET /api/notifications/preferences - Get user notification settings
+* PUT /api/notifications/preferences - Update user preferences
+* POST /api/notifications/dismiss - Track dismissals and adjust frequency
+Compliance Features:
+* GDPR compliance for email notifications
+* CAN-SPAM Act compliance
+* Mobile app store notification guidelines
+* User data privacy protection
+Use Node.js with a proper queue system (Redis/Bull), implement rate limiting, and include comprehensive logging. Ensure the system is scalable and can handle thousands of users without performance issues. Provide complete implementation with testing and monitoring capabilities."
+
+Prompt 8: Analytics and Optimization System
+Purpose: Build system to measure success and optimize questionnaire performance
+Prompt: "Create an analytics and optimization system to measure the success of the progressive questionnaire and continuously improve completion rates. Build:
+Key Metrics to Track:
+1. Completion Metrics: Section completion rates, time to complete each section, dropout points
+2. Engagement Metrics: Trigger effectiveness, user response to prompts, time between sections
+3. Value Metrics: Forecast accuracy improvements, user satisfaction scores, feature usage after completion
+4. Business Metrics: Subscription retention, upgrade rates, user lifetime value correlation with completion
+Analytics Dashboard:
+* Real-time completion funnel visualization
+* Cohort analysis showing completion patterns over time
+* A/B testing results for different questionnaire variations
+* User segment analysis (demographics, usage patterns, completion behavior)
+* Forecast accuracy correlation with questionnaire completion
+Data Collection:
+* Event tracking for every user interaction with questionnaires
+* Time-based metrics (session duration, time between questions)
+* User behavior patterns (when they complete, what triggers work best)
+* Correlation analysis between questionnaire data and actual spending patterns
+* Survey feedback integration for qualitative insights
+Optimization Features:
+* Automated A/B testing for question wording, timing, and incentives
+* Machine learning recommendations for optimal trigger timing
+* Personalized questionnaire flow based on user characteristics
+* Dynamic incentive adjustment based on completion probability
+* Seasonal and demographic-based optimization
+Reporting System:
+* Weekly automated reports on questionnaire performance
+* Monthly business impact analysis
+* Quarterly user research insights
+* Real-time alerts for significant metric changes
+* Executive summary dashboards for business stakeholders
+Technical Architecture:
+* Event streaming system for real-time data collection
+* Data warehouse for historical analysis and reporting
+* Machine learning pipeline for predictive optimization
+* API for external integrations and reporting tools
+* Privacy-compliant data handling and retention policies
+Implementation Requirements:
+* Use modern analytics stack (PostgreSQL, Redis, possibly BigQuery)
+* Real-time event processing with proper data validation
+* Scalable architecture that handles high event volume
+* GDPR-compliant data collection and retention
+* Integration with existing user behavior tracking
+API Design:
+* POST /api/analytics/events - Track questionnaire-related events
+* GET /api/analytics/completion-funnel - Retrieve completion funnel data
+* GET /api/analytics/optimization-insights - Get AI-powered optimization recommendations
+* GET /api/analytics/reports - Access standard and custom reports
+Optimization Algorithms:
+* Predictive models for completion likelihood
+* Optimal timing algorithms for questionnaire prompts
+* Dynamic incentive sizing based on user value and completion probability
+* Personalization engines for questionnaire flow and messaging
+Include proper data visualization components, automated alerting for significant changes, and integration with business intelligence tools. Ensure the system provides actionable insights for continuous improvement of the questionnaire experience and business outcomes."
+
+Prompt 9: Testing and Quality Assurance Framework
+Purpose: Ensure robust testing of the progressive questionnaire system
+Prompt: "Create a comprehensive testing and quality assurance framework for the progressive questionnaire system. Build:
+Testing Strategy:
+1. Unit Tests: Individual component and function testing
+2. Integration Tests: API endpoints and database interactions
+3. End-to-End Tests: Complete user flows from onboarding to completion
+4. Performance Tests: Load testing for concurrent users and data processing
+5. Accessibility Tests: WCAG 2.1 compliance and screen reader compatibility
+6. Mobile Tests: Cross-device and browser compatibility testing
+Test Scenarios:
+* Happy Path: User completes all sections within 14 days via triggered prompts
+* Partial Completion: User completes some sections, abandons others, returns later
+* Skip Scenarios: User dismisses prompts but continues using app
+* Technical Failures: Network interruptions, server errors, data corruption
+* Edge Cases: Multiple device usage, account sharing, rapid completion attempts
+* Accessibility: Screen reader navigation, keyboard-only usage, high contrast mode
+Performance Testing:
+* Concurrent user load testing (1000+ simultaneous questionnaire completions)
+* Database performance under heavy read/write operations
+* Mobile app performance on older devices and slow networks
+* API response time requirements (under 200ms for critical endpoints)
+* Memory usage and battery impact on mobile devices
+Data Quality Testing:
+* Response validation and sanitization
+* Forecast calculation accuracy with various questionnaire combinations
+* Data integrity during partial completions and resumptions
+* Analytics event tracking accuracy and completeness
+* User privacy and data security compliance
+Automated Testing Pipeline:
+* Continuous Integration (CI) setup with automated test runs
+* Pre-deployment testing gates that must pass
+* Automated browser testing across Chrome, Safari, Firefox, Edge
+* Mobile device testing on iOS and Android
+* Accessibility testing integration with aXe or similar tools
+Testing Tools and Framework:
+* Jest for unit testing React components and Node.js functions
+* React Testing Library for component interaction testing
+* Cypress or Playwright for end-to-end testing
+* Artillery or K6 for load testing
+* Lighthouse for performance and accessibility auditing
+Mock Data and Test Users:
+* Realistic test data representing target demographic
+* Various completion scenarios and user personas
+* Edge case data sets (extreme responses, missing data)
+* Performance test data sets with thousands of simulated users
+* Anonymized real user data for testing (with proper consent)
+Quality Assurance Checklist:
+* Cross-browser compatibility verification
+* Mobile responsiveness on various screen sizes
+* Form validation and error handling
+* Data persistence and recovery
+* Notification delivery and timing
+* Forecast accuracy calculations
+* User privacy and security compliance
+Monitoring and Alerting:
+* Real-time error tracking and alerting
+* Performance monitoring with response time alerts
+* User experience monitoring (completion rates, error rates)
+* Database performance and query optimization monitoring
+* Security monitoring for potential vulnerabilities
+Provide complete test suites with realistic scenarios, proper mocking strategies, and integration with CI/CD pipelines. Include performance benchmarks and acceptance criteria for each test category. Ensure tests are maintainable and provide clear feedback for developers."
+
+Prompt 10: Deployment and Production Setup
+Purpose: Prepare the system for production deployment with proper DevOps practices
+Prompt: "Create a production deployment strategy and DevOps setup for the progressive questionnaire system. Build:
+Infrastructure Requirements:
+* Cloud deployment (AWS/Google Cloud/Azure) with auto-scaling capabilities
+* Database setup with backup and recovery procedures
+* CDN configuration for fast global content delivery
+* Load balancing for high availability
+* Security hardening and SSL certificate management
+Environment Setup:
+* Development: Local development with hot reloading and debugging tools
+* Staging: Production-like environment for final testing
+* Production: Optimized for performance, security, and reliability
+* Feature Flags: Ability to toggle questionnaire features without deployment
+CI/CD Pipeline:
+* Automated testing on every commit
+* Code quality checks (linting, security scanning, dependency auditing)
+* Automated deployment to staging environment
+* Manual approval gate for production deployment
+* Rollback capabilities for failed deployments
+Monitoring and Observability:
+* Application performance monitoring (APM)
+* Real-time error tracking and alerting
+* User behavior analytics and business metrics
+* Infrastructure monitoring (CPU, memory, disk usage)
+* Custom dashboards for questionnaire-specific metrics
+Security Implementation:
+* User authentication and authorization
+* Data encryption at rest and in transit
+* API rate limiting and DDoS protection
+* Input validation and SQL injection prevention
+* GDPR compliance for user data handling
+* Regular security audits and penetration testing
+Scalability Architecture:
+* Horizontal scaling for increased user load
+* Database optimization and query performance tuning
+* Caching strategies for frequently accessed data
+* Background job processing for analytics and notifications
+* Content delivery optimization for mobile users
+Backup and Recovery:
+* Automated daily database backups
+* Point-in-time recovery capabilities
+* Disaster recovery procedures and testing
+* Data retention policies and archival strategies
+* Business continuity planning
+Configuration Management:
+* Environment-specific configuration files
+* Secret management for API keys and credentials
+* Feature flag configuration for A/B testing
+* Notification settings and third-party integrations
+* Performance tuning parameters
+Documentation Requirements:
+* API documentation with examples and testing
+* Deployment procedures and troubleshooting guides
+* Architecture diagrams and system dependencies
+* User guides for customer support team
+* Runbook for incident response and maintenance
+Performance Optimization:
+* Code splitting and lazy loading for web application
+* Image optimization and compression
+* Database indexing and query optimization
+* CDN caching strategies
+* Mobile app optimization for battery and data usage
+Third-Party Integrations:
+* Push notification services (FCM, APNS)
+* Email delivery services (SendGrid, Mailgun)
+* Analytics platforms (Google Analytics, Mixpanel)
+* Error tracking services (Sentry, Bugsnag)
+* Customer support integration (Intercom, Zendesk)
+Provide complete Infrastructure as Code (Terraform/CloudFormation), Docker configurations, CI/CD pipeline scripts, and monitoring setup. Include deployment checklists, rollback procedures, and incident response protocols. Ensure the system can handle the goal of 1,000 users in the first year with room for growth."
+
+Implementation Order and Timeline
+Phase 1: Foundation (Weeks 1-2)
+1. Database Schema Design
+2. Core Onboarding Component
+3. Basic Testing Framework
+Phase 2: Core Features (Weeks 3-4)
+4. Behavioral Trigger System
+5. Progressive Questionnaire Components
+6. User Dashboard and Progress Tracking
+Phase 3: Intelligence (Weeks 5-6)
+7. Forecast Integration Engine
+8. Notification and Reminder System
+Phase 4: Optimization (Weeks 7-8)
+9. Analytics and Optimization System
+10. Production Deployment Setup
+Success Criteria
+* User Experience: 90% complete Day 1 onboarding, 70% complete all sections within 14 days
+* Technical Performance: <2 second load times, 99.9% uptime, <1% error rate
+* Business Impact: <10% churn in first 30 days, 20% forecast accuracy improvement
+* Scalability: Handle 1,000+ concurrent users without performance degradation
+

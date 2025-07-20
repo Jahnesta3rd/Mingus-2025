@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset=UTF-8title>Relationship & Money Assessment | Ratchet Money</title>
+  <meta name=viewport" content="width=device-width, initial-scale=1 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;5000;700&display=swap" rel="stylesheet> <style>
+    :root[object Object]     --primary-red: #ef4444   --primary-green: #101;
+      --bg-dark: #18181
+      --bg-darker: #111827      --text-light: #ffffff;
+      --text-muted: #d1d5db;
+      --border-color: #27272a;
+    }
+
+    *[object Object]
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg-dark);
+      color: var(--text-light);
+      line-height:1.6 }
+
+    .container [object Object]
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 2m 1;
+    }
+
+    .step {
+      display: none;
+      animation: fadeIn0.5s ease-in;
+    }
+
+    .step.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20      to { opacity: 1; transform: translateY(0  }
+
+    .progress-bar [object Object]     width: 100%;
+      height: 8px;
+      background: var(--border-color);
+      border-radius:4     margin-bottom: 2rem;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary-red), var(--primary-green));
+      transition: width 0.3s ease;
+      border-radius:4  }
+
+    .question [object Object]
+      background: var(--bg-darker);
+      padding: 2     border-radius: 12     margin-bottom: 1.5rem;
+      border: 1px solid var(--border-color);
+    }
+
+    .question h3 [object Object]     color: var(--primary-red);
+      margin-bottom: 1rem;
+      font-size: 10.25   }
+
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 00.75    }
+
+    .option {
+      display: flex;
+      align-items: center;
+      padding: 1rem;
+      background: var(--bg-dark);
+      border: 1px solid var(--border-color);
+      border-radius: 8   cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .option:hover {
+      border-color: var(--primary-red);
+      background: rgba(2396868, 0.1    }
+
+    .option.selected {
+      border-color: var(--primary-green);
+      background: rgba(16, 185129, 0.1    }
+
+    .option input[type="radio"],
+    .option input[type="checkbox"] {
+      margin-right: 1rem;
+      transform: scale(1.2    }
+
+    .rating-scale {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: center;
+      margin: 1em 0;
+    }
+
+    .star [object Object]
+      font-size: 2rem;
+      cursor: pointer;
+      color: var(--border-color);
+      transition: color 0.2s ease;
+    }
+
+    .star.active [object Object]
+      color: #ffd700;
+    }
+
+    .star:hover [object Object]
+      color: #ffd700;
+    }
+
+    .text-input [object Object]     width: 100%;
+      padding: 1rem;
+      background: var(--bg-dark);
+      border: 1px solid var(--border-color);
+      border-radius:8;
+      color: var(--text-light);
+      font-size: 1;
+      margin-top: 1;
+    }
+
+    .text-input:focus {
+      outline: none;
+      border-color: var(--primary-red);
+    }
+
+    .dropdown [object Object]     width: 100%;
+      padding: 1rem;
+      background: var(--bg-dark);
+      border: 1px solid var(--border-color);
+      border-radius:8;
+      color: var(--text-light);
+      font-size: 1;
+      margin-top: 1}
+
+    .navigation {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 2m;
+    }
+
+    .btn [object Object]     padding: 1rem 2rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600   cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-primary [object Object]
+      background: var(--primary-red);
+      color: var(--text-light);
+    }
+
+    .btn-primary:hover [object Object]
+      background: #b91c1c;
+      transform: translateY(-2);
+    }
+
+    .btn-secondary [object Object]
+      background: transparent;
+      color: var(--text-muted);
+      border: 1px solid var(--border-color);
+    }
+
+    .btn-secondary:hover [object Object]
+      background: var(--border-color);
+      color: var(--text-light);
+    }
+
+    .btn:disabled [object Object]
+      opacity: 0.5
+      cursor: not-allowed;
+    }
+
+    .email-form [object Object]
+      text-align: center;
+      background: var(--bg-darker);
+      padding: 3rem 2     border-radius: 12px;
+      border: 1px solid var(--border-color);
+    }
+
+    .email-form h2 [object Object]     color: var(--primary-red);
+      margin-bottom: 1
+    }
+
+    .email-input [object Object]     width: 100%;
+      max-width: 400px;
+      padding: 1rem;
+      background: var(--bg-dark);
+      border: 1px solid var(--border-color);
+      border-radius:8;
+      color: var(--text-light);
+      font-size: 1rem;
+      margin: 1em 0;
+    }
+
+    .email-input:focus {
+      outline: none;
+      border-color: var(--primary-red);
+    }
+
+    .confirmation [object Object]
+      text-align: center;
+      background: var(--bg-darker);
+      padding: 3rem 2     border-radius: 12px;
+      border: 1px solid var(--primary-green);
+    }
+
+    .confirmation h2 [object Object]     color: var(--primary-green);
+      margin-bottom: 1   }
+
+    .results [object Object]
+      background: var(--bg-darker);
+      padding: 2     border-radius: 12px;
+      border: 1px solid var(--border-color);
+    }
+
+    .segment [object Object]     padding: 1     border-radius: 8px;
+      margin: 1rem 0;
+      border-left: 4 solid;
+    }
+
+    .segment.stress-free [object Object]
+      background: rgba(16, 185, 129, 0.1
+      border-left-color: var(--primary-green);
+    }
+
+    .segment.relationship-spender [object Object]
+      background: rgba(24580.1
+      border-left-color: #f59   }
+
+    .segment.emotional-manager [object Object]
+      background: rgba(23980.1
+      border-left-color: var(--primary-red);
+    }
+
+    .segment.crisis-mode [object Object]
+      background: rgba(220, 127, 0.1
+      border-left-color: #dc2627
+    }
+
+    @media (max-width: 768px) [object Object]     .container [object Object]
+        padding: 1rem;
+      }
+      
+      .question [object Object]
+        padding: 1.5rem;
+      }
+      
+      .navigation {
+        flex-direction: column;
+        gap: 1rem;
+      }
+      
+      .btn[object Object]        width:100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Email Collection Step -->
+    <div id=email-step" class="step active">
+      <div class="email-form>      <h2>Get Your Personalized Assessment</h2>
+        <p>Enter your email to start the 2-minute relationship & money assessment</p>
+        <form id="email-form">
+          <input type="email id=email-input" class="email-input" placeholder="your@email.com" required>
+          <button type="submit" class=btnbtn-primary>Start Assessment</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Email Confirmation Step -->
+    <div id=confirmation-step" class=step>
+      <div class="confirmation">
+        <h2Check Your Email</h2>
+        <p>We've sent a confirmation link to <span id="user-email"></span></p>
+        <p>Click the link in your email to continue with the assessment.</p>
+        <button id=resend-btn" class=btn btn-secondary">Resend Email</button>
+      </div>
+    </div>
+
+    <!-- Assessment Steps -->
+    <div id="assessment-container" class=step>
+      <div class="progress-bar">
+        <div class=progress-fill" id=progress-fill"></div>
+      </div>
+      
+      <!-- Question 1: Financial Stress Level -->
+      <div id="q1class="question">
+        <h3>Question 1: Financial Stress Level</h3>
+        <p>How often do you lose sleep thinking about money?</p>
+        <div class="options">
+          <label class="option">
+            <input type="radio" name="q1" value="0">
+            Never (0 points)
+          </label>
+          <label class="option">
+            <input type="radio" name="q1" value="1">
+            Once a month (1oint)
+          </label>
+          <label class="option">
+            <input type="radio" name="q1" value="2">
+            Weekly (2 points)
+          </label>
+          <label class="option">
+            <input type="radio" name="q1" value="3">
+            Multiple times per week (3 points)
+          </label>
+          <label class="option">
+            <input type="radio" name="q1" value="4">
+            Daily (4 points)
+          </label>
+        </div>
+      </div>
+
+      <!-- Question 2: Relationship Impact on Spending -->
+      <div id="q2class="question">
+        <h3>Question 2: Relationship Impact on Spending</h3>
+        <p>In the past month, how often have you spent money you didn't plan to spend because of: (Select all that apply)</p>
+        <div class="options">
+          <label class="option">
+            <input type=checkbox" name="q2" value="2">
+            Wanting to impress someone on a date (2 points)
+          </label>
+          <label class="option">
+            <input type=checkbox" name="q2" value="3">
+            Stress-shopping after an argument with family/partner (3 points)
+          </label>
+          <label class="option">
+            <input type=checkbox" name="q2" value="2">
+            Keeping up with friends' social activities (2 points)
+          </label>
+          <label class="option">
+            <input type=checkbox" name="q2" value="2
+            Guilt purchases for family members (2 points)
+          </label>
+          <label class="option">
+            <input type=checkbox" name="q2" value="2">
+            Emotional eating/drinking after relationship stress (2 points)
+          </label>
+          <label class="option">
+            <input type=checkbox" name="q2" value="0">
+            None of the above (0 points)
+          </label>
+        </div>
+      </div>
+
+      <!-- Question 3: Communication Barriers -->
+      <div id="q3class="question">
+        <h3>Question 3: Communication Barriers</h3>
+        <p>How comfortable are you discussing money with: (Rate 1-5: 1=Very Uncomfortable, 5ery Comfortable)</p>
+        
+        <div class="rating-item">
+          <p>Your romantic partner:</p>
+          <div class="rating-scale data-question="q3_partner">
+            <span class="stardata-value="1">★</span>
+            <span class="stardata-value="2">★</span>
+            <span class="stardata-value="3">★</span>
+            <span class="stardata-value="4">★</span>
+            <span class="stardata-value="5">★</span>
+          </div>
+        </div>
+
+        <div class="rating-item">
+          <p>Your family:</p>
+          <div class="rating-scale data-question="q3_family">
+            <span class="stardata-value="1">★</span>
+            <span class="stardata-value="2">★</span>
+            <span class="stardata-value="3">★</span>
+            <span class="stardata-value="4">★</span>
+            <span class="stardata-value="5">★</span>
+          </div>
+        </div>
+
+        <div class="rating-item">
+          <p>Close friends:</p>
+          <div class="rating-scale data-question="q3_friends">
+            <span class="stardata-value="1">★</span>
+            <span class="stardata-value="2">★</span>
+            <span class="stardata-value="3">★</span>
+            <span class="stardata-value="4">★</span>
+            <span class="stardata-value="5">★</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Question4 System Assessment -->
+      <div id="q4class="question">
+        <h3>Question4 System Assessment</h3       <p>When youre stressed about money, who do you talk to?</p>
+        <div class="options">
+          <label class="option">
+            <input type="radio" name="q4" value="1        My partner/spouse
+          </label>
+          <label class="option">
+            <input type="radio" name="q4" value="2">
+            Close family members
+          </label>
+          <label class="option">
+            <input type="radio" name="q4" value="3">
+            Friends
+          </label>
+          <label class="option">
+            <input type="radio" name="q4" value=4            I keep it to myself
+          </label>
+          <label class="option">
+            <input type="radio" name="q4" value=5    A professional (therapist, financial advisor, etc.)
+          </label>
+        </div>
+      </div>
+
+      <!-- Question 5: Spending Triggers -->
+      <div id="q5class="question">
+        <h3>Question 5: Spending Triggers</h3>
+        <p>Which situation most often leads to unplanned spending?</p>
+        <div class="options">
+          <label class="option">
+            <input type="radio" name="q5" value="2">
+            After a stressful day at work
+          </label>
+          <label class="option">
+            <input type="radio" name="q5" value="3">
+            Following an argument with someone close to me
+          </label>
+          <label class="option">
+            <input type="radio" name="q5" value="2">
+            When I'm feeling lonely or disconnected
+          </label>
+          <label class="option">
+            <input type="radio" name="q5" value="3">
+            When I see others enjoying things I can't afford
+          </label>
+          <label class="option">
+            <input type="radio" name="q5" value="2">
+            When I'm trying to celebrate or connect with others
+          </label>
+        </div>
+      </div>
+
+      <!-- Question 6: Current Financial Management -->
+      <div id="q6class="question">
+        <h3>Question 6: Current Financial Management</h3>
+        <p>How do you currently track your spending?</p>
+        <div class="options">
+          <label class="option">
+            <input type="radio" name="q6" value="1">
+            Detailed budgeting app/spreadsheet
+          </label>
+          <label class="option">
+            <input type="radio" name="q6" value="2">
+            Mental notes and bank account checks
+          </label>
+          <label class="option">
+            <input type="radio" name="q6" value=3           I track major expenses only
+          </label>
+          <label class="option">
+            <input type="radio" name="q6" value=4
+            I don't really track spending
+          </label>
+          <label class="option">
+            <input type="radio" name="q6" value="3        My partner handles most of it
+          </label>
+        </div>
+      </div>
+
+      <!-- Question 7: Relationship Goals vs. Financial Reality -->
+      <div id="q7class="question">
+        <h3>Question 7: Relationship Goals vs. Financial Reality</h3>
+        <p>How often do your relationship goals conflict with your financial goals?</p>
+        <div class="options">
+          <label class="option">
+            <input type="radio" name="q7" value="1">
+            Never - they align perfectly
+          </label>
+          <label class="option">
+            <input type="radio" name="q7" value="2">
+            Rarely - minor conflicts
+          </label>
+          <label class="option">
+            <input type="radio" name="q7" value="3">
+            Sometimes - noticeable tension
+          </label>
+          <label class="option">
+            <input type="radio" name="q7" value="4">
+            Often - significant stress
+          </label>
+          <label class="option">
+            <input type="radio" name="q7" value="5">
+            Always - major source of anxiety
+          </label>
+        </div>
+      </div>
+
+      <!-- Question 8ture Planning -->
+      <div id="q8class="question">
+        <h3>Question 8 Future Planning</h3>
+        <p>Which statement best describes your approach to planning major expenses?</p>
+        <div class="options">
+          <label class="option">
+            <input type="radio" name="q8" value=1            I plan everything months in advance with my partner/family
+          </label>
+          <label class="option">
+            <input type="radio" name="q8" value=2            I plan solo but inform others
+          </label>
+          <label class="option">
+            <input type="radio" name="q8" value=3            I plan some things but often get surprised by relationship-related costs
+          </label>
+          <label class="option">
+            <input type="radio" name="q8" value=4          I rarely plan beyond next month
+          </label>
+          <label class="option">
+            <input type="radio" name="q8" value="5">
+            Planning feels impossible with my current situation
+          </label>
+        </div>
+      </div>
+
+      <!-- Question 9: Emergency Preparedness -->
+      <div id="q9class="question">
+        <h3>Question 9: Emergency Preparedness</h3>
+        <p>If you had a relationship emergency (breakup, family crisis, etc.), how confident are you that you could handle it financially?</p>
+        <div class="options">
+          <label class="option">
+            <input type="radio" name="q9" value="1">
+            Very confident - I have 6+ months saved
+          </label>
+          <label class="option">
+            <input type="radio" name="q9" value="2">
+            Somewhat confident - I have some savings
+          </label>
+          <label class="option">
+            <input type="radio" name="q9" value="3">
+            Uncertain - depends on the situation
+          </label>
+          <label class="option">
+            <input type="radio" name="q9" value="4>     Not confident - it would be very stressful
+          </label>
+          <label class="option">
+            <input type="radio" name="q9" value="5>     Not confident at all - it would be devastating
+          </label>
+        </div>
+      </div>
+
+      <!-- Question 10: Wellness Connection -->
+      <div id="q10class="question">
+        <h3>Question 10: Wellness Connection</h3>
+        <p>Do you notice a connection between your physical/mental wellness and your spending habits?</p>
+        <div class="options">
+          <label class="option">
+            <input type=radioname="q10" value="4">
+            Strong connection - when I'm stressed/unhealthy, I spend more
+          </label>
+          <label class="option">
+            <input type=radioname="q10" value="3">
+            Some connection - I notice patterns sometimes
+          </label>
+          <label class="option">
+            <input type=radioname="q10" value="2">
+            Weak connection - maybe a little
+          </label>
+          <label class="option">
+            <input type=radioname="q10" value="1     No connection - they're separate for me
+          </label>
+          <label class="option">
+            <input type=radioname="q10" value=0>
+            I've never thought about it
+          </label>
+        </div>
+      </div>
+
+      <div class="navigation>        <button id=prev-btn" class=btn btn-secondary" disabled>Previous</button>
+        <button id=next-btn" class=btn btn-primary">Next</button>
+      </div>
+    </div>
+
+    <!-- Results Step -->
+    <div id="results-step" class=step>
+      <div class=results">
+        <h2>Your Assessment Results</h2
+        <div id="results-content"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // TypeScript-like interfaces (converted to JSDoc for JavaScript)
+    /**
+     * @typedef {Object} AssessmentResponse
+     * @property {string} email - User's email address
+     * @property {Object} answers - Question responses
+     * @property {number} totalScore - Calculated total score
+     * @property {string} segment - User segment category
+     * @property {Object} results - Detailed results object
+     */
+
+    /**
+     * @typedef {Object} AssessmentResults
+     * @property {string} segment - User segment
+     * @property {number} score - Total score
+     * @property {string} title - Segment title
+     * @property {string} description - Segment description
+     * @property {string[]} challenges - Top3 challenges
+     * @property {string[]} recommendations - Action steps
+     * @property {string} productTier - Recommended product tier
+     */
+
+    class AssessmentWorkflow {
+      constructor() {
+        this.currentStep = 0;
+        this.totalSteps = 10;
+        this.userEmail =      this.answers = {};
+        this.steps = ['email,confirmation, essment', 'results'];
+        
+        this.initializeEventListeners();
+        this.loadProgress();
+      }
+
+      initializeEventListeners() [object Object]     // Email form
+        document.getElementById('email-form').addEventListener('submit', (e) => {
+          e.preventDefault();
+          this.handleEmailSubmit();
+        });
+
+        // Assessment navigation
+        document.getElementById('next-btn').addEventListener('click', () => {
+          this.nextStep();
+        });
+
+        document.getElementById('prev-btn').addEventListener('click', () => {
+          this.previousStep();
+        });
+
+        // Option selection
+        document.querySelectorAll(input[type="radio"], input[type="checkbox]').forEach(input => {
+          input.addEventListener(change) => [object Object]         this.saveAnswer();
+            this.updateProgress();
+          });
+        });
+
+        // Star ratings
+        document.querySelectorAll('.star).forEach(star => {
+          star.addEventListener(click) => [object Object]       this.handleStarRating(e);
+          });
+        });
+      }
+
+      handleEmailSubmit() {
+        const email = document.getElementById('email-input').value;
+        if (this.validateEmail(email)) {
+          this.userEmail = email;
+          this.saveEmail(email);
+          this.showStep('confirmation);         this.sendConfirmationEmail(email);
+        } else[object Object]
+          alert('Please enter a valid email address.');
+        }
+      }
+
+      validateEmail(email) [object Object]        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return re.test(email);
+      }
+
+      saveEmail(email) {
+        localStorage.setItem('assessment_email,email);
+        // Here you would typically send to your database
+        console.log('Email saved:', email);
+      }
+
+      sendConfirmationEmail(email) {
+        // Simulate email sending
+        console.log('Confirmation email sent to:,email);
+        // In production, this would call your backend API
+      }
+
+      handleStarRating(event) {
+        const star = event.target;
+        const rating = parseInt(star.dataset.value);
+        const question = star.closest('.rating-scale').dataset.question;
+        
+        // Update visual state
+        const stars = star.parentElement.querySelectorAll('.star');
+        stars.forEach((s, index) => {
+          if (index < rating) {
+            s.classList.add('active');
+          } else {
+            s.classList.remove('active');
+          }
+        });
+
+        // Save answer
+        this.answers[question] = rating;
+        this.saveProgress();
+      }
+
+      nextStep() [object Object]  if (this.currentStep < this.totalSteps -1) {
+          if (this.validateCurrentStep()) [object Object]      this.currentStep++;
+            this.showCurrentQuestion();
+            this.updateProgress();
+            this.saveProgress();
+          } else {
+            alert(Pleaseanswer the current question before proceeding.');
+          }
+        } else [object Object]    this.calculateResults();
+          this.showStep('results');
+        }
+      }
+
+      previousStep() [object Object]  if (this.currentStep > 0) {
+          this.currentStep--;
+          this.showCurrentQuestion();
+          this.updateProgress();
+        }
+      }
+
+      showCurrentQuestion()[object Object]       // Hide all questions
+        document.querySelectorAll('.question').forEach(q => q.style.display = none;
+        
+        // Show current question
+        const currentQuestion = document.getElementById(`q${this.currentStep + 1       if (currentQuestion) {
+          currentQuestion.style.display = 'block';
+        }
+
+        // Update navigation buttons
+        document.getElementById('prev-btn).disabled = this.currentStep === 0;
+        document.getElementById('next-btn).textContent = 
+          this.currentStep === this.totalSteps -1 ?Get Results' :Next';
+      }
+
+      validateCurrentStep() {
+        const currentQuestion = document.getElementById(`q${this.currentStep + 1}`);
+        const inputs = currentQuestion.querySelectorAll(input[type="radio]:checked, input[type="checkbox"]:checked');
+        
+        // Special handling for star ratings
+        const starRatings = currentQuestion.querySelectorAll(.rating-scale');
+        let starRatingsValid = true;
+        
+        starRatings.forEach(rating =>[object Object]    const question = rating.dataset.question;
+          if (!this.answers[question]) [object Object]           starRatingsValid = false;
+          }
+        });
+
+        return inputs.length > 0 || starRatingsValid;
+      }
+
+      saveAnswer() {
+        const currentQuestion = document.getElementById(`q${this.currentStep + 1}`);
+        
+        // Handle radio buttons
+        const radioInputs = currentQuestion.querySelectorAll(input[type="radio"]:checked');
+        radioInputs.forEach(input =>[object Object]      this.answers[`q${this.currentStep + 1}`] = parseInt(input.value);
+        });
+
+        // Handle checkboxes
+        const checkboxInputs = currentQuestion.querySelectorAll('input[type="checkbox"]:checked');
+        if (checkboxInputs.length > 0)[object Object]      const values = Array.from(checkboxInputs).map(input => parseInt(input.value));
+          this.answers[`q${this.currentStep + 1}`] = values;
+        }
+
+        this.saveProgress();
+      }
+
+      updateProgress() {
+        const progress = ((this.currentStep + 1) / this.totalSteps) * 100;
+        document.getElementById('progress-fill').style.width = `${progress}%`;
+      }
+
+      saveProgress() {
+        const progress = {
+          currentStep: this.currentStep,
+          answers: this.answers,
+          email: this.userEmail
+        };
+        localStorage.setItem('assessment_progress, JSON.stringify(progress));
+      }
+
+      loadProgress() {
+        const saved = localStorage.getItem('assessment_progress');
+        if (saved)[object Object]    const progress = JSON.parse(saved);
+          this.currentStep = progress.currentStep || 0      this.answers = progress.answers || [object Object]         this.userEmail = progress.email || '';
+          
+          if (this.userEmail) [object Object]         this.showStep('assessment');
+            this.showCurrentQuestion();
+            this.updateProgress();
+            this.loadAnswers();
+          }
+        }
+      }
+
+      loadAnswers()[object Object]        // Restore saved answers to form
+        Object.keys(this.answers).forEach(key =>[object Object]       const value = this.answers[key];
+          
+          if (Array.isArray(value)) {
+            // Handle checkboxes
+            value.forEach(v => {
+              const input = document.querySelector(`input[name="$[object Object]key}"][value="${v}"]`);
+              if (input) input.checked = true;
+            });
+          } else {
+            // Handle radio buttons and star ratings
+            const input = document.querySelector(`input[name="${key}][value="${value}"]`);
+            if (input) input.checked = true;
+            
+            // Handle star ratings
+            const ratingScale = document.querySelector(`[data-question="${key}"]`);
+            if (ratingScale) {
+              const stars = ratingScale.querySelectorAll('.star');
+              stars.forEach((star, index) =>[object Object]                if (index < value) {
+                  star.classList.add('active');
+                }
+              });
+            }
+          }
+        });
+      }
+
+      showStep(stepName) {
+        document.querySelectorAll('.step).forEach(step => {
+          step.classList.remove(active');
+        });
+        
+        const stepElement = document.getElementById(`${stepName}-step`);
+        if (stepElement) {
+          stepElement.classList.add(active');
+        }
+
+        if (stepName === confirmation') {
+          document.getElementById(user-email').textContent = this.userEmail;
+        }
+      }
+
+      calculateResults() {
+        const totalScore = this.calculateTotalScore();
+        const results = this.generateResults(totalScore);
+        this.displayResults(results);
+        this.saveResults(results);
+      }
+
+      calculateTotalScore() {
+        let total = 0;
+        
+        Object.keys(this.answers).forEach(key =>[object Object]       const value = this.answers[key];
+          
+          if (Array.isArray(value)) {
+            // Sum checkbox values
+            total += value.reduce((sum, v) => sum + v, 0);
+          } else {
+            // Add single values
+            total += value || 0;
+          }
+        });
+
+        return total;
+      }
+
+      generateResults(score) {
+        let segment, title, description, challenges, recommendations, productTier;
+
+        if (score <= 15) {
+          segment = 'stress-free;
+          title = Stress-Free Lover';
+          description = 'You have a healthy balance between relationships and finances. Your communication is strong and you make intentional spending decisions.';
+          challenges = [
+           Maintaining this balance during life changes',
+         Helping others develop similar habits',
+            Planning for long-term relationship goals'
+          ];
+          recommendations = [
+        Continue your current practices',
+     Share your strategies with others',
+            Consideradvanced financial planning'
+          ];
+          productTier = Professional ($50)';
+        } else if (score <= 30) {
+          segment = 'relationship-spender;
+          title = 'Relationship Spender';
+          description =You occasionally let relationships influence your spending, but you\'re aware of the patterns. With some guidance, you can improve your balance.';
+          challenges = [
+  Setting boundaries with loved ones',
+          Managing social pressure to spend',
+    Balancing generosity with financial goals'
+          ];
+          recommendations = [
+          Practice saying no to unnecessary expenses',
+            Create a spending plan with your partner',
+    Set clear financial boundaries'
+          ];
+          productTier = Mid-tier ($20)';
+        } else if (score <= 45) {
+          segment = emotional-manager;
+          title = 'Emotional Money Manager';
+          description = 'Your emotions significantly impact your spending decisions. You need tools to recognize triggers and develop healthier coping mechanisms.';
+          challenges = [
+   Managing emotional spending triggers',
+    Improving financial communication',
+   Building emergency savings'
+          ];
+          recommendations = [
+     Track your emotional spending patterns',
+  Develop alternative stress-relief activities',
+            Work on financial communication skills'
+          ];
+          productTier = 'Budget ($10)';
+        } else {
+          segment = 'crisis-mode;
+          title = 'Crisis Mode Financials';
+          description = Your relationship dynamics are creating significant financial stress. You need immediate support and tools to regain control.';
+          challenges = [
+       Breaking the cycle of emotional spending',
+   Building financial independence',
+     Addressing underlying relationship issues'
+          ];
+          recommendations =
+            Seek professional financial counseling',
+   Consider relationship therapy',
+          Create a strict budget and stick to it'
+          ];
+          productTier = Professional ($50)';
+        }
+
+        return {
+          segment,
+          score,
+          title,
+          description,
+          challenges,
+          recommendations,
+          productTier
+        };
+      }
+
+      displayResults(results) {
+        const resultsContent = document.getElementById('results-content');
+        
+        resultsContent.innerHTML = `
+          <div class=segment ${results.segment}>
+            <h3>$[object Object]results.title}</h3>
+            <p><strong>Your Score:</strong> ${results.score} points</p>
+            <p>${results.description}</p>
+            
+            <h4>Your Top Challenges:</h4
+            <ul>
+              ${results.challenges.map(challenge => `<li>${challenge}</li>`).join(')}
+            </ul>
+            
+            <h4>Recommended Action Steps:</h4
+            <ul>
+              ${results.recommendations.map(rec => `<li>${rec}</li>`).join(')}
+            </ul>
+            
+            <h4>Recommended Product Tier:</h4>
+            <p><strong>${results.productTier}</strong></p>
+            
+            <button class="btn btn-primary" onclick="this.sendResultsEmail()">
+              Get Your Personalized Plan
+            </button>
+          </div>
+        `;
+      }
+
+      saveResults(results) {
+        const assessmentData = [object Object]       email: this.userEmail,
+          answers: this.answers,
+          results: results,
+          timestamp: new Date().toISOString()
+        };
+
+        // Save to localStorage
+        localStorage.setItem('assessment_results, JSON.stringify(assessmentData));
+        
+        // In production, send to your database
+        console.log('Assessment results saved:', assessmentData);
+      }
+
+      sendResultsEmail() {
+        // In production, this would send the results to the user's email
+        console.log('Sending results email to:', this.userEmail);
+        alert(Your personalized plan has been sent to your email!');
+      }
+    }
+
+    // Initialize the assessment workflow
+    document.addEventListener('DOMContentLoaded', () => {
+      new AssessmentWorkflow();
+    });
+  </script>
+</body>
+</html> 

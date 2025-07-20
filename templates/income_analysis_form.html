@@ -6,175 +6,331 @@
     <title>Income Analysis - Career Insights | Mingus</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary-color: #3498db;
-            --secondary-color: #2c3e50;
-            --success-color: #27ae60;
-            --warning-color: #f39c12;
-            --danger-color: #e74c3c;
-            --light-bg: #f8f9fa;
-            --dark-bg: #2c3e50;
-            --border-radius: 12px;
-            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            --transition: all 0.3s ease;
+            /* Professional Color Palette - Growth & Trust Focused */
+            --primary-color: #2563eb;
+            --primary-dark: #1d4ed8;
+            --primary-light: #3b82f6;
+            --secondary-color: #1e293b;
+            --success-color: #059669;
+            --success-light: #10b981;
+            --warning-color: #d97706;
+            --info-color: #0891b2;
+            --light-bg: #f8fafc;
+            --lighter-bg: #f1f5f9;
+            --border-color: #e2e8f0;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --text-muted: #94a3b8;
+            
+            /* Design System */
+            --border-radius: 16px;
+            --border-radius-sm: 8px;
+            --box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --box-shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-fast: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+            
+            /* Gradients for Motivation */
+            --gradient-primary: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+            --gradient-success: linear-gradient(135deg, #059669 0%, #10b981 100%);
+            --gradient-growth: linear-gradient(135deg, #059669 0%, #34d399 100%);
+            --gradient-trust: linear-gradient(135deg, #0891b2 0%, #22d3ee 100%);
+        }
+
+        * {
+            box-sizing: border-box;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
             min-height: 100vh;
-            color: var(--secondary-color);
+            color: var(--text-primary);
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Accessibility Improvements */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* Focus Indicators for Accessibility */
+        .form-control:focus,
+        .form-select:focus,
+        .btn:focus {
+            outline: 2px solid var(--primary-color);
+            outline-offset: 2px;
         }
 
         .main-container {
             background: white;
             border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
-            margin: 2rem auto;
-            max-width: 800px;
+            box-shadow: var(--box-shadow-lg);
+            margin: 1rem auto;
+            max-width: 900px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Header Section with Motivational Design */
+        .header-section {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+            position: relative;
             overflow: hidden;
         }
 
-        .header-section {
-            background: linear-gradient(135deg, var(--primary-color), #2980b9);
-            color: white;
-            padding: 2rem;
-            text-align: center;
+        .header-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="75" cy="75" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="50" cy="10" r="0.5" fill="rgba(255,255,255,0.1)"/><circle cx="10" cy="60" r="0.5" fill="rgba(255,255,255,0.1)"/><circle cx="90" cy="40" r="0.5" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            opacity: 0.3;
         }
 
         .header-section h1 {
-            font-size: 2.5rem;
+            font-size: clamp(2rem, 5vw, 3rem);
             font-weight: 700;
             margin-bottom: 1rem;
+            position: relative;
+            z-index: 1;
         }
 
         .header-section .subtitle {
             font-size: 1.2rem;
-            opacity: 0.9;
+            opacity: 0.95;
             margin-bottom: 1.5rem;
+            position: relative;
+            z-index: 1;
+            font-weight: 400;
         }
 
+        /* Value Proposition with Growth Messaging */
         .value-proposition {
-            background: var(--light-bg);
-            padding: 1.5rem;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            padding: 2rem;
             border-radius: var(--border-radius);
-            margin: 1rem 0;
+            margin: 1.5rem 0;
+            border: 1px solid #bae6fd;
+            position: relative;
+        }
+
+        .value-proposition::before {
+            content: '🚀';
+            position: absolute;
+            top: -10px;
+            left: 20px;
+            background: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 1.2rem;
         }
 
         .value-proposition h3 {
             color: var(--primary-color);
             font-weight: 600;
             margin-bottom: 1rem;
+            font-size: 1.4rem;
         }
 
         .benefit-item {
             display: flex;
             align-items: center;
-            margin-bottom: 0.75rem;
-            padding: 0.5rem 0;
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            background: white;
+            border-radius: var(--border-radius-sm);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            transition: var(--transition-fast);
+        }
+
+        .benefit-item:hover {
+            transform: translateX(4px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
         }
 
         .benefit-item i {
             color: var(--success-color);
-            margin-right: 0.75rem;
-            font-size: 1.1rem;
-            width: 20px;
+            margin-right: 1rem;
+            font-size: 1.2rem;
+            width: 24px;
+            text-align: center;
         }
 
+        .benefit-item span {
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        /* Form Section with Professional Styling */
         .form-section {
-            padding: 2rem;
+            padding: 2.5rem;
         }
 
         .section-header {
-            background: var(--light-bg);
-            padding: 1.5rem;
+            background: var(--lighter-bg);
+            padding: 2rem;
             border-radius: var(--border-radius);
-            margin-bottom: 2rem;
-            border-left: 4px solid var(--primary-color);
+            margin-bottom: 2.5rem;
+            border-left: 5px solid var(--primary-color);
+            position: relative;
+        }
+
+        .section-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--gradient-primary);
+            border-radius: var(--border-radius) var(--border-radius) 0 0;
         }
 
         .section-header h2 {
             color: var(--primary-color);
             font-weight: 600;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.75rem;
+            font-size: 1.5rem;
         }
 
         .section-header p {
-            color: #6c757d;
+            color: var(--text-secondary);
             margin-bottom: 0;
+            font-size: 1rem;
         }
 
+        /* Enhanced Form Controls */
         .form-group {
-            margin-bottom: 1.5rem;
+            margin-bottom: 2rem;
         }
 
         .form-label {
             font-weight: 600;
-            color: var(--secondary-color);
-            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+            margin-bottom: 0.75rem;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .form-label i {
+            margin-right: 0.5rem;
+            color: var(--primary-color);
+            font-size: 1rem;
         }
 
         .form-control, .form-select {
-            border: 2px solid #e9ecef;
-            border-radius: var(--border-radius);
-            padding: 0.75rem 1rem;
+            border: 2px solid var(--border-color);
+            border-radius: var(--border-radius-sm);
+            padding: 1rem 1.25rem;
             font-size: 1rem;
             transition: var(--transition);
+            background: white;
+            color: var(--text-primary);
         }
 
         .form-control:focus, .form-select:focus {
             border-color: var(--primary-color);
-            box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            background: white;
         }
 
+        .form-control:hover, .form-select:hover {
+            border-color: var(--primary-light);
+        }
+
+        /* Salary Input with Professional Styling */
         .salary-input-group {
             position: relative;
         }
 
         .salary-input-group .input-group-text {
-            background: var(--primary-color);
+            background: var(--gradient-primary);
             color: white;
             border: none;
-            border-radius: var(--border-radius) 0 0 var(--border-radius);
+            border-radius: var(--border-radius-sm) 0 0 var(--border-radius-sm);
             font-weight: 600;
+            padding: 1rem 1.25rem;
         }
 
         .salary-input-group .form-control {
-            border-radius: 0 var(--border-radius) var(--border-radius) 0;
+            border-radius: 0 var(--border-radius-sm) var(--border-radius-sm) 0;
+            border-left: none;
+        }
+
+        .salary-input-group .form-control:focus {
+            border-left: 2px solid var(--primary-color);
         }
 
         .help-text {
-            font-size: 0.9rem;
-            color: #6c757d;
-            margin-top: 0.25rem;
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
         }
 
+        .help-text i {
+            margin-right: 0.5rem;
+            color: var(--info-color);
+        }
+
+        /* Privacy Section with Trust Indicators */
         .privacy-section {
-            background: #fff3cd;
-            border: 1px solid #ffeaa7;
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border: 1px solid #f59e0b;
             border-radius: var(--border-radius);
-            padding: 1.5rem;
-            margin: 2rem 0;
+            padding: 2rem;
+            margin: 2.5rem 0;
+            position: relative;
+        }
+
+        .privacy-section::before {
+            content: '🔒';
+            position: absolute;
+            top: -10px;
+            left: 20px;
+            background: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 1.2rem;
         }
 
         .privacy-section h4 {
-            color: #856404;
+            color: #92400e;
             font-weight: 600;
             margin-bottom: 1rem;
+            font-size: 1.2rem;
         }
 
         .privacy-section p {
-            color: #856404;
-            margin-bottom: 0.5rem;
+            color: #92400e;
+            margin-bottom: 0.75rem;
+            font-size: 0.95rem;
         }
 
+        /* Trust Indicators */
         .trust-indicators {
             display: flex;
             justify-content: center;
             align-items: center;
             gap: 2rem;
-            margin: 1.5rem 0;
+            margin: 2rem 0;
             flex-wrap: wrap;
         }
 
@@ -183,124 +339,99 @@
             align-items: center;
             color: var(--success-color);
             font-weight: 500;
+            padding: 0.75rem 1rem;
+            background: white;
+            border-radius: var(--border-radius-sm);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
 
         .trust-indicator i {
             margin-right: 0.5rem;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
         }
 
+        /* Enhanced Button Styling */
         .btn-primary {
-            background: linear-gradient(135deg, var(--primary-color), #2980b9);
+            background: var(--gradient-primary);
             border: none;
-            border-radius: var(--border-radius);
-            padding: 1rem 2rem;
+            border-radius: var(--border-radius-sm);
+            padding: 1.25rem 2.5rem;
             font-size: 1.1rem;
             font-weight: 600;
             transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            color: white;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
             width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn-primary:hover::before {
+            left: 100%;
         }
 
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(52, 152, 219, 0.3);
-        }
-
-        .optional-badge {
-            background: var(--warning-color);
+            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.3);
             color: white;
-            padding: 0.25rem 0.5rem;
-            border-radius: 12px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            margin-left: 0.5rem;
         }
 
-        .required-badge {
-            background: var(--danger-color);
-            color: white;
-            padding: 0.25rem 0.5rem;
-            border-radius: 12px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            margin-left: 0.5rem;
+        .btn-primary:active {
+            transform: translateY(0);
         }
 
-        .progress-indicator {
-            display: flex;
-            justify-content: center;
-            margin: 2rem 0;
+        /* Loading State */
+        .btn-loading {
+            position: relative;
+            pointer-events: none;
         }
 
-        .progress-step {
-            width: 40px;
-            height: 40px;
+        .btn-loading::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border: 2px solid transparent;
+            border-top: 2px solid white;
             border-radius: 50%;
-            background: #e9ecef;
-            color: #6c757d;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 0.5rem;
-            font-weight: bold;
-            transition: var(--transition);
+            animation: spin 1s linear infinite;
         }
 
-        .progress-step.active {
-            background: var(--primary-color);
-            color: white;
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
-        .progress-step.completed {
-            background: var(--success-color);
-            color: white;
-        }
-
-        .progress-connector {
-            width: 60px;
-            height: 2px;
-            background: #e9ecef;
-            margin: 0 0.25rem;
-            align-self: center;
-        }
-
-        .progress-connector.active {
-            background: var(--primary-color);
-        }
-
-        .alert-custom {
-            border: none;
-            border-radius: var(--border-radius);
-            padding: 1rem 1.5rem;
-        }
-
-        .alert-info-custom {
-            background: #e3f2fd;
-            color: #1565c0;
-            border-left: 4px solid var(--primary-color);
-        }
-
-        .alert-success-custom {
-            background: #e8f5e8;
-            color: #2e7d32;
-            border-left: 4px solid var(--success-color);
-        }
-
+        /* Responsive Design */
         @media (max-width: 768px) {
             .main-container {
-                margin: 1rem;
-                border-radius: 8px;
+                margin: 0.5rem;
+                border-radius: var(--border-radius-sm);
             }
 
             .header-section {
-                padding: 1.5rem;
-            }
-
-            .header-section h1 {
-                font-size: 2rem;
+                padding: 2rem 1.5rem;
             }
 
             .form-section {
+                padding: 1.5rem;
+            }
+
+            .section-header {
                 padding: 1.5rem;
             }
 
@@ -309,411 +440,234 @@
                 gap: 1rem;
             }
 
-            .progress-indicator {
-                flex-wrap: wrap;
+            .btn-primary {
+                width: 100%;
+                padding: 1rem 2rem;
             }
         }
 
-        .form-floating {
-            position: relative;
+        /* High Contrast Mode Support */
+        @media (prefers-contrast: high) {
+            .form-control, .form-select {
+                border-width: 3px;
+            }
+            
+            .btn-primary {
+                border: 2px solid var(--primary-dark);
+            }
         }
 
-        .form-floating > .form-control,
-        .form-floating > .form-select {
-            height: calc(3.5rem + 2px);
-            line-height: 1.25;
-        }
-
-        .form-floating > label {
-            position: absolute;
-            top: 0;
-            left: 0;
-            height: 100%;
-            padding: 1rem 0.75rem;
-            pointer-events: none;
-            border: 1px solid transparent;
-            transform-origin: 0 0;
-            transition: opacity .1s ease-in-out,transform .1s ease-in-out;
-        }
-
-        .form-floating > .form-control:focus,
-        .form-floating > .form-control:not(:placeholder-shown) {
-            padding-top: 1.625rem;
-            padding-bottom: 0.625rem;
-        }
-
-        .form-floating > .form-control:focus ~ label,
-        .form-floating > .form-control:not(:placeholder-shown) ~ label {
-            opacity: .65;
-            transform: scale(.85) translateY(-0.5rem) translateX(0.15rem);
+        /* Print Styles */
+        @media print {
+            .header-section {
+                background: white !important;
+                color: black !important;
+            }
+            
+            .btn-primary {
+                background: white !important;
+                color: black !important;
+                border: 1px solid black !important;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="main-container">
-            <!-- Header Section -->
-            <div class="header-section">
-                <h1><i class="fas fa-chart-line"></i> Income Analysis</h1>
-                <p class="subtitle">Discover Your Career Advancement Opportunities</p>
-                
-                <!-- Progress Indicator -->
-                <div class="progress-indicator">
-                    <div class="progress-step completed">
-                        <i class="fas fa-check"></i>
-                    </div>
-                    <div class="progress-connector active"></div>
-                    <div class="progress-step active">
-                        <i class="fas fa-user"></i>
-                    </div>
-                    <div class="progress-connector"></div>
-                    <div class="progress-step">
-                        <i class="fas fa-chart-bar"></i>
-                    </div>
-                </div>
+    <div class="main-container">
+        <!-- Header Section -->
+        <div class="header-section">
+            <h1>Income Analysis</h1>
+            <p class="subtitle">Discover Your Career Growth Potential</p>
+            <p>Compare your income with peers and identify opportunities for advancement</p>
+        </div>
+
+        <!-- Value Proposition -->
+        <div class="value-proposition">
+            <h3>Why Analyze Your Income?</h3>
+            <div class="benefit-item">
+                <i class="fas fa-chart-line"></i>
+                <span>Understand your market position and growth potential</span>
+            </div>
+            <div class="benefit-item">
+                <i class="fas fa-lightbulb"></i>
+                <span>Identify specific opportunities for career advancement</span>
+            </div>
+            <div class="benefit-item">
+                <i class="fas fa-target"></i>
+                <span>Set realistic and achievable income goals</span>
+            </div>
+            <div class="benefit-item">
+                <i class="fas fa-users"></i>
+                <span>Compare with professionals in similar roles and locations</span>
+            </div>
+        </div>
+
+        <!-- Form Section -->
+        <div class="form-section">
+            <div class="section-header">
+                <h2><i class="fas fa-user-tie"></i> Your Professional Profile</h2>
+                <p>Help us provide accurate comparisons by sharing your background. All information is kept confidential and secure.</p>
             </div>
 
-            <!-- Value Proposition -->
-            <div class="value-proposition">
-                <h3><i class="fas fa-lightbulb"></i> Why Income Analysis Matters</h3>
-                <div class="benefit-item">
-                    <i class="fas fa-check-circle"></i>
-                    <span><strong>See Your Position:</strong> Compare your income to peers in your demographic, age group, and location</span>
+            <form method="POST" action="{{ url_for('income_analysis.analyze') }}" id="incomeAnalysisForm">
+                <!-- Current Income -->
+                <div class="form-group">
+                    <label for="current_salary" class="form-label">
+                        <i class="fas fa-dollar-sign"></i> Current Annual Salary
+                    </label>
+                    <div class="salary-input-group">
+                        <span class="input-group-text">$</span>
+                        <input type="number" 
+                               class="form-control" 
+                               id="current_salary" 
+                               name="current_salary" 
+                               placeholder="Enter your annual salary"
+                               min="0" 
+                               step="1000" 
+                               required
+                               aria-describedby="salaryHelp">
+                    </div>
+                    <div class="help-text" id="salaryHelp">
+                        <i class="fas fa-info-circle"></i>
+                        Include base salary, bonuses, and commissions for the most accurate comparison
+                    </div>
                 </div>
-                <div class="benefit-item">
-                    <i class="fas fa-check-circle"></i>
-                    <span><strong>Identify Opportunities:</strong> Discover specific dollar amounts you could earn with career advancement</span>
+
+                <!-- Age Range -->
+                <div class="form-group">
+                    <label for="age_range" class="form-label">
+                        <i class="fas fa-birthday-cake"></i> Age Range
+                    </label>
+                    <select class="form-select" id="age_range" name="age_range" required>
+                        <option value="">Select your age range</option>
+                        <option value="18-24">18-24 years</option>
+                        <option value="25-34">25-34 years</option>
+                        <option value="35-44">35-44 years</option>
+                        <option value="45-54">45-54 years</option>
+                        <option value="55-64">55-64 years</option>
+                        <option value="65+">65+ years</option>
+                    </select>
                 </div>
-                <div class="benefit-item">
-                    <i class="fas fa-check-circle"></i>
-                    <span><strong>Get Actionable Insights:</strong> Receive personalized recommendations for closing income gaps</span>
+
+                <!-- Education Level -->
+                <div class="form-group">
+                    <label for="education" class="form-label">
+                        <i class="fas fa-graduation-cap"></i> Education Level
+                    </label>
+                    <select class="form-select" id="education" name="education" required>
+                        <option value="">Select your highest education level</option>
+                        <option value="high_school">High School Diploma</option>
+                        <option value="some_college">Some College</option>
+                        <option value="associates">Associate's Degree</option>
+                        <option value="bachelors">Bachelor's Degree</option>
+                        <option value="masters">Master's Degree</option>
+                        <option value="doctorate">Doctorate/PhD</option>
+                    </select>
                 </div>
-                <div class="benefit-item">
-                    <i class="fas fa-check-circle"></i>
-                    <span><strong>Motivate Growth:</strong> Use data-driven insights to accelerate your career progression</span>
+
+                <!-- Location -->
+                <div class="form-group">
+                    <label for="location" class="form-label">
+                        <i class="fas fa-map-marker-alt"></i> Location
+                    </label>
+                    <select class="form-select" id="location" name="location" required>
+                        <option value="">Select your location</option>
+                        <option value="atlanta">Atlanta, GA</option>
+                        <option value="chicago">Chicago, IL</option>
+                        <option value="dallas">Dallas, TX</option>
+                        <option value="houston">Houston, TX</option>
+                        <option value="los_angeles">Los Angeles, CA</option>
+                        <option value="miami">Miami, FL</option>
+                        <option value="new_york">New York, NY</option>
+                        <option value="philadelphia">Philadelphia, PA</option>
+                        <option value="washington_dc">Washington, DC</option>
+                        <option value="other">Other</option>
+                    </select>
                 </div>
-            </div>
 
-            <!-- Privacy Section -->
-            <div class="privacy-section">
-                <h4><i class="fas fa-shield-alt"></i> Your Privacy & Data Security</h4>
-                <p><strong>🔒 Secure & Private:</strong> Your information is encrypted and used only for career analysis</p>
-                <p><strong>📊 Anonymous Analysis:</strong> We use aggregate demographic data, never individual information</p>
-                <p><strong>🎯 Career Focus:</strong> Data helps provide better job recommendations and career insights</p>
-                <p><strong>🚫 No Sharing:</strong> We never sell or share your personal information with third parties</p>
-            </div>
-
-            <!-- Trust Indicators -->
-            <div class="trust-indicators">
-                <div class="trust-indicator">
-                    <i class="fas fa-lock"></i>
-                    <span>256-bit Encryption</span>
+                <!-- Privacy Section -->
+                <div class="privacy-section">
+                    <h4>Your Privacy Matters</h4>
+                    <p><i class="fas fa-shield-alt"></i> All data is encrypted and stored securely</p>
+                    <p><i class="fas fa-user-secret"></i> Your personal information is never shared with third parties</p>
+                    <p><i class="fas fa-chart-bar"></i> Analysis uses aggregated data for comparisons</p>
+                    
+                    <div class="trust-indicators">
+                        <div class="trust-indicator">
+                            <i class="fas fa-lock"></i>
+                            <span>256-bit Encryption</span>
+                        </div>
+                        <div class="trust-indicator">
+                            <i class="fas fa-check-circle"></i>
+                            <span>GDPR Compliant</span>
+                        </div>
+                        <div class="trust-indicator">
+                            <i class="fas fa-eye-slash"></i>
+                            <span>Anonymous Analysis</span>
+                        </div>
+                    </div>
                 </div>
-                <div class="trust-indicator">
-                    <i class="fas fa-user-shield"></i>
-                    <span>GDPR Compliant</span>
-                </div>
-                <div class="trust-indicator">
-                    <i class="fas fa-certificate"></i>
-                    <span>Trusted by 10,000+ Professionals</span>
-                </div>
-            </div>
 
-            <!-- Form Section -->
-            <div class="form-section">
-                <form id="incomeAnalysisForm" method="POST" action="/api/enhanced-recommendations/income-comparison">
-                    <!-- Current Salary Section -->
-                    <div class="section-header">
-                        <h2><i class="fas fa-dollar-sign"></i> Current Income</h2>
-                        <p>Your current salary helps us provide accurate comparisons and identify specific advancement opportunities.</p>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="currentSalary" class="form-label">
-                            Current Annual Salary
-                            <span class="optional-badge">Optional but Recommended</span>
-                        </label>
-                        <div class="salary-input-group">
-                            <div class="input-group">
-                                <span class="input-group-text">$</span>
-                                <input type="number" 
-                                       class="form-control" 
-                                       id="currentSalary" 
-                                       name="current_salary" 
-                                       placeholder="75000"
-                                       min="20000" 
-                                       max="500000"
-                                       step="1000">
-                                <span class="input-group-text">/year</span>
-                            </div>
-                        </div>
-                        <div class="help-text">
-                            <i class="fas fa-info-circle"></i>
-                            Providing your salary enables detailed income comparison analysis and helps identify specific career advancement opportunities.
-                        </div>
-                    </div>
-
-                    <!-- Demographic Information Section -->
-                    <div class="section-header">
-                        <h2><i class="fas fa-users"></i> Demographic Information</h2>
-                        <p>This information helps us compare your income to relevant peer groups and provide more accurate career insights.</p>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="ageRange" class="form-label">
-                                    Age Range
-                                    <span class="required-badge">Required</span>
-                                </label>
-                                <select class="form-select" id="ageRange" name="age_range" required>
-                                    <option value="">Select your age range</option>
-                                    <option value="25-27">25-27 years old</option>
-                                    <option value="28-30">28-30 years old</option>
-                                    <option value="31-33">31-33 years old</option>
-                                    <option value="34-36">34-36 years old</option>
-                                    <option value="37-40">37-40 years old</option>
-                                </select>
-                                <div class="help-text">
-                                    <i class="fas fa-info-circle"></i>
-                                    Age-specific comparisons help identify career progression opportunities.
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="race" class="form-label">
-                                    Race/Ethnicity
-                                    <span class="required-badge">Required</span>
-                                </label>
-                                <select class="form-select" id="race" name="race" required>
-                                    <option value="">Select your race/ethnicity</option>
-                                    <option value="African American">African American</option>
-                                    <option value="White">White</option>
-                                    <option value="Hispanic/Latino">Hispanic/Latino</option>
-                                    <option value="Asian">Asian</option>
-                                    <option value="Other">Other</option>
-                                </select>
-                                <div class="help-text">
-                                    <i class="fas fa-info-circle"></i>
-                                    Racial demographic analysis helps identify specific advancement opportunities.
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="educationLevel" class="form-label">
-                                    Education Level
-                                    <span class="required-badge">Required</span>
-                                </label>
-                                <select class="form-select" id="educationLevel" name="education_level" required>
-                                    <option value="">Select your education level</option>
-                                    <option value="high_school">High School Diploma</option>
-                                    <option value="some_college">Some College (No Degree)</option>
-                                    <option value="bachelors">Bachelor's Degree</option>
-                                    <option value="masters">Master's Degree</option>
-                                    <option value="doctorate">Doctorate/PhD</option>
-                                </select>
-                                <div class="help-text">
-                                    <i class="fas fa-info-circle"></i>
-                                    Education-based comparisons show advancement potential within your field.
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="location" class="form-label">
-                                    Location
-                                    <span class="required-badge">Required</span>
-                                </label>
-                                <select class="form-select" id="location" name="location" required>
-                                    <option value="">Select your location</option>
-                                    <option value="Atlanta">Atlanta, GA</option>
-                                    <option value="Houston">Houston, TX</option>
-                                    <option value="Washington DC">Washington DC</option>
-                                    <option value="Dallas">Dallas, TX</option>
-                                    <option value="New York City">New York City, NY</option>
-                                    <option value="Philadelphia">Philadelphia, PA</option>
-                                    <option value="Chicago">Chicago, IL</option>
-                                    <option value="Charlotte">Charlotte, NC</option>
-                                    <option value="Miami">Miami, FL</option>
-                                    <option value="Baltimore">Baltimore, MD</option>
-                                </select>
-                                <div class="help-text">
-                                    <i class="fas fa-info-circle"></i>
-                                    Location-specific data provides accurate local market comparisons.
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Additional Context Section -->
-                    <div class="section-header">
-                        <h2><i class="fas fa-briefcase"></i> Career Context</h2>
-                        <p>Additional information helps us provide more personalized career recommendations.</p>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="yearsExperience" class="form-label">
-                                    Years of Experience
-                                    <span class="optional-badge">Optional</span>
-                                </label>
-                                <select class="form-select" id="yearsExperience" name="years_experience">
-                                    <option value="">Select experience level</option>
-                                    <option value="0-1">0-1 years</option>
-                                    <option value="2-5">2-5 years</option>
-                                    <option value="6-10">6-10 years</option>
-                                    <option value="11-15">11-15 years</option>
-                                    <option value="16-20">16-20 years</option>
-                                    <option value="20+">20+ years</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="industry" class="form-label">
-                                    Industry
-                                    <span class="optional-badge">Optional</span>
-                                </label>
-                                <select class="form-select" id="industry" name="industry">
-                                    <option value="">Select your industry</option>
-                                    <option value="technology">Technology</option>
-                                    <option value="healthcare">Healthcare</option>
-                                    <option value="finance">Finance</option>
-                                    <option value="education">Education</option>
-                                    <option value="manufacturing">Manufacturing</option>
-                                    <option value="retail">Retail</option>
-                                    <option value="consulting">Consulting</option>
-                                    <option value="government">Government</option>
-                                    <option value="nonprofit">Non-profit</option>
-                                    <option value="other">Other</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Submit Section -->
-                    <div class="alert alert-info-custom alert-custom">
-                        <h5><i class="fas fa-rocket"></i> Ready to Discover Your Opportunities?</h5>
-                        <p class="mb-0">
-                            Get your personalized income analysis and career advancement recommendations. 
-                            See exactly how your income compares to peers and discover specific opportunities for growth.
-                        </p>
-                    </div>
-
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-chart-bar"></i>
-                        Get My Income Analysis & Career Insights
+                <!-- Submit Button -->
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary" id="submitBtn">
+                        <i class="fas fa-rocket"></i>
+                        Analyze My Income Potential
                     </button>
-
-                    <div class="text-center mt-3">
-                        <small class="text-muted">
-                            <i class="fas fa-clock"></i>
-                            Analysis takes 30-60 seconds • 
-                            <i class="fas fa-shield-alt"></i>
-                            100% Private & Secure
-                        </small>
-                    </div>
-                </form>
-            </div>
+                </div>
+            </form>
         </div>
     </div>
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-    
     <script>
         // Form validation and enhancement
         document.addEventListener('DOMContentLoaded', function() {
             const form = document.getElementById('incomeAnalysisForm');
-            const salaryInput = document.getElementById('currentSalary');
-            
-            // Salary input formatting
+            const submitBtn = document.getElementById('submitBtn');
+            const salaryInput = document.getElementById('current_salary');
+
+            // Format salary input with commas
             salaryInput.addEventListener('input', function(e) {
-                let value = e.target.value.replace(/[^0-9]/g, '');
+                let value = e.target.value.replace(/,/g, '');
                 if (value) {
                     value = parseInt(value).toLocaleString();
-                    e.target.value = value.replace(/,/g, '');
+                    e.target.value = value;
                 }
             });
 
-            // Form validation
+            // Form submission with loading state
             form.addEventListener('submit', function(e) {
-                e.preventDefault();
+                // Remove commas before submission
+                salaryInput.value = salaryInput.value.replace(/,/g, '');
                 
-                // Validate required fields
-                const requiredFields = ['ageRange', 'race', 'educationLevel', 'location'];
-                let isValid = true;
-                
-                requiredFields.forEach(fieldName => {
-                    const field = document.getElementById(fieldName);
-                    if (!field.value) {
-                        field.classList.add('is-invalid');
-                        isValid = false;
-                    } else {
-                        field.classList.remove('is-invalid');
-                    }
-                });
-
-                if (!isValid) {
-                    showAlert('Please fill in all required fields.', 'danger');
-                    return;
-                }
-
-                // Show loading state
-                const submitBtn = form.querySelector('button[type="submit"]');
-                const originalText = submitBtn.innerHTML;
+                // Add loading state
+                submitBtn.classList.add('btn-loading');
                 submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analyzing...';
                 submitBtn.disabled = true;
-
-                // Simulate form submission (replace with actual API call)
-                setTimeout(() => {
-                    showAlert('Income analysis completed! Redirecting to results...', 'success');
-                    // Redirect to results page or handle response
-                    setTimeout(() => {
-                        window.location.href = '/results';
-                    }, 2000);
-                }, 3000);
             });
 
-            // Remove validation styling on input
-            document.querySelectorAll('.form-control, .form-select').forEach(field => {
-                field.addEventListener('input', function() {
-                    this.classList.remove('is-invalid');
+            // Accessibility: Announce form sections
+            const sections = document.querySelectorAll('.section-header');
+            sections.forEach(section => {
+                const heading = section.querySelector('h2');
+                if (heading) {
+                    section.setAttribute('role', 'region');
+                    section.setAttribute('aria-labelledby', heading.id || 'section-heading');
+                }
+            });
+
+            // Smooth scrolling for form navigation
+            const labels = document.querySelectorAll('.form-label');
+            labels.forEach(label => {
+                label.addEventListener('click', function() {
+                    const input = this.nextElementSibling?.querySelector('input, select') || 
+                                 this.nextElementSibling;
+                    if (input) {
+                        input.focus();
+                        input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
                 });
             });
-
-            function showAlert(message, type) {
-                const alertDiv = document.createElement('div');
-                alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
-                alertDiv.innerHTML = `
-                    ${message}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                `;
-                
-                const formSection = document.querySelector('.form-section');
-                formSection.insertBefore(alertDiv, formSection.firstChild);
-                
-                // Auto-dismiss after 5 seconds
-                setTimeout(() => {
-                    alertDiv.remove();
-                }, 5000);
-            }
-
-            // Enhanced UX: Show salary examples
-            const salaryExamples = [45000, 65000, 85000, 95000];
-            let exampleIndex = 0;
-            
-            setInterval(() => {
-                if (salaryInput === document.activeElement) return;
-                salaryInput.placeholder = salaryExamples[exampleIndex].toLocaleString();
-                exampleIndex = (exampleIndex + 1) % salaryExamples.length;
-            }, 3000);
         });
     </script>
 </body>

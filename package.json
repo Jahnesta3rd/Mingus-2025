@@ -1,28 +1,45 @@
 {
-  "name": "mingus-application---cursor",
+  "name": "mingus-financial-wellness",
   "version": "1.0.0",
-  "description": "## Recent Updates (Last Updated: [Today's Date])",
-  "main": "cypress.config.js",
-  "directories": {
-    "doc": "docs",
-    "example": "examples",
-    "test": "tests"
-  },
+  "description": "MINGUS Financial Wellness App - Goals Setting Screen",
+  "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Jahnesta3rd/Mingus-2025.git"
+  "dependencies": {
+    "@types/react-router-dom": "^5.3.3",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-phone-number-input": "^3.4.12",
+    "react-router-dom": "^6.30.1"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/Jahnesta3rd/Mingus-2025/issues"
-  },
-  "homepage": "https://github.com/Jahnesta3rd/Mingus-2025#readme",
   "devDependencies": {
-    "cypress": "^14.5.0"
-  }
+    "@types/react": "^18.0.28",
+    "@types/react-dom": "^18.0.11",
+    "@types/react-phone-number-input": "^3.1.37",
+    "@typescript-eslint/eslint-plugin": "^5.54.1",
+    "@typescript-eslint/parser": "^5.54.1",
+    "@vitejs/plugin-react": "^3.1.0",
+    "autoprefixer": "^10.4.13",
+    "eslint": "^8.35.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.3.4",
+    "postcss": "^8.4.21",
+    "tailwindcss": "^3.2.7",
+    "typescript": "^4.9.3",
+    "vite": "^4.1.0"
+  },
+  "keywords": [
+    "financial",
+    "wellness",
+    "goals",
+    "react",
+    "typescript",
+    "tailwind"
+  ],
+  "author": "MINGUS Team",
+  "license": "MIT"
 }

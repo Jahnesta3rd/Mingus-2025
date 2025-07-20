@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronLeft, ChevronRight, CheckCircle } from 'lucide-react'
 import { ASSESSMENT_QUESTIONS } from '../types/assessment-types'
+import { RatchetMoneyAPI, type AssessmentSubmission } from '../api'
 
 interface AssessmentFormProps {
   onCompleted: (data: any) => void
@@ -75,77 +76,55 @@ export const AssessmentForm: React.FC<AssessmentFormProps> = ({ onCompleted }) =
     setIsSubmitting(true)
     
     try {
-      // Calculate total score
-      let totalScore = 0
-      const answersWithPoints: Record<string, any> = {}
-      
-      ASSESSMENT_QUESTIONS.forEach(question => {
-        const answer = answers[question.id]
-        if (answer) {
-          if (question.type === 'checkbox' && Array.isArray(answer)) {
-            // For checkboxes, sum up points for all selected options
-            const points = answer.reduce((sum: number, selectedValue: string) => {
-              const option = question.options?.find(opt => opt.value === selectedValue)
-              return sum + (option?.points || 0)
-            }, 0)
-            totalScore += points
-            answersWithPoints[question.id] = { answer, points }
-          } else if (question.type === 'rating') {
-            // For ratings, calculate average score
-            const ratingValues = Object.values(answer).filter((rating): rating is number => typeof rating === 'number')
-            const ratingSum = ratingValues.reduce((sum: number, rating: number) => sum + rating, 0)
-            const ratingCount = ratingValues.length
-            const averageRating = ratingCount > 0 ? ratingSum / ratingCount : 0
-            const points = Math.round(averageRating * 2) // Convert to 0-10 points
-            totalScore += points
-            answersWithPoints[question.id] = { answer, points }
-          } else {
-            // For radio buttons and other types
-            const option = question.options?.find(opt => opt.value === answer)
-            const points = option?.points || 0
-            totalScore += points
-            answersWithPoints[question.id] = { answer, points }
-          }
-        }
-      })
-
-      // Determine user segment based on score
-      let segment = 'stress-free'
-      if (totalScore > 16 && totalScore <= 30) {
-        segment = 'relationship-spender'
-      } else if (totalScore > 30 && totalScore <= 45) {
-        segment = 'emotional-manager'
-      } else if (totalScore > 45) {
-        segment = 'crisis-mode'
+      const userEmail = localStorage.getItem('user_email')
+      if (!userEmail) {
+        throw new Error('User email not found')
       }
 
-      const resultData = {
-        email: localStorage.getItem('user_email'),
-        answers: answersWithPoints,
-        totalScore,
-        segment,
-        timestamp: new Date().toISOString()
+      // Get UTM data from URL if available
+      const urlParams = new URLSearchParams(window.location.search)
+      const utmData = {
+        source: urlParams.get('utm_source') || undefined,
+        medium: urlParams.get('utm_medium') || undefined,
+        campaign: urlParams.get('utm_campaign') || undefined,
+        term: urlParams.get('utm_term') || undefined,
+        content: urlParams.get('utm_content') || undefined
       }
 
-      // Save to database (this would be a Supabase call)
-      await saveAssessmentResults(resultData)
+      // Prepare assessment submission
+      const submission: AssessmentSubmission = {
+        email: userEmail,
+        firstName: localStorage.getItem('user_name') || undefined,
+        phoneNumber: localStorage.getItem('user_phone') || undefined,
+        contactMethod: 'email',
+        betaInterest: 'somewhat',
+        answers,
+        leadSource: 'assessment',
+        utmData
+      }
+
+      // Submit assessment using backend API
+      const result = await RatchetMoneyAPI.completeAssessment(submission)
       
       // Clear localStorage
       localStorage.removeItem('assessment_answers')
       localStorage.removeItem('user_email')
-      onCompleted(resultData)
+      localStorage.removeItem('user_name')
+      localStorage.removeItem('user_phone')
+      
+      // Pass results to parent component
+      onCompleted({
+        totalScore: result.totalScore,
+        segment: result.segment,
+        answers: result.challenges,
+        leadId: result.leadId
+      })
     } catch (error) {
       console.error('Error submitting assessment:', error)
+      // Handle error - could show error message to user
     } finally {
       setIsSubmitting(false)
     }
-  }
-
-  const saveAssessmentResults = async (data: any) => {
-    // This would be a Supabase call
-    console.log('Saving assessment results:', data)
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000))
   }
 
   const renderQuestion = () => {

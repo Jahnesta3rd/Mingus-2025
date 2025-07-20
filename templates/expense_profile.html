@@ -58,7 +58,7 @@
       <h3>Starting Cash Balance <span class="tooltip" title="Your current available cash balance to start with.">?</span></h3>
       <label>
         Current Balance (USD)
-        <input type="number" id="startingBalance" name="startingBalance" min="0" step="0.01" required placeholder="$0.00">
+        <input type="number" id="starting_balance" name="starting_balance" min="0" step="0.01" required placeholder="$0.00">
       </label>
     </div>
 
@@ -74,12 +74,12 @@
         <div class="category-content">
           <label>
             Rent or Mortgage <span class="tooltip" title="Your monthly housing payment.">?</span>
-            <input type="number" id="rentOrMortgageExpense" name="rentOrMortgageExpense" min="0" step="0.01" placeholder="$0.00">
-            <span class="monthly-conversion" id="rentOrMortgageMonthly"></span>
+            <input type="number" id="rent_or_mortgage_expense" name="rent_or_mortgage_expense" min="0" step="0.01" placeholder="$0.00">
+            <span class="monthly-conversion" id="rent_or_mortgage_monthly"></span>
           </label>
           <label>
             Frequency
-            <select id="rentOrMortgageFrequency" name="rentOrMortgageFrequency">
+            <select id="rent_or_mortgage_frequency" name="rent_or_mortgage_frequency">
               <option value="monthly">Monthly</option>
               <option value="bi-weekly">Bi-weekly</option>
               <option value="weekly">Weekly</option>
@@ -87,17 +87,17 @@
           </label>
           <label>
             Due Date
-            <input type="date" id="rentOrMortgageDueDate" name="rentOrMortgageDueDate">
+            <input type="date" id="rent_or_mortgage_due_date" name="rent_or_mortgage_due_date">
           </label>
           
           <label>
             Utilities <span class="tooltip" title="Electricity, water, gas, internet, etc.">?</span>
-            <input type="number" id="utilitiesExpense" name="utilitiesExpense" min="0" step="0.01" placeholder="$0.00">
-            <span class="monthly-conversion" id="utilitiesMonthly"></span>
+            <input type="number" id="utilities_expense" name="utilities_expense" min="0" step="0.01" placeholder="$0.00">
+            <span class="monthly-conversion" id="utilities_monthly"></span>
           </label>
           <label>
             Frequency
-            <select id="utilitiesFrequency" name="utilitiesFrequency">
+            <select id="utilities_frequency" name="utilities_frequency">
               <option value="monthly">Monthly</option>
               <option value="bi-weekly">Bi-weekly</option>
               <option value="weekly">Weekly</option>
@@ -105,7 +105,7 @@
           </label>
           <label>
             Due Date
-            <input type="date" id="utilitiesDueDate" name="utilitiesDueDate">
+            <input type="date" id="utilities_due_date" name="utilities_due_date">
           </label>
         </div>
       </div>
@@ -118,28 +118,28 @@
         <div class="category-content">
           <label>
             Auto Payment <span class="tooltip" title="Car loan or lease payment.">?</span>
-            <input type="number" id="autoPaymentExpense" name="autoPaymentExpense" min="0" step="0.01" placeholder="$0.00">
-            <span class="monthly-conversion" id="autoPaymentMonthly"></span>
+            <input type="number" id="auto_payment_expense" name="auto_payment_expense" min="0" step="0.01" placeholder="$0.00">
+            <span class="monthly-conversion" id="auto_payment_monthly"></span>
           </label>
           <label>
             Auto Insurance
-            <input type="number" id="autoInsuranceExpense" name="autoInsuranceExpense" min="0" step="0.01" placeholder="$0.00">
-            <span class="monthly-conversion" id="autoInsuranceMonthly"></span>
+            <input type="number" id="auto_insurance_expense" name="auto_insurance_expense" min="0" step="0.01" placeholder="$0.00">
+            <span class="monthly-conversion" id="auto_insurance_monthly"></span>
           </label>
           <label>
             Auto Gas
-            <input type="number" id="autoGasExpense" name="autoGasExpense" min="0" step="0.01" placeholder="$0.00">
-            <span class="monthly-conversion" id="autoGasMonthly"></span>
+            <input type="number" id="auto_gas_expense" name="auto_gas_expense" min="0" step="0.01" placeholder="$0.00">
+            <span class="monthly-conversion" id="auto_gas_monthly"></span>
           </label>
           <label>
             Public Transit
-            <input type="number" id="busFareExpense" name="busFareExpense" min="0" step="0.01" placeholder="$0.00">
-            <span class="monthly-conversion" id="busFareMonthly"></span>
+            <input type="number" id="bus_fare_expense" name="bus_fare_expense" min="0" step="0.01" placeholder="$0.00">
+            <span class="monthly-conversion" id="bus_fare_monthly"></span>
           </label>
           <label>
             Rideshare (Uber/Lyft)
-            <input type="number" id="rideshareExpense" name="rideshareExpense" min="0" step="0.01" placeholder="$0.00">
-            <span class="monthly-conversion" id="rideshareMonthly"></span>
+            <input type="number" id="rideshare_expense" name="rideshare_expense" min="0" step="0.01" placeholder="$0.00">
+            <span class="monthly-conversion" id="rideshare_monthly"></span>
           </label>
         </div>
       </div>
@@ -152,13 +152,13 @@
         <div class="category-content">
           <label>
             Health Insurance <span class="tooltip" title="Monthly health insurance premium.">?</span>
-            <input type="number" id="healthInsuranceExpense" name="healthInsuranceExpense" min="0" step="0.01" placeholder="$0.00">
-            <span class="monthly-conversion" id="healthInsuranceMonthly"></span>
+            <input type="number" id="health_insurance_expense" name="health_insurance_expense" min="0" step="0.01" placeholder="$0.00">
+            <span class="monthly-conversion" id="health_insurance_monthly"></span>
           </label>
           <label>
             Healthcare (Out of Pocket)
-            <input type="number" id="healthcareExpense" name="healthcareExpense" min="0" step="0.01" placeholder="$0.00">
-            <span class="monthly-conversion" id="healthcareMonthly"></span>
+            <input type="number" id="healthcare_expense" name="healthcare_expense" min="0" step="0.01" placeholder="$0.00">
+            <span class="monthly-conversion" id="healthcare_monthly"></span>
           </label>
         </div>
       </div>
@@ -176,13 +176,13 @@
         <div class="category-content">
           <label>
             Groceries <span class="tooltip" title="Food and household items from grocery stores.">?</span>
-            <input type="number" id="groceryExpense" name="groceryExpense" min="0" step="0.01" placeholder="$0.00">
-            <span class="monthly-conversion" id="groceryMonthly"></span>
+            <input type="number" id="grocery_expense" name="grocery_expense" min="0" step="0.01" placeholder="$0.00">
+            <span class="monthly-conversion" id="grocery_monthly"></span>
           </label>
           <label>
             Restaurant Meals
-            <input type="number" id="restaurantMealsExpense" name="restaurantMealsExpense" min="0" step="0.01" placeholder="$0.00">
-            <span class="monthly-conversion" id="restaurantMealsMonthly"></span>
+            <input type="number" id="restaurant_meals_expense" name="restaurant_meals_expense" min="0" step="0.01" placeholder="$0.00">
+            <span class="monthly-conversion" id="restaurant_meals_monthly"></span>
           </label>
         </div>
       </div>
@@ -195,13 +195,13 @@
         <div class="category-content">
           <label>
             Personal Care <span class="tooltip" title="Haircuts, toiletries, etc.">?</span>
-            <input type="number" id="personalCareExpense" name="personalCareExpense" min="0" step="0.01" placeholder="$0.00">
-            <span class="monthly-conversion" id="personalCareMonthly"></span>
+            <input type="number" id="personal_care_expense" name="personal_care_expense" min="0" step="0.01" placeholder="$0.00">
+            <span class="monthly-conversion" id="personal_care_monthly"></span>
           </label>
           <label>
             Self Care
-            <input type="number" id="selfcareExpense" name="selfcareExpense" min="0" step="0.01" placeholder="$0.00">
-            <span class="monthly-conversion" id="selfcareMonthly"></span>
+            <input type="number" id="selfcare_expense" name="selfcare_expense" min="0" step="0.01" placeholder="$0.00">
+            <span class="monthly-conversion" id="selfcare_monthly"></span>
           </label>
         </div>
       </div>
@@ -214,18 +214,18 @@
         <div class="category-content">
           <label>
             Daycare <span class="tooltip" title="Childcare costs.">?</span>
-            <input type="number" id="daycareExpense" name="daycareExpense" min="0" step="0.01" placeholder="$0.00">
-            <span class="monthly-conversion" id="daycareMonthly"></span>
+            <input type="number" id="daycare_expense" name="daycare_expense" min="0" step="0.01" placeholder="$0.00">
+            <span class="monthly-conversion" id="daycare_monthly"></span>
           </label>
           <label>
             Child Support (Paid)
-            <input type="number" id="childSupportExpense" name="childSupportExpense" min="0" step="0.01" placeholder="$0.00">
-            <span class="monthly-conversion" id="childSupportMonthly"></span>
+            <input type="number" id="child_support_expense" name="child_support_expense" min="0" step="0.01" placeholder="$0.00">
+            <span class="monthly-conversion" id="child_support_monthly"></span>
           </label>
           <label>
             Cash to Family
-            <input type="number" id="cashToFamilyExpense" name="cashToFamilyExpense" min="0" step="0.01" placeholder="$0.00">
-            <span class="monthly-conversion" id="cashToFamilyMonthly"></span>
+            <input type="number" id="cash_to_family_expense" name="cash_to_family_expense" min="0" step="0.01" placeholder="$0.00">
+            <span class="monthly-conversion" id="cash_to_family_monthly"></span>
           </label>
         </div>
       </div>
@@ -246,12 +246,12 @@
             <div class="credit-card-item">
               <label>
                 Credit Card 1 Name
-                <input type="text" id="creditCard1Name" name="creditCard1Name" placeholder="e.g., Chase Visa">
+                <input type="text" id="credit_card1_name" name="credit_card1_name" placeholder="e.g., Chase Visa">
               </label>
               <label>
                 Amount
-                <input type="number" id="creditCard1Expense" name="creditCard1Expense" min="0" step="0.01" placeholder="$0.00">
-                <span class="monthly-conversion" id="creditCard1Monthly"></span>
+                <input type="number" id="credit_card1_expense" name="credit_card1_expense" min="0" step="0.01" placeholder="$0.00">
+                <span class="monthly-conversion" id="credit_card1_monthly"></span>
               </label>
             </div>
             <button type="button" id="addCreditCard" class="btn-mingus-secondary">+ Add Another Credit Card</button>
@@ -262,12 +262,12 @@
             <div class="loan-item">
               <label>
                 Loan 1 Name
-                <input type="text" id="loan1Name" name="loan1Name" placeholder="e.g., Student Loan">
+                <input type="text" id="loan_1_name" name="loan_1_name" placeholder="e.g., Student Loan">
               </label>
               <label>
                 Amount
-                <input type="number" id="loan1Expense" name="loan1Expense" min="0" step="0.01" placeholder="$0.00">
-                <span class="monthly-conversion" id="loan1Monthly"></span>
+                <input type="number" id="loan_1_expense" name="loan_1_expense" min="0" step="0.01" placeholder="$0.00">
+                <span class="monthly-conversion" id="loan_1_monthly"></span>
               </label>
             </div>
             <button type="button" id="addLoan" class="btn-mingus-secondary">+ Add Another Loan</button>
@@ -283,13 +283,13 @@
         <div class="category-content">
           <label>
             Subscriptions <span class="tooltip" title="Netflix, Spotify, gym memberships, etc.">?</span>
-            <input type="number" id="subscriptionsExpense" name="subscriptionsExpense" min="0" step="0.01" placeholder="$0.00">
-            <span class="monthly-conversion" id="subscriptionsMonthly"></span>
+            <input type="number" id="subscriptions_expense" name="subscriptions_expense" min="0" step="0.01" placeholder="$0.00">
+            <span class="monthly-conversion" id="subscriptions_monthly"></span>
           </label>
           <label>
             Mobile Phone
-            <input type="number" id="mobilePhoneExpense" name="mobilePhoneExpense" min="0" step="0.01" placeholder="$0.00">
-            <span class="monthly-conversion" id="mobilePhoneMonthly"></span>
+            <input type="number" id="mobile_phone_expense" name="mobile_phone_expense" min="0" step="0.01" placeholder="$0.00">
+            <span class="monthly-conversion" id="mobile_phone_monthly"></span>
           </label>
         </div>
       </div>
@@ -307,18 +307,18 @@
         <div class="category-content">
           <label>
             Entertainment <span class="tooltip" title="Movies, concerts, hobbies, etc.">?</span>
-            <input type="number" id="entertainmentExpense" name="entertainmentExpense" min="0" step="0.01" placeholder="$0.00">
-            <span class="monthly-conversion" id="entertainmentMonthly"></span>
+            <input type="number" id="entertainment_expense" name="entertainment_expense" min="0" step="0.01" placeholder="$0.00">
+            <span class="monthly-conversion" id="entertainment_monthly"></span>
           </label>
           <label>
             Gifts & Charity
-            <input type="number" id="giftOthersExpense" name="giftOthersExpense" min="0" step="0.01" placeholder="$0.00">
-            <span class="monthly-conversion" id="giftOthersMonthly"></span>
+            <input type="number" id="gift_others_expense" name="gift_others_expense" min="0" step="0.01" placeholder="$0.00">
+            <span class="monthly-conversion" id="gift_others_monthly"></span>
           </label>
           <label>
             Career/Professional
-            <input type="number" id="careerExpense" name="careerExpense" min="0" step="0.01" placeholder="$0.00">
-            <span class="monthly-conversion" id="careerMonthly"></span>
+            <input type="number" id="career_expense" name="career_expense" min="0" step="0.01" placeholder="$0.00">
+            <span class="monthly-conversion" id="career_monthly"></span>
           </label>
         </div>
       </div>
@@ -331,13 +331,13 @@
         <div class="category-content">
           <label>
             Pet Expenses <span class="tooltip" title="Pet food, vet bills, grooming, etc.">?</span>
-            <input type="number" id="petExpense" name="petExpense" min="0" step="0.01" placeholder="$0.00">
-            <span class="monthly-conversion" id="petMonthly"></span>
+            <input type="number" id="pet_expense" name="pet_expense" min="0" step="0.01" placeholder="$0.00">
+            <span class="monthly-conversion" id="pet_monthly"></span>
           </label>
           <label>
             Fraternity/Sorority
-            <input type="number" id="fraternitySororityExpense" name="fraternitySororityExpense" min="0" step="0.01" placeholder="$0.00">
-            <span class="monthly-conversion" id="fraternitySororityMonthly"></span>
+            <input type="number" id="fraternity_sorority_expense" name="fraternity_sorority_expense" min="0" step="0.01" placeholder="$0.00">
+            <span class="monthly-conversion" id="fraternity_sorority_monthly"></span>
           </label>
         </div>
       </div>
@@ -374,6 +374,23 @@
     const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY'; // Replace with your actual key
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     let userId = null; // Set this from your auth/session logic
+
+    // --- Field mapping configuration ---
+    const EXPENSE_FIELDS = [
+      'rent_or_mortgage_expense', 'utilities_expense', 'auto_payment_expense', 'auto_insurance_expense',
+      'auto_gas_expense', 'bus_fare_expense', 'rideshare_expense', 'health_insurance_expense',
+      'healthcare_expense', 'grocery_expense', 'restaurant_meals_expense', 'personal_care_expense',
+      'selfcare_expense', 'daycare_expense', 'child_support_expense', 'cash_to_family_expense',
+      'credit_card1_expense', 'credit_card2_expense', 'credit_card3_expense', 'loan_1_expense',
+      'loan_2_expense', 'loan_3_expense', 'subscriptions_expense', 'mobile_phone_expense',
+      'entertainment_expense', 'gift_others_expense', 'career_expense', 'pet_expense',
+      'fraternity_sorority_expense'
+    ];
+
+    const TEXT_FIELDS = [
+      'credit_card1_name', 'credit_card2_name', 'credit_card3_name', 
+      'loan_1_name', 'loan_2_name', 'loan_3_name'
+    ];
 
     // --- Helper functions ---
     function toMonthly(amount, frequency) {
@@ -446,44 +463,32 @@
 
     function gatherFormData() {
       const data = {
-        startingBalance: parseFloat(document.getElementById('startingBalance').value) || 0,
+        starting_balance: parseFloat(document.getElementById('starting_balance').value) || 0,
         expenses: {},
         timestamp: new Date().toISOString()
       };
 
-      // Gather all expense fields
-      const expenseFields = [
-        'rentOrMortgageExpense', 'utilitiesExpense', 'autoPaymentExpense', 'autoInsuranceExpense',
-        'autoGasExpense', 'busFareExpense', 'rideshareExpense', 'healthInsuranceExpense',
-        'healthcareExpense', 'groceryExpense', 'restaurantMealsExpense', 'personalCareExpense',
-        'selfcareExpense', 'daycareExpense', 'childSupportExpense', 'cashToFamilyExpense',
-        'creditCard1Expense', 'creditCard2Expense', 'creditCard3Expense', 'loan1Expense',
-        'loan2Expense', 'loan3Expense', 'subscriptionsExpense', 'mobilePhoneExpense',
-        'entertainmentExpense', 'giftOthersExpense', 'careerExpense', 'petExpense',
-        'fraternitySororityExpense'
-      ];
-
-      expenseFields.forEach(field => {
+      // Gather all expense fields with snake_case naming
+      EXPENSE_FIELDS.forEach(field => {
         const amount = parseFloat(document.getElementById(field)?.value) || 0;
-        const frequency = document.getElementById(field.replace('Expense', 'Frequency'))?.value || 'monthly';
-        const dueDate = document.getElementById(field.replace('Expense', 'DueDate'))?.value || '';
+        const frequency = document.getElementById(field.replace('_expense', '_frequency'))?.value || 'monthly';
+        const dueDate = document.getElementById(field.replace('_expense', '_due_date'))?.value || '';
         
         data.expenses[field] = {
           amount: amount,
           frequency: frequency,
-          dueDate: dueDate,
+          due_date: dueDate,
           monthly: parseFloat(toMonthly(amount, frequency)) || 0
         };
       });
 
       // Add text fields
-      const textFields = ['creditCard1Name', 'creditCard2Name', 'creditCard3Name', 'loan1Name', 'loan2Name', 'loan3Name'];
-      textFields.forEach(field => {
+      TEXT_FIELDS.forEach(field => {
         data.expenses[field] = document.getElementById(field)?.value || '';
       });
 
       // Calculate totals
-      data.totalMonthlyExpenses = Object.values(data.expenses)
+      data.total_monthly_expenses = Object.values(data.expenses)
         .filter(exp => typeof exp === 'object' && exp.monthly)
         .reduce((sum, exp) => sum + exp.monthly, 0);
 
@@ -494,8 +499,8 @@
       if (!data) return;
       
       // Restore starting balance
-      if (data.startingBalance) {
-        document.getElementById('startingBalance').value = data.startingBalance;
+      if (data.starting_balance) {
+        document.getElementById('starting_balance').value = data.starting_balance;
       }
       
       // Restore expenses
@@ -505,10 +510,10 @@
           if (element) {
             if (typeof data.expenses[field] === 'object') {
               element.value = data.expenses[field].amount || '';
-              const freqElement = document.getElementById(field.replace('Expense', 'Frequency'));
-              const dueElement = document.getElementById(field.replace('Expense', 'DueDate'));
+              const freqElement = document.getElementById(field.replace('_expense', '_frequency'));
+              const dueElement = document.getElementById(field.replace('_expense', '_due_date'));
               if (freqElement) freqElement.value = data.expenses[field].frequency || 'monthly';
-              if (dueElement) dueElement.value = data.expenses[field].dueDate || '';
+              if (dueElement) dueElement.value = data.expenses[field].due_date || '';
             } else {
               element.value = data.expenses[field] || '';
             }
@@ -558,16 +563,16 @@
       clearErrorMessages();
       
       // Starting balance validation
-      const startingBalance = parseFloat(document.getElementById('startingBalance').value);
+      const startingBalance = parseFloat(document.getElementById('starting_balance').value);
       if (!startingBalance || startingBalance < 0) {
         errors.push('Starting balance is required and must be $0 or greater.');
-        showFieldError('startingBalance', 'Starting balance is required');
+        showFieldError('starting_balance', 'Starting balance is required');
         valid = false;
       }
       
       // Calculate totals for warnings
       const data = gatherFormData();
-      const totalMonthly = data.totalMonthlyExpenses;
+      const totalMonthly = data.total_monthly_expenses;
       
       if (totalMonthly > 0) {
         if (totalMonthly > 10000) {
@@ -655,7 +660,7 @@
       let discretionaryTotal = 0;
       
       // Essential expenses
-      const essentialFields = ['rentOrMortgageExpense', 'utilitiesExpense', 'autoPaymentExpense', 'autoInsuranceExpense', 'autoGasExpense', 'healthInsuranceExpense'];
+      const essentialFields = ['rent_or_mortgage_expense', 'utilities_expense', 'auto_payment_expense', 'auto_insurance_expense', 'auto_gas_expense', 'health_insurance_expense'];
       essentialFields.forEach(field => {
         if (expenses[field] && expenses[field].monthly) {
           essentialTotal += expenses[field].monthly;
@@ -663,7 +668,7 @@
       });
       
       // Living expenses
-      const livingFields = ['groceryExpense', 'restaurantMealsExpense', 'personalCareExpense', 'daycareExpense', 'childSupportExpense', 'cashToFamilyExpense'];
+      const livingFields = ['grocery_expense', 'restaurant_meals_expense', 'personal_care_expense', 'daycare_expense', 'child_support_expense', 'cash_to_family_expense'];
       livingFields.forEach(field => {
         if (expenses[field] && expenses[field].monthly) {
           livingTotal += expenses[field].monthly;
@@ -671,7 +676,7 @@
       });
       
       // Debt & subscriptions
-      const debtFields = ['creditCard1Expense', 'creditCard2Expense', 'creditCard3Expense', 'loan1Expense', 'loan2Expense', 'loan3Expense', 'subscriptionsExpense', 'mobilePhoneExpense'];
+      const debtFields = ['credit_card1_expense', 'credit_card2_expense', 'credit_card3_expense', 'loan_1_expense', 'loan_2_expense', 'loan_3_expense', 'subscriptions_expense', 'mobile_phone_expense'];
       debtFields.forEach(field => {
         if (expenses[field] && expenses[field].monthly) {
           debtTotal += expenses[field].monthly;
@@ -679,7 +684,7 @@
       });
       
       // Discretionary
-      const discretionaryFields = ['entertainmentExpense', 'giftOthersExpense', 'careerExpense', 'petExpense', 'fraternitySororityExpense', 'selfcareExpense', 'healthcareExpense', 'busFareExpense', 'rideshareExpense'];
+      const discretionaryFields = ['entertainment_expense', 'gift_others_expense', 'career_expense', 'pet_expense', 'fraternity_sorority_expense', 'selfcare_expense', 'healthcare_expense', 'bus_fare_expense', 'rideshare_expense'];
       discretionaryFields.forEach(field => {
         if (expenses[field] && expenses[field].monthly) {
           discretionaryTotal += expenses[field].monthly;
@@ -691,7 +696,7 @@
       document.getElementById('livingTotal').textContent = formatUSD(livingTotal);
       document.getElementById('debtTotal').textContent = formatUSD(debtTotal);
       document.getElementById('discretionaryTotal').textContent = formatUSD(discretionaryTotal);
-      document.getElementById('totalMonthlyExpenses').textContent = formatUSD(data.totalMonthlyExpenses);
+      document.getElementById('totalMonthlyExpenses').textContent = formatUSD(data.total_monthly_expenses);
     }
 
     // Update totals on any input change
@@ -711,20 +716,20 @@
       const data = gatherFormData();
       
       try {
-        // Prepare data for Supabase
+        // Prepare data for Supabase - already in snake_case format
         const expenseRow = {
           user_id: userId,
-          starting_balance: data.startingBalance,
+          starting_balance: data.starting_balance,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
         };
         
-        // Add all expense fields
+        // Add all expense fields - already in correct snake_case format
         Object.keys(data.expenses).forEach(field => {
           if (typeof data.expenses[field] === 'object') {
             expenseRow[field] = data.expenses[field].amount;
-            expenseRow[`${field.replace('Expense', '')}_frequency`] = data.expenses[field].frequency;
-            expenseRow[`${field.replace('Expense', '')}_due_date`] = data.expenses[field].dueDate;
+            expenseRow[`${field.replace('_expense', '')}_frequency`] = data.expenses[field].frequency;
+            expenseRow[`${field.replace('_expense', '')}_due_date`] = data.expenses[field].due_date;
           } else {
             expenseRow[field] = data.expenses[field];
           }

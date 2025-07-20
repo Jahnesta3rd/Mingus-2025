@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Choose Your Financial Setup - Mingus</title>
+  <link rel="stylesheet" href="/static/css/form.css">
+  <style>
+    .choice-container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2rem 1rem;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    
+    .header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+    
+    .header h1 {
+      font-size: 2.8rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #2563eb, #3b82f6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 1rem;
+    }
+    
+    .header p {
+      color: #6b7280;
+      font-size: 1.2rem;
+      line-height: 1.6;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    
+    .choice-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      margin-bottom: 3rem;
+    }
+    
+    .choice-card {
+      background: #ffffff;
+      border: 2px solid #e5e7eb;
+      border-radius: 16px;
+      padding: 2.5rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .choice-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+    
+    .choice-card.selected {
+      border-color: #2563eb;
+      background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+    }
+    
+    .choice-card.brief {
+      border-color: #10b981;
+    }
+    
+    .choice-card.brief.selected {
+      border-color: #10b981;
+      background: linear-gradient(135deg, #f0fdf4, #ecfdf5);
+    }
+    
+    .choice-card.deep {
+      border-color: #2563eb;
+    }
+    
+    .choice-card.deep.selected {
+      border-color: #2563eb;
+      background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+    }
+    
+    .choice-icon {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 1.5rem;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      transition: all 0.3s ease;
+    }
+    
+    .choice-card.brief .choice-icon {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: white;
+    }
+    
+    .choice-card.deep .choice-icon {
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      color: white;
+    }
+    
+    .choice-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #1f2937;
+      margin-bottom: 1rem;
+    }
+    
+    .choice-subtitle {
+      color: #6b7280;
+      font-size: 1rem;
+      margin-bottom: 1.5rem;
+      line-height: 1.5;
+    }
+    
+    .choice-features {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      text-align: left;
+    }
+    
+    .choice-features li {
+      padding: 0.5rem 0;
+      color: #4b5563;
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .choice-features li::before {
+      content: "✓";
+      color: #10b981;
+      font-weight: bold;
+      font-size: 1.1rem;
+    }
+    
+    .choice-card.deep .choice-features li::before {
+      color: #2563eb;
+    }
+    
+    .time-estimate {
+      background: #f3f4f6;
+      border-radius: 8px;
+      padding: 0.75rem;
+      margin-top: 1.5rem;
+      font-size: 0.9rem;
+      color: #6b7280;
+      font-weight: 500;
+    }
+    
+    .continue-btn {
+      background: linear-gradient(135deg, #2563eb, #3b82f6);
+      color: white;
+      border: none;
+      padding: 1rem 3rem;
+      font-size: 1.1rem;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
+      margin: 0 auto;
+      display: block;
+    }
+    
+    .continue-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 12px -1px rgba(37, 99, 235, 0.3);
+    }
+    
+    .continue-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    .continue-btn.brief {
+      background: linear-gradient(135deg, #10b981, #059669);
+      box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.2);
+    }
+    
+    .continue-btn.brief:hover {
+      box-shadow: 0 8px 12px -1px rgba(16, 185, 129, 0.3);
+    }
+    
+    .info-note {
+      text-align: center;
+      color: #6b7280;
+      font-size: 0.9rem;
+      margin-top: 2rem;
+      padding: 1rem;
+      background: #f9fafb;
+      border-radius: 8px;
+      border: 1px solid #e5e7eb;
+    }
+    
+    .loading {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: #ffffff;
+      animation: spin 1s ease-in-out infinite;
+      margin-right: 0.5rem;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    @media (max-width: 768px) {
+      .choice-container {
+        padding: 1rem;
+      }
+      
+      .header h1 {
+        font-size: 2.2rem;
+      }
+      
+      .choice-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+      }
+      
+      .choice-card {
+        padding: 2rem;
+      }
+      
+      .continue-btn {
+        width: 100%;
+        padding: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="choice-container">
+    <!-- Header -->
+    <div class="header">
+      <h1>Choose Your Financial Setup</h1>
+      <p>How detailed would you like your financial profile to be? You can always change this later.</p>
+    </div>
+
+    <!-- Choice Cards -->
+    <div class="choice-grid">
+      <!-- Keep It Brief Option -->
+      <div class="choice-card brief" id="briefCard" onclick="selectChoice('brief')">
+        <div class="choice-icon">⚡</div>
+        <div class="choice-title">Keep It Brief</div>
+        <div class="choice-subtitle">Quick assessment for immediate insights</div>
+        <ul class="choice-features">
+          <li>5-minute financial health assessment</li>
+          <li>Basic income, expenses, and debt overview</li>
+          <li>Financial health score and recommendations</li>
+          <li>Essential goal setting guidance</li>
+          <li>Quick start with core features</li>
+        </ul>
+        <div class="time-estimate">⏱️ Takes about 5 minutes</div>
+      </div>
+
+      <!-- Go Deep Option -->
+      <div class="choice-card deep" id="deepCard" onclick="selectChoice('deep')">
+        <div class="choice-icon">🔍</div>
+        <div class="choice-title">Go Deep</div>
+        <div class="choice-subtitle">Comprehensive financial profile setup</div>
+        <ul class="choice-features">
+          <li>Detailed income sources and stability analysis</li>
+          <li>29+ expense categories with frequency tracking</li>
+          <li>Comprehensive debt and subscription management</li>
+          <li>Advanced goal setting with feasibility analysis</li>
+          <li>Full financial planning and budgeting tools</li>
+          <li>Integration with health and lifestyle tracking</li>
+        </ul>
+        <div class="time-estimate">⏱️ Takes about 15-20 minutes</div>
+      </div>
+    </div>
+
+    <!-- Continue Button -->
+    <button type="button" class="continue-btn" id="continueBtn" disabled onclick="continueToSetup()">
+      <span class="loading" id="loadingSpinner" style="display: none;"></span>
+      Continue to Setup
+    </button>
+
+    <!-- Info Note -->
+    <div class="info-note">
+      <strong>💡 Tip:</strong> You can always switch between brief and detailed views later in your settings. 
+      The brief option gives you a quick start, while the detailed option provides comprehensive financial management tools.
+    </div>
+  </div>
+
+  <script>
+    let selectedChoice = null;
+
+    function selectChoice(choice) {
+      // Remove previous selection
+      document.querySelectorAll('.choice-card').forEach(card => {
+        card.classList.remove('selected');
+      });
+      
+      // Add selection to chosen card
+      const selectedCard = document.getElementById(choice + 'Card');
+      selectedCard.classList.add('selected');
+      
+      // Update continue button
+      const continueBtn = document.getElementById('continueBtn');
+      continueBtn.disabled = false;
+      continueBtn.classList.remove('brief', 'deep');
+      continueBtn.classList.add(choice);
+      
+      // Update button text
+      if (choice === 'brief') {
+        continueBtn.innerHTML = '<span class="loading" id="loadingSpinner" style="display: none;"></span>Start Quick Assessment';
+      } else {
+        continueBtn.innerHTML = '<span class="loading" id="loadingSpinner" style="display: none;"></span>Start Detailed Setup';
+      }
+      
+      selectedChoice = choice;
+    }
+
+    async function continueToSetup() {
+      if (!selectedChoice) return;
+
+      // Show loading state
+      const continueBtn = document.getElementById('continueBtn');
+      const loadingSpinner = document.getElementById('loadingSpinner');
+      
+      continueBtn.disabled = true;
+      loadingSpinner.style.display = 'inline-block';
+
+      try {
+        // Save user's choice to session/localStorage
+        localStorage.setItem('mingus_setup_choice', selectedChoice);
+        
+        // Redirect based on choice
+        if (selectedChoice === 'brief') {
+          // Redirect to financial questionnaire
+          window.location.href = '/api/financial/questionnaire';
+        } else {
+          // Redirect to detailed onboarding process
+          window.location.href = '/api/onboarding/financial-profile';
+        }
+      } catch (error) {
+        console.error('Navigation error:', error);
+        alert('Failed to continue. Please try again.');
+        continueBtn.disabled = false;
+        loadingSpinner.style.display = 'none';
+      }
+    }
+
+    // Auto-select based on URL parameter or user preference
+    document.addEventListener('DOMContentLoaded', () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const choice = urlParams.get('choice');
+      
+      if (choice && (choice === 'brief' || choice === 'deep')) {
+        selectChoice(choice);
+      }
+    });
+  </script>
+</body>
+</html> 

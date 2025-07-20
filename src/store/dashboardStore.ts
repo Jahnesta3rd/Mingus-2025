@@ -17,7 +17,7 @@ export const useDashboardStore = create<DashboardState>((set) => ({
   importantDates: [],
   currentBalance: 0,
   cashBalanceAsOf: null,
-  activeTab: 'base-case',
+  activeTab: 'onboarding',
   setActiveTab: (tab) => set({ activeTab: tab }),
   fetchImportantDates: async () => {
     const { data, error } = await supabase

@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Career Advancement Opportunities - Mingus</title>
+    <meta name="description" content="Personalized job recommendations based on your resume analysis and career goals">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/job-recommendations.css') }}">
+    
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "name": "Career Advancement Opportunities",
+        "description": "Personalized job recommendations for career advancement"
+    }
+    </script>
+</head>
+<body>
+    <!-- Skip to main content for accessibility -->
+    <a href="#main-content" class="sr-only">Skip to main content</a>
+    
+    <!-- Hero Section -->
+    <section class="hero-section" role="banner" aria-labelledby="hero-title">
+        <div class="container">
+            <div class="hero-content">
+                <h1 id="hero-title" class="hero-title">
+                    <i class="fas fa-chart-line" aria-hidden="true"></i>
+                    Your Career Advancement Opportunities
+                </h1>
+                <p class="hero-subtitle">
+                    Based on your resume analysis, we've identified {{ recommendations|length }} targeted opportunities 
+                    that could advance your career and increase your income.
+                </p>
+                
+                <!-- Income Summary -->
+                <div class="income-summary" role="region" aria-labelledby="income-summary-title">
+                    <h2 id="income-summary-title" class="sr-only">Income Summary</h2>
+                    <div class="income-card">
+                        <div class="income-value" id="current-income">${{ "{:,}".format(user_profile.income_position.estimated_salary) }}</div>
+                        <div class="income-label">Current Annual Salary</div>
+                    </div>
+                    <div class="income-card">
+                        <div class="income-value" id="current-percentile">{{ "%.1f"|format(user_profile.income_position.percentile) }}%</div>
+                        <div class="income-label">Current Market Percentile</div>
+                    </div>
+                    <div class="income-card">
+                        <div class="income-value" id="potential-increase">+{{ "%.1f"|format(financial_impact.percentile_improvements.optimal * 100) }}%</div>
+                        <div class="income-label">Potential Salary Increase</div>
+                    </div>
+                    <div class="income-card">
+                        <div class="income-value" id="opportunity-score">{{ "%.0f"|format(success_probabilities.overall * 100) }}%</div>
+                        <div class="income-label">Success Probability</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main id="main-content" class="main-content" role="main">
+        <div class="container">
+            <!-- Progress Tracking Section -->
+            <section class="progress-section" role="region" aria-labelledby="progress-title">
+                <div class="progress-header">
+                    <h2 id="progress-title">Your Application Progress</h2>
+                    <button class="btn btn-outline" onclick="updateProgress()">
+                        <i class="fas fa-sync-alt" aria-hidden="true"></i>
+                        Update Progress
+                    </button>
+                </div>
+                
+                <div class="progress-stats">
+                    <div class="progress-stat">
+                        <div class="progress-value" id="applications-submitted">0</div>
+                        <div class="progress-label">Applications Submitted</div>
+                    </div>
+                    <div class="progress-stat">
+                        <div class="progress-value" id="interviews-scheduled">0</div>
+                        <div class="progress-label">Interviews Scheduled</div>
+                    </div>
+                    <div class="progress-stat">
+                        <div class="progress-value" id="offers-received">0</div>
+                        <div class="progress-label">Offers Received</div>
+                    </div>
+                    <div class="progress-stat">
+                        <div class="progress-value" id="skills-developed">0</div>
+                        <div class="progress-label">Skills Developed</div>
+                    </div>
+                </div>
+                
+                <div class="progress-bar-container">
+                    <div class="progress-bar" id="overall-progress" style="width: 0%"></div>
+                </div>
+                
+                <p class="text-center text-muted">
+                    Track your progress and celebrate milestones as you advance your career!
+                </p>
+            </section>
+
+            <!-- Recommendations Grid -->
+            <section class="recommendations-grid" role="region" aria-labelledby="recommendations-title">
+                <h2 id="recommendations-title" class="sr-only">Job Recommendations</h2>
+                
+                <!-- Conservative Opportunity -->
+                <article class="recommendation-card conservative" role="article" aria-labelledby="conservative-title">
+                    <div class="card-header">
+                        <div class="card-tier">
+                            <span class="tier-badge conservative">
+                                <i class="fas fa-shield-alt tier-icon" aria-hidden="true"></i>
+                                Conservative
+                            </span>
+                            <span class="ml-auto text-muted">High Success Rate</span>
+                        </div>
+                        
+                        <h3 id="conservative-title" class="job-title">
+                            {{ career_strategy.conservative_opportunity.job.title }}
+                        </h3>
+                        
+                        <div class="company-info">
+                            <span class="company-name">{{ career_strategy.conservative_opportunity.job.company }}</span>
+                            <span class="company-badge">{{ career_strategy.conservative_opportunity.job.company_tier.value.title() }}</span>
+                            <span class="location-badge">
+                                <i class="fas fa-map-marker-alt" aria-hidden="true"></i>
+                                {{ career_strategy.conservative_opportunity.job.location }}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="card-body">
+                        <!-- Salary Section -->
+                        <div class="salary-section">
+                            <div class="salary-info">
+                                <h3>Salary Range</h3>
+                                <div class="salary-range">
+                                    ${{ "{:,}".format(career_strategy.conservative_opportunity.job.salary_range.min) }} - 
+                                    ${{ "{:,}".format(career_strategy.conservative_opportunity.job.salary_range.max) }}
+                                </div>
+                                <div class="salary-increase">
+                                    +${{ "{:,}".format(career_strategy.conservative_opportunity.income_impact.salary_increase_amount) }} 
+                                    ({{ "%.1f"|format(career_strategy.conservative_opportunity.income_impact.salary_increase_percentage * 100) }}% increase)
+                                </div>
+                            </div>
+                            
+                            <div class="success-probability">
+                                <div class="probability-circle high" id="conservative-probability">
+                                    {{ "%.0f"|format(career_strategy.conservative_opportunity.application_strategy.success_probability * 100) }}%
+                                </div>
+                                <div class="probability-label">Success Rate</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Skills Analysis -->
+                        <div class="skills-section">
+                            <div class="skills-header">
+                                <h4 class="skills-title">Skills Analysis</h4>
+                                <span class="skills-match">
+                                    {{ "%.0f"|format(career_strategy.conservative_opportunity.skill_gap_analysis.skills_match_percentage * 100) }}% Match
+                                </span>
+                            </div>
+                            
+                            <div class="skills-grid">
+                                {% for skill in career_strategy.conservative_opportunity.skill_gap_analysis.possessed_skills %}
+                                <span class="skill-tag possessed">
+                                    {{ skill }}
+                                    <i class="fas fa-check skill-icon" aria-hidden="true"></i>
+                                </span>
+                                {% endfor %}
+                                
+                                {% for skill in career_strategy.conservative_opportunity.skill_gap_analysis.missing_critical_skills %}
+                                <span class="skill-tag missing">
+                                    {{ skill }}
+                                    <i class="fas fa-exclamation-triangle skill-icon" aria-hidden="true"></i>
+                                </span>
+                                {% endfor %}
+                                
+                                {% for skill in career_strategy.conservative_opportunity.skill_gap_analysis.learning_skills %}
+                                <span class="skill-tag learning">
+                                    {{ skill }}
+                                    <i class="fas fa-graduation-cap skill-icon" aria-hidden="true"></i>
+                                </span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                        <!-- Action Plan -->
+                        <div class="action-plan">
+                            <h4>Action Plan</h4>
+                            <div class="timeline">
+                                {% for step in career_strategy.conservative_opportunity.application_strategy.preparation_steps[:3] %}
+                                <div class="timeline-item">
+                                    <div class="timeline-icon">
+                                        <i class="fas fa-check" aria-hidden="true"></i>
+                                    </div>
+                                    <div class="timeline-content">
+                                        <h5>{{ step.title }}</h5>
+                                        <p>{{ step.description }}</p>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                        <!-- Action Buttons -->
+                        <div class="action-buttons">
+                            <button class="btn btn-success" onclick="applyToJob('conservative')">
+                                <i class="fas fa-paper-plane" aria-hidden="true"></i>
+                                Apply Now
+                            </button>
+                            <button class="btn btn-outline" onclick="viewJobDetails('conservative')">
+                                <i class="fas fa-info-circle" aria-hidden="true"></i>
+                                View Details
+                            </button>
+                            <button class="btn btn-secondary" onclick="saveRecommendation('conservative')">
+                                <i class="fas fa-bookmark" aria-hidden="true"></i>
+                                Save for Later
+                            </button>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- Optimal Opportunity -->
+                <article class="recommendation-card optimal" role="article" aria-labelledby="optimal-title">
+                    <div class="card-header">
+                        <div class="card-tier">
+                            <span class="tier-badge optimal">
+                                <i class="fas fa-star tier-icon" aria-hidden="true"></i>
+                                Optimal
+                            </span>
+                            <span class="ml-auto text-muted">Balanced Growth</span>
+                        </div>
+                        
+                        <h3 id="optimal-title" class="job-title">
+                            {{ career_strategy.optimal_opportunity.job.title }}
+                        </h3>
+                        
+                        <div class="company-info">
+                            <span class="company-name">{{ career_strategy.optimal_opportunity.job.company }}</span>
+                            <span class="company-badge">{{ career_strategy.optimal_opportunity.job.company_tier.value.title() }}</span>
+                            <span class="location-badge">
+                                <i class="fas fa-map-marker-alt" aria-hidden="true"></i>
+                                {{ career_strategy.optimal_opportunity.job.location }}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="card-body">
+                        <!-- Salary Section -->
+                        <div class="salary-section">
+                            <div class="salary-info">
+                                <h3>Salary Range</h3>
+                                <div class="salary-range">
+                                    ${{ "{:,}".format(career_strategy.optimal_opportunity.job.salary_range.min) }} - 
+                                    ${{ "{:,}".format(career_strategy.optimal_opportunity.job.salary_range.max) }}
+                                </div>
+                                <div class="salary-increase">
+                                    +${{ "{:,}".format(career_strategy.optimal_opportunity.income_impact.salary_increase_amount) }} 
+                                    ({{ "%.1f"|format(career_strategy.optimal_opportunity.income_impact.salary_increase_percentage * 100) }}% increase)
+                                </div>
+                            </div>
+                            
+                            <div class="success-probability">
+                                <div class="probability-circle medium" id="optimal-probability">
+                                    {{ "%.0f"|format(career_strategy.optimal_opportunity.application_strategy.success_probability * 100) }}%
+                                </div>
+                                <div class="probability-label">Success Rate</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Skills Analysis -->
+                        <div class="skills-section">
+                            <div class="skills-header">
+                                <h4 class="skills-title">Skills Analysis</h4>
+                                <span class="skills-match">
+                                    {{ "%.0f"|format(career_strategy.optimal_opportunity.skill_gap_analysis.skills_match_percentage * 100) }}% Match
+                                </span>
+                            </div>
+                            
+                            <div class="skills-grid">
+                                {% for skill in career_strategy.optimal_opportunity.skill_gap_analysis.possessed_skills %}
+                                <span class="skill-tag possessed">
+                                    {{ skill }}
+                                    <i class="fas fa-check skill-icon" aria-hidden="true"></i>
+                                </span>
+                                {% endfor %}
+                                
+                                {% for skill in career_strategy.optimal_opportunity.skill_gap_analysis.missing_critical_skills %}
+                                <span class="skill-tag missing">
+                                    {{ skill }}
+                                    <i class="fas fa-exclamation-triangle skill-icon" aria-hidden="true"></i>
+                                </span>
+                                {% endfor %}
+                                
+                                {% for skill in career_strategy.optimal_opportunity.skill_gap_analysis.learning_skills %}
+                                <span class="skill-tag learning">
+                                    {{ skill }}
+                                    <i class="fas fa-graduation-cap skill-icon" aria-hidden="true"></i>
+                                </span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                        <!-- Action Plan -->
+                        <div class="action-plan">
+                            <h4>Action Plan</h4>
+                            <div class="timeline">
+                                {% for step in career_strategy.optimal_opportunity.application_strategy.preparation_steps[:3] %}
+                                <div class="timeline-item">
+                                    <div class="timeline-icon">
+                                        <i class="fas fa-check" aria-hidden="true"></i>
+                                    </div>
+                                    <div class="timeline-content">
+                                        <h5>{{ step.title }}</h5>
+                                        <p>{{ step.description }}</p>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                        <!-- Action Buttons -->
+                        <div class="action-buttons">
+                            <button class="btn btn-primary" onclick="applyToJob('optimal')">
+                                <i class="fas fa-paper-plane" aria-hidden="true"></i>
+                                Apply Now
+                            </button>
+                            <button class="btn btn-outline" onclick="viewJobDetails('optimal')">
+                                <i class="fas fa-info-circle" aria-hidden="true"></i>
+                                View Details
+                            </button>
+                            <button class="btn btn-secondary" onclick="saveRecommendation('optimal')">
+                                <i class="fas fa-bookmark" aria-hidden="true"></i>
+                                Save for Later
+                            </button>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- Stretch Opportunity -->
+                <article class="recommendation-card stretch" role="article" aria-labelledby="stretch-title">
+                    <div class="card-header">
+                        <div class="card-tier">
+                            <span class="tier-badge stretch">
+                                <i class="fas fa-rocket tier-icon" aria-hidden="true"></i>
+                                Stretch
+                            </span>
+                            <span class="ml-auto text-muted">High Growth Potential</span>
+                        </div>
+                        
+                        <h3 id="stretch-title" class="job-title">
+                            {{ career_strategy.stretch_opportunity.job.title }}
+                        </h3>
+                        
+                        <div class="company-info">
+                            <span class="company-name">{{ career_strategy.stretch_opportunity.job.company }}</span>
+                            <span class="company-badge">{{ career_strategy.stretch_opportunity.job.company_tier.value.title() }}</span>
+                            <span class="location-badge">
+                                <i class="fas fa-map-marker-alt" aria-hidden="true"></i>
+                                {{ career_strategy.stretch_opportunity.job.location }}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="card-body">
+                        <!-- Salary Section -->
+                        <div class="salary-section">
+                            <div class="salary-info">
+                                <h3>Salary Range</h3>
+                                <div class="salary-range">
+                                    ${{ "{:,}".format(career_strategy.stretch_opportunity.job.salary_range.min) }} - 
+                                    ${{ "{:,}".format(career_strategy.stretch_opportunity.job.salary_range.max) }}
+                                </div>
+                                <div class="salary-increase">
+                                    +${{ "{:,}".format(career_strategy.stretch_opportunity.income_impact.salary_increase_amount) }} 
+                                    ({{ "%.1f"|format(career_strategy.stretch_opportunity.income_impact.salary_increase_percentage * 100) }}% increase)
+                                </div>
+                            </div>
+                            
+                            <div class="success-probability">
+                                <div class="probability-circle low" id="stretch-probability">
+                                    {{ "%.0f"|format(career_strategy.stretch_opportunity.application_strategy.success_probability * 100) }}%
+                                </div>
+                                <div class="probability-label">Success Rate</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Skills Analysis -->
+                        <div class="skills-section">
+                            <div class="skills-header">
+                                <h4 class="skills-title">Skills Analysis</h4>
+                                <span class="skills-match">
+                                    {{ "%.0f"|format(career_strategy.stretch_opportunity.skill_gap_analysis.skills_match_percentage * 100) }}% Match
+                                </span>
+                            </div>
+                            
+                            <div class="skills-grid">
+                                {% for skill in career_strategy.stretch_opportunity.skill_gap_analysis.possessed_skills %}
+                                <span class="skill-tag possessed">
+                                    {{ skill }}
+                                    <i class="fas fa-check skill-icon" aria-hidden="true"></i>
+                                </span>
+                                {% endfor %}
+                                
+                                {% for skill in career_strategy.stretch_opportunity.skill_gap_analysis.missing_critical_skills %}
+                                <span class="skill-tag missing">
+                                    {{ skill }}
+                                    <i class="fas fa-exclamation-triangle skill-icon" aria-hidden="true"></i>
+                                </span>
+                                {% endfor %}
+                                
+                                {% for skill in career_strategy.stretch_opportunity.skill_gap_analysis.learning_skills %}
+                                <span class="skill-tag learning">
+                                    {{ skill }}
+                                    <i class="fas fa-graduation-cap skill-icon" aria-hidden="true"></i>
+                                </span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                        <!-- Action Plan -->
+                        <div class="action-plan">
+                            <h4>Action Plan</h4>
+                            <div class="timeline">
+                                {% for step in career_strategy.stretch_opportunity.application_strategy.preparation_steps[:3] %}
+                                <div class="timeline-item">
+                                    <div class="timeline-icon">
+                                        <i class="fas fa-check" aria-hidden="true"></i>
+                                    </div>
+                                    <div class="timeline-content">
+                                        <h5>{{ step.title }}</h5>
+                                        <p>{{ step.description }}</p>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                        <!-- Action Buttons -->
+                        <div class="action-buttons">
+                            <button class="btn btn-primary" onclick="applyToJob('stretch')">
+                                <i class="fas fa-paper-plane" aria-hidden="true"></i>
+                                Apply Now
+                            </button>
+                            <button class="btn btn-outline" onclick="viewJobDetails('stretch')">
+                                <i class="fas fa-info-circle" aria-hidden="true"></i>
+                                View Details
+                            </button>
+                            <button class="btn btn-secondary" onclick="saveRecommendation('stretch')">
+                                <i class="fas fa-bookmark" aria-hidden="true"></i>
+                                Save for Later
+                            </button>
+                        </div>
+                    </div>
+                </article>
+            </section>
+
+            <!-- Call to Action Section -->
+            <section class="cta-section" role="region" aria-labelledby="cta-title">
+                <div class="cta-content">
+                    <h2 id="cta-title">Ready to Advance Your Career?</h2>
+                    <p>Take action today and start your journey toward higher income and career growth.</p>
+                    
+                    <div class="cta-buttons">
+                        <button class="btn btn-success btn-lg" onclick="downloadReport()">
+                            <i class="fas fa-download" aria-hidden="true"></i>
+                            Download Full Report
+                        </button>
+                        <button class="btn btn-outline btn-lg" onclick="scheduleConsultation()">
+                            <i class="fas fa-calendar" aria-hidden="true"></i>
+                            Schedule Career Consultation
+                        </button>
+                        <button class="btn btn-secondary btn-lg" onclick="shareResults()">
+                            <i class="fas fa-share" aria-hidden="true"></i>
+                            Share Results
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- JavaScript -->
+    <script>
+        // Global variables
+        let sessionId = '{{ session_id }}';
+        let recommendations = {{ recommendations|tojson }};
+        let userProfile = {{ user_profile|tojson }};
+        let financialImpact = {{ financial_impact|tojson }};
+        let successProbabilities = {{ success_probabilities|tojson }};
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            initializePage();
+            loadProgress();
+            animateElements();
+        });
+
+        function initializePage() {
+            // Add animation classes
+            const cards = document.querySelectorAll('.recommendation-card');
+            cards.forEach((card, index) => {
+                card.style.animationDelay = `${index * 0.2}s`;
+                card.classList.add('animate-slide-in');
+            });
+        }
+
+        function animateElements() {
+            // Animate progress bars
+            const progressBars = document.querySelectorAll('.progress-bar');
+            progressBars.forEach(bar => {
+                const targetWidth = bar.getAttribute('data-width') || '0%';
+                setTimeout(() => {
+                    bar.style.width = targetWidth;
+                }, 500);
+            });
+
+            // Animate probability circles
+            const circles = document.querySelectorAll('.probability-circle');
+            circles.forEach(circle => {
+                circle.classList.add('animate-pulse');
+            });
+        }
+
+        function loadProgress() {
+            // Load user progress from localStorage or API
+            const progress = JSON.parse(localStorage.getItem('careerProgress') || '{}');
+            
+            document.getElementById('applications-submitted').textContent = progress.applications || 0;
+            document.getElementById('interviews-scheduled').textContent = progress.interviews || 0;
+            document.getElementById('offers-received').textContent = progress.offers || 0;
+            document.getElementById('skills-developed').textContent = progress.skills || 0;
+            
+            // Calculate overall progress
+            const total = (progress.applications || 0) + (progress.interviews || 0) + (progress.offers || 0) + (progress.skills || 0);
+            const percentage = Math.min((total / 10) * 100, 100);
+            document.getElementById('overall-progress').style.width = `${percentage}%`;
+        }
+
+        function updateProgress() {
+            // Show progress update modal
+            showModal('Update Progress', `
+                <form id="progress-form">
+                    <div class="form-group">
+                        <label for="applications">Applications Submitted</label>
+                        <input type="number" id="applications" class="form-control" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="interviews">Interviews Scheduled</label>
+                        <input type="number" id="interviews" class="form-control" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="offers">Offers Received</label>
+                        <input type="number" id="offers" class="form-control" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="skills">Skills Developed</label>
+                        <input type="number" id="skills" class="form-control" min="0">
+                    </div>
+                </form>
+            `, 'Save Progress', saveProgress);
+        }
+
+        function saveProgress() {
+            const progress = {
+                applications: parseInt(document.getElementById('applications').value) || 0,
+                interviews: parseInt(document.getElementById('interviews').value) || 0,
+                offers: parseInt(document.getElementById('offers').value) || 0,
+                skills: parseInt(document.getElementById('skills').value) || 0
+            };
+            
+            localStorage.setItem('careerProgress', JSON.stringify(progress));
+            loadProgress();
+            hideModal();
+            showNotification('Progress updated successfully!', 'success');
+        }
+
+        function applyToJob(tier) {
+            const job = recommendations[tier];
+            const url = job.application_url || '#';
+            
+            // Track application
+            trackEvent('job_application', { tier, company: job.company });
+            
+            // Open application in new tab
+            window.open(url, '_blank');
+            
+            // Update progress
+            const progress = JSON.parse(localStorage.getItem('careerProgress') || '{}');
+            progress.applications = (progress.applications || 0) + 1;
+            localStorage.setItem('careerProgress', JSON.stringify(progress));
+            loadProgress();
+            
+            showNotification(`Application started for ${job.title} at ${job.company}!`, 'success');
+        }
+
+        function viewJobDetails(tier) {
+            const job = recommendations[tier];
+            
+            showModal(`${job.title} at ${job.company}`, `
+                <div class="job-details">
+                    <h4>Job Description</h4>
+                    <p>${job.description || 'Job description not available.'}</p>
+                    
+                    <h4>Requirements</h4>
+                    <ul>
+                        ${(job.requirements || []).map(req => `<li>${req}</li>`).join('')}
+                    </ul>
+                    
+                    <h4>Benefits</h4>
+                    <ul>
+                        ${(job.benefits || []).map(benefit => `<li>${benefit}</li>`).join('')}
+                    </ul>
+                    
+                    <h4>Company Information</h4>
+                    <p>${job.company_description || 'Company information not available.'}</p>
+                </div>
+            `, 'Apply Now', () => applyToJob(tier));
+        }
+
+        function saveRecommendation(tier) {
+            const saved = JSON.parse(localStorage.getItem('savedRecommendations') || '[]');
+            const job = recommendations[tier];
+            
+            if (!saved.find(r => r.id === job.id)) {
+                saved.push({
+                    ...job,
+                    savedAt: new Date().toISOString()
+                });
+                localStorage.setItem('savedRecommendations', JSON.stringify(saved));
+                showNotification('Recommendation saved for later review!', 'success');
+            } else {
+                showNotification('Recommendation already saved!', 'info');
+            }
+        }
+
+        function downloadReport() {
+            // Generate comprehensive report
+            const report = generateReport();
+            const blob = new Blob([report], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `career-advancement-report-${new Date().toISOString().split('T')[0]}.txt`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+            
+            trackEvent('report_download');
+            showNotification('Report downloaded successfully!', 'success');
+        }
+
+        function generateReport() {
+            let report = 'CAREER ADVANCEMENT REPORT\n';
+            report += '========================\n\n';
+            report += `Generated: ${new Date().toLocaleString()}\n`;
+            report += `User: ${userProfile.name || 'Anonymous'}\n\n`;
+            
+            report += 'CURRENT POSITION\n';
+            report += '================\n';
+            report += `Field: ${userProfile.field_expertise.primary_field}\n`;
+            report += `Experience Level: ${userProfile.experience_level}\n`;
+            report += `Current Salary: $${userProfile.income_position.estimated_salary.toLocaleString()}\n`;
+            report += `Market Percentile: ${userProfile.income_position.percentile.toFixed(1)}%\n\n`;
+            
+            report += 'RECOMMENDED OPPORTUNITIES\n';
+            report += '========================\n\n';
+            
+            Object.entries(recommendations).forEach(([tier, job]) => {
+                report += `${tier.toUpperCase()} OPPORTUNITY\n`;
+                report += `Title: ${job.title}\n`;
+                report += `Company: ${job.company}\n`;
+                report += `Location: ${job.location}\n`;
+                report += `Salary: $${job.salary_range.min.toLocaleString()} - $${job.salary_range.max.toLocaleString()}\n`;
+                report += `Success Probability: ${(successProbabilities[tier] * 100).toFixed(0)}%\n\n`;
+            });
+            
+            return report;
+        }
+
+        function scheduleConsultation() {
+            // Open consultation scheduling
+            const url = '/consultation/schedule';
+            window.open(url, '_blank');
+            
+            trackEvent('consultation_scheduled');
+            showNotification('Consultation scheduling opened!', 'success');
+        }
+
+        function shareResults() {
+            if (navigator.share) {
+                navigator.share({
+                    title: 'My Career Advancement Opportunities',
+                    text: 'Check out my personalized job recommendations from Mingus!',
+                    url: window.location.href
+                });
+            } else {
+                // Fallback: copy to clipboard
+                navigator.clipboard.writeText(window.location.href).then(() => {
+                    showNotification('Link copied to clipboard!', 'success');
+                });
+            }
+            
+            trackEvent('results_shared');
+        }
+
+        function showModal(title, content, buttonText, buttonAction) {
+            // Create modal
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay';
+            modal.innerHTML = `
+                <div class="modal">
+                    <div class="modal-header">
+                        <h3>${title}</h3>
+                        <button onclick="hideModal()" class="modal-close">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        ${content}
+                    </div>
+                    <div class="modal-footer">
+                        <button onclick="hideModal()" class="btn btn-secondary">Cancel</button>
+                        ${buttonText ? `<button onclick="this.onclick = ${buttonAction}" class="btn btn-primary">${buttonText}</button>` : ''}
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            setTimeout(() => modal.classList.add('show'), 10);
+        }
+
+        function hideModal() {
+            const modal = document.querySelector('.modal-overlay');
+            if (modal) {
+                modal.classList.remove('show');
+                setTimeout(() => modal.remove(), 300);
+            }
+        }
+
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `notification notification-${type}`;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            setTimeout(() => notification.classList.add('show'), 10);
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        function trackEvent(event, data = {}) {
+            // Analytics tracking
+            if (typeof gtag !== 'undefined') {
+                gtag('event', event, data);
+            }
+            
+            // Custom tracking
+            console.log('Event tracked:', event, data);
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                hideModal();
+            }
+        });
+
+        // Service Worker for offline access
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js')
+                .then(registration => console.log('SW registered'))
+                .catch(error => console.log('SW registration failed'));
+        }
+    </script>
+
+    <!-- Additional CSS for modals and notifications -->
+    <style>
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.show {
+            opacity: 1;
+        }
+
+        .modal {
+            background: white;
+            border-radius: var(--border-radius);
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.show .modal {
+            transform: scale(1);
+        }
+
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--gray-200);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .modal-footer {
+            padding: 1.5rem;
+            border-top: 1px solid var(--gray-200);
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--gray-500);
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 1rem 1.5rem;
+            box-shadow: var(--shadow-lg);
+            z-index: 1001;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification-success {
+            border-left: 4px solid var(--success-color);
+        }
+
+        .notification-info {
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .cta-section {
+            text-align: center;
+            padding: 3rem 0;
+            background: white;
+            border-radius: var(--border-radius);
+            margin-top: 2rem;
+        }
+
+        .cta-content h2 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--gray-900);
+        }
+
+        .cta-content p {
+            font-size: 1.125rem;
+            color: var(--gray-600);
+            margin-bottom: 2rem;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-lg {
+            padding: 1rem 2rem;
+            font-size: 1rem;
+        }
+
+        .animate-slide-in {
+            animation: slideInUp 0.8s ease-out both;
+        }
+
+        .animate-pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @media (max-width: 768px) {
+            .cta-buttons {
+                flex-direction: column;
+            }
+            
+            .btn-lg {
+                width: 100%;
+            }
+        }
+    </style>
+</body>
+</html> 

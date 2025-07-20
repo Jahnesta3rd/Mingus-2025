@@ -1,0 +1,21 @@
+{
+  "name": "mingus-cypress-tests",
+  "version": "1.0.0",
+  "description": "E2E tests for Mingus application onboarding workflow",
+  "scripts": {
+    "cypress:open": "cypress open",
+    "cypress:run": "cypress run",
+    "test:onboarding": "cypress run --spec 'cypress/e2e/onboarding-workflow.cy.js'",
+    "test:complete-onboarding": "cypress run --spec 'cypress/e2e/complete-onboarding-workflow.cy.js'",
+    "test:job-security": "cypress run --spec 'cypress/e2e/job-security-workflow.cy.js'",
+    "test:all": "cypress run",
+    "test:headed": "cypress run --headed",
+    "test:onboarding:headed": "cypress run --headed --spec 'cypress/e2e/onboarding-workflow.cy.js'"
+  },
+  "devDependencies": {
+    "cypress": "^13.6.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+} 

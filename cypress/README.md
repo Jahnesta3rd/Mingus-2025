@@ -1,157 +1,234 @@
-# Mingus Application - Cypress E2E Tests
+# Mingus Application E2E Testing
 
-This directory contains comprehensive end-to-end tests for the Mingus application, focusing on the complete user onboarding workflow.
+This directory contains comprehensive end-to-end tests for the Mingus financial wellness application using Cypress.
 
-## Test Files
+## 🚀 Quick Start
 
-### 1. `onboarding-workflow.cy.js`
-**Main onboarding workflow test** - Tests the complete user journey from registration through health onboarding to dashboard access.
+### Prerequisites
+- Node.js >= 16.0.0
+- Application running on `http://localhost:5002`
 
-**Test Scenarios:**
-- Complete user onboarding workflow
-- Skip onboarding option
-- Onboarding navigation (forward/back)
-- Minimal data onboarding
-- Progress tracking verification
-
-### 2. `complete-onboarding-workflow.cy.js`
-**Comprehensive onboarding test** - Extended test covering additional scenarios and edge cases.
-
-**Test Scenarios:**
-- Full user onboarding with all questionnaires
-- Validation error handling
-- Dashboard feature testing
-- Session persistence and logout
-- Career and financial questionnaires (if available)
-
-### 3. `job-security-workflow.cy.js`
-**Job security feature tests** - Tests job security monitoring and insights features.
-
-## Prerequisites
-
-1. **Flask Backend Running**: Ensure the Flask application is running on `http://localhost:5002`
-2. **Node.js**: Version 16 or higher
-3. **Cypress**: Installed as a dev dependency
-
-## Installation
-
+### Installation
 ```bash
-# Navigate to the cypress directory
-cd cypress
-
-# Install dependencies
 npm install
 ```
 
-## Running Tests
-
-### Quick Start
+### Running Tests
 ```bash
-# Run the main onboarding workflow test
-npm run test:onboarding
-
-# Run with browser visible (headed mode)
-npm run test:onboarding:headed
-```
-
-### All Test Commands
-```bash
-# Open Cypress Test Runner (interactive)
+# Open Cypress Test Runner
 npm run cypress:open
 
-# Run all tests
-npm run test:all
+# Run all tests headlessly
+npm run cypress:run
 
 # Run specific test suites
 npm run test:onboarding
 npm run test:complete-onboarding
 npm run test:job-security
-
-# Run tests with browser visible
-npm run test:headed
+npm run test:complete-journey
 ```
 
-## Test Data
+## 📋 Test Structure
 
-Test data is stored in `fixtures/onboarding-data.json` and includes:
-- Sample user registration data
-- Health profile information
-- Financial profile data
-- Career profile information
+### Test Files
 
-## Test Workflow
+| File | Description | Coverage |
+|------|-------------|----------|
+| `onboarding-workflow.cy.js` | Basic onboarding flow | Registration → Health Onboarding → Dashboard |
+| `complete-onboarding-workflow.cy.js` | Extended onboarding | Registration → Health → Financial → Career → Dashboard |
+| `job-security-workflow.cy.js` | Job security features | Job security assessment, goals, notifications |
+| `complete-user-journey.cy.js` | **Complete user experience** | **Full journey from registration to active usage** |
 
-### Main Onboarding Test Flow:
-1. **User Registration** - Register a new user with valid credentials
-2. **Health Onboarding** - Complete the 4-step health onboarding process:
-   - Step 1: Introduction and feature overview
-   - Step 2: Health check-in questionnaire
-   - Step 3: Timeline and reminder setup
-   - Step 4: Wellness goals selection
-3. **Dashboard Access** - Verify successful access to the main dashboard
+### Test Data Fixtures
 
-### Test Features:
-- **Progress Tracking** - Verifies progress bar updates correctly
-- **Navigation** - Tests forward/back navigation between steps
-- **Skip Functionality** - Tests the skip onboarding option
-- **Minimal Data** - Tests onboarding with minimal required data
-- **Error Handling** - Tests validation and error scenarios
+| File | Description |
+|------|-------------|
+| `onboarding-data.json` | Basic onboarding test data |
+| `comprehensive-test-data.json` | **Complete user journey test data** |
+| `users.json` | User account test data |
+| `profile.json` | Profile information test data |
 
-## Configuration
+## 🎯 Complete User Journey Testing
 
-The tests are configured in `cypress.config.js` with:
-- Base URL: `http://localhost:5002`
-- Viewport: 1280x720
-- Timeouts: 10-30 seconds for various operations
-- Video recording and screenshots on failure
+The `complete-user-journey.cy.js` file provides comprehensive testing of the entire user experience:
 
-## Troubleshooting
+### **16-Step User Journey Test**
 
-### Common Issues:
+1. **Welcome & Registration** - User registration with validation
+2. **Profile Setup** - Basic demographic and financial information
+3. **Baseline Assessment** - Career and financial snapshot
+4. **Personalization & Goal Setting** - Smart goal configuration
+5. **Education & Consent** - Privacy and terms acceptance
+6. **Initial Insights** - Personalized recommendations
+7. **Premium Preview** - Feature comparison and upgrade prompts
+8. **App Tour** - Guided feature introduction
+9. **Onboarding Completion** - Congratulations and engagement setup
+10. **Dashboard Access & Usage** - Main application interface
+11. **Goal Management** - Goal tracking and progress updates
+12. **Insights & Recommendations** - Personalized insights
+13. **Next Steps Checklist** - Actionable task management
+14. **Notifications & Reminders** - Preference configuration
+15. **Profile & Settings** - Account management
+16. **Logout & Session Management** - Authentication flow
 
-1. **Flask App Not Running**
-   ```bash
-   # Start the Flask application first
-   python app.py
-   ```
+### **Additional Test Scenarios**
 
-2. **Port Already in Use**
-   ```bash
-   # Kill processes on port 5002
-   pkill -f "python app.py"
-   ```
+- **Error Handling** - Validation errors, network failures
+- **Mobile Responsiveness** - iPhone X viewport testing
+- **Accessibility** - Keyboard navigation, screen reader support
 
-3. **Database Issues**
-   ```bash
-   # Reset database if needed
-   python scripts/init_db.py
-   ```
+## 🛠️ Custom Commands
 
-4. **Cypress Installation Issues**
-   ```bash
-   # Clear npm cache and reinstall
-   npm cache clean --force
-   rm -rf node_modules package-lock.json
-   npm install
-   ```
+### Existing Commands
+- `cy.registerUser(userData)` - Register new user
+- `cy.loginUser(email, password)` - Login via API
+- `cy.completeHealthOnboarding(healthData)` - Complete health questionnaire
+- `cy.completeFinancialQuestionnaire(financialData)` - Complete financial questionnaire
+- `cy.completeCareerQuestionnaire(careerData)` - Complete career questionnaire
 
-### Debug Mode:
+### **New Comprehensive Commands**
+- `cy.completeProfileSetup(profileData)` - Complete profile setup step
+- `cy.completeBaselineAssessment(careerData, financialData)` - Complete baseline assessment
+- `cy.completeGoalSetting(goalsData)` - Complete goal setting step
+- `cy.completeEducationConsent()` - Complete education and consent
+- `cy.completeAppTour(tourData)` - Complete app tour
+- `cy.completeOnboardingCompletion(notificationData)` - Complete onboarding
+- `cy.verifyDashboard()` - Verify dashboard elements
+- `cy.testGoalManagement(goalData)` - Test goal management
+- `cy.testInsights(insightsData)` - Test insights and recommendations
+- `cy.testChecklist(checklistData)` - Test next steps checklist
+- `cy.testNotifications(notificationData)` - Test notifications
+- `cy.testProfileSettings(userData, profileData)` - Test profile settings
+- `cy.testLogoutSession(userData)` - Test logout and session
+- `cy.testErrorScenarios(errorData)` - Test error scenarios
+- `cy.testMobileResponsiveness(mobileData)` - Test mobile responsiveness
+- `cy.testAccessibility(accessibilityData)` - Test accessibility
+- `cy.completeFullOnboarding(testData)` - Complete entire onboarding flow
+- `cy.testCompleteUserJourney(testData)` - Test complete user journey
+
+## 📊 Test Scripts
+
+### Basic Scripts
 ```bash
-# Run with debug logging
-DEBUG=cypress:* npm run test:onboarding
+npm run test:onboarding          # Basic onboarding flow
+npm run test:complete-onboarding # Extended onboarding
+npm run test:job-security        # Job security features
+npm run test:complete-journey    # Complete user journey
 ```
 
-## Test Results
+### **Advanced Scripts**
+```bash
+npm run test:smoke               # Smoke test (main journey only)
+npm run test:regression          # Error scenario testing
+npm run test:mobile              # Mobile responsiveness testing
+npm run test:accessibility       # Accessibility testing
+npm run test:headed              # Run with browser UI
+npm run test:journey:headed      # Complete journey with UI
+```
 
-Test results are saved in:
-- **Videos**: `cypress/videos/`
-- **Screenshots**: `cypress/screenshots/`
-- **Reports**: Generated in the terminal output
+### CI/CD Scripts
+```bash
+npm run test:ci                  # Recorded test runs
+npm run test:parallel            # Parallel test execution
+```
 
-## Continuous Integration
+## 🔧 Configuration
 
-These tests can be integrated into CI/CD pipelines. Example GitHub Actions workflow:
+### Cypress Configuration
+- **Base URL**: `http://localhost:5002`
+- **Viewport**: 1280x720 (desktop), iPhone X (mobile)
+- **Timeouts**: 10 seconds default
+- **Retries**: 2 retries on failure
 
+### Environment Variables
+```bash
+CYPRESS_RECORD_KEY=your_cypress_record_key  # For CI/CD recording
+CYPRESS_BASE_URL=http://localhost:5002      # Application URL
+```
+
+## 📱 Mobile Testing
+
+The comprehensive test suite includes mobile responsiveness testing:
+
+```javascript
+// Test mobile viewport
+cy.viewport('iphone-x')
+cy.get('.onboarding-container').should('be.visible')
+cy.viewport(1280, 720) // Reset to desktop
+```
+
+## ♿ Accessibility Testing
+
+Basic accessibility testing is included:
+
+```javascript
+// Test keyboard navigation
+cy.get('body').tab()
+cy.focused().should('have.attr', 'name', 'email')
+
+// Test ARIA labels
+cy.get('input[name="email"]').should('have.attr', 'aria-label')
+```
+
+## 🚨 Error Testing
+
+Comprehensive error scenario testing:
+
+```javascript
+// Test validation errors
+cy.get('input[name="email"]').type('invalid-email')
+cy.get('.error-message').should('be.visible')
+
+// Test network errors
+cy.intercept('POST', '/api/auth/register', { statusCode: 500 })
+cy.get('button[type="submit"]').click()
+cy.get('.error-message').should('contain', 'Something went wrong')
+```
+
+## 📈 Test Reports
+
+### Screenshots
+- Failed test screenshots saved to `cypress/screenshots/`
+- Automatic screenshots on test failure
+
+### Videos
+- Test execution videos saved to `cypress/videos/`
+- Videos recorded for all test runs
+
+### CI/CD Integration
+- Cypress Dashboard integration for test recording
+- Parallel test execution support
+- Test analytics and reporting
+
+## 🧪 Running Specific Tests
+
+### By Test Name
+```bash
+# Run specific test by name
+cypress run --spec "cypress/e2e/complete-user-journey.cy.js" --grep "should complete full user journey"
+```
+
+### By Test Suite
+```bash
+# Run only onboarding tests
+npm run test:onboarding
+
+# Run only complete journey tests
+npm run test:complete-journey
+```
+
+### Interactive Mode
+```bash
+# Open Cypress Test Runner
+npm run cypress:open
+
+# Select specific test file
+# Click on test to run
+```
+
+## 🔄 Continuous Integration
+
+### GitHub Actions Example
 ```yaml
 name: E2E Tests
 on: [push, pull_request]
@@ -163,15 +240,69 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: '16'
-      - run: cd cypress && npm install
-      - run: cd cypress && npm run test:onboarding
+      - run: npm install
+      - run: npm run test:smoke
 ```
 
-## Contributing
+### Parallel Execution
+```bash
+# Run tests in parallel with recording
+npm run test:parallel
+```
 
-When adding new tests:
-1. Follow the existing naming convention
-2. Include comprehensive test scenarios
-3. Add appropriate error handling
-4. Update this README with new test descriptions
-5. Ensure tests are independent and can run in any order 
+## 📝 Best Practices
+
+### Test Data Management
+- Use fixtures for test data
+- Keep test data realistic and comprehensive
+- Avoid hardcoded values in tests
+
+### Selector Strategy
+- Use data-testid attributes when possible
+- Prefer semantic selectors over CSS classes
+- Avoid brittle selectors that change frequently
+
+### Test Organization
+- Group related tests in describe blocks
+- Use descriptive test names
+- Keep tests independent and isolated
+
+### Error Handling
+- Test both happy path and error scenarios
+- Verify error messages and user feedback
+- Test network failures and edge cases
+
+## 🐛 Troubleshooting
+
+### Common Issues
+
+1. **Application not running**
+   ```bash
+   # Ensure application is running on localhost:5002
+   curl http://localhost:5002
+   ```
+
+2. **Test timeouts**
+   ```javascript
+   // Increase timeout for specific commands
+   cy.get('.slow-element', { timeout: 15000 })
+   ```
+
+3. **Element not found**
+   ```javascript
+   // Wait for element to be visible
+   cy.get('.dynamic-element').should('be.visible')
+   ```
+
+### Debug Mode
+```bash
+# Run with browser UI for debugging
+npm run test:journey:headed
+```
+
+## 📚 Additional Resources
+
+- [Cypress Documentation](https://docs.cypress.io/)
+- [Cypress Best Practices](https://docs.cypress.io/guides/references/best-practices)
+- [Cypress Custom Commands](https://docs.cypress.io/api/cypress-api/custom-commands)
+- [Cypress CI/CD](https://docs.cypress.io/guides/continuous-integration/introduction) 

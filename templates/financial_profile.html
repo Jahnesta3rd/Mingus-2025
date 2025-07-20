@@ -26,10 +26,60 @@
     .progress-fill { height: 8px; background: #2563eb; border-radius: 4px; transition: width 0.3s; }
     .saving-indicator { color: #2563eb; font-size: 0.95em; margin-left: 1em; }
     .skip-warning { background: #fffbe6; color: #b45309; border: 1px solid #fde68a; border-radius: 6px; padding: 1em; margin-top: 1em; font-size: 1em; }
+    
+    /* Security Trust Indicators */
+    .security-trust-container {
+      background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+      border: 1px solid #0ea5e9;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+    .security-trust-title {
+      font-size: 1.1em;
+      font-weight: 700;
+      color: #0c4a6e;
+      margin-bottom: 1rem;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+    .security-trust-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1rem;
+    }
+    .security-trust-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem;
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 8px;
+      border-left: 4px solid #0ea5e9;
+      font-size: 0.95em;
+      font-weight: 500;
+      color: #0c4a6e;
+      transition: transform 0.2s ease;
+    }
+    .security-trust-item:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    .security-icon {
+      font-size: 1.2em;
+      min-width: 24px;
+      text-align: center;
+    }
     @media (max-width: 600px) {
       .progress-bar-container { margin-bottom: 1em; }
       .button-row { flex-direction: column; gap: 0.5em; }
       .btn-mingus-primary, .btn-mingus-secondary, .btn-mingus-skip { width: 100%; margin-right: 0; }
+      .security-trust-grid { grid-template-columns: 1fr; }
+      .security-trust-container { padding: 1rem; }
     }
   </style>
 </head>
@@ -44,6 +94,33 @@
       </div>
     </div>
     <h2>Financial Profile</h2>
+    
+    <!-- Security Trust Indicators -->
+    <div class="security-trust-container">
+      <div class="security-trust-title">
+        <span style="font-size: 1.3em;">🛡️</span>
+        Your Financial Data is Protected
+      </div>
+      <div class="security-trust-grid">
+        <div class="security-trust-item">
+          <span class="security-icon">🔒</span>
+          <span>Bank-level encryption protects your data</span>
+        </div>
+        <div class="security-trust-item">
+          <span class="security-icon">🛡️</span>
+          <span>We never store your banking passwords</span>
+        </div>
+        <div class="security-trust-item">
+          <span class="security-icon">🔐</span>
+          <span>Your information is encrypted and never shared</span>
+        </div>
+        <div class="security-trust-item">
+          <span class="security-icon">✅</span>
+          <span>SOC 2 compliant security standards</span>
+        </div>
+      </div>
+    </div>
+    
     <div class="income-section">
       <h3>Primary Income <span class="tooltip" title="This is your main source of income, such as your main job or business.">?</span></h3>
       <label>

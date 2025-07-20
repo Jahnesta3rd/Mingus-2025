@@ -1,0 +1,28 @@
+{
+  "name": "mingus-application---cursor",
+  "version": "1.0.0",
+  "description": "## Recent Updates (Last Updated: [Today's Date])",
+  "main": "cypress.config.js",
+  "directories": {
+    "doc": "docs",
+    "example": "examples",
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Jahnesta3rd/Mingus-2025.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Jahnesta3rd/Mingus-2025/issues"
+  },
+  "homepage": "https://github.com/Jahnesta3rd/Mingus-2025#readme",
+  "devDependencies": {
+    "cypress": "^14.5.0"
+  }
+}

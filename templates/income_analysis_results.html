@@ -6,109 +6,219 @@
     <title>Income Analysis Results | Mingus</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary-color: #3498db;
-            --secondary-color: #2c3e50;
-            --success-color: #27ae60;
-            --warning-color: #f39c12;
-            --danger-color: #e74c3c;
-            --light-bg: #f8f9fa;
-            --dark-bg: #2c3e50;
-            --border-radius: 12px;
-            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            --transition: all 0.3s ease;
+            /* Professional Color Palette - Growth & Trust Focused */
+            --primary-color: #2563eb;
+            --primary-dark: #1d4ed8;
+            --primary-light: #3b82f6;
+            --secondary-color: #1e293b;
+            --success-color: #059669;
+            --success-light: #10b981;
+            --warning-color: #d97706;
+            --info-color: #0891b2;
+            --light-bg: #f8fafc;
+            --lighter-bg: #f1f5f9;
+            --border-color: #e2e8f0;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --text-muted: #94a3b8;
+            
+            /* Design System */
+            --border-radius: 16px;
+            --border-radius-sm: 8px;
+            --box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --box-shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-fast: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+            
+            /* Gradients for Motivation */
+            --gradient-primary: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+            --gradient-success: linear-gradient(135deg, #059669 0%, #10b981 100%);
+            --gradient-growth: linear-gradient(135deg, #059669 0%, #34d399 100%);
+            --gradient-trust: linear-gradient(135deg, #0891b2 0%, #22d3ee 100%);
+            --gradient-warning: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);
+        }
+
+        * {
+            box-sizing: border-box;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
             min-height: 100vh;
-            color: var(--secondary-color);
+            color: var(--text-primary);
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Accessibility Improvements */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
         }
 
         .main-container {
             background: white;
             border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
-            margin: 2rem auto;
-            max-width: 1000px;
+            box-shadow: var(--box-shadow-lg);
+            margin: 1rem auto;
+            max-width: 1200px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Header Section with Success Messaging */
+        .header-section {
+            background: var(--gradient-success);
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+            position: relative;
             overflow: hidden;
         }
 
-        .header-section {
-            background: linear-gradient(135deg, var(--primary-color), #2980b9);
-            color: white;
-            padding: 2rem;
-            text-align: center;
+        .header-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="75" cy="75" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="50" cy="10" r="0.5" fill="rgba(255,255,255,0.1)"/><circle cx="10" cy="60" r="0.5" fill="rgba(255,255,255,0.1)"/><circle cx="90" cy="40" r="0.5" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            opacity: 0.3;
         }
 
         .header-section h1 {
-            font-size: 2.5rem;
+            font-size: clamp(2rem, 5vw, 3rem);
             font-weight: 700;
             margin-bottom: 1rem;
+            position: relative;
+            z-index: 1;
         }
 
         .header-section .subtitle {
             font-size: 1.2rem;
-            opacity: 0.9;
+            opacity: 0.95;
             margin-bottom: 1.5rem;
+            position: relative;
+            z-index: 1;
+            font-weight: 400;
         }
 
+        .success-badge {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50px;
+            padding: 0.5rem 1.5rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Content Section */
         .content-section {
-            padding: 2rem;
+            padding: 2.5rem;
+        }
+
+        /* Summary Metrics Grid */
+        .summary-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
         }
 
         .metric-card {
             background: white;
             border-radius: var(--border-radius);
-            padding: 1.5rem;
+            padding: 2rem;
             text-align: center;
             box-shadow: var(--box-shadow);
-            margin-bottom: 1rem;
             border: 2px solid transparent;
             transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .metric-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-primary);
         }
 
         .metric-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .metric-card.opportunity-highlight {
+            background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%);
+            border: 2px solid var(--success-color);
+        }
+
+        .metric-card.opportunity-highlight::before {
+            background: var(--gradient-success);
         }
 
         .metric-value {
             font-size: 2.5rem;
             font-weight: bold;
-            color: var(--primary-color);
             margin-bottom: 0.5rem;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .metric-card.opportunity-highlight .metric-value {
+            background: var(--gradient-success);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .metric-label {
-            color: #6c757d;
+            color: var(--text-secondary);
             font-size: 1rem;
             font-weight: 500;
+            margin-bottom: 0.5rem;
         }
 
-        .opportunity-score {
-            background: linear-gradient(135deg, var(--success-color), #20c997);
-            color: white;
+        .metric-description {
+            color: var(--text-muted);
+            font-size: 0.875rem;
         }
 
-        .opportunity-score .metric-value {
-            color: white;
-        }
-
-        .opportunity-score .metric-label {
-            color: rgba(255, 255, 255, 0.9);
+        /* Comparison Cards */
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
         }
 
         .comparison-card {
             background: white;
             border-radius: var(--border-radius);
-            padding: 1.5rem;
-            margin-bottom: 1rem;
+            padding: 2rem;
             box-shadow: var(--box-shadow);
             border-left: 4px solid var(--primary-color);
             transition: var(--transition);
+            position: relative;
         }
 
         .comparison-card:hover {
@@ -116,17 +226,22 @@
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
         }
 
+        .comparison-card.opportunity-highlight {
+            border-left-color: var(--success-color);
+            background: linear-gradient(135deg, #f8fff9 0%, #ffffff 100%);
+        }
+
         .comparison-header {
             display: flex;
-            justify-content: between;
+            justify-content: space-between;
             align-items: center;
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
         }
 
         .comparison-title {
             font-size: 1.2rem;
             font-weight: 600;
-            color: var(--secondary-color);
+            color: var(--text-primary);
             margin: 0;
         }
 
@@ -138,45 +253,214 @@
         }
 
         .gap-positive {
-            background: #d4edda;
-            color: #155724;
+            background: #dcfce7;
+            color: #166534;
         }
 
         .gap-negative {
-            background: #f8d7da;
-            color: #721c24;
+            background: #fef3c7;
+            color: #92400e;
         }
 
+        .gap-neutral {
+            background: #e0f2fe;
+            color: #0c4a6e;
+        }
+
+        /* Income Comparison Details */
+        .income-comparison {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 1rem;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .income-item {
+            text-align: center;
+            padding: 1rem;
+            border-radius: var(--border-radius-sm);
+            background: var(--lighter-bg);
+        }
+
+        .income-item.your-income {
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            border: 2px solid var(--primary-color);
+        }
+
+        .income-item.peer-income {
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            border: 2px solid var(--success-color);
+        }
+
+        .income-amount {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .income-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .comparison-arrow {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            text-align: center;
+        }
+
+        .gap-amount {
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-top: 0.5rem;
+        }
+
+        .gap-amount.positive {
+            color: var(--success-color);
+        }
+
+        .gap-amount.negative {
+            color: var(--warning-color);
+        }
+
+        /* Percentile Visualization */
+        .percentile-section {
+            margin: 1.5rem 0;
+        }
+
+        .percentile-bar {
+            background: var(--lighter-bg);
+            border-radius: 20px;
+            height: 12px;
+            position: relative;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+
+        .percentile-fill {
+            height: 100%;
+            background: var(--gradient-primary);
+            border-radius: 20px;
+            transition: width 1s ease-in-out;
+            position: relative;
+        }
+
+        .percentile-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .percentile-marker {
+            position: absolute;
+            top: -4px;
+            width: 20px;
+            height: 20px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            border: 3px solid white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            transform: translateX(-50%);
+            z-index: 2;
+        }
+
+        .percentile-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            margin-top: 0.5rem;
+        }
+
+        /* Motivational Section */
         .motivational-section {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--gradient-primary);
             color: white;
             border-radius: var(--border-radius);
-            padding: 2rem;
-            margin: 2rem 0;
+            padding: 2.5rem;
+            margin: 2.5rem 0;
+            position: relative;
+            overflow: hidden;
         }
 
+        .motivational-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="motivation" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="20" cy="20" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="80" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="50" cy="30" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="30" cy="70" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="70" cy="50" r="1" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23motivation)"/></svg>');
+            opacity: 0.2;
+        }
+
+        .motivational-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .motivational-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .motivational-message {
+            font-size: 1.1rem;
+            opacity: 0.95;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Action Plan */
         .action-plan {
             background: var(--light-bg);
             border-radius: var(--border-radius);
-            padding: 1.5rem;
-            margin-bottom: 1rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .action-plan h3 {
+            color: var(--primary-color);
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            font-size: 1.3rem;
         }
 
         .action-step {
             display: flex;
             align-items: flex-start;
-            margin-bottom: 1rem;
-            padding: 1rem;
+            margin-bottom: 1.5rem;
+            padding: 1.5rem;
             background: white;
             border-radius: var(--border-radius);
             border-left: 4px solid var(--success-color);
+            transition: var(--transition);
+        }
+
+        .action-step:hover {
+            transform: translateX(4px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
         .action-step-number {
-            background: var(--success-color);
+            background: var(--gradient-success);
             color: white;
-            width: 30px;
-            height: 30px;
+            width: 35px;
+            height: 35px;
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -184,6 +468,7 @@
             font-weight: bold;
             margin-right: 1rem;
             flex-shrink: 0;
+            font-size: 1.1rem;
         }
 
         .action-step-content {
@@ -192,465 +477,515 @@
 
         .action-step-title {
             font-weight: 600;
-            color: var(--secondary-color);
+            color: var(--text-primary);
             margin-bottom: 0.5rem;
+            font-size: 1.1rem;
         }
 
         .action-step-description {
-            color: #6c757d;
-            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.75rem;
         }
 
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary-color), #2980b9);
-            border: none;
+        .action-step-impact {
+            background: var(--lighter-bg);
+            padding: 0.75rem;
+            border-radius: var(--border-radius-sm);
+            font-size: 0.9rem;
+            color: var(--success-color);
+            font-weight: 500;
+        }
+
+        /* Job Recommendations Integration */
+        .job-recommendations {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border: 1px solid #bae6fd;
             border-radius: var(--border-radius);
-            padding: 1rem 2rem;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .job-recommendations h3 {
+            color: var(--primary-color);
+            font-weight: 600;
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+
+        .job-preview {
+            background: white;
+            border-radius: var(--border-radius-sm);
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid var(--primary-color);
+            transition: var(--transition);
+        }
+
+        .job-preview:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .job-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .job-company {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .job-salary {
+            color: var(--success-color);
+            font-weight: 600;
             font-size: 1.1rem;
+        }
+
+        /* Enhanced Button Styling */
+        .btn-primary {
+            background: var(--gradient-primary);
+            border: none;
+            border-radius: var(--border-radius-sm);
+            padding: 1rem 2rem;
+            font-size: 1rem;
             font-weight: 600;
             transition: var(--transition);
+            color: white;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
         }
 
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(52, 152, 219, 0.3);
+            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.3);
+            color: white;
         }
 
-        .btn-outline-primary {
-            border: 2px solid var(--primary-color);
-            color: var(--primary-color);
-            border-radius: var(--border-radius);
+        .btn-success {
+            background: var(--gradient-success);
+            border: none;
+            border-radius: var(--border-radius-sm);
             padding: 1rem 2rem;
-            font-size: 1.1rem;
+            font-size: 1rem;
             font-weight: 600;
             transition: var(--transition);
-        }
-
-        .btn-outline-primary:hover {
-            background: var(--primary-color);
             color: white;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-success:hover {
             transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(5, 150, 105, 0.3);
+            color: white;
         }
 
-        .percentile-bar {
-            background: #e9ecef;
-            border-radius: 10px;
-            height: 20px;
-            margin: 0.5rem 0;
-            overflow: hidden;
-        }
-
-        .percentile-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--success-color), var(--primary-color));
-            border-radius: 10px;
-            transition: width 1s ease;
-        }
-
-        .insight-card {
-            background: #fff3cd;
-            border: 1px solid #ffeaa7;
-            border-radius: var(--border-radius);
-            padding: 1.5rem;
-            margin: 1rem 0;
-        }
-
-        .insight-card h5 {
-            color: #856404;
-            font-weight: 600;
-            margin-bottom: 1rem;
-        }
-
-        .insight-card p {
-            color: #856404;
-            margin-bottom: 0;
-        }
-
+        /* Responsive Design */
         @media (max-width: 768px) {
             .main-container {
-                margin: 1rem;
-                border-radius: 8px;
+                margin: 0.5rem;
+                border-radius: var(--border-radius-sm);
             }
 
             .header-section {
-                padding: 1.5rem;
-            }
-
-            .header-section h1 {
-                font-size: 2rem;
+                padding: 2rem 1.5rem;
             }
 
             .content-section {
                 padding: 1.5rem;
             }
 
-            .metric-value {
-                font-size: 2rem;
+            .summary-metrics {
+                grid-template-columns: 1fr;
             }
 
-            .comparison-header {
-                flex-direction: column;
-                align-items: flex-start;
+            .comparison-grid {
+                grid-template-columns: 1fr;
             }
 
-            .gap-indicator {
-                margin-top: 0.5rem;
+            .income-comparison {
+                grid-template-columns: 1fr;
+                gap: 0.5rem;
+            }
+
+            .comparison-arrow {
+                transform: rotate(90deg);
+            }
+
+            .btn-primary, .btn-success {
+                width: 100%;
+                margin-bottom: 0.5rem;
             }
         }
 
-        .loading-spinner {
-            display: none;
-            text-align: center;
-            padding: 2rem;
+        /* High Contrast Mode Support */
+        @media (prefers-contrast: high) {
+            .metric-card, .comparison-card {
+                border-width: 3px;
+            }
+            
+            .btn-primary, .btn-success {
+                border: 2px solid var(--primary-dark);
+            }
         }
 
-        .spinner-border {
-            width: 3rem;
-            height: 3rem;
+        /* Print Styles */
+        @media print {
+            .header-section {
+                background: white !important;
+                color: black !important;
+            }
+            
+            .btn-primary, .btn-success {
+                background: white !important;
+                color: black !important;
+                border: 1px solid black !important;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="main-container">
-            <!-- Header Section -->
-            <div class="header-section">
-                <h1><i class="fas fa-chart-line"></i> Your Income Analysis</h1>
-                <p class="subtitle">Discover Your Career Advancement Opportunities</p>
+    <div class="main-container">
+        <!-- Header Section -->
+        <div class="header-section">
+            <div class="success-badge">
+                <i class="fas fa-check-circle"></i>
+                Analysis Complete
+            </div>
+            <h1>Your Income Analysis Results</h1>
+            <p class="subtitle">Discover your career growth opportunities and next steps</p>
+        </div>
+
+        <!-- Content Section -->
+        <div class="content-section">
+            <!-- Summary Metrics -->
+            <div class="summary-metrics">
+                <div class="metric-card">
+                    <div class="metric-value">${{ "{:,}".format(current_salary) }}</div>
+                    <div class="metric-label">Your Current Salary</div>
+                    <div class="metric-description">Annual income including bonuses</div>
+                </div>
+                
+                <div class="metric-card opportunity-highlight">
+                    <div class="metric-value">{{ percentile_rank }}%</div>
+                    <div class="metric-label">Percentile Rank</div>
+                    <div class="metric-description">Among your demographic peers</div>
+                </div>
+                
+                <div class="metric-card">
+                    <div class="metric-value">${{ "{:,}".format(peer_average) }}</div>
+                    <div class="metric-label">Peer Average</div>
+                    <div class="metric-description">Average for your demographic group</div>
+                </div>
+                
+                <div class="metric-card">
+                    <div class="metric-value">${{ "{:,}".format(growth_potential) }}</div>
+                    <div class="metric-label">Growth Potential</div>
+                    <div class="metric-description">Additional income opportunity</div>
+                </div>
             </div>
 
-            <!-- Loading Spinner -->
-            <div class="loading-spinner" id="loadingSpinner">
-                <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Loading...</span>
+            <!-- Income Comparisons -->
+            <div class="comparison-grid">
+                <!-- Overall Comparison -->
+                <div class="comparison-card">
+                    <div class="comparison-header">
+                        <h3 class="comparison-title">Overall Comparison</h3>
+                        <span class="gap-indicator {% if salary_gap > 0 %}gap-positive{% else %}gap-negative{% endif %}">
+                            {% if salary_gap > 0 %}+${{ "{:,}".format(salary_gap) }}{% else %}-${{ "{:,}".format(abs(salary_gap)) }}{% endif %}
+                        </span>
+                    </div>
+                    
+                    <div class="income-comparison">
+                        <div class="income-item your-income">
+                            <div class="income-amount">${{ "{:,}".format(current_salary) }}</div>
+                            <div class="income-label">Your Income</div>
+                        </div>
+                        <div class="comparison-arrow">
+                            <i class="fas fa-arrow-right"></i>
+                        </div>
+                        <div class="income-item peer-income">
+                            <div class="income-amount">${{ "{:,}".format(peer_average) }}</div>
+                            <div class="income-label">Peer Average</div>
+                        </div>
+                    </div>
+                    
+                    <div class="gap-amount {% if salary_gap > 0 %}positive{% else %}negative{% endif %}">
+                        {% if salary_gap > 0 %}
+                            You're earning ${{ "{:,}".format(salary_gap) }} more than peers
+                        {% else %}
+                            Opportunity to earn ${{ "{:,}".format(abs(salary_gap)) }} more
+                        {% endif %}
+                    </div>
                 </div>
-                <p class="mt-3">Analyzing your income data...</p>
+
+                <!-- Education Impact -->
+                <div class="comparison-card">
+                    <div class="comparison-header">
+                        <h3 class="comparison-title">Education Impact</h3>
+                        <span class="gap-indicator {% if education_gap > 0 %}gap-positive{% else %}gap-negative{% endif %}">
+                            {% if education_gap > 0 %}+${{ "{:,}".format(education_gap) }}{% else %}-${{ "{:,}".format(abs(education_gap)) }}{% endif %}
+                        </span>
+                    </div>
+                    
+                    <div class="income-comparison">
+                        <div class="income-item your-income">
+                            <div class="income-amount">${{ "{:,}".format(current_salary) }}</div>
+                            <div class="income-label">Your Income</div>
+                        </div>
+                        <div class="comparison-arrow">
+                            <i class="fas fa-arrow-right"></i>
+                        </div>
+                        <div class="income-item peer-income">
+                            <div class="income-amount">${{ "{:,}".format(education_average) }}</div>
+                            <div class="income-label">Education Level Avg</div>
+                        </div>
+                    </div>
+                    
+                    <div class="gap-amount {% if education_gap > 0 %}positive{% else %}negative{% endif %}">
+                        {% if education_gap > 0 %}
+                            Above average for your education level
+                        {% else %}
+                            Potential to earn ${{ "{:,}".format(abs(education_gap)) }} more
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Location Impact -->
+                <div class="comparison-card">
+                    <div class="comparison-header">
+                        <h3 class="comparison-title">Location Impact</h3>
+                        <span class="gap-indicator {% if location_gap > 0 %}gap-positive{% else %}gap-negative{% endif %}">
+                            {% if location_gap > 0 %}+${{ "{:,}".format(location_gap) }}{% else %}-${{ "{:,}".format(abs(location_gap)) }}{% endif %}
+                        </span>
+                    </div>
+                    
+                    <div class="income-comparison">
+                        <div class="income-item your-income">
+                            <div class="income-amount">${{ "{:,}".format(current_salary) }}</div>
+                            <div class="income-label">Your Income</div>
+                        </div>
+                        <div class="comparison-arrow">
+                            <i class="fas fa-arrow-right"></i>
+                        </div>
+                        <div class="income-item peer-income">
+                            <div class="income-amount">${{ "{:,}".format(location_average) }}</div>
+                            <div class="income-label">Location Average</div>
+                        </div>
+                    </div>
+                    
+                    <div class="gap-amount {% if location_gap > 0 %}positive{% else %}negative{% endif %}">
+                        {% if location_gap > 0 %}
+                            Above average for your location
+                        {% else %}
+                            Location opportunity: ${{ "{:,}".format(abs(location_gap)) }}
+                        {% endif %}
+                    </div>
+                </div>
             </div>
 
-            <!-- Content Section -->
-            <div class="content-section" id="contentSection" style="display: none;">
-                <!-- Overall Metrics -->
-                <div class="row mb-4">
-                    <div class="col-md-3">
-                        <div class="metric-card">
-                            <div class="metric-value" id="overallPercentile">53.1%</div>
-                            <div class="metric-label">Overall Percentile</div>
-                        </div>
+            <!-- Percentile Visualization -->
+            <div class="comparison-card">
+                <h3 class="comparison-title">Your Percentile Position</h3>
+                <div class="percentile-section">
+                    <div class="percentile-bar">
+                        <div class="percentile-fill" style="width: {{ percentile_rank }}%"></div>
+                        <div class="percentile-marker" style="left: {{ percentile_rank }}%"></div>
                     </div>
-                    <div class="col-md-3">
-                        <div class="metric-card opportunity-score">
-                            <div class="metric-value" id="opportunityScore">27.2/100</div>
-                            <div class="metric-label">Career Opportunity Score</div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="metric-card">
-                            <div class="metric-value" id="primaryGapAmount">$20,000</div>
-                            <div class="metric-label">Primary Income Gap</div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="metric-card">
-                            <div class="metric-value" id="primaryGapGroup">College Grads</div>
-                            <div class="metric-label">vs. Primary Group</div>
-                        </div>
+                    <div class="percentile-labels">
+                        <span>0%</span>
+                        <span>25%</span>
+                        <span>50%</span>
+                        <span>75%</span>
+                        <span>100%</span>
                     </div>
                 </div>
+                <p class="text-center text-muted">
+                    You're in the top {{ 100 - percentile_rank }}% of earners in your demographic group
+                </p>
+            </div>
 
-                <!-- Motivational Summary -->
-                <div class="motivational-section">
-                    <h3><i class="fas fa-lightbulb"></i> Your Career Opportunity</h3>
-                    <p id="motivationalSummary" class="mb-0">
-                        Your biggest opportunity is closing the $20,000 gap with College Graduates. 
-                        This represents significant career advancement potential that can transform your financial future.
+            <!-- Motivational Section -->
+            <div class="motivational-section">
+                <div class="motivational-content">
+                    <h3 class="motivational-title">
+                        <i class="fas fa-rocket"></i> Your Career Growth Journey
+                    </h3>
+                    <p class="motivational-message">
+                        {% if salary_gap > 0 %}
+                            Congratulations! You're already ahead of your peers. Let's explore how to maintain this advantage and continue growing.
+                        {% else %}
+                            You have significant opportunities for growth! With the right strategies, you can close the gap and exceed your peers' earnings.
+                        {% endif %}
                     </p>
-                </div>
-
-                <!-- Detailed Comparisons -->
-                <h3 class="mb-4"><i class="fas fa-list"></i> Detailed Comparisons</h3>
-                <div id="comparisonDetails">
-                    <!-- Comparison cards will be populated by JavaScript -->
-                </div>
-
-                <!-- Action Plan -->
-                <div class="row mt-4">
-                    <div class="col-md-8">
-                        <h3 class="mb-4"><i class="fas fa-clipboard-list"></i> Your Action Plan</h3>
-                        <div id="actionPlan">
-                            <!-- Action steps will be populated by JavaScript -->
-                        </div>
+                    <div class="text-center">
+                        <a href="{{ url_for('income_analysis.dashboard') }}" class="btn btn-success">
+                            <i class="fas fa-chart-line"></i>
+                            View Detailed Dashboard
+                        </a>
                     </div>
-                    <div class="col-md-4">
-                        <div class="insight-card">
-                            <h5><i class="fas fa-info-circle"></i> Key Insights</h5>
-                            <p>Your income analysis reveals specific opportunities for career advancement. Focus on the areas with the largest gaps for maximum impact.</p>
+                </div>
+            </div>
+
+            <!-- Action Plan -->
+            <div class="action-plan">
+                <h3><i class="fas fa-target"></i> Your Action Plan</h3>
+                
+                <div class="action-step">
+                    <div class="action-step-number">1</div>
+                    <div class="action-step-content">
+                        <div class="action-step-title">Assess Your Skills Gap</div>
+                        <div class="action-step-description">
+                            Identify the skills that would increase your earning potential in your current role or industry.
                         </div>
-                        
-                        <div class="d-grid gap-2 mt-3">
-                            <button class="btn btn-primary" onclick="downloadReport()">
-                                <i class="fas fa-download"></i> Download Report
-                            </button>
-                            <button class="btn btn-outline-primary" onclick="shareResults()">
-                                <i class="fas fa-share"></i> Share Results
-                            </button>
-                            <button class="btn btn-outline-primary" onclick="getJobRecommendations()">
-                                <i class="fas fa-briefcase"></i> Get Job Recommendations
-                            </button>
+                        <div class="action-step-impact">
+                            <i class="fas fa-arrow-up"></i> Potential impact: $5,000 - $15,000 salary increase
                         </div>
                     </div>
                 </div>
+
+                <div class="action-step">
+                    <div class="action-step-number">2</div>
+                    <div class="action-step-content">
+                        <div class="action-step-title">Explore Career Advancement</div>
+                        <div class="action-step-description">
+                            Research promotion opportunities within your company or consider lateral moves to higher-paying roles.
+                        </div>
+                        <div class="action-step-impact">
+                            <i class="fas fa-arrow-up"></i> Potential impact: $10,000 - $25,000 salary increase
+                        </div>
+                    </div>
+                </div>
+
+                <div class="action-step">
+                    <div class="action-step-number">3</div>
+                    <div class="action-step-content">
+                        <div class="action-step-title">Network Strategically</div>
+                        <div class="action-step-description">
+                            Build relationships with professionals in higher-paying roles and industries to discover new opportunities.
+                        </div>
+                        <div class="action-step-impact">
+                            <i class="fas fa-arrow-up"></i> Potential impact: $15,000 - $30,000 salary increase
+                        </div>
+                    </div>
+                </div>
+
+                <div class="action-step">
+                    <div class="action-step-number">4</div>
+                    <div class="action-step-content">
+                        <div class="action-step-title">Negotiate Your Worth</div>
+                        <div class="action-step-description">
+                            Use your market research to confidently negotiate better compensation in your current or new role.
+                        </div>
+                        <div class="action-step-impact">
+                            <i class="fas fa-arrow-up"></i> Potential impact: $5,000 - $20,000 salary increase
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Job Recommendations Integration -->
+            <div class="job-recommendations">
+                <h3><i class="fas fa-briefcase"></i> Recommended Job Opportunities</h3>
+                <p class="text-muted mb-3">Based on your income analysis, here are roles that could help you reach your earning potential:</p>
+                
+                <div class="job-preview">
+                    <div class="job-title">Senior Software Engineer</div>
+                    <div class="job-company">TechCorp Inc. • {{ location|title }}</div>
+                    <div class="job-salary">$120,000 - $150,000</div>
+                </div>
+                
+                <div class="job-preview">
+                    <div class="job-title">Product Manager</div>
+                    <div class="job-company">InnovateTech • {{ location|title }}</div>
+                    <div class="job-salary">$110,000 - $140,000</div>
+                </div>
+                
+                <div class="job-preview">
+                    <div class="job-title">Business Development Director</div>
+                    <div class="job-company">Growth Partners • {{ location|title }}</div>
+                    <div class="job-salary">$130,000 - $160,000</div>
+                </div>
+                
+                <div class="text-center mt-3">
+                    <a href="{{ url_for('job_recommendations.index') }}" class="btn btn-primary">
+                        <i class="fas fa-search"></i>
+                        View All Job Matches
+                    </a>
+                </div>
+            </div>
+
+            <!-- Next Steps -->
+            <div class="text-center mt-4">
+                <a href="{{ url_for('income_analysis.form') }}" class="btn btn-primary me-3">
+                    <i class="fas fa-refresh"></i>
+                    Re-analyze with Different Data
+                </a>
+                <a href="{{ url_for('main.dashboard') }}" class="btn btn-success">
+                    <i class="fas fa-home"></i>
+                    Return to Dashboard
+                </a>
             </div>
         </div>
     </div>
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-    
     <script>
-        let analysisData = null;
-
-        // Check for analysis data in URL parameters or localStorage
+        // Animate percentile bar on page load
         document.addEventListener('DOMContentLoaded', function() {
-            // Show loading spinner initially
-            document.getElementById('loadingSpinner').style.display = 'block';
-            document.getElementById('contentSection').style.display = 'none';
+            const percentileFill = document.querySelector('.percentile-fill');
+            if (percentileFill) {
+                setTimeout(() => {
+                    percentileFill.style.width = '{{ percentile_rank }}%';
+                }, 500);
+            }
 
-            // Check if we have data from form submission
-            const urlParams = new URLSearchParams(window.location.search);
-            const demoMode = urlParams.get('demo') === 'true';
-            
-            if (demoMode) {
-                // Load demo data
-                loadDemoData();
-            } else {
-                // Check localStorage for analysis data
-                const storedData = localStorage.getItem('incomeAnalysisData');
-                if (storedData) {
-                    try {
-                        analysisData = JSON.parse(storedData);
-                        displayResults(analysisData);
-                    } catch (e) {
-                        console.error('Error parsing stored data:', e);
-                        loadDemoData();
+            // Animate metric cards on scroll
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
                     }
-                } else {
-                    loadDemoData();
-                }
-            }
-        });
-
-        function loadDemoData() {
-            // Fetch demo data from API
-            fetch('/api/income-analysis/demo')
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        analysisData = data.data;
-                        displayResults(analysisData);
-                    } else {
-                        showError('Failed to load demo data');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error loading demo data:', error);
-                    showError('Failed to load analysis data');
                 });
-        }
+            }, observerOptions);
 
-        function displayResults(data) {
-            // Hide loading spinner and show content
-            document.getElementById('loadingSpinner').style.display = 'none';
-            document.getElementById('contentSection').style.display = 'block';
-
-            const incomeComparison = data.income_comparison;
-
-            // Update overall metrics
-            document.getElementById('overallPercentile').textContent = 
-                incomeComparison.overall_percentile.toFixed(1) + '%';
-            document.getElementById('opportunityScore').textContent = 
-                incomeComparison.career_opportunity_score.toFixed(1) + '/100';
-            
-            // Update primary gap information
-            const primaryGap = incomeComparison.primary_gap;
-            const gapAmount = Math.abs(primaryGap.income_gap);
-            document.getElementById('primaryGapAmount').textContent = 
-                '$' + gapAmount.toLocaleString();
-            document.getElementById('primaryGapGroup').textContent = 
-                primaryGap.group_name;
-            
-            // Update motivational summary
-            document.getElementById('motivationalSummary').textContent = 
-                incomeComparison.motivational_summary;
-            
-            // Display detailed comparisons
-            displayComparisonDetails(incomeComparison.comparisons);
-            
-            // Display action plan
-            displayActionPlan(incomeComparison.action_plan);
-        }
-
-        function displayComparisonDetails(comparisons) {
-            const container = document.getElementById('comparisonDetails');
-            container.innerHTML = '';
-            
-            comparisons.forEach((comparison, index) => {
-                const gapSign = comparison.income_gap >= 0 ? '+' : '';
-                const gapClass = comparison.income_gap >= 0 ? 'gap-negative' : 'gap-positive';
-                const percentileWidth = Math.min(comparison.percentile_rank, 100);
-                
-                const comparisonDiv = document.createElement('div');
-                comparisonDiv.className = 'comparison-card';
-                comparisonDiv.innerHTML = `
-                    <div class="comparison-header">
-                        <h4 class="comparison-title">${comparison.group_name}</h4>
-                        <span class="gap-indicator ${gapClass}">
-                            ${gapSign}$${Math.abs(comparison.income_gap).toLocaleString()}
-                            (${gapSign}${comparison.gap_percentage.toFixed(1)}%)
-                        </span>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-4">
-                            <p><strong>Median Income:</strong> $${comparison.median_income.toLocaleString()}</p>
-                            <p><strong>Your Percentile:</strong> ${comparison.percentile_rank.toFixed(1)}%</p>
-                        </div>
-                        <div class="col-md-4">
-                            <p><strong>Context:</strong></p>
-                            <small class="text-muted">${comparison.context_message}</small>
-                        </div>
-                        <div class="col-md-4">
-                            <p><strong>Insight:</strong></p>
-                            <small>${comparison.motivational_insight}</small>
-                        </div>
-                    </div>
-                    <div class="percentile-bar">
-                        <div class="percentile-fill" style="width: ${percentileWidth}%"></div>
-                    </div>
-                `;
-                
-                container.appendChild(comparisonDiv);
+            // Observe metric cards
+            document.querySelectorAll('.metric-card, .comparison-card').forEach(card => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                observer.observe(card);
             });
-        }
 
-        function displayActionPlan(actionPlan) {
-            const container = document.getElementById('actionPlan');
-            container.innerHTML = '';
-            
-            actionPlan.forEach((action, index) => {
-                const actionDiv = document.createElement('div');
-                actionDiv.className = 'action-step';
-                actionDiv.innerHTML = `
-                    <div class="action-step-number">${index + 1}</div>
-                    <div class="action-step-content">
-                        <div class="action-step-title">${action}</div>
-                        <div class="action-step-description">
-                            This step will help you close income gaps and advance your career.
-                        </div>
-                    </div>
-                `;
-                container.appendChild(actionDiv);
-            });
-        }
+            // Accessibility: Announce results
+            const resultsAnnouncement = document.createElement('div');
+            resultsAnnouncement.setAttribute('aria-live', 'polite');
+            resultsAnnouncement.setAttribute('aria-atomic', 'true');
+            resultsAnnouncement.style.position = 'absolute';
+            resultsAnnouncement.style.left = '-10000px';
+            resultsAnnouncement.style.width = '1px';
+            resultsAnnouncement.style.height = '1px';
+            resultsAnnouncement.style.overflow = 'hidden';
+            document.body.appendChild(resultsAnnouncement);
 
-        function downloadReport() {
-            if (!analysisData) {
-                showError('No analysis data available');
-                return;
-            }
-            
-            // Create downloadable report
-            const report = generateReport(analysisData);
-            const blob = new Blob([report], { type: 'text/plain' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `income-analysis-${new Date().toISOString().split('T')[0]}.txt`;
-            a.click();
-            window.URL.revokeObjectURL(url);
-        }
-
-        function generateReport(data) {
-            const ic = data.income_comparison;
-            let report = 'INCOME ANALYSIS REPORT\n';
-            report += '=====================\n\n';
-            
-            report += `Generated: ${new Date().toLocaleString()}\n\n`;
-            
-            report += 'OVERALL SUMMARY\n';
-            report += '===============\n';
-            report += `Overall Percentile: ${ic.overall_percentile.toFixed(1)}%\n`;
-            report += `Career Opportunity Score: ${ic.career_opportunity_score.toFixed(1)}/100\n`;
-            report += `Primary Gap: $${Math.abs(ic.primary_gap.income_gap).toLocaleString()} vs ${ic.primary_gap.group_name}\n\n`;
-            
-            report += 'DETAILED COMPARISONS\n';
-            report += '===================\n\n';
-            
-            ic.comparisons.forEach(comp => {
-                report += `${comp.group_name}:\n`;
-                report += `  Median Income: $${comp.median_income.toLocaleString()}\n`;
-                report += `  Your Percentile: ${comp.percentile_rank.toFixed(1)}%\n`;
-                report += `  Income Gap: $${comp.income_gap.toLocaleString()} (${comp.gap_percentage.toFixed(1)}%)\n`;
-                report += `  Insight: ${comp.motivational_insight}\n\n`;
-            });
-            
-            report += 'ACTION PLAN\n';
-            report += '===========\n\n';
-            
-            ic.action_plan.forEach((action, index) => {
-                report += `${index + 1}. ${action}\n`;
-            });
-            
-            return report;
-        }
-
-        function shareResults() {
-            if (navigator.share) {
-                navigator.share({
-                    title: 'My Income Analysis Results',
-                    text: 'Check out my income analysis and career advancement opportunities from Mingus!',
-                    url: window.location.href
-                });
-            } else {
-                // Fallback: copy to clipboard
-                navigator.clipboard.writeText(window.location.href).then(() => {
-                    showAlert('Link copied to clipboard!', 'success');
-                });
-            }
-        }
-
-        function getJobRecommendations() {
-            // Redirect to job recommendations page
-            window.location.href = '/api/enhanced-recommendations/upload';
-        }
-
-        function showError(message) {
-            const alertDiv = document.createElement('div');
-            alertDiv.className = 'alert alert-danger alert-dismissible fade show';
-            alertDiv.innerHTML = `
-                <i class="fas fa-exclamation-triangle"></i>
-                ${message}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            `;
-            
-            const contentSection = document.querySelector('.content-section');
-            contentSection.insertBefore(alertDiv, contentSection.firstChild);
-        }
-
-        function showAlert(message, type) {
-            const alertDiv = document.createElement('div');
-            alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
-            alertDiv.innerHTML = `
-                ${message}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            `;
-            
-            const contentSection = document.querySelector('.content-section');
-            contentSection.insertBefore(alertDiv, contentSection.firstChild);
-            
-            // Auto-dismiss after 5 seconds
             setTimeout(() => {
-                alertDiv.remove();
-            }, 5000);
-        }
+                resultsAnnouncement.textContent = `Income analysis complete. Your current salary is ${{ "{:,}".format(current_salary) }}. You are in the {{ percentile_rank }}th percentile among your peers.`;
+            }, 1000);
+        });
     </script>
 </body>
 </html> 

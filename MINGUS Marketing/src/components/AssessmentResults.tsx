@@ -1,24 +1,27 @@
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { 
-  Mail, 
-  User, 
-  Phone, 
-  Download, 
-  Star, 
-  CheckCircle, 
+import {
+  Mail,
+  User,
+  Phone,
+  Download,
+  Star,
+  CheckCircle,
   ArrowRight,
   Heart,
   TrendingUp,
   Shield,
   Gift
 } from 'lucide-react'
+import { RatchetMoneyAPI } from '../api'
+import { PDFEmailService } from '../services/pdfEmailService'
 
 interface AssessmentResultsProps {
   data: {
     totalScore: number
     segment: string
     answers: Record<string, any>
+    leadId?: string // Added for potential existing lead ID
   }
   email: string
 }
@@ -130,15 +133,88 @@ export const AssessmentResults: React.FC<AssessmentResultsProps> = ({ data, emai
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
-    
+
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000))
-      
+      // Update lead information with form data
+      if (data.leadId) {
+        await RatchetMoneyAPI.updateLead(data.leadId, {
+          name: formData.firstName,
+          phone: formData.phoneNumber,
+          contactMethod: formData.contactMethod,
+          betaInterest: formData.betaInterest === 'very'
+        })
+      }
+
+      // Generate and send PDF report
+      const reportId = `report-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+
+      const emailResult = await PDFEmailService.sendAssessmentReport({
+        to: formData.email,
+        leadName: formData.firstName,
+        leadId: data.leadId || '',
+        assessmentResult: {
+          totalScore,
+          segment,
+          challenges: Object.keys(data.answers)
+        },
+        reportId,
+        options: {
+          subject: 'Your Ratchet Money Assessment Report is Ready!',
+          includeFullReport: true,
+          customMessage: `Hi ${formData.firstName || 'there'},
+
+Thank you for completing your assessment! Your personalized PDF report is attached to this email.
+
+Your Results Summary:
+• Score: ${totalScore}/50
+• Segment: ${segment.charAt(0).toUpperCase() + segment.slice(1)}
+• Key Areas: ${Object.keys(data.answers).length} areas identified
+
+What's in your report:
+📊 Detailed analysis of your relationship with money
+💡 Personalized recommendations based on your results
+🎯 Actionable next steps to improve your financial wellness
+📈 Progress tracking tools and resources
+
+We'll also send you follow-up resources and tips over the next few weeks to help you on your journey.
+
+If you have any questions about your results, just reply to this email!
+
+Best regards,
+The Ratchet Money Team`
+        }
+      })
+
+      if (emailResult.success) {
+        console.log('PDF report sent successfully:', emailResult.reportPath)
+      } else {
+        console.error('Failed to send PDF report:', emailResult.message)
+      }
+
+      // Send follow-up email with resources
+      await RatchetMoneyAPI.sendEmail({
+        to: formData.email,
+        subject: 'Your Ratchet Money Resources Are Ready!',
+        body: `
+          <h1>Your Personalized Resources</h1>
+          <p>Hi ${formData.firstName || 'there'},</p>
+          <p>Thank you for completing your assessment! Here are your personalized resources:</p>
+          <ul>
+            <li>📊 Detailed Relationship-Money Health Report (15-page analysis)</li>
+            <li>💪 5 Ways to Strengthen Relationships While Building Wealth (PDF)</li>
+            <li>🚀 Early access to Ratchet Money beta</li>
+            <li>📧 Weekly tips connecting wellness to wealth</li>
+          </ul>
+          <p>Your segment: ${segment}</p>
+          <p>Your score: ${totalScore}/50</p>
+        `,
+        leadId: data.leadId || '',
+        emailType: 'assessment_results'
+      })
+
       // Show success state
-      console.log('Lead captured:', formData)
-      
-      // In production, this would save to Supabase and trigger email sequences
+      console.log('Lead updated and email sent:', formData)
+
     } catch (error) {
       console.error('Error submitting form:', error)
     } finally {
@@ -332,7 +408,7 @@ export const AssessmentResults: React.FC<AssessmentResultsProps> = ({ data, emai
                     className="space-y-6"
                   >
                     <h3 className="text-xl font-semibold text-white mb-4">What You'll Get:</h3>
-                    
+
                     <div className="space-y-4">
                       <motion.div
                         initial={{ opacity: 0, x: -20 }}
@@ -541,7 +617,7 @@ export const AssessmentResults: React.FC<AssessmentResultsProps> = ({ data, emai
                     </form>
 
                     <p className="text-xs text-gray-400 text-center">
-                      By submitting, you agree to receive personalized content and updates. 
+                      By submitting, you agree to receive personalized content and updates.
                       You can unsubscribe at any time.
                     </p>
                   </motion.div>

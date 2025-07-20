@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Financial Health Results - Mingus</title>
+  <link rel="stylesheet" href="/static/css/form.css">
+  <style>
+    .results-container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 2rem 1rem;
+    }
+    
+    .header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+    
+    .header h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #1f2937;
+      margin-bottom: 0.5rem;
+    }
+    
+    .header p {
+      color: #6b7280;
+      font-size: 1.1rem;
+      line-height: 1.6;
+    }
+    
+    .score-section {
+      background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+      border-radius: 16px;
+      padding: 2.5rem;
+      text-align: center;
+      margin-bottom: 3rem;
+      border: 1px solid #e5e7eb;
+    }
+    
+    .score-circle {
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      margin: 0 auto 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      background: conic-gradient(var(--score-color) var(--score-percentage), #e5e7eb var(--score-percentage));
+    }
+    
+    .score-circle::before {
+      content: '';
+      position: absolute;
+      width: 160px;
+      height: 160px;
+      border-radius: 50%;
+      background: white;
+    }
+    
+    .score-content {
+      position: relative;
+      z-index: 1;
+    }
+    
+    .score-number {
+      font-size: 3rem;
+      font-weight: 700;
+      color: var(--score-color);
+      margin-bottom: 0.5rem;
+    }
+    
+    .score-level {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--score-color);
+      margin-bottom: 0.5rem;
+    }
+    
+    .score-label {
+      font-size: 0.9rem;
+      color: #6b7280;
+    }
+    
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 3rem;
+    }
+    
+    .metric-card {
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 1.5rem;
+      text-align: center;
+    }
+    
+    .metric-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #2563eb;
+      margin-bottom: 0.5rem;
+    }
+    
+    .metric-label {
+      font-size: 0.9rem;
+      color: #6b7280;
+      font-weight: 500;
+    }
+    
+    .recommendations-section {
+      margin-bottom: 3rem;
+    }
+    
+    .section-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #1f2937;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .recommendations-grid {
+      display: grid;
+      gap: 1.5rem;
+    }
+    
+    .recommendation-card {
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 1.5rem;
+      border-left: 4px solid var(--priority-color);
+    }
+    
+    .recommendation-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+    
+    .recommendation-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #1f2937;
+    }
+    
+    .priority-badge {
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      background: var(--priority-color);
+      color: white;
+    }
+    
+    .recommendation-description {
+      color: #4b5563;
+      margin-bottom: 1rem;
+      line-height: 1.5;
+    }
+    
+    .recommendation-action {
+      background: #f3f4f6;
+      border-radius: 8px;
+      padding: 1rem;
+      color: #1f2937;
+      font-weight: 500;
+      border-left: 3px solid var(--priority-color);
+    }
+    
+    .actions-section {
+      text-align: center;
+      margin-top: 3rem;
+    }
+    
+    .action-btn {
+      display: inline-block;
+      padding: 1rem 2rem;
+      margin: 0 0.5rem;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, #2563eb, #3b82f6);
+      color: white;
+      box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 12px -1px rgba(37, 99, 235, 0.3);
+    }
+    
+    .btn-secondary {
+      background: white;
+      color: #2563eb;
+      border: 2px solid #2563eb;
+    }
+    
+    .btn-secondary:hover {
+      background: #2563eb;
+      color: white;
+    }
+    
+    .btn-success {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: white;
+      box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.2);
+    }
+    
+    .btn-success:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 12px -1px rgba(16, 185, 129, 0.3);
+    }
+    
+    .info-note {
+      background: #f0f9ff;
+      border: 1px solid #bae6fd;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-top: 2rem;
+      text-align: center;
+      color: #0369a1;
+    }
+    
+    @media (max-width: 768px) {
+      .results-container {
+        padding: 1rem;
+      }
+      
+      .header h1 {
+        font-size: 2rem;
+      }
+      
+      .score-circle {
+        width: 150px;
+        height: 150px;
+      }
+      
+      .score-circle::before {
+        width: 120px;
+        height: 120px;
+      }
+      
+      .score-number {
+        font-size: 2.5rem;
+      }
+      
+      .metrics-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .action-btn {
+        display: block;
+        margin: 0.5rem 0;
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="results-container">
+    <!-- Header -->
+    <div class="header">
+      <h1>Your Financial Health Results</h1>
+      <p>Based on your assessment, here's your financial health score and personalized recommendations</p>
+    </div>
+
+    <!-- Score Section -->
+    <div class="score-section">
+      <div class="score-circle" id="scoreCircle">
+        <div class="score-content">
+          <div class="score-number" id="scoreNumber">{{ results.score }}</div>
+          <div class="score-level" id="scoreLevel">{{ results.level }}</div>
+          <div class="score-label">Financial Health Score</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Key Metrics -->
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <div class="metric-value">{{ "%.1f"|format(results.metrics.monthly_savings_rate) }}%</div>
+        <div class="metric-label">Monthly Savings Rate</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value">{{ "%.1f"|format(results.metrics.savings_to_expenses_ratio) }}x</div>
+        <div class="metric-label">Emergency Fund Coverage</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value">{{ "%.1f"|format(results.metrics.debt_to_income_ratio) }}x</div>
+        <div class="metric-label">Debt-to-Income Ratio</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value">${{ "{:,.0f}".format(results.metrics.monthly_disposable_income) }}</div>
+        <div class="metric-label">Monthly Disposable Income</div>
+      </div>
+    </div>
+
+    <!-- Recommendations -->
+    <div class="recommendations-section">
+      <div class="section-title">
+        <span>🎯</span>
+        Personalized Recommendations
+      </div>
+      
+      <div class="recommendations-grid">
+        {% for recommendation in results.recommendations %}
+        <div class="recommendation-card" style="--priority-color: {% if recommendation.priority == 'high' %}#ef4444{% elif recommendation.priority == 'medium' %}#f59e0b{% else %}#10b981{% endif %}">
+          <div class="recommendation-header">
+            <div class="recommendation-title">{{ recommendation.title }}</div>
+            <div class="priority-badge">{{ recommendation.priority.title() }}</div>
+          </div>
+          <div class="recommendation-description">{{ recommendation.description }}</div>
+          <div class="recommendation-action">{{ recommendation.action }}</div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="actions-section">
+      <a href="/api/onboarding/financial-profile" class="action-btn btn-primary">
+        Go Deeper: Complete Full Onboarding
+      </a>
+      <a href="/dashboard" class="action-btn btn-secondary">
+        Go to Dashboard
+      </a>
+      <a href="/api/financial/questionnaire" class="action-btn btn-success">
+        Retake Assessment
+      </a>
+    </div>
+
+    <!-- Info Note -->
+    <div class="info-note">
+      <strong>💡 Next Steps:</strong> Consider completing the detailed financial profile setup to unlock advanced features like 
+      expense tracking, goal management, and personalized financial planning tools.
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Set score circle color and percentage
+      const scoreCircle = document.getElementById('scoreCircle');
+      const scoreNumber = document.getElementById('scoreNumber');
+      const scoreLevel = document.getElementById('scoreLevel');
+      
+      const score = parseInt(scoreNumber.textContent);
+      const level = scoreLevel.textContent;
+      
+      // Set color based on level
+      let color;
+      switch(level.toLowerCase()) {
+        case 'excellent':
+          color = '#10b981';
+          break;
+        case 'good':
+          color = '#3b82f6';
+          break;
+        case 'fair':
+          color = '#f59e0b';
+          break;
+        default:
+          color = '#ef4444';
+      }
+      
+      // Set CSS variables for the score circle
+      scoreCircle.style.setProperty('--score-color', color);
+      scoreCircle.style.setProperty('--score-percentage', score + '%');
+      
+      // Animate score circle on load
+      setTimeout(() => {
+        scoreCircle.style.opacity = '1';
+        scoreCircle.style.transform = 'scale(1)';
+      }, 500);
+    });
+  </script>
+</body>
+</html> 

@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>Mingus Dashboard</title>
+  <link href="https://fonts.googleapis.com/css?family=Inter:400,700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --black: #0A0A0A;
+      --gray-dark: #1A1A1A;
+      --gray: #2A2A2A;
+      --health: #00FF88;
+      --career: #00D4FF;
+      --relationships: #FF6B9D;
+      --white: #fff;
+      --secondary: #b0b0b0;
+      --spacing: 1.2rem;
+      --meter-size: 110px;
+      --font-base: 16px;
+    }
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      background: var(--black);
+      color: var(--white);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      font-size: var(--font-base);
+      box-sizing: border-box;
+    }
+    .dashboard-container {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing);
+      padding: var(--spacing);
+      max-width: 100vw;
+    }
+    .meters-section {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing);
+    }
+    .dashboard-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.2rem 1.5rem 1.2rem 1.5rem;
+      background: #0a0a0a;
+      border-bottom: 1px solid #222;
+      flex-wrap: wrap;
+    }
+    .dashboard-header button {
+      background: none;
+      border: none;
+      color: var(--white);
+      font-size: 1.5rem;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+    .dashboard-header button:hover {
+      color: var(--career);
+    }
+    .dashboard-header .date {
+      font-size: 1.2rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+    .meters-row {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      margin: 2rem 0 1.5rem 0;
+      flex-wrap: wrap;
+      gap: 2rem;
+    }
+    .meter {
+      background: var(--gray-dark);
+      border-radius: 50%;
+      width: var(--meter-size);
+      height: var(--meter-size);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      margin-bottom: 1rem;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .meter-label {
+      margin-top: 1rem;
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: var(--secondary);
+      text-align: center;
+    }
+    .meter-value {
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: var(--white);
+      text-align: center;
+      margin-top: -2.5rem;
+      z-index: 2;
+      position: relative;
+    }
+    .meter svg {
+      margin-top: 0.5rem;
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+    .meter-bg {
+      fill: none;
+      stroke: #222;
+      stroke-width: 12;
+    }
+    .meter-fg {
+      fill: none;
+      stroke-width: 12;
+      stroke-linecap: round;
+      stroke-dasharray: 377;
+      stroke-dashoffset: 377;
+      transform: rotate(-90deg);
+      transform-origin: 70px 70px;
+      transition: stroke-dashoffset 1s cubic-bezier(.4,2,.6,1);
+    }
+    #health-fg { stroke: #00FF88; }
+    #career-fg { stroke: #00D4FF; }
+    #relationships-fg { stroke: #FF6B9D; }
+    .calendar-container {
+      background: var(--gray-dark);
+      border-radius: 1rem;
+      margin: 0 1rem 1.5rem 1rem;
+      padding: 1rem;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+    }
+    .calendar {
+      width: 100%;
+      border-collapse: collapse;
+      color: var(--white);
+    }
+    .calendar th, .calendar td {
+      padding: 0.5rem;
+      text-align: center;
+      border-radius: 0.5rem;
+      transition: background 0.2s;
+    }
+    .calendar td.active {
+      background: var(--career);
+      color: var(--black);
+      font-weight: 700;
+    }
+    .calendar td.balance {
+      color: var(--health);
+      font-size: 0.9rem;
+    }
+    .tab-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100vw;
+      background: var(--gray-dark);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 0.7rem 0 0.3rem 0;
+      border-top: 1px solid var(--gray);
+      z-index: 10;
+    }
+    .tab-nav button {
+      background: none;
+      border: none;
+      color: var(--secondary);
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+    .tab-nav button.active {
+      color: var(--white);
+      border-bottom: 2px solid var(--career);
+    }
+    @media (max-width: 700px) {
+      .meters-row {
+        flex-direction: column;
+        gap: 1.5rem;
+      }
+      .meter { width: 110px; height: 150px; }
+      .meter svg { width: 110px; height: 110px; }
+    }
+    /* Animations */
+    .meter svg circle {
+      transition: stroke-dashoffset 1s cubic-bezier(.4,2,.6,1);
+    }
+    .calendar-section {
+      background: var(--gray-dark);
+      border-radius: 1rem;
+      margin: 1.5rem 1rem 2rem 1rem;
+      padding: 1rem 0.5rem 1.5rem 0.5rem;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .calendar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: var(--white);
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      padding: 0 0.5rem;
+    }
+    .calendar-header button {
+      background: none;
+      border: none;
+      color: var(--career);
+      font-size: 1.5rem;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+    .calendar-header button:hover {
+      color: var(--health);
+    }
+    .calendar-grid {
+      width: 100%;
+      border-collapse: collapse;
+      color: var(--white);
+      margin-bottom: 1rem;
+    }
+    .calendar-grid th, .calendar-grid td {
+      width: 14.2%;
+      height: 48px;
+      text-align: center;
+      vertical-align: middle;
+      font-size: 1rem;
+      border-radius: 0.5rem;
+      position: relative;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .calendar-grid th {
+      color: var(--secondary);
+      font-size: 0.95rem;
+      font-weight: 400;
+      padding-bottom: 0.2rem;
+    }
+    .calendar-grid td.selected {
+      background: var(--career);
+      color: var(--black);
+      font-weight: 700;
+    }
+    .calendar-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-top: 4px;
+    }
+    .dot-green { background: #00FF88; }
+    .dot-yellow { background: #FFD600; }
+    .dot-red { background: #FF4B4B; }
+    .dot-none { background: transparent; }
+    .calendar-bill {
+      display: block;
+      font-size: 0.7rem;
+      color: #FF6B9D;
+      margin-top: 2px;
+    }
+    .calendar-balance {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--gray);
+      border-radius: 0.7rem;
+      padding: 0.7rem 1.2rem;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--white);
+      margin-top: 0.5rem;
+    }
+    #calendar-balance-label {
+      color: var(--secondary);
+      font-size: 1rem;
+      font-weight: 400;
+    }
+    @media (max-width: 700px) {
+      .calendar-section { padding: 0.5rem 0.1rem 1rem 0.1rem; }
+      .calendar-grid th, .calendar-grid td { height: 36px; font-size: 0.95rem; }
+      .calendar-balance { font-size: 1rem; padding: 0.5rem 0.7rem; }
+    }
+    #tab-views {
+      margin-bottom: 70px; /* space for tab bar */
+    }
+    .tab-view {
+      opacity: 0;
+      transform: translateY(20px);
+      pointer-events: none;
+      transition: opacity 0.4s cubic-bezier(.4,2,.6,1), transform 0.4s cubic-bezier(.4,2,.6,1);
+      position: absolute;
+      width: 100%;
+      left: 0;
+      top: 0;
+      z-index: 1;
+    }
+    .tab-view.active {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+      z-index: 2;
+    }
+    #tab-views { position: relative; min-height: 400px; }
+    .metrics-list {
+      list-style: none;
+      padding: 0;
+      margin: 1rem 0;
+    }
+    .metrics-list li {
+      margin-bottom: 0.7rem;
+      font-size: 1.1rem;
+      color: var(--secondary);
+    }
+    .metrics-list span {
+      color: var(--white);
+      font-weight: 700;
+    }
+    .trend-graph, .insights {
+      background: var(--gray-dark);
+      border-radius: 0.7rem;
+      margin: 1rem 0;
+      padding: 1rem;
+      color: var(--white);
+      text-align: center;
+      font-size: 1rem;
+    }
+    .tab-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100vw;
+      background: var(--gray-dark);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 0.7rem 0 0.3rem 0;
+      border-top: 1px solid var(--gray);
+      z-index: 10;
+    }
+    .tab-btn {
+      background: none;
+      border: none;
+      color: var(--secondary);
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: color 0.2s;
+      outline: none;
+    }
+    .tab-btn.active {
+      color: var(--white);
+    }
+    .tab-icon {
+      font-size: 1.5rem;
+      margin-bottom: 0.1rem;
+    }
+    .tab-label {
+      font-size: 0.85rem;
+    }
+    @media (max-width: 700px) {
+      .tab-view { padding: 1rem 0.2rem 0.5rem 0.2rem; }
+      .tab-label { font-size: 0.8rem; }
+      .tab-icon { font-size: 1.2rem; }
+    }
+    .tab-btn:hover, .meter:hover {
+      background: rgba(255,255,255,0.04);
+      transition: background 0.2s;
+    }
+    .meter:active {
+      box-shadow: 0 0 0 4px var(--career, #00D4FF);
+    }
+    .skeleton-screen {
+      width: 100%;
+      height: 200px;
+      background: linear-gradient(90deg, #222 25%, #333 50%, #222 75%);
+      background-size: 200% 100%;
+      animation: skeleton 1.2s infinite linear;
+      border-radius: 1rem;
+      margin: 1rem 0;
+    }
+    @keyframes skeleton {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+    .confetti {
+      position: fixed; left: 50%; top: 50%; width: 200px; height: 200px;
+      background: url('https://cdn.jsdelivr.net/gh/mathusummut/confetti.js/confetti.png') center/cover no-repeat;
+      animation: pop 1.5s cubic-bezier(.4,2,.6,1);
+      pointer-events: none;
+      z-index: 9999;
+    }
+    @keyframes pop { 0% { transform: scale(0); } 60% { transform: scale(1.2); } 100% { transform: scale(1); opacity: 0; } }
+    .calendar-section {
+      margin-top: var(--spacing);
+      border-radius: 1rem;
+      background: #1A1A1A;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+      overflow: hidden;
+      transition: max-height 0.4s cubic-bezier(.4,2,.6,1);
+      max-height: 60px; /* Collapsed by default */
+      cursor: pointer;
+    }
+    .calendar-section.expanded {
+      max-height: 600px; /* Expanded height */
+      cursor: default;
+    }
+    .sidebar {
+      display: none;
+    }
+    /* Thumb-friendly navigation */
+    .tab-nav button, .calendar-grid td, .meter {
+      min-width: 48px;
+      min-height: 48px;
+      font-size: 1.1rem;
+      border-radius: 0.7rem;
+    }
+    /* Adaptive text sizing */
+    h1, h2, h3 {
+      font-size: clamp(1.2rem, 2vw, 2rem);
+    }
+    /* Tablet layout */
+    @media (min-width: 700px) and (max-width: 1023px) {
+      .dashboard-container {
+        flex-direction: row;
+        gap: 2rem;
+      }
+      .meters-section, .calendar-section {
+        flex: 1;
+      }
+      .meters-section {
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 2rem;
+      }
+      .calendar-section {
+        margin-top: 0;
+        max-height: 600px !important;
+      }
+    }
+    /* Desktop layout */
+    @media (min-width: 1024px) {
+      .dashboard-container {
+        flex-direction: row;
+        gap: 2rem;
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+      .meters-section {
+        flex: 1;
+        flex-direction: column;
+        gap: 2rem;
+      }
+      .calendar-section {
+        flex: 2;
+        margin-top: 0;
+        max-height: 600px !important;
+      }
+      .sidebar {
+        display: block;
+        flex: 1;
+        background: #2A2A2A;
+        border-radius: 1rem;
+        margin-left: 2rem;
+        padding: 1rem;
+        min-width: 220px;
+      }
+    }
+    /* Hover/cursor/keyboard support for desktop */
+    @media (hover: hover) and (pointer: fine) {
+      .meter:hover, .tab-nav button:hover, .calendar-grid td:hover {
+        background: rgba(255,255,255,0.05);
+        cursor: pointer;
+      }
+    }
+    /* Keyboard navigation */
+    .tab-btn:focus, .calendar-grid td:focus {
+      outline: 2px solid #00D4FF;
+      outline-offset: 2px;
+    }
+    .dashboard-title-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.3em;
+    }
+    .dashboard-title {
+      font-size: 2rem;
+      color: #fff;
+      font-weight: 700;
+      margin: 0;
+    }
+    .dashboard-updated {
+      font-size: 0.95rem;
+      color: #00d4ff;
+      margin-top: 0.2em;
+    }
+    .dashboard-refresh-group {
+      display: flex;
+      align-items: center;
+      margin-left: 1.5rem;
+    }
+    @media (max-width: 600px) {
+      .dashboard-header {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 1rem 0.5rem;
+      }
+      .dashboard-refresh-group {
+        margin-left: 0;
+        margin-top: 1rem;
+        justify-content: flex-end;
+      }
+    }
+    /* Subtle feedback for forecast update */
+    .dashboard-forecast-updated {
+      animation: fadeHighlight 1.2s;
+      background: #003c2f;
+    }
+    @keyframes fadeHighlight {
+      0% { background: #003c2f; }
+      80% { background: #003c2f; }
+      100% { background: transparent; }
+    }
+  </style>
+</head>
+<body>
+  <div class="dashboard-container">
+    <div class="meters-section">
+      <div class="dashboard-header">
+        <div class="dashboard-title-group">
+          <h1 class="dashboard-title">Mingus Dashboard</h1>
+          {lastUpdated && (
+            <span class="dashboard-updated" aria-live="polite">
+              Updated: {lastUpdated}
+            </span>
+          )}
+        </div>
+        <div class="dashboard-refresh-group">
+          <button id="refresh-forecast" onclick="refreshForecast()">Refresh Forecast</button>
+        </div>
+      </div>
+      <div class="meters-row">
+        <div class="meter" id="health-meter" onclick="showDetail('health')">
+          <div class="meter-label">HEALTH</div>
+          <svg width="140" height="140">
+            <circle class="meter-bg" cx="70" cy="70" r="60"/>
+            <circle class="meter-fg" id="health-fg" cx="70" cy="70" r="60"/>
+          </svg>
+          <div class="meter-value" id="health-value">0%</div>
+        </div>
+        <div class="meter" id="career-meter" onclick="showDetail('career')">
+          <div class="meter-label">CAREER</div>
+          <svg width="140" height="140">
+            <circle class="meter-bg" cx="70" cy="70" r="60"/>
+            <circle class="meter-fg" id="career-fg" cx="70" cy="70" r="60"/>
+          </svg>
+          <div class="meter-value" id="career-value">0%</div>
+        </div>
+        <div class="meter" id="relationships-meter" onclick="showDetail('relationships')">
+          <div class="meter-label">RELATIONSHIPS</div>
+          <svg width="140" height="140">
+            <circle class="meter-bg" cx="70" cy="70" r="60"/>
+            <circle class="meter-fg" id="relationships-fg" cx="70" cy="70" r="60"/>
+          </svg>
+          <div class="meter-value" id="relationships-value">0%</div>
+        </div>
+      </div>
+    </div>
+    <div class="calendar-section collapsible" id="calendar-section">
+      <div class="calendar-header">
+        <button id="prev-month">&#8592;</button>
+        <span id="calendar-month">June 2025</span>
+        <button id="next-month">&#8594;</button>
+      </div>
+      <table class="calendar-grid" id="calendar-grid">
+        <!-- Calendar will be rendered here by JS -->
+      </table>
+      <div class="calendar-balance">
+        <span id="calendar-balance-label">Current Balance</span>
+        <span id="calendar-balance-amount">$0</span>
+      </div>
+    </div>
+    <aside class="sidebar" id="sidebar">
+      <!-- Sidebar content for desktop -->
+    </aside>
+  </div>
+  <div id="tab-views">
+    <div class="tab-view" id="home-view">
+      <!-- Place your meters and calendar here (already built above) -->
+    </div>
+    <div class="tab-view" id="health-view" style="display:none;">
+      <h2>Health Metrics</h2>
+      <ul class="metrics-list">
+        <li>Exercise Frequency: <span id="exercise-frequency">4x/week</span></li>
+        <li>Sleep Quality: <span id="sleep-quality">Good</span></li>
+        <li>Stress Levels: <span id="stress-levels">Moderate</span></li>
+        <li>Spending Insight: <span id="health-spending">You spend 23% more on takeout during stressful weeks</span></li>
+      </ul>
+      <div class="trend-graph">[Weekly/Monthly Health Trends Graph Placeholder]</div>
+      <div class="insights">Actionable Insight: Try a 10-minute walk after work to reduce stress.</div>
+    </div>
+    <div class="tab-view" id="career-view" style="display:none;">
+      <h2>Career Metrics</h2>
+      <ul class="metrics-list">
+        <li>Income Stability: <span id="income-stability">Stable</span></li>
+        <li>Professional Development: <span id="dev-progress">2 new courses completed</span></li>
+        <li>Career Goals: <span id="career-goals">On track</span></li>
+        <li>Side Hustles: <span id="side-hustles">Freelance writing, Etsy shop</span></li>
+      </ul>
+      <div class="trend-graph">[Income/Goal Progress Graph Placeholder]</div>
+    </div>
+    <div class="tab-view" id="relationships-view" style="display:none;">
+      <h2>Relationships Metrics</h2>
+      <ul class="metrics-list">
+        <li>Family Time: <span id="family-time">12 hrs/week</span></li>
+        <li>Social vs. Solo Spending: <span id="social-spending">60% social</span></li>
+        <li>Support System: <span id="support-system">Strong</span></li>
+        <li>Community Engagement: <span id="community-engagement">Volunteering 2x/month</span></li>
+      </ul>
+      <div class="trend-graph">[Community Engagement Graph Placeholder]</div>
+    </div>
+  </div>
+  <nav class="tab-nav">
+    <button class="tab-btn active" data-tab="home-view">
+      <span class="tab-icon">🏠</span>
+      <span class="tab-label">Home</span>
+    </button>
+    <button class="tab-btn" data-tab="health-view">
+      <span class="tab-icon">💪</span>
+      <span class="tab-label">Health</span>
+    </button>
+    <button class="tab-btn" data-tab="career-view">
+      <span class="tab-icon">💼</span>
+      <span class="tab-label">Career</span>
+    </button>
+    <button class="tab-btn" data-tab="relationships-view">
+      <span class="tab-icon">🤝</span>
+      <span class="tab-label">Relationships</span>
+    </button>
+  </nav>
+  <div id="greeting"></div>
+  <div id="motivation-message"></div>
+  <div id="personal-insights"></div>
+  <div id="skeleton" class="skeleton-screen"></div>
+  <script>
+    // Example user data (replace with fetch from Supabase or API)
+    const userProfile = {
+      name: "Jordan",
+      motivation: "family",
+      onboarding: {
+        financial_challenge: "emergency_savings",
+        stress_handling: "exercise",
+        major_expense: "new car",
+        income_challenge: "multiple_income",
+        debt_challenge: "credit_card"
+      },
+      progress: {
+        emergency_savings: 60, // percent
+        income_streams: 2,
+        debt_payoff: 40, // percent
+        major_expense: 25 // percent
+      },
+      meters: {
+        health: 78,
+        career: 65,
+        relationships: 90
+      }
+    };
+
+    // Greeting and motivational message
+    document.getElementById('greeting').innerHTML = `Welcome back, <b>${userProfile.name}</b>!`;
+    const motivationMap = {
+      family: "Your family is your greatest motivation. Keep making them proud!",
+      growth: "Growth is your focus. Every step forward counts!",
+      security: "You're building a secure future. Stay the course!",
+      freedom: "Freedom is your goal. Every milestone brings you closer!"
+    };
+    document.getElementById('motivation-message').textContent =
+      motivationMap[userProfile.motivation] || "Keep pushing toward your goals!";
+
+    // Personalized insights
+    let insights = "";
+    if (userProfile.onboarding.financial_challenge === "emergency_savings") {
+      insights += `<div>Emergency Savings: <b>${userProfile.progress.emergency_savings}%</b> toward your goal.</div>`;
+      if (userProfile.progress.emergency_savings >= 100) {
+        insights += `<div>🎉 Congratulations! You've reached your emergency savings goal!</div>`;
+      }
+    }
+    if (userProfile.onboarding.income_challenge === "multiple_income") {
+      insights += `<div>Income Streams: <b>${userProfile.progress.income_streams}</b> active. Diversification in progress!</div>`;
+    }
+    if (userProfile.onboarding.debt_challenge === "credit_card") {
+      insights += `<div>Debt Payoff: <b>${userProfile.progress.debt_payoff}%</b> paid off. Keep going!</div>`;
+    }
+    if (userProfile.onboarding.major_expense) {
+      insights += `<div>Major Expense (${userProfile.onboarding.major_expense}): <b>${userProfile.progress.major_expense}%</b> saved.</div>`;
+    }
+    document.getElementById('personal-insights').innerHTML = insights;
+
+    // Update meters dynamically
+    function animateMeter(id, value, duration = 1200) {
+      const circle = document.getElementById(id);
+      let start = 0;
+      const max = Math.max(0, Math.min(100, value));
+      const offsetMax = 377 - (377 * max / 100);
+      const step = (timestamp, startTime) => {
+        if (!startTime) startTime = timestamp;
+        const progress = Math.min((timestamp - startTime) / duration, 1);
+        const current = progress * max;
+        const offset = 377 - (377 * current / 100);
+        circle.style.strokeDashoffset = offset;
+        document.getElementById(id.replace('-fg', '-value')).textContent = Math.round(current) + '%';
+        if (progress < 1) requestAnimationFrame(ts => step(ts, startTime));
+      };
+      requestAnimationFrame(step);
+    }
+    function setMeterValue(id, value) {
+      document.getElementById(id).textContent = value + '%';
+    }
+    animateMeter('health-fg', userProfile.meters.health);
+    animateMeter('career-fg', userProfile.meters.career);
+    animateMeter('relationships-fg', userProfile.meters.relationships);
+    setMeterValue('health-value', userProfile.meters.health);
+    setMeterValue('career-value', userProfile.meters.career);
+    setMeterValue('relationships-value', userProfile.meters.relationships);
+
+    // Suggested actions based on scores
+    function getSuggestedAction(meters) {
+      if (meters.health < 60) return "Try a 10-minute walk today to boost your health score.";
+      if (meters.career < 60) return "Review your career goals and set a new milestone.";
+      if (meters.relationships < 60) return "Reach out to a friend or family member this week.";
+      return "You're doing great! Keep up the momentum!";
+    }
+    document.getElementById('personal-insights').innerHTML +=
+      `<div style="margin-top:1rem;color:#00D4FF;">${getSuggestedAction(userProfile.meters)}</div>`;
+
+    // Example: Replace with real user data from onboarding responses
+    const userData = {
+      health: 82,         // e.g., calculated from activity, sleep, nutrition
+      career: 67,         // e.g., from income stability, goals
+      relationships: 91   // e.g., from family time, social connections
+    };
+
+    function animateMeter(id, value) {
+      const circle = document.getElementById(id);
+      const percent = Math.max(0, Math.min(100, value));
+      const offset = 377 - (377 * percent / 100);
+      circle.style.strokeDashoffset = offset;
+    }
+
+    function setMeterValue(id, value) {
+      document.getElementById(id).textContent = value + '%';
+    }
+
+    // Animate on load
+    window.onload = function() {
+      animateMeter('health-fg', userData.health);
+      animateMeter('career-fg', userData.career);
+      animateMeter('relationships-fg', userData.relationships);
+
+      setMeterValue('health-value', userData.health);
+      setMeterValue('career-value', userData.career);
+      setMeterValue('relationships-value', userData.relationships);
+    };
+
+    // Click to drill down
+    function showDetail(type) {
+      alert('Show detailed view for: ' + type.charAt(0).toUpperCase() + type.slice(1));
+      // Replace with modal or navigation logic as needed
+    }
+
+    // Example data: Replace with real data from your backend/Supabase
+    const cashflowData = {
+      // Format: 'YYYY-MM-DD': { status: 'positive'|'neutral'|'negative'|'none', bill: 'Rent'|null, amount: 123 }
+      '2025-06-04': { status: 'positive', amount: 200 },
+      '2025-06-05': { status: 'negative', bill: 'Car Payment', amount: -150 },
+      '2025-06-07': { status: 'neutral', amount: 0 },
+      '2025-06-10': { status: 'positive', bill: 'Payday', amount: 500 },
+      '2025-06-15': { status: 'negative', bill: 'Credit Card', amount: -100 },
+      // ...add more as needed
+    };
+    let currentMonth = 5; // June (0-based)
+    let currentYear = 2025;
+    let selectedDate = null;
+
+    function renderCalendar(month, year) {
+      const grid = document.getElementById('calendar-grid');
+      const monthNames = [
+        'January','February','March','April','May','June','July','August','September','October','November','December'
+      ];
+      document.getElementById('calendar-month').textContent = `${monthNames[month]} ${year}`;
+
+      // Get first day of month and number of days
+      const firstDay = new Date(year, month, 1).getDay();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+      // Build calendar grid
+      let html = '<thead><tr>';
+      ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(d => html += `<th>${d}</th>`);
+      html += '</tr></thead><tbody><tr>';
+
+      let day = 1;
+      let started = false;
+      for (let i = 0; i < 42; i++) {
+        if (i % 7 === 0 && i !== 0) html += '</tr><tr>';
+        if (i >= firstDay && day <= daysInMonth) {
+          const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+          const data = cashflowData[dateStr] || { status: 'none', bill: null, amount: null };
+          let dotClass = 'dot-none';
+          if (data.status === 'positive') dotClass = 'dot-green';
+          else if (data.status === 'neutral') dotClass = 'dot-yellow';
+          else if (data.status === 'negative') dotClass = 'dot-red';
+
+          html += `<td class="${selectedDate === dateStr ? 'selected' : ''}" data-date="${dateStr}" onclick="selectDate('${dateStr}')">
+            ${day}
+            <div class="calendar-dot ${dotClass}"></div>
+            ${data.bill ? `<span class="calendar-bill">${data.bill}</span>` : ''}
+          </td>`;
+          day++;
+        } else {
+          html += '<td></td>';
+        }
+      }
+      html += '</tr></tbody>';
+      grid.innerHTML = html;
+      updateBalance();
+    }
+
+    function selectDate(dateStr) {
+      selectedDate = dateStr;
+      renderCalendar(currentMonth, currentYear);
+    }
+
+    function updateBalance() {
+      // Calculate current total balance (sum of all amounts up to today)
+      let total = 0;
+      const today = new Date(currentYear, currentMonth, new Date().getDate());
+      for (const [date, data] of Object.entries(cashflowData)) {
+        if (data.amount && new Date(date) <= today) total += data.amount;
+      }
+      document.getElementById('calendar-balance-amount').textContent = `$${total}`;
+    }
+
+    document.getElementById('prev-month').onclick = function() {
+      if (currentMonth === 0) { currentMonth = 11; currentYear--; }
+      else currentMonth--;
+      selectedDate = null;
+      renderCalendar(currentMonth, currentYear);
+    };
+    document.getElementById('next-month').onclick = function() {
+      if (currentMonth === 11) { currentMonth = 0; currentYear++; }
+      else currentMonth++;
+      selectedDate = null;
+      renderCalendar(currentMonth, currentYear);
+    };
+
+    // Initial render
+    renderCalendar(currentMonth, currentYear);
+
+    // Tab navigation logic
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        document.querySelectorAll('.tab-view').forEach(view => view.classList.remove('active'));
+        document.getElementById(this.dataset.tab).classList.add('active');
+      });
+    });
+
+    // Optionally, set Home as default on load
+    document.getElementById('home-view').classList.add('active');
+
+    // Show skeleton while loading data
+    document.getElementById('skeleton').style.display = 'block';
+    // After data loads:
+    document.getElementById('skeleton').style.display = 'none';
+
+    let touchStartY = 0;
+    let refreshing = false;
+    window.addEventListener('touchstart', e => {
+      if (window.scrollY === 0) touchStartY = e.touches[0].clientY;
+    });
+    window.addEventListener('touchmove', e => {
+      if (window.scrollY === 0 && e.touches[0].clientY - touchStartY > 80 && !refreshing) {
+        refreshing = true;
+        // Show refresh animation here
+        location.reload(); // Or call your data refresh function
+      }
+    });
+    window.addEventListener('touchend', () => refreshing = false);
+
+    document.querySelectorAll('.meter').forEach(meter => {
+      meter.addEventListener('click', function() {
+        const type = this.id.replace('-meter','');
+        // Show modal or navigate to detail tab
+        document.querySelector(`[data-tab='${type}-view']`).click();
+      });
+    });
+
+    let startX = 0;
+    document.getElementById('calendar-grid').addEventListener('touchstart', e => {
+      startX = e.touches[0].clientX;
+    });
+    document.getElementById('calendar-grid').addEventListener('touchend', e => {
+      const dx = e.changedTouches[0].clientX - startX;
+      if (dx > 50) document.getElementById('prev-month').click();
+      if (dx < -50) document.getElementById('next-month').click();
+    });
+
+    let pressTimer;
+    document.querySelectorAll('.calendar-grid td').forEach(td => {
+      td.addEventListener('touchstart', function() {
+        pressTimer = setTimeout(() => {
+          // Show quick expense entry modal
+          alert('Quick expense entry for ' + this.dataset.date);
+        }, 600);
+      });
+      td.addEventListener('touchend', () => clearTimeout(pressTimer));
+    });
+
+    function celebrate() {
+      const confetti = document.createElement('div');
+      confetti.className = 'confetti';
+      document.body.appendChild(confetti);
+      setTimeout(() => confetti.remove(), 1500);
+    }
+    // Call celebrate() on milestone achievement
+
+    // Collapsible calendar for mobile
+    const calendarSection = document.getElementById('calendar-section');
+    calendarSection.addEventListener('click', function(e) {
+      if (window.innerWidth < 700 && !calendarSection.classList.contains('expanded')) {
+        calendarSection.classList.add('expanded');
+        e.stopPropagation();
+      }
+    });
+    document.body.addEventListener('click', function(e) {
+      if (window.innerWidth < 700 && calendarSection.classList.contains('expanded') && !calendarSection.contains(e.target)) {
+        calendarSection.classList.remove('expanded');
+      }
+    });
+
+    const sampleUsers = [
+      {
+        id: 1,
+        name: "Jordan",
+        motivation: "family",
+        onboarding: {
+          financial_challenge: "emergency_savings",
+          stress_handling: "exercise",
+          major_expense: "new car",
+          income_challenge: "multiple_income",
+          debt_challenge: "credit_card"
+        },
+        profile: {
+          age: 32,
+          occupation: "Software Engineer",
+          location: "Austin, TX"
+        }
+      },
+      {
+        id: 2,
+        name: "Taylor",
+        motivation: "growth",
+        onboarding: {
+          financial_challenge: "debt",
+          stress_handling: "meditation",
+          major_expense: "wedding",
+          income_challenge: "single_income",
+          debt_challenge: "student_loan"
+        },
+        profile: {
+          age: 28,
+          occupation: "Designer",
+          location: "Brooklyn, NY"
+        }
+      }
+      // Add more profiles as needed
+    ];
+
+    /**
+     * Refreshes the user's forecast by making a POST request to the Flask backend.
+     * Sends user authentication (e.g., JWT token) in the Authorization header.
+     * Handles HTTP status codes and network errors, and returns a Promise with the updated forecast data.
+     *
+     * @param {string} authToken - The user's authentication token (e.g., JWT).
+     * @param {Object} [body={}] - Optional additional data to send in the request body.
+     * @param {number} [timeout=10000] - Request timeout in milliseconds (default: 10s).
+     * @returns {Promise<Object>} Resolves with updated forecast data or rejects with an error object.
+     */
+    export async function refreshUserForecast(authToken, body = {}, timeout = 10000) {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), timeout);
+
+      try {
+        const response = await fetch('/api/refresh-forecast', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authToken}`
+          },
+          body: JSON.stringify(body),
+          signal: controller.signal
+        });
+        clearTimeout(timer);
+
+        if (response.status === 200) {
+          const data = await response.json();
+          return data;
+        } else if (response.status === 401) {
+          throw new Error('Unauthorized: Please log in again.');
+        } else if (response.status === 500) {
+          const error = await response.json().catch(() => ({}));
+          throw new Error(error.message || 'Server error. Please try again later.');
+        } else {
+          const error = await response.json().catch(() => ({}));
+          throw new Error(error.message || `Unexpected error: ${response.status}`);
+        }
+      } catch (err) {
+        if (err.name === 'AbortError') {
+          throw new Error('Request timed out. Please try again.');
+        }
+        throw new Error(err.message || 'Network error. Please check your connection.');
+      }
+    }
+
+    refreshUserForecast(userToken)
+      .then(data => {
+        // handle updated forecast data
+      })
+      .catch(err => {
+        // handle error (show message to user, etc.)
+      });
+
+    const [justUpdated, setJustUpdated] = useState(false);
+
+    useEffect(() => {
+      if (forecast) {
+        setJustUpdated(true);
+        const timer = setTimeout(() => setJustUpdated(false), 1200);
+        return () => clearTimeout(timer);
+      }
+    }, [forecast]);
+
+    // In your render:
+    <div className={`dashboard-forecast-area${justUpdated ? " dashboard-forecast-updated" : ""}`}>
+      {/* ...forecast charts, etc... */}
+    </div>
+  </script>
+</body>
+</html> 
