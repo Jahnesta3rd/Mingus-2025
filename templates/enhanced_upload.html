@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Job Recommendations - Mingus</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .form-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .form-section h4 {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .progress-indicator {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: none;
+        }
+        .skill-tag {
+            display: inline-block;
+            background: #3498db;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            margin: 2px;
+            font-size: 0.9em;
+        }
+        .skill-tag .remove-skill {
+            margin-left: 5px;
+            cursor: pointer;
+        }
+        .form-control:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+        }
+        .btn-primary {
+            background-color: #3498db;
+            border-color: #3498db;
+        }
+        .btn-primary:hover {
+            background-color: #2980b9;
+            border-color: #2980b9;
+        }
+        .alert-custom {
+            border-left: 4px solid #3498db;
+        }
+        .loading-spinner {
+            display: none;
+        }
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+        .step {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e9ecef;
+            color: #6c757d;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 10px;
+            font-weight: bold;
+        }
+        .step.active {
+            background: #3498db;
+            color: white;
+        }
+        .step.completed {
+            background: #27ae60;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Progress Indicator -->
+            <div class="progress-indicator" id="progressIndicator">
+                <div class="card">
+                    <div class="card-body">
+                        <h6>Processing...</h6>
+                        <div class="progress">
+                            <div class="progress-bar" role="progressbar" style="width: 0%"></div>
+                        </div>
+                        <small class="text-muted" id="progressText">Initializing...</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-12">
+                <div class="container mt-4">
+                    <!-- Header -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h1 class="text-center mb-3">
+                                <i class="fas fa-briefcase text-primary"></i>
+                                Enhanced Job Recommendations
+                            </h1>
+                            <p class="text-center text-muted">
+                                Get personalized job recommendations based on your resume and career goals
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Step Indicator -->
+                    <div class="step-indicator">
+                        <div class="step active" id="step1">
+                            <i class="fas fa-upload"></i>
+                        </div>
+                        <div class="step" id="step2">
+                            <i class="fas fa-cog"></i>
+                        </div>
+                        <div class="step" id="step3">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                    </div>
+
+                    <!-- Form -->
+                    <form id="enhancedUploadForm">
+                        <!-- Step 1: Resume Upload -->
+                        <div class="form-section" id="resumeSection">
+                            <h4><i class="fas fa-file-alt"></i> Resume Upload</h4>
+                            
+                            <div class="alert alert-info alert-custom">
+                                <i class="fas fa-info-circle"></i>
+                                <strong>Tip:</strong> For best results, include detailed work experience, education, and skills in your resume.
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="resumeText" class="form-label">Resume Content *</label>
+                                <textarea class="form-control" id="resumeText" name="resume_text" rows="10" 
+                                          placeholder="Paste your resume content here..." required></textarea>
+                                <div class="form-text">
+                                    <span id="wordCount">0</span> words (minimum 100 words recommended)
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="currentSalary" class="form-label">Current Salary (Recommended for Income Analysis)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">$</span>
+                                    <input type="number" class="form-control" id="currentSalary" name="current_salary" 
+                                           placeholder="75000" min="0">
+                                    <span class="input-group-text">/year</span>
+                                </div>
+                                <div class="form-text">
+                                    <i class="fas fa-info-circle text-primary"></i>
+                                    Providing your current salary enables detailed income comparison analysis against demographic peers, helping identify career advancement opportunities.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 2: Demographic Information -->
+                        <div class="form-section" id="demographicSection">
+                            <h4><i class="fas fa-user"></i> Career Profile</h4>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="ageRange" class="form-label">Age Range *</label>
+                                        <select class="form-select" id="ageRange" name="age_range" required>
+                                            <option value="">Select age range</option>
+                                            <option value="25-27">25-27</option>
+                                            <option value="28-30">28-30</option>
+                                            <option value="31-33">31-33</option>
+                                            <option value="34-36">34-36</option>
+                                            <option value="37-40">37-40</option>
+                                        </select>
+                                        <div class="form-text">Required for income comparison analysis</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="race" class="form-label">Race/Ethnicity *</label>
+                                        <select class="form-select" id="race" name="race" required>
+                                            <option value="">Select race/ethnicity</option>
+                                            <option value="African American">African American</option>
+                                            <option value="White">White</option>
+                                            <option value="Hispanic/Latino">Hispanic/Latino</option>
+                                            <option value="Asian">Asian</option>
+                                            <option value="Other">Other</option>
+                                        </select>
+                                        <div class="form-text">Required for demographic income analysis</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="educationLevel" class="form-label">Education Level *</label>
+                                        <select class="form-select" id="educationLevel" name="education_level" required>
+                                            <option value="">Select education level</option>
+                                            <option value="high_school">High School</option>
+                                            <option value="some_college">Some College</option>
+                                            <option value="bachelors">Bachelor's Degree</option>
+                                            <option value="masters">Master's Degree</option>
+                                            <option value="doctorate">Doctorate</option>
+                                        </select>
+                                        <div class="form-text">Required for education-based income comparison</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="location" class="form-label">Location *</label>
+                                        <select class="form-select" id="location" name="location" required>
+                                            <option value="">Select your location</option>
+                                            <option value="Atlanta">Atlanta</option>
+                                            <option value="Houston">Houston</option>
+                                            <option value="Washington DC">Washington DC</option>
+                                            <option value="Dallas">Dallas</option>
+                                            <option value="New York City">New York City</option>
+                                            <option value="Philadelphia">Philadelphia</option>
+                                            <option value="Chicago">Chicago</option>
+                                            <option value="Charlotte">Charlotte</option>
+                                            <option value="Miami">Miami</option>
+                                            <option value="Baltimore">Baltimore</option>
+                                        </select>
+                                        <div class="form-text">Required for location-based income comparison</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="yearsExperience" class="form-label">Years of Experience</label>
+                                        <select class="form-select" id="yearsExperience" name="years_experience">
+                                            <option value="">Select experience level</option>
+                                            <option value="0-1">0-1 years</option>
+                                            <option value="2-5">2-5 years</option>
+                                            <option value="6-10">6-10 years</option>
+                                            <option value="11-15">11-15 years</option>
+                                            <option value="16-20">16-20 years</option>
+                                            <option value="20+">20+ years</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="industry" class="form-label">Industry</label>
+                                        <select class="form-select" id="industry" name="industry">
+                                            <option value="">Select industry</option>
+                                            <option value="technology">Technology</option>
+                                            <option value="healthcare">Healthcare</option>
+                                            <option value="finance">Finance</option>
+                                            <option value="education">Education</option>
+                                            <option value="manufacturing">Manufacturing</option>
+                                            <option value="retail">Retail</option>
+                                            <option value="consulting">Consulting</option>
+                                            <option value="government">Government</option>
+                                            <option value="nonprofit">Non-profit</option>
+                                            <option value="other">Other</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="companySize" class="form-label">Preferred Company Size</label>
+                                        <select class="form-select" id="companySize" name="company_size">
+                                            <option value="">Select company size</option>
+                                            <option value="startup">Startup (1-50 employees)</option>
+                                            <option value="small">Small (51-200 employees)</option>
+                                            <option value="medium">Medium (201-1000 employees)</option>
+                                            <option value="large">Large (1001-10000 employees)</option>
+                                            <option value="enterprise">Enterprise (10000+ employees)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="remotePreference" class="form-label">Remote Work Preference</label>
+                                        <select class="form-select" id="remotePreference" name="remote_preference">
+                                            <option value="true">Yes, prefer remote work</option>
+                                            <option value="false">No, prefer office work</option>
+                                            <option value="hybrid">Hybrid (mix of remote and office)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 3: Career Goals and Preferences -->
+                        <div class="form-section" id="goalsSection">
+                            <h4><i class="fas fa-target"></i> Career Goals & Preferences</h4>
+                            
+                            <div class="mb-3">
+                                <label for="careerGoals" class="form-label">Career Goals</label>
+                                <textarea class="form-control" id="careerGoals" name="career_goals" rows="3" 
+                                          placeholder="Describe your short-term and long-term career goals..."></textarea>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="salaryExpectations" class="form-label">Salary Expectations</label>
+                                        <select class="form-select" id="salaryExpectations" name="salary_expectations">
+                                            <option value="">Select salary expectation</option>
+                                            <option value="10-15">10-15% increase</option>
+                                            <option value="15-25">15-25% increase</option>
+                                            <option value="25-35">25-35% increase</option>
+                                            <option value="35-50">35-50% increase</option>
+                                            <option value="50+">50%+ increase</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="relocationWillingness" class="form-label">Relocation Willingness</label>
+                                        <select class="form-select" id="relocationWillingness" name="relocation_willingness">
+                                            <option value="">Select relocation preference</option>
+                                            <option value="not_willing">Not willing to relocate</option>
+                                            <option value="same_state">Willing to relocate within same state</option>
+                                            <option value="nearby_states">Willing to relocate to nearby states</option>
+                                            <option value="anywhere_us">Willing to relocate anywhere in US</option>
+                                            <option value="international">Willing to relocate internationally</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="targetLocations" class="form-label">Target Locations</label>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="Atlanta" name="target_locations" id="atlanta">
+                                            <label class="form-check-label" for="atlanta">Atlanta</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="Houston" name="target_locations" id="houston">
+                                            <label class="form-check-label" for="houston">Houston</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="Washington DC" name="target_locations" id="dc">
+                                            <label class="form-check-label" for="dc">Washington DC</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="Dallas" name="target_locations" id="dallas">
+                                            <label class="form-check-label" for="dallas">Dallas</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row mt-2">
+                                    <div class="col-md-3">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="New York City" name="target_locations" id="nyc">
+                                            <label class="form-check-label" for="nyc">New York City</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="Chicago" name="target_locations" id="chicago">
+                                            <label class="form-check-label" for="chicago">Chicago</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="San Francisco" name="target_locations" id="sf">
+                                            <label class="form-check-label" for="sf">San Francisco</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="Remote" name="target_locations" id="remote">
+                                            <label class="form-check-label" for="remote">Remote</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="riskPreference" class="form-label">Risk Preference</label>
+                                <select class="form-select" id="riskPreference" name="risk_preference">
+                                    <option value="conservative">Conservative - Stable opportunities with moderate growth</option>
+                                    <option value="balanced" selected>Balanced - Mix of stable and growth opportunities</option>
+                                    <option value="aggressive">Aggressive - High-growth opportunities with higher risk</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Skills Assessment</label>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="python" name="skills" id="python">
+                                            <label class="form-check-label" for="python">Python</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="javascript" name="skills" id="javascript">
+                                            <label class="form-check-label" for="javascript">JavaScript</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="java" name="skills" id="java">
+                                            <label class="form-check-label" for="java">Java</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="project_management" name="skills" id="pm">
+                                            <label class="form-check-label" for="pm">Project Management</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="data_analysis" name="skills" id="data">
+                                            <label class="form-check-label" for="data">Data Analysis</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="leadership" name="skills" id="leadership">
+                                            <label class="form-check-label" for="leadership">Leadership</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="communication" name="skills" id="communication">
+                                            <label class="form-check-label" for="communication">Communication</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="problem_solving" name="skills" id="problem">
+                                            <label class="form-check-label" for="problem">Problem Solving</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="teamwork" name="skills" id="teamwork">
+                                            <label class="form-check-label" for="teamwork">Teamwork</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Learning Preferences</label>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="online_courses" name="learning_preferences" id="online">
+                                            <label class="form-check-label" for="online">Online Courses</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="certifications" name="learning_preferences" id="certs">
+                                            <label class="form-check-label" for="certs">Professional Certifications</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="mentorship" name="learning_preferences" id="mentor">
+                                            <label class="form-check-label" for="mentor">Mentorship Programs</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="hands_on" name="learning_preferences" id="hands">
+                                            <label class="form-check-label" for="hands">Hands-on Projects</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="text-center mb-4">
+                            <button type="submit" class="btn btn-primary btn-lg" id="submitBtn">
+                                <i class="fas fa-rocket"></i>
+                                Generate Job Recommendations
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Modal -->
+    <div class="modal fade" id="loadingModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body text-center">
+                    <div class="loading-spinner mb-3">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                    <h5>Processing Your Resume</h5>
+                    <p class="text-muted">This may take a few moments...</p>
+                    <div class="progress">
+                        <div class="progress-bar" role="progressbar" style="width: 0%"></div>
+                    </div>
+                    <small class="text-muted" id="modalProgressText">Initializing...</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Global variables
+        let sessionId = null;
+        let progressId = null;
+        let progressInterval = null;
+
+        // Initialize form
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeForm();
+        });
+
+        function initializeForm() {
+            // Word count tracking
+            const resumeText = document.getElementById('resumeText');
+            const wordCount = document.getElementById('wordCount');
+            
+            resumeText.addEventListener('input', function() {
+                const words = this.value.trim().split(/\s+/).filter(word => word.length > 0);
+                wordCount.textContent = words.length;
+                
+                if (words.length < 100) {
+                    wordCount.style.color = '#dc3545';
+                } else {
+                    wordCount.style.color = '#198754';
+                }
+            });
+
+            // Form submission
+            document.getElementById('enhancedUploadForm').addEventListener('submit', handleFormSubmit);
+        }
+
+        async function handleFormSubmit(event) {
+            event.preventDefault();
+            
+            // Validate form
+            if (!validateForm()) {
+                return;
+            }
+
+            // Show loading modal
+            const loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
+            loadingModal.show();
+
+            try {
+                // Step 1: Upload resume and demographic data
+                const uploadResult = await uploadResume();
+                if (!uploadResult.success) {
+                    throw new Error(uploadResult.error);
+                }
+
+                sessionId = uploadResult.data.session_id;
+                updateStep(2, 'active');
+
+                // Step 2: Process recommendations
+                const processResult = await processRecommendations();
+                if (!processResult.success) {
+                    throw new Error(processResult.error);
+                }
+
+                progressId = processResult.data.progress_id;
+                updateStep(3, 'active');
+
+                // Start progress tracking
+                startProgressTracking();
+
+            } catch (error) {
+                console.error('Error:', error);
+                showError(error.message);
+                loadingModal.hide();
+            }
+        }
+
+        function validateForm() {
+            const resumeText = document.getElementById('resumeText').value.trim();
+            
+            if (resumeText.length < 100) {
+                showError('Resume text must be at least 100 words long.');
+                return false;
+            }
+
+            return true;
+        }
+
+        async function uploadResume() {
+            const formData = new FormData(document.getElementById('enhancedUploadForm'));
+            
+            const response = await fetch('/api/enhanced-recommendations/upload', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${getAuthToken()}`
+                },
+                body: formData
+            });
+
+            return await response.json();
+        }
+
+        async function processRecommendations() {
+            const response = await fetch('/api/enhanced-recommendations/process-recommendations', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${getAuthToken()}`
+                },
+                body: JSON.stringify({
+                    session_id: sessionId,
+                    processing_options: {
+                        enable_caching: true,
+                        priority: 'normal',
+                        include_alternatives: true
+                    }
+                })
+            });
+
+            return await response.json();
+        }
+
+        function startProgressTracking() {
+            progressInterval = setInterval(async () => {
+                try {
+                    const response = await fetch(`/api/enhanced-recommendations/progress/${progressId}`, {
+                        headers: {
+                            'Authorization': `Bearer ${getAuthToken()}`
+                        }
+                    });
+
+                    const result = await response.json();
+                    if (result.success) {
+                        updateProgress(result.data);
+                        
+                        if (result.data.status === 'completed') {
+                            clearInterval(progressInterval);
+                            showResults();
+                        } else if (result.data.status === 'failed') {
+                            clearInterval(progressInterval);
+                            showError(result.data.error_message || 'Processing failed');
+                        }
+                    }
+                } catch (error) {
+                    console.error('Progress tracking error:', error);
+                }
+            }, 2000);
+        }
+
+        function updateProgress(progressData) {
+            // Update modal progress
+            const progressBar = document.querySelector('#loadingModal .progress-bar');
+            const progressText = document.getElementById('modalProgressText');
+            
+            progressBar.style.width = `${progressData.progress}%`;
+            progressBar.setAttribute('aria-valuenow', progressData.progress);
+            
+            if (progressData.current_step) {
+                progressText.textContent = `Processing: ${progressData.current_step}`;
+            }
+
+            // Update step indicator
+            if (progressData.progress >= 100) {
+                updateStep(3, 'completed');
+            }
+        }
+
+        function updateStep(stepNumber, status) {
+            const step = document.getElementById(`step${stepNumber}`);
+            step.className = `step ${status}`;
+        }
+
+        async function showResults() {
+            try {
+                const response = await fetch(`/api/enhanced-recommendations/results/${sessionId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${getAuthToken()}`
+                    }
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    // Hide loading modal
+                    const loadingModal = bootstrap.Modal.getInstance(document.getElementById('loadingModal'));
+                    loadingModal.hide();
+
+                    // Redirect to results page or show results
+                    window.location.href = `/results/${sessionId}`;
+                } else {
+                    throw new Error(result.error);
+                }
+            } catch (error) {
+                console.error('Error fetching results:', error);
+                showError('Error fetching results');
+            }
+        }
+
+        function showError(message) {
+            // Create error alert
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert alert-danger alert-dismissible fade show';
+            alertDiv.innerHTML = `
+                <i class="fas fa-exclamation-triangle"></i>
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+
+            // Insert at top of form
+            const form = document.getElementById('enhancedUploadForm');
+            form.insertBefore(alertDiv, form.firstChild);
+        }
+
+        function getAuthToken() {
+            // Get auth token from localStorage or cookies
+            return localStorage.getItem('authToken') || '';
+        }
+    </script>
+</body>
+</html> 
