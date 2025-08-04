@@ -15,7 +15,7 @@ class Config:
     TESTING = False
     
     # Database settings
-    DATABASE_URL = os.environ.get('DATABASE_URL', 'postgresql://postgres:password@localhost:5432/mingus')
+    DATABASE_URL = os.environ.get('DATABASE_URL', 'sqlite:///instance/mingus.db')
     DB_POOL_SIZE = int(os.environ.get('DB_POOL_SIZE', 10))
     DB_MAX_OVERFLOW = int(os.environ.get('DB_MAX_OVERFLOW', 20))
     CREATE_TABLES = True
@@ -137,14 +137,10 @@ class Config:
     # =====================================================
     
     # Field-level encryption key (32 bytes for AES-256)
-    FIELD_ENCRYPTION_KEY = os.environ.get('FIELD_ENCRYPTION_KEY') or (
-        'django-insecure-8f7e6d5c4b3a2918f7e6d5c4b3a2918f7e6d5c4b3a2918f7e6d5c4b3a2918'
-    )
+    FIELD_ENCRYPTION_KEY = os.environ.get('FIELD_ENCRYPTION_KEY')
     
     # Django secret key for django-encrypted-model-fields compatibility
-    DJANGO_SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY') or (
-        'django-insecure-9e8d7c6b5a4930a9e8d7c6b5a4930a9e8d7c6b5a4930a9e8d7c6b5a4930a9'
-    )
+    DJANGO_SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
     
     # General encryption settings
     ENCRYPTION_KEY = os.environ.get('ENCRYPTION_KEY') or FIELD_ENCRYPTION_KEY
