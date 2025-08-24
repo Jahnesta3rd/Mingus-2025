@@ -1,0 +1,150 @@
+# Digital Ocean App Platform Spec for MINGUS
+# Production-ready deployment with PostgreSQL, scaling, security, and monitoring
+
+name: mingus-app
+region: nyc
+services:
+  - name: web
+    environment_slug: python
+    github:
+      repo: your-github-username/mingus-app-repo
+      branch: main
+      deploy_on_push: true
+    run_command: gunicorn -w 4 -k gevent -b 0.0.0.0:8080 backend.app:app
+    envs:
+      - key: FLASK_ENV
+        value: production
+      - key: SECRET_KEY
+        scope: RUN_AND_BUILD_TIME
+        value: ${SECRET_KEY}
+      - key: DATABASE_URL
+        scope: RUN_AND_BUILD_TIME
+        value: ${DATABASE_URL}
+      - key: DB_POOL_SIZE
+        value: "20"
+      - key: DB_MAX_OVERFLOW
+        value: "30"
+      - key: DB_ENABLE_QUERY_LOGGING
+        value: "false"
+      - key: DB_SSL_MODE
+        value: require
+      - key: DB_SSL_CERT
+        value: ${DB_SSL_CERT}
+      - key: DB_SSL_KEY
+        value: ${DB_SSL_KEY}
+      - key: DB_SSL_CA
+        value: ${DB_SSL_CA}
+      - key: SUPABASE_URL
+        value: ${SUPABASE_URL}
+      - key: SUPABASE_KEY
+        value: ${SUPABASE_KEY}
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        value: ${SUPABASE_SERVICE_ROLE_KEY}
+      - key: MAIL_SERVER
+        value: smtp.gmail.com
+      - key: MAIL_PORT
+        value: "587"
+      - key: MAIL_USE_TLS
+        value: "true"
+      - key: MAIL_USERNAME
+        value: ${MAIL_USERNAME}
+      - key: MAIL_PASSWORD
+        value: ${MAIL_PASSWORD}
+      - key: MAIL_DEFAULT_SENDER
+        value: ${MAIL_DEFAULT_SENDER}
+      - key: RATELIMIT_ENABLED
+        value: "true"
+      - key: SECURE_SSL_REDIRECT
+        value: "true"
+      - key: SESSION_COOKIE_SECURE
+        value: "true"
+      - key: WTF_CSRF_ENABLED
+        value: "true"
+      - key: LOG_LEVEL
+        value: INFO
+      - key: REDIS_URL
+        value: ${REDIS_URL}
+      - key: BACKUP_ENABLED
+        value: "true"
+      - key: BACKUP_LOCATION
+        value: backups/
+    http_port: 8080
+    instance_count: 2
+    instance_size_slug: professional-xs
+    routes:
+      - path: /
+    health_check:
+      http_path: /api/health
+      initial_delay_seconds: 30
+      period_seconds: 30
+      timeout_seconds: 10
+      unhealthy_threshold: 3
+      healthy_threshold: 2
+    log_destinations:
+      - name: do-logs
+        papertrail:
+          endpoint: ${PAPERTRAIL_ENDPOINT}
+    alerts:
+      - rule: DEPLOYMENT_FAILED
+      - rule: CPU_UTILIZATION
+        threshold: 80
+      - rule: MEMORY_UTILIZATION
+        threshold: 80
+      - rule: HEALTH_CHECK_FAILED
+    static_sites:
+      - name: frontend
+        github:
+          repo: your-github-username/mingus-app-repo
+          branch: main
+          deploy_on_push: true
+        build_command: npm install && npm run build
+        output_dir: build
+        routes:
+          - path: /
+        environment_slug: node-js
+        envs:
+          - key: REACT_APP_API_URL
+            value: https://${APP_DOMAIN}/api
+
+# Database: Digital Ocean Managed PostgreSQL
+databases:
+  - engine: PG
+    name: mingus-production-db
+    version: "15"
+    size: db-s-2vcpu-4gb
+    num_nodes: 1
+    production: true
+    cluster_name: mingus-db-cluster
+    db_name: mingus_production
+    db_user: doadmin
+    db_password: ${DB_PASSWORD}
+    db_host: ${DB_HOST}
+    db_port: 25060
+    ssl: true
+    backup:
+      enabled: true
+      retention_days: 7
+    maintenance:
+      day: sunday
+      hour: 2
+
+# Environment variable management
+# Use Digital Ocean's dashboard to securely set all ${...} secrets
+
+# Security
+# - All traffic is HTTPS (SSL enforced)
+# - Session cookies are secure
+# - CSRF protection enabled
+# - Database SSL required
+# - No secrets in codebase
+
+# Monitoring & Logging
+# - Health checks on /api/health
+# - Papertrail log integration
+# - Alerts for deployment, CPU, memory, health
+# - Automated backups enabled
+
+# Scaling
+# - 2 web instances (auto-scale as needed)
+# - Professional XS size (adjust as needed)
+# - Managed PostgreSQL with daily backups 

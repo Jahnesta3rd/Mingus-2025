@@ -1,0 +1,37 @@
+================================================================================
+MINGUS DATABASE CONNECTIVITY TEST REPORT
+================================================================================
+Timestamp: 2025-08-23T21:46:22.341790
+Database: sqlite:///instance/mingus.db
+Overall Status: SUCCESS
+
+CONNECTION TEST:
+----------------------------------------
+✓ Database connection
+
+PERMISSIONS TEST:
+----------------------------------------
+✓ read permissions
+✓ write permissions
+✓ update permissions
+✓ delete permissions
+
+TABLE STRUCTURE TEST:
+----------------------------------------
+✓ articles (33 columns)
+✓ user_article_reads (17 columns)
+✓ user_article_bookmarks (10 columns)
+✓ user_article_ratings (14 columns)
+✓ user_article_progress (16 columns)
+✓ article_recommendations (20 columns)
+✓ article_analytics (23 columns)
+✓ user_assessment_scores (16 columns)
+✓ article_searches (13 columns)
+
+PERFORMANCE TEST:
+----------------------------------------
+✓ simple_count: 0.000s
+✓ complex_join: 0.002s
+✓ search_query: 0.002s
+
+================================================================================

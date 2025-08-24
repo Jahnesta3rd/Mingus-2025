@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Health & Finance Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+    <style>
+        :root {
+            --bg-color: #1a1a1a;
+            --card-bg-color: #2a2a2a;
+            --text-color: #f0f0f0;
+            --primary-color: #4a90e2;
+            --secondary-color: #50e3c2;
+            --accent-color: #e94e77;
+            --border-color: #444;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 24px;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+        }
+
+        .card {
+            background-color: var(--card-bg-color);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        /* Correlation Meter */
+        .meter {
+            width: 100%;
+            height: 20px;
+            background-color: #444;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+        .meter-bar {
+            height: 100%;
+            background-color: var(--primary-color);
+            width: 0;
+            transition: width 0.5s ease-in-out;
+        }
+        .correlation-item { margin-bottom: 16px; }
+        .correlation-label { display: flex; justify-content: space-between; }
+
+        /* What-If Scenario */
+        .scenario-controls label {
+            display: block;
+            margin: 10px 0 5px;
+        }
+        .scenario-controls input {
+            width: 100%;
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+        #scenario-result {
+            margin-top: 16px;
+            font-weight: bold;
+            color: var(--secondary-color);
+        }
+    </style>
+</head>
+<body>
+
+    <h1 style="text-align: center; margin-bottom: 32px;">Your Health & Financial Wellness</h1>
+
+    <div class="dashboard-grid">
+        <div class="card">
+            <h2 class="card-title">Key Insights</h2>
+            <div id="key-insights">Loading...</div>
+        </div>
+
+        <div class="card">
+            <h2 class="card-title">Health/Finance Correlations</h2>
+            <div id="correlations">Loading...</div>
+        </div>
+
+        <div class="card">
+            <h2 class="card-title">Wellness & Spending Trends</h2>
+            <canvas id="trends-chart"></canvas>
+        </div>
+
+        <div class="card">
+            <h2 class="card-title">"What-If" Scenario</h2>
+            <div class="scenario-controls">
+                <label for="stress-input">If my stress level was...</label>
+                <input type="range" id="stress-input" min="1" max="10" value="7">
+                <label for="activity-input">and my weekly activity was...</label>
+                <input type="range" id="activity-input" min="0" max="300" step="15" value="120">
+            </div>
+            <div id="scenario-result">Predicted spending: $...</div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Fetch data and populate dashboard
+            fetchHealthSummary();
+            fetchCorrelations();
+            fetchTrends();
+
+            // "What-if" scenario listeners
+            const stressInput = document.getElementById('stress-input');
+            const activityInput = document.getElementById('activity-input');
+            stressInput.addEventListener('input', updateScenario);
+            activityInput.addEventListener('input', updateScenario);
+        });
+
+        async function fetchHealthSummary() {
+            try {
+                const response = await fetch('/api/user/health-summary');
+                const data = await response.json();
+                const container = document.getElementById('key-insights');
+                container.innerHTML = `
+                    <p><strong>Wellness Score:</strong> ${data.wellness_score}/10 <span style="color:${data.week_change > 0 ? 'var(--secondary-color)' : 'var(--accent-color)'};">(${data.week_change > 0 ? '+' : ''}${data.week_change})</span></p>
+                    <p><strong>Spending Impact:</strong> <span style="color:${data.spending_impact > 0 ? 'var(--accent-color)' : 'var(--secondary-color)'};">$${data.spending_impact}</span> vs. last week</p>
+                    <hr style="border-color: var(--border-color);">
+                    ${data.insights.map(insight => `<p><strong>${insight.type.replace('_', ' ')}:</strong> ${insight.message}</p>`).join('')}
+                `;
+            } catch (error) {
+                document.getElementById('key-insights').innerText = 'Could not load insights.';
+                console.error('Error fetching health summary:', error);
+            }
+        }
+
+        async function fetchCorrelations() {
+            try {
+                const response = await fetch('/api/health/correlations');
+                const data = await response.json();
+                const container = document.getElementById('correlations');
+                let html = '';
+                for (const [key, value] of Object.entries(data.correlations)) {
+                    const absValue = Math.abs(value);
+                    const color = value > 0 ? 'var(--accent-color)' : 'var(--secondary-color)';
+                    html += `
+                        <div class="correlation-item">
+                            <div class="correlation-label">
+                                <span>${key.replace(/_/g, ' ')}</span>
+                                <span>${value.toFixed(2)}</span>
+                            </div>
+                            <div class="meter"><div class="meter-bar" style="width: ${absValue * 100}%; background-color: ${color};"></div></div>
+                        </div>
+                    `;
+                }
+                container.innerHTML = html;
+            } catch (error) {
+                document.getElementById('correlations').innerText = 'Could not load correlations.';
+                console.error('Error fetching correlations:', error);
+            }
+        }
+
+        async function fetchTrends() {
+            try {
+                const response = await fetch('/api/health/trends');
+                const data = await response.json();
+                const ctx = document.getElementById('trends-chart').getContext('2d');
+                
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: data.trends.map(d => new Date(d.date).toLocaleDateString()),
+                        datasets: [
+                            {
+                                label: 'Wellness Score',
+                                data: data.trends.map(d => d.wellness_score),
+                                borderColor: 'var(--primary-color)',
+                                yAxisID: 'yWellness',
+                                tension: 0.3
+                            },
+                            {
+                                label: 'Spending ($)',
+                                data: data.trends.map(d => d.spending),
+                                borderColor: 'var(--secondary-color)',
+                                yAxisID: 'ySpending',
+                                tension: 0.3
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            yWellness: {
+                                type: 'linear',
+                                position: 'left',
+                                title: { display: true, text: 'Wellness Score' },
+                                min: 0, max: 10
+                            },
+                            ySpending: {
+                                type: 'linear',
+                                position: 'right',
+                                title: { display: true, text: 'Spending ($)' },
+                                grid: { drawOnChartArea: false }
+                            }
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error('Error fetching trends:', error);
+            }
+        }
+        
+        function updateScenario() {
+            const stress = document.getElementById('stress-input').value;
+            const activity = document.getElementById('activity-input').value;
+            // This is a mock calculation. A real implementation would call an API.
+            const baseSpending = 300;
+            const predicted = baseSpending + (stress * 15) - (activity * 0.5);
+            document.getElementById('scenario-result').innerText = `Predicted spending: $${predicted.toFixed(2)}`;
+        }
+
+    </script>
+</body>
+</html>

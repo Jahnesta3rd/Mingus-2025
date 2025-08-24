@@ -5,372 +5,422 @@ Optimized settings for performance, scalability, and cost-effectiveness
 
 import os
 from datetime import timedelta
+from .base import Config
+from .secure_config import get_secure_config
 
-class ProductionConfig:
-    """Production configuration for income comparison feature"""
+class ProductionConfig(Config):
+    """Production configuration using secure configuration management"""
     
-    # Basic Flask Configuration
-    SECRET_KEY = os.environ.get('SECRET_KEY') or 'your-secret-key-change-in-production'
-    DEBUG = False
-    TESTING = False
+    def __init__(self):
+        """Initialize production configuration with secure config manager"""
+        super().__init__()
+        self._load_production_config()
     
-    # Database Configuration (if needed for user demographics)
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'sqlite:///mingus_production.db'
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
-    SQLALCHEMY_ENGINE_OPTIONS = {
-        'pool_size': 10,
-        'pool_recycle': 3600,
-        'pool_pre_ping': True,
-        'max_overflow': 20
-    }
-    
-    # Performance Configuration
-    MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16MB max file size
-    SEND_FILE_MAX_AGE_DEFAULT = timedelta(days=30)  # Static file caching
-    
-    # Caching Configuration
-    CACHE_TYPE = 'simple'  # Use simple in-memory cache for ultra-budget
-    CACHE_DEFAULT_TIMEOUT = 1800  # 30 minutes default TTL
-    CACHE_KEY_PREFIX = 'mingus_'
-    
-    # Redis Configuration (optional, for advanced caching)
-    REDIS_URL = os.environ.get('REDIS_URL')
-    REDIS_CACHE_TIMEOUT = 3600  # 1 hour
-    
-    # Rate Limiting Configuration
-    RATELIMIT_ENABLED = True
-    RATELIMIT_STORAGE_URL = 'memory://'  # Use memory storage for ultra-budget
-    RATELIMIT_DEFAULT = '20 per minute'
-    RATELIMIT_HEADERS_ENABLED = True
-    
-    # Income Comparison Feature Configuration
-    INCOME_COMPARISON = {
-        # Performance targets
-        'max_analysis_time_ms': 500,
-        'max_total_response_time_ms': 3000,
-        'max_memory_usage_mb': 100,
+    def _load_production_config(self):
+        """Load production-specific configuration"""
+        # Production-specific overrides
+        self.DEBUG = False
+        self.TESTING = False
         
-        # Caching settings
-        'response_cache_size': 500,
-        'response_cache_ttl_seconds': 1800,  # 30 minutes
-        'percentile_cache_size': 1000,
-        'location_cache_size': 100,
-        
-        # Rate limiting
-        'max_requests_per_minute': 20,
-        'max_requests_per_hour': 100,
-        'max_requests_per_day': 1000,
-        
-        # Data validation
-        'max_salary_value': 1000000,
-        'min_salary_value': 10000,
-        'allowed_age_ranges': ['18-24', '25-34', '35-44', '45-54', '55-64', '65+'],
-        'allowed_education_levels': ['high_school', 'some_college', 'bachelors', 'masters', 'doctorate'],
-        'allowed_locations': [
-            'atlanta', 'chicago', 'dallas', 'houston', 'los_angeles', 
-            'miami', 'new_york', 'philadelphia', 'washington_dc'
-        ],
-        
-        # Monitoring
-        'enable_performance_monitoring': True,
-        'enable_error_tracking': True,
-        'enable_usage_analytics': True,
-        
-        # Security
-        'enable_input_validation': True,
-        'enable_rate_limiting': True,
-        'enable_csrf_protection': True,
-        'enable_https_redirect': True,
-        
-        # Privacy
-        'data_retention_days': 30,
-        'anonymize_user_data': True,
-        'encrypt_stored_data': False,  # Ultra-budget: no encryption overhead
-    }
-    
-    # Logging Configuration
-    LOG_LEVEL = 'INFO'
-    LOG_FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    LOG_FILE = 'logs/mingus_production.log'
-    LOG_MAX_SIZE = 10 * 1024 * 1024  # 10MB
-    LOG_BACKUP_COUNT = 5
-    
-    # Monitoring Configuration
-    MONITORING = {
-        'enable_health_checks': True,
-        'health_check_interval_seconds': 300,  # 5 minutes
-        'enable_performance_metrics': True,
-        'enable_error_tracking': True,
-        'enable_usage_analytics': True,
-        'metrics_retention_days': 7,
-    }
-    
-    # Security Configuration
-    SECURITY = {
-        'enable_https': True,
-        'enable_cors': True,
-        'cors_origins': ['https://yourdomain.com', 'https://www.yourdomain.com'],
-        'enable_csrf': True,
-        'session_cookie_secure': True,
-        'session_cookie_httponly': True,
-        'session_cookie_samesite': 'Lax',
-        'max_session_age_hours': 24,
-    }
-    
-    # Static File Configuration
-    STATIC_FOLDER = 'static'
-    STATIC_URL_PATH = '/static'
-    STATIC_CACHE_TIMEOUT = 31536000  # 1 year for static assets
-    
-    # Template Configuration
-    TEMPLATE_FOLDER = 'templates'
-    TEMPLATE_CACHE_SIZE = 100
-    
-    # Error Handling
-    ERROR_HANDLING = {
-        'enable_error_pages': True,
-        'log_errors': True,
-        'email_errors': False,  # Ultra-budget: no email service
-        'error_reporting_url': None,
-    }
-    
-    # API Configuration
-    API = {
-        'enable_rate_limiting': True,
-        'enable_request_logging': True,
-        'enable_response_caching': True,
-        'max_request_size': 1024 * 1024,  # 1MB
-        'timeout_seconds': 30,
-    }
-    
-    # Deployment Configuration
-    DEPLOYMENT = {
-        'environment': 'production',
-        'host': '0.0.0.0',
-        'port': int(os.environ.get('PORT', 5000)),
-        'workers': int(os.environ.get('WORKERS', 1)),  # Ultra-budget: single worker
-        'threads': int(os.environ.get('THREADS', 4)),
-        'max_requests': 1000,
-        'max_requests_jitter': 100,
-        'preload_app': True,
-        'worker_class': 'sync',  # Ultra-budget: sync workers
-    }
-    
-    # Cost Optimization
-    COST_OPTIMIZATION = {
-        'use_free_tier_services': True,
-        'minimize_api_calls': True,
-        'use_in_memory_caching': True,
-        'disable_expensive_features': True,
-        'optimize_database_queries': True,
-        'use_compression': True,
-        'minimize_external_dependencies': True,
-    }
-    
-    # Feature Flags
-    FEATURE_FLAGS = {
-        'income_comparison_enabled': True,
-        'advanced_analytics_enabled': False,  # Ultra-budget: disable expensive features
-        'user_profiles_enabled': False,
-        'job_recommendations_enabled': True,
-        'email_notifications_enabled': False,
-        'social_sharing_enabled': False,
-        'export_functionality_enabled': False,
-    }
-    
-    # External Services (minimal for ultra-budget)
-    EXTERNAL_SERVICES = {
-        'census_api_enabled': False,  # Use fallback data
-        'email_service_enabled': False,
-        'analytics_service_enabled': False,
-        'monitoring_service_enabled': False,
-        'cdn_enabled': False,  # Serve static files directly
-    }
-    
-    # Memory Management
-    MEMORY_MANAGEMENT = {
-        'max_cache_size_mb': 50,
-        'cache_cleanup_interval_seconds': 3600,  # 1 hour
-        'max_concurrent_analyses': 10,
-        'memory_monitoring_enabled': True,
-        'auto_cleanup_enabled': True,
-    }
-    
-    # Performance Monitoring
-    PERFORMANCE_MONITORING = {
-        'enable_request_timing': True,
-        'enable_memory_monitoring': True,
-        'enable_cache_monitoring': True,
-        'enable_error_monitoring': True,
-        'metrics_export_interval_seconds': 300,  # 5 minutes
-        'performance_thresholds': {
-            'max_response_time_ms': 3000,
-            'max_memory_usage_mb': 100,
-            'max_cpu_usage_percent': 80,
+        # Database Configuration
+        self.DATABASE_URL = self.secure_config.get('DATABASE_URL')
+        self.SQLALCHEMY_DATABASE_URI = self.DATABASE_URL
+        self.SQLALCHEMY_TRACK_MODIFICATIONS = False
+        self.SQLALCHEMY_ENGINE_OPTIONS = {
+            'pool_size': int(self.secure_config.get('DB_POOL_SIZE', '10')),
+            'pool_recycle': int(self.secure_config.get('DB_POOL_RECYCLE', '3600')),
+            'pool_pre_ping': True,
+            'max_overflow': int(self.secure_config.get('DB_MAX_OVERFLOW', '20'))
         }
-    }
+        
+        # Performance Configuration
+        self.MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16MB max file size
+        self.SEND_FILE_MAX_AGE_DEFAULT = timedelta(days=30)  # Static file caching
+        
+        # Caching Configuration
+        self.CACHE_TYPE = self.secure_config.get('CACHE_TYPE', 'simple')
+        self.CACHE_DEFAULT_TIMEOUT = int(self.secure_config.get('CACHE_DEFAULT_TIMEOUT', '1800'))
+        self.CACHE_KEY_PREFIX = self.secure_config.get('CACHE_KEY_PREFIX', 'mingus_')
+        
+        # Redis Configuration
+        self.REDIS_URL = self.secure_config.get('REDIS_URL')
+        self.REDIS_CACHE_TIMEOUT = 3600  # 1 hour
+        
+        # Rate Limiting Configuration
+        self.RATELIMIT_ENABLED = self.secure_config.get('RATELIMIT_ENABLED', 'true').lower() == 'true'
+        self.RATELIMIT_STORAGE_URL = self.secure_config.get('RATELIMIT_STORAGE_URL', 'memory://')  # Use memory storage for ultra-budget
+        self.RATELIMIT_DEFAULT = self.secure_config.get('PROD_RATELIMIT_DEFAULT', '20 per minute')
+        self.RATELIMIT_HEADERS_ENABLED = True
+        
+        # Supabase settings (use secure config manager)
+        self.SUPABASE_URL = self.secure_config.get('SUPABASE_URL')
+        self.SUPABASE_KEY = self.secure_config.get('SUPABASE_KEY')
+        self.SUPABASE_SERVICE_ROLE_KEY = self.secure_config.get('SUPABASE_SERVICE_ROLE_KEY')
+        self.SUPABASE_JWT_SECRET = self.secure_config.get('SUPABASE_JWT_SECRET')
+        
+        # Stripe settings for production
+        self.STRIPE_ENVIRONMENT = self.secure_config.get('STRIPE_ENVIRONMENT', 'live')
+        self.STRIPE_LIVE_SECRET_KEY = self.secure_config.get('STRIPE_LIVE_SECRET_KEY')
+        self.STRIPE_LIVE_PUBLISHABLE_KEY = self.secure_config.get('STRIPE_LIVE_PUBLISHABLE_KEY')
+        self.STRIPE_LIVE_WEBHOOK_SECRET = self.secure_config.get('STRIPE_LIVE_WEBHOOK_SECRET')
+        
+        # Plaid settings for production
+        self.PLAID_ENVIRONMENT = self.secure_config.get('PLAID_ENVIRONMENT', 'production')
+        self.PLAID_PRODUCTION_CLIENT_ID = self.secure_config.get('PLAID_PRODUCTION_CLIENT_ID')
+        self.PLAID_PRODUCTION_SECRET = self.secure_config.get('PLAID_PRODUCTION_SECRET')
+        self.PLAID_PRODUCTION_WEBHOOK_SECRET = self.secure_config.get('PLAID_PRODUCTION_WEBHOOK_SECRET')
+        
+        # Email settings for production
+        self.EMAIL_PROVIDER = self.secure_config.get('EMAIL_PROVIDER', 'resend')
+        self.RESEND_API_KEY = self.secure_config.get('RESEND_API_KEY')
+        self.RESEND_FROM_EMAIL = self.secure_config.get('RESEND_FROM_EMAIL', 'noreply@mingusapp.com')
+        self.RESEND_FROM_NAME = self.secure_config.get('RESEND_FROM_NAME', 'MINGUS Financial Wellness')
+        
+        # SMS settings for production
+        self.TWILIO_ACCOUNT_SID = self.secure_config.get('TWILIO_ACCOUNT_SID')
+        self.TWILIO_AUTH_TOKEN = self.secure_config.get('TWILIO_AUTH_TOKEN')
+        self.TWILIO_PHONE_NUMBER = self.secure_config.get('TWILIO_PHONE_NUMBER')
+        
+        # Production security settings
+        self.SECURE_SSL_REDIRECT = True
+        self.SECURE_HSTS_SECONDS = 31536000
+        self.SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+        self.SECURE_HSTS_PRELOAD = True
+        self.SECURE_CONTENT_TYPE_NOSNIFF = True
+        self.SECURE_BROWSER_XSS_FILTER = True
+        self.SECURE_FRAME_DENY = True
+        
+        # Session security for production
+        self.SESSION_COOKIE_SECURE = True
+        self.SESSION_COOKIE_HTTPONLY = True
+        self.SESSION_COOKIE_SAMESITE = self.secure_config.get('PROD_SESSION_COOKIE_SAMESITE', 'Strict')
+        self.PERMANENT_SESSION_LIFETIME = 3600  # 1 hour
+        
+        # CORS settings for production
+        cors_origins = self.secure_config.get('CORS_ORIGINS', 'https://mingusapp.com,https://www.mingusapp.com')
+        self.CORS_ORIGINS = [origin.strip() for origin in cors_origins.split(',')]
+        
+        # Logging configuration for production
+        self.LOG_LEVEL = self.secure_config.get('PROD_LOG_LEVEL', 'INFO')
+        self.LOG_FORMAT = self.secure_config.get('PROD_LOG_FORMAT', '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        self.LOG_FILE = self.secure_config.get('PROD_LOG_FILE', 'logs/mingus_production.log')
+        self.LOG_ROTATION = self.secure_config.get('PROD_LOG_ROTATION', '1 day')
+        self.LOG_RETENTION = self.secure_config.get('PROD_LOG_RETENTION', '30 days')
+        
+        # Static files configuration
+        self.STATIC_FOLDER = self.secure_config.get('PROD_STATIC_FOLDER', 'static')
+        self.STATIC_URL_PATH = self.secure_config.get('PROD_STATIC_URL_PATH', '/static')
+        
+        # Template configuration
+        self.TEMPLATE_FOLDER = self.secure_config.get('PROD_TEMPLATE_FOLDER', 'templates')
+        
+        # File upload configuration
+        self.MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16MB max file size
+        self.UPLOAD_FOLDER = self.secure_config.get('PROD_UPLOAD_FOLDER', 'uploads/production')
+        
+        # API configuration for production
+        self.API_TITLE = self.secure_config.get('PROD_API_TITLE', 'Mingus Personal Finance API (Production)')
+        self.API_VERSION = self.secure_config.get('PROD_API_VERSION', 'v1')
+        self.API_DESCRIPTION = self.secure_config.get('PROD_API_DESCRIPTION', 'Production API for Mingus personal finance application')
+        
+        # Rate limiting for production
+        self.RATELIMIT_ENABLED = True
+        self.RATELIMIT_DEFAULT = self.secure_config.get('PROD_RATELIMIT_DEFAULT', '20 per minute')
+        self.RATELIMIT_STRATEGY = self.secure_config.get('PROD_RATELIMIT_STRATEGY', 'fixed-window')
+        
+        # Performance monitoring for production
+        self.ENABLE_PERFORMANCE_MONITORING = True
+        self.ENABLE_ERROR_TRACKING = True
+        self.ENABLE_USAGE_ANALYTICS = True
+        
+        # Backup configuration for production
+        self.BACKUP_CONFIG = {
+            'enabled': self.secure_config.get('BACKUP_ENABLED', 'true').lower() == 'true',
+            'schedule': self.secure_config.get('PROD_BACKUP_SCHEDULE', '0 2 * * *'),  # Daily at 2 AM
+            'retention_days': int(self.secure_config.get('PROD_BACKUP_RETENTION_DAYS', '30')),
+            'location': self.secure_config.get('PROD_BACKUP_LOCATION', 'backups/production/'),
+            'compression': True,
+            'encryption': True,
+        }
+        
+        # Monitoring configuration for production
+        self.MONITORING_CONFIG = {
+            'enable_health_checks': True,
+            'enable_performance_metrics': True,
+            'enable_error_tracking': True,
+            'enable_usage_analytics': True,
+            'metrics_retention_days': int(self.secure_config.get('PROD_METRICS_RETENTION_DAYS', '90')),
+            'alert_thresholds': {
+                'response_time_ms': int(self.secure_config.get('PROD_RESPONSE_TIME_THRESHOLD', '2000')),
+                'error_rate_percent': float(self.secure_config.get('PROD_ERROR_RATE_THRESHOLD', '1.0')),
+                'memory_usage_percent': float(self.secure_config.get('PROD_MEMORY_USAGE_THRESHOLD', '80.0')),
+                'cpu_usage_percent': float(self.secure_config.get('PROD_CPU_USAGE_THRESHOLD', '80.0')),
+            }
+        }
+        
+        # Error handling configuration for production
+        self.ERROR_HANDLING_CONFIG = {
+            'enable_error_pages': True,
+            'log_errors': True,
+            'email_errors': True,
+            'error_reporting_url': self.secure_config.get('ERROR_REPORTING_URL'),
+            'sentry_dsn': self.secure_config.get('SENTRY_DSN'),
+        }
+        
+        # API configuration for production
+        self.API_CONFIG = {
+            'enable_rate_limiting': True,
+            'enable_request_logging': True,
+            'enable_response_caching': True,
+            'max_request_size': 16 * 1024 * 1024,  # 16MB for production
+            'timeout_seconds': 30,  # Shorter timeout for production
+            'enable_compression': True,
+            'enable_cors': True,
+        }
+        
+        # Deployment configuration for production
+        self.DEPLOYMENT_CONFIG = {
+            'environment': 'production',
+            'host': self.secure_config.get('PROD_HOST', '0.0.0.0'),
+            'port': int(self.secure_config.get('PROD_PORT', '5000')),
+            'workers': int(self.secure_config.get('PROD_WORKERS', '4')),
+            'threads': int(self.secure_config.get('PROD_THREADS', '2')),
+            'max_requests': int(self.secure_config.get('PROD_MAX_REQUESTS', '1000')),
+            'max_requests_jitter': int(self.secure_config.get('PROD_MAX_REQUESTS_JITTER', '100')),
+            'preload_app': True,
+            'worker_class': self.secure_config.get('PROD_WORKER_CLASS', 'gthread'),
+        }
+        
+        # Cost optimization configuration for production
+        self.COST_OPTIMIZATION_CONFIG = {
+            'use_free_tier_services': False,  # Use paid services in production
+            'minimize_api_calls': True,  # Minimize API calls in production
+            'use_in_memory_caching': False,  # Use Redis in production
+            'disable_expensive_features': False,  # Enable all features in production
+            'optimize_database_queries': True,  # Optimize in production
+            'use_compression': True,  # Enable compression for production
+            'minimize_external_dependencies': True,  # Minimize dependencies in production
+        }
+        
+        # Feature flags for production
+        self.FEATURE_FLAGS_CONFIG = {
+            'income_comparison_enabled': True,
+            'advanced_analytics_enabled': True,  # Enable in production
+            'user_profiles_enabled': True,
+            'job_recommendations_enabled': True,
+            'email_notifications_enabled': True,
+            'social_sharing_enabled': False,  # Disable in production for security
+            'export_functionality_enabled': True,
+        }
+        
+        # External services configuration for production
+        self.EXTERNAL_SERVICES_CONFIG = {
+            'census_api_enabled': True,  # Enable in production
+            'email_service_enabled': True,
+            'analytics_service_enabled': True,
+            'monitoring_service_enabled': True,
+            'cdn_enabled': True,  # Enable CDN for production
+        }
+        
+        # Memory management configuration for production
+        self.MEMORY_MANAGEMENT_CONFIG = {
+            'max_cache_size_mb': int(self.secure_config.get('PROD_MAX_CACHE_SIZE_MB', '500')),
+            'cache_cleanup_interval_seconds': int(self.secure_config.get('PROD_CACHE_CLEANUP_INTERVAL', '3600')),
+            'max_concurrent_analyses': int(self.secure_config.get('PROD_MAX_CONCURRENT_ANALYSES', '10')),
+            'memory_monitoring_enabled': True,
+            'auto_cleanup_enabled': True,
+        }
+        
+        # Performance monitoring configuration for production
+        self.PERFORMANCE_MONITORING_CONFIG = {
+            'enable_request_timing': True,
+            'enable_memory_monitoring': True,
+            'enable_cache_monitoring': True,
+            'enable_error_monitoring': True,
+            'metrics_export_interval_seconds': int(self.secure_config.get('PROD_METRICS_EXPORT_INTERVAL', '300')),
+            'performance_thresholds': {
+                'max_response_time_ms': int(self.secure_config.get('PROD_MAX_RESPONSE_TIME_MS', '2000')),
+                'max_memory_usage_mb': int(self.secure_config.get('PROD_MAX_MEMORY_USAGE_MB', '1000')),
+                'max_cpu_usage_percent': float(self.secure_config.get('PROD_MAX_CPU_USAGE_PERCENT', '80.0')),
+            }
+        }
     
-    # Backup and Recovery
-    BACKUP = {
-        'enable_automatic_backups': False,  # Ultra-budget: manual backups
-        'backup_interval_hours': 24,
-        'backup_retention_days': 7,
-        'backup_location': 'backups/',
-    }
-    
-    # Development vs Production
     @classmethod
     def init_app(cls, app):
-        """Initialize application with production settings"""
-        
-        # Set production-specific configurations
-        app.config['PROPAGATE_EXCEPTIONS'] = True
+        """Initialize the Flask application with production configuration"""
         
         # Configure logging
         import logging
         from logging.handlers import RotatingFileHandler
+        import os
         
         if not app.debug and not app.testing:
-            # File handler
             if not os.path.exists('logs'):
                 os.mkdir('logs')
             
             file_handler = RotatingFileHandler(
-                cls.LOG_FILE,
-                maxBytes=cls.LOG_MAX_SIZE,
-                backupCount=cls.LOG_BACKUP_COUNT
+                app.config.get('LOG_FILE', 'logs/mingus_production.log'),
+                maxBytes=10240000,  # 10MB
+                backupCount=10
             )
-            file_handler.setFormatter(logging.Formatter(cls.LOG_FORMAT))
-            file_handler.setLevel(getattr(logging, cls.LOG_LEVEL))
+            file_handler.setFormatter(logging.Formatter(
+                app.config.get('LOG_FORMAT', '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]')
+            ))
+            file_handler.setLevel(logging.INFO)
             app.logger.addHandler(file_handler)
             
-            app.logger.setLevel(getattr(logging, cls.LOG_LEVEL))
-            app.logger.info('Mingus startup in production mode')
+            app.logger.setLevel(logging.INFO)
+            app.logger.info('Mingus startup')
         
-        # Configure CORS
-        if cls.SECURITY['enable_cors']:
-            from flask_cors import CORS
-            CORS(app, origins=cls.SECURITY['cors_origins'])
+        # Add security headers
+        @app.after_request
+        def add_security_headers(response):
+            response.headers['X-Content-Type-Options'] = 'nosniff'
+            response.headers['X-Frame-Options'] = 'DENY'
+            response.headers['X-XSS-Protection'] = '1; mode=block'
+            return response
         
-        # Configure rate limiting
-        if cls.API['enable_rate_limiting']:
-            from flask_limiter import Limiter
-            from flask_limiter.util import get_remote_address
-            
-            limiter = Limiter(
-                app,
-                key_func=get_remote_address,
-                default_limits=[cls.RATELIMIT_DEFAULT],
-                storage_uri=cls.RATELIMIT_STORAGE_URL
-            )
+        # Error handlers
+        @app.errorhandler(404)
+        def not_found_error(error):
+            return {'error': 'Not found'}, 404
         
-        # Configure caching
-        if cls.CACHE_TYPE == 'simple':
-            from flask_caching import Cache
-            cache = Cache(app)
+        @app.errorhandler(500)
+        def internal_error(error):
+            return {'error': 'Internal server error'}, 500
         
-        # Configure session
-        app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=cls.SECURITY['max_session_age_hours'])
-        app.config['SESSION_COOKIE_SECURE'] = cls.SECURITY['session_cookie_secure']
-        app.config['SESSION_COOKIE_HTTPONLY'] = cls.SECURITY['session_cookie_httponly']
-        app.config['SESSION_COOKIE_SAMESITE'] = cls.SECURITY['session_cookie_samesite']
+        # Request logging
+        @app.before_request
+        def before_request():
+            pass
         
-        # Configure static files
-        app.config['SEND_FILE_MAX_AGE_DEFAULT'] = timedelta(seconds=cls.STATIC_CACHE_TIMEOUT)
+        @app.after_request
+        def after_request(response):
+            return response
         
-        # Register error handlers
-        if cls.ERROR_HANDLING['enable_error_pages']:
-            @app.errorhandler(404)
-            def not_found_error(error):
-                return render_template('errors/404.html'), 404
-            
-            @app.errorhandler(500)
-            def internal_error(error):
-                return render_template('errors/500.html'), 500
-        
-        # Configure performance monitoring
-        if cls.PERFORMANCE_MONITORING['enable_request_timing']:
-            @app.before_request
-            def before_request():
-                g.start_time = time.time()
-            
-            @app.after_request
-            def after_request(response):
-                if hasattr(g, 'start_time'):
-                    duration = time.time() - g.start_time
-                    app.logger.info(f'Request completed in {duration:.3f}s')
-                return response
-        
-        # Configure memory monitoring
-        if cls.MEMORY_MANAGEMENT['memory_monitoring_enabled']:
+        # Memory monitoring
+        def memory_monitor():
             import psutil
-            import threading
-            
-            def memory_monitor():
-                while True:
-                    process = psutil.Process()
-                    memory_mb = process.memory_info().rss / 1024 / 1024
-                    if memory_mb > cls.MEMORY_MANAGEMENT['max_cache_size_mb']:
-                        app.logger.warning(f'High memory usage: {memory_mb:.1f}MB')
-                        # Trigger cache cleanup
-                        if hasattr(app, 'cache'):
-                            app.cache.clear()
-                    time.sleep(300)  # Check every 5 minutes
-            
-            memory_thread = threading.Thread(target=memory_monitor, daemon=True)
-            memory_thread.start()
+            process = psutil.Process()
+            memory_info = process.memory_info()
+            app.logger.info(f'Memory usage: {memory_info.rss / 1024 / 1024:.2f} MB')
         
-        app.logger.info('Production configuration initialized successfully')
+        # Schedule memory monitoring
+        from apscheduler.schedulers.background import BackgroundScheduler
+        scheduler = BackgroundScheduler()
+        scheduler.add_job(func=memory_monitor, trigger="interval", minutes=30)
+        scheduler.start()
 
-# Environment-specific overrides
+
 class HerokuConfig(ProductionConfig):
-    """Heroku-specific configuration"""
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
-    REDIS_URL = os.environ.get('REDIS_URL')
-    DEPLOYMENT = {
-        **ProductionConfig.DEPLOYMENT,
-        'host': '0.0.0.0',
-        'port': int(os.environ.get('PORT', 5000)),
-    }
+    """Heroku-specific production configuration"""
+    
+    def __init__(self):
+        super().__init__()
+        self._load_heroku_config()
+    
+    def _load_heroku_config(self):
+        """Load Heroku-specific configuration"""
+        # Heroku-specific settings
+        self.DATABASE_URL = self.secure_config.get('DATABASE_URL')  # Heroku sets this automatically
+        self.REDIS_URL = self.secure_config.get('REDIS_URL')  # Heroku Redis addon
+        self.PORT = int(self.secure_config.get('PORT', '5000'))  # Heroku sets PORT
+        
+        # Heroku-specific deployment settings
+        self.DEPLOYMENT_CONFIG.update({
+            'host': '0.0.0.0',
+            'port': self.PORT,
+            'workers': 1,  # Heroku dynos are single-threaded
+            'threads': 1,
+        })
+
 
 class RailwayConfig(ProductionConfig):
-    """Railway-specific configuration"""
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
-    REDIS_URL = os.environ.get('REDIS_URL')
-    DEPLOYMENT = {
-        **ProductionConfig.DEPLOYMENT,
-        'host': '0.0.0.0',
-        'port': int(os.environ.get('PORT', 5000)),
-    }
+    """Railway-specific production configuration"""
+    
+    def __init__(self):
+        super().__init__()
+        self._load_railway_config()
+    
+    def _load_railway_config(self):
+        """Load Railway-specific configuration"""
+        # Railway-specific settings
+        self.DATABASE_URL = self.secure_config.get('DATABASE_URL')  # Railway sets this automatically
+        self.REDIS_URL = self.secure_config.get('REDIS_URL')  # Railway Redis service
+        self.PORT = int(self.secure_config.get('PORT', '5000'))  # Railway sets PORT
+        
+        # Railway-specific deployment settings
+        self.DEPLOYMENT_CONFIG.update({
+            'host': '0.0.0.0',
+            'port': self.PORT,
+            'workers': 1,  # Railway containers are single-threaded
+            'threads': 1,
+        })
+
 
 class RenderConfig(ProductionConfig):
-    """Render-specific configuration"""
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
-    REDIS_URL = os.environ.get('REDIS_URL')
-    DEPLOYMENT = {
-        **ProductionConfig.DEPLOYMENT,
-        'host': '0.0.0.0',
-        'port': int(os.environ.get('PORT', 5000)),
-    }
+    """Render-specific production configuration"""
+    
+    def __init__(self):
+        super().__init__()
+        self._load_render_config()
+    
+    def _load_render_config(self):
+        """Load Render-specific configuration"""
+        # Render-specific settings
+        self.DATABASE_URL = self.secure_config.get('DATABASE_URL')  # Render sets this automatically
+        self.REDIS_URL = self.secure_config.get('REDIS_URL')  # Render Redis service
+        self.PORT = int(self.secure_config.get('PORT', '10000'))  # Render sets PORT
+        
+        # Render-specific deployment settings
+        self.DEPLOYMENT_CONFIG.update({
+            'host': '0.0.0.0',
+            'port': self.PORT,
+            'workers': 1,  # Render services are single-threaded
+            'threads': 1,
+        })
+
 
 class VercelConfig(ProductionConfig):
-    """Vercel-specific configuration"""
-    DEPLOYMENT = {
-        **ProductionConfig.DEPLOYMENT,
-        'workers': 1,
-        'threads': 1,
-    }
+    """Vercel-specific production configuration"""
+    
+    def __init__(self):
+        super().__init__()
+        self._load_vercel_config()
+    
+    def _load_vercel_config(self):
+        """Load Vercel-specific configuration"""
+        # Vercel-specific settings
+        self.DATABASE_URL = self.secure_config.get('DATABASE_URL')  # Vercel sets this automatically
+        self.REDIS_URL = self.secure_config.get('REDIS_URL')  # Vercel Redis service
+        self.PORT = int(self.secure_config.get('PORT', '3000'))  # Vercel sets PORT
+        
+        # Vercel-specific deployment settings
+        self.DEPLOYMENT_CONFIG.update({
+            'host': '0.0.0.0',
+            'port': self.PORT,
+            'workers': 1,  # Vercel functions are single-threaded
+            'threads': 1,
+        })
 
-# Configuration mapping
-config_map = {
-    'production': ProductionConfig,
-    'heroku': HerokuConfig,
-    'railway': RailwayConfig,
-    'render': RenderConfig,
-    'vercel': VercelConfig,
-}
 
 def get_config():
-    """Get configuration based on environment"""
-    env = os.environ.get('FLASK_ENV', 'production')
-    return config_map.get(env, ProductionConfig) 
+    """Get the appropriate configuration based on environment"""
+    config_name = os.environ.get('FLASK_CONFIG', 'production')
+    
+    if config_name == 'production':
+        return ProductionConfig()
+    elif config_name == 'testing':
+        return TestingConfig()
+    elif config_name == 'development':
+        return DevelopmentConfig()
+    elif config_name == 'heroku':
+        return HerokuConfig()
+    elif config_name == 'railway':
+        return RailwayConfig()
+    elif config_name == 'render':
+        return RenderConfig()
+    elif config_name == 'vercel':
+        return VercelConfig()
+    else:
+        return ProductionConfig() 

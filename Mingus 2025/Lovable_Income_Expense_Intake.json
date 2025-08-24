@@ -1,0 +1,371 @@
+{
+  "screens": [
+    {
+      "id": "income_main",
+      "title": "Let's start with your main source of income",
+      "fields": [
+        {
+          "type": "text",
+          "label": "Income Source Name",
+          "id": "income_name"
+        },
+        {
+          "type": "number",
+          "label": "Amount per Paycheck ($)",
+          "id": "income_amount"
+        },
+        {
+          "type": "date",
+          "label": "When does this occur?",
+          "id": "income_date"
+        },
+        {
+          "type": "dropdown",
+          "label": "How often?",
+          "id": "income_frequency",
+          "options": [
+            "Weekly",
+            "Biweekly",
+            "Monthly"
+          ]
+        }
+      ],
+      "next": "income_extra_check"
+    },
+    {
+      "id": "income_extra_check",
+      "title": "Do you have any additional income sources?",
+      "fields": [
+        {
+          "type": "button_group",
+          "id": "has_extra_income",
+          "options": [
+            "Yes",
+            "No"
+          ]
+        }
+      ],
+      "conditional_next": {
+        "Yes": "income_extra_repeat",
+        "No": "expense_intro"
+      }
+    },
+    {
+      "id": "income_extra_repeat",
+      "title": "Add additional income sources (e.g., side hustle, child support)",
+      "repeatable_group": {
+        "id": "extra_incomes",
+        "fields": [
+          {
+            "type": "text",
+            "label": "Source Name",
+            "id": "extra_income_name"
+          },
+          {
+            "type": "number",
+            "label": "Amount",
+            "id": "extra_income_amount"
+          },
+          {
+            "type": "date",
+            "label": "When does it occur?",
+            "id": "extra_income_date"
+          },
+          {
+            "type": "dropdown",
+            "label": "Frequency",
+            "id": "extra_income_frequency",
+            "options": [
+              "Weekly",
+              "Biweekly",
+              "Monthly"
+            ]
+          }
+        ]
+      },
+      "next": "expense_intro"
+    },
+    {
+      "id": "expense_intro",
+      "title": "Now, let\u2019s look at your monthly expenses.",
+      "fields": [],
+      "next": "expense_rent_or_mortgage"
+    },
+    {
+      "id": "expense_rent_or_mortgage",
+      "title": "Rent or Mortgage",
+      "fields": [
+        {
+          "type": "number",
+          "label": "Rent or Mortgage Amount ($)",
+          "id": "expense_rent_or_mortgage_amount"
+        },
+        {
+          "type": "text",
+          "label": "When is it usually due?",
+          "id": "expense_rent_or_mortgage_due"
+        },
+        {
+          "type": "dropdown",
+          "label": "How often?",
+          "id": "expense_rent_or_mortgage_frequency",
+          "options": [
+            "Weekly",
+            "Biweekly",
+            "Monthly"
+          ]
+        }
+      ],
+      "next": "expense_electricity"
+    },
+    {
+      "id": "expense_electricity",
+      "title": "Electricity",
+      "fields": [
+        {
+          "type": "number",
+          "label": "Electricity Amount ($)",
+          "id": "expense_electricity_amount"
+        },
+        {
+          "type": "text",
+          "label": "When is it usually due?",
+          "id": "expense_electricity_due"
+        },
+        {
+          "type": "dropdown",
+          "label": "How often?",
+          "id": "expense_electricity_frequency",
+          "options": [
+            "Weekly",
+            "Biweekly",
+            "Monthly"
+          ]
+        }
+      ],
+      "next": "expense_water"
+    },
+    {
+      "id": "expense_water",
+      "title": "Water",
+      "fields": [
+        {
+          "type": "number",
+          "label": "Water Amount ($)",
+          "id": "expense_water_amount"
+        },
+        {
+          "type": "text",
+          "label": "When is it usually due?",
+          "id": "expense_water_due"
+        },
+        {
+          "type": "dropdown",
+          "label": "How often?",
+          "id": "expense_water_frequency",
+          "options": [
+            "Weekly",
+            "Biweekly",
+            "Monthly"
+          ]
+        }
+      ],
+      "next": "expense_cable"
+    },
+    {
+      "id": "expense_cable",
+      "title": "Cable",
+      "fields": [
+        {
+          "type": "number",
+          "label": "Cable Amount ($)",
+          "id": "expense_cable_amount"
+        },
+        {
+          "type": "text",
+          "label": "When is it usually due?",
+          "id": "expense_cable_due"
+        },
+        {
+          "type": "dropdown",
+          "label": "How often?",
+          "id": "expense_cable_frequency",
+          "options": [
+            "Weekly",
+            "Biweekly",
+            "Monthly"
+          ]
+        }
+      ],
+      "next": "expense_internet_service"
+    },
+    {
+      "id": "expense_internet_service",
+      "title": "Internet Service",
+      "fields": [
+        {
+          "type": "number",
+          "label": "Internet Service Amount ($)",
+          "id": "expense_internet_service_amount"
+        },
+        {
+          "type": "text",
+          "label": "When is it usually due?",
+          "id": "expense_internet_service_due"
+        },
+        {
+          "type": "dropdown",
+          "label": "How often?",
+          "id": "expense_internet_service_frequency",
+          "options": [
+            "Weekly",
+            "Biweekly",
+            "Monthly"
+          ]
+        }
+      ],
+      "next": "expense_mobile_phone"
+    },
+    {
+      "id": "expense_mobile_phone",
+      "title": "Mobile Phone",
+      "fields": [
+        {
+          "type": "number",
+          "label": "Mobile Phone Amount ($)",
+          "id": "expense_mobile_phone_amount"
+        },
+        {
+          "type": "text",
+          "label": "When is it usually due?",
+          "id": "expense_mobile_phone_due"
+        },
+        {
+          "type": "dropdown",
+          "label": "How often?",
+          "id": "expense_mobile_phone_frequency",
+          "options": [
+            "Weekly",
+            "Biweekly",
+            "Monthly"
+          ]
+        }
+      ],
+      "next": "expense_car_insurance"
+    },
+    {
+      "id": "expense_car_insurance",
+      "title": "Car Insurance",
+      "fields": [
+        {
+          "type": "number",
+          "label": "Car Insurance Amount ($)",
+          "id": "expense_car_insurance_amount"
+        },
+        {
+          "type": "text",
+          "label": "When is it usually due?",
+          "id": "expense_car_insurance_due"
+        },
+        {
+          "type": "dropdown",
+          "label": "How often?",
+          "id": "expense_car_insurance_frequency",
+          "options": [
+            "Weekly",
+            "Biweekly",
+            "Monthly"
+          ]
+        }
+      ],
+      "next": "expense_car_payment"
+    },
+    {
+      "id": "expense_car_payment",
+      "title": "Car Payment",
+      "fields": [
+        {
+          "type": "number",
+          "label": "Car Payment Amount ($)",
+          "id": "expense_car_payment_amount"
+        },
+        {
+          "type": "text",
+          "label": "When is it usually due?",
+          "id": "expense_car_payment_due"
+        },
+        {
+          "type": "dropdown",
+          "label": "How often?",
+          "id": "expense_car_payment_frequency",
+          "options": [
+            "Weekly",
+            "Biweekly",
+            "Monthly"
+          ]
+        }
+      ],
+      "next": "expense_gas"
+    },
+    {
+      "id": "expense_gas",
+      "title": "Gas",
+      "fields": [
+        {
+          "type": "number",
+          "label": "Gas Amount ($)",
+          "id": "expense_gas_amount"
+        },
+        {
+          "type": "text",
+          "label": "When is it usually due?",
+          "id": "expense_gas_due"
+        },
+        {
+          "type": "dropdown",
+          "label": "How often?",
+          "id": "expense_gas_frequency",
+          "options": [
+            "Weekly",
+            "Biweekly",
+            "Monthly"
+          ]
+        }
+      ],
+      "next": "expense_child_support___spousal_support"
+    },
+    {
+      "id": "expense_child_support___spousal_support",
+      "title": "Child Support / Spousal Support",
+      "fields": [
+        {
+          "type": "number",
+          "label": "Child Support / Spousal Support Amount ($)",
+          "id": "expense_child_support___spousal_support_amount"
+        },
+        {
+          "type": "text",
+          "label": "When is it usually due?",
+          "id": "expense_child_support___spousal_support_due"
+        },
+        {
+          "type": "dropdown",
+          "label": "How often?",
+          "id": "expense_child_support___spousal_support_frequency",
+          "options": [
+            "Weekly",
+            "Biweekly",
+            "Monthly"
+          ]
+        }
+      ],
+      "next": "summary_screen"
+    },
+    {
+      "id": "summary_screen",
+      "title": "Review Your Budget Profile",
+      "fields": [],
+      "summary": true
+    }
+  ]
+}

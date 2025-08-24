@@ -11,6 +11,12 @@ sys.path.append(backend_dir)
 # Now we can import our module
 from src.utils.cashflow_calculator import calculate_daily_cashflow
 
+# Import article models to ensure SQLAlchemy knows about them
+from backend.models import (
+    Article, UserArticleRead, UserArticleBookmark, UserArticleRating,
+    UserArticleProgress, ArticleRecommendation, ArticleAnalytics
+)
+
 # Load environment variables
 load_dotenv()
 
@@ -78,3 +84,11 @@ if __name__ == '__main__':
     print(f"FLASK_ENV: {os.getenv('FLASK_ENV')}\n")
     
     app.run(host='0.0.0.0', port=port, debug=debug) 
+
+
+def create_app(config_name: str = None) -> Flask:
+    """
+    Minimal application factory to satisfy tests expecting backend.app.create_app.
+    Reuses the already-configured module-level Flask app.
+    """
+    return app

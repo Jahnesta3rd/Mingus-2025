@@ -34,12 +34,21 @@ env/
 # Note: .cursor/ directory is explicitly tracked for chat history and AI data
 # Do not add .cursor/ to this ignore list
 
-# Environment variables
+# Environment variables - ignore all .env files except examples
 .env
-.env.*
+.env.local
+.env.development
+.env.testing
+.env.production
+.env.staging
+.env.generated
 *.env
 *.env.*
 Mingus.env.rtf
+
+# Allow .env.example and .env.template to be tracked
+!.env.example
+!.env.template
 
 # Logs
 *.log
@@ -62,4 +71,7 @@ backups/2025-06-09-backup/
 test-clone/
 Mingus-Cypress-Tests/node_modules/
 backups/2025-06-29/
-.env*
+
+# Generated files
+generated_keys.json
+.env.generated

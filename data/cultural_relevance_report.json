@@ -1,0 +1,29 @@
+{
+  "summary": {
+    "total_articles": 2,
+    "avg_cultural_sensitivity": 5.0,
+    "avg_demographic_relevance": 7.0,
+    "high_cultural_relevance_count": 0,
+    "high_demographic_relevance_count": 0
+  },
+  "cultural_keywords": {
+    "Wealth building": 1,
+    "Home ownership": 1,
+    "Homeownership": 1,
+    "Wealth Building": 1
+  },
+  "phase_cultural_analysis": {
+    "BE": {
+      "count": 0,
+      "avg_cultural_score": 0
+    },
+    "DO": {
+      "count": 0,
+      "avg_cultural_score": 0
+    },
+    "HAVE": {
+      "count": 2,
+      "avg_cultural_score": 5.0
+    }
+  }
+}

@@ -775,3 +775,434 @@ def mock_audit_service():
     audit_service.track_user_action = Mock()
     audit_service.record_error = Mock()
     return audit_service
+
+# tests/conftest.py
+import pytest
+import os
+import tempfile
+from datetime import datetime, timedelta
+from unittest.mock import Mock, patch
+
+from app import create_app, db
+from backend.models.articles import (
+    Article, UserAssessmentScores, UserArticleProgress,
+    ArticleFolder, ArticleBookmark, ArticleAnalytics
+)
+from backend.models.users import User
+
+@pytest.fixture(scope='session')
+def app():
+    """Create application for testing"""
+    # Create a temporary database for testing
+    db_fd, db_path = tempfile.mkstemp()
+    
+    app = create_app('testing')
+    app.config.update({
+        'TESTING': True,
+        'SQLALCHEMY_DATABASE_URI': f'sqlite:///{db_path}',
+        'WTF_CSRF_ENABLED': False,
+        'ENABLE_ARTICLE_LIBRARY': True,
+        'ENABLE_AI_RECOMMENDATIONS': True,
+        'ENABLE_CULTURAL_PERSONALIZATION': True,
+        'ENABLE_ADVANCED_SEARCH': True,
+        'ENABLE_ANALYTICS': True,
+        'CACHE_TYPE': 'simple',
+        'CELERY_BROKER_URL': 'memory://',
+        'CELERY_RESULT_BACKEND': 'rpc://',
+        'OPENAI_API_KEY': 'test-key',
+        'SECRET_KEY': 'test-secret-key',
+        'JWT_SECRET_KEY': 'test-jwt-secret-key'
+    })
+    
+    with app.app_context():
+        db.create_all()
+        yield app
+        db.session.remove()
+        db.drop_all()
+    
+    os.close(db_fd)
+    os.unlink(db_path)
+
+@pytest.fixture
+def client(app):
+    """Create test client"""
+    return app.test_client()
+
+@pytest.fixture
+def runner(app):
+    """Create test runner"""
+    return app.test_cli_runner()
+
+@pytest.fixture
+def test_user(app):
+    """Create a test user"""
+    with app.app_context():
+        user = User(
+            email='test@example.com',
+            username='testuser',
+            first_name='Test',
+            last_name='User'
+        )
+        user.set_password('password123')
+        db.session.add(user)
+        db.session.commit()
+        return user
+
+@pytest.fixture
+def admin_user(app):
+    """Create an admin test user"""
+    with app.app_context():
+        user = User(
+            email='admin@example.com',
+            username='adminuser',
+            first_name='Admin',
+            last_name='User',
+            is_admin=True
+        )
+        user.set_password('admin123')
+        db.session.add(user)
+        db.session.commit()
+        return user
+
+@pytest.fixture
+def auth_headers(test_user, client):
+    """Get authentication headers for test user"""
+    # Login to get JWT token
+    response = client.post('/api/auth/login', json={
+        'email': 'test@example.com',
+        'password': 'password123'
+    })
+    assert response.status_code == 200
+    token = response.get_json()['access_token']
+    return {'Authorization': f'Bearer {token}'}
+
+@pytest.fixture
+def admin_headers(admin_user, client):
+    """Get authentication headers for admin user"""
+    response = client.post('/api/auth/login', json={
+        'email': 'admin@example.com',
+        'password': 'admin123'
+    })
+    assert response.status_code == 200
+    token = response.get_json()['access_token']
+    return {'Authorization': f'Bearer {token}'}
+
+@pytest.fixture
+def sample_articles(app):
+    """Create sample articles for testing"""
+    with app.app_context():
+        articles = []
+        
+        # Create articles for different phases and difficulties
+        article_data = [
+            {
+                'title': 'Career Advancement Strategies for Professionals',
+                'content': 'This article discusses various strategies for advancing your career in today\'s competitive market. It covers networking, skill development, and strategic positioning.',
+                'url': 'https://example.com/career-advancement',
+                'source': 'example.com',
+                'published_date': datetime.now() - timedelta(days=5),
+                'category': 'Career Development',
+                'phase': 'BE',
+                'difficulty': 'Intermediate',
+                'cultural_relevance_score': 8.5,
+                'quality_score': 0.85,
+                'readability_score': 7.2,
+                'summary': 'Comprehensive guide to career advancement strategies',
+                'tags': ['career', 'advancement', 'professional development']
+            },
+            {
+                'title': 'Building Wealth Through Smart Investments',
+                'content': 'Learn how to build wealth through strategic investment decisions. This guide covers stocks, bonds, real estate, and alternative investments.',
+                'url': 'https://example.com/investment-guide',
+                'source': 'example.com',
+                'published_date': datetime.now() - timedelta(days=3),
+                'category': 'Financial Planning',
+                'phase': 'HAVE',
+                'difficulty': 'Advanced',
+                'cultural_relevance_score': 9.0,
+                'quality_score': 0.92,
+                'readability_score': 8.1,
+                'summary': 'Advanced investment strategies for wealth building',
+                'tags': ['investment', 'wealth', 'financial planning']
+            },
+            {
+                'title': 'Effective Goal Setting and Achievement',
+                'content': 'Master the art of setting and achieving meaningful goals. This beginner-friendly guide provides practical steps for success.',
+                'url': 'https://example.com/goal-setting',
+                'source': 'example.com',
+                'published_date': datetime.now() - timedelta(days=1),
+                'category': 'Personal Development',
+                'phase': 'DO',
+                'difficulty': 'Beginner',
+                'cultural_relevance_score': 7.8,
+                'quality_score': 0.78,
+                'readability_score': 6.5,
+                'summary': 'Beginner-friendly guide to goal setting',
+                'tags': ['goals', 'achievement', 'personal development']
+            },
+            {
+                'title': 'Mindfulness and Mental Health in the Workplace',
+                'content': 'Explore mindfulness techniques and mental health strategies for maintaining well-being in professional environments.',
+                'url': 'https://example.com/mindfulness-workplace',
+                'source': 'example.com',
+                'published_date': datetime.now() - timedelta(days=2),
+                'category': 'Mental Health',
+                'phase': 'BE',
+                'difficulty': 'Beginner',
+                'cultural_relevance_score': 8.2,
+                'quality_score': 0.88,
+                'readability_score': 6.8,
+                'summary': 'Mindfulness practices for workplace mental health',
+                'tags': ['mindfulness', 'mental health', 'workplace']
+            },
+            {
+                'title': 'Advanced Negotiation Techniques',
+                'content': 'Master advanced negotiation strategies for business and personal success. Learn psychological tactics and strategic approaches.',
+                'url': 'https://example.com/negotiation-techniques',
+                'source': 'example.com',
+                'published_date': datetime.now() - timedelta(days=4),
+                'category': 'Business Skills',
+                'phase': 'DO',
+                'difficulty': 'Advanced',
+                'cultural_relevance_score': 8.8,
+                'quality_score': 0.90,
+                'readability_score': 7.8,
+                'summary': 'Advanced negotiation strategies and techniques',
+                'tags': ['negotiation', 'business', 'communication']
+            }
+        ]
+        
+        for data in article_data:
+            article = Article(**data)
+            db.session.add(article)
+            articles.append(article)
+        
+        db.session.commit()
+        return articles
+
+@pytest.fixture
+def sample_assessment(app, test_user):
+    """Create a sample assessment for the test user"""
+    with app.app_context():
+        assessment = UserAssessmentScores(
+            user_id=test_user.id,
+            be_score=75,
+            do_score=65,
+            have_score=45,
+            assessment_date=datetime.now()
+        )
+        db.session.add(assessment)
+        db.session.commit()
+        return assessment
+
+@pytest.fixture
+def sample_progress(app, test_user, sample_articles):
+    """Create sample reading progress for the test user"""
+    with app.app_context():
+        progress_entries = []
+        
+        # Create progress for first article
+        progress1 = UserArticleProgress(
+            user_id=test_user.id,
+            article_id=sample_articles[0].id,
+            progress_percentage=100,
+            completed_at=datetime.now() - timedelta(days=1),
+            time_spent_reading=1800  # 30 minutes
+        )
+        db.session.add(progress1)
+        progress_entries.append(progress1)
+        
+        # Create progress for second article
+        progress2 = UserArticleProgress(
+            user_id=test_user.id,
+            article_id=sample_articles[1].id,
+            progress_percentage=50,
+            started_at=datetime.now() - timedelta(hours=2),
+            time_spent_reading=900  # 15 minutes
+        )
+        db.session.add(progress2)
+        progress_entries.append(progress2)
+        
+        db.session.commit()
+        return progress_entries
+
+@pytest.fixture
+def sample_folders(app, test_user):
+    """Create sample folders for the test user"""
+    with app.app_context():
+        folders = []
+        
+        folder1 = ArticleFolder(
+            user_id=test_user.id,
+            name='Career Development',
+            description='Articles about career advancement and professional growth'
+        )
+        db.session.add(folder1)
+        folders.append(folder1)
+        
+        folder2 = ArticleFolder(
+            user_id=test_user.id,
+            name='Financial Planning',
+            description='Articles about money management and investment'
+        )
+        db.session.add(folder2)
+        folders.append(folder2)
+        
+        db.session.commit()
+        return folders
+
+@pytest.fixture
+def sample_bookmarks(app, test_user, sample_articles):
+    """Create sample bookmarks for the test user"""
+    with app.app_context():
+        bookmarks = []
+        
+        bookmark1 = ArticleBookmark(
+            user_id=test_user.id,
+            article_id=sample_articles[0].id,
+            created_at=datetime.now() - timedelta(days=1)
+        )
+        db.session.add(bookmark1)
+        bookmarks.append(bookmark1)
+        
+        bookmark2 = ArticleBookmark(
+            user_id=test_user.id,
+            article_id=sample_articles[1].id,
+            created_at=datetime.now() - timedelta(hours=3)
+        )
+        db.session.add(bookmark2)
+        bookmarks.append(bookmark2)
+        
+        db.session.commit()
+        return bookmarks
+
+@pytest.fixture
+def sample_analytics(app, test_user, sample_articles):
+    """Create sample analytics data"""
+    with app.app_context():
+        analytics = []
+        
+        # Article view analytics
+        view1 = ArticleAnalytics(
+            article_id=sample_articles[0].id,
+            user_id=test_user.id,
+            action='view',
+            timestamp=datetime.now() - timedelta(hours=1)
+        )
+        db.session.add(view1)
+        analytics.append(view1)
+        
+        # Article share analytics
+        share1 = ArticleAnalytics(
+            article_id=sample_articles[0].id,
+            user_id=test_user.id,
+            action='share',
+            platform='twitter',
+            timestamp=datetime.now() - timedelta(hours=2)
+        )
+        db.session.add(share1)
+        analytics.append(share1)
+        
+        db.session.commit()
+        return analytics
+
+@pytest.fixture
+def mock_openai():
+    """Mock OpenAI API responses"""
+    with patch('backend.services.ai_classifier.openai.ChatCompletion.create') as mock:
+        mock.return_value = Mock(
+            choices=[
+                Mock(
+                    message=Mock(
+                        content=json.dumps({
+                            'phase': 'BE',
+                            'difficulty': 'Intermediate',
+                            'cultural_relevance_score': 8.5,
+                            'quality_score': 0.85,
+                            'summary': 'Test summary',
+                            'tags': ['test', 'article']
+                        })
+                    )
+                )
+            ]
+        )
+        yield mock
+
+@pytest.fixture
+def mock_celery():
+    """Mock Celery task execution"""
+    with patch('backend.celery_app.celery.delay') as mock:
+        mock.return_value = Mock(id='test-task-id')
+        yield mock
+
+@pytest.fixture
+def mock_redis():
+    """Mock Redis cache operations"""
+    with patch('backend.services.cache_service.redis_client') as mock:
+        mock.get.return_value = None
+        mock.set.return_value = True
+        mock.delete.return_value = 1
+        yield mock
+
+@pytest.fixture
+def mock_elasticsearch():
+    """Mock Elasticsearch operations"""
+    with patch('backend.services.search_service.elasticsearch') as mock:
+        mock.search.return_value = {
+            'hits': {
+                'total': {'value': 1},
+                'hits': [
+                    {
+                        '_source': {
+                            'id': 1,
+                            'title': 'Test Article',
+                            'content': 'Test content'
+                        }
+                    }
+                ]
+            }
+        }
+        yield mock
+
+@pytest.fixture
+def test_database(app):
+    """Provide test database session"""
+    with app.app_context():
+        yield db.session
+
+@pytest.fixture(autouse=True)
+def cleanup_database(app):
+    """Clean up database after each test"""
+    yield
+    with app.app_context():
+        db.session.rollback()
+        # Clean up any test data that might have been created
+        for table in reversed(db.metadata.sorted_tables):
+            db.session.execute(table.delete())
+        db.session.commit()
+
+# Test configuration
+def pytest_configure(config):
+    """Configure pytest for the test suite"""
+    config.addinivalue_line(
+        "markers", "integration: mark test as integration test"
+    )
+    config.addinivalue_line(
+        "markers", "slow: mark test as slow running"
+    )
+    config.addinivalue_line(
+        "markers", "api: mark test as API test"
+    )
+    config.addinivalue_line(
+        "markers", "database: mark test as database test"
+    )
+
+def pytest_collection_modifyitems(config, items):
+    """Modify test collection to add markers"""
+    for item in items:
+        if "test_integration" in item.nodeid:
+            item.add_marker(pytest.mark.integration)
+        if "test_api" in item.nodeid:
+            item.add_marker(pytest.mark.api)
+        if "test_database" in item.nodeid:
+            item.add_marker(pytest.mark.database)

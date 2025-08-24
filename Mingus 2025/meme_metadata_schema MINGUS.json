@@ -1,0 +1,37 @@
+{
+    "type": "object",
+    "properties": {
+        "id": {
+            "type": "string"
+        },
+        "url": {
+            "type": "string",
+            "format": "uri"
+        },
+        "tags": {
+            "type": "string"
+        },
+        "tone": {
+            "type": "string",
+            "enum": [
+                "funny",
+                "sarcastic",
+                "supportive"
+            ]
+        },
+        "trigger": {
+            "type": "string"
+        },
+        "caption": {
+            "type": "string"
+        }
+    },
+    "required": [
+        "id",
+        "url",
+        "tags",
+        "tone",
+        "trigger",
+        "caption"
+    ]
+}

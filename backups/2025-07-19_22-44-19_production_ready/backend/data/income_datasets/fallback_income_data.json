@@ -1,0 +1,770 @@
+{
+  "metadata": {
+    "version": "1.0.0",
+    "data_year": 2022,
+    "source": "American Community Survey (ACS) 5-Year Estimates",
+    "last_updated": "2025-01-19T21:15:00",
+    "description": "Fallback income data for African American professionals across target metro areas",
+    "data_quality": "good",
+    "update_frequency": "annual",
+    "notes": "Based on 2022 ACS 5-Year Estimates. Sample sizes and standard errors estimated based on typical ACS data patterns."
+  },
+  "national_data": {
+    "all_races": {
+      "median_income": 75000,
+      "sample_size": 1000000,
+      "standard_error": 500,
+      "confidence_interval": [74500, 75500],
+      "data_year": 2022,
+      "source": "fallback",
+      "quality": "good"
+    },
+    "african_american": {
+      "median_income": 52000,
+      "sample_size": 150000,
+      "standard_error": 800,
+      "confidence_interval": [51200, 52800],
+      "data_year": 2022,
+      "source": "fallback",
+      "quality": "good"
+    },
+    "white": {
+      "median_income": 78000,
+      "sample_size": 800000,
+      "standard_error": 400,
+      "confidence_interval": [77600, 78400],
+      "data_year": 2022,
+      "source": "fallback",
+      "quality": "good"
+    },
+    "hispanic_latino": {
+      "median_income": 56000,
+      "sample_size": 200000,
+      "standard_error": 700,
+      "confidence_interval": [55300, 56700],
+      "data_year": 2022,
+      "source": "fallback",
+      "quality": "good"
+    },
+    "asian": {
+      "median_income": 95000,
+      "sample_size": 100000,
+      "standard_error": 1000,
+      "confidence_interval": [94000, 96000],
+      "data_year": 2022,
+      "source": "fallback",
+      "quality": "good"
+    }
+  },
+  "age_groups": {
+    "25-34": {
+      "all_races": {
+        "median_income": 65000,
+        "sample_size": 300000,
+        "standard_error": 600,
+        "confidence_interval": [64400, 65600],
+        "data_year": 2022,
+        "source": "fallback",
+        "quality": "good"
+      },
+      "african_american": {
+        "median_income": 48000,
+        "sample_size": 45000,
+        "standard_error": 900,
+        "confidence_interval": [47100, 48900],
+        "data_year": 2022,
+        "source": "fallback",
+        "quality": "good"
+      },
+      "white": {
+        "median_income": 68000,
+        "sample_size": 240000,
+        "standard_error": 500,
+        "confidence_interval": [67500, 68500],
+        "data_year": 2022,
+        "source": "fallback",
+        "quality": "good"
+      },
+      "hispanic_latino": {
+        "median_income": 52000,
+        "sample_size": 60000,
+        "standard_error": 800,
+        "confidence_interval": [51200, 52800],
+        "data_year": 2022,
+        "source": "fallback",
+        "quality": "good"
+      },
+      "asian": {
+        "median_income": 75000,
+        "sample_size": 30000,
+        "standard_error": 1200,
+        "confidence_interval": [73800, 76200],
+        "data_year": 2022,
+        "source": "fallback",
+        "quality": "good"
+      }
+    },
+    "35-44": {
+      "all_races": {
+        "median_income": 85000,
+        "sample_size": 250000,
+        "standard_error": 700,
+        "confidence_interval": [84300, 85700],
+        "data_year": 2022,
+        "source": "fallback",
+        "quality": "good"
+      },
+      "african_american": {
+        "median_income": 62000,
+        "sample_size": 37500,
+        "standard_error": 1100,
+        "confidence_interval": [60900, 63100],
+        "data_year": 2022,
+        "source": "fallback",
+        "quality": "good"
+      },
+      "white": {
+        "median_income": 88000,
+        "sample_size": 200000,
+        "standard_error": 600,
+        "confidence_interval": [87400, 88600],
+        "data_year": 2022,
+        "source": "fallback",
+        "quality": "good"
+      },
+      "hispanic_latino": {
+        "median_income": 68000,
+        "sample_size": 50000,
+        "standard_error": 900,
+        "confidence_interval": [67100, 68900],
+        "data_year": 2022,
+        "source": "fallback",
+        "quality": "good"
+      },
+      "asian": {
+        "median_income": 105000,
+        "sample_size": 25000,
+        "standard_error": 1400,
+        "confidence_interval": [103600, 106400],
+        "data_year": 2022,
+        "source": "fallback",
+        "quality": "good"
+      }
+    }
+  },
+  "education_levels": {
+    "high_school": {
+      "all_races": {
+        "median_income": 45000,
+        "sample_size": 200000,
+        "standard_error": 500,
+        "confidence_interval": [44500, 45500],
+        "data_year": 2022,
+        "source": "fallback",
+        "quality": "good"
+      },
+      "african_american": {
+        "median_income": 38000,
+        "sample_size": 30000,
+        "standard_error": 800,
+        "confidence_interval": [37200, 38800],
+        "data_year": 2022,
+        "source": "fallback",
+        "quality": "good"
+      },
+      "white": {
+        "median_income": 47000,
+        "sample_size": 160000,
+        "standard_error": 400,
+        "confidence_interval": [46600, 47400],
+        "data_year": 2022,
+        "source": "fallback",
+        "quality": "good"
+      },
+      "hispanic_latino": {
+        "median_income": 42000,
+        "sample_size": 40000,
+        "standard_error": 700,
+        "confidence_interval": [41300, 42700],
+        "data_year": 2022,
+        "source": "fallback",
+        "quality": "good"
+      },
+      "asian": {
+        "median_income": 55000,
+        "sample_size": 10000,
+        "standard_error": 1200,
+        "confidence_interval": [53800, 56200],
+        "data_year": 2022,
+        "source": "fallback",
+        "quality": "good"
+      }
+    },
+    "bachelors": {
+      "all_races": {
+        "median_income": 85000,
+        "sample_size": 400000,
+        "standard_error": 600,
+        "confidence_interval": [84400, 85600],
+        "data_year": 2022,
+        "source": "fallback",
+        "quality": "good"
+      },
+      "african_american": {
+        "median_income": 65000,
+        "sample_size": 60000,
+        "standard_error": 900,
+        "confidence_interval": [64100, 65900],
+        "data_year": 2022,
+        "source": "fallback",
+        "quality": "good"
+      },
+      "white": {
+        "median_income": 88000,
+        "sample_size": 320000,
+        "standard_error": 500,
+        "confidence_interval": [87500, 88500],
+        "data_year": 2022,
+        "source": "fallback",
+        "quality": "good"
+      },
+      "hispanic_latino": {
+        "median_income": 72000,
+        "sample_size": 80000,
+        "standard_error": 800,
+        "confidence_interval": [71200, 72800],
+        "data_year": 2022,
+        "source": "fallback",
+        "quality": "good"
+      },
+      "asian": {
+        "median_income": 105000,
+        "sample_size": 40000,
+        "standard_error": 1200,
+        "confidence_interval": [103800, 106200],
+        "data_year": 2022,
+        "source": "fallback",
+        "quality": "good"
+      }
+    },
+    "masters": {
+      "all_races": {
+        "median_income": 105000,
+        "sample_size": 200000,
+        "standard_error": 800,
+        "confidence_interval": [104200, 105800],
+        "data_year": 2022,
+        "source": "fallback",
+        "quality": "good"
+      },
+      "african_american": {
+        "median_income": 85000,
+        "sample_size": 30000,
+        "standard_error": 1200,
+        "confidence_interval": [83800, 86200],
+        "data_year": 2022,
+        "source": "fallback",
+        "quality": "good"
+      },
+      "white": {
+        "median_income": 108000,
+        "sample_size": 160000,
+        "standard_error": 700,
+        "confidence_interval": [107300, 108700],
+        "data_year": 2022,
+        "source": "fallback",
+        "quality": "good"
+      },
+      "hispanic_latino": {
+        "median_income": 92000,
+        "sample_size": 40000,
+        "standard_error": 1000,
+        "confidence_interval": [91000, 93000],
+        "data_year": 2022,
+        "source": "fallback",
+        "quality": "good"
+      },
+      "asian": {
+        "median_income": 125000,
+        "sample_size": 20000,
+        "standard_error": 1500,
+        "confidence_interval": [123500, 126500],
+        "data_year": 2022,
+        "source": "fallback",
+        "quality": "good"
+      }
+    }
+  },
+  "metro_areas": {
+    "Atlanta": {
+      "all_races": {
+        "median_income": 72000,
+        "sample_size": 50000,
+        "standard_error": 800,
+        "confidence_interval": [71200, 72800],
+        "data_year": 2022,
+        "source": "fallback",
+        "quality": "good"
+      },
+      "african_american": {
+        "median_income": 52000,
+        "sample_size": 15000,
+        "standard_error": 1000,
+        "confidence_interval": [51000, 53000],
+        "data_year": 2022,
+        "source": "fallback",
+        "quality": "good"
+      },
+      "white": {
+        "median_income": 78000,
+        "sample_size": 30000,
+        "standard_error": 600,
+        "confidence_interval": [77400, 78600],
+        "data_year": 2022,
+        "source": "fallback",
+        "quality": "good"
+      },
+      "hispanic_latino": {
+        "median_income": 58000,
+        "sample_size": 8000,
+        "standard_error": 1200,
+        "confidence_interval": [56800, 59200],
+        "data_year": 2022,
+        "source": "fallback",
+        "quality": "good"
+      },
+      "asian": {
+        "median_income": 88000,
+        "sample_size": 7000,
+        "standard_error": 1500,
+        "confidence_interval": [86500, 89500],
+        "data_year": 2022,
+        "source": "fallback",
+        "quality": "good"
+      }
+    },
+    "Houston": {
+      "all_races": {
+        "median_income": 68000,
+        "sample_size": 45000,
+        "standard_error": 700,
+        "confidence_interval": [67300, 68700],
+        "data_year": 2022,
+        "source": "fallback",
+        "quality": "good"
+      },
+      "african_american": {
+        "median_income": 50000,
+        "sample_size": 12000,
+        "standard_error": 900,
+        "confidence_interval": [49100, 50900],
+        "data_year": 2022,
+        "source": "fallback",
+        "quality": "good"
+      },
+      "white": {
+        "median_income": 75000,
+        "sample_size": 25000,
+        "standard_error": 600,
+        "confidence_interval": [74400, 75600],
+        "data_year": 2022,
+        "source": "fallback",
+        "quality": "good"
+      },
+      "hispanic_latino": {
+        "median_income": 55000,
+        "sample_size": 12000,
+        "standard_error": 1000,
+        "confidence_interval": [54000, 56000],
+        "data_year": 2022,
+        "source": "fallback",
+        "quality": "good"
+      },
+      "asian": {
+        "median_income": 85000,
+        "sample_size": 6000,
+        "standard_error": 1400,
+        "confidence_interval": [83600, 86400],
+        "data_year": 2022,
+        "source": "fallback",
+        "quality": "good"
+      }
+    },
+    "Washington DC": {
+      "all_races": {
+        "median_income": 95000,
+        "sample_size": 40000,
+        "standard_error": 900,
+        "confidence_interval": [94100, 95900],
+        "data_year": 2022,
+        "source": "fallback",
+        "quality": "good"
+      },
+      "african_american": {
+        "median_income": 68000,
+        "sample_size": 10000,
+        "standard_error": 1200,
+        "confidence_interval": [66800, 69200],
+        "data_year": 2022,
+        "source": "fallback",
+        "quality": "good"
+      },
+      "white": {
+        "median_income": 105000,
+        "sample_size": 25000,
+        "standard_error": 800,
+        "confidence_interval": [104200, 105800],
+        "data_year": 2022,
+        "source": "fallback",
+        "quality": "good"
+      },
+      "hispanic_latino": {
+        "median_income": 75000,
+        "sample_size": 8000,
+        "standard_error": 1300,
+        "confidence_interval": [73700, 76300],
+        "data_year": 2022,
+        "source": "fallback",
+        "quality": "good"
+      },
+      "asian": {
+        "median_income": 115000,
+        "sample_size": 7000,
+        "standard_error": 1600,
+        "confidence_interval": [113400, 116600],
+        "data_year": 2022,
+        "source": "fallback",
+        "quality": "good"
+      }
+    },
+    "Dallas": {
+      "all_races": {
+        "median_income": 70000,
+        "sample_size": 40000,
+        "standard_error": 700,
+        "confidence_interval": [69300, 70700],
+        "data_year": 2022,
+        "source": "fallback",
+        "quality": "good"
+      },
+      "african_american": {
+        "median_income": 52000,
+        "sample_size": 10000,
+        "standard_error": 900,
+        "confidence_interval": [51100, 52900],
+        "data_year": 2022,
+        "source": "fallback",
+        "quality": "good"
+      },
+      "white": {
+        "median_income": 76000,
+        "sample_size": 25000,
+        "standard_error": 600,
+        "confidence_interval": [75400, 76600],
+        "data_year": 2022,
+        "source": "fallback",
+        "quality": "good"
+      },
+      "hispanic_latino": {
+        "median_income": 56000,
+        "sample_size": 10000,
+        "standard_error": 1000,
+        "confidence_interval": [55000, 57000],
+        "data_year": 2022,
+        "source": "fallback",
+        "quality": "good"
+      },
+      "asian": {
+        "median_income": 88000,
+        "sample_size": 5000,
+        "standard_error": 1500,
+        "confidence_interval": [86500, 89500],
+        "data_year": 2022,
+        "source": "fallback",
+        "quality": "good"
+      }
+    },
+    "New York City": {
+      "all_races": {
+        "median_income": 85000,
+        "sample_size": 60000,
+        "standard_error": 800,
+        "confidence_interval": [84200, 85800],
+        "data_year": 2022,
+        "source": "fallback",
+        "quality": "good"
+      },
+      "african_american": {
+        "median_income": 62000,
+        "sample_size": 15000,
+        "standard_error": 1100,
+        "confidence_interval": [60900, 63100],
+        "data_year": 2022,
+        "source": "fallback",
+        "quality": "good"
+      },
+      "white": {
+        "median_income": 95000,
+        "sample_size": 35000,
+        "standard_error": 700,
+        "confidence_interval": [94300, 95700],
+        "data_year": 2022,
+        "source": "fallback",
+        "quality": "good"
+      },
+      "hispanic_latino": {
+        "median_income": 65000,
+        "sample_size": 15000,
+        "standard_error": 1100,
+        "confidence_interval": [63900, 66100],
+        "data_year": 2022,
+        "source": "fallback",
+        "quality": "good"
+      },
+      "asian": {
+        "median_income": 105000,
+        "sample_size": 10000,
+        "standard_error": 1400,
+        "confidence_interval": [103600, 106400],
+        "data_year": 2022,
+        "source": "fallback",
+        "quality": "good"
+      }
+    },
+    "Philadelphia": {
+      "all_races": {
+        "median_income": 65000,
+        "sample_size": 35000,
+        "standard_error": 700,
+        "confidence_interval": [64300, 65700],
+        "data_year": 2022,
+        "source": "fallback",
+        "quality": "good"
+      },
+      "african_american": {
+        "median_income": 48000,
+        "sample_size": 12000,
+        "standard_error": 900,
+        "confidence_interval": [47100, 48900],
+        "data_year": 2022,
+        "source": "fallback",
+        "quality": "good"
+      },
+      "white": {
+        "median_income": 72000,
+        "sample_size": 20000,
+        "standard_error": 600,
+        "confidence_interval": [71400, 72600],
+        "data_year": 2022,
+        "source": "fallback",
+        "quality": "good"
+      },
+      "hispanic_latino": {
+        "median_income": 52000,
+        "sample_size": 8000,
+        "standard_error": 1100,
+        "confidence_interval": [50900, 53100],
+        "data_year": 2022,
+        "source": "fallback",
+        "quality": "good"
+      },
+      "asian": {
+        "median_income": 78000,
+        "sample_size": 5000,
+        "standard_error": 1400,
+        "confidence_interval": [76600, 79400],
+        "data_year": 2022,
+        "source": "fallback",
+        "quality": "good"
+      }
+    },
+    "Chicago": {
+      "all_races": {
+        "median_income": 75000,
+        "sample_size": 45000,
+        "standard_error": 800,
+        "confidence_interval": [74200, 75800],
+        "data_year": 2022,
+        "source": "fallback",
+        "quality": "good"
+      },
+      "african_american": {
+        "median_income": 55000,
+        "sample_size": 12000,
+        "standard_error": 1000,
+        "confidence_interval": [54000, 56000],
+        "data_year": 2022,
+        "source": "fallback",
+        "quality": "good"
+      },
+      "white": {
+        "median_income": 82000,
+        "sample_size": 25000,
+        "standard_error": 700,
+        "confidence_interval": [81300, 82700],
+        "data_year": 2022,
+        "source": "fallback",
+        "quality": "good"
+      },
+      "hispanic_latino": {
+        "median_income": 58000,
+        "sample_size": 10000,
+        "standard_error": 1100,
+        "confidence_interval": [56900, 59100],
+        "data_year": 2022,
+        "source": "fallback",
+        "quality": "good"
+      },
+      "asian": {
+        "median_income": 92000,
+        "sample_size": 8000,
+        "standard_error": 1400,
+        "confidence_interval": [90600, 93400],
+        "data_year": 2022,
+        "source": "fallback",
+        "quality": "good"
+      }
+    },
+    "Charlotte": {
+      "all_races": {
+        "median_income": 68000,
+        "sample_size": 30000,
+        "standard_error": 700,
+        "confidence_interval": [67300, 68700],
+        "data_year": 2022,
+        "source": "fallback",
+        "quality": "good"
+      },
+      "african_american": {
+        "median_income": 52000,
+        "sample_size": 8000,
+        "standard_error": 900,
+        "confidence_interval": [51100, 52900],
+        "data_year": 2022,
+        "source": "fallback",
+        "quality": "good"
+      },
+      "white": {
+        "median_income": 75000,
+        "sample_size": 18000,
+        "standard_error": 600,
+        "confidence_interval": [74400, 75600],
+        "data_year": 2022,
+        "source": "fallback",
+        "quality": "good"
+      },
+      "hispanic_latino": {
+        "median_income": 54000,
+        "sample_size": 6000,
+        "standard_error": 1100,
+        "confidence_interval": [52900, 55100],
+        "data_year": 2022,
+        "source": "fallback",
+        "quality": "good"
+      },
+      "asian": {
+        "median_income": 82000,
+        "sample_size": 4000,
+        "standard_error": 1500,
+        "confidence_interval": [80500, 83500],
+        "data_year": 2022,
+        "source": "fallback",
+        "quality": "good"
+      }
+    },
+    "Miami": {
+      "all_races": {
+        "median_income": 62000,
+        "sample_size": 35000,
+        "standard_error": 700,
+        "confidence_interval": [61300, 62700],
+        "data_year": 2022,
+        "source": "fallback",
+        "quality": "good"
+      },
+      "african_american": {
+        "median_income": 48000,
+        "sample_size": 8000,
+        "standard_error": 900,
+        "confidence_interval": [47100, 48900],
+        "data_year": 2022,
+        "source": "fallback",
+        "quality": "good"
+      },
+      "white": {
+        "median_income": 68000,
+        "sample_size": 20000,
+        "standard_error": 600,
+        "confidence_interval": [67400, 68600],
+        "data_year": 2022,
+        "source": "fallback",
+        "quality": "good"
+      },
+      "hispanic_latino": {
+        "median_income": 52000,
+        "sample_size": 12000,
+        "standard_error": 1000,
+        "confidence_interval": [51000, 53000],
+        "data_year": 2022,
+        "source": "fallback",
+        "quality": "good"
+      },
+      "asian": {
+        "median_income": 75000,
+        "sample_size": 5000,
+        "standard_error": 1400,
+        "confidence_interval": [73600, 76400],
+        "data_year": 2022,
+        "source": "fallback",
+        "quality": "good"
+      }
+    },
+    "Baltimore": {
+      "all_races": {
+        "median_income": 70000,
+        "sample_size": 25000,
+        "standard_error": 800,
+        "confidence_interval": [69200, 70800],
+        "data_year": 2022,
+        "source": "fallback",
+        "quality": "good"
+      },
+      "african_american": {
+        "median_income": 55000,
+        "sample_size": 10000,
+        "standard_error": 1000,
+        "confidence_interval": [54000, 56000],
+        "data_year": 2022,
+        "source": "fallback",
+        "quality": "good"
+      },
+      "white": {
+        "median_income": 78000,
+        "sample_size": 12000,
+        "standard_error": 700,
+        "confidence_interval": [77300, 78700],
+        "data_year": 2022,
+        "source": "fallback",
+        "quality": "good"
+      },
+      "hispanic_latino": {
+        "median_income": 56000,
+        "sample_size": 5000,
+        "standard_error": 1200,
+        "confidence_interval": [54800, 57200],
+        "data_year": 2022,
+        "source": "fallback",
+        "quality": "good"
+      },
+      "asian": {
+        "median_income": 85000,
+        "sample_size": 3000,
+        "standard_error": 1600,
+        "confidence_interval": [83400, 86600],
+        "data_year": 2022,
+        "source": "fallback",
+        "quality": "good"
+      }
+    }
+  }
+} 

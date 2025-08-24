@@ -1,0 +1,192 @@
+{% extends "admin/memes/base.html" %}
+
+{% block title %}All Memes{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="fas fa-images me-2"></i>Meme Management</h1>
+    <a href="{{ url_for('meme_admin.create') }}" class="btn btn-success">
+        <i class="fas fa-plus me-1"></i>Add New Meme
+    </a>
+</div>
+
+<!-- Stats Cards -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">{{ memes|length }}</h4>
+                        <p class="card-text">Total Memes</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-images fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">{{ memes|selectattr('is_active', 'equalto', true)|list|length }}</h4>
+                        <p class="card-text">Active Memes</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-check-circle fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">{{ memes|selectattr('is_active', 'equalto', false)|list|length }}</h4>
+                        <p class="card-text">Inactive Memes</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-pause-circle fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">{{ categories|length }}</h4>
+                        <p class="card-text">Categories</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-tags fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Memes Table -->
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-table me-2"></i>All Memes</h5>
+    </div>
+    <div class="card-body">
+        {% if memes %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Image</th>
+                        <th>Category</th>
+                        <th>Caption</th>
+                        <th>Status</th>
+                        <th>Priority</th>
+                        <th>Created</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for meme in memes %}
+                    <tr>
+                        <td>
+                            {% if meme.image_url %}
+                            <img src="{{ meme.image_url }}" alt="{{ meme.alt_text }}" class="meme-thumbnail">
+                            {% else %}
+                            <div class="meme-thumbnail bg-light d-flex align-items-center justify-content-center">
+                                <i class="fas fa-image text-muted"></i>
+                            </div>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="badge bg-secondary">{{ meme.category|replace('_', ' ')|title }}</span>
+                        </td>
+                        <td>
+                            <div class="text-truncate" style="max-width: 200px;" title="{{ meme.caption_text }}">
+                                {{ meme.caption_text }}
+                            </div>
+                        </td>
+                        <td>
+                            {% if meme.is_active %}
+                            <span class="badge bg-success status-badge">
+                                <i class="fas fa-check me-1"></i>Active
+                            </span>
+                            {% else %}
+                            <span class="badge bg-secondary status-badge">
+                                <i class="fas fa-pause me-1"></i>Inactive
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="badge bg-info">{{ meme.priority }}</span>
+                        </td>
+                        <td>
+                            <small class="text-muted">
+                                {{ meme.created_at.strftime('%Y-%m-%d') if meme.created_at else 'N/A' }}
+                            </small>
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm" role="group">
+                                <a href="{{ url_for('meme_admin.show', meme_id=meme.id) }}" 
+                                   class="btn btn-outline-primary" title="View">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{{ url_for('meme_admin.edit', meme_id=meme.id) }}" 
+                                   class="btn btn-outline-warning" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <button type="button" 
+                                        class="btn btn-outline-{{ 'success' if meme.is_active else 'warning' }}" 
+                                        title="{{ 'Deactivate' if meme.is_active else 'Activate' }}"
+                                        onclick="toggleMemeStatus('{{ meme.id }}')">
+                                    <i class="fas fa-{{ 'pause' if meme.is_active else 'play' }}"></i>
+                                </button>
+                                <form method="POST" action="{{ url_for('meme_admin.delete', meme_id=meme.id) }}" 
+                                      style="display: inline;" 
+                                      onsubmit="return confirmDelete()">
+                                    <button type="submit" class="btn btn-outline-danger" title="Delete">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-images fa-3x text-muted mb-3"></i>
+            <h4 class="text-muted">No memes found</h4>
+            <p class="text-muted">Get started by adding your first meme!</p>
+            <a href="{{ url_for('meme_admin.create') }}" class="btn btn-primary">
+                <i class="fas fa-plus me-1"></i>Add New Meme
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Category Filter (if needed) -->
+{% if memes %}
+<div class="mt-4">
+    <h6>Filter by Category:</h6>
+    <div class="btn-group" role="group">
+        <a href="{{ url_for('meme_admin.index') }}" class="btn btn-outline-primary">All</a>
+        {% for category in categories %}
+        <a href="{{ url_for('meme_admin.index') }}?category={{ category }}" 
+           class="btn btn-outline-secondary">{{ category|replace('_', ' ')|title }}</a>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+{% endblock %}

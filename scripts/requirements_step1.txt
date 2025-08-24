@@ -1,0 +1,18 @@
+# Requirements for Step 1: Mac Email URL Extractor
+# Install with: pip install -r requirements_step1.txt
+
+# Core dependencies
+requests>=2.31.0
+tqdm>=4.66.0
+
+# Optional: For enhanced URL processing
+urllib3>=2.0.0
+
+# Optional: For better email parsing
+email-validator>=2.0.0
+
+# Optional: For advanced URL expansion
+pyshorteners>=1.0.0
+
+# Optional: For better progress tracking
+rich>=13.0.0

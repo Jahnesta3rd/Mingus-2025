@@ -1,0 +1,12 @@
+{
+  "extraction_date": "2025-08-23T09:26:03.807981",
+  "total_urls_extracted": 6,
+  "unique_domains": 6,
+  "total_notes_processed": 6,
+  "avg_quality_score": 0.7999999999999999,
+  "recommendations": {
+    "auto_approve": 5,
+    "manual_review": 1,
+    "auto_reject": 0
+  }
+}

@@ -14,6 +14,12 @@ from .user_health_checkin import UserHealthCheckin
 from .health_spending_correlation import HealthSpendingCorrelation
 from .user_goals import UserGoals
 
+# Article library models
+from .articles import (
+    Article, UserArticleRead, UserArticleBookmark, UserArticleRating,
+    UserArticleProgress, ArticleRecommendation, ArticleAnalytics, UserAssessmentScores
+)
+
 # Database session configuration
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -32,6 +38,15 @@ __all__ = [
     'UserHealthCheckin',
     'HealthSpendingCorrelation',
     'UserGoals',
+    # Article library models
+    'Article',
+    'UserArticleRead',
+    'UserArticleBookmark', 
+    'UserArticleRating',
+    'UserArticleProgress',
+    'ArticleRecommendation',
+    'ArticleAnalytics',
+    'UserAssessmentScores',
     'db_session',
     'SessionLocal'
 ] 

@@ -1,0 +1,550 @@
+/**
+ * Feature Access Control - CSS Styles
+ * 
+ * Styles for:
+ * - Feature access modals
+ * - Upgrade prompts
+ * - Educational content display
+ * - Graceful degradation UI
+ */
+
+/* Modal Overlay */
+.feature-access-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.feature-access-modal.show {
+    opacity: 1;
+}
+
+.feature-access-modal .modal-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+}
+
+.feature-access-modal .modal-content {
+    position: relative;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    max-width: 500px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+    transform: scale(0.9);
+    transition: transform 0.3s ease-in-out;
+}
+
+.feature-access-modal.show .modal-content {
+    transform: scale(1);
+}
+
+/* Modal Header */
+.feature-access-modal .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px 24px 16px 24px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.feature-access-modal .modal-header h3 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.feature-access-modal .modal-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: #6b7280;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.feature-access-modal .modal-close:hover {
+    background-color: #f3f4f6;
+    color: #374151;
+}
+
+/* Modal Body */
+.feature-access-modal .modal-body {
+    padding: 20px 24px;
+    color: #374151;
+    line-height: 1.6;
+}
+
+.feature-access-modal .modal-body p {
+    margin: 0 0 16px 0;
+    font-size: 1rem;
+}
+
+/* Benefits List */
+.feature-access-modal .benefits-list {
+    margin: 20px 0;
+    padding: 16px;
+    background-color: #f8fafc;
+    border-radius: 8px;
+    border-left: 4px solid #3b82f6;
+}
+
+.feature-access-modal .benefits-list h4 {
+    margin: 0 0 12px 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.feature-access-modal .benefits-list ul {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.feature-access-modal .benefits-list li {
+    margin: 8px 0;
+    color: #4b5563;
+}
+
+/* Usage Information */
+.feature-access-modal .usage-info {
+    margin: 20px 0;
+    padding: 16px;
+    background-color: #fef3c7;
+    border-radius: 8px;
+    border-left: 4px solid #f59e0b;
+}
+
+.feature-access-modal .usage-info h4 {
+    margin: 0 0 8px 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #92400e;
+}
+
+.feature-access-modal .usage-info p {
+    margin: 0;
+    color: #92400e;
+}
+
+/* Alternatives List */
+.feature-access-modal .alternatives-list {
+    margin: 20px 0;
+    padding: 16px;
+    background-color: #ecfdf5;
+    border-radius: 8px;
+    border-left: 4px solid #10b981;
+}
+
+.feature-access-modal .alternatives-list h4 {
+    margin: 0 0 12px 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #065f46;
+}
+
+.feature-access-modal .alternatives-list ul {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.feature-access-modal .alternatives-list li {
+    margin: 8px 0;
+    color: #047857;
+}
+
+/* Price Information */
+.feature-access-modal .price-info {
+    margin: 20px 0;
+    text-align: center;
+    padding: 16px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 8px;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+/* Modal Footer */
+.feature-access-modal .modal-footer {
+    display: flex;
+    gap: 12px;
+    padding: 16px 24px 24px 24px;
+    border-top: 1px solid #e5e7eb;
+    flex-wrap: wrap;
+}
+
+/* Buttons */
+.feature-access-modal .btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+    min-width: 120px;
+}
+
+.feature-access-modal .btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.feature-access-modal .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(102, 126, 234, 0.3);
+}
+
+.feature-access-modal .btn-secondary {
+    background-color: #f3f4f6;
+    color: #374151;
+    border: 1px solid #d1d5db;
+}
+
+.feature-access-modal .btn-secondary:hover {
+    background-color: #e5e7eb;
+    border-color: #9ca3af;
+}
+
+/* Feature Access Status Indicators */
+.feature-access-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.feature-access-status.available {
+    background-color: #ecfdf5;
+    color: #065f46;
+    border: 1px solid #a7f3d0;
+}
+
+.feature-access-status.limited {
+    background-color: #fef3c7;
+    color: #92400e;
+    border: 1px solid #fde68a;
+}
+
+.feature-access-status.unavailable {
+    background-color: #fef2f2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+}
+
+/* Upgrade Prompts */
+.upgrade-prompt {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 20px;
+    border-radius: 12px;
+    margin: 20px 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.upgrade-prompt::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.1"/><circle cx="10" cy="60" r="0.5" fill="white" opacity="0.1"/><circle cx="90" cy="40" r="0.5" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+    pointer-events: none;
+}
+
+.upgrade-prompt h3 {
+    margin: 0 0 12px 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.upgrade-prompt p {
+    margin: 0 0 16px 0;
+    opacity: 0.9;
+}
+
+.upgrade-prompt .benefits {
+    margin: 16px 0;
+}
+
+.upgrade-prompt .benefits ul {
+    margin: 0;
+    padding-left: 20px;
+    list-style: none;
+}
+
+.upgrade-prompt .benefits li {
+    margin: 8px 0;
+    position: relative;
+    padding-left: 24px;
+}
+
+.upgrade-prompt .benefits li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: #10b981;
+    font-weight: bold;
+}
+
+.upgrade-prompt .actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+}
+
+/* Graceful Degradation Components */
+.graceful-degradation {
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 20px 0;
+}
+
+.graceful-degradation h4 {
+    margin: 0 0 12px 0;
+    color: #374151;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.graceful-degradation .degradation-message {
+    color: #6b7280;
+    margin-bottom: 16px;
+    line-height: 1.6;
+}
+
+.graceful-degradation .alternatives {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.graceful-degradation .alternatives h5 {
+    margin: 0 0 8px 0;
+    color: #374151;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.graceful-degradation .alternatives ul {
+    margin: 0;
+    padding-left: 20px;
+    color: #6b7280;
+}
+
+/* Educational Content */
+.educational-content {
+    background-color: #f0f9ff;
+    border: 1px solid #bae6fd;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 20px 0;
+}
+
+.educational-content h4 {
+    margin: 0 0 12px 0;
+    color: #0c4a6e;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.educational-content .content {
+    color: #0c4a6e;
+    line-height: 1.6;
+}
+
+.educational-content .content h3 {
+    margin: 16px 0 8px 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.educational-content .content ul {
+    margin: 8px 0;
+    padding-left: 20px;
+}
+
+.educational-content .content li {
+    margin: 4px 0;
+}
+
+/* Trial Offers */
+.trial-offer {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    padding: 20px;
+    border-radius: 12px;
+    margin: 20px 0;
+    text-align: center;
+}
+
+.trial-offer h4 {
+    margin: 0 0 12px 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.trial-offer p {
+    margin: 0 0 16px 0;
+    opacity: 0.9;
+}
+
+.trial-offer .trial-benefits {
+    margin: 16px 0;
+    text-align: left;
+}
+
+.trial-offer .trial-benefits ul {
+    margin: 0;
+    padding-left: 20px;
+    list-style: none;
+}
+
+.trial-offer .trial-benefits li {
+    margin: 8px 0;
+    position: relative;
+    padding-left: 24px;
+}
+
+.trial-offer .trial-benefits li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: #a7f3d0;
+    font-weight: bold;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .feature-access-modal .modal-content {
+        width: 95%;
+        margin: 20px;
+    }
+    
+    .feature-access-modal .modal-header,
+    .feature-access-modal .modal-body,
+    .feature-access-modal .modal-footer {
+        padding: 16px;
+    }
+    
+    .feature-access-modal .modal-footer {
+        flex-direction: column;
+    }
+    
+    .feature-access-modal .btn {
+        width: 100%;
+        min-width: auto;
+    }
+    
+    .upgrade-prompt .actions {
+        flex-direction: column;
+    }
+    
+    .upgrade-prompt .actions .btn {
+        width: 100%;
+    }
+}
+
+/* Animation Classes */
+.fade-in {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.slide-up {
+    animation: slideUp 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Loading States */
+.feature-access-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    color: #6b7280;
+}
+
+.feature-access-loading .spinner {
+    width: 24px;
+    height: 24px;
+    border: 3px solid #e5e7eb;
+    border-top: 3px solid #3b82f6;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-right: 12px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Error States */
+.feature-access-error {
+    background-color: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+    padding: 16px;
+    margin: 20px 0;
+    color: #991b1b;
+}
+
+.feature-access-error h4 {
+    margin: 0 0 8px 0;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.feature-access-error p {
+    margin: 0;
+    font-size: 0.875rem;
+} 

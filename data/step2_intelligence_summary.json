@@ -1,0 +1,26 @@
+{
+  "analysis_timestamp": "2025-08-22T19:24:42.624688",
+  "total_domains_analyzed": 672,
+  "recommendation_breakdown": {
+    "auto_approve": 47,
+    "auto_reject": 45,
+    "manual_review": 580
+  },
+  "cultural_relevance_breakdown": {
+    "high_relevance": 0,
+    "medium_relevance": 0,
+    "low_relevance": 672
+  },
+  "quality_breakdown": {
+    "high_quality": 47,
+    "medium_quality": 580,
+    "low_quality": 5,
+    "suspicious": 40
+  },
+  "estimated_articles_after_filtering": 2385,
+  "processing_efficiency": {
+    "auto_approve_percentage": 6.9940476190476195,
+    "auto_reject_percentage": 6.696428571428571,
+    "manual_review_percentage": 86.30952380952381
+  }
+}

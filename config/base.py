@@ -5,172 +5,147 @@ Base configuration for Flask application
 
 import os
 from datetime import timedelta
+from .secure_config import get_secure_config, SecurityConfig, SecurityLevel
 
 class Config:
-    """Base configuration class"""
+    """Base configuration class using secure configuration management"""
     
-    # Flask settings
-    SECRET_KEY = os.environ.get('SECRET_KEY') or 'dev-secret-key-change-in-production'
-    DEBUG = False
-    TESTING = False
+    def __init__(self):
+        """Initialize configuration with secure config manager"""
+        self.secure_config = get_secure_config()
+        self._load_configuration()
     
-    # Database settings
-    DATABASE_URL = os.environ.get('DATABASE_URL', 'sqlite:///instance/mingus.db')
-    DB_POOL_SIZE = int(os.environ.get('DB_POOL_SIZE', 10))
-    DB_MAX_OVERFLOW = int(os.environ.get('DB_MAX_OVERFLOW', 20))
-    CREATE_TABLES = True
-    
-    # CORS settings
-    CORS_ORIGINS = [
-        'http://localhost:3000',
-        'http://127.0.0.1:3000',
-        'https://localhost:3000',
-        'https://127.0.0.1:3000'
-    ]
-    
-    # Session settings
-    PERMANENT_SESSION_LIFETIME = timedelta(hours=1)
-    SESSION_COOKIE_SECURE = True
-    SESSION_COOKIE_HTTPONLY = True
-    SESSION_COOKIE_SAMESITE = 'Strict'
-    SESSION_COOKIE_MAX_AGE = 3600
-    
-    # Security headers
-    SECURITY_HEADERS = {
-        'Strict-Transport-Security': 'max-age=31536000; includeSubDomains; preload',
+    def _load_configuration(self):
+        """Load configuration from secure config manager"""
+        self.SECRET_KEY = self.secure_config.get('SECRET_KEY')
+        self.DEBUG = self.secure_config.get('DEBUG', 'false').lower() == 'true'
+        self.DATABASE_URL = self.secure_config.get('DATABASE_URL')
+        self.SQLALCHEMY_DATABASE_URI = self.DATABASE_URL
+        self.SQLALCHEMY_TRACK_MODIFICATIONS = False
+        self.SQLALCHEMY_ENGINE_OPTIONS = {
+            'pool_size': int(self.secure_config.get('DB_POOL_SIZE', '20')),
+            'pool_recycle': int(self.secure_config.get('DB_POOL_RECYCLE', '3600')),
+            'pool_pre_ping': True,
+            'max_overflow': int(self.secure_config.get('DB_MAX_OVERFLOW', '30'))
+        }
         
-        'Content-Security-Policy': (
-            "default-src 'self'; "
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://unpkg.com; "
-            "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; "
-            "font-src 'self' https://fonts.gstatic.com; "
-            "img-src 'self' data: https:; "
-            "connect-src 'self' https://wiemjrvxlqkpbsukdqnb.supabase.co; "
-            "frame-ancestors 'none'; "
-            "base-uri 'self'; "
-            "form-action 'self'"
-        ),
+        # Session configuration
+        self.SESSION_COOKIE_SECURE = self.secure_config.get('SESSION_COOKIE_SECURE', 'true').lower() == 'true'
+        self.SESSION_COOKIE_HTTPONLY = True
+        self.SESSION_COOKIE_SAMESITE = self.secure_config.get('SESSION_COOKIE_SAMESITE', 'Strict')
+        self.PERMANENT_SESSION_LIFETIME = timedelta(hours=int(self.secure_config.get('SESSION_LIFETIME_HOURS', '24')))
         
-        'X-Content-Type-Options': 'nosniff',
-        'X-Frame-Options': 'DENY',
-        'X-XSS-Protection': '1; mode=block',
+        # CORS configuration
+        cors_origins = self.secure_config.get('CORS_ORIGINS', 'http://localhost:3000,http://127.0.0.1:3000')
+        self.CORS_ORIGINS = [origin.strip() for origin in cors_origins.split(',')]
         
-        'Referrer-Policy': 'strict-origin-when-cross-origin',
+        # Logging configuration
+        self.LOG_LEVEL = self.secure_config.get('LOG_LEVEL', 'INFO')
+        self.LOG_FORMAT = self.secure_config.get('LOG_FORMAT', '{time:YYYY-MM-DD HH:mm:ss} | {level} | {name}:{function}:{line} | {message}')
+        self.LOG_ROTATION = self.secure_config.get('LOG_ROTATION', '1 day')
+        self.LOG_RETENTION = self.secure_config.get('LOG_RETENTION', '30 days')
+        self.LOG_FILE = self.secure_config.get('LOG_FILE', 'logs/mingus.log')
         
-        'Permissions-Policy': (
-            'geolocation=(), '
-            'microphone=(), '
-            'camera=(), '
-            'payment=(), '
-            'usb=(), '
-            'magnetometer=(), '
-            'gyroscope=(), '
-            'accelerometer=(), '
-            'ambient-light-sensor=(), '
-            'autoplay=(), '
-            'encrypted-media=(), '
-            'picture-in-picture=()'
-        ),
+        # Email configuration
+        self.MAIL_SERVER = self.secure_config.get('MAIL_SERVER', 'smtp.gmail.com')
+        self.MAIL_PORT = int(self.secure_config.get('MAIL_PORT', '587'))
+        self.MAIL_USE_TLS = self.secure_config.get('MAIL_USE_TLS', 'true').lower() == 'true'
+        self.MAIL_USERNAME = self.secure_config.get('MAIL_USERNAME')
+        self.MAIL_PASSWORD = self.secure_config.get('MAIL_PASSWORD')
+        self.MAIL_DEFAULT_SENDER = self.secure_config.get('MAIL_DEFAULT_SENDER', 'noreply@mingusapp.com')
         
-        'Cache-Control': 'no-store, no-cache, must-revalidate, private',
-        'Pragma': 'no-cache',
-        'Expires': '0'
-    }
-    
-    # Security settings
-    WTF_CSRF_ENABLED = True
-    WTF_CSRF_TIME_LIMIT = 3600
-    
-    # Logging settings
-    LOG_LEVEL = 'INFO'
-    LOG_FORMAT = '{time:YYYY-MM-DD HH:mm:ss} | {level} | {name}:{function}:{line} | {message}'
-    LOG_ROTATION = '1 day'
-    LOG_RETENTION = '30 days'
-    
-    # Supabase settings (for existing functionality)
-    SUPABASE_URL = os.environ.get('SUPABASE_URL', 'https://wiemjrvxlqkpbsukdqnb.supabase.co')
-    SUPABASE_KEY = os.environ.get('SUPABASE_KEY')
-    SUPABASE_SERVICE_ROLE_KEY = os.environ.get('SUPABASE_SERVICE_ROLE_KEY')
-    SUPABASE_JWT_SECRET = os.environ.get('SUPABASE_JWT_SECRET')
-    
-    # Email settings
-    MAIL_SERVER = os.environ.get('MAIL_SERVER', 'smtp.gmail.com')
-    MAIL_PORT = int(os.environ.get('MAIL_PORT', 587))
-    MAIL_USE_TLS = os.environ.get('MAIL_USE_TLS', 'true').lower() == 'true'
-    MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
-    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
-    MAIL_DEFAULT_SENDER = os.environ.get('MAIL_DEFAULT_SENDER')
-    
-    # File upload settings
-    MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16MB max file size
-    UPLOAD_FOLDER = os.environ.get('UPLOAD_FOLDER', 'uploads')
-    
-    # API settings
-    API_TITLE = 'Mingus Personal Finance API'
-    API_VERSION = 'v1'
-    API_DESCRIPTION = 'API for Mingus personal finance application'
-    
-    # Rate limiting
-    RATELIMIT_ENABLED = True
-    RATELIMIT_STORAGE_URL = 'memory://'
-    RATELIMIT_DEFAULT = '100 per minute'
-    RATELIMIT_STRATEGY = 'fixed-window'
-    
-    # Cache settings
-    CACHE_TYPE = os.environ.get('CACHE_TYPE', 'simple')
-    CACHE_DEFAULT_TIMEOUT = int(os.environ.get('CACHE_DEFAULT_TIMEOUT', 300))
-    
-    # Input validation limits
-    FINANCIAL_VALIDATION_LIMITS = {
-        'max_income_per_source': 1000000,  # $1M per income source
-        'max_expense_per_item': 100000,    # $100K per expense
-        'max_monthly_income': 1000000,     # $1M monthly
-        'max_monthly_expenses': 500000,    # $500K monthly
-        'max_savings_goal': 10000000,      # $10M savings goal
-        'max_debt_amount': 5000000,        # $5M debt
-        'min_amount': 0,                   # Minimum amount
-        'max_frequency_options': ['weekly', 'bi-weekly', 'monthly', 'quarterly', 'annually']
-    }
-    
-    # =====================================================
-    # ENCRYPTION & SECURITY KEYS
-    # =====================================================
-    
-    # Field-level encryption key (32 bytes for AES-256)
-    FIELD_ENCRYPTION_KEY = os.environ.get('FIELD_ENCRYPTION_KEY')
-    
-    # Django secret key for django-encrypted-model-fields compatibility
-    DJANGO_SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
-    
-    # General encryption settings
-    ENCRYPTION_KEY = os.environ.get('ENCRYPTION_KEY') or FIELD_ENCRYPTION_KEY
-    ENCRYPTION_ALGORITHM = 'AES-256-GCM'
-    
-    # SSL/HTTPS settings
-    SECURE_SSL_REDIRECT = os.environ.get('SECURE_SSL_REDIRECT', 'True').lower() == 'true'
-    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-    SECURE_HSTS_SECONDS = 31536000
-    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-    SECURE_HSTS_PRELOAD = True
-    SECURE_CONTENT_TYPE_NOSNIFF = True
-    SECURE_BROWSER_XSS_FILTER = True
-    SECURE_FRAME_DENY = True
-    
-    # Audit logging
-    AUDIT_LOG_ENABLED = True
-    AUDIT_LOG_RETENTION_DAYS = 90
-    AUDIT_LOG_SENSITIVE_FIELDS = [
-        'monthly_income', 'current_savings', 'current_debt', 
-        'emergency_fund', 'savings_goal', 'debt_payoff_goal',
-        'amount', 'balance', 'minimum_payment'
-    ]
-    
-    # Feature flags
-    ENABLE_ONBOARDING = True
-    ENABLE_USER_PROFILES = True
-    ENABLE_ENCRYPTION = True
-    ENABLE_AUDIT_LOGGING = True
-    BYPASS_AUTH = False
-    
-    # Application port
-    PORT = int(os.environ.get('PORT', 5002)) 
+        # Redis configuration
+        self.REDIS_URL = self.secure_config.get('REDIS_URL', 'redis://localhost:6379/0')
+        
+        # Rate limiting configuration
+        self.RATELIMIT_ENABLED = self.secure_config.get('RATELIMIT_ENABLED', 'true').lower() == 'true'
+        self.RATELIMIT_STORAGE_URL = self.secure_config.get('RATELIMIT_STORAGE_URL', 'memory://')
+        self.RATELIMIT_DEFAULT = self.secure_config.get('RATELIMIT_DEFAULT', '100 per minute')
+        self.RATELIMIT_STRATEGY = self.secure_config.get('RATELIMIT_STRATEGY', 'fixed-window')
+        
+        # API configuration
+        self.API_TITLE = self.secure_config.get('API_TITLE', 'Mingus Personal Finance API')
+        self.API_VERSION = self.secure_config.get('API_VERSION', 'v1')
+        self.API_DESCRIPTION = self.secure_config.get('API_DESCRIPTION', 'API for Mingus personal finance application')
+        
+        # Security configuration
+        self.SECURE_SSL_REDIRECT = self.secure_config.get('SECURE_SSL_REDIRECT', 'True').lower() == 'true'
+        self.SECURE_HSTS_SECONDS = int(self.secure_config.get('SECURE_HSTS_SECONDS', '31536000'))
+        self.SECURE_HSTS_INCLUDE_SUBDOMAINS = self.secure_config.get('SECURE_HSTS_INCLUDE_SUBDOMAINS', 'true').lower() == 'true'
+        self.SECURE_HSTS_PRELOAD = self.secure_config.get('SECURE_HSTS_PRELOAD', 'true').lower() == 'true'
+        self.SECURE_CONTENT_TYPE_NOSNIFF = self.secure_config.get('SECURE_CONTENT_TYPE_NOSNIFF', 'true').lower() == 'true'
+        self.SECURE_BROWSER_XSS_FILTER = self.secure_config.get('SECURE_BROWSER_XSS_FILTER', 'true').lower() == 'true'
+        self.SECURE_FRAME_DENY = self.secure_config.get('SECURE_FRAME_DENY', 'true').lower() == 'true'
+        
+        # Encryption configuration
+        self.FIELD_ENCRYPTION_KEY = self.secure_config.get('FIELD_ENCRYPTION_KEY')
+        self.ENCRYPTION_ALGORITHM = self.secure_config.get('ENCRYPTION_ALGORITHM', 'AES-256-GCM')
+        
+        # Audit logging configuration
+        self.AUDIT_LOG_ENABLED = self.secure_config.get('AUDIT_LOG_ENABLED', 'true').lower() == 'true'
+        self.AUDIT_LOG_RETENTION_DAYS = int(self.secure_config.get('AUDIT_LOG_RETENTION_DAYS', '2555'))  # 7 years
+        
+        # Feature flags
+        self.ENABLE_ONBOARDING = self.secure_config.get('ENABLE_ONBOARDING', 'true').lower() == 'true'
+        self.ENABLE_USER_PROFILES = self.secure_config.get('ENABLE_USER_PROFILES', 'true').lower() == 'true'
+        self.ENABLE_ENCRYPTION = self.secure_config.get('ENABLE_ENCRYPTION', 'true').lower() == 'true'
+        self.ENABLE_AUDIT_LOGGING = self.secure_config.get('ENABLE_AUDIT_LOGGING', 'true').lower() == 'true'
+        self.BYPASS_AUTH = self.secure_config.get('BYPASS_AUTH', 'false').lower() == 'true'
+        
+        # Port configuration
+        self.PORT = int(self.secure_config.get('PORT', '5002'))
+        
+        # Supabase configuration
+        self.SUPABASE_URL = self.secure_config.get('SUPABASE_URL')
+        self.SUPABASE_KEY = self.secure_config.get('SUPABASE_KEY')
+        self.SUPABASE_SERVICE_ROLE_KEY = self.secure_config.get('SUPABASE_SERVICE_ROLE_KEY')
+        self.SUPABASE_JWT_SECRET = self.secure_config.get('SUPABASE_JWT_SECRET')
+        
+        # Stripe configuration
+        self.STRIPE_ENVIRONMENT = self.secure_config.get('STRIPE_ENVIRONMENT', 'test')
+        self.STRIPE_TEST_SECRET_KEY = self.secure_config.get('STRIPE_TEST_SECRET_KEY')
+        self.STRIPE_TEST_PUBLISHABLE_KEY = self.secure_config.get('STRIPE_TEST_PUBLISHABLE_KEY')
+        self.STRIPE_LIVE_SECRET_KEY = self.secure_config.get('STRIPE_LIVE_SECRET_KEY')
+        self.STRIPE_LIVE_PUBLISHABLE_KEY = self.secure_config.get('STRIPE_LIVE_PUBLISHABLE_KEY')
+        
+        # Plaid configuration
+        self.PLAID_ENVIRONMENT = self.secure_config.get('PLAID_ENVIRONMENT', 'sandbox')
+        self.PLAID_SANDBOX_CLIENT_ID = self.secure_config.get('PLAID_SANDBOX_CLIENT_ID')
+        self.PLAID_SANDBOX_SECRET = self.secure_config.get('PLAID_SANDBOX_SECRET')
+        self.PLAID_PRODUCTION_CLIENT_ID = self.secure_config.get('PLAID_PRODUCTION_CLIENT_ID')
+        self.PLAID_PRODUCTION_SECRET = self.secure_config.get('PLAID_PRODUCTION_SECRET')
+        
+        # Email provider configuration
+        self.EMAIL_PROVIDER = self.secure_config.get('EMAIL_PROVIDER', 'resend')
+        self.RESEND_API_KEY = self.secure_config.get('RESEND_API_KEY')
+        self.RESEND_FROM_EMAIL = self.secure_config.get('RESEND_FROM_EMAIL', 'noreply@mingusapp.com')
+        self.RESEND_FROM_NAME = self.secure_config.get('RESEND_FROM_NAME', 'MINGUS Financial Wellness')
+        
+        # SMS configuration
+        self.TWILIO_ACCOUNT_SID = self.secure_config.get('TWILIO_ACCOUNT_SID')
+        self.TWILIO_AUTH_TOKEN = self.secure_config.get('TWILIO_AUTH_TOKEN')
+        self.TWILIO_PHONE_NUMBER = self.secure_config.get('TWILIO_PHONE_NUMBER')
+        
+        # Celery configuration
+        self.CELERY_BROKER_URL = self.secure_config.get('CELERY_BROKER_URL', 'redis://localhost:6379/0')
+        self.CELERY_RESULT_BACKEND = self.secure_config.get('CELERY_RESULT_BACKEND', 'redis://localhost:6379/0')
+        
+        # Cache configuration
+        self.CACHE_TYPE = self.secure_config.get('CACHE_TYPE', 'simple')
+        self.CACHE_DEFAULT_TIMEOUT = int(self.secure_config.get('CACHE_DEFAULT_TIMEOUT', '300'))
+        
+        # File upload configuration
+        self.MAX_CONTENT_LENGTH = int(self.secure_config.get('MAX_CONTENT_LENGTH', '16777216'))  # 16MB
+        self.UPLOAD_FOLDER = self.secure_config.get('UPLOAD_FOLDER', 'uploads')
+        
+        # Static files configuration
+        self.STATIC_FOLDER = self.secure_config.get('STATIC_FOLDER', 'static')
+        self.STATIC_URL_PATH = self.secure_config.get('STATIC_URL_PATH', '/static')
+        
+        # Template configuration
+        self.TEMPLATE_FOLDER = self.secure_config.get('TEMPLATE_FOLDER', 'templates')
+        
+        # Performance monitoring
+        self.ENABLE_PERFORMANCE_MONITORING = self.secure_config.get('ENABLE_PERFORMANCE_MONITORING', 'true').lower() == 'true'
+        self.ENABLE_ERROR_TRACKING = self.secure_config.get('ENABLE_ERROR_TRACKING', 'true').lower() == 'true'
+        self.ENABLE_USAGE_ANALYTICS = self.secure_config.get('ENABLE_USAGE_ANALYTICS', 'true').lower() == 'true' 

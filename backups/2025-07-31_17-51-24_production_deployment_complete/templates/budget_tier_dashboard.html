@@ -1,0 +1,1613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Budget Tier Dashboard - MINGUS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #64748b;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --light-bg: #f8fafc;
+            --border-color: #e2e8f0;
+        }
+
+        body {
+            background-color: var(--light-bg);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        .dashboard-header {
+            background: linear-gradient(135deg, var(--primary-color), #1d4ed8);
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1.5rem;
+        }
+
+        .card-header {
+            background-color: white;
+            border-bottom: 1px solid var(--border-color);
+            border-radius: 12px 12px 0 0 !important;
+            font-weight: 600;
+        }
+
+        .upgrade-prompt {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            border: 1px solid #f59e0b;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            position: relative;
+        }
+
+        .upgrade-prompt.high-priority {
+            background: linear-gradient(135deg, #fee2e2, #fecaca);
+            border-color: var(--danger-color);
+        }
+
+        .upgrade-prompt.medium-priority {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            border-color: var(--warning-color);
+        }
+
+        .manual-entry-form {
+            background-color: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .banking-preview {
+            background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+            border: 1px solid var(--primary-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .resume-parsing-widget {
+            background-color: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            border-radius: 8px;
+            font-weight: 500;
+        }
+
+        .btn-primary:hover {
+            background-color: #1d4ed8;
+            border-color: #1d4ed8;
+        }
+
+        .btn-upgrade {
+            background: linear-gradient(135deg, var(--success-color), #059669);
+            border: none;
+            color: white;
+            font-weight: 600;
+            border-radius: 8px;
+        }
+
+        .btn-upgrade:hover {
+            background: linear-gradient(135deg, #059669, #047857);
+            color: white;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .stat-label {
+            color: var(--secondary-color);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .alert {
+            border-radius: 8px;
+            border: none;
+        }
+
+        .feature-preview {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .feature-preview:hover {
+            box-shadow: 0 8px 25px -8px rgba(0, 0, 0, 0.15);
+            transform: translateY(-2px);
+            transition: all 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <!-- Dashboard Header -->
+    <div class="dashboard-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="mb-2">
+                        <i class="fas fa-chart-line me-2"></i>
+                        Budget Tier Dashboard
+                    </h1>
+                    <p class="mb-0 opacity-75">Manage your finances with basic tools and explore premium features</p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <button class="btn btn-light" onclick="refreshDashboard()">
+                        <i class="fas fa-sync-alt me-2"></i>Refresh
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Loading Spinner -->
+        <div id="loadingSpinner" class="loading-spinner">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2">Loading dashboard data...</p>
+        </div>
+
+        <!-- Main Dashboard Content -->
+        <div id="dashboardContent">
+            <!-- Upgrade Prompts Section -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-arrow-up me-2"></i>
+                                Upgrade Opportunities
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="upgradePrompts">
+                                <!-- Upgrade prompts will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Manual Entry Section -->
+            <div class="row mb-4">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-edit me-2"></i>
+                                Manual Entry
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="manual-entry-form">
+                                <form id="manualEntryForm">
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="entryAmount" class="form-label">Amount</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text">$</span>
+                                                <input type="number" class="form-control" id="entryAmount" step="0.01" required>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="entryType" class="form-label">Type</label>
+                                            <select class="form-select" id="entryType" required>
+                                                <option value="expense">Expense</option>
+                                                <option value="income">Income</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="entryDescription" class="form-label">Description</label>
+                                            <input type="text" class="form-control" id="entryDescription" required>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="entryCategory" class="form-label">Category</label>
+                                            <select class="form-select" id="entryCategory" required>
+                                                <option value="">Select category...</option>
+                                                <option value="Food & Dining">Food & Dining</option>
+                                                <option value="Transportation">Transportation</option>
+                                                <option value="Housing">Housing</option>
+                                                <option value="Utilities">Utilities</option>
+                                                <option value="Entertainment">Entertainment</option>
+                                                <option value="Shopping">Shopping</option>
+                                                <option value="Healthcare">Healthcare</option>
+                                                <option value="Education">Education</option>
+                                                <option value="Travel">Travel</option>
+                                                <option value="Other">Other</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="entryDate" class="form-label">Date</label>
+                                            <input type="date" class="form-control" id="entryDate" required>
+                                        </div>
+                                        <div class="col-md-6 d-flex align-items-end">
+                                            <button type="submit" class="btn btn-primary w-100">
+                                                <i class="fas fa-plus me-2"></i>Add Entry
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-chart-pie me-2"></i>
+                                Quick Stats
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="quickStats">
+                                <!-- Quick stats will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Banking Feature Previews -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-university me-2"></i>
+                                Banking Features Preview
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="bankingPreviews">
+                                <!-- Banking previews will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Expense Tracking and Budget Overview -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-receipt me-2"></i>
+                                Recent Transactions
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="recentTransactions">
+                                <!-- Recent transactions will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-piggy-bank me-2"></i>
+                                Budget Overview
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="budgetOverview">
+                                <!-- Budget overview will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Resume Parsing and Basic Insights -->
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-file-alt me-2"></i>
+                                Resume Parsing
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="resumeParsing">
+                                <!-- Resume parsing widget will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-lightbulb me-2"></i>
+                                Basic Insights
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="basicInsights">
+                                <!-- Basic insights will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Interactive Features Section -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-mouse-pointer me-2"></i>
+                                Interactive Features
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="interactiveFeatures">
+                                <!-- Interactive features will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Intelligent Insights Section -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-brain me-2"></i>
+                                Intelligent Insights
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="intelligentInsights">
+                                <!-- Intelligent insights will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Feature Previews -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-star me-2"></i>
+                                Premium Features Preview
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="featurePreviews">
+                                <!-- Feature previews will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Global variables
+        let dashboardData = {};
+        let currentUser = null;
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeDashboard();
+        });
+
+        function initializeDashboard() {
+            showLoading();
+            loadDashboardData();
+            setCurrentDate();
+        }
+
+        function showLoading() {
+            document.getElementById('loadingSpinner').style.display = 'block';
+            document.getElementById('dashboardContent').style.display = 'none';
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingSpinner').style.display = 'none';
+            document.getElementById('dashboardContent').style.display = 'block';
+        }
+
+        function setCurrentDate() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('entryDate').value = today;
+        }
+
+        async function loadDashboardData() {
+            try {
+                const response = await fetch('/api/budget-tier/dashboard/overview');
+                const result = await response.json();
+                
+                if (result.success) {
+                    dashboardData = result.data;
+                    renderDashboard();
+                } else {
+                    showError('Failed to load dashboard data: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Error loading dashboard:', error);
+                showError('Failed to load dashboard data');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        function renderDashboard() {
+            renderUpgradePrompts();
+            renderQuickStats();
+            renderBankingPreviews();
+            renderRecentTransactions();
+            renderBudgetOverview();
+            renderResumeParsing();
+            renderBasicInsights();
+            renderInteractiveFeatures();
+            renderIntelligentInsights();
+            renderFeaturePreviews();
+        }
+
+        function renderUpgradePrompts() {
+            const container = document.getElementById('upgradePrompts');
+            const prompts = dashboardData.upgrade_prompts || [];
+            
+            if (prompts.length === 0) {
+                container.innerHTML = '<p class="text-muted">No upgrade prompts at this time.</p>';
+                return;
+            }
+
+            container.innerHTML = prompts.map(prompt => `
+                <div class="upgrade-prompt ${prompt.priority}-priority" data-prompt-id="${prompt.prompt_id}">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div class="flex-grow-1">
+                            <h6 class="mb-2">${prompt.title}</h6>
+                            <p class="mb-2">${prompt.description}</p>
+                            <p class="mb-2"><strong>Benefit:</strong> ${prompt.benefit_description}</p>
+                            <small class="text-muted">Current limitation: ${prompt.current_limitation}</small>
+                        </div>
+                        <div class="ms-3">
+                            <button class="btn btn-upgrade btn-sm" onclick="handleUpgradeClick('${prompt.prompt_id}')">
+                                ${prompt.cta_text}
+                            </button>
+                            <button class="btn btn-outline-secondary btn-sm ms-2" onclick="dismissPrompt('${prompt.prompt_id}')">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderQuickStats() {
+            const container = document.getElementById('quickStats');
+            const manualEntry = dashboardData.manual_entry || {};
+            const stats = manualEntry.entry_statistics || {};
+            
+            container.innerHTML = `
+                <div class="row">
+                    <div class="col-6 mb-3">
+                        <div class="stat-card">
+                            <div class="stat-number">${stats.entries_this_month || 0}</div>
+                            <div class="stat-label">This Month</div>
+                        </div>
+                    </div>
+                    <div class="col-6 mb-3">
+                        <div class="stat-card">
+                            <div class="stat-number">${stats.active_days || 0}</div>
+                            <div class="stat-label">Active Days</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-6 mb-3">
+                        <div class="stat-card">
+                            <div class="stat-number">$${(stats.total_expenses || 0).toFixed(2)}</div>
+                            <div class="stat-label">Total Expenses</div>
+                        </div>
+                    </div>
+                    <div class="col-6 mb-3">
+                        <div class="stat-card">
+                            <div class="stat-number">$${(stats.total_income || 0).toFixed(2)}</div>
+                            <div class="stat-label">Total Income</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderBankingPreviews() {
+            const container = document.getElementById('bankingPreviews');
+            const previews = dashboardData.banking_preview || [];
+            
+            container.innerHTML = previews.map(preview => `
+                <div class="banking-preview">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h6 class="mb-2">${preview.feature_name}</h6>
+                            <p class="mb-2">${preview.description}</p>
+                            <p class="mb-2"><strong>Benefit:</strong> ${preview.upgrade_benefit}</p>
+                            ${preview.trial_available ? '<span class="badge bg-success">Trial Available</span>' : ''}
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <button class="btn btn-primary" onclick="upgradeToMidTier()">
+                                <i class="fas fa-arrow-up me-2"></i>Upgrade to Mid-Tier
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderRecentTransactions() {
+            const container = document.getElementById('recentTransactions');
+            const expenseTracking = dashboardData.expense_tracking || {};
+            const transactions = expenseTracking.recent_transactions || [];
+            
+            if (transactions.length === 0) {
+                container.innerHTML = '<p class="text-muted">No recent transactions.</p>';
+                return;
+            }
+
+            container.innerHTML = transactions.map(transaction => `
+                <div class="d-flex justify-content-between align-items-center mb-2 p-2 border-bottom">
+                    <div>
+                        <div class="fw-bold">${transaction.description}</div>
+                        <small class="text-muted">${transaction.category} • ${transaction.date}</small>
+                    </div>
+                    <div class="text-end">
+                        <div class="fw-bold ${transaction.type === 'expense' ? 'text-danger' : 'text-success'}">
+                            ${transaction.formatted_amount}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderBudgetOverview() {
+            const container = document.getElementById('budgetOverview');
+            const budgetOverview = dashboardData.budget_overview || {};
+            const budgets = budgetOverview.budget_info || [];
+            
+            if (budgets.length === 0) {
+                container.innerHTML = `
+                    <p class="text-muted mb-3">No budgets set up yet.</p>
+                    <button class="btn btn-primary btn-sm" onclick="showCreateBudgetModal()">
+                        <i class="fas fa-plus me-2"></i>Create Budget
+                    </button>
+                `;
+                return;
+            }
+
+            container.innerHTML = budgets.map(budget => `
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <span class="fw-bold">${budget.category}</span>
+                        <span class="text-muted">$${budget.spent.toFixed(2)} / $${budget.amount.toFixed(2)}</span>
+                    </div>
+                    <div class="progress mb-2" style="height: 8px;">
+                        <div class="progress-bar ${budget.status === 'over_budget' ? 'bg-danger' : budget.status === 'on_track' ? 'bg-warning' : 'bg-success'}" 
+                             style="width: ${Math.min(budget.percentage_used, 100)}%"></div>
+                    </div>
+                    <small class="text-muted">${budget.percentage_used.toFixed(1)}% used</small>
+                </div>
+            `).join('');
+        }
+
+        function renderResumeParsing() {
+            const container = document.getElementById('resumeParsing');
+            const resumeParsing = dashboardData.resume_parsing || {};
+            
+            const canParse = !resumeParsing.parsing_used_this_month;
+            const remaining = resumeParsing.parsing_remaining || 0;
+            
+            container.innerHTML = `
+                <div class="resume-parsing-widget">
+                    <i class="fas fa-file-alt fa-3x text-primary mb-3"></i>
+                    <h6 class="mb-2">Resume Parsing</h6>
+                    <p class="text-muted mb-3">Parse your resume for career insights</p>
+                    
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between">
+                            <span>Remaining:</span>
+                            <span class="fw-bold">${remaining}/1</span>
+                        </div>
+                    </div>
+                    
+                    ${canParse ? `
+                        <button class="btn btn-primary w-100 mb-2" onclick="showResumeUploadModal()">
+                            <i class="fas fa-upload me-2"></i>Upload Resume
+                        </button>
+                    ` : `
+                        <button class="btn btn-secondary w-100 mb-2" disabled>
+                            <i class="fas fa-lock me-2"></i>Limit Reached
+                        </button>
+                    `}
+                    
+                    <button class="btn btn-outline-primary btn-sm w-100" onclick="upgradeToMidTier()">
+                        <i class="fas fa-arrow-up me-2"></i>Upgrade for Unlimited
+                    </button>
+                </div>
+            `;
+        }
+
+        function renderBasicInsights() {
+            const container = document.getElementById('basicInsights');
+            const insights = dashboardData.basic_insights || [];
+            
+            if (insights.length === 0) {
+                container.innerHTML = '<p class="text-muted">No insights available yet. Add more transactions to get personalized insights.</p>';
+                return;
+            }
+
+            container.innerHTML = insights.map(insight => `
+                <div class="feature-preview">
+                    <div class="d-flex align-items-start">
+                        <div class="flex-grow-1">
+                            <h6 class="mb-2">${insight.title}</h6>
+                            <p class="mb-2">${insight.description}</p>
+                            ${insight.actionable ? `
+                                <div class="alert alert-info mb-0">
+                                    <i class="fas fa-lightbulb me-2"></i>
+                                    <strong>Recommendation:</strong> ${insight.recommendation}
+                                </div>
+                            ` : ''}
+                        </div>
+                        <div class="ms-3">
+                            <span class="badge bg-${insight.category === 'financial_health' ? 'danger' : insight.category === 'spending_pattern' ? 'warning' : 'info'}">
+                                ${insight.category.replace('_', ' ').toUpperCase()}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderFeaturePreviews() {
+            const container = document.getElementById('featurePreviews');
+            const featurePreviews = dashboardData.feature_previews || {};
+            const midTierFeatures = featurePreviews.mid_tier_features || [];
+            const professionalFeatures = featurePreviews.professional_features || [];
+            
+            container.innerHTML = `
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="mb-3">Mid-Tier Features ($35/month)</h6>
+                        ${midTierFeatures.map(feature => `
+                            <div class="feature-preview">
+                                <h6 class="mb-2">${feature.feature}</h6>
+                                <p class="mb-2">${feature.description}</p>
+                                <p class="mb-2"><strong>Benefit:</strong> ${feature.benefit}</p>
+                                <button class="btn btn-primary btn-sm" onclick="upgradeToMidTier()">
+                                    <i class="fas fa-arrow-up me-2"></i>Upgrade to Mid-Tier
+                                </button>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="mb-3">Professional Features ($75/month)</h6>
+                        ${professionalFeatures.map(feature => `
+                            <div class="feature-preview">
+                                <h6 class="mb-2">${feature.feature}</h6>
+                                <p class="mb-2">${feature.description}</p>
+                                <p class="mb-2"><strong>Benefit:</strong> ${feature.benefit}</p>
+                                <button class="btn btn-primary btn-sm" onclick="upgradeToProfessional()">
+                                    <i class="fas fa-arrow-up me-2"></i>Upgrade to Professional
+                                </button>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderIntelligentInsights() {
+            const container = document.getElementById('intelligentInsights');
+            const intelligentInsights = dashboardData.intelligent_insights || {};
+            
+            if (!intelligentInsights.spending_trends && !intelligentInsights.unusual_transactions && 
+                !intelligentInsights.subscription_management && !intelligentInsights.cash_flow_optimization &&
+                !intelligentInsights.emergency_fund && !intelligentInsights.debt_payoff) {
+                container.innerHTML = `
+                    <div class="text-center py-4">
+                        <i class="fas fa-chart-line fa-3x text-muted mb-3"></i>
+                        <h6 class="text-muted">Intelligent Insights</h6>
+                        <p class="text-muted">Add more transactions to unlock intelligent financial insights and recommendations.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = `
+                <div class="row">
+                    <!-- Spending Trends -->
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100">
+                            <div class="card-header">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-chart-line me-2"></i>
+                                    Spending Trends
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                ${renderSpendingTrends(intelligentInsights.spending_trends || [])}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Unusual Transactions -->
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100">
+                            <div class="card-header">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>
+                                    Unusual Transactions
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                ${renderUnusualTransactions(intelligentInsights.unusual_transactions || [])}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Subscription Management -->
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100">
+                            <div class="card-header">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-credit-card me-2"></i>
+                                    Subscription Management
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                ${renderSubscriptionManagement(intelligentInsights.subscription_management || [])}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Cash Flow Optimization -->
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100">
+                            <div class="card-header">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-money-bill-wave me-2"></i>
+                                    Cash Flow Optimization
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                ${renderCashFlowOptimization(intelligentInsights.cash_flow_optimization || [])}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Emergency Fund -->
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100">
+                            <div class="card-header">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-shield-alt me-2"></i>
+                                    Emergency Fund
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                ${renderEmergencyFund(intelligentInsights.emergency_fund)}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Debt Payoff Strategy -->
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100">
+                            <div class="card-header">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-piggy-bank me-2"></i>
+                                    Debt Payoff Strategy
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                ${renderDebtPayoffStrategy(intelligentInsights.debt_payoff)}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderSpendingTrends(trends) {
+            if (trends.length === 0) {
+                return '<p class="text-muted">No significant spending trends detected yet.</p>';
+            }
+            
+            return trends.slice(0, 3).map(trend => `
+                <div class="mb-3 p-3 border rounded">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h6 class="mb-1">${trend.category}</h6>
+                            <p class="mb-1 small">${trend.description}</p>
+                            <p class="mb-0 small text-muted">${trend.recommendation}</p>
+                        </div>
+                        <div class="text-end">
+                            <span class="badge bg-${trend.trend_type === 'increasing' ? 'danger' : trend.trend_type === 'decreasing' ? 'success' : 'info'}">
+                                ${trend.percentage_change > 0 ? '+' : ''}${trend.percentage_change.toFixed(1)}%
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderUnusualTransactions(alerts) {
+            if (alerts.length === 0) {
+                return '<p class="text-muted">No unusual transactions detected.</p>';
+            }
+            
+            return alerts.slice(0, 3).map(alert => `
+                <div class="mb-3 p-3 border rounded">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h6 class="mb-1">$${alert.amount.toFixed(2)} - ${alert.description}</h6>
+                            <p class="mb-1 small text-muted">${alert.category} • ${alert.date}</p>
+                            <p class="mb-0 small">${alert.action_needed}</p>
+                        </div>
+                        <div class="text-end">
+                            <span class="badge bg-${alert.severity === 'high' ? 'danger' : alert.severity === 'medium' ? 'warning' : 'info'}">
+                                ${alert.severity.toUpperCase()}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderSubscriptionManagement(subscriptions) {
+            if (subscriptions.length === 0) {
+                return '<p class="text-muted">No subscription insights available.</p>';
+            }
+            
+            const totalSavings = subscriptions.reduce((sum, sub) => sum + (sub.potential_savings || 0), 0);
+            
+            return `
+                <div class="mb-3">
+                    <h6 class="text-success">Potential Annual Savings: $${totalSavings.toFixed(2)}</h6>
+                </div>
+                ${subscriptions.slice(0, 2).map(sub => `
+                    <div class="mb-3 p-3 border rounded">
+                        <h6 class="mb-1">${sub.subscription_name}</h6>
+                        <p class="mb-1 small">$${sub.monthly_cost.toFixed(2)}/month</p>
+                        <p class="mb-1 small text-muted">${sub.recommendation}</p>
+                        <span class="badge bg-${sub.action_type === 'cancel' ? 'danger' : sub.action_type === 'downgrade' ? 'warning' : 'info'}">
+                            ${sub.action_type.toUpperCase()}
+                        </span>
+                    </div>
+                `).join('')}
+            `;
+        }
+
+        function renderCashFlowOptimization(optimizations) {
+            if (optimizations.length === 0) {
+                return '<p class="text-muted">No cash flow optimization suggestions available.</p>';
+            }
+            
+            return optimizations.slice(0, 2).map(opt => `
+                <div class="mb-3 p-3 border rounded">
+                    <h6 class="mb-1">${opt.description}</h6>
+                    <p class="mb-1 small">Potential Impact: $${opt.potential_impact.toFixed(2)}</p>
+                    <p class="mb-1 small text-muted">Difficulty: ${opt.implementation_difficulty}</p>
+                    <p class="mb-0 small">${opt.steps[0]}</p>
+                </div>
+            `).join('');
+        }
+
+        function renderEmergencyFund(emergencyFund) {
+            if (!emergencyFund) {
+                return '<p class="text-muted">Add more transactions to get emergency fund recommendations.</p>';
+            }
+            
+            const coveragePercent = (emergencyFund.current_coverage_months / emergencyFund.months_coverage) * 100;
+            
+            return `
+                <div class="text-center mb-3">
+                    <div class="progress mb-2" style="height: 20px;">
+                        <div class="progress-bar ${coveragePercent >= 100 ? 'bg-success' : coveragePercent >= 50 ? 'bg-warning' : 'bg-danger'}" 
+                             style="width: ${Math.min(coveragePercent, 100)}%"></div>
+                    </div>
+                    <small>${emergencyFund.current_coverage_months.toFixed(1)} / ${emergencyFund.months_coverage} months covered</small>
+                </div>
+                <div class="mb-3">
+                    <h6>Current: $${emergencyFund.current_emergency_fund.toFixed(2)}</h6>
+                    <h6>Recommended: $${emergencyFund.recommended_amount.toFixed(2)}</h6>
+                </div>
+                <p class="small mb-2">${emergencyFund.recommendation}</p>
+                ${emergencyFund.monthly_contribution > 0 ? `
+                    <div class="alert alert-info small">
+                        <strong>Monthly Contribution:</strong> $${emergencyFund.monthly_contribution.toFixed(2)}
+                    </div>
+                ` : ''}
+            `;
+        }
+
+        function renderDebtPayoffStrategy(debtPayoff) {
+            if (!debtPayoff) {
+                return '<p class="text-muted">Add more transactions to get debt payoff strategies.</p>';
+            }
+            
+            return `
+                <div class="mb-3">
+                    <h6>${debtPayoff.strategy_name}</h6>
+                    <p class="small mb-2">${debtPayoff.recommendation}</p>
+                </div>
+                <div class="mb-3">
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <h6 class="text-primary">$${debtPayoff.total_debt.toFixed(2)}</h6>
+                            <small class="text-muted">Total Debt</small>
+                        </div>
+                        <div class="col-6">
+                            <h6 class="text-success">$${debtPayoff.interest_savings.toFixed(2)}</h6>
+                            <small class="text-muted">Interest Savings</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <h6>Priority Order:</h6>
+                    <ol class="small">
+                        ${debtPayoff.priority_order.slice(0, 3).map(debt => `<li>${debt}</li>`).join('')}
+                    </ol>
+                </div>
+                <div class="alert alert-info small">
+                    <strong>Timeline:</strong> ${debtPayoff.payoff_timeline_months} months
+                </div>
+            `;
+        }
+
+        function renderInteractiveFeatures() {
+            const container = document.getElementById('interactiveFeatures');
+            const interactiveFeatures = dashboardData.interactive_features || {};
+            
+            if (!interactiveFeatures.goals && !interactiveFeatures.budgets && 
+                !interactiveFeatures.feature_comparisons && !interactiveFeatures.upgrade_benefits &&
+                !interactiveFeatures.limited_time_offers && !interactiveFeatures.usage_suggestions &&
+                !interactiveFeatures.social_proof) {
+                container.innerHTML = `
+                    <div class="text-center py-4">
+                        <i class="fas fa-mouse-pointer fa-3x text-muted mb-3"></i>
+                        <h6 class="text-muted">Interactive Features</h6>
+                        <p class="text-muted">Start setting goals and creating budgets to unlock interactive features.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = `
+                <div class="row">
+                    <!-- Goals and Budgets -->
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100">
+                            <div class="card-header">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-bullseye me-2"></i>
+                                    Goals & Budgets
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                ${renderGoalsAndBudgets(interactiveFeatures.goals || [], interactiveFeatures.budgets || [])}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Feature Comparisons -->
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100">
+                            <div class="card-header">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-balance-scale me-2"></i>
+                                    Feature Comparison
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                ${renderFeatureComparisons(interactiveFeatures.feature_comparisons || [])}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Upgrade Benefits -->
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100">
+                            <div class="card-header">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-star me-2"></i>
+                                    Upgrade Benefits
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                ${renderUpgradeBenefits(interactiveFeatures.upgrade_benefits || [])}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Limited Time Offers -->
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100">
+                            <div class="card-header">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-clock me-2"></i>
+                                    Limited Time Offers
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                ${renderLimitedTimeOffers(interactiveFeatures.limited_time_offers || [])}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Usage Suggestions -->
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100">
+                            <div class="card-header">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-lightbulb me-2"></i>
+                                    Usage Suggestions
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                ${renderUsageSuggestions(interactiveFeatures.usage_suggestions || [])}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Social Proof -->
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100">
+                            <div class="card-header">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-users me-2"></i>
+                                    Success Stories
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                ${renderSocialProof(interactiveFeatures.social_proof || [])}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderGoalsAndBudgets(goals, budgets) {
+            const totalGoals = goals.length;
+            const activeGoals = goals.filter(g => g.status === 'active').length;
+            const overBudgetCount = budgets.filter(b => b.status === 'over_budget').length;
+            
+            return `
+                <div class="mb-3">
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <h6 class="text-primary">${totalGoals}</h6>
+                            <small class="text-muted">Total Goals</small>
+                        </div>
+                        <div class="col-6">
+                            <h6 class="text-success">${activeGoals}</h6>
+                            <small class="text-muted">Active Goals</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <button class="btn btn-primary btn-sm w-100 mb-2" onclick="showGoalModal()">
+                        <i class="fas fa-plus me-2"></i>Create New Goal
+                    </button>
+                    <button class="btn btn-outline-primary btn-sm w-100" onclick="showBudgetModal()">
+                        <i class="fas fa-plus me-2"></i>Create New Budget
+                    </button>
+                </div>
+                ${goals.length > 0 ? `
+                    <div class="mb-3">
+                        <h6>Recent Goals:</h6>
+                        ${goals.slice(0, 2).map(goal => `
+                            <div class="mb-2 p-2 border rounded">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h6 class="mb-1">${goal.title}</h6>
+                                        <small class="text-muted">$${goal.current_amount.toFixed(2)} / $${goal.target_amount.toFixed(2)}</small>
+                                    </div>
+                                    <div class="text-end">
+                                        <div class="progress" style="width: 60px; height: 8px;">
+                                            <div class="progress-bar" style="width: ${Math.min(goal.progress_percentage, 100)}%"></div>
+                                        </div>
+                                        <small>${goal.progress_percentage.toFixed(1)}%</small>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                ` : ''}
+                ${overBudgetCount > 0 ? `
+                    <div class="alert alert-warning small">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        ${overBudgetCount} budget${overBudgetCount > 1 ? 's' : ''} over limit
+                    </div>
+                ` : ''}
+            `;
+        }
+
+        function renderFeatureComparisons(comparisons) {
+            if (comparisons.length === 0) {
+                return '<p class="text-muted">Feature comparison data not available.</p>';
+            }
+            
+            return `
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Feature</th>
+                                <th>Budget</th>
+                                <th>Mid-Tier</th>
+                                <th>Professional</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${comparisons.slice(0, 3).map(comp => `
+                                <tr>
+                                    <td>
+                                        <small>${comp.feature_name}</small>
+                                        <i class="fas fa-info-circle ms-1" data-bs-toggle="tooltip" title="${comp.description}"></i>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-${comp.budget_tier.available ? 'success' : 'secondary'}">
+                                            ${comp.budget_tier.available ? '✓' : '✗'}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-${comp.mid_tier.available ? 'success' : 'secondary'}">
+                                            ${comp.mid_tier.available ? '✓' : '✗'}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-${comp.professional.available ? 'success' : 'secondary'}">
+                                            ${comp.professional.available ? '✓' : '✗'}
+                                        </span>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+                <button class="btn btn-outline-primary btn-sm w-100" onclick="showFeatureComparisonModal()">
+                    <i class="fas fa-eye me-2"></i>View All Features
+                </button>
+            `;
+        }
+
+        function renderUpgradeBenefits(benefits) {
+            if (benefits.length === 0) {
+                return '<p class="text-muted">Upgrade benefits not available.</p>';
+            }
+            
+            return `
+                ${benefits.slice(0, 3).map(benefit => `
+                    <div class="mb-3 p-3 border rounded">
+                        <div class="d-flex align-items-start">
+                            <div class="me-3">
+                                <i class="${benefit.icon} fa-2x text-primary"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1">${benefit.title}</h6>
+                                <p class="small mb-2">${benefit.description}</p>
+                                <div class="row text-center">
+                                    <div class="col-6">
+                                        <small class="text-success">
+                                            <i class="fas fa-clock me-1"></i>${benefit.time_savings}
+                                        </small>
+                                    </div>
+                                    <div class="col-6">
+                                        <small class="text-primary">
+                                            <i class="fas fa-dollar-sign me-1"></i>$${benefit.cost_savings.toFixed(0)}
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('')}
+                <button class="btn btn-primary btn-sm w-100" onclick="showUpgradeBenefitsModal()">
+                    <i class="fas fa-star me-2"></i>See All Benefits
+                </button>
+            `;
+        }
+
+        function renderLimitedTimeOffers(offers) {
+            if (offers.length === 0) {
+                return '<p class="text-muted">No limited time offers available.</p>';
+            }
+            
+            return `
+                ${offers.map(offer => `
+                    <div class="mb-3 p-3 border rounded ${offer.urgency_level === 'high' ? 'border-danger' : offer.urgency_level === 'medium' ? 'border-warning' : 'border-info'}">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h6 class="mb-0">${offer.title}</h6>
+                            <span class="badge bg-${offer.urgency_level === 'high' ? 'danger' : offer.urgency_level === 'medium' ? 'warning' : 'info'}">
+                                ${offer.remaining_time}
+                            </span>
+                        </div>
+                        <p class="small mb-2">${offer.description}</p>
+                        <div class="mb-2">
+                            <span class="text-decoration-line-through">$${offer.original_price.toFixed(2)}</span>
+                            <span class="h5 text-success ms-2">$${offer.discounted_price.toFixed(2)}</span>
+                            <span class="badge bg-success ms-2">${offer.discount_percentage}% OFF</span>
+                        </div>
+                        <button class="btn btn-success btn-sm w-100" onclick="claimOffer('${offer.offer_id}')">
+                            <i class="fas fa-gift me-2"></i>Claim Offer
+                        </button>
+                    </div>
+                `).join('')}
+            `;
+        }
+
+        function renderUsageSuggestions(suggestions) {
+            if (suggestions.length === 0) {
+                return '<p class="text-muted">No usage-based suggestions available.</p>';
+            }
+            
+            return `
+                ${suggestions.map(suggestion => `
+                    <div class="mb-3 p-3 border rounded">
+                        <h6 class="mb-1">${suggestion.suggestion_title}</h6>
+                        <p class="small mb-2">${suggestion.suggestion_description}</p>
+                        <div class="row text-center mb-2">
+                            <div class="col-6">
+                                <small class="text-success">
+                                    <i class="fas fa-clock me-1"></i>${suggestion.time_saved}
+                                </small>
+                            </div>
+                            <div class="col-6">
+                                <small class="text-primary">
+                                    <i class="fas fa-dollar-sign me-1"></i>$${suggestion.upgrade_price.toFixed(2)}/month
+                                </small>
+                            </div>
+                        </div>
+                        <button class="btn btn-outline-primary btn-sm w-100" onclick="upgradeToTier('${suggestion.upgrade_tier}')">
+                            <i class="fas fa-arrow-up me-2"></i>Upgrade to ${suggestion.upgrade_tier.replace('_', ' ').toUpperCase()}
+                        </button>
+                    </div>
+                `).join('')}
+            `;
+        }
+
+        function renderSocialProof(socialProof) {
+            if (socialProof.length === 0) {
+                return '<p class="text-muted">No success stories available.</p>';
+            }
+            
+            return `
+                ${socialProof.map(proof => `
+                    <div class="mb-3 p-3 border rounded">
+                        <div class="d-flex align-items-start mb-2">
+                            <img src="${proof.user_avatar}" class="rounded-circle me-2" width="40" height="40" alt="${proof.user_name}">
+                            <div class="flex-grow-1">
+                                <h6 class="mb-0">${proof.user_name}</h6>
+                                <small class="text-muted">${proof.user_location} • ${proof.time_since_upgrade}</small>
+                            </div>
+                            <div class="text-warning">
+                                ${'★'.repeat(proof.rating)}${'☆'.repeat(5 - proof.rating)}
+                            </div>
+                        </div>
+                        <h6 class="mb-1">${proof.story_title}</h6>
+                        <p class="small mb-2">${proof.story_description}</p>
+                        <div class="row text-center">
+                            <div class="col-6">
+                                <small class="text-success">
+                                    <i class="fas fa-arrow-up me-1"></i>${proof.after_metrics.savings_rate || 'Improved'}
+                                </small>
+                            </div>
+                            <div class="col-6">
+                                <small class="text-primary">
+                                    <i class="fas fa-star me-1"></i>${proof.upgrade_tier.replace('_', ' ').toUpperCase()}
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                `).join('')}
+            `;
+        }
+
+        // Interactive Features Helper Functions
+        function showGoalModal() {
+            // This would open a modal for creating goals
+            alert('Goal creation modal would open here. In a real implementation, this would show a form for creating financial goals.');
+        }
+
+        function showBudgetModal() {
+            // This would open a modal for creating budgets
+            alert('Budget creation modal would open here. In a real implementation, this would show a form for creating budgets.');
+        }
+
+        function showFeatureComparisonModal() {
+            // This would open a modal showing all feature comparisons
+            alert('Feature comparison modal would open here. In a real implementation, this would show a detailed comparison table.');
+        }
+
+        function showUpgradeBenefitsModal() {
+            // This would open a modal showing all upgrade benefits
+            alert('Upgrade benefits modal would open here. In a real implementation, this would show detailed benefits for each tier.');
+        }
+
+        function claimOffer(offerId) {
+            // This would handle claiming limited time offers
+            alert(`Claiming offer ${offerId}. In a real implementation, this would redirect to the upgrade page with the offer applied.`);
+        }
+
+        function upgradeToTier(tier) {
+            // This would handle upgrading to a specific tier
+            alert(`Upgrading to ${tier}. In a real implementation, this would redirect to the upgrade page for the selected tier.`);
+        }
+
+        function upgradeToMidTier() {
+            // This would handle upgrading to Mid-Tier
+            alert('Upgrading to Mid-Tier. In a real implementation, this would redirect to the Mid-Tier upgrade page.');
+        }
+
+        function upgradeToProfessional() {
+            // This would handle upgrading to Professional
+            alert('Upgrading to Professional. In a real implementation, this would redirect to the Professional upgrade page.');
+        }
+
+        // Form handling
+        document.getElementById('manualEntryForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                amount: parseFloat(document.getElementById('entryAmount').value),
+                description: document.getElementById('entryDescription').value,
+                category: document.getElementById('entryCategory').value,
+                date: document.getElementById('entryDate').value,
+                transaction_type: document.getElementById('entryType').value
+            };
+
+            try {
+                const response = await fetch('/api/budget-tier/dashboard/manual-entry', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    showSuccess('Entry added successfully!');
+                    document.getElementById('manualEntryForm').reset();
+                    setCurrentDate();
+                    loadDashboardData(); // Refresh dashboard
+                } else {
+                    showError('Failed to add entry: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Error adding entry:', error);
+                showError('Failed to add entry');
+            }
+        });
+
+        // Upgrade and prompt handling
+        async function handleUpgradeClick(promptId) {
+            try {
+                await fetch(`/api/budget-tier/dashboard/upgrade-prompts/${promptId}/click`, {
+                    method: 'POST'
+                });
+                
+                // Redirect to upgrade page or show upgrade modal
+                upgradeToMidTier();
+            } catch (error) {
+                console.error('Error tracking upgrade click:', error);
+            }
+        }
+
+        async function dismissPrompt(promptId) {
+            try {
+                const response = await fetch(`/api/budget-tier/dashboard/upgrade-prompts/${promptId}/dismiss`, {
+                    method: 'POST'
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Remove the prompt from the UI
+                    const promptElement = document.querySelector(`[data-prompt-id="${promptId}"]`);
+                    if (promptElement) {
+                        promptElement.remove();
+                    }
+                }
+            } catch (error) {
+                console.error('Error dismissing prompt:', error);
+            }
+        }
+
+        function upgradeToMidTier() {
+            // Redirect to upgrade page or show upgrade modal
+            window.location.href = '/upgrade?tier=mid_tier';
+        }
+
+        function upgradeToProfessional() {
+            // Redirect to upgrade page or show upgrade modal
+            window.location.href = '/upgrade?tier=professional';
+        }
+
+        function refreshDashboard() {
+            loadDashboardData();
+        }
+
+        function showResumeUploadModal() {
+            // Create a simple file upload modal
+            const modal = document.createElement('div');
+            modal.className = 'modal fade';
+            modal.innerHTML = `
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Upload Resume</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="resumeUploadForm">
+                                <div class="mb-3">
+                                    <label for="resumeFile" class="form-label">Select Resume File</label>
+                                    <input type="file" class="form-control" id="resumeFile" accept=".pdf,.doc,.docx,.txt" required>
+                                    <div class="form-text">Supported formats: PDF, DOC, DOCX, TXT (max 10MB)</div>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="button" class="btn btn-primary" onclick="uploadResume()">Upload & Parse</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            const modalInstance = new bootstrap.Modal(modal);
+            modalInstance.show();
+            
+            modal.addEventListener('hidden.bs.modal', function() {
+                document.body.removeChild(modal);
+            });
+        }
+
+        async function uploadResume() {
+            const fileInput = document.getElementById('resumeFile');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                showError('Please select a file');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const response = await fetch('/api/budget-tier/dashboard/resume-parsing', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    showSuccess('Resume parsed successfully!');
+                    bootstrap.Modal.getInstance(document.querySelector('.modal')).hide();
+                    loadDashboardData(); // Refresh dashboard
+                } else {
+                    if (result.error === 'limit_exceeded') {
+                        showError('Resume parsing limit reached. Upgrade to parse more resumes.');
+                    } else {
+                        showError('Failed to parse resume: ' + result.message);
+                    }
+                }
+            } catch (error) {
+                console.error('Error uploading resume:', error);
+                showError('Failed to upload resume');
+            }
+        }
+
+        function showCreateBudgetModal() {
+            // Implementation for creating budget modal
+            alert('Budget creation feature coming soon!');
+        }
+
+        // Utility functions
+        function showSuccess(message) {
+            // Create success alert
+            const alert = document.createElement('div');
+            alert.className = 'alert alert-success alert-dismissible fade show position-fixed';
+            alert.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+            alert.innerHTML = `
+                <i class="fas fa-check-circle me-2"></i>${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            document.body.appendChild(alert);
+            
+            setTimeout(() => {
+                if (alert.parentNode) {
+                    alert.parentNode.removeChild(alert);
+                }
+            }, 5000);
+        }
+
+        function showError(message) {
+            // Create error alert
+            const alert = document.createElement('div');
+            alert.className = 'alert alert-danger alert-dismissible fade show position-fixed';
+            alert.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+            alert.innerHTML = `
+                <i class="fas fa-exclamation-circle me-2"></i>${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            document.body.appendChild(alert);
+            
+            setTimeout(() => {
+                if (alert.parentNode) {
+                    alert.parentNode.removeChild(alert);
+                }
+            }, 5000);
+        }
+    </script>
+</body>
+</html> 

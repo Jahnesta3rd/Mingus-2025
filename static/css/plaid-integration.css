@@ -1,0 +1,767 @@
+/**
+ * Plaid Integration CSS for MINGUS
+ * 
+ * This file provides comprehensive styling for Plaid integration components:
+ * - Bank account cards and management
+ * - Transaction lists and filters
+ * - Plaid Link integration
+ * - Sync status and controls
+ * - Responsive design for all screen sizes
+ */
+
+/* ===== PL AID CONTAINER STYLES ===== */
+
+.plaid-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.plaid-section {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 24px;
+    overflow: hidden;
+}
+
+.plaid-section-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid #e9ecef;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.plaid-section-header h3 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.plaid-section-content {
+    padding: 24px;
+}
+
+/* ===== PL AID LINK STYLES ===== */
+
+.plaid-link-container {
+    text-align: center;
+    padding: 40px 20px;
+}
+
+.plaid-connect-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    color: white;
+    padding: 16px 32px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.plaid-connect-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.plaid-connect-btn:active {
+    transform: translateY(0);
+}
+
+.plaid-connect-btn i {
+    margin-right: 8px;
+}
+
+.plaid-status-indicator {
+    margin-top: 16px;
+    font-size: 0.9rem;
+}
+
+.status-connected {
+    color: #28a745;
+    font-weight: 500;
+}
+
+.status-disconnected {
+    color: #6c757d;
+    font-style: italic;
+}
+
+.status-connected i {
+    margin-right: 6px;
+}
+
+/* ===== ACCOUNT MANAGEMENT STYLES ===== */
+
+.plaid-accounts-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.plaid-accounts-header h3 {
+    margin: 0;
+    color: #2c3e50;
+    font-size: 1.3rem;
+}
+
+.plaid-accounts-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 20px;
+}
+
+.account-card {
+    background: #ffffff;
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    padding: 20px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.account-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #667eea, #764ba2);
+}
+
+.account-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    border-color: #667eea;
+}
+
+.account-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 16px;
+}
+
+.account-info h4 {
+    margin: 0 0 8px 0;
+    color: #2c3e50;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.account-mask {
+    color: #6c757d;
+    font-size: 0.9rem;
+    margin: 4px 0;
+}
+
+.account-type {
+    color: #495057;
+    font-size: 0.85rem;
+    text-transform: capitalize;
+    margin: 4px 0;
+}
+
+.account-balance {
+    text-align: right;
+}
+
+.balance-amount {
+    display: block;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #2c3e50;
+}
+
+.balance-currency {
+    font-size: 0.9rem;
+    color: #6c757d;
+}
+
+.account-details {
+    margin-bottom: 16px;
+}
+
+.institution-name {
+    color: #495057;
+    font-weight: 500;
+    margin: 8px 0 4px 0;
+}
+
+.last-update {
+    color: #6c757d;
+    font-size: 0.85rem;
+    margin: 4px 0;
+}
+
+.account-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.no-accounts {
+    text-align: center;
+    padding: 60px 20px;
+    color: #6c757d;
+}
+
+.no-accounts i {
+    font-size: 3rem;
+    margin-bottom: 16px;
+    color: #dee2e6;
+}
+
+.no-accounts p {
+    margin: 16px 0;
+    font-size: 1.1rem;
+}
+
+/* ===== TRANSACTION MANAGEMENT STYLES ===== */
+
+.plaid-transactions-header {
+    margin-bottom: 24px;
+}
+
+.plaid-transactions-header h3 {
+    margin: 0 0 16px 0;
+    color: #2c3e50;
+    font-size: 1.3rem;
+}
+
+.plaid-transactions-controls {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.plaid-transactions-controls .form-select,
+.plaid-transactions-controls .form-control {
+    min-width: 150px;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 0.9rem;
+}
+
+.plaid-transactions-list {
+    max-height: 600px;
+    overflow-y: auto;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+}
+
+.transaction-item {
+    display: flex;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid #f8f9fa;
+    transition: background-color 0.2s ease;
+}
+
+.transaction-item:hover {
+    background-color: #f8f9fa;
+}
+
+.transaction-item:last-child {
+    border-bottom: none;
+}
+
+.transaction-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 16px;
+    flex-shrink: 0;
+}
+
+.transaction-icon i {
+    color: white;
+    font-size: 1rem;
+}
+
+.transaction-details {
+    flex: 1;
+    min-width: 0;
+}
+
+.transaction-name {
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.transaction-meta {
+    display: flex;
+    gap: 12px;
+    font-size: 0.85rem;
+    color: #6c757d;
+    flex-wrap: wrap;
+}
+
+.transaction-date {
+    font-weight: 500;
+}
+
+.transaction-category {
+    color: #495057;
+}
+
+.transaction-merchant {
+    color: #667eea;
+    font-weight: 500;
+}
+
+.transaction-amount {
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin-left: 16px;
+    flex-shrink: 0;
+}
+
+.transaction-amount.positive {
+    color: #28a745;
+}
+
+.transaction-amount.negative {
+    color: #dc3545;
+}
+
+.transaction-pending {
+    background: #fff3cd;
+    color: #856404;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    margin-left: 8px;
+}
+
+.no-transactions {
+    text-align: center;
+    padding: 60px 20px;
+    color: #6c757d;
+}
+
+.no-transactions i {
+    font-size: 3rem;
+    margin-bottom: 16px;
+    color: #dee2e6;
+}
+
+/* ===== SYNC CONTROLS STYLES ===== */
+
+.plaid-sync-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.plaid-sync-header h4 {
+    margin: 0;
+    color: #2c3e50;
+    font-size: 1.1rem;
+}
+
+.plaid-sync-status {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+}
+
+.sync-status-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border-left: 4px solid #667eea;
+}
+
+.sync-label {
+    font-weight: 500;
+    color: #495057;
+}
+
+.sync-value {
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+/* ===== LOADING AND NOTIFICATION STYLES ===== */
+
+.plaid-loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.plaid-loading-content {
+    background: white;
+    padding: 32px;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.plaid-loading-content p {
+    margin: 16px 0 0 0;
+    color: #495057;
+    font-weight: 500;
+}
+
+.plaid-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 10000;
+    max-width: 400px;
+    animation: slideInRight 0.3s ease;
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.plaid-notification.success {
+    background: #d4edda;
+    border: 1px solid #c3e6cb;
+    color: #155724;
+}
+
+.plaid-notification.error {
+    background: #f8d7da;
+    border: 1px solid #f5c6cb;
+    color: #721c24;
+}
+
+.plaid-notification.info {
+    background: #d1ecf1;
+    border: 1px solid #bee5eb;
+    color: #0c5460;
+}
+
+.notification-content {
+    display: flex;
+    align-items: center;
+    padding: 16px;
+    border-radius: 8px;
+}
+
+.notification-content i {
+    margin-right: 12px;
+    font-size: 1.2rem;
+}
+
+.notification-content span {
+    flex: 1;
+    font-weight: 500;
+}
+
+.notification-close {
+    background: none;
+    border: none;
+    color: inherit;
+    cursor: pointer;
+    padding: 4px;
+    margin-left: 12px;
+    opacity: 0.7;
+    transition: opacity 0.2s ease;
+}
+
+.notification-close:hover {
+    opacity: 1;
+}
+
+/* ===== SYNC LOGS MODAL STYLES ===== */
+
+.sync-logs-list {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.sync-log-item {
+    padding: 16px;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    background: #f8f9fa;
+}
+
+.sync-log-item.success {
+    border-left: 4px solid #28a745;
+    background: #d4edda;
+}
+
+.sync-log-item.error {
+    border-left: 4px solid #dc3545;
+    background: #f8d7da;
+}
+
+.sync-log-item.partial {
+    border-left: 4px solid #ffc107;
+    background: #fff3cd;
+}
+
+.sync-log-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.sync-type {
+    font-weight: 600;
+    color: #2c3e50;
+    text-transform: capitalize;
+}
+
+.sync-status {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.sync-status.success {
+    background: #28a745;
+    color: white;
+}
+
+.sync-status.error {
+    background: #dc3545;
+    color: white;
+}
+
+.sync-status.partial {
+    background: #ffc107;
+    color: #212529;
+}
+
+.sync-time {
+    color: #6c757d;
+    font-size: 0.85rem;
+}
+
+.sync-log-details {
+    display: flex;
+    gap: 16px;
+    font-size: 0.85rem;
+    color: #495057;
+}
+
+.sync-items {
+    font-weight: 500;
+}
+
+.sync-duration {
+    color: #6c757d;
+}
+
+.sync-error {
+    margin-top: 8px;
+    padding: 8px 12px;
+    background: rgba(220, 53, 69, 0.1);
+    border-radius: 4px;
+    color: #721c24;
+    font-size: 0.85rem;
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+
+@media (max-width: 768px) {
+    .plaid-container {
+        padding: 16px;
+    }
+    
+    .plaid-section-content {
+        padding: 16px;
+    }
+    
+    .plaid-accounts-list {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+    
+    .account-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+    
+    .account-balance {
+        text-align: left;
+    }
+    
+    .plaid-transactions-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .plaid-transactions-controls .form-select,
+    .plaid-transactions-controls .form-control {
+        min-width: auto;
+    }
+    
+    .transaction-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+    
+    .transaction-amount {
+        margin-left: 0;
+        align-self: flex-end;
+    }
+    
+    .transaction-meta {
+        flex-direction: column;
+        gap: 4px;
+    }
+    
+    .plaid-sync-status {
+        grid-template-columns: 1fr;
+    }
+    
+    .sync-log-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    
+    .sync-log-details {
+        flex-direction: column;
+        gap: 8px;
+    }
+}
+
+@media (max-width: 480px) {
+    .plaid-section-header {
+        padding: 16px;
+    }
+    
+    .plaid-section-header h3 {
+        font-size: 1.3rem;
+    }
+    
+    .account-card {
+        padding: 16px;
+    }
+    
+    .transaction-item {
+        padding: 12px 16px;
+    }
+    
+    .transaction-icon {
+        width: 32px;
+        height: 32px;
+        margin-right: 12px;
+    }
+    
+    .transaction-icon i {
+        font-size: 0.9rem;
+    }
+    
+    .plaid-notification {
+        top: 10px;
+        right: 10px;
+        left: 10px;
+        max-width: none;
+    }
+}
+
+/* ===== UTILITY CLASSES ===== */
+
+.loading-spinner {
+    text-align: center;
+    padding: 40px;
+    color: #6c757d;
+}
+
+.loading-spinner::before {
+    content: '';
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #e9ecef;
+    border-top: 2px solid #667eea;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-right: 8px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.text-muted {
+    color: #6c757d !important;
+}
+
+.text-success {
+    color: #28a745 !important;
+}
+
+.text-danger {
+    color: #dc3545 !important;
+}
+
+.text-warning {
+    color: #ffc107 !important;
+}
+
+.text-info {
+    color: #17a2b8 !important;
+}
+
+.bg-light {
+    background-color: #f8f9fa !important;
+}
+
+.border-left-primary {
+    border-left: 4px solid #667eea !important;
+}
+
+.border-left-success {
+    border-left: 4px solid #28a745 !important;
+}
+
+.border-left-warning {
+    border-left: 4px solid #ffc107 !important;
+}
+
+.border-left-danger {
+    border-left: 4px solid #dc3545 !important;
+} 

@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MINGUS Professional Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/professional_dashboard.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/date-fns@2.29.3/index.min.js"></script>
+</head>
+<body>
+    <div class="professional-dashboard">
+        <!-- Header -->
+        <header class="dashboard-header">
+            <div class="header-content">
+                <div class="logo-section">
+                    <h1><i class="fas fa-chart-line"></i> MINGUS Professional</h1>
+                    <span class="tier-badge">Professional Tier</span>
+                </div>
+                <div class="user-section">
+                    <div class="user-info">
+                        <span class="user-name">{{ current_user.name }}</span>
+                        <span class="last-updated" id="last-updated">Last updated: <span id="update-time">--</span></span>
+                    </div>
+                    <div class="header-actions">
+                        <button class="btn btn-secondary" onclick="refreshDashboard()">
+                            <i class="fas fa-sync-alt"></i> Refresh
+                        </button>
+                        <button class="btn btn-primary" onclick="exportData()">
+                            <i class="fas fa-download"></i> Export
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <nav class="dashboard-nav">
+            <div class="nav-tabs">
+                <button class="nav-tab active" data-tab="overview">
+                    <i class="fas fa-tachometer-alt"></i> Overview
+                </button>
+                <button class="nav-tab" data-tab="accounts">
+                    <i class="fas fa-university"></i> Account Balances
+                </button>
+                <button class="nav-tab" data-tab="cashflow">
+                    <i class="fas fa-chart-area"></i> Cash Flow
+                </button>
+                <button class="nav-tab" data-tab="spending">
+                    <i class="fas fa-shopping-cart"></i> Spending Analysis
+                </button>
+                <button class="nav-tab" data-tab="bills">
+                    <i class="fas fa-file-invoice-dollar"></i> Bill Prediction
+                </button>
+                <button class="nav-tab" data-tab="investments">
+                    <i class="fas fa-chart-pie"></i> Investments
+                </button>
+                <button class="nav-tab" data-tab="debt">
+                    <i class="fas fa-credit-card"></i> Debt Management
+                </button>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="dashboard-content">
+            <!-- Overview Tab -->
+            <div class="tab-content active" id="overview-tab">
+                <div class="overview-grid">
+                    <!-- Quick Stats -->
+                    <div class="quick-stats">
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-wallet"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3>Total Balance</h3>
+                                <p class="stat-value" id="total-balance">$--</p>
+                                <p class="stat-change positive" id="balance-change">+$-- (--%)</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3>Net Cash Flow</h3>
+                                <p class="stat-value" id="net-cashflow">$--</p>
+                                <p class="stat-change" id="cashflow-change">--</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-piggy-bank"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3>Savings Rate</h3>
+                                <p class="stat-value" id="savings-rate">--%</p>
+                                <p class="stat-change" id="savings-change">--</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3>Alerts</h3>
+                                <p class="stat-value" id="alert-count">--</p>
+                                <p class="stat-change" id="alert-status">--</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Account Balances Summary -->
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-university"></i> Account Balances</h3>
+                            <button class="btn btn-sm" onclick="refreshAccountBalances()">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                        </div>
+                        <div class="card-content">
+                            <div class="accounts-summary" id="accounts-summary">
+                                <!-- Account balances will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cash Flow Projection -->
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-chart-area"></i> 12-Month Cash Flow Projection</h3>
+                        </div>
+                        <div class="card-content">
+                            <canvas id="cashflow-chart" width="400" height="200"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Recent Insights -->
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-lightbulb"></i> AI Insights</h3>
+                        </div>
+                        <div class="card-content">
+                            <div class="insights-list" id="insights-list">
+                                <!-- AI insights will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Upcoming Bills -->
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-calendar-alt"></i> Upcoming Bills</h3>
+                        </div>
+                        <div class="card-content">
+                            <div class="bills-list" id="bills-list">
+                                <!-- Upcoming bills will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Account Balances Tab -->
+            <div class="tab-content" id="accounts-tab">
+                <div class="accounts-detail">
+                    <div class="section-header">
+                        <h2>Real-Time Account Balances</h2>
+                        <div class="header-actions">
+                            <button class="btn btn-primary" onclick="refreshAccountBalances()">
+                                <i class="fas fa-sync-alt"></i> Refresh Balances
+                            </button>
+                            <button class="btn btn-secondary" onclick="addAccount()">
+                                <i class="fas fa-plus"></i> Add Account
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="accounts-grid" id="accounts-grid">
+                        <!-- Account cards will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cash Flow Tab -->
+            <div class="tab-content" id="cashflow-tab">
+                <div class="cashflow-detail">
+                    <div class="section-header">
+                        <h2>Advanced Cash Flow Analysis</h2>
+                        <div class="header-actions">
+                            <select id="projection-months" onchange="updateCashFlowProjection()">
+                                <option value="6">6 Months</option>
+                                <option value="12" selected>12 Months</option>
+                                <option value="18">18 Months</option>
+                                <option value="24">24 Months</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="cashflow-metrics">
+                        <div class="metric-card">
+                            <h4>Projected Income</h4>
+                            <p class="metric-value" id="projected-income">$--</p>
+                        </div>
+                        <div class="metric-card">
+                            <h4>Projected Expenses</h4>
+                            <p class="metric-value" id="projected-expenses">$--</p>
+                        </div>
+                        <div class="metric-card">
+                            <h4>Net Cash Flow</h4>
+                            <p class="metric-value" id="projected-net-flow">$--</p>
+                        </div>
+                        <div class="metric-card">
+                            <h4>Confidence Level</h4>
+                            <p class="metric-value" id="confidence-level">--%</p>
+                        </div>
+                    </div>
+                    
+                    <div class="cashflow-charts">
+                        <div class="chart-container">
+                            <h3>Monthly Projections</h3>
+                            <canvas id="monthly-projections-chart" width="600" height="300"></canvas>
+                        </div>
+                        <div class="chart-container">
+                            <h3>Risk Assessment</h3>
+                            <canvas id="risk-assessment-chart" width="400" height="300"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Spending Analysis Tab -->
+            <div class="tab-content" id="spending-tab">
+                <div class="spending-detail">
+                    <div class="section-header">
+                        <h2>Detailed Spending Analysis</h2>
+                        <div class="header-actions">
+                            <select id="spending-period" onchange="updateSpendingAnalysis()">
+                                <option value="30">Last 30 Days</option>
+                                <option value="90">Last 90 Days</option>
+                                <option value="180">Last 6 Months</option>
+                                <option value="365">Last Year</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="spending-overview">
+                        <div class="spending-chart">
+                            <h3>Spending by Category</h3>
+                            <canvas id="spending-categories-chart" width="500" height="400"></canvas>
+                        </div>
+                        <div class="spending-trends">
+                            <h3>Spending Trends</h3>
+                            <canvas id="spending-trends-chart" width="500" height="300"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="spending-details">
+                        <div class="category-breakdown" id="category-breakdown">
+                            <!-- Category breakdown will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bill Prediction Tab -->
+            <div class="tab-content" id="bills-tab">
+                <div class="bills-detail">
+                    <div class="section-header">
+                        <h2>Bill Prediction & Payment Optimization</h2>
+                        <div class="header-actions">
+                            <button class="btn btn-primary" onclick="optimizePayments()">
+                                <i class="fas fa-magic"></i> Optimize Payments
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="bills-overview">
+                        <div class="bills-summary">
+                            <div class="summary-card">
+                                <h4>Total Upcoming Bills</h4>
+                                <p class="summary-value" id="total-bills">--</p>
+                            </div>
+                            <div class="summary-card">
+                                <h4>Total Amount Due</h4>
+                                <p class="summary-value" id="total-amount-due">$--</p>
+                            </div>
+                            <div class="summary-card">
+                                <h4>Savings Opportunity</h4>
+                                <p class="summary-value" id="savings-opportunity">$--</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bills-timeline" id="bills-timeline">
+                        <!-- Bills timeline will be loaded here -->
+                    </div>
+                    
+                    <div class="payment-optimization" id="payment-optimization">
+                        <!-- Payment optimization will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Investments Tab -->
+            <div class="tab-content" id="investments-tab">
+                <div class="investments-detail">
+                    <div class="section-header">
+                        <h2>Investment Overview</h2>
+                    </div>
+                    
+                    <div class="portfolio-summary">
+                        <div class="portfolio-value">
+                            <h3>Portfolio Value</h3>
+                            <p class="value" id="portfolio-value">$--</p>
+                            <p class="change" id="portfolio-change">--</p>
+                        </div>
+                        <div class="portfolio-metrics">
+                            <div class="metric">
+                                <span class="label">Diversification Score</span>
+                                <span class="value" id="diversification-score">--</span>
+                            </div>
+                            <div class="metric">
+                                <span class="label">Risk Level</span>
+                                <span class="value" id="risk-level">--</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="investment-charts">
+                        <div class="chart-container">
+                            <h3>Asset Allocation</h3>
+                            <canvas id="asset-allocation-chart" width="400" height="300"></canvas>
+                        </div>
+                        <div class="chart-container">
+                            <h3>Performance</h3>
+                            <canvas id="performance-chart" width="500" height="300"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Debt Management Tab -->
+            <div class="tab-content" id="debt-tab">
+                <div class="debt-detail">
+                    <div class="section-header">
+                        <h2>Debt Management</h2>
+                    </div>
+                    
+                    <div class="debt-summary">
+                        <div class="summary-card">
+                            <h4>Total Debt</h4>
+                            <p class="summary-value" id="total-debt">$--</p>
+                        </div>
+                        <div class="summary-card">
+                            <h4>Debt-to-Income Ratio</h4>
+                            <p class="summary-value" id="debt-to-income">--%</p>
+                        </div>
+                        <div class="summary-card">
+                            <h4>Monthly Interest</h4>
+                            <p class="summary-value" id="monthly-interest">$--</p>
+                        </div>
+                    </div>
+                    
+                    <div class="debt-strategies">
+                        <div class="strategy-card">
+                            <h3>Debt Snowball Plan</h3>
+                            <div id="snowball-plan">
+                                <!-- Snowball plan will be loaded here -->
+                            </div>
+                        </div>
+                        <div class="strategy-card">
+                            <h3>Debt Avalanche Plan</h3>
+                            <div id="avalanche-plan">
+                                <!-- Avalanche plan will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Loading Overlay -->
+        <div class="loading-overlay" id="loading-overlay">
+            <div class="loading-spinner">
+                <i class="fas fa-spinner fa-spin"></i>
+                <p>Loading Professional Dashboard...</p>
+            </div>
+        </div>
+
+        <!-- Alerts Panel -->
+        <div class="alerts-panel" id="alerts-panel">
+            <div class="alerts-header">
+                <h3><i class="fas fa-bell"></i> Alerts</h3>
+                <button class="close-btn" onclick="closeAlerts()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="alerts-content" id="alerts-content">
+                <!-- Alerts will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="{{ url_for('static', filename='js/professional_dashboard.js') }}"></script>
+    <script>
+        // Initialize dashboard when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeProfessionalDashboard();
+        });
+    </script>
+</body>
+</html> 

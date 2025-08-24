@@ -1,0 +1,371 @@
+groups:
+  - name: income_comparison_alerts
+    rules:
+      # =============================================================================
+      # API HEALTH ALERTS
+      # =============================================================================
+      
+      - alert: ExternalAPIUnhealthy
+        expr: mingus_external_api_health == 0
+        for: 2m
+        labels:
+          severity: critical
+          component: api
+        annotations:
+          summary: "External API {{ $labels.api }} is unhealthy"
+          description: "The {{ $labels.api }} API has been down for more than 2 minutes. This may affect salary predictions and data accuracy."
+          runbook_url: "https://docs.mingus.com/runbooks/api-outage"
+          
+      - alert: APIHighErrorRate
+        expr: rate(mingus_api_errors_total[5m]) / rate(mingus_api_requests_total[5m]) > 0.05
+        for: 3m
+        labels:
+          severity: warning
+          component: api
+        annotations:
+          summary: "High API error rate detected"
+          description: "API error rate is {{ $value | humanizePercentage }} over the last 5 minutes. This may indicate system issues."
+          
+      - alert: APIResponseTimeHigh
+        expr: histogram_quantile(0.95, rate(mingus_api_response_time_seconds_bucket[5m])) > 2
+        for: 5m
+        labels:
+          severity: warning
+          component: performance
+        annotations:
+          summary: "API response time is high"
+          description: "95th percentile API response time is {{ $value }}s, which is above the 2s threshold."
+          
+      # =============================================================================
+      # LEAD CONVERSION ALERTS
+      # =============================================================================
+      
+      - alert: LeadConversionRateLow
+        expr: rate(mingus_lead_capture_total[15m]) / rate(mingus_lead_capture_attempts_total[15m]) < 0.15
+        for: 10m
+        labels:
+          severity: warning
+          component: lead_generation
+        annotations:
+          summary: "Lead conversion rate is below target"
+          description: "Lead conversion rate is {{ $value | humanizePercentage }} over the last 15 minutes, below the 15% target."
+          
+      - alert: LeadConversionRateCritical
+        expr: rate(mingus_lead_capture_total[15m]) / rate(mingus_lead_capture_attempts_total[15m]) < 0.10
+        for: 15m
+        labels:
+          severity: critical
+          component: lead_generation
+        annotations:
+          summary: "Lead conversion rate is critically low"
+          description: "Lead conversion rate is {{ $value | humanizePercentage }} over the last 15 minutes, critically below the 10% threshold."
+          
+      - alert: LeadEngagementScoreLow
+        expr: histogram_quantile(0.50, rate(mingus_lead_engagement_score_bucket[15m])) < 0.5
+        for: 10m
+        labels:
+          severity: warning
+          component: lead_generation
+        annotations:
+          summary: "Lead engagement scores are low"
+          description: "Median lead engagement score is {{ $value }} over the last 15 minutes, below the 0.5 threshold."
+          
+      # =============================================================================
+      # PERFORMANCE ALERTS
+      # =============================================================================
+      
+      - alert: HighCPUUsage
+        expr: 100 - (avg by(instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+          component: infrastructure
+        annotations:
+          summary: "High CPU usage detected"
+          description: "CPU usage is {{ $value }}% on {{ $labels.instance }}"
+          
+      - alert: HighMemoryUsage
+        expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+          component: infrastructure
+        annotations:
+          summary: "High memory usage detected"
+          description: "Memory usage is {{ $value }}% on {{ $labels.instance }}"
+          
+      - alert: HighDiskUsage
+        expr: (node_filesystem_size_bytes - node_filesystem_free_bytes) / node_filesystem_size_bytes * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+          component: infrastructure
+        annotations:
+          summary: "High disk usage detected"
+          description: "Disk usage is {{ $value }}% on {{ $labels.instance }}"
+          
+      # =============================================================================
+      # DATABASE ALERTS
+      # =============================================================================
+      
+      - alert: DatabaseConnectionHigh
+        expr: mingus_database_connections_active > 80
+        for: 3m
+        labels:
+          severity: warning
+          component: database
+        annotations:
+          summary: "High database connection count"
+          description: "Database has {{ $value }} active connections, approaching the limit."
+          
+      - alert: DatabaseQuerySlow
+        expr: histogram_quantile(0.95, rate(mingus_database_query_duration_seconds_bucket[5m])) > 1
+        for: 5m
+        labels:
+          severity: warning
+          component: database
+        annotations:
+          summary: "Slow database queries detected"
+          description: "95th percentile database query time is {{ $value }}s, above the 1s threshold."
+          
+      # =============================================================================
+      # REDIS ALERTS
+      # =============================================================================
+      
+      - alert: RedisMemoryHigh
+        expr: mingus_redis_memory_usage_bytes / 1024 / 1024 > 400
+        for: 3m
+        labels:
+          severity: warning
+          component: cache
+        annotations:
+          summary: "Redis memory usage is high"
+          description: "Redis is using {{ $value }}MB of memory, approaching the 512MB limit."
+          
+      - alert: RedisCacheHitRateLow
+        expr: rate(mingus_redis_cache_hits_total[5m]) / (rate(mingus_redis_cache_hits_total[5m]) + rate(mingus_redis_cache_misses_total[5m])) < 0.8
+        for: 5m
+        labels:
+          severity: warning
+          component: cache
+        annotations:
+          summary: "Redis cache hit rate is low"
+          description: "Cache hit rate is {{ $value | humanizePercentage }}, below the 80% threshold."
+          
+      # =============================================================================
+      # CELERY ALERTS
+      # =============================================================================
+      
+      - alert: CeleryWorkerDown
+        expr: mingus_celery_workers_active == 0
+        for: 2m
+        labels:
+          severity: critical
+          component: background_tasks
+        annotations:
+          summary: "No Celery workers are active"
+          description: "All Celery workers are down. Background tasks will not be processed."
+          
+      - alert: CeleryTaskFailureRateHigh
+        expr: rate(mingus_celery_tasks_failed_total[5m]) / rate(mingus_celery_tasks_total[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+          component: background_tasks
+        annotations:
+          summary: "High Celery task failure rate"
+          description: "Celery task failure rate is {{ $value | humanizePercentage }} over the last 5 minutes."
+          
+      - alert: CeleryQueueBacklog
+        expr: mingus_celery_queue_length > 100
+        for: 5m
+        labels:
+          severity: warning
+          component: background_tasks
+        annotations:
+          summary: "Celery queue backlog detected"
+          description: "Celery queue has {{ $value }} pending tasks, indicating processing delays."
+          
+      # =============================================================================
+      # EMAIL ALERTS
+      # =============================================================================
+      
+      - alert: EmailDeliveryFailure
+        expr: rate(mingus_emails_failed_total[5m]) / rate(mingus_emails_sent_total[5m]) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+          component: email
+        annotations:
+          summary: "High email delivery failure rate"
+          description: "Email delivery failure rate is {{ $value | humanizePercentage }} over the last 5 minutes."
+          
+      - alert: EmailOpenRateLow
+        expr: rate(mingus_emails_opened_total[1h]) / rate(mingus_emails_sent_total[1h]) < 0.15
+        for: 30m
+        labels:
+          severity: warning
+          component: email
+        annotations:
+          summary: "Low email open rate"
+          description: "Email open rate is {{ $value | humanizePercentage }} over the last hour, below the 15% threshold."
+          
+      # =============================================================================
+      # BUSINESS METRICS ALERTS
+      # =============================================================================
+      
+      - alert: SalaryPredictionAccuracyLow
+        expr: mingus_salary_prediction_accuracy < 0.7
+        for: 10m
+        labels:
+          severity: warning
+          component: ml
+        annotations:
+          summary: "Salary prediction accuracy is low"
+          description: "Salary prediction accuracy is {{ $value | humanizePercentage }}, below the 70% threshold."
+          
+      - alert: CulturalContentGenerationFailed
+        expr: rate(mingus_cultural_content_failures_total[5m]) > 0
+        for: 2m
+        labels:
+          severity: warning
+          component: content
+        annotations:
+          summary: "Cultural content generation failures detected"
+          description: "{{ $value }} cultural content generation failures in the last 5 minutes."
+          
+      - alert: GamificationSystemDown
+        expr: rate(mingus_badges_unlocked_total[5m]) == 0 and rate(mingus_lead_capture_total[5m]) > 0
+        for: 5m
+        labels:
+          severity: warning
+          component: gamification
+        annotations:
+          summary: "Gamification system not working"
+          description: "No badges are being unlocked despite lead capture activity."
+          
+      # =============================================================================
+      # INFRASTRUCTURE ALERTS
+      # =============================================================================
+      
+      - alert: ServiceDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+          component: infrastructure
+        annotations:
+          summary: "Service {{ $labels.job }} is down"
+          description: "Service {{ $labels.job }} on {{ $labels.instance }} has been down for more than 1 minute."
+          
+      - alert: ServiceHighLatency
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 2
+        for: 5m
+        labels:
+          severity: warning
+          component: infrastructure
+        annotations:
+          summary: "Service {{ $labels.job }} has high latency"
+          description: "95th percentile latency is {{ $value }}s for {{ $labels.job }}"
+          
+      - alert: HighErrorRate
+        expr: rate(http_requests_total{status=~"5.."}[5m]) / rate(http_requests_total[5m]) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+          component: infrastructure
+        annotations:
+          summary: "High HTTP error rate"
+          description: "HTTP 5xx error rate is {{ $value | humanizePercentage }}"
+          
+      # =============================================================================
+      # SECURITY ALERTS
+      # =============================================================================
+      
+      - alert: HighRateLimitViolations
+        expr: rate(mingus_rate_limit_violations_total[5m]) > 10
+        for: 2m
+        labels:
+          severity: warning
+          component: security
+        annotations:
+          summary: "High rate limit violations detected"
+          description: "{{ $value }} rate limit violations per minute, possible abuse attempt."
+          
+      - alert: UnusualAPIUsage
+        expr: rate(mingus_api_requests_total[5m]) > 1000
+        for: 2m
+        labels:
+          severity: warning
+          component: security
+        annotations:
+          summary: "Unusual API usage detected"
+          description: "{{ $value }} API requests per minute, possible automated attack."
+          
+      # =============================================================================
+      # DEPLOYMENT ALERTS
+      # =============================================================================
+      
+      - alert: RecentDeployment
+        expr: changes(mingus_deployment_version[5m]) > 0
+        for: 0m
+        labels:
+          severity: info
+          component: deployment
+        annotations:
+          summary: "Recent deployment detected"
+          description: "A new deployment was detected. Monitor for any issues."
+          
+      - alert: DeploymentRollback
+        expr: mingus_deployment_rollback == 1
+        for: 0m
+        labels:
+          severity: critical
+          component: deployment
+        annotations:
+          summary: "Deployment rollback triggered"
+          description: "A deployment rollback was triggered due to issues."
+          
+      # =============================================================================
+      # CUSTOM BUSINESS ALERTS
+      # =============================================================================
+      
+      - alert: AfricanAmericanDemographicEngagement
+        expr: rate(mingus_lead_capture_total{demographic="african_american"}[1h]) < 5
+        for: 30m
+        labels:
+          severity: warning
+          component: business
+        annotations:
+          summary: "Low engagement from African American demographic"
+          description: "Only {{ $value }} leads from African American demographic in the last hour."
+          
+      - alert: HighValueLeadDropoff
+        expr: rate(mingus_high_value_lead_dropoff_total[15m]) / rate(mingus_high_value_lead_started_total[15m]) > 0.3
+        for: 10m
+        labels:
+          severity: critical
+          component: business
+        annotations:
+          summary: "High-value lead dropoff rate is concerning"
+          description: "{{ $value | humanizePercentage }} of high-value leads are dropping off during the capture process."
+          
+      - alert: SalaryGapAnalysisFailure
+        expr: rate(mingus_salary_gap_analysis_failures_total[5m]) > 0
+        for: 2m
+        labels:
+          severity: warning
+          component: business
+        annotations:
+          summary: "Salary gap analysis failures detected"
+          description: "{{ $value }} salary gap analysis failures in the last 5 minutes."
+          
+      - alert: RepresentationPremiumCalculationError
+        expr: rate(mingus_representation_premium_errors_total[5m]) > 0
+        for: 2m
+        labels:
+          severity: warning
+          component: business
+        annotations:
+          summary: "Representation premium calculation errors"
+          description: "{{ $value }} representation premium calculation errors in the last 5 minutes." 

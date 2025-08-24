@@ -24,6 +24,18 @@ class User(Base):
     health_checkins = relationship("UserHealthCheckin", back_populates="user")
     health_correlations = relationship("HealthSpendingCorrelation", back_populates="user")
     
+    # Article library relationships
+    article_reads = relationship("UserArticleRead", back_populates="user")
+    article_bookmarks = relationship("UserArticleBookmark", back_populates="user")
+    article_ratings = relationship("UserArticleRating", back_populates="user")
+    article_progress = relationship("UserArticleProgress", back_populates="user")
+    article_recommendations = relationship("ArticleRecommendation", back_populates="user")
+    assessment_scores = relationship("UserAssessmentScores", back_populates="user", uselist=False)
+    
+    # Meme splash page relationships
+    meme_history = relationship("UserMemeHistory", back_populates="user")
+    meme_preferences = relationship("UserMemePreferences", back_populates="user", uselist=False)
+    
     def __repr__(self):
         return f'<User {self.email}>'
     

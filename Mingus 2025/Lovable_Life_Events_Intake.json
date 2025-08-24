@@ -1,0 +1,313 @@
+{
+  "screens": [
+    {
+      "id": "life_intro",
+      "title": "Plan for the People and Moments that Matter",
+      "fields": [],
+      "subtitle": "We\u2019ll help you remember the things that matter most\u2014like birthdays, anniversaries, and family traditions\u2014so you\u2019re always financially ready.",
+      "next": "birthday_prompt"
+    },
+    {
+      "id": "birthday_prompt",
+      "title": "Do you plan for birthdays?",
+      "fields": [
+        {
+          "type": "button_group",
+          "id": "has_birthdays",
+          "options": [
+            "Yes",
+            "No"
+          ]
+        }
+      ],
+      "conditional_next": {
+        "Yes": "birthday_entries",
+        "No": "children_activities_prompt"
+      }
+    },
+    {
+      "id": "birthday_entries",
+      "title": "Enter birthday details",
+      "repeatable_group": {
+        "id": "birthdays",
+        "fields": [
+          {
+            "type": "text",
+            "label": "Person\u2019s Name",
+            "id": "birthday_name"
+          },
+          {
+            "type": "dropdown",
+            "label": "Relationship",
+            "id": "relationship_type",
+            "options": [
+              "Spouse",
+              "Girlfriend/Boyfriend",
+              "Child",
+              "Parent",
+              "Sibling",
+              "Other"
+            ]
+          },
+          {
+            "type": "date",
+            "label": "Date",
+            "id": "birthday_date"
+          },
+          {
+            "type": "number",
+            "label": "Gift Budget ($)",
+            "id": "gift_budget"
+          },
+          {
+            "type": "dropdown",
+            "label": "Frequency",
+            "id": "birthday_frequency",
+            "options": [
+              "Yearly"
+            ]
+          }
+        ]
+      },
+      "next": "children_activities_prompt"
+    },
+    {
+      "id": "children_activities_prompt",
+      "title": "Do your kids have sports or activities with regular payments?",
+      "fields": [
+        {
+          "type": "button_group",
+          "id": "has_kid_activities",
+          "options": [
+            "Yes",
+            "No"
+          ]
+        }
+      ],
+      "conditional_next": {
+        "Yes": "kid_activity_entries",
+        "No": "anniversary_prompt"
+      }
+    },
+    {
+      "id": "kid_activity_entries",
+      "title": "Enter child activity details",
+      "repeatable_group": {
+        "id": "kid_activities",
+        "fields": [
+          {
+            "type": "text",
+            "label": "Child\u2019s Name",
+            "id": "child_name"
+          },
+          {
+            "type": "text",
+            "label": "Activity",
+            "id": "activity_name"
+          },
+          {
+            "type": "number",
+            "label": "Payment Amount",
+            "id": "activity_cost"
+          },
+          {
+            "type": "dropdown",
+            "label": "Payment Frequency",
+            "id": "activity_frequency",
+            "options": [
+              "Monthly",
+              "Seasonal",
+              "One-time"
+            ]
+          },
+          {
+            "type": "date",
+            "label": "Next Due Date",
+            "id": "activity_due"
+          }
+        ]
+      },
+      "next": "anniversary_prompt"
+    },
+    {
+      "id": "anniversary_prompt",
+      "title": "Do you celebrate any anniversaries or milestones?",
+      "repeatable_group": {
+        "id": "anniversaries",
+        "fields": [
+          {
+            "type": "text",
+            "label": "Event Name",
+            "id": "anniversary_name"
+          },
+          {
+            "type": "date",
+            "label": "Date",
+            "id": "anniversary_date"
+          },
+          {
+            "type": "number",
+            "label": "Typical Spend ($)",
+            "id": "anniversary_budget"
+          },
+          {
+            "type": "dropdown",
+            "label": "Frequency",
+            "id": "anniversary_frequency",
+            "options": [
+              "Yearly",
+              "Other"
+            ]
+          }
+        ]
+      },
+      "next": "trip_prompt"
+    },
+    {
+      "id": "trip_prompt",
+      "title": "Do you take recurring trips or vacations?",
+      "repeatable_group": {
+        "id": "vacations",
+        "fields": [
+          {
+            "type": "text",
+            "label": "Trip Name",
+            "id": "trip_name"
+          },
+          {
+            "type": "text",
+            "label": "Usual Month",
+            "id": "trip_month"
+          },
+          {
+            "type": "number",
+            "label": "Estimated Cost ($)",
+            "id": "trip_cost"
+          },
+          {
+            "type": "button_group",
+            "label": "Shared Costs?",
+            "id": "shared_trip",
+            "options": [
+              "Yes",
+              "No"
+            ]
+          }
+        ]
+      },
+      "next": "org_prompt"
+    },
+    {
+      "id": "org_prompt",
+      "title": "Are you part of any organizations with dues or assessments?",
+      "repeatable_group": {
+        "id": "organizations",
+        "fields": [
+          {
+            "type": "text",
+            "label": "Organization Name",
+            "id": "org_name"
+          },
+          {
+            "type": "number",
+            "label": "Annual Dues ($)",
+            "id": "org_dues"
+          },
+          {
+            "type": "text",
+            "label": "Due Month",
+            "id": "org_due_month"
+          },
+          {
+            "type": "dropdown",
+            "label": "Frequency",
+            "id": "org_frequency",
+            "options": [
+              "Annually",
+              "Quarterly",
+              "Other"
+            ]
+          }
+        ]
+      },
+      "next": "tax_prompt"
+    },
+    {
+      "id": "tax_prompt",
+      "title": "Do you usually receive a tax refund or owe taxes?",
+      "fields": [
+        {
+          "type": "dropdown",
+          "label": "Tax Status",
+          "id": "tax_type",
+          "options": [
+            "Refund",
+            "Owe",
+            "Not Sure"
+          ]
+        },
+        {
+          "type": "number",
+          "label": "Typical Amount ($)",
+          "id": "tax_amount"
+        },
+        {
+          "type": "text",
+          "label": "When do you file? (Month)",
+          "id": "tax_month"
+        },
+        {
+          "type": "button_group",
+          "label": "Send a reminder?",
+          "id": "tax_reminder",
+          "options": [
+            "Yes",
+            "No"
+          ]
+        }
+      ],
+      "next": "custom_life_event"
+    },
+    {
+      "id": "custom_life_event",
+      "title": "Anything else we should help you plan for?",
+      "repeatable_group": {
+        "id": "custom_life_expenses",
+        "fields": [
+          {
+            "type": "text",
+            "label": "Event Name",
+            "id": "custom_event_name"
+          },
+          {
+            "type": "number",
+            "label": "Estimated Cost ($)",
+            "id": "custom_event_cost"
+          },
+          {
+            "type": "text",
+            "label": "Date or Timing",
+            "id": "custom_event_date"
+          },
+          {
+            "type": "dropdown",
+            "label": "Frequency",
+            "id": "custom_event_frequency",
+            "options": [
+              "One-time",
+              "Yearly",
+              "Quarterly"
+            ]
+          }
+        ]
+      },
+      "next": "summary_screen"
+    },
+    {
+      "id": "summary_screen",
+      "title": "Review Your Life-Based Financial Events",
+      "fields": [],
+      "summary": true
+    }
+  ]
+}

@@ -1,17 +1,8 @@
 """
-Services package for business logic implementation
+Services package for business logic implementation.
+
+Avoid importing submodules at package import time to prevent heavy side-effects
+and relative import issues under alternative import layouts used by tests.
 """
 
-from .user_service import UserService
-from .onboarding_service import OnboardingService
-from .important_dates_service import ImportantDatesService
-from .personalization_service import PersonalizationService
-from .cash_flow_analysis_service import CashFlowAnalysisService
-
-__all__ = [
-    'UserService',
-    'OnboardingService', 
-    'ImportantDatesService',
-    'PersonalizationService',
-    'CashFlowAnalysisService'
-] 
+__all__ = []

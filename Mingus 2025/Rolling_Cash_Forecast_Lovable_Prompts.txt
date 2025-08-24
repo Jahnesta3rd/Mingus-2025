@@ -1,0 +1,63 @@
+
+Lovable Prompt Series: Rolling Cash Forecast with Stripe + Meme Alerts
+
+1. Connect to User’s Bank Account via Stripe
+Create a secure integration using Stripe Financial Connections to connect to the user's bank account and retrieve transaction data including amount, date, and type (credit or debit) for the past 90 days and ongoing.
+
+2. Initialize Daily Forecast Calculation
+Build a function that:
+- Takes today's account balance as the starting point.
+- Applies future-dated income and expense items.
+- Calculates a rolling 90-day projection by updating the daily balance based on expected inflows and outflows.
+
+Use this logic:
+daily_balance[n] = daily_balance[n-1] + total_income[n] - total_expense[n]
+
+3. Interface to Add Income and Expense Items
+Create a user interface that allows users to:
+- Add new recurring or one-time income items (name, amount, start date, frequency).
+- Add new recurring or one-time expense items (name, amount, start date, frequency).
+- Edit or delete any scheduled item.
+
+Store this in a table:
+forecast_items (id, user_id, type, name, amount, start_date, frequency)
+
+4. Generate 90-Day Forecast with Itemized Breakdown
+Generate a daily list of projected balances over the next 90 days using:
+- Scheduled items from the forecast_items table
+- Starting balance from Stripe account
+- Recurrence logic for repeating items
+
+Output a table:
+Date | Starting Balance | Inflows | Outflows | Ending Balance
+
+5. Visual Calendar with Color Thresholds
+Build a calendar view that:
+- Colors each day green if projected balance is above a user-defined threshold
+- Colors each day red if projected balance falls below the threshold
+
+Include a slider or input field where the user can set their minimum balance warning threshold.
+
+6. Meme-Based Warning Alerts
+On days when the projected ending balance falls below the threshold, send a warning message via SMS or app push that includes:
+- A relevant meme (image URL and caption from the memes table)
+- A short text: "You're broke... but funny 🤡 – {meme.description}"
+
+Only send one meme per low-balance day.
+memes table: (id, category, image_url, description)
+
+7. Schedule & Automate Forecast Updates
+Set up a background job to recalculate the rolling 90-day forecast every night at 11:59 PM and re-evaluate threshold warnings.
+
+8. User Dashboard View
+Create a dashboard page that shows:
+- Current balance
+- Next 7-day forecast chart
+- A forecast calendar with color-coded days
+- Add/Edit buttons for income and expense items
+- Input for threshold setting
+- History of sent meme alerts
+
+9. Security and Privacy
+Ensure that all user financial data is encrypted using AES-256.
+Use HTTPS for all data transmission and secure session handling for login/logout.

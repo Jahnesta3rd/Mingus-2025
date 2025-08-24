@@ -1,0 +1,175 @@
+{
+  "backup_session": "20250724_185858",
+  "backup_date": "2025-07-24T18:58:58.750644",
+  "databases": {
+    "mingus": {
+      "success": true,
+      "database_info": {
+        "exists": true,
+        "file_size_bytes": 90112,
+        "file_size_mb": 0.09,
+        "last_modified": "2025-06-28T22:24:44.645449",
+        "tables": [
+          "user_profiles",
+          "onboarding_progress",
+          "user_health_checkins",
+          "health_spending_correlations",
+          "users"
+        ],
+        "table_count": 5,
+        "table_record_counts": {
+          "user_profiles": 0,
+          "onboarding_progress": 0,
+          "user_health_checkins": 0,
+          "health_spending_correlations": 0,
+          "users": 11
+        },
+        "total_records": 11,
+        "integrity_check": true,
+        "file_hash": "ad7680206c5c54a988427ac396fe8607ebf71228b87a9d8b7453018508f32e6b"
+      },
+      "backup_path": "database_backups/backup_20250724_185858/databases/mingus_20250724_185858.db.gz",
+      "backup_size_bytes": 4362,
+      "backup_size_mb": 0.0,
+      "compressed": true,
+      "backup_hash": "30fae1b863295efbfa41deb5068f0f5a72d7300209329dea0e88bc92af4f3994",
+      "backup_timestamp": "2025-07-24T18:58:58.805551"
+    },
+    "business_intelligence": {
+      "success": true,
+      "database_info": {
+        "exists": true,
+        "file_size_bytes": 57344,
+        "file_size_mb": 0.05,
+        "last_modified": "2025-06-28T22:24:34.654351",
+        "tables": [
+          "user_metrics",
+          "sqlite_sequence",
+          "feature_usage",
+          "user_feedback",
+          "score_accuracy",
+          "roi_metrics",
+          "user_journey"
+        ],
+        "table_count": 7,
+        "table_record_counts": {
+          "user_metrics": 5,
+          "sqlite_sequence": 1,
+          "feature_usage": 0,
+          "user_feedback": 0,
+          "score_accuracy": 0,
+          "roi_metrics": 0,
+          "user_journey": 0
+        },
+        "total_records": 6,
+        "integrity_check": true,
+        "file_hash": "d5622a56bfa1c7c557a2dce89b158159f998f89b28e15f6df5a102290fcc0156"
+      },
+      "backup_path": "database_backups/backup_20250724_185858/databases/business_intelligence_20250724_185858.db.gz",
+      "backup_size_bytes": 1409,
+      "backup_size_mb": 0.0,
+      "compressed": true,
+      "backup_hash": "0837937013c0bf242af946e50c8ca61a6a444f09248f8cdd0486723f0ffd42ab",
+      "backup_timestamp": "2025-07-24T18:58:58.823708"
+    },
+    "cache": {
+      "success": true,
+      "database_info": {
+        "exists": true,
+        "file_size_bytes": 20480,
+        "file_size_mb": 0.02,
+        "last_modified": "2025-06-28T22:24:34.655387",
+        "tables": [
+          "cache_entries"
+        ],
+        "table_count": 1,
+        "table_record_counts": {
+          "cache_entries": 0
+        },
+        "total_records": 0,
+        "integrity_check": true,
+        "file_hash": "af69ee65941c87a7336d9217e654ba859a4579a8bec05562d1c79bb60c1066a5"
+      },
+      "backup_path": "database_backups/backup_20250724_185858/databases/cache_20250724_185858.db.gz",
+      "backup_size_bytes": 450,
+      "backup_size_mb": 0.0,
+      "compressed": true,
+      "backup_hash": "d4cb1e70f0a413411d8b56668b83684abf2187a16da7f7e6bb576f72477aa162",
+      "backup_timestamp": "2025-07-24T18:58:58.829226"
+    },
+    "performance_metrics": {
+      "success": true,
+      "database_info": {
+        "exists": true,
+        "file_size_bytes": 45056,
+        "file_size_mb": 0.04,
+        "last_modified": "2025-06-28T22:24:52.455364",
+        "tables": [
+          "api_metrics",
+          "sqlite_sequence",
+          "database_metrics",
+          "score_metrics",
+          "user_engagement"
+        ],
+        "table_count": 5,
+        "table_record_counts": {
+          "api_metrics": 0,
+          "sqlite_sequence": 0,
+          "database_metrics": 0,
+          "score_metrics": 0,
+          "user_engagement": 0
+        },
+        "total_records": 0,
+        "integrity_check": true,
+        "file_hash": "53c6f4dc372c4c0f4ddf8909a27d8b47a47a8c2e0a6d8d9715411cd593e8b260"
+      },
+      "backup_path": "database_backups/backup_20250724_185858/databases/performance_metrics_20250724_185858.db.gz",
+      "backup_size_bytes": 859,
+      "backup_size_mb": 0.0,
+      "compressed": true,
+      "backup_hash": "701ca72a67946e470ba133ec2f8128167bbfc8e6de5a98aef9e821ca51ae9aea",
+      "backup_timestamp": "2025-07-24T18:58:58.844528"
+    },
+    "alerts": {
+      "success": true,
+      "database_info": {
+        "exists": true,
+        "file_size_bytes": 40960,
+        "file_size_mb": 0.04,
+        "last_modified": "2025-07-01T19:29:41.534826",
+        "tables": [
+          "alert_rules",
+          "sqlite_sequence",
+          "alerts",
+          "alert_channels"
+        ],
+        "table_count": 4,
+        "table_record_counts": {
+          "alert_rules": 6,
+          "sqlite_sequence": 2,
+          "alerts": 0,
+          "alert_channels": 2
+        },
+        "total_records": 10,
+        "integrity_check": true,
+        "file_hash": "86ecb92f01d87dc213b5e5ac32855ded43b477279613d3c4efaa9b046388dbf7"
+      },
+      "backup_path": "database_backups/backup_20250724_185858/databases/alerts_20250724_185858.db.gz",
+      "backup_size_bytes": 1462,
+      "backup_size_mb": 0.0,
+      "compressed": true,
+      "backup_hash": "1442c1f9877831ca9114b8329a57460172eaebe162c014a4c5d8171b5010f8e9",
+      "backup_timestamp": "2025-07-24T18:58:58.874655"
+    }
+  },
+  "summary": {
+    "total_databases": 5,
+    "successful_backups": 5,
+    "failed_backups": 0,
+    "total_backup_size_mb": 0.0,
+    "total_original_size_mb": 0.24000000000000002,
+    "overall_compression_ratio": 0.0
+  },
+  "errors": [],
+  "warnings": []
+}

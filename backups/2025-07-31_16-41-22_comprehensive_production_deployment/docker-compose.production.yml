@@ -1,0 +1,550 @@
+version: '3.8'
+
+# =====================================================
+# MINGUS PRODUCTION DOCKER COMPOSE CONFIGURATION
+# =====================================================
+# Complete production deployment with all services
+# Optimized for high-performance and scalability
+
+services:
+  # =====================================================
+  # DATABASE SERVICES
+  # =====================================================
+  
+  postgres:
+    image: postgres:15-alpine
+    container_name: mingus_postgres_prod
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: mingus_production
+      POSTGRES_USER: mingus_user
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --lc-collate=C --lc-ctype=C"
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./deployment/postgres/postgresql.conf:/etc/postgresql/postgresql.conf
+      - ./deployment/postgres/pg_hba.conf:/etc/postgresql/pg_hba.conf
+      - ./backups/database:/backups
+    ports:
+      - "5432:5432"
+    command: postgres -c config_file=/etc/postgresql/postgresql.conf
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mingus_user -d mingus_production"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - mingus_network
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+        reservations:
+          memory: 1G
+
+  # =====================================================
+  # CACHE AND MESSAGE BROKER
+  # =====================================================
+  
+  redis:
+    image: redis:7-alpine
+    container_name: mingus_redis_prod
+    restart: unless-stopped
+    command: redis-server /usr/local/etc/redis/redis.conf
+    volumes:
+      - redis_data:/data
+      - ./deployment/redis.production.conf:/usr/local/etc/redis/redis.conf
+      - ./logs:/app/logs
+    ports:
+      - "6379:6379"
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    networks:
+      - mingus_network
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+        reservations:
+          memory: 512M
+
+  # =====================================================
+  # WEB APPLICATION
+  # =====================================================
+  
+  web:
+    build:
+      context: .
+      dockerfile: deployment/Dockerfile
+      args:
+        - BUILD_ENV=production
+    container_name: mingus_web_prod
+    restart: unless-stopped
+    command: gunicorn -c /app/deployment/gunicorn.production.conf.py backend.app:app
+    ports:
+      - "5002:5002"
+    environment:
+      - FLASK_ENV=production
+      - FLASK_APP=backend.app
+      - DATABASE_URL=postgresql://mingus_user:${POSTGRES_PASSWORD}@postgres:5432/mingus_production
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - CELERY_BROKER_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - GUNICORN_WORKERS=4
+      - GUNICORN_WORKER_CLASS=gevent
+      - GUNICORN_TIMEOUT=180
+      - DB_POOL_SIZE=20
+      - DB_MAX_OVERFLOW=30
+      - MAIL_USERNAME=${MAIL_USERNAME}
+      - MAIL_PASSWORD=${MAIL_PASSWORD}
+      - TWILIO_ACCOUNT_SID=${TWILIO_ACCOUNT_SID}
+      - TWILIO_AUTH_TOKEN=${TWILIO_AUTH_TOKEN}
+      - RESEND_API_KEY=${RESEND_API_KEY}
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_KEY=${SUPABASE_KEY}
+      - SECRET_KEY=${SECRET_KEY}
+      - STATSD_HOST=statsd
+      - STATSD_PORT=8125
+    volumes:
+      - ./logs:/app/logs
+      - ./static:/app/static
+      - ./uploads:/app/uploads
+      - ./ssl:/app/ssl:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5002/health"]
+      interval: 30s
+      timeout: 30s
+      retries: 3
+      start_period: 60s
+    networks:
+      - mingus_network
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+        reservations:
+          memory: 512M
+
+  # =====================================================
+  # CELERY WORKERS
+  # =====================================================
+  
+  celery-worker:
+    build:
+      context: .
+      dockerfile: deployment/Dockerfile
+      args:
+        - BUILD_ENV=production
+    container_name: mingus_celery_worker_prod
+    restart: unless-stopped
+    command: celery -A backend.celery_app.celery worker -l info -c 4 -Q default,mingus_tasks,communication_tasks
+    environment:
+      - FLASK_ENV=production
+      - FLASK_APP=backend.app
+      - DATABASE_URL=postgresql://mingus_user:${POSTGRES_PASSWORD}@postgres:5432/mingus_production
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - CELERY_BROKER_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - CELERY_WORKER_TYPE=default
+      - CELERY_WORKER_CONCURRENCY=4
+      - CELERY_WORKER_MAX_TASKS_PER_CHILD=1000
+      - TWILIO_ACCOUNT_SID=${TWILIO_ACCOUNT_SID}
+      - TWILIO_AUTH_TOKEN=${TWILIO_AUTH_TOKEN}
+      - RESEND_API_KEY=${RESEND_API_KEY}
+      - STATSD_HOST=statsd
+      - STATSD_PORT=8125
+    volumes:
+      - ./logs:/app/logs
+      - ./uploads:/app/uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - mingus_network
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
+
+  celery-sms-worker:
+    build:
+      context: .
+      dockerfile: deployment/Dockerfile
+      args:
+        - BUILD_ENV=production
+    container_name: mingus_celery_sms_worker_prod
+    restart: unless-stopped
+    command: celery -A backend.celery_app.celery worker -l info -c 2 -Q sms_critical,sms_daily
+    environment:
+      - FLASK_ENV=production
+      - FLASK_APP=backend.app
+      - DATABASE_URL=postgresql://mingus_user:${POSTGRES_PASSWORD}@postgres:5432/mingus_production
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - CELERY_BROKER_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - CELERY_WORKER_TYPE=sms
+      - SMS_WORKER_CONCURRENCY=2
+      - SMS_WORKER_MAX_TASKS_PER_CHILD=500
+      - TWILIO_ACCOUNT_SID=${TWILIO_ACCOUNT_SID}
+      - TWILIO_AUTH_TOKEN=${TWILIO_AUTH_TOKEN}
+      - STATSD_HOST=statsd
+      - STATSD_PORT=8125
+    volumes:
+      - ./logs:/app/logs
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - mingus_network
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+        reservations:
+          memory: 128M
+
+  celery-email-worker:
+    build:
+      context: .
+      dockerfile: deployment/Dockerfile
+      args:
+        - BUILD_ENV=production
+    container_name: mingus_celery_email_worker_prod
+    restart: unless-stopped
+    command: celery -A backend.celery_app.celery worker -l info -c 3 -Q email_reports,email_education
+    environment:
+      - FLASK_ENV=production
+      - FLASK_APP=backend.app
+      - DATABASE_URL=postgresql://mingus_user:${POSTGRES_PASSWORD}@postgres:5432/mingus_production
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - CELERY_BROKER_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - CELERY_WORKER_TYPE=email
+      - EMAIL_WORKER_CONCURRENCY=3
+      - EMAIL_WORKER_MAX_TASKS_PER_CHILD=750
+      - RESEND_API_KEY=${RESEND_API_KEY}
+      - STATSD_HOST=statsd
+      - STATSD_PORT=8125
+    volumes:
+      - ./logs:/app/logs
+      - ./uploads:/app/uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - mingus_network
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
+
+  celery-analytics-worker:
+    build:
+      context: .
+      dockerfile: deployment/Dockerfile
+      args:
+        - BUILD_ENV=production
+    container_name: mingus_celery_analytics_worker_prod
+    restart: unless-stopped
+    command: celery -A backend.celery_app.celery worker -l info -c 2 -Q analytics
+    environment:
+      - FLASK_ENV=production
+      - FLASK_APP=backend.app
+      - DATABASE_URL=postgresql://mingus_user:${POSTGRES_PASSWORD}@postgres:5432/mingus_production
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - CELERY_BROKER_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - CELERY_WORKER_TYPE=analytics
+      - ANALYTICS_WORKER_CONCURRENCY=2
+      - ANALYTICS_WORKER_MAX_TASKS_PER_CHILD=250
+      - STATSD_HOST=statsd
+      - STATSD_PORT=8125
+    volumes:
+      - ./logs:/app/logs
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - mingus_network
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
+
+  celery-monitoring-worker:
+    build:
+      context: .
+      dockerfile: deployment/Dockerfile
+      args:
+        - BUILD_ENV=production
+    container_name: mingus_celery_monitoring_worker_prod
+    restart: unless-stopped
+    command: celery -A backend.celery_app.celery worker -l info -c 1 -Q monitoring
+    environment:
+      - FLASK_ENV=production
+      - FLASK_APP=backend.app
+      - DATABASE_URL=postgresql://mingus_user:${POSTGRES_PASSWORD}@postgres:5432/mingus_production
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - CELERY_BROKER_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - CELERY_WORKER_TYPE=monitoring
+      - MONITORING_WORKER_CONCURRENCY=1
+      - MONITORING_WORKER_MAX_TASKS_PER_CHILD=100
+      - STATSD_HOST=statsd
+      - STATSD_PORT=8125
+    volumes:
+      - ./logs:/app/logs
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - mingus_network
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+        reservations:
+          memory: 128M
+
+  celery-optimization-worker:
+    build:
+      context: .
+      dockerfile: deployment/Dockerfile
+      args:
+        - BUILD_ENV=production
+    container_name: mingus_celery_optimization_worker_prod
+    restart: unless-stopped
+    command: celery -A backend.celery_app.celery worker -l info -c 1 -Q optimization
+    environment:
+      - FLASK_ENV=production
+      - FLASK_APP=backend.app
+      - DATABASE_URL=postgresql://mingus_user:${POSTGRES_PASSWORD}@postgres:5432/mingus_production
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - CELERY_BROKER_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - CELERY_WORKER_TYPE=optimization
+      - OPTIMIZATION_WORKER_CONCURRENCY=1
+      - OPTIMIZATION_WORKER_MAX_TASKS_PER_CHILD=100
+      - STATSD_HOST=statsd
+      - STATSD_PORT=8125
+    volumes:
+      - ./logs:/app/logs
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - mingus_network
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+        reservations:
+          memory: 128M
+
+  # =====================================================
+  # CELERY BEAT SCHEDULER
+  # =====================================================
+  
+  celery-beat:
+    build:
+      context: .
+      dockerfile: deployment/Dockerfile
+      args:
+        - BUILD_ENV=production
+    container_name: mingus_celery_beat_prod
+    restart: unless-stopped
+    command: celery -A backend.celery_app.celery beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    environment:
+      - FLASK_ENV=production
+      - FLASK_APP=backend.app
+      - DATABASE_URL=postgresql://mingus_user:${POSTGRES_PASSWORD}@postgres:5432/mingus_production
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - CELERY_BROKER_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - STATSD_HOST=statsd
+      - STATSD_PORT=8125
+    volumes:
+      - ./logs:/app/logs
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - mingus_network
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+        reservations:
+          memory: 64M
+
+  # =====================================================
+  # MONITORING SERVICES
+  # =====================================================
+  
+  statsd:
+    image: graphiteapp/graphite-statsd:latest
+    container_name: mingus_statsd_prod
+    restart: unless-stopped
+    ports:
+      - "8125:8125/udp"
+      - "8126:8126"
+    environment:
+      - STATSD_INTERFACE=udp
+      - STATSD_PORT=8125
+      - GRAPHITE_TIME_ZONE=UTC
+    volumes:
+      - statsd_data:/opt/graphite/storage
+      - ./deployment/monitoring/statsd.conf:/opt/statsd/config.js
+    networks:
+      - mingus_network
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+        reservations:
+          memory: 128M
+
+  graphite:
+    image: graphiteapp/graphite-statsd:latest
+    container_name: mingus_graphite_prod
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    environment:
+      - GRAPHITE_TIME_ZONE=UTC
+    volumes:
+      - graphite_data:/opt/graphite/storage
+      - ./deployment/monitoring/graphite.conf:/opt/graphite/conf/graphite.conf
+    depends_on:
+      - statsd
+    networks:
+      - mingus_network
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
+
+  # =====================================================
+  # REVERSE PROXY
+  # =====================================================
+  
+  nginx:
+    build:
+      context: ./deployment/nginx
+      dockerfile: Dockerfile
+    container_name: mingus_nginx_prod
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./deployment/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./deployment/nginx/ssl:/etc/nginx/ssl:ro
+      - ./static:/app/static:ro
+      - ./logs/nginx:/var/log/nginx
+    depends_on:
+      - web
+    networks:
+      - mingus_network
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+        reservations:
+          memory: 64M
+
+  # =====================================================
+  # BACKUP SERVICE
+  # =====================================================
+  
+  backup:
+    build:
+      context: .
+      dockerfile: deployment/Dockerfile
+      args:
+        - BUILD_ENV=production
+    container_name: mingus_backup_prod
+    restart: "no"
+    command: python /app/scripts/backup_database.py
+    environment:
+      - FLASK_ENV=production
+      - DATABASE_URL=postgresql://mingus_user:${POSTGRES_PASSWORD}@postgres:5432/mingus_production
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - BACKUP_RETENTION_DAYS=30
+      - BACKUP_COMPRESSION=gzip
+    volumes:
+      - ./backups:/app/backups
+      - ./logs:/app/logs
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - mingus_network
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+        reservations:
+          memory: 128M
+
+# =====================================================
+# VOLUMES
+# =====================================================
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  statsd_data:
+    driver: local
+  graphite_data:
+    driver: local
+
+# =====================================================
+# NETWORKS
+# =====================================================
+
+networks:
+  mingus_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16 

@@ -1,0 +1,77 @@
+{
+  "timestamp": "2025-08-05T12:54:59.008582",
+  "base_url": "http://localhost:5001",
+  "tests": [
+    {
+      "test": "Health Endpoint",
+      "success": true,
+      "message": "Application and database are healthy",
+      "timestamp": "2025-08-05T12:54:58.879195"
+    },
+    {
+      "test": "API Test Endpoint",
+      "success": true,
+      "message": "Found 6 endpoints",
+      "timestamp": "2025-08-05T12:54:58.883994"
+    },
+    {
+      "test": "Sample User",
+      "success": true,
+      "message": "Found user: John Doe (Completion: 85%)",
+      "timestamp": "2025-08-05T12:54:58.895603"
+    },
+    {
+      "test": "Subscription Plans",
+      "success": true,
+      "message": "Found 3 plans",
+      "timestamp": "2025-08-05T12:54:58.896379"
+    },
+    {
+      "test": "User Profile Get (Unauthenticated)",
+      "success": false,
+      "message": "Unexpected status: 200",
+      "timestamp": "2025-08-05T12:54:58.918526"
+    },
+    {
+      "test": "User Profile Update Validation (Unauthenticated)",
+      "success": false,
+      "message": "Unexpected status: 200",
+      "timestamp": "2025-08-05T12:54:58.934949"
+    },
+    {
+      "test": "Subscription Endpoint (Unauthenticated)",
+      "success": false,
+      "message": "Unexpected status: 200",
+      "timestamp": "2025-08-05T12:54:58.950881"
+    },
+    {
+      "test": "Feature Usage Endpoint (Unauthenticated)",
+      "success": false,
+      "message": "Unexpected status: 200",
+      "timestamp": "2025-08-05T12:54:58.968907"
+    },
+    {
+      "test": "Onboarding Progress Endpoint (Unauthenticated)",
+      "success": false,
+      "message": "Unexpected status: 200",
+      "timestamp": "2025-08-05T12:54:58.987034"
+    },
+    {
+      "test": "Web Interface",
+      "success": true,
+      "message": "Main page loads successfully",
+      "timestamp": "2025-08-05T12:54:59.002229"
+    },
+    {
+      "test": "Login Page",
+      "success": true,
+      "message": "Login page loads with test credentials",
+      "timestamp": "2025-08-05T12:54:59.008319"
+    }
+  ],
+  "summary": {
+    "total": 11,
+    "passed": 6,
+    "failed": 5
+  }
+}

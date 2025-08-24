@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mingus Lifestyle Questionnaire</title>
+  <link rel="stylesheet" href="/static/css/form.css">
+  <style>
+    body { background: #f8fafc; font-family: 'Inter', Arial, sans-serif; }
+    .container { max-width: 800px; margin: 0 auto; padding: 2rem 1rem; }
+    .section { background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); margin-bottom: 2rem; padding: 2rem; }
+    .section-title { font-size: 1.4rem; font-weight: 700; color: #1e293b; margin-bottom: 0.5rem; }
+    .section-desc { color: #475569; margin-bottom: 1.5rem; font-size: 1.05rem; }
+    .progress-bar { width: 100%; height: 8px; background: #e5e7eb; border-radius: 4px; margin-bottom: 2rem; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, #2563eb, #10b981); border-radius: 4px; transition: width 0.3s; }
+    .question { margin-bottom: 1.5rem; }
+    .question-label { font-weight: 600; color: #334155; margin-bottom: 0.5rem; display: block; }
+    .options { margin-top: 0.5rem; }
+    .option { display: flex; align-items: center; margin-bottom: 0.5rem; }
+    .option input[type="radio"], .option input[type="checkbox"] { accent-color: #2563eb; margin-right: 0.5rem; }
+    .slider-labels { display: flex; justify-content: space-between; font-size: 0.95rem; color: #64748b; margin-top: 0.25rem; }
+    .textarea { width: 100%; min-height: 60px; border: 1px solid #e5e7eb; border-radius: 8px; padding: 0.75rem; font-size: 1rem; }
+    .section-footer { text-align: right; margin-top: 2rem; }
+    .btn { background: linear-gradient(90deg, #2563eb, #10b981); color: #fff; border: none; border-radius: 8px; padding: 0.75rem 2rem; font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    @media (max-width: 600px) { .container { padding: 0.5rem; } .section { padding: 1rem; } }
+  </style>
+</head>
+<body>
+  <div class="container" id="questionnaireContainer">
+    <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width: 0%"></div></div>
+    <form id="lifestyleForm" autocomplete="off">
+      <!-- Section 1: Living Situation & Housing -->
+      <div class="section" data-section="1">
+        <div class="section-title">Living Situation & Housing</div>
+        <div class="section-desc">Your living situation significantly impacts your monthly expenses and long-term financial goals. Help us understand your current housing situation so we can provide more accurate forecasting and relevant recommendations.</div>
+        <div class="question">
+          <label class="question-label">1. Current Housing Status</label>
+          <div class="options">
+            <div class="option"><input type="radio" name="housing_status" value="own">Own your home</div>
+            <div class="option"><input type="radio" name="housing_status" value="rent">Rent an apartment/house</div>
+            <div class="option"><input type="radio" name="housing_status" value="family">Live with family/relatives</div>
+            <div class="option"><input type="radio" name="housing_status" value="roommates">Live with roommates/housemates</div>
+            <div class="option"><input type="radio" name="housing_status" value="other">Other: <input type="text" name="housing_status_other" style="margin-left:0.5rem;" placeholder="Please specify"></div>
+          </div>
+        </div>
+        <div class="question">
+          <label class="question-label">2. Housing Satisfaction (1-10)</label>
+          <input type="range" name="housing_satisfaction" min="1" max="10" value="5" aria-valuenow="5" aria-valuemin="1" aria-valuemax="10">
+          <div class="slider-labels"><span>1: Planning to move</span><span>10: Happy with current</span></div>
+        </div>
+        <div class="question">
+          <label class="question-label">3. Family Living Arrangements</label>
+          <div class="options">
+            <div class="option"><input type="checkbox" name="family_living[]" value="alone">Live alone</div>
+            <div class="option"><input type="checkbox" name="family_living[]" value="partner">Live with romantic partner/spouse</div>
+            <div class="option"><input type="checkbox" name="family_living[]" value="children">Live with children</div>
+            <div class="option"><input type="checkbox" name="family_living[]" value="extended">Live with extended family</div>
+            <div class="option"><input type="checkbox" name="family_living[]" value="support">Support family members financially</div>
+            <div class="option"><input type="checkbox" name="family_living[]" value="multiple">Multiple of the above</div>
+          </div>
+        </div>
+        <div class="question">
+          <label class="question-label">4. Future Housing Goals (Select all that apply)</label>
+          <div class="options">
+            <div class="option"><input type="checkbox" name="housing_goals[]" value="buy_home">Buy my first home within 2 years</div>
+            <div class="option"><input type="checkbox" name="housing_goals[]" value="better_neighborhood">Move to a better neighborhood</div>
+            <div class="option"><input type="checkbox" name="housing_goals[]" value="own_place">Get my own place</div>
+            <div class="option"><input type="checkbox" name="housing_goals[]" value="downsize">Downsize to save money</div>
+            <div class="option"><input type="checkbox" name="housing_goals[]" value="closer_work">Move closer to work</div>
+            <div class="option"><input type="checkbox" name="housing_goals[]" value="better_schools">Move for better schools/family</div>
+            <div class="option"><input type="checkbox" name="housing_goals[]" value="no_change">No housing changes planned</div>
+          </div>
+        </div>
+        <div class="section-footer"><button type="button" class="btn" onclick="nextSection(1)">Next</button></div>
+      </div>
+      <!-- Section 2: Career & Professional Life -->
+      <div class="section" data-section="2" style="display:none;">
+        <div class="section-title">Career & Professional Life</div>
+        <div class="section-desc">Your career trajectory and work environment directly influence your income potential and daily stress levels. This information helps us forecast income changes and work-related expenses.</div>
+        <div class="question">
+          <label class="question-label">1. Employment Status</label>
+          <div class="options">
+            <div class="option"><input type="radio" name="employment_status" value="full_time">Full-time employee (one job)</div>
+            <div class="option"><input type="radio" name="employment_status" value="full_time_side">Full-time employee with side gig</div>
+            <div class="option"><input type="radio" name="employment_status" value="multiple_part">Multiple part-time jobs</div>
+            <div class="option"><input type="radio" name="employment_status" value="freelancer">Freelancer/Independent contractor</div>
+            <div class="option"><input type="radio" name="employment_status" value="grad_student">Graduate student with assistantship</div>
+            <div class="option"><input type="radio" name="employment_status" value="job_searching">Currently job searching</div>
+            <div class="option"><input type="radio" name="employment_status" value="other">Other: <input type="text" name="employment_status_other" style="margin-left:0.5rem;" placeholder="Please specify"></div>
+          </div>
+        </div>
+        <div class="question">
+          <label class="question-label">2. Job Satisfaction (1-10)</label>
+          <input type="range" name="job_satisfaction" min="1" max="10" value="5">
+          <div class="slider-labels"><span>1: Actively looking</span><span>10: Happy with current path</span></div>
+        </div>
+        <div class="question">
+          <label class="question-label">3. Income Stability (1-10)</label>
+          <input type="range" name="income_stability" min="1" max="10" value="5">
+          <div class="slider-labels"><span>1: Highly variable</span><span>10: Very stable</span></div>
+        </div>
+        <div class="question">
+          <label class="question-label">4. Career Growth Expectations</label>
+          <div class="options">
+            <div class="option"><input type="radio" name="career_growth" value="promotion_6mo">Expecting promotion/raise within 6 months</div>
+            <div class="option"><input type="radio" name="career_growth" value="promotion_2yr">Working toward promotion/raise within 1-2 years</div>
+            <div class="option"><input type="radio" name="career_growth" value="career_change">Planning career change within 1-2 years</div>
+            <div class="option"><input type="radio" name="career_growth" value="satisfied">Satisfied with current level</div>
+            <div class="option"><input type="radio" name="career_growth" value="uncertain">Uncertain about career progression</div>
+          </div>
+        </div>
+        <div class="question">
+          <label class="question-label">5. Work-Related Expenses (Select all that apply)</label>
+          <div class="options">
+            <div class="option"><input type="checkbox" name="work_expenses[]" value="development">Professional development/certifications</div>
+            <div class="option"><input type="checkbox" name="work_expenses[]" value="clothing">Work clothing/uniforms</div>
+            <div class="option"><input type="checkbox" name="work_expenses[]" value="commuting">Transportation/commuting costs</div>
+            <div class="option"><input type="checkbox" name="work_expenses[]" value="memberships">Professional memberships</div>
+            <div class="option"><input type="checkbox" name="work_expenses[]" value="networking">Networking events</div>
+            <div class="option"><input type="checkbox" name="work_expenses[]" value="none">None of the above</div>
+          </div>
+        </div>
+        <div class="question">
+          <label class="question-label">6. Side Hustle Activities (Select all that apply)</label>
+          <div class="options">
+            <div class="option"><input type="checkbox" name="side_hustle[]" value="rideshare">Ride-share driving (Uber, Lyft)</div>
+            <div class="option"><input type="checkbox" name="side_hustle[]" value="food_delivery">Food delivery (DoorDash, Uber Eats)</div>
+            <div class="option"><input type="checkbox" name="side_hustle[]" value="freelance">Freelance work in my field</div>
+            <div class="option"><input type="checkbox" name="side_hustle[]" value="online_selling">Online selling (eBay, Facebook Marketplace)</div>
+            <div class="option"><input type="checkbox" name="side_hustle[]" value="tutoring">Tutoring/teaching</div>
+            <div class="option"><input type="checkbox" name="side_hustle[]" value="creative">Creative services (photography, design, etc.)</div>
+            <div class="option"><input type="checkbox" name="side_hustle[]" value="interested">None currently, but interested</div>
+            <div class="option"><input type="checkbox" name="side_hustle[]" value="not_interested">None and not interested</div>
+          </div>
+        </div>
+        <div class="section-footer"><button type="button" class="btn" onclick="nextSection(2)">Next</button></div>
+      </div>
+      <!-- Section 3: Family & Financial Responsibilities -->
+      <div class="section" data-section="3" style="display:none;">
+        <div class="section-title">Family & Financial Responsibilities</div>
+        <div class="section-desc">Family relationships and obligations significantly impact financial decisions in African American communities. Help us understand your responsibilities so we can create realistic forecasts.</div>
+        <div class="question">
+          <label class="question-label">1. Relationship Status</label>
+          <div class="options">
+            <div class="option"><input type="radio" name="relationship_status" value="single">Single, not dating</div>
+            <div class="option"><input type="radio" name="relationship_status" value="dating">Single, casually dating</div>
+            <div class="option"><input type="radio" name="relationship_status" value="committed">In a committed relationship (not living together)</div>
+            <div class="option"><input type="radio" name="relationship_status" value="living_with_partner">Living with romantic partner</div>
+            <div class="option"><input type="radio" name="relationship_status" value="married">Married/domestic partnership</div>
+            <div class="option"><input type="radio" name="relationship_status" value="separated">Separated/divorced</div>
+            <div class="option"><input type="radio" name="relationship_status" value="complicated">It's complicated</div>
+          </div>
+        </div>
+        <div class="question">
+          <label class="question-label">2. Children/Dependents</label>
+          <div class="options">
+            <div class="option"><input type="checkbox" name="dependents[]" value="none">No children or dependents</div>
+            <div class="option"><input type="checkbox" name="dependents[]" value="planning">Planning for children within 2 years</div>
+            <div class="option"><input type="checkbox" name="dependents[]" value="1_child">1 child</div>
+            <div class="option"><input type="checkbox" name="dependents[]" value="2_children">2 children</div>
+            <div class="option"><input type="checkbox" name="dependents[]" value="3plus_children">3+ children</div>
+            <div class="option"><input type="checkbox" name="dependents[]" value="elderly_parent">Care for elderly parent/relative</div>
+            <div class="option"><input type="checkbox" name="dependents[]" value="support_siblings">Support adult siblings/family members</div>
+          </div>
+        </div>
+        <div class="question">
+          <label class="question-label">3. Family Financial Support (Select all that apply)</label>
+          <div class="options">
+            <div class="option"><input type="checkbox" name="family_support[]" value="parents">Send money to parents regularly</div>
+            <div class="option"><input type="checkbox" name="family_support[]" value="siblings">Help siblings with expenses occasionally</div>
+            <div class="option"><input type="checkbox" name="family_support[]" value="extended">Support extended family members</div>
+            <div class="option"><input type="checkbox" name="family_support[]" value="emergencies">Contribute to family emergencies</div>
+            <div class="option"><input type="checkbox" name="family_support[]" value="celebrations">Help with family celebrations/events</div>
+            <div class="option"><input type="checkbox" name="family_support[]" value="receive">Receive financial support from family</div>
+            <div class="option"><input type="checkbox" name="family_support[]" value="none">No regular family financial obligations</div>
+          </div>
+        </div>
+        <div class="question">
+          <label class="question-label">4. Financial Discussions in Relationships</label>
+          <div class="options">
+            <div class="option"><input type="radio" name="financial_discussions" value="open">We openly discuss all financial matters</div>
+            <div class="option"><input type="radio" name="financial_discussions" value="major_purchases">We discuss major purchases only</div>
+            <div class="option"><input type="radio" name="financial_discussions" value="separate">We keep most finances separate</div>
+            <div class="option"><input type="radio" name="financial_discussions" value="stress">Money conversations cause stress</div>
+            <div class="option"><input type="radio" name="financial_discussions" value="avoid">We avoid talking about money</div>
+            <div class="option"><input type="radio" name="financial_discussions" value="not_applicable">Not applicable (single)</div>
+          </div>
+        </div>
+        <div class="question">
+          <label class="question-label">5. Family Financial Pressure (1-10)</label>
+          <input type="range" name="family_pressure" min="1" max="10" value="5">
+          <div class="slider-labels"><span>1: Little to no pressure</span><span>10: Significant ongoing pressure</span></div>
+        </div>
+        <div class="section-footer"><button type="button" class="btn" onclick="nextSection(3)">Next</button></div>
+      </div>
+      <!-- Section 4: Social Life & Community -->
+      <div class="section" data-section="4" style="display:none;">
+        <div class="section-title">Social Life & Community</div>
+        <div class="section-desc">Your social life and community connections influence both your happiness and your spending. Understanding these patterns helps us forecast entertainment and social expenses more accurately.</div>
+        <div class="question">
+          <label class="question-label">1. Social Activity Level (1-10)</label>
+          <input type="range" name="social_activity" min="1" max="10" value="5">
+          <div class="slider-labels"><span>1: Prefer staying home</span><span>10: Very social</span></div>
+        </div>
+        <div class="question">
+          <label class="question-label">2. Typical Social Spending (Select all that apply)</label>
+          <div class="options">
+            <div class="option"><input type="checkbox" name="social_spending[]" value="dining">Dining out with friends</div>
+            <div class="option"><input type="checkbox" name="social_spending[]" value="nightlife">Bars/clubs/nightlife</div>
+            <div class="option"><input type="checkbox" name="social_spending[]" value="trips">Group trips/vacations</div>
+            <div class="option"><input type="checkbox" name="social_spending[]" value="concerts">Concerts/events/entertainment</div>
+            <div class="option"><input type="checkbox" name="social_spending[]" value="sports">Sports events/activities</div>
+            <div class="option"><input type="checkbox" name="social_spending[]" value="church">Church/community events</div>
+            <div class="option"><input type="checkbox" name="social_spending[]" value="birthdays">Birthday parties/celebrations</div>
+            <div class="option"><input type="checkbox" name="social_spending[]" value="weddings">Wedding-related expenses</div>
+          </div>
+        </div>
+        <div class="question">
+          <label class="question-label">3. Friend Group Financial Dynamics</label>
+          <div class="options">
+            <div class="option"><input type="radio" name="friend_dynamics" value="similar">My friends have similar financial situations</div>
+            <div class="option"><input type="radio" name="friend_dynamics" value="more">My friends generally earn more than me</div>
+            <div class="option"><input type="radio" name="friend_dynamics" value="less">My friends generally earn less than me</div>
+            <div class="option"><input type="radio" name="friend_dynamics" value="mixed">Mixed group with varied financial situations</div>
+            <div class="option"><input type="radio" name="friend_dynamics" value="pressure">I often feel pressure to keep up financially</div>
+            <div class="option"><input type="radio" name="friend_dynamics" value="rarely">Money rarely comes up in our social activities</div>
+          </div>
+        </div>
+        <div class="question">
+          <label class="question-label">4. Community Involvement (Select all that apply)</label>
+          <div class="options">
+            <div class="option"><input type="checkbox" name="community[]" value="church">Active in church community</div>
+            <div class="option"><input type="checkbox" name="community[]" value="professional">Member of professional organizations</div>
+            <div class="option"><input type="checkbox" name="community[]" value="volunteering">Participate in community volunteering</div>
+            <div class="option"><input type="checkbox" name="community[]" value="heritage">Involved in cultural/heritage organizations</div>
+            <div class="option"><input type="checkbox" name="community[]" value="alumni">Member of alumni associations</div>
+            <div class="option"><input type="checkbox" name="community[]" value="sports">Participate in sports leagues/fitness groups</div>
+            <div class="option"><input type="checkbox" name="community[]" value="not_involved">Not currently involved in community activities</div>
+          </div>
+        </div>
+        <div class="question">
+          <label class="question-label">5. Social Financial Pressure (1-10)</label>
+          <input type="range" name="social_pressure" min="1" max="10" value="5">
+          <div class="slider-labels"><span>1: Little pressure</span><span>10: Constant pressure</span></div>
+        </div>
+        <div class="section-footer"><button type="button" class="btn" onclick="nextSection(4)">Next</button></div>
+      </div>
+      <!-- Section 5: Health & Wellness Priorities -->
+      <div class="section" data-section="5" style="display:none;">
+        <div class="section-title">Health & Wellness Priorities</div>
+        <div class="section-desc">Your health choices directly impact both your wellbeing and your spending patterns. This helps us understand your priorities and forecast health-related expenses.</div>
+        <div class="question">
+          <label class="question-label">1. Health Insurance Status</label>
+          <div class="options">
+            <div class="option"><input type="radio" name="health_insurance" value="employer">Covered through employer</div>
+            <div class="option"><input type="radio" name="health_insurance" value="family">Covered through family member's plan</div>
+            <div class="option"><input type="radio" name="health_insurance" value="marketplace">Individual marketplace plan</div>
+            <div class="option"><input type="radio" name="health_insurance" value="medicaid">Medicaid/government program</div>
+            <div class="option"><input type="radio" name="health_insurance" value="uninsured">Currently uninsured</div>
+            <div class="option"><input type="radio" name="health_insurance" value="unsure">Unsure of my coverage details</div>
+          </div>
+        </div>
+        <div class="question">
+          <label class="question-label">2. Healthcare Access (1-10)</label>
+          <input type="range" name="healthcare_access" min="1" max="10" value="5">
+          <div class="slider-labels"><span>1: Difficult</span><span>10: Easy access</span></div>
+        </div>
+        <div class="question">
+          <label class="question-label">3. Mental Health Support (Select all that apply)</label>
+          <div class="options">
+            <div class="option"><input type="checkbox" name="mental_health[]" value="therapy_regular">Regular therapy/counseling</div>
+            <div class="option"><input type="checkbox" name="mental_health[]" value="therapy_occasional">Occasional therapy when needed</div>
+            <div class="option"><input type="checkbox" name="mental_health[]" value="medication">Medication for mental health</div>
+            <div class="option"><input type="checkbox" name="mental_health[]" value="spiritual">Support from religious/spiritual community</div>
+            <div class="option"><input type="checkbox" name="mental_health[]" value="family_support">Support from family/friends</div>
+            <div class="option"><input type="checkbox" name="mental_health[]" value="self_care">Self-care practices (meditation, journaling, etc.)</div>
+            <div class="option"><input type="checkbox" name="mental_health[]" value="seeking">Currently seeking mental health support</div>
+            <div class="option"><input type="checkbox" name="mental_health[]" value="none">Not currently using mental health support</div>
+          </div>
+        </div>
+        <div class="question">
+          <label class="question-label">4. Fitness Preferences (Select all that apply)</label>
+          <div class="options">
+            <div class="option"><input type="checkbox" name="fitness[]" value="gym">Gym membership</div>
+            <div class="option"><input type="checkbox" name="fitness[]" value="home">Home workouts</div>
+            <div class="option"><input type="checkbox" name="fitness[]" value="outdoor">Outdoor activities (running, hiking, etc.)</div>
+            <div class="option"><input type="checkbox" name="fitness[]" value="group">Group fitness classes</div>
+            <div class="option"><input type="checkbox" name="fitness[]" value="sports">Sports leagues/teams</div>
+            <div class="option"><input type="checkbox" name="fitness[]" value="walking">Walking/casual exercise</div>
+            <div class="option"><input type="checkbox" name="fitness[]" value="inactive">Currently inactive but want to change</div>
+            <div class="option"><input type="checkbox" name="fitness[]" value="not_prioritizing">Not prioritizing fitness currently</div>
+          </div>
+        </div>
+        <div class="question">
+          <label class="question-label">5. Wellness Spending Priorities (Rank top 3)</label>
+          <div class="options">
+            <div class="option"><input type="checkbox" name="wellness_priority[]" value="gym">Gym/fitness memberships</div>
+            <div class="option"><input type="checkbox" name="wellness_priority[]" value="healthy_food">Healthy food/supplements</div>
+            <div class="option"><input type="checkbox" name="wellness_priority[]" value="mental_health">Mental health services</div>
+            <div class="option"><input type="checkbox" name="wellness_priority[]" value="spa">Spa/massage/self-care</div>
+            <div class="option"><input type="checkbox" name="wellness_priority[]" value="medical">Medical/dental care</div>
+            <div class="option"><input type="checkbox" name="wellness_priority[]" value="alternative">Alternative health services</div>
+            <div class="option"><input type="checkbox" name="wellness_priority[]" value="apps">Wellness apps/programs</div>
+          </div>
+        </div>
+        <div class="section-footer"><button type="button" class="btn" onclick="nextSection(5)">Next</button></div>
+      </div>
+      <!-- Section 6: Financial Goals & Values -->
+      <div class="section" data-section="6" style="display:none;">
+        <div class="section-title">Financial Goals & Values</div>
+        <div class="section-desc">Your financial values and goals shape every money decision you make. Help us understand what matters most to you so we can provide personalized guidance.</div>
+        <div class="question">
+          <label class="question-label">1. Top Financial Priorities (Rank top 3)</label>
+          <div class="options">
+            <div class="option"><input type="checkbox" name="financial_priority[]" value="emergency_fund">Building emergency fund</div>
+            <div class="option"><input type="checkbox" name="financial_priority[]" value="student_loans">Paying off student loans</div>
+            <div class="option"><input type="checkbox" name="financial_priority[]" value="buy_home">Buying a home</div>
+            <div class="option"><input type="checkbox" name="financial_priority[]" value="retirement">Starting/growing retirement savings</div>
+            <div class="option"><input type="checkbox" name="financial_priority[]" value="support_family">Supporting family members</div>
+            <div class="option"><input type="checkbox" name="financial_priority[]" value="credit_score">Building credit score</div>
+            <div class="option"><input type="checkbox" name="financial_priority[]" value="business">Starting a business</div>
+            <div class="option"><input type="checkbox" name="financial_priority[]" value="children">Planning for children's future</div>
+            <div class="option"><input type="checkbox" name="financial_priority[]" value="vacations">Taking meaningful vacations</div>
+          </div>
+        </div>
+        <div class="question">
+          <label class="question-label">2. Money Management Style</label>
+          <div class="options">
+            <div class="option"><input type="radio" name="money_style" value="track_every">I track every dollar carefully</div>
+            <div class="option"><input type="radio" name="money_style" value="budget_flex">I budget monthly but allow flexibility</div>
+            <div class="option"><input type="radio" name="money_style" value="monitor">I monitor my accounts regularly but don't formal budget</div>
+            <div class="option"><input type="radio" name="money_style" value="occasional">I check my accounts occasionally</div>
+            <div class="option"><input type="radio" name="money_style" value="avoid">I prefer not to think about money details</div>
+          </div>
+        </div>
+        <div class="question">
+          <label class="question-label">3. Financial Stress Triggers (Select all that apply)</label>
+          <div class="options">
+            <div class="option"><input type="checkbox" name="stress_triggers[]" value="unexpected">Unexpected expenses</div>
+            <div class="option"><input type="checkbox" name="stress_triggers[]" value="bills">Monthly bill due dates</div>
+            <div class="option"><input type="checkbox" name="stress_triggers[]" value="student_loans">Student loan payments</div>
+            <div class="option"><input type="checkbox" name="stress_triggers[]" value="family_requests">Family financial requests</div>
+            <div class="option"><input type="checkbox" name="stress_triggers[]" value="social">Social spending pressure</div>
+            <div class="option"><input type="checkbox" name="stress_triggers[]" value="irregular_income">Irregular income</div>
+            <div class="option"><input type="checkbox" name="stress_triggers[]" value="investment">Investment/savings anxiety</div>
+            <div class="option"><input type="checkbox" name="stress_triggers[]" value="comparison">Comparing myself to others financially</div>
+          </div>
+        </div>
+        <div class="question">
+          <label class="question-label">4. Financial Confidence (1-10)</label>
+          <input type="range" name="financial_confidence" min="1" max="10" value="5">
+          <div class="slider-labels"><span>1: Often uncertain</span><span>10: Very confident</span></div>
+        </div>
+        <div class="question">
+          <label class="question-label">5. Future Financial Vision (Select primary goal)</label>
+          <div class="options">
+            <div class="option"><input type="radio" name="financial_vision" value="independence">Achieve complete financial independence</div>
+            <div class="option"><input type="radio" name="financial_vision" value="home_savings">Own a home and have stable savings</div>
+            <div class="option"><input type="radio" name="financial_vision" value="generational_wealth">Build generational wealth for my family</div>
+            <div class="option"><input type="radio" name="financial_vision" value="comfortable">Have enough to live comfortably without stress</div>
+            <div class="option"><input type="radio" name="financial_vision" value="business">Start my own business</div>
+            <div class="option"><input type="radio" name="financial_vision" value="travel">Travel and experience life while saving responsibly</div>
+            <div class="option"><input type="radio" name="financial_vision" value="present">Focus on the present, future will work itself out</div>
+          </div>
+        </div>
+        <div class="question">
+          <label class="question-label">6. Relationship with Money (Select most accurate)</label>
+          <div class="options">
+            <div class="option"><input type="radio" name="money_relationship" value="tool">Money is a tool to achieve my goals</div>
+            <div class="option"><input type="radio" name="money_relationship" value="security">Money represents security and stability</div>
+            <div class="option"><input type="radio" name="money_relationship" value="stress">Money is a source of stress and anxiety</div>
+            <div class="option"><input type="radio" name="money_relationship" value="help_others">Money enables me to help others</div>
+            <div class="option"><input type="radio" name="money_relationship" value="not_priority">Money is necessary but not a priority</div>
+            <div class="option"><input type="radio" name="money_relationship" value="complicated">I have a complicated relationship with money</div>
+          </div>
+        </div>
+        <div class="section-footer"><button type="button" class="btn" onclick="nextSection(6)">Next</button></div>
+      </div>
+      <!-- Section 7: Technology & Learning Preferences -->
+      <div class="section" data-section="7" style="display:none;">
+        <div class="section-title">Technology & Learning Preferences</div>
+        <div class="section-desc">Understanding how you like to learn and manage information helps us customize your Mingus experience to fit your lifestyle.</div>
+        <div class="question">
+          <label class="question-label">1. Financial Management Tools (Select all currently used)</label>
+          <div class="options">
+            <div class="option"><input type="checkbox" name="fin_tools[]" value="bank_apps">Bank mobile apps</div>
+            <div class="option"><input type="checkbox" name="fin_tools[]" value="credit_card_apps">Credit card apps</div>
+            <div class="option"><input type="checkbox" name="fin_tools[]" value="budgeting_apps">Budgeting apps (Mint, YNAB, etc.)</div>
+            <div class="option"><input type="checkbox" name="fin_tools[]" value="investment_apps">Investment apps (Robinhood, Acorns, etc.)</div>
+            <div class="option"><input type="checkbox" name="fin_tools[]" value="spreadsheets">Spreadsheets (Excel, Google Sheets)</div>
+            <div class="option"><input type="checkbox" name="fin_tools[]" value="paper">Paper-based tracking</div>
+            <div class="option"><input type="checkbox" name="fin_tools[]" value="mental">Mental tracking only</div>
+            <div class="option"><input type="checkbox" name="fin_tools[]" value="none">Nothing formal currently</div>
+          </div>
+        </div>
+        <div class="question">
+          <label class="question-label">2. Preferred Learning Style (Select primary preference)</label>
+          <div class="options">
+            <div class="option"><input type="radio" name="learning_style" value="reading">Reading articles and guides</div>
+            <div class="option"><input type="radio" name="learning_style" value="videos">Watching videos/tutorials</div>
+            <div class="option"><input type="radio" name="learning_style" value="interactive">Interactive tools and calculators</div>
+            <div class="option"><input type="radio" name="learning_style" value="coaching">One-on-one coaching/advice</div>
+            <div class="option"><input type="radio" name="learning_style" value="workshops">Group workshops or classes</div>
+            <div class="option"><input type="radio" name="learning_style" value="podcasts">Podcasts during commute</div>
+            <div class="option"><input type="radio" name="learning_style" value="quick_tips">Quick tips and notifications</div>
+            <div class="option"><input type="radio" name="learning_style" value="trial_error">Learning through trial and error</div>
+          </div>
+        </div>
+        <div class="question">
+          <label class="question-label">3. Technology Comfort Level (1-10)</label>
+          <input type="range" name="tech_comfort" min="1" max="10" value="5">
+          <div class="slider-labels"><span>1: Prefer simple</span><span>10: Love advanced features</span></div>
+        </div>
+        <div class="question">
+          <label class="question-label">4. Information Frequency Preference</label>
+          <div class="options">
+            <div class="option"><input type="radio" name="info_frequency" value="daily">Daily check-ins and updates</div>
+            <div class="option"><input type="radio" name="info_frequency" value="weekly">Weekly summaries and insights</div>
+            <div class="option"><input type="radio" name="info_frequency" value="monthly">Monthly comprehensive reviews</div>
+            <div class="option"><input type="radio" name="info_frequency" value="quarterly">Quarterly goal assessments</div>
+            <div class="option"><input type="radio" name="info_frequency" value="on_request">Only when I initiate or request information</div>
+            <div class="option"><input type="radio" name="info_frequency" value="alerts">As-needed alerts for important changes</div>
+          </div>
+        </div>
+        <div class="question">
+          <label class="question-label">5. Motivation Style (Select most effective for you)</label>
+          <div class="options">
+            <div class="option"><input type="radio" name="motivation_style" value="celebrate">Celebrating small wins and progress</div>
+            <div class="option"><input type="radio" name="motivation_style" value="goal_tracking">Clear goal tracking and milestones</div>
+            <div class="option"><input type="radio" name="motivation_style" value="comparison">Comparison with similar peers</div>
+            <div class="option"><input type="radio" name="motivation_style" value="education">Educational content that explains 'why'</div>
+            <div class="option"><input type="radio" name="motivation_style" value="reminders">Gentle reminders and encouragement</div>
+            <div class="option"><input type="radio" name="motivation_style" value="challenges">Direct challenges and accountability</div>
+            <div class="option"><input type="radio" name="motivation_style" value="visual">Visual progress tracking</div>
+          </div>
+        </div>
+        <div class="section-footer"><button type="button" class="btn" onclick="nextSection(7)">Next</button></div>
+      </div>
+      <!-- Closing Section: Additional Context -->
+      <div class="section" data-section="8" style="display:none;">
+        <div class="section-title">Additional Context</div>
+        <div class="section-desc">A few final questions to help us understand your unique story. Your responses are confidential and help us provide the best support possible.</div>
+        <div class="question">
+          <label class="question-label">1. Biggest Financial Challenge</label>
+          <textarea class="textarea" name="biggest_challenge" placeholder="What is your biggest financial challenge right now?"></textarea>
+        </div>
+        <div class="question">
+          <label class="question-label">2. Success Definition</label>
+          <textarea class="textarea" name="success_definition" placeholder="What would financial success look like for you in 3 years?"></textarea>
+        </div>
+        <div class="question">
+          <label class="question-label">3. Support Needs</label>
+          <textarea class="textarea" name="support_needs" placeholder="What kind of financial support or guidance would be most helpful to you?"></textarea>
+        </div>
+        <div class="question">
+          <label class="question-label">4. Cultural Considerations (Optional)</label>
+          <textarea class="textarea" name="cultural_considerations" placeholder="Is there anything about your cultural background or community that significantly influences your financial decisions?"></textarea>
+        </div>
+        <div class="section-footer"><button type="button" class="btn" onclick="nextSection(8)">Finish</button></div>
+      </div>
+    </form>
+    <div id="completionMessage" style="display:none; text-align:center; margin-top:2rem;">
+      <h2>Thank you for sharing your story!</h2>
+      <p>Your responses will help us personalize your Mingus experience. You can always update your answers later.</p>
+    </div>
+  </div>
+  <script>
+    // Simple section navigation and progress
+    let currentSection = 1;
+    const totalSections = 7; // Update as you add more sections
+    function nextSection(sectionNum) {
+      document.querySelector(`.section[data-section='${sectionNum}']`).style.display = 'none';
+      if (sectionNum < totalSections) {
+        document.querySelector(`.section[data-section='${sectionNum+1}']`).style.display = 'block';
+        currentSection++;
+        updateProgress();
+      } else {
+        document.getElementById('lifestyleForm').style.display = 'none';
+        document.getElementById('completionMessage').style.display = 'block';
+        document.getElementById('progressFill').style.width = '100%';
+      }
+    }
+    function updateProgress() {
+      const percent = Math.round((currentSection-1)/totalSections*100);
+      document.getElementById('progressFill').style.width = percent + '%';
+    }
+    updateProgress();
+  </script>
+</body>
+</html> 

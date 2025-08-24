@@ -1,0 +1,29 @@
+{
+  "total_processed": 2,
+  "total_failed": 0,
+  "success_rate": 1.0,
+  "total_tokens": 4775,
+  "total_cost": 0.14325,
+  "elapsed_time_seconds": 11.170455932617188,
+  "articles_per_minute": 10.742623284480791,
+  "classification_distribution": {
+    "BE": {
+      "count": 0,
+      "percentage": 0.0
+    },
+    "DO": {
+      "count": 0,
+      "percentage": 0.0
+    },
+    "HAVE": {
+      "count": 2,
+      "percentage": 100.0
+    }
+  },
+  "quality_metrics": {
+    "high_confidence_percentage": 100.0,
+    "strong_cultural_relevance_percentage": 0.0,
+    "high_actionability_percentage": 0.0,
+    "high_professional_development_percentage": 0.0
+  }
+}

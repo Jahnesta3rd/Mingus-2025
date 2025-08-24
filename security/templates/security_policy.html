@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ policy.title }} - MINGUS Security Policy</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #1e293b;
+            --success-color: #059669;
+            --warning-color: #d97706;
+            --danger-color: #dc2626;
+            --light-bg: #f8fafc;
+            --border-color: #e2e8f0;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--light-bg);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .policy-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #3b82f6 100%);
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+        }
+
+        .policy-content {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .policy-meta {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .meta-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .meta-item:last-child {
+            border-bottom: none;
+        }
+
+        .meta-label {
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .meta-value {
+            color: var(--text-primary);
+        }
+
+        .acknowledgment-section {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .btn-acknowledge {
+            background: var(--success-color);
+            border: none;
+            color: white;
+            padding: 0.75rem 2rem;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-acknowledge:hover {
+            background: #047857;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+        }
+
+        .policy-content h1, .policy-content h2, .policy-content h3 {
+            color: var(--text-primary);
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .policy-content h1 {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .policy-content h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .policy-content h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .policy-content p {
+            margin-bottom: 1rem;
+            color: var(--text-secondary);
+        }
+
+        .policy-content ul, .policy-content ol {
+            margin-bottom: 1rem;
+            padding-left: 1.5rem;
+        }
+
+        .policy-content li {
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+        }
+
+        .compliance-badge {
+            display: inline-block;
+            background: var(--success-color);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin: 0.25rem;
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+
+        .status-active {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-expired {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        @media (max-width: 768px) {
+            .policy-header {
+                padding: 1rem 0;
+            }
+            
+            .policy-content, .policy-meta, .acknowledgment-section {
+                padding: 1rem;
+            }
+            
+            .meta-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Policy Header -->
+    <div class="policy-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="mb-2">
+                        <i class="fas fa-shield-alt me-3"></i>
+                        {{ policy.title }}
+                    </h1>
+                    <p class="mb-0 opacity-75">{{ policy.description }}</p>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <div class="status-indicator status-active">
+                        <i class="fas fa-check-circle"></i>
+                        Active Policy
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Policy Metadata -->
+        <div class="policy-meta">
+            <h3 class="mb-3">
+                <i class="fas fa-info-circle me-2"></i>
+                Policy Information
+            </h3>
+            <div class="meta-item">
+                <span class="meta-label">Policy ID:</span>
+                <span class="meta-value">{{ policy.policy_id }}</span>
+            </div>
+            <div class="meta-item">
+                <span class="meta-label">Version:</span>
+                <span class="meta-value">{{ policy.version }}</span>
+            </div>
+            <div class="meta-item">
+                <span class="meta-label">Effective Date:</span>
+                <span class="meta-value">{{ policy.effective_date.strftime('%B %d, %Y') }}</span>
+            </div>
+            <div class="meta-item">
+                <span class="meta-label">Review Date:</span>
+                <span class="meta-value">{{ policy.review_date.strftime('%B %d, %Y') }}</span>
+            </div>
+            <div class="meta-item">
+                <span class="meta-label">Policy Type:</span>
+                <span class="meta-value">{{ policy.policy_type.value.replace('_', ' ').title() }}</span>
+            </div>
+            <div class="meta-item">
+                <span class="meta-label">Applicable To:</span>
+                <span class="meta-value">{{ ', '.join(policy.applicable_to) }}</span>
+            </div>
+            <div class="meta-item">
+                <span class="meta-label">Compliance Requirements:</span>
+                <div class="meta-value">
+                    {% for requirement in policy.compliance_requirements %}
+                        <span class="compliance-badge">{{ requirement }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Policy Content -->
+        <div class="policy-content">
+            <h3 class="mb-4">
+                <i class="fas fa-file-alt me-2"></i>
+                Policy Content
+            </h3>
+            <div class="policy-text">
+                {{ policy.content | safe }}
+            </div>
+        </div>
+
+        <!-- Acknowledgment Section -->
+        {% if policy.requires_acknowledgment %}
+        <div class="acknowledgment-section">
+            <h3 class="mb-4">
+                <i class="fas fa-signature me-2"></i>
+                Policy Acknowledgment
+            </h3>
+            
+            <div class="alert alert-info" role="alert">
+                <i class="fas fa-info-circle me-2"></i>
+                <strong>Important:</strong> This policy requires acknowledgment. Please read the policy carefully and click the button below to acknowledge that you have read, understood, and agree to comply with this policy.
+            </div>
+
+            {% if policy.acknowledgment_deadline %}
+            <div class="alert alert-warning" role="alert">
+                <i class="fas fa-clock me-2"></i>
+                <strong>Deadline:</strong> This policy must be acknowledged by {{ policy.acknowledgment_deadline.strftime('%B %d, %Y') }}.
+            </div>
+            {% endif %}
+
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <button type="button" class="btn btn-secondary me-md-2" onclick="window.print()">
+                    <i class="fas fa-print me-2"></i>
+                    Print Policy
+                </button>
+                <button type="button" class="btn btn-acknowledge" onclick="acknowledgePolicy()">
+                    <i class="fas fa-check me-2"></i>
+                    I Acknowledge This Policy
+                </button>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Footer -->
+        <div class="text-center text-muted py-4">
+            <p class="mb-1">
+                <i class="fas fa-lock me-2"></i>
+                This policy is part of MINGUS Security Awareness and Training Program
+            </p>
+            <p class="mb-0">
+                Last updated: {{ policy.updated_at.strftime('%B %d, %Y at %I:%M %p') }}
+            </p>
+        </div>
+    </div>
+
+    <!-- Acknowledgment Modal -->
+    <div class="modal fade" id="acknowledgmentModal" tabindex="-1" aria-labelledby="acknowledgmentModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="acknowledgmentModalLabel">
+                        <i class="fas fa-check-circle text-success me-2"></i>
+                        Policy Acknowledged
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Thank you for acknowledging the <strong>{{ policy.title }}</strong> policy.</p>
+                    <p>Your acknowledgment has been recorded with the following details:</p>
+                    <ul>
+                        <li><strong>Date:</strong> <span id="acknowledgmentDate"></span></li>
+                        <li><strong>IP Address:</strong> <span id="acknowledgmentIP"></span></li>
+                        <li><strong>User Agent:</strong> <span id="acknowledgmentUserAgent"></span></li>
+                    </ul>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error Modal -->
+    <div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title text-danger" id="errorModalLabel">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Error
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="errorMessage">An error occurred while acknowledging the policy.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function acknowledgePolicy() {
+            // Get current user ID (this would typically come from session/auth)
+            const userId = getCurrentUserId();
+            
+            if (!userId) {
+                showError('User authentication required. Please log in and try again.');
+                return;
+            }
+
+            // Prepare acknowledgment data
+            const acknowledgmentData = {
+                user_id: userId,
+                policy_id: '{{ policy.policy_id }}'
+            };
+
+            // Send acknowledgment request
+            fetch('/api/security-awareness/policies/{{ policy.policy_id }}/acknowledge', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(acknowledgmentData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showAcknowledgmentSuccess();
+                } else {
+                    showError(data.error || 'Failed to acknowledge policy');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showError('Network error occurred. Please try again.');
+            });
+        }
+
+        function showAcknowledgmentSuccess() {
+            // Update acknowledgment date
+            document.getElementById('acknowledgmentDate').textContent = new Date().toLocaleString();
+            document.getElementById('acknowledgmentIP').textContent = 'Recorded';
+            document.getElementById('acknowledgmentUserAgent').textContent = navigator.userAgent;
+            
+            // Show success modal
+            const modal = new bootstrap.Modal(document.getElementById('acknowledgmentModal'));
+            modal.show();
+            
+            // Update UI to show acknowledged status
+            const acknowledgmentSection = document.querySelector('.acknowledgment-section');
+            if (acknowledgmentSection) {
+                acknowledgmentSection.innerHTML = `
+                    <div class="alert alert-success" role="alert">
+                        <i class="fas fa-check-circle me-2"></i>
+                        <strong>Policy Acknowledged:</strong> You have successfully acknowledged this policy on ${new Date().toLocaleString()}.
+                    </div>
+                `;
+            }
+        }
+
+        function showError(message) {
+            document.getElementById('errorMessage').textContent = message;
+            const modal = new bootstrap.Modal(document.getElementById('errorModal'));
+            modal.show();
+        }
+
+        function getCurrentUserId() {
+            // This function should return the current user's ID
+            // In a real application, this would come from the session or authentication system
+            // For demo purposes, we'll use a placeholder
+            return 'demo-user-123';
+        }
+
+        // Add print styles
+        @media print {
+            .acknowledgment-section,
+            .policy-meta,
+            .btn,
+            .modal {
+                display: none !important;
+            }
+            
+            .policy-header {
+                background: white !important;
+                color: black !important;
+            }
+            
+            .policy-content {
+                box-shadow: none !important;
+                border: 1px solid #ccc !important;
+            }
+        }
+    </script>
+</body>
+</html> 

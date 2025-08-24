@@ -1,0 +1,16 @@
+{
+  "scraping_summary": {
+    "total_processed": 93,
+    "successful_scrapes": 20,
+    "quality_passed": 20,
+    "cultural_relevance_passed": 2,
+    "final_articles": 2
+  },
+  "quality_thresholds": {
+    "min_word_count": 500,
+    "max_word_count": 5000,
+    "min_quality_score": 0.6,
+    "min_cultural_relevance": 0.3
+  },
+  "processing_timestamp": "2025-08-23T10:43:54.835011"
+}

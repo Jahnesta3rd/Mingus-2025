@@ -1,0 +1,29 @@
+
+AI Feature Prompt Series for Personal Finance App – Lovable Implementation
+
+1. AI-Powered Transaction Categorization
+"Create a backend service that uses a machine learning classifier to auto-categorize new transactions pulled from the user’s bank account. Train the model on merchant name, transaction amount, and time of day. Allow users to override categories and feed corrections back into the model."
+
+2. Life Event Risk Scoring Engine
+"Build a probabilistic model that scores the user's risk of major life events (car repair, job loss, etc.) based on demographic info: age, employment type, marital status, and location. Store probabilities in a table: event_risks(user_id, event_type, adjusted_probability, expected_cost)."
+
+3. Smart Forecast Adjustments (Probabilistic Modeling)
+"Integrate a Monte Carlo simulation that forecasts daily balance over the next 90 days using simulated event triggers. Create 1000 simulations and compute the 5th, 50th, and 95th percentile daily balances. Show these on a line chart above the forecast calendar."
+
+4. Natural Language Budget Assistant
+"Create a chat interface where users can ask questions about their finances, such as: 'How much do I spend on food?' or 'Can I afford a vacation in July?' Use embeddings to match intent to transaction summaries and return friendly summaries and charts."
+
+5. Goal Shortfall Predictor
+"Build a model that forecasts whether the user is on track to meet a defined savings goal. Compare current savings rate to target and predict probability of success. Trigger alerts if goal will be missed within 90 days."
+
+6. Spending Habit Anomaly Detector
+"Use a time-series anomaly detection model (e.g., Isolation Forest) to detect sudden changes in user spending patterns. Highlight the day and category where the deviation occurred and send a friendly check-in message."
+
+7. Emotion-Aware Spending Tracker
+"Add a journal entry or mood tracker for each day. Correlate mood with spending patterns using regression or correlation analysis. Alert the user if negative moods correspond with spikes in discretionary spending."
+
+8. Meme Recommender AI
+"Build a meme suggestion engine that pairs forecast dips or flagged life events with tagged memes from a meme library. Select memes with matching emotional tags (stress, broke, relief) and insert the image URL and text into a warning message."
+
+Final Note:
+Use Python for the AI logic and React/Flutter for interface components. Store user risk data and ML output securely using Supabase. Use scheduled jobs to retrain models based on user feedback or weekly data.
