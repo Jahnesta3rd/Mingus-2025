@@ -1,0 +1,75 @@
+{
+  "database_url": "postgresql://username:password@localhost/mingus",
+  "redis_url": "redis://localhost:6379",
+  "celery_broker": "redis://localhost:6379/0",
+  "output_dir": "performance_test_results",
+  "test_timeout": 300,
+  "max_workers": 20,
+  "quick_test_queries": 10,
+  "full_test_queries": 100,
+  "load_test_duration": 60,
+  "load_test_users": 10,
+  "thresholds": {
+    "query_time_ms": 100,
+    "connection_time_ms": 50,
+    "cache_hit_rate": 0.8,
+    "memory_usage_mb": 1000,
+    "cpu_usage_percent": 80,
+    "error_rate": 0.01
+  },
+  "database_config": {
+    "pool_size": 20,
+    "max_overflow": 30,
+    "pool_recycle": 3600,
+    "pool_pre_ping": true,
+    "echo": false
+  },
+  "redis_config": {
+    "max_connections": 50,
+    "socket_timeout": 5,
+    "socket_connect_timeout": 5,
+    "retry_on_timeout": true
+  },
+  "celery_config": {
+    "worker_prefetch_multiplier": 1,
+    "task_acks_late": true,
+    "worker_max_tasks_per_child": 1000,
+    "task_soft_time_limit": 300,
+    "task_time_limit": 600
+  },
+  "test_queries": {
+    "basic_queries": [
+      "SELECT COUNT(*) FROM users",
+      "SELECT * FROM users LIMIT 100",
+      "SELECT * FROM user_profiles WHERE user_id IN (SELECT id FROM users LIMIT 10)"
+    ],
+    "financial_queries": [
+      "SELECT user_id, SUM(monthly_income) as total_income FROM user_financial_profiles GROUP BY user_id",
+      "SELECT user_id, AVG(current_savings) as avg_savings FROM user_financial_profiles WHERE current_savings > 0 GROUP BY user_id",
+      "SELECT user_id, COUNT(*) as checkin_count FROM user_health_checkins WHERE checkin_date >= NOW() - INTERVAL '90 days' GROUP BY user_id"
+    ],
+    "complex_queries": [
+      "SELECT u.id, u.email, p.monthly_income, h.health_score FROM users u LEFT JOIN user_profiles p ON u.id = p.user_id LEFT JOIN user_health_checkins h ON u.id = h.user_id WHERE h.checkin_date >= NOW() - INTERVAL '30 days'",
+      "SELECT user_id, AVG(health_score) as avg_health, COUNT(*) as checkins FROM user_health_checkins WHERE checkin_date >= NOW() - INTERVAL '60 days' GROUP BY user_id HAVING COUNT(*) > 5"
+    ]
+  },
+  "monitoring": {
+    "enable_prometheus": false,
+    "enable_statsd": false,
+    "metrics_interval": 30,
+    "alert_thresholds": {
+      "database_response_time_ms": 200,
+      "redis_memory_usage_percent": 80,
+      "celery_queue_length": 1000,
+      "system_cpu_usage_percent": 85,
+      "system_memory_usage_percent": 90
+    }
+  },
+  "logging": {
+    "level": "INFO",
+    "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    "file": "postgresql_performance_test.log",
+    "max_size_mb": 100,
+    "backup_count": 5
+  }
+}

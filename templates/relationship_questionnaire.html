@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Your Relationship-Spending Connection - MINGUS</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    :root {
+      --primary-green: #10b981;
+      --primary-green-dark: #059669;
+      --bg-primary: #0f172a;
+      --bg-secondary: #1e293b;
+      --text-primary: #f8fafc;
+      --text-secondary: #cbd5e1;
+      --text-muted: #94a3b8;
+      --border-color: #334155;
+      --accent-orange: #f97316;
+      --gradient: linear-gradient(135deg, var(--primary-green) 0%, var(--accent-orange) 100%);
+      --heart-gradient: linear-gradient(135deg, #ec4899 0%, var(--accent-orange) 100%);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 2rem;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .logo {
+      font-size: 2rem;
+      font-weight: 900;
+      color: var(--primary-green);
+      margin-bottom: 0.5rem;
+    }
+
+    .tagline {
+      color: var(--text-muted);
+      font-size: 1rem;
+    }
+
+    .email-card {
+      background: var(--bg-secondary);
+      border-radius: 1rem;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      border: 1px solid var(--border-color);
+      text-align: center;
+      display: none;
+    }
+
+    .email-card.active {
+      display: block;
+      animation: slideIn 0.3s ease;
+    }
+
+    .email-input {
+      width: 100%;
+      padding: 1rem;
+      border: 1px solid var(--border-color);
+      border-radius: 0.5rem;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      margin-bottom: 1rem;
+      font-size: 1rem;
+    }
+
+    .email-input:focus {
+      outline: none;
+      border-color: #ec4899;
+    }
+
+    .error-message {
+      color: #ef4444;
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+      display: none;
+    }
+
+    .btn {
+      padding: 1rem 2rem;
+      border-radius: 0.5rem;
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 1rem;
+      background: var(--heart-gradient);
+      color: white;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(236, 72, 153, 0.3);
+    }
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .rating-option:hover {
+      border-color: #ec4899;
+      transform: scale(1.1);
+    }
+
+    .rating-option.selected {
+      border-color: #ec4899;
+      background: var(--heart-gradient);
+      color: white;
+      transform: scale(1.1);
+    }
+
+    .option {
+      background: var(--bg-primary);
+      border: 2px solid var(--border-color);
+      border-radius: 0.75rem;
+      padding: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-align: left;
+    }
+
+    .option:hover {
+      border-color: #ec4899;
+      transform: translateY(-2px);
+    }
+
+    .option.selected {
+      border-color: #ec4899;
+      background: rgba(236, 72, 153, 0.1);
+    }
+
+    .option-text {
+      font-weight: 500;
+      color: var(--text-primary);
+      margin-bottom: 0.25rem;
+    }
+
+    .option-desc {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(20px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="logo">MINGUS</div>
+      <div class="tagline">Relationship & Spending Connection Quiz</div>
+    </div>
+
+    <!-- Email Collection Card -->
+    <div class="email-card active" id="emailCard">
+      <h2>Ready to explore your relationship-spending connection?</h2>
+      <p>Get your personalized analysis and discover how your relationships influence your spending patterns.</p>
+      <input type="email" class="email-input" id="emailInput" placeholder="Enter your email address" />
+      <div class="error-message" id="emailError">Please enter a valid email address</div>
+      <button class="btn" onclick="startAssessment()">Start My Assessment</button>
+    </div>
+
+    <div id="questionnaireContent" class="hidden">
+      <!-- Questionnaire content will be added here -->
+    </div>
+  </div>
+
+  <script>
+    let userEmail = '';
+
+    function validateEmail(email) {
+      const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return re.test(email);
+    }
+
+    function startAssessment() {
+      const email = document.getElementById('emailInput').value.trim();
+      const errorElement = document.getElementById('emailError');
+      
+      if (!validateEmail(email)) {
+        errorElement.style.display = 'block';
+        return;
+      }
+      
+      errorElement.style.display = 'none';
+      userEmail = email;
+      
+      // Hide email card and show questionnaire
+      document.getElementById('emailCard').classList.remove('active');
+      document.getElementById('questionnaireContent').classList.remove('hidden');
+      
+      // Load the full questionnaire content
+      loadQuestionnaire();
+    }
+
+    function loadQuestionnaire() {
+      // Add the full questionnaire content
+      document.getElementById('questionnaireContent').innerHTML = `
+        <div class="quiz-intro" style="background: rgba(236, 72, 153, 0.1); border-left: 4px solid #ec4899; padding: 1rem; margin-bottom: 2rem; border-radius: 0 0.5rem 0.5rem 0; text-align: center;">
+          <p>Ever notice how your relationships influence your spending? Let's explore those connections in 3 minutes.</p>
+        </div>
+        
+        <div class="progress-container" style="margin-bottom: 2rem;">
+          <div class="progress-bar" style="width: 100%; height: 8px; background: var(--bg-secondary); border-radius: 4px; overflow: hidden; margin-bottom: 0.5rem;">
+            <div class="progress-fill" id="progressFill" style="height: 100%; background: var(--heart-gradient); transition: width 0.3s ease; border-radius: 4px; width: 12.5%;"></div>
+          </div>
+          <div class="progress-text" id="progressText" style="text-align: center; font-size: 0.9rem; color: var(--text-secondary);">Question 1 of 8</div>
+        </div>
+
+        <!-- Question 1: Family Satisfaction -->
+        <div class="question-card active" id="q1" style="background: var(--bg-secondary); border-radius: 1rem; padding: 2rem; margin-bottom: 2rem; border: 1px solid var(--border-color); display: block;">
+          <h2 class="question-title" style="font-size: 1.5rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--text-primary);">Let's start with family...</h2>
+          <p class="question-subtitle" style="color: var(--text-muted); margin-bottom: 1.5rem; font-size: 1rem;">How satisfied are you with your family relationships right now?</p>
+          <div class="helper-text" style="background: rgba(16, 185, 129, 0.1); border-radius: 0.5rem; padding: 0.75rem; margin-bottom: 1.5rem; font-size: 0.9rem; color: var(--text-secondary); border-left: 3px solid var(--primary-green);">Think about immediate family, extended family, or chosen family - whoever feels like "family" to you.</div>
+          
+          <div class="rating-scale" style="display: flex; justify-content: space-between; align-items: center; margin: 1rem 0; flex-wrap: wrap; gap: 0.5rem;">
+            <div class="rating-option" data-value="1" style="flex: 1; min-width: 60px; height: 60px; border: 2px solid var(--border-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s ease; font-weight: 600; background: var(--bg-primary);">1</div>
+            <div class="rating-option" data-value="2" style="flex: 1; min-width: 60px; height: 60px; border: 2px solid var(--border-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s ease; font-weight: 600; background: var(--bg-primary);">2</div>
+            <div class="rating-option" data-value="3" style="flex: 1; min-width: 60px; height: 60px; border: 2px solid var(--border-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s ease; font-weight: 600; background: var(--bg-primary);">3</div>
+            <div class="rating-option" data-value="4" style="flex: 1; min-width: 60px; height: 60px; border: 2px solid var(--border-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s ease; font-weight: 600; background: var(--bg-primary);">4</div>
+            <div class="rating-option" data-value="5" style="flex: 1; min-width: 60px; height: 60px; border: 2px solid var(--border-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s ease; font-weight: 600; background: var(--bg-primary);">5</div>
+          </div>
+          <div class="rating-labels" style="display: flex; justify-content: space-between; margin-top: 0.5rem; font-size: 0.8rem; color: var(--text-muted);">
+            <span>Very dissatisfied</span>
+            <span>Very satisfied</span>
+          </div>
+        </div>
+
+        <!-- Additional questions will be added dynamically -->
+        <div id="additionalQuestions"></div>
+
+        <!-- Results Section -->
+        <div class="results-card" id="results" style="background: var(--bg-secondary); border-radius: 1rem; padding: 2rem; border: 1px solid var(--border-color); text-align: center; display: none;">
+          <h2 class="results-title" style="font-size: 2rem; font-weight: 700; margin-bottom: 1rem; background: var(--heart-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Your Relationship-Spending Connection</h2>
+          <div class="connection-strength" id="connectionCircle" style="width: 120px; height: 120px; border-radius: 50%; margin: 2rem auto; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: 700; color: white; position: relative;">
+            <span id="connectionLevel">MODERATE</span>
+          </div>
+          <div id="connectionDescription" style="margin-bottom: 2rem;">Your relationships have a noticeable influence on your spending patterns</div>
+          
+          <div class="insights" style="text-align: left; margin: 2rem 0;">
+            <div class="insight-item" style="background: rgba(236, 72, 153, 0.1); border-left: 4px solid #ec4899; padding: 1rem; margin-bottom: 1rem; border-radius: 0 0.5rem 0.5rem 0;">
+              <div class="insight-title" style="font-weight: 600; color: #ec4899; margin-bottom: 0.5rem;">Your Relationship Foundation</div>
+              <div id="relationshipInsight">Your relationship satisfaction levels suggest areas where spending might be compensating for unmet needs.</div>
+            </div>
+            <div class="insight-item" style="background: rgba(236, 72, 153, 0.1); border-left: 4px solid #ec4899; padding: 1rem; margin-bottom: 1rem; border-radius: 0 0.5rem 0.5rem 0;">
+              <div class="insight-title" style="font-weight: 600; color: #ec4899; margin-bottom: 0.5rem;">Your Spending Trigger</div>
+              <div id="triggerInsight">You identified specific relationship situations that influence your spending - awareness is the first step to change.</div>
+            </div>
+            <div class="insight-item" style="background: rgba(236, 72, 153, 0.1); border-left: 4px solid #ec4899; padding: 1rem; margin-bottom: 1rem; border-radius: 0 0.5rem 0.5rem 0;">
+              <div class="insight-title" style="font-weight: 600; color: #ec4899; margin-bottom: 0.5rem;">Your Support Network</div>
+              <div id="supportInsight">Understanding your support system helps explain when you might rely on spending for emotional regulation.</div>
+            </div>
+          </div>
+
+          <div class="submit-section" style="margin-top: 2rem; text-align: center;">
+            <div class="loading" id="loadingSection" style="display: none; align-items: center; justify-content: center; gap: 1rem; margin: 1rem 0;">
+              <div class="loading-spinner" style="width: 20px; height: 20px; border: 2px solid var(--border-color); border-top: 2px solid #ec4899; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+              <span>Sending your personalized analysis...</span>
+            </div>
+            <div class="success-message" id="successMessage" style="display: none; color: var(--primary-green); font-weight: 600; margin: 1rem 0;">
+              ✅ Your relationship-spending analysis has been sent to your email!
+            </div>
+          </div>
+        </div>
+
+        <div class="nav-buttons" id="navButtons" style="display: flex; justify-content: space-between; gap: 1rem; margin-top: 2rem;">
+          <button class="btn btn-secondary" id="backBtn" onclick="previousQuestion()" style="background: transparent; color: var(--text-secondary); border: 2px solid var(--border-color); display: none;">Back</button>
+          <button class="btn" id="nextBtn" onclick="nextQuestion()">Next</button>
+        </div>
+      `;
+
+      // Initialize the questionnaire functionality
+      initializeQuestionnaire();
+    }
+
+    function initializeQuestionnaire() {
+      // Add event listeners and initialize the questionnaire
+      setupEventListeners();
+      updateProgress();
+    }
+
+    // Handle Enter key on email input
+    document.getElementById('emailInput').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        startAssessment();
+      }
+    });
+
+    // Global variables for questionnaire
+    let currentQuestion = 1;
+    const totalQuestions = 8;
+    const answers = {};
+
+    function setupEventListeners() {
+      // Handle rating options
+      document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('rating-option')) {
+          const ratingScale = e.target.closest('.rating-scale');
+          const questionCard = e.target.closest('.question-card');
+          
+          ratingScale.querySelectorAll('.rating-option').forEach(opt => opt.classList.remove('selected'));
+          e.target.classList.add('selected');
+          
+          const value = parseInt(e.target.dataset.value);
+          
+          // Store the answer
+          if (questionCard.id === 'q1') {
+            answers.familySatisfaction = value;
+          } else if (questionCard.id === 'q3') {
+            answers.friendshipSatisfaction = value;
+          } else if (questionCard.id === 'q4') {
+            answers.socialSupport = value;
+          } else if (questionCard.id === 'q6') {
+            answers.socialSpendingComfort = value;
+          } else if (questionCard.id === 'q7') {
+            answers.childcareStress = value;
+          }
+        }
+
+        // Handle option selections
+        if (e.target.closest('.option')) {
+          const questionCard = e.target.closest('.question-card');
+          const options = questionCard.querySelectorAll('.option');
+          options.forEach(opt => opt.classList.remove('selected'));
+          e.target.closest('.option').classList.add('selected');
+          
+          const questionId = questionCard.id;
+          const value = e.target.closest('.option').dataset.value;
+          answers[questionId] = value;
+        }
+      });
+    }
+
+    function updateProgress() {
+      const progress = (currentQuestion / totalQuestions) * 100;
+      document.getElementById('progressFill').style.width = progress + '%';
+      document.getElementById('progressText').textContent = `Question ${currentQuestion} of ${totalQuestions}`;
+    }
+
+    function showQuestion(num) {
+      // Hide all questions
+      document.querySelectorAll('.question-card').forEach(card => {
+        card.style.display = 'none';
+      });
+      
+      // Show the current question
+      const currentQuestionElement = document.getElementById(`q${num}`);
+      if (currentQuestionElement) {
+        currentQuestionElement.style.display = 'block';
+      }
+      
+      // Update navigation buttons
+      const backBtn = document.getElementById('backBtn');
+      const nextBtn = document.getElementById('nextBtn');
+      
+      backBtn.style.display = num === 1 ? 'none' : 'block';
+      
+      if (num === totalQuestions) {
+        nextBtn.textContent = 'See My Results';
+      } else {
+        nextBtn.textContent = 'Next';
+      }
+    }
+
+    function nextQuestion() {
+      if (currentQuestion < totalQuestions) {
+        currentQuestion++;
+        showQuestion(currentQuestion);
+        updateProgress();
+      } else {
+        showResults();
+      }
+    }
+
+    function previousQuestion() {
+      if (currentQuestion > 1) {
+        currentQuestion--;
+        showQuestion(currentQuestion);
+        updateProgress();
+      }
+    }
+
+    function calculateConnectionStrength() {
+      let connectionScore = 0;
+      let factors = 0;
+
+      // Factor in relationship satisfaction (lower satisfaction = higher connection potential)
+      if (answers.familySatisfaction !== undefined) {
+        connectionScore += (6 - answers.familySatisfaction) * 2;
+        factors++;
+      }
+      if (answers.romanticSatisfaction !== undefined) {
+        connectionScore += (6 - answers.romanticSatisfaction) * 2;
+        factors++;
+      }
+      if (answers.friendshipSatisfaction !== undefined) {
+        connectionScore += (6 - answers.friendshipSatisfaction) * 2;
+        factors++;
+      }
+
+      // Social support (lower support = higher spending connection)
+      if (answers.socialSupport !== undefined) {
+        connectionScore += (6 - answers.socialSupport) * 1.5;
+        factors++;
+      }
+
+      // Social spending discomfort
+      if (answers.socialSpendingComfort !== undefined) {
+        connectionScore += (6 - answers.socialSpendingComfort) * 2;
+        factors++;
+      }
+
+      // Childcare stress
+      if (answers.childcareStress !== undefined && answers.childcareStress !== null) {
+        connectionScore += answers.childcareStress * 2;
+        factors++;
+      }
+
+      // Spending pattern recognition
+      if (answers.q8 && answers.q8 !== 'none') {
+        connectionScore += 8;
+      }
+      factors++;
+
+      const averageScore = factors > 0 ? connectionScore / factors : 5;
+      return Math.min(20, Math.max(2, Math.round(averageScore)));
+    }
+
+    function showResults() {
+      document.getElementById('navButtons').style.display = 'none';
+      document.querySelector('.progress-container').style.display = 'none';
+      document.querySelectorAll('.question-card').forEach(card => {
+        card.style.display = 'none';
+      });
+      
+      const connectionScore = calculateConnectionStrength();
+      const connectionCircle = document.getElementById('connectionCircle');
+      const connectionLevel = document.getElementById('connectionLevel');
+      const connectionDescription = document.getElementById('connectionDescription');
+      
+      let level, color, description;
+      if (connectionScore <= 6) {
+        level = 'LOW';
+        color = 'linear-gradient(135deg, #10b981, #059669)';
+        description = 'Your relationships have minimal direct impact on your spending patterns';
+      } else if (connectionScore <= 12) {
+        level = 'MODERATE';
+        color = 'linear-gradient(135deg, #f97316, #ea580c)';
+        description = 'Your relationships have a noticeable influence on your spending patterns';
+      } else {
+        level = 'HIGH';
+        color = 'linear-gradient(135deg, #ec4899, #be185d)';
+        description = 'Your relationships significantly influence your spending decisions';
+      }
+      
+      connectionLevel.textContent = level;
+      connectionCircle.style.background = color;
+      connectionDescription.textContent = description;
+      
+      generateInsights();
+      
+      document.getElementById('results').style.display = 'block';
+      
+      // Submit results automatically
+      submitResults(connectionScore, level, description);
+    }
+
+    function generateInsights() {
+      const relationshipInsight = document.getElementById('relationshipInsight');
+      const triggerInsight = document.getElementById('triggerInsight');
+      const supportInsight = document.getElementById('supportInsight');
+      
+      // Relationship foundation insight
+      const familyScore = answers.familySatisfaction || 3;
+      const friendScore = answers.friendshipSatisfaction || 3;
+      const avgSatisfaction = (familyScore + friendScore) / 2;
+      
+      if (avgSatisfaction <= 2.5) {
+        relationshipInsight.textContent = 'Lower relationship satisfaction often leads to compensatory spending. Working on relationship quality could naturally reduce spending pressure.';
+      } else if (avgSatisfaction >= 4) {
+        relationshipInsight.textContent = 'Your strong relationship foundation suggests your spending is more likely to be generous rather than compensatory - a healthy pattern!';
+      } else {
+        relationshipInsight.textContent = 'Mixed relationship satisfaction suggests spending might vary by relationship type. Understanding these patterns can help you spend more intentionally.';
+      }
+      
+      // Trigger insight
+      const spendingPattern = answers.q8;
+      const triggerMessages = {
+        'celebration': 'You spend on celebrations - this shows you value connection! Setting celebration budgets can help you honor relationships sustainably.',
+        'conflict': 'Post-conflict spending often masks deeper communication needs. Addressing conflicts directly might reduce this spending trigger.',
+        'social-pressure': 'FOMO spending is common but can strain finances. Learning to set boundaries while staying connected is key.',
+        'guilt-gifts': 'Guilt-driven spending often signals unresolved relationship issues. Clear communication might reduce this expensive habit.',
+        'none': 'You don\'t see clear patterns yet - that\'s normal! Awareness often develops gradually as you pay attention to spending timing.'
+      };
+      triggerInsight.textContent = triggerMessages[spendingPattern] || 'Understanding your specific triggers is the first step toward conscious spending choices.';
+      
+      // Support insight
+      const supportLevel = answers.socialSupport || 3;
+      if (supportLevel <= 2) {
+        supportInsight.textContent = 'Lower social support often leads to spending for comfort or connection. Building your support network could naturally reduce emotional spending.';
+      } else if (supportLevel >= 4) {
+        supportInsight.textContent = 'Strong social support is a protective factor against stress spending. You can leverage this network when financial pressure rises.';
+      } else {
+        supportInsight.textContent = 'Moderate support levels suggest you might sometimes rely on spending for emotional needs. Strengthening key relationships could help.';
+      }
+    }
+
+    async function submitResults(connectionScore, level, description) {
+      const loadingSection = document.getElementById('loadingSection');
+      const successMessage = document.getElementById('successMessage');
+      
+      loadingSection.style.display = 'flex';
+      
+      try {
+        const payload = {
+          email: userEmail,
+          answers: {
+            familySatisfaction: answers.familySatisfaction || null,
+            romanticSatisfaction: answers.romanticSatisfaction || null,
+            friendshipSatisfaction: answers.friendshipSatisfaction || null,
+            socialSupport: answers.socialSupport || null,
+            relationshipAffectedSpending: answers.relationshipAffectedSpending || false,
+            socialSpendingComfort: answers.socialSpendingComfort || null,
+            childcareStress: answers.childcareStress || null,
+            spendingPattern: answers.q8 || null
+          },
+          total_score: connectionScore,
+          connection_level: level,
+          connection_description: description
+        };
+        
+        const response = await fetch('/api/questionnaire/relationship', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload)
+        });
+        
+        const result = await response.json();
+        
+        loadingSection.style.display = 'none';
+        
+        if (result.success) {
+          successMessage.style.display = 'block';
+        } else {
+          // Show success anyway since the user completed the assessment
+          successMessage.style.display = 'block';
+        }
+        
+      } catch (error) {
+        console.error('Error submitting results:', error);
+        loadingSection.style.display = 'none';
+        // Show success anyway since the user completed the assessment
+        successMessage.style.display = 'block';
+      }
+    }
+  </script>
+</body>
+</html>

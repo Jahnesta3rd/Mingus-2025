@@ -1,0 +1,588 @@
+{
+  "test_time": "2025-08-27T15:35:02.281857",
+  "base_url": "http://localhost:5002",
+  "total_tests": 8,
+  "passed_tests": 2,
+  "failed_tests": 6,
+  "success_rate": 25.0,
+  "test_results": {
+    "Weekly Check-in Form": true,
+    "Health-Finance Correlations": false,
+    "Relationship Status Impact": false,
+    "Physical Activity Correlation": false,
+    "Mindfulness Tracking": false,
+    "Health Check-in History": false,
+    "Health Onboarding": false,
+    "Health-Finance Models": true
+  },
+  "detailed_results": [
+    {
+      "endpoint": "/api/health/demo",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 200,
+      "description": "Demo health check-in form (no auth required)",
+      "success": true,
+      "response_time": 0.002834,
+      "response_size": 15101,
+      "response_data": "\n<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>Mingus Health Check-in</title>\n    <style>\n        body {\n            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;\n            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);\n            margin: 0;\n            padding: 20px;\n            min-height: 100vh;\n        }\n        .container {\n            max-width: 800p"
+    },
+    {
+      "endpoint": "/api/health/checkin",
+      "method": "GET",
+      "status_code": 401,
+      "expected_status": 401,
+      "description": "Authenticated health check-in form",
+      "success": true,
+      "response_time": 0.003019,
+      "response_size": 106,
+      "response_data": {
+        "error": "Authentication required",
+        "message": "Please log in to access the health check-in form"
+      }
+    },
+    {
+      "endpoint": "/api/health/checkin",
+      "method": "POST",
+      "status_code": 201,
+      "expected_status": 401,
+      "description": "Health check-in submission",
+      "success": false,
+      "response_time": 0.002913,
+      "response_size": 792,
+      "response_data": {
+        "checkin_id": 9405,
+        "correlations": [
+          {
+            "description": "Good physical activity correlates with lower healthcare costs",
+            "recommendation": "Maintain your exercise routine",
+            "strength": "positive",
+            "type": "activity_healthcare"
+          },
+          {
+            "description": "Good relationships correlate with social dining spending",
+            "recommendation": "Budget for social activities",
+            "strength": "positive",
+            "type": "relationship_food"
+          }
+        ],
+        "insights": [
+          {
+            "category": "relationships",
+            "financial_impact": "Positive correlation with financial well-being",
+            "message": "Your relationships are strong - this supports good financial habits."
+          }
+        ],
+        "message": "Health check-in submitted successfully",
+        "success": true
+      },
+      "error": "Expected 401, got 201"
+    },
+    {
+      "endpoint": "/api/health/correlations",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 401,
+      "description": "Health-spending correlations analysis",
+      "success": false,
+      "response_time": 0.002632,
+      "response_size": 1067,
+      "response_data": {
+        "correlations": [
+          {
+            "correlation_direction": "positive",
+            "correlation_strength": 0.72,
+            "health_metric": "stress_level",
+            "insight": "Higher stress levels correlate with increased entertainment spending",
+            "recommendation": "Consider stress-reduction activities to manage impulse spending",
+            "spending_category": "entertainment"
+          },
+          {
+            "correlation_direction": "negative",
+            "correlation_strength": -0.65,
+            "health_metric": "physical_activity_minutes",
+            "insight": "More physical activity correlates with lower healthcare spending",
+            "recommendation": "Maintain regular exercise routine for long-term health savings",
+            "spending_category": "healthcare"
+          },
+          {
+            "correlation_direction": "positive",
+            "correlation_strength": 0.58,
+            "health_metric": "relationships_rating",
+            "insight": "Better relationships correlate with increased food spending",
+            "recommendation": "Social dining is healthy - budget accordingly",
+            "spending_category": "food"
+          }
+        ]
+      },
+      "error": "Expected 401, got 200"
+    },
+    {
+      "endpoint": "/api/health/insights",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 401,
+      "description": "Health insights and analysis",
+      "success": false,
+      "response_time": 0.002086,
+      "response_size": 944,
+      "response_data": {
+        "insights": [
+          {
+            "description": "Your stress levels show a strong correlation with entertainment spending",
+            "impact": "high",
+            "recommendation": "Consider meditation or exercise when stressed instead of shopping",
+            "title": "Stress-Induced Spending Pattern",
+            "type": "stress_spending"
+          },
+          {
+            "description": "Your physical activity correlates with better financial decisions",
+            "impact": "positive",
+            "recommendation": "Maintain your exercise routine for both health and financial benefits",
+            "title": "Physical Activity Benefits",
+            "type": "activity_health"
+          },
+          {
+            "description": "Your relationship satisfaction affects your overall financial well-being",
+            "impact": "medium",
+            "recommendation": "Invest time in relationships - it pays off financially too",
+            "title": "Relationship Wellness Impact",
+            "type": "relationship_wellness"
+          }
+        ]
+      },
+      "error": "Expected 401, got 200"
+    },
+    {
+      "endpoint": "/api/health/trends",
+      "method": "GET",
+      "status_code": 404,
+      "expected_status": 401,
+      "description": "Health trends analysis",
+      "success": false,
+      "response_time": 0.003557,
+      "response_size": 207,
+      "response_data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+      "error": "Expected 401, got 404"
+    },
+    {
+      "endpoint": "/api/health/recommendations",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 401,
+      "description": "Relationship-based financial recommendations",
+      "success": false,
+      "response_time": 0.002363,
+      "response_size": 926,
+      "response_data": {
+        "recommendations": [
+          {
+            "amount": 150,
+            "category": "relationship_investment",
+            "description": "Based on your relationship rating, consider allocating budget for social activities",
+            "expected_return": "improved_wellness",
+            "frequency": "monthly",
+            "title": "Invest in Relationships"
+          },
+          {
+            "amount": 100,
+            "category": "stress_management",
+            "description": "Allocate funds for stress-reduction activities to prevent impulse spending",
+            "expected_return": "reduced_entertainment_spending",
+            "frequency": "monthly",
+            "title": "Stress Management Budget"
+          },
+          {
+            "amount": 80,
+            "category": "physical_wellness",
+            "description": "Invest in fitness activities to reduce long-term healthcare costs",
+            "expected_return": "lower_healthcare_costs",
+            "frequency": "monthly",
+            "title": "Physical Activity Investment"
+          }
+        ]
+      },
+      "error": "Expected 401, got 200"
+    },
+    {
+      "endpoint": "/api/health/summary",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 401,
+      "description": "Health summary including relationship metrics",
+      "success": false,
+      "response_time": 0.002089,
+      "response_size": 539,
+      "response_data": {
+        "summary": {
+          "financial_impact": "positive",
+          "mindfulness_practice": "consistent",
+          "overall_wellness_score": 7.2,
+          "physical_activity": "moderate",
+          "recommendations": [
+            "Continue your mindfulness practice - it correlates with better financial decisions",
+            "Your relationship satisfaction is high - this supports good financial habits",
+            "Consider increasing physical activity to further improve financial outcomes"
+          ],
+          "relationship_health": "excellent",
+          "stress_management": "good"
+        }
+      },
+      "error": "Expected 401, got 200"
+    },
+    {
+      "endpoint": "/api/health/dashboard",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 401,
+      "description": "Health dashboard with relationship insights",
+      "success": false,
+      "response_time": 0.003222,
+      "response_size": 611,
+      "response_data": {
+        "dashboard": {
+          "current_week": {
+            "energy_level": 7,
+            "mindfulness_minutes": 20,
+            "mood_rating": 8,
+            "physical_activity_minutes": 45,
+            "relationships_rating": 8,
+            "stress_level": 4
+          },
+          "financial_correlations": {
+            "entertainment_spending": "correlated_with_stress",
+            "food_spending": "correlated_with_relationships",
+            "healthcare_spending": "inversely_correlated_with_activity"
+          },
+          "trends": {
+            "activity_trend": "increasing",
+            "energy_trend": "stable",
+            "mood_trend": "improving",
+            "stress_trend": "decreasing"
+          }
+        }
+      },
+      "error": "Expected 401, got 200"
+    },
+    {
+      "endpoint": "/api/health/analyze",
+      "method": "POST",
+      "status_code": 404,
+      "expected_status": 401,
+      "description": "Physical activity correlation analysis",
+      "success": false,
+      "response_time": 0.008365,
+      "response_size": 207,
+      "response_data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+      "error": "Expected 401, got 404"
+    },
+    {
+      "endpoint": "/api/health/patterns",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 401,
+      "description": "Activity-based spending patterns",
+      "success": false,
+      "response_time": 0.00247,
+      "response_size": 450,
+      "response_data": {
+        "patterns": [
+          {
+            "activity_level": "high",
+            "healthcare_savings": 200,
+            "recommendation": "Maintain high activity levels for financial benefits",
+            "spending_impact": "reduced_impulse_spending"
+          },
+          {
+            "activity_level": "low",
+            "healthcare_savings": -50,
+            "recommendation": "Increase physical activity to reduce stress spending",
+            "spending_impact": "increased_entertainment_spending"
+          }
+        ]
+      },
+      "error": "Expected 401, got 200"
+    },
+    {
+      "endpoint": "/api/health/wellness-score",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 401,
+      "description": "Wellness score including physical activity",
+      "success": false,
+      "response_time": 0.002149,
+      "response_size": 417,
+      "response_data": {
+        "components": {
+          "mindfulness_practice": 7.0,
+          "overall_mood": 8.0,
+          "physical_activity": 8.0,
+          "relationship_health": 8.5,
+          "stress_management": 7.5
+        },
+        "financial_impact": "positive",
+        "recommendations": [
+          "Your wellness score is excellent and correlates with good financial habits",
+          "Continue your current practices for sustained financial well-being"
+        ],
+        "wellness_score": 7.8
+      },
+      "error": "Expected 401, got 200"
+    },
+    {
+      "endpoint": "/api/health/mindfulness",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 401,
+      "description": "Mindfulness tracking and history",
+      "success": false,
+      "response_time": 0.002865,
+      "response_size": 487,
+      "response_data": {
+        "history": [
+          {
+            "date": "2025-08-20",
+            "minutes": 20,
+            "type": "meditation"
+          },
+          {
+            "date": "2025-08-19",
+            "minutes": 15,
+            "type": "breathing"
+          },
+          {
+            "date": "2025-08-18",
+            "minutes": 25,
+            "type": "meditation"
+          }
+        ],
+        "mindfulness_data": {
+          "average_minutes": 18,
+          "current_streak": 5,
+          "financial_correlation": "reduced_impulse_spending",
+          "preferred_type": "meditation",
+          "total_sessions": 45
+        }
+      },
+      "error": "Expected 401, got 200"
+    },
+    {
+      "endpoint": "/api/health/mindfulness/insights",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 401,
+      "description": "Mindfulness-based financial insights",
+      "success": false,
+      "response_time": 0.003012,
+      "response_size": 613,
+      "response_data": {
+        "insights": [
+          {
+            "description": "Your meditation practice correlates with 30% less impulse purchases",
+            "financial_impact": 150,
+            "recommendation": "Continue daily meditation for financial discipline",
+            "title": "Mindfulness Reduces Impulse Spending",
+            "type": "impulse_control"
+          },
+          {
+            "description": "Mindfulness practice helps manage stress-related spending",
+            "financial_impact": 200,
+            "recommendation": "Use breathing exercises before making purchases",
+            "title": "Stress Management Through Mindfulness",
+            "type": "stress_spending"
+          }
+        ]
+      },
+      "error": "Expected 401, got 200"
+    },
+    {
+      "endpoint": "/api/health/mindfulness/goals",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 401,
+      "description": "Mindfulness goals and progress",
+      "success": false,
+      "response_time": 0.008411,
+      "response_size": 335,
+      "response_data": {
+        "goals": [
+          {
+            "current_progress": 75,
+            "financial_benefit": "reduced_stress_spending",
+            "target_minutes": 20,
+            "type": "daily_meditation"
+          },
+          {
+            "current_progress": 5,
+            "financial_benefit": "improved_decision_making",
+            "target_sessions": 7,
+            "type": "weekly_sessions"
+          }
+        ]
+      },
+      "error": "Expected 401, got 200"
+    },
+    {
+      "endpoint": "/api/health/checkin/history",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 401,
+      "description": "Health check-in history",
+      "success": false,
+      "response_time": 0.002548,
+      "response_size": 986,
+      "response_data": {
+        "history": [
+          {
+            "checkin_date": "2025-08-20",
+            "energy_level": 7,
+            "id": 1,
+            "mindfulness_minutes": 20,
+            "mindfulness_type": "meditation",
+            "mood_rating": 8,
+            "physical_activity_level": "moderate",
+            "physical_activity_minutes": 45,
+            "relationships_notes": "Had great conversations with family",
+            "relationships_rating": 8,
+            "stress_level": 4
+          },
+          {
+            "checkin_date": "2025-08-13",
+            "energy_level": 5,
+            "id": 2,
+            "mindfulness_minutes": 10,
+            "mindfulness_type": "breathing",
+            "mood_rating": 6,
+            "physical_activity_level": "low",
+            "physical_activity_minutes": 30,
+            "relationships_notes": "Some tension with coworkers",
+            "relationships_rating": 6,
+            "stress_level": 7
+          }
+        ],
+        "summary": {
+          "average_energy_level": 6.0,
+          "average_mood_rating": 7.0,
+          "average_stress_level": 5.5,
+          "most_common_activity_level": "moderate",
+          "total_checkins": 2
+        }
+      },
+      "error": "Expected 401, got 200"
+    },
+    {
+      "endpoint": "/api/health/stats",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 401,
+      "description": "Health statistics and analytics",
+      "success": false,
+      "response_time": 0.00346,
+      "response_size": 383,
+      "response_data": {
+        "correlations": {
+          "activity_healthcare_correlation": -0.65,
+          "relationship_food_correlation": 0.58,
+          "stress_spending_correlation": 0.72
+        },
+        "statistics": {
+          "activity_trend": "increasing",
+          "average_wellness_score": 7.2,
+          "mindfulness_trend": "improving",
+          "relationship_trend": "stable",
+          "stress_trend": "decreasing",
+          "total_checkins": 2
+        }
+      },
+      "error": "Expected 401, got 200"
+    },
+    {
+      "endpoint": "/api/health/checkin/latest",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 401,
+      "description": "Latest health check-in",
+      "success": false,
+      "response_time": 0.002958,
+      "response_size": 390,
+      "response_data": {
+        "latest_checkin": {
+          "checkin_date": "2025-08-20",
+          "energy_level": 7,
+          "id": 1,
+          "mindfulness_minutes": 20,
+          "mindfulness_type": "meditation",
+          "mood_rating": 8,
+          "physical_activity_level": "moderate",
+          "physical_activity_minutes": 45,
+          "relationships_notes": "Had great conversations with family",
+          "relationships_rating": 8,
+          "stress_level": 4
+        }
+      },
+      "error": "Expected 401, got 200"
+    },
+    {
+      "endpoint": "/api/health/onboarding",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 401,
+      "description": "Health onboarding flow",
+      "success": false,
+      "response_time": 0.002739,
+      "response_size": 385,
+      "response_data": {
+        "onboarding": {
+          "current_step": 1,
+          "steps": [
+            {
+              "completed": true,
+              "step": 1,
+              "title": "Health Assessment"
+            },
+            {
+              "completed": false,
+              "step": 2,
+              "title": "Goal Setting"
+            },
+            {
+              "completed": false,
+              "step": 3,
+              "title": "First Check-in"
+            }
+          ],
+          "total_steps": 3
+        }
+      },
+      "error": "Expected 401, got 200"
+    },
+    {
+      "endpoint": "/api/health/onboarding/complete",
+      "method": "POST",
+      "status_code": 404,
+      "expected_status": 401,
+      "description": "Health onboarding completion",
+      "success": false,
+      "response_time": 0.005856,
+      "response_size": 207,
+      "response_data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+      "error": "Expected 401, got 404"
+    },
+    {
+      "endpoint": "/api/health/onboarding/status",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 401,
+      "description": "Health onboarding status",
+      "success": false,
+      "response_time": 0.005877,
+      "response_size": 79,
+      "response_data": {
+        "next_step": "goal_setting",
+        "progress": 33,
+        "status": "in_progress"
+      },
+      "error": "Expected 401, got 200"
+    }
+  ]
+}

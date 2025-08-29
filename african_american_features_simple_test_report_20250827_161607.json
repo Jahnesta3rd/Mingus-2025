@@ -1,0 +1,400 @@
+{
+  "test_summary": {
+    "total_tests": 5,
+    "passed_tests": 5,
+    "failed_tests": 0,
+    "skipped_tests": 0,
+    "success_rate": 100.0,
+    "total_execution_time": 0.00013589859008789062,
+    "average_execution_time": 2.7179718017578125e-05
+  },
+  "feature_coverage": {
+    "Income Comparison Tool": 0.0,
+    "Top 10 Problems Verification": 10.0,
+    "Location-Based Features": 100.0
+  },
+  "detailed_results": [
+    {
+      "test_name": "Income Comparison Tool",
+      "status": "PASS",
+      "details": "Test completed in 0.00s",
+      "execution_time": 3.1948089599609375e-05,
+      "data": {
+        "comparison_results": [
+          {
+            "test_case": {
+              "income": 45000,
+              "age": 25,
+              "location": "Atlanta"
+            },
+            "error": "IncomeComparator.analyze_income() got an unexpected keyword argument 'age'",
+            "success": false
+          },
+          {
+            "test_case": {
+              "income": 75000,
+              "age": 30,
+              "location": "Houston"
+            },
+            "error": "IncomeComparator.analyze_income() got an unexpected keyword argument 'age'",
+            "success": false
+          },
+          {
+            "test_case": {
+              "income": 95000,
+              "age": 35,
+              "location": "Washington DC"
+            },
+            "error": "IncomeComparator.analyze_income() got an unexpected keyword argument 'age'",
+            "success": false
+          }
+        ],
+        "successful_comparisons": 0,
+        "total_test_cases": 3,
+        "success_rate": 0.0
+      }
+    },
+    {
+      "test_name": "Top 10 Problems Verification",
+      "status": "PASS",
+      "details": "Test completed in 0.00s",
+      "execution_time": 4.8160552978515625e-05,
+      "data": {
+        "problems_addressed": [
+          "Income instability and lack of emergency funds"
+        ],
+        "total_problems": 10,
+        "addressed_count": 1,
+        "coverage_percentage": 10.0,
+        "problem_details": {
+          "Problem 1": {
+            "problem": "Limited access to generational wealth and family financial support",
+            "addressed": false,
+            "details": {
+              "services": [
+                "insights_service",
+                "calculator_service"
+              ]
+            }
+          },
+          "Problem 2": {
+            "problem": "Career advancement barriers in corporate environments",
+            "addressed": false,
+            "details": {
+              "services": [
+                "salary_service",
+                "insights_service"
+              ]
+            }
+          },
+          "Problem 3": {
+            "problem": "Student loan debt burden significantly above national averages",
+            "addressed": false,
+            "details": {
+              "services": [
+                "calculator_service",
+                "insights_service"
+              ]
+            }
+          },
+          "Problem 4": {
+            "problem": "Workplace microaggressions and cultural navigation challenges",
+            "addressed": false,
+            "details": {
+              "services": [
+                "insights_service",
+                "sms_templates"
+              ]
+            }
+          },
+          "Problem 5": {
+            "problem": "Limited access to professional networks and mentorship",
+            "addressed": false,
+            "details": {
+              "services": [
+                "insights_service",
+                "user_profile_service"
+              ]
+            }
+          },
+          "Problem 6": {
+            "problem": "Housing and homeownership barriers in desirable areas",
+            "addressed": false,
+            "details": {
+              "services": [
+                "calculator_service",
+                "insights_service"
+              ]
+            }
+          },
+          "Problem 7": {
+            "problem": "Income instability and lack of emergency funds",
+            "addressed": true,
+            "details": {
+              "services": [
+                "income_comparator",
+                "calculator_service"
+              ]
+            }
+          },
+          "Problem 8": {
+            "problem": "Financial literacy gaps and investment knowledge",
+            "addressed": false,
+            "details": {
+              "services": [
+                "insights_service",
+                "sms_templates"
+              ]
+            }
+          },
+          "Problem 9": {
+            "problem": "Systemic barriers to wealth building and investment",
+            "addressed": false,
+            "details": {
+              "services": [
+                "insights_service",
+                "calculator_service"
+              ]
+            }
+          },
+          "Problem 10": {
+            "problem": "Balancing individual success with community responsibility",
+            "addressed": false,
+            "details": {
+              "services": [
+                "sms_templates",
+                "insights_service"
+              ]
+            }
+          }
+        },
+        "available_services": {
+          "income_comparator": true,
+          "salary_service": false,
+          "sms_templates": false,
+          "insights_service": false,
+          "calculator_service": false,
+          "user_profile_service": false
+        }
+      }
+    },
+    {
+      "test_name": "Location-Based Features",
+      "status": "PASS",
+      "details": "Test completed in 0.00s",
+      "execution_time": 4.00543212890625e-05,
+      "data": {
+        "location_features": {
+          "Atlanta": {
+            "income_comparison_support": true,
+            "salary_data_support": false,
+            "insights_support": false,
+            "metro_specific_data": true
+          },
+          "Houston": {
+            "income_comparison_support": true,
+            "salary_data_support": false,
+            "insights_support": false,
+            "metro_specific_data": true
+          },
+          "Washington DC": {
+            "income_comparison_support": true,
+            "salary_data_support": false,
+            "insights_support": false,
+            "metro_specific_data": true
+          },
+          "Dallas": {
+            "income_comparison_support": true,
+            "salary_data_support": false,
+            "insights_support": false,
+            "metro_specific_data": true
+          },
+          "New York City": {
+            "income_comparison_support": true,
+            "salary_data_support": false,
+            "insights_support": false,
+            "metro_specific_data": true
+          },
+          "Philadelphia": {
+            "income_comparison_support": true,
+            "salary_data_support": false,
+            "insights_support": false,
+            "metro_specific_data": true
+          },
+          "Chicago": {
+            "income_comparison_support": true,
+            "salary_data_support": false,
+            "insights_support": false,
+            "metro_specific_data": true
+          },
+          "Charlotte": {
+            "income_comparison_support": true,
+            "salary_data_support": false,
+            "insights_support": false,
+            "metro_specific_data": true
+          },
+          "Miami": {
+            "income_comparison_support": true,
+            "salary_data_support": false,
+            "insights_support": false,
+            "metro_specific_data": true
+          },
+          "Baltimore": {
+            "income_comparison_support": true,
+            "salary_data_support": false,
+            "insights_support": false,
+            "metro_specific_data": true
+          }
+        },
+        "metros_supported": 10,
+        "total_metros": 10,
+        "coverage_percentage": 100.0,
+        "location_services": {
+          "income_comparator": true,
+          "salary_service": false,
+          "insights_service": false
+        }
+      }
+    },
+    {
+      "test_name": "Cultural Sensitivity Analysis",
+      "status": "PASS",
+      "details": "Test completed in 0.00s",
+      "execution_time": 8.821487426757812e-06,
+      "data": {
+        "cultural_indicators": {
+          "positive_terms": [
+            "community",
+            "legacy",
+            "generational",
+            "excellence",
+            "representation",
+            "empowerment",
+            "foundation",
+            "success",
+            "achievement",
+            "inspiration",
+            "motivation",
+            "diversity",
+            "inclusion",
+            "equity",
+            "mentorship",
+            "leadership"
+          ],
+          "negative_terms": [
+            "deficit",
+            "lack",
+            "failure",
+            "problem",
+            "issue",
+            "struggle",
+            "difficulty",
+            "challenge",
+            "barrier"
+          ],
+          "african_american_terms": [
+            "african american",
+            "black",
+            "black professional",
+            "black community",
+            "black excellence",
+            "representation"
+          ]
+        },
+        "cultural_sensitivity_check": {
+          "sms_templates": false,
+          "insights_service": false,
+          "user_profile_service": false
+        },
+        "services_with_cultural_focus": 0,
+        "total_services_checked": 3
+      }
+    },
+    {
+      "test_name": "Target Demographic Verification",
+      "status": "PASS",
+      "details": "Test completed in 0.00s",
+      "execution_time": 6.9141387939453125e-06,
+      "data": {
+        "age_range": {
+          "target": [
+            25,
+            35
+          ],
+          "supported": true,
+          "verification_method": "Service initialization"
+        },
+        "income_range": {
+          "target": [
+            40000,
+            100000
+          ],
+          "supported": true,
+          "verification_method": "Service initialization"
+        },
+        "metro_areas": {
+          "target": [
+            "Atlanta",
+            "Houston",
+            "Washington DC",
+            "Dallas",
+            "New York City",
+            "Philadelphia",
+            "Chicago",
+            "Charlotte",
+            "Miami",
+            "Baltimore"
+          ],
+          "supported": 10,
+          "verification_method": "Location-based service availability"
+        },
+        "services_available": {
+          "income_comparator": true,
+          "salary_service": false,
+          "sms_templates": false,
+          "insights_service": false,
+          "calculator_service": false,
+          "user_profile_service": false
+        }
+      }
+    }
+  ],
+  "target_demographic_verification": {
+    "age_range": [
+      25,
+      35
+    ],
+    "income_range": [
+      40000,
+      100000
+    ],
+    "metro_areas": [
+      "Atlanta",
+      "Houston",
+      "Washington DC",
+      "Dallas",
+      "New York City",
+      "Philadelphia",
+      "Chicago",
+      "Charlotte",
+      "Miami",
+      "Baltimore"
+    ],
+    "top_10_problems": [
+      "Limited access to generational wealth and family financial support",
+      "Career advancement barriers in corporate environments",
+      "Student loan debt burden significantly above national averages",
+      "Workplace microaggressions and cultural navigation challenges",
+      "Limited access to professional networks and mentorship",
+      "Housing and homeownership barriers in desirable areas",
+      "Income instability and lack of emergency funds",
+      "Financial literacy gaps and investment knowledge",
+      "Systemic barriers to wealth building and investment",
+      "Balancing individual success with community responsibility"
+    ]
+  },
+  "recommendations": [
+    "Improve coverage for: Income Comparison Tool, Top 10 Problems Verification, Cultural Sensitivity Analysis, Target Demographic Verification",
+    "Ensure all top 10 problems for African American professionals are addressed"
+  ]
+}

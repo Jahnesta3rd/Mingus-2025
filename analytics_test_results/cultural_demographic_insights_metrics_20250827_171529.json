@@ -1,0 +1,113 @@
+{
+  "status": "PASSED",
+  "cultural_analysis": [
+    {
+      "segment": "african_american",
+      "engagement": 0.8
+    },
+    {
+      "segment": "hispanic",
+      "engagement": 0.8
+    },
+    {
+      "segment": "asian",
+      "engagement": 0.8
+    },
+    {
+      "segment": "white",
+      "engagement": 0.8
+    },
+    {
+      "segment": "other",
+      "engagement": 0.8
+    }
+  ],
+  "demographic_insights": [
+    {
+      "age_group": "18-24",
+      "behavior": "standard"
+    },
+    {
+      "age_group": "25-34",
+      "behavior": "standard"
+    },
+    {
+      "age_group": "35-44",
+      "behavior": "standard"
+    },
+    {
+      "age_group": "45-54",
+      "behavior": "standard"
+    },
+    {
+      "age_group": "55+",
+      "behavior": "standard"
+    }
+  ],
+  "age_group_behavior": [
+    {
+      "age_group": "18-24",
+      "preferences": [
+        "feature1"
+      ]
+    },
+    {
+      "age_group": "25-34",
+      "preferences": [
+        "feature1"
+      ]
+    },
+    {
+      "age_group": "35-44",
+      "preferences": [
+        "feature1"
+      ]
+    },
+    {
+      "age_group": "45-54",
+      "preferences": [
+        "feature1"
+      ]
+    },
+    {
+      "age_group": "55+",
+      "preferences": [
+        "feature1"
+      ]
+    }
+  ],
+  "income_patterns": [
+    {
+      "income_range": "<30k",
+      "pattern": "standard"
+    },
+    {
+      "income_range": "30k-50k",
+      "pattern": "standard"
+    },
+    {
+      "income_range": "50k-75k",
+      "pattern": "standard"
+    },
+    {
+      "income_range": "75k-100k",
+      "pattern": "standard"
+    },
+    {
+      "income_range": "100k+",
+      "pattern": "standard"
+    }
+  ],
+  "content_preferences": [
+    {
+      "content_type": "financial",
+      "preference": 0.8
+    }
+  ],
+  "target_market_optimization": [
+    {
+      "segment": "african_american",
+      "optimization": "high"
+    }
+  ]
+}

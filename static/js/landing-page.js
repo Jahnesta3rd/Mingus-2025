@@ -12,10 +12,10 @@ class MingusLandingPage {
         
         // Assessment route mapping
         this.assessmentRoutes = {
-            'income-comparison': '/assessment/income-comparison',
-            'job-matching': '/assessment/job-matching',
-            'relationship-money': '/assessment/relationship-money',
-            'tax-impact': '/assessment/tax-impact'
+            'income_comparison': '/api/assessments/income-comparison/submit',
+            'relationship_money_score': '/api/assessments/relationship-money/submit',
+            'tax_bill_impact': '/api/assessments/tax-impact/submit',
+            'ai_job_lead_magnet': '/api/assessments/job-matching/submit'
         };
         
         // Analytics configuration
@@ -73,7 +73,7 @@ class MingusLandingPage {
         document.addEventListener('click', (e) => {
             if (e.target.closest('.assessment-option')) {
                 e.preventDefault();
-                const assessmentType = e.target.closest('.assessment-option').dataset.assessmentType;
+                const assessmentType = e.target.closest('.assessment-option').dataset.assessment;
                 this.selectAssessment(assessmentType);
             }
         });
@@ -436,10 +436,10 @@ class MingusLandingPage {
      */
     getAssessmentDisplayName(assessmentType) {
         const names = {
-            'income-comparison': 'Income Comparison Calculator',
-            'job-matching': 'AI Job Lead Magnet',
-            'relationship-money': 'Relationship & Money Score',
-            'tax-impact': 'Tax Bill Impact Calculator'
+            'income_comparison': 'Income Comparison Calculator',
+            'relationship_money_score': 'Relationship & Money Score',
+            'tax_bill_impact': 'Tax Bill Impact Calculator',
+            'ai_job_lead_magnet': 'AI Job Lead Magnet'
         };
         return names[assessmentType] || assessmentType;
     }

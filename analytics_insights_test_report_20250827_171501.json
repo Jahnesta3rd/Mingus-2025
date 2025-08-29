@@ -1,0 +1,325 @@
+{
+  "test_suite": "Analytics and Insights Features",
+  "timestamp": "2025-08-27T21:15:01.557785+00:00",
+  "test_config": {
+    "base_url": "http://localhost:8000",
+    "api_timeout": 30,
+    "test_user_count": 100,
+    "test_days": 30,
+    "subscription_tiers": [
+      "budget",
+      "mid_tier",
+      "professional"
+    ],
+    "cultural_segments": [
+      "african_american",
+      "hispanic",
+      "asian",
+      "white",
+      "other"
+    ],
+    "age_groups": [
+      "18-24",
+      "25-34",
+      "35-44",
+      "45-54",
+      "55+"
+    ],
+    "income_ranges": [
+      "<30k",
+      "30k-50k",
+      "50k-75k",
+      "75k-100k",
+      "100k+"
+    ]
+  },
+  "results": {
+    "user_behavior_tracking": {
+      "status": "PASSED",
+      "session_count": 3000,
+      "feature_usage_patterns": 4,
+      "engagement_scores": 100,
+      "user_journeys": 10,
+      "average_session_duration": -213.42,
+      "average_engagement_score": 0.7184541373478018
+    },
+    "financial_progress_reporting": {
+      "status": "PASSED",
+      "net_worth_trends": 100,
+      "savings_rates": 100,
+      "debt_reduction": 100,
+      "investment_growth": 100,
+      "goal_achievement": 100,
+      "average_net_worth_growth": -0.8627677307353313,
+      "average_savings_rate": 0.15
+    },
+    "engagement_metrics": {
+      "status": "PASSED",
+      "tier_engagement": {
+        "budget": {
+          "engagement": 0.8
+        },
+        "mid_tier": {
+          "engagement": 0.8
+        },
+        "professional": {
+          "engagement": 0.8
+        }
+      },
+      "feature_adoption": {
+        "budget": {
+          "adoption": 0.6
+        },
+        "mid_tier": {
+          "adoption": 0.6
+        },
+        "professional": {
+          "adoption": 0.6
+        }
+      },
+      "retention_rates": {
+        "budget": {
+          "retention": 0.85
+        },
+        "mid_tier": {
+          "retention": 0.85
+        },
+        "professional": {
+          "retention": 0.85
+        }
+      },
+      "tier_changes": {
+        "upgrades": 0.1,
+        "downgrades": 0.05
+      },
+      "revenue_per_user": {
+        "budget": {
+          "revenue": 100
+        },
+        "mid_tier": {
+          "revenue": 100
+        },
+        "professional": {
+          "revenue": 100
+        }
+      }
+    },
+    "user_journey_optimization": {
+      "status": "PASSED",
+      "funnel_data": [
+        {
+          "stage": "awareness",
+          "conversion_rate": 0.3
+        }
+      ],
+      "drop_off_points": [
+        {
+          "point": "onboarding",
+          "drop_off_rate": 0.2
+        }
+      ],
+      "onboarding_data": [
+        {
+          "step": "profile_setup",
+          "completion_rate": 0.9
+        }
+      ],
+      "feature_discovery": [
+        {
+          "feature": "budgeting",
+          "discovery_rate": 0.7
+        }
+      ],
+      "user_flows": [
+        {
+          "flow": "standard",
+          "success_rate": 0.8
+        }
+      ]
+    },
+    "ab_testing": {
+      "status": "PASSED",
+      "test_creation": {
+        "status": "success",
+        "test_id": "test_123"
+      },
+      "variant_assignment": [
+        {
+          "user_id": "b4eff7c8-318a-4080-9ab0-7b63a384e88f",
+          "variant": "A"
+        },
+        {
+          "user_id": "e1f4deeb-87cb-4b43-995a-84cea742e46a",
+          "variant": "A"
+        },
+        {
+          "user_id": "ef8d1f0a-8941-4da0-b0a6-fd8c1ca7a6de",
+          "variant": "A"
+        },
+        {
+          "user_id": "f2fa3c5f-2f5c-47b5-990d-2b0cb6dfe071",
+          "variant": "A"
+        },
+        {
+          "user_id": "9c0c3543-3946-40c0-a51d-5b1210c51c1c",
+          "variant": "A"
+        },
+        {
+          "user_id": "138fce85-01cc-4b24-960a-12430f47feed",
+          "variant": "A"
+        },
+        {
+          "user_id": "4f418f88-85bd-48e7-b0eb-5bd2683306b0",
+          "variant": "A"
+        },
+        {
+          "user_id": "9bb70258-ebd8-459d-909b-054dc897aa41",
+          "variant": "A"
+        },
+        {
+          "user_id": "748836df-9efd-4807-bf9b-4b7bd603cf46",
+          "variant": "A"
+        },
+        {
+          "user_id": "99461783-069a-46a2-98d4-595225fc53c0",
+          "variant": "A"
+        }
+      ],
+      "statistical_analysis": [
+        {
+          "metric": "conversion",
+          "p_value": 0.05
+        }
+      ],
+      "conversion_tracking": [
+        {
+          "variant": "A",
+          "conversion_rate": 0.15
+        }
+      ],
+      "test_completion": {
+        "status": "success",
+        "winner": "A"
+      }
+    },
+    "cultural_demographic_insights": {
+      "status": "PASSED",
+      "cultural_analysis": [
+        {
+          "segment": "african_american",
+          "engagement": 0.8
+        },
+        {
+          "segment": "hispanic",
+          "engagement": 0.8
+        },
+        {
+          "segment": "asian",
+          "engagement": 0.8
+        },
+        {
+          "segment": "white",
+          "engagement": 0.8
+        },
+        {
+          "segment": "other",
+          "engagement": 0.8
+        }
+      ],
+      "demographic_insights": [
+        {
+          "age_group": "18-24",
+          "behavior": "standard"
+        },
+        {
+          "age_group": "25-34",
+          "behavior": "standard"
+        },
+        {
+          "age_group": "35-44",
+          "behavior": "standard"
+        },
+        {
+          "age_group": "45-54",
+          "behavior": "standard"
+        },
+        {
+          "age_group": "55+",
+          "behavior": "standard"
+        }
+      ],
+      "age_group_behavior": [
+        {
+          "age_group": "18-24",
+          "preferences": [
+            "feature1"
+          ]
+        },
+        {
+          "age_group": "25-34",
+          "preferences": [
+            "feature1"
+          ]
+        },
+        {
+          "age_group": "35-44",
+          "preferences": [
+            "feature1"
+          ]
+        },
+        {
+          "age_group": "45-54",
+          "preferences": [
+            "feature1"
+          ]
+        },
+        {
+          "age_group": "55+",
+          "preferences": [
+            "feature1"
+          ]
+        }
+      ],
+      "income_patterns": [
+        {
+          "income_range": "<30k",
+          "pattern": "standard"
+        },
+        {
+          "income_range": "30k-50k",
+          "pattern": "standard"
+        },
+        {
+          "income_range": "50k-75k",
+          "pattern": "standard"
+        },
+        {
+          "income_range": "75k-100k",
+          "pattern": "standard"
+        },
+        {
+          "income_range": "100k+",
+          "pattern": "standard"
+        }
+      ],
+      "content_preferences": [
+        {
+          "content_type": "financial",
+          "preference": 0.8
+        }
+      ],
+      "target_market_optimization": [
+        {
+          "segment": "african_american",
+          "optimization": "high"
+        }
+      ]
+    }
+  },
+  "summary": {
+    "total_tests": 6,
+    "passed_tests": 6,
+    "failed_tests": 0,
+    "success_rate": 100.0
+  }
+}

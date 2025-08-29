@@ -1,0 +1,38 @@
+# Mobile Demographic Testing Dependencies
+# =====================================
+
+# Core testing framework
+selenium>=4.15.0
+webdriver-manager>=4.0.0
+
+# Performance monitoring
+psutil>=5.9.0
+requests>=2.31.0
+
+# Data handling and reporting
+dataclasses-json>=0.6.0
+pandas>=2.0.0
+
+# Browser automation
+undetected-chromedriver>=3.5.0
+
+# Mobile testing specific
+appium-python-client>=3.1.0
+pytest>=7.4.0
+pytest-html>=4.1.0
+
+# Performance analysis
+lighthouse-python>=0.1.0
+web-vitals>=0.1.0
+
+# Network simulation
+pytest-mock>=3.11.0
+
+# Reporting and visualization
+matplotlib>=3.7.0
+seaborn>=0.12.0
+
+# Utilities
+python-dotenv>=1.0.0
+click>=8.1.0
+rich>=13.0.0

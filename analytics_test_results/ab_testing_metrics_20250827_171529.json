@@ -1,0 +1,65 @@
+{
+  "status": "PASSED",
+  "test_creation": {
+    "status": "success",
+    "test_id": "test_123"
+  },
+  "variant_assignment": [
+    {
+      "user_id": "dd85ee73-a781-42ee-a279-030f19355a25",
+      "variant": "A"
+    },
+    {
+      "user_id": "7cb4c043-978f-418a-945f-23c66e582215",
+      "variant": "A"
+    },
+    {
+      "user_id": "e728e607-a97c-41e3-bfad-807426d66936",
+      "variant": "A"
+    },
+    {
+      "user_id": "3a6503ca-1a2a-4aa2-a13e-3bc3bb195c27",
+      "variant": "A"
+    },
+    {
+      "user_id": "a67e7e96-f2f2-485c-a2d4-adc21960f828",
+      "variant": "A"
+    },
+    {
+      "user_id": "bea6f3e2-6cae-4e08-afbb-2d43355b4c44",
+      "variant": "A"
+    },
+    {
+      "user_id": "fa100a8b-263b-43f5-9ad0-5ef30c07610b",
+      "variant": "A"
+    },
+    {
+      "user_id": "2de2be25-b9f9-4aa8-87d6-f3d9752b9000",
+      "variant": "A"
+    },
+    {
+      "user_id": "228366f0-31ca-4a03-8080-b38a4b80fdb2",
+      "variant": "A"
+    },
+    {
+      "user_id": "57450d39-a5a6-4ac9-8565-4aec68e958ec",
+      "variant": "A"
+    }
+  ],
+  "statistical_analysis": [
+    {
+      "metric": "conversion",
+      "p_value": 0.05
+    }
+  ],
+  "conversion_tracking": [
+    {
+      "variant": "A",
+      "conversion_rate": 0.15
+    }
+  ],
+  "test_completion": {
+    "status": "success",
+    "winner": "A"
+  }
+}

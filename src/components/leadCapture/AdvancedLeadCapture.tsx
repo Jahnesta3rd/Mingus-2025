@@ -362,10 +362,10 @@ const AdvancedLeadCapture: React.FC<AdvancedLeadCaptureProps> = ({
       ],
       testimonials: [
         {
-          name: 'Sarah Johnson',
-          role: 'Senior Manager',
-          company: 'Tech Corp',
-          content: 'Mingus helped me negotiate a 30% salary increase!',
+          name: 'Get Started Today',
+          role: 'Free Assessment',
+          company: 'Mingus',
+          content: 'Discover your money personality and get personalized strategies!',
           rating: 5
         }
       ],

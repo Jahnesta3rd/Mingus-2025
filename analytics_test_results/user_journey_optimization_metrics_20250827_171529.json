@@ -1,0 +1,33 @@
+{
+  "status": "PASSED",
+  "funnel_data": [
+    {
+      "stage": "awareness",
+      "conversion_rate": 0.3
+    }
+  ],
+  "drop_off_points": [
+    {
+      "point": "onboarding",
+      "drop_off_rate": 0.2
+    }
+  ],
+  "onboarding_data": [
+    {
+      "step": "profile_setup",
+      "completion_rate": 0.9
+    }
+  ],
+  "feature_discovery": [
+    {
+      "feature": "budgeting",
+      "discovery_rate": 0.7
+    }
+  ],
+  "user_flows": [
+    {
+      "flow": "standard",
+      "success_rate": 0.8
+    }
+  ]
+}

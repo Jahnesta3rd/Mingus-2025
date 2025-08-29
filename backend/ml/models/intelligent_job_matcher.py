@@ -133,15 +133,10 @@ class IntelligentJobMatcher:
             'Philadelphia', 'Chicago', 'Charlotte', 'Miami', 'Baltimore'
         ]
         
-        # Job scoring weights
-        self.scoring_weights = {
-            'salary_improvement': 0.35,
-            'skills_match': 0.25,
-            'career_progression': 0.20,
-            'company_quality': 0.10,
-            'location_fit': 0.05,
-            'industry_alignment': 0.05
-        }
+        # Job scoring weights - EXACT Multi-Dimensional Job Scoring System
+        # Weights are applied directly in the scoring calculation:
+        # salary_score * 0.35 + skills_score * 0.25 + career_score * 0.20 + 
+        # company_score * 0.10 + location_score * 0.05 + growth_score * 0.05
         
         # Company tier scoring
         self.company_tier_scores = {
@@ -159,16 +154,16 @@ class IntelligentJobMatcher:
             ExperienceLevel.SENIOR: ['Manager', 'Director', 'Principal']
         }
         
-        # Field-specific salary multipliers
+        # Field-Specific Salary Multipliers - EXACT formulas
         self.field_salary_multipliers = {
-            FieldType.SOFTWARE_DEVELOPMENT: 1.2,
-            FieldType.DATA_ANALYSIS: 1.1,
-            FieldType.PROJECT_MANAGEMENT: 1.0,
-            FieldType.MARKETING: 0.95,
-            FieldType.FINANCE: 1.05,
-            FieldType.SALES: 0.9,
-            FieldType.OPERATIONS: 0.95,
-            FieldType.HR: 0.9
+            FieldType.SOFTWARE_DEVELOPMENT: 1.2,  # 20% premium
+            FieldType.DATA_ANALYSIS: 1.1,         # 10% premium
+            FieldType.PROJECT_MANAGEMENT: 1.0,    # Base level
+            FieldType.MARKETING: 0.95,             # 5% discount
+            FieldType.FINANCE: 1.05,               # 5% premium
+            FieldType.SALES: 0.9,                  # 10% discount
+            FieldType.OPERATIONS: 0.95,            # 5% discount
+            FieldType.HR: 0.9                      # 10% discount
         }
         
         # Initialize job sources
@@ -493,14 +488,14 @@ class IntelligentJobMatcher:
                 location_score = self._calculate_location_compatibility_score(job, search_params)
                 growth_score = self._calculate_growth_potential_score(job, resume_analysis)
                 
-                # Calculate weighted overall score
+                # Calculate weighted overall score using EXACT Multi-Dimensional Job Scoring System
                 overall_score = (
-                    salary_score * self.scoring_weights['salary_improvement'] +
-                    skills_score * self.scoring_weights['skills_match'] +
-                    career_score * self.scoring_weights['career_progression'] +
-                    company_score * self.scoring_weights['company_quality'] +
-                    location_score * self.scoring_weights['location_fit'] +
-                    growth_score * self.scoring_weights['industry_alignment']
+                    salary_score * 0.35 +      # 35% weight - Primary importance
+                    skills_score * 0.25 +      # 25% weight - Skills alignment
+                    career_score * 0.20 +      # 20% weight - Career progression
+                    company_score * 0.10 +     # 10% weight - Company quality
+                    location_score * 0.05 +    # 5% weight - Location fit
+                    growth_score * 0.05        # 5% weight - Industry alignment
                 )
                 
                 # Generate recommendations and risk factors
@@ -541,17 +536,16 @@ class IntelligentJobMatcher:
         logger.info(f"Successfully scored {len(scored_jobs)} jobs")
         return scored_jobs
     
-    def _calculate_salary_improvement_score(self, job: JobPosting, 
-                                          search_params: SearchParameters) -> float:
-        """Calculate salary improvement score"""
+    def _calculate_salary_improvement_score(self, job: JobPosting, search_params: SearchParameters) -> float:
+        """Calculate salary improvement score with EXACT thresholds"""
         if not job.salary_range:
             return 0.5  # Neutral score for unknown salary
         
         # Calculate percentage increase
         salary_increase = (job.salary_range.midpoint - search_params.current_salary) / search_params.current_salary
         
-        # Score based on increase percentage
-        if salary_increase >= 0.45:  # 45%+ increase
+        # Score based on increase percentage - EXACT thresholds
+        if salary_increase >= 0.45:    # 45%+ increase
             return 1.0
         elif salary_increase >= 0.35:  # 35%+ increase
             return 0.9

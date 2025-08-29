@@ -1,0 +1,30 @@
+{
+  "test_summary": {
+    "total_tests": 25,
+    "passed_tests": 23,
+    "failed_tests": 1,
+    "error_tests": 1,
+    "success_rate": 92.0
+  },
+  "security_assessment": {
+    "critical_issues": 0,
+    "high_issues": 1,
+    "medium_issues": 0,
+    "low_issues": 0
+  },
+  "category_breakdown": {
+    "financial_transaction_tests": 8,
+    "form_submission_tests": 4,
+    "api_endpoint_tests": 5,
+    "state_changing_tests": 6,
+    "cross_origin_tests": 4,
+    "token_validation_tests": 3,
+    "concurrent_request_tests": 1
+  },
+  "recommendations": [
+    "Review CSRF protection implementation for failed endpoints",
+    "Implement proper CORS policy",
+    "Add monitoring for CSRF validation failures"
+  ],
+  "timestamp": "2025-08-27T17:32:03.755435"
+}

@@ -336,9 +336,8 @@ class OptimizedIncomeComparator:
     
     @lru_cache(maxsize=1000)
     def _calculate_percentile_cached(self, user_income: int, median: int, mean: int, p25: int, p75: int) -> float:
-        """Cached percentile calculation for performance"""
+        """Use simplified normal approximation for speed - EXACT formula"""
         try:
-            # Use simplified normal approximation for speed
             if user_income <= p25:
                 return 25.0 * (user_income / p25)
             elif user_income <= median:

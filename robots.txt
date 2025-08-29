@@ -1,0 +1,38 @@
+User-agent: *
+Allow: /
+
+# Allow all search engines to crawl the site
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Slurp
+Allow: /
+
+# Disallow crawling of private/admin areas
+Disallow: /admin/
+Disallow: /private/
+Disallow: /api/
+Disallow: /backend/
+Disallow: /logs/
+Disallow: /instance/
+Disallow: /database/
+Disallow: /migrations/
+Disallow: /tests/
+Disallow: /backups/
+Disallow: /scripts/
+Disallow: /config/
+
+# Allow important files
+Allow: /static/
+Allow: /images/
+Allow: /css/
+Allow: /js/
+
+# Sitemap location
+Sitemap: https://mingus.com/sitemap.xml
+
+# Crawl delay (optional - helps with server load)
+Crawl-delay: 1

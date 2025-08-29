@@ -39,8 +39,42 @@ class AssessmentService {
    */
   private calculateScore(answers: Record<string, any>): { score: number; segment: UserSegment; productTier: ProductTier } {
     let totalScore = 0
-
-    // Calculate score based on answers
+    
+    // EXACT point assignments from Calculator Analysis Summary
+    const relationshipStatusPoints = {
+      'single': 0,
+      'dating': 2,
+      'serious_relationship': 4,
+      'married': 6,
+      'complicated': 8
+    }
+    
+    const spendingHabitsPoints = {
+      'keep_separate': 0,
+      'share_some': 2,
+      'joint_accounts': 4,
+      'spend_more_relationships': 6,
+      'overspend_impress': 8
+    }
+    
+    const financialStressPoints = {
+      'never': 0,
+      'rarely': 2,
+      'sometimes': 4,
+      'often': 6,
+      'always': 8
+    }
+    
+    const emotionalTriggersPoints = {
+      'after_breakup': 3,
+      'after_arguments': 3,
+      'when_lonely': 2,
+      'when_jealous': 2,
+      'social_pressure': 2,
+      'none': 0
+    }
+    
+    // Calculate score based on answers using EXACT point system
     Object.entries(answers).forEach(([questionId, answer]) => {
       const question = ASSESSMENT_QUESTIONS.find(q => q.id === questionId)
       if (!question) return
@@ -67,7 +101,7 @@ class AssessmentService {
       }
     })
 
-    // Determine segment based on score
+    // EXACT segment classification
     let segment: UserSegment
     let productTier: ProductTier
 

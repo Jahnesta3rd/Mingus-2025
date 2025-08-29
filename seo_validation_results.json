@@ -1,0 +1,92 @@
+{
+  "title": {
+    "exists": true,
+    "length": 85,
+    "content": "MINGUS - Personal Finance App for Black Professionals | AI-Powered Financial Wellness",
+    "score": 50
+  },
+  "meta_description": {
+    "exists": true,
+    "length": 197,
+    "content": "Transform your financial future with MINGUS. AI-powered personal finance app designed for black professionals. Get income comparison, career advancement tools, and comprehensive financial planning.",
+    "score": 50
+  },
+  "meta_keywords": {
+    "exists": true,
+    "keywords": "personal finance app, black professionals, financial wellness, AI finance, career advancement, wealth building, income comparison, financial planning, money management",
+    "score": 100
+  },
+  "open_graph": {
+    "count": 6,
+    "score": 100
+  },
+  "twitter_cards": {
+    "count": 4,
+    "score": 100
+  },
+  "structured_data": {
+    "count": 1,
+    "score": 50
+  },
+  "images": {
+    "total": 2,
+    "optimized": 4,
+    "score": 100
+  },
+  "headings": {
+    "total": 17,
+    "h1_count": 1,
+    "h2_count": 4,
+    "h3_count": 12,
+    "score": 100
+  },
+  "robots_txt": {
+    "exists": true,
+    "score": 100
+  },
+  "sitemap": {
+    "exists": true,
+    "score": 100
+  },
+  "keyword_targeting": {
+    "keywords": {
+      "personal finance app": {
+        "content": 8,
+        "title": 1,
+        "description": 1,
+        "score": 100
+      },
+      "black professionals": {
+        "content": 10,
+        "title": 1,
+        "description": 1,
+        "score": 100
+      },
+      "financial wellness": {
+        "content": 5,
+        "title": 1,
+        "description": 0,
+        "score": 80
+      },
+      "AI-powered": {
+        "content": 8,
+        "title": 1,
+        "description": 1,
+        "score": 100
+      },
+      "career advancement": {
+        "content": 4,
+        "title": 0,
+        "description": 1,
+        "score": 60
+      },
+      "wealth building": {
+        "content": 1,
+        "title": 0,
+        "description": 0,
+        "score": 10
+      }
+    },
+    "average_score": 75.0
+  }
+}

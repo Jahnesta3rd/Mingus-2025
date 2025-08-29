@@ -1,0 +1,129 @@
+{
+  "total_tests": 13,
+  "passed": 2,
+  "failed": 11,
+  "skipped": 2,
+  "errors": 0,
+  "critical_issues": 0,
+  "test_results": [
+    {
+      "test_name": "Endpoint Availability",
+      "status": "FAIL",
+      "timestamp": "2025-08-27T15:10:43.316290",
+      "details": "No authentication endpoints found",
+      "error": ""
+    },
+    {
+      "test_name": "User Registration",
+      "status": "FAIL",
+      "timestamp": "2025-08-27T15:10:43.319711",
+      "details": "Registration failed with status 501",
+      "error": ""
+    },
+    {
+      "test_name": "Registration Validation - Invalid Email",
+      "status": "FAIL",
+      "timestamp": "2025-08-27T15:10:43.322569",
+      "details": "Expected 400, got 501",
+      "error": ""
+    },
+    {
+      "test_name": "Registration Validation - Weak Password",
+      "status": "FAIL",
+      "timestamp": "2025-08-27T15:10:43.325979",
+      "details": "Expected 400, got 501",
+      "error": ""
+    },
+    {
+      "test_name": "Registration Validation - Missing Required Fields",
+      "status": "FAIL",
+      "timestamp": "2025-08-27T15:10:43.330020",
+      "details": "Expected 400, got 501",
+      "error": ""
+    },
+    {
+      "test_name": "User Login",
+      "status": "SKIP",
+      "timestamp": "2025-08-27T15:10:43.330096",
+      "details": "No user available for login test",
+      "error": ""
+    },
+    {
+      "test_name": "Login Validation - Invalid Credentials",
+      "status": "FAIL",
+      "timestamp": "2025-08-27T15:10:43.332978",
+      "details": "Expected 401, got 501",
+      "error": ""
+    },
+    {
+      "test_name": "Login Validation - Empty Credentials",
+      "status": "FAIL",
+      "timestamp": "2025-08-27T15:10:43.335743",
+      "details": "Expected 400, got 501",
+      "error": ""
+    },
+    {
+      "test_name": "Login Validation - SQL Injection Attempt",
+      "status": "FAIL",
+      "timestamp": "2025-08-27T15:10:43.338164",
+      "details": "Expected 401, got 501",
+      "error": ""
+    },
+    {
+      "test_name": "Session Persistence",
+      "status": "FAIL",
+      "timestamp": "2025-08-27T15:10:43.342421",
+      "details": "Check auth failed with status 404",
+      "error": ""
+    },
+    {
+      "test_name": "Security Headers",
+      "status": "WARN",
+      "timestamp": "2025-08-27T15:10:43.377590",
+      "details": "Missing headers: X-Frame-Options, X-Content-Type-Options, X-XSS-Protection, Strict-Transport-Security, Content-Security-Policy",
+      "error": ""
+    },
+    {
+      "test_name": "Rate Limiting",
+      "status": "WARN",
+      "timestamp": "2025-08-27T15:10:44.458754",
+      "details": "Rate limiting may not be active",
+      "error": ""
+    },
+    {
+      "test_name": "Authentication Bypass",
+      "status": "PASS",
+      "timestamp": "2025-08-27T15:10:44.487600",
+      "details": "No bypass vulnerabilities detected",
+      "error": ""
+    },
+    {
+      "test_name": "Email Verification",
+      "status": "SKIP",
+      "timestamp": "2025-08-27T15:10:44.490308",
+      "details": "Email verification not implemented",
+      "error": ""
+    },
+    {
+      "test_name": "Password Reset Request",
+      "status": "FAIL",
+      "timestamp": "2025-08-27T15:10:44.492515",
+      "details": "Password reset failed with status 501",
+      "error": ""
+    },
+    {
+      "test_name": "2FA Setup",
+      "status": "FAIL",
+      "timestamp": "2025-08-27T15:10:44.495672",
+      "details": "2FA setup failed with status 501",
+      "error": ""
+    },
+    {
+      "test_name": "User Logout",
+      "status": "FAIL",
+      "timestamp": "2025-08-27T15:10:44.500033",
+      "details": "Logout failed with status 501",
+      "error": ""
+    }
+  ]
+}

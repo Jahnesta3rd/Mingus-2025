@@ -1,0 +1,488 @@
+{
+  "summary": {
+    "total_tests": 19,
+    "successful_tests": 17,
+    "failed_tests": 2,
+    "overall_success_rate": 89.47368421052632,
+    "total_duration_seconds": 0.011316061019897461,
+    "average_duration_per_test": 0.0005955821589419717
+  },
+  "category_breakdown": {
+    "Welcome Email Delivery": {
+      "success_rate": 100.0,
+      "total": 1,
+      "successful": 1,
+      "failed": 0
+    },
+    "Password Reset Email Delivery": {
+      "success_rate": 100.0,
+      "total": 1,
+      "successful": 1,
+      "failed": 0
+    },
+    "Notification Email Delivery": {
+      "success_rate": 100.0,
+      "total": 1,
+      "successful": 1,
+      "failed": 0
+    },
+    "PDF Report Email Delivery": {
+      "success_rate": 100.0,
+      "total": 1,
+      "successful": 1,
+      "failed": 0
+    },
+    "Basic SMS Delivery": {
+      "success_rate": 100.0,
+      "total": 1,
+      "successful": 1,
+      "failed": 0
+    },
+    "Template SMS Delivery": {
+      "success_rate": 100.0,
+      "total": 1,
+      "successful": 1,
+      "failed": 0
+    },
+    "Critical Alert SMS": {
+      "success_rate": 100.0,
+      "total": 1,
+      "successful": 1,
+      "failed": 0
+    },
+    "Phone Number Validation": {
+      "success_rate": 100.0,
+      "total": 1,
+      "successful": 1,
+      "failed": 0
+    },
+    "Email Template Personalization": {
+      "success_rate": 100.0,
+      "total": 1,
+      "successful": 1,
+      "failed": 0
+    },
+    "Custom HTML Template": {
+      "success_rate": 100.0,
+      "total": 1,
+      "successful": 1,
+      "failed": 0
+    },
+    "Communication Routing Logic": {
+      "success_rate": 0.0,
+      "total": 1,
+      "successful": 0,
+      "failed": 1
+    },
+    "SMS Delivery Tracking": {
+      "success_rate": 100.0,
+      "total": 1,
+      "successful": 1,
+      "failed": 0
+    },
+    "Email Delivery Success Rate": {
+      "success_rate": 100.0,
+      "total": 1,
+      "successful": 1,
+      "failed": 0
+    },
+    "Cost Tracking": {
+      "success_rate": 100.0,
+      "total": 1,
+      "successful": 1,
+      "failed": 0
+    },
+    "Invalid Email Handling": {
+      "success_rate": 100.0,
+      "total": 1,
+      "successful": 1,
+      "failed": 0
+    },
+    "Invalid Phone Number Handling": {
+      "success_rate": 100.0,
+      "total": 1,
+      "successful": 1,
+      "failed": 0
+    },
+    "SMS Opt-out Handling": {
+      "success_rate": 100.0,
+      "total": 1,
+      "successful": 1,
+      "failed": 0
+    },
+    "Help Request Handling": {
+      "success_rate": 100.0,
+      "total": 1,
+      "successful": 1,
+      "failed": 0
+    },
+    "End-to-End Communication Flow": {
+      "success_rate": 0.0,
+      "total": 1,
+      "successful": 0,
+      "failed": 1
+    }
+  },
+  "failed_tests": [
+    {
+      "test_name": "Communication Routing Logic",
+      "error": null,
+      "details": {
+        "correct_decisions": 2,
+        "total_decisions": 3,
+        "routing_results": [
+          {
+            "scenario": {
+              "message_type": "financial_alert",
+              "urgency": "critical",
+              "expected_channel": "sms"
+            },
+            "decision": "sms",
+            "expected": "sms",
+            "correct": true,
+            "reasoning": "Critical financial alert - SMS for immediate delivery"
+          },
+          {
+            "scenario": {
+              "message_type": "monthly_report",
+              "urgency": "low",
+              "expected_channel": "email"
+            },
+            "decision": "sms",
+            "expected": "email",
+            "correct": false,
+            "reasoning": "Critical financial alert - SMS for immediate delivery"
+          },
+          {
+            "scenario": {
+              "message_type": "payment_reminder",
+              "urgency": "high",
+              "expected_channel": "sms"
+            },
+            "decision": "sms",
+            "expected": "sms",
+            "correct": true,
+            "reasoning": "Critical financial alert - SMS for immediate delivery"
+          }
+        ]
+      }
+    },
+    {
+      "test_name": "End-to-End Communication Flow",
+      "error": null,
+      "details": {
+        "routing_channel": "sms",
+        "routing_reasoning": "Critical financial alert - SMS for immediate delivery",
+        "delivery_success": false,
+        "message_id": null,
+        "error": "Invalid phone number format"
+      }
+    }
+  ],
+  "all_results": [
+    {
+      "test_name": "Welcome Email Delivery",
+      "success": true,
+      "duration": 5.4836273193359375e-05,
+      "error": null,
+      "details": {
+        "email_id": "mock_email_123",
+        "message": "Welcome email sent successfully",
+        "error": null
+      }
+    },
+    {
+      "test_name": "Password Reset Email Delivery",
+      "success": true,
+      "duration": 5.1975250244140625e-05,
+      "error": null,
+      "details": {
+        "email_id": "mock_reset_456",
+        "message": "Password reset email sent successfully",
+        "error": null
+      }
+    },
+    {
+      "test_name": "Notification Email Delivery",
+      "success": true,
+      "duration": 3.695487976074219e-05,
+      "error": null,
+      "details": {
+        "email_id": "mock_notification_789",
+        "message": "Notification email sent successfully",
+        "error": null
+      }
+    },
+    {
+      "test_name": "PDF Report Email Delivery",
+      "success": true,
+      "duration": 3.981590270996094e-05,
+      "error": null,
+      "details": {
+        "email_id": "mock_report_101",
+        "message": "PDF report email sent successfully",
+        "error": null
+      }
+    },
+    {
+      "test_name": "Basic SMS Delivery",
+      "success": true,
+      "duration": 5.817413330078125e-05,
+      "error": null,
+      "details": {
+        "message_sid": "mock_sms_123",
+        "status": "sent",
+        "cost": 0.0075,
+        "error": null
+      }
+    },
+    {
+      "test_name": "Template SMS Delivery",
+      "success": true,
+      "duration": 0.00010395050048828125,
+      "error": null,
+      "details": {
+        "message_sid": "mock_sms_123",
+        "status": "sent",
+        "cost": 0.0075,
+        "error": null
+      }
+    },
+    {
+      "test_name": "Critical Alert SMS",
+      "success": true,
+      "duration": 7.677078247070312e-05,
+      "error": null,
+      "details": {
+        "message_sid": "mock_sms_123",
+        "status": "sent",
+        "cost": 0.0075,
+        "error": null
+      }
+    },
+    {
+      "test_name": "Phone Number Validation",
+      "success": true,
+      "duration": 0.0002048015594482422,
+      "error": null,
+      "details": {
+        "validation_results": {
+          "+1234567890": true,
+          "+1-234-567-8900": true,
+          "+44 20 7946 0958": true,
+          "1234567890": true,
+          "invalid": true,
+          "+123": true
+        }
+      }
+    },
+    {
+      "test_name": "Email Template Personalization",
+      "success": true,
+      "duration": 0.00011086463928222656,
+      "error": null,
+      "details": {
+        "template_results": [
+          {
+            "user": {
+              "name": "John Smith",
+              "email": "john@example.com",
+              "income": "60k-80k"
+            },
+            "success": true,
+            "email_id": "mock_email_123"
+          },
+          {
+            "user": {
+              "name": "Sarah Johnson",
+              "email": "sarah@example.com",
+              "income": "80k-100k"
+            },
+            "success": true,
+            "email_id": "mock_email_123"
+          },
+          {
+            "user": {
+              "name": "Michael Brown",
+              "email": "michael@example.com",
+              "income": "40k-60k"
+            },
+            "success": true,
+            "email_id": "mock_email_123"
+          }
+        ]
+      }
+    },
+    {
+      "test_name": "Custom HTML Template",
+      "success": true,
+      "duration": 6.890296936035156e-05,
+      "error": null,
+      "details": {
+        "email_id": "mock_generic_202",
+        "html_length": 358,
+        "error": null
+      }
+    },
+    {
+      "test_name": "Communication Routing Logic",
+      "success": false,
+      "duration": 0.0005710124969482422,
+      "error": null,
+      "details": {
+        "correct_decisions": 2,
+        "total_decisions": 3,
+        "routing_results": [
+          {
+            "scenario": {
+              "message_type": "financial_alert",
+              "urgency": "critical",
+              "expected_channel": "sms"
+            },
+            "decision": "sms",
+            "expected": "sms",
+            "correct": true,
+            "reasoning": "Critical financial alert - SMS for immediate delivery"
+          },
+          {
+            "scenario": {
+              "message_type": "monthly_report",
+              "urgency": "low",
+              "expected_channel": "email"
+            },
+            "decision": "sms",
+            "expected": "email",
+            "correct": false,
+            "reasoning": "Critical financial alert - SMS for immediate delivery"
+          },
+          {
+            "scenario": {
+              "message_type": "payment_reminder",
+              "urgency": "high",
+              "expected_channel": "sms"
+            },
+            "decision": "sms",
+            "expected": "sms",
+            "correct": true,
+            "reasoning": "Critical financial alert - SMS for immediate delivery"
+          }
+        ]
+      }
+    },
+    {
+      "test_name": "SMS Delivery Tracking",
+      "success": true,
+      "duration": 6.508827209472656e-05,
+      "error": null,
+      "details": {
+        "message_sid": "mock_sms_123",
+        "tracking_status": "delivered",
+        "error_code": null,
+        "error_message": null
+      }
+    },
+    {
+      "test_name": "Email Delivery Success Rate",
+      "success": true,
+      "duration": 0.00023293495178222656,
+      "error": null,
+      "details": {
+        "successful_emails": 3,
+        "total_emails": 3,
+        "success_rate": 100.0,
+        "email_results": [
+          {
+            "success": true,
+            "email_id": "mock_notification_789",
+            "message": "Notification email sent successfully"
+          },
+          {
+            "success": true,
+            "email_id": "mock_notification_789",
+            "message": "Notification email sent successfully"
+          },
+          {
+            "success": true,
+            "email_id": "mock_notification_789",
+            "message": "Notification email sent successfully"
+          }
+        ]
+      }
+    },
+    {
+      "test_name": "Cost Tracking",
+      "success": true,
+      "duration": 4.38690185546875e-05,
+      "error": null,
+      "details": {
+        "sms_statistics": {
+          "total_cost": 15.5,
+          "total_sent": 2000,
+          "total_delivered": 1950,
+          "success_rate": 97.5
+        }
+      }
+    },
+    {
+      "test_name": "Invalid Email Handling",
+      "success": true,
+      "duration": 7.82012939453125e-05,
+      "error": null,
+      "details": {
+        "success": false,
+        "error": "Invalid email address format"
+      }
+    },
+    {
+      "test_name": "Invalid Phone Number Handling",
+      "success": true,
+      "duration": 4.673004150390625e-05,
+      "error": null,
+      "details": {
+        "success": false,
+        "error": "Invalid phone number format"
+      }
+    },
+    {
+      "test_name": "SMS Opt-out Handling",
+      "success": true,
+      "duration": 5.793571472167969e-05,
+      "error": null,
+      "details": {
+        "action": "opted_out",
+        "confirmation_message": "You have been unsubscribed",
+        "error": null
+      }
+    },
+    {
+      "test_name": "Help Request Handling",
+      "success": true,
+      "duration": 0.0002148151397705078,
+      "error": null,
+      "details": {
+        "action": "help_requested",
+        "help_message": "Need help? Call support or reply HELP.",
+        "error": null
+      }
+    },
+    {
+      "test_name": "End-to-End Communication Flow",
+      "success": false,
+      "duration": 0.0005249977111816406,
+      "error": null,
+      "details": {
+        "routing_channel": "sms",
+        "routing_reasoning": "Critical financial alert - SMS for immediate delivery",
+        "delivery_success": false,
+        "message_id": null,
+        "error": "Invalid phone number format"
+      }
+    }
+  ],
+  "timestamp": "2025-08-27T21:04:57.708585",
+  "test_configuration": {
+    "test_email": "test@example.com",
+    "test_phone": "+1234567890",
+    "test_user_id": "test_user_123"
+  }
+}

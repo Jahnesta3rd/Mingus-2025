@@ -476,10 +476,10 @@ The Ratchet Money Team`
                             <Star key={i} className="w-4 h-4 fill-current" />
                           ))}
                         </div>
-                        <span className="text-white text-sm ml-2">4.9/5 from 2,847 users</span>
+                        <span className="text-white text-sm ml-2">Get your personalized results</span>
                       </div>
                       <p className="text-gray-300 text-sm italic">
-                        "This assessment completely changed how I think about money and relationships. The personalized strategies are gold!" - Sarah M.
+                        "Discover your unique money personality and get personalized strategies for financial success."
                       </p>
                     </motion.div>
                   </motion.div>

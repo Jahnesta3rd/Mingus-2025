@@ -42,7 +42,7 @@ class DevelopmentConfig(Config):
     # Feature flags for development
     ENABLE_ONBOARDING = True
     ENABLE_USER_PROFILES = True
-    BYPASS_AUTH = True  # Enable auth bypass for development
+    BYPASS_AUTH = False  # Enable auth bypass for development
     
     # Development-specific settings
     PRESERVE_CONTEXT_ON_EXCEPTION = False
@@ -107,7 +107,7 @@ class DevelopmentConfig(Config):
     # Feature flags for development
     ENABLE_ONBOARDING = True
     ENABLE_USER_PROFILES = True
-    BYPASS_AUTH = True  # Enable auth bypass for development
+    BYPASS_AUTH = False  # Enable auth bypass for development
     
     # Development-specific settings
     PRESERVE_CONTEXT_ON_EXCEPTION = False

@@ -105,27 +105,7 @@ const HeroSection: React.FC = () => {
             </button>
           </div>
 
-          {/* Social proof */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-6 text-gray-400">
-            <div className="flex items-center gap-2">
-              <div className="flex -space-x-2">
-                {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className="w-8 h-8 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full border-2 border-gray-900"></div>
-                ))}
-              </div>
-              <span className="text-sm">10,000+ people assessed</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="flex text-yellow-400">
-                {[1, 2, 3, 4, 5].map((i) => (
-                  <svg key={i} className="w-4 h-4 fill-current" viewBox="0 0 20 20">
-                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                  </svg>
-                ))}
-              </div>
-              <span className="text-sm">4.9/5 rating</span>
-            </div>
-          </div>
+          {/* Social proof - removed fake statistics */}
         </div>
       </div>
 
@@ -248,60 +228,18 @@ const BenefitsSection: React.FC = () => {
   )
 }
 
-// Testimonials section
+// Testimonials section - removed fake testimonials
 const TestimonialsSection: React.FC = () => {
-  const testimonials = [
-    {
-      name: 'Sarah Johnson',
-      role: 'Small Business Owner',
-      content: 'This assessment completely changed how I think about money. I\'ve saved more in 3 months than I did all last year!',
-      avatar: '/avatars/sarah.jpg'
-    },
-    {
-      name: 'Michael Chen',
-      role: 'Software Engineer',
-      content: 'The personalized strategies are spot-on. I finally understand why I was struggling with saving and now have a clear path forward.',
-      avatar: '/avatars/michael.jpg'
-    },
-    {
-      name: 'Emily Rodriguez',
-      role: 'Teacher',
-      content: 'Simple, actionable advice that actually works. I\'ve reduced my financial stress and feel more confident about my future.',
-      avatar: '/avatars/emily.jpg'
-    }
-  ]
-
   return (
     <section className="py-20 bg-white">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
-            What Our Users Say
+            Ready to Get Started?
           </h2>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Join thousands of people who have transformed their financial lives with our assessment.
+            Take our free assessment and discover your unique money personality today.
           </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {testimonials.map((testimonial, index) => (
-            <div key={index} className="bg-gray-50 rounded-lg p-6">
-              <div className="flex items-center mb-4">
-                <OptimizedImage
-                  src={testimonial.avatar}
-                  alt={`${testimonial.name} avatar`}
-                  className="w-12 h-12 rounded-full mr-4"
-                  width={48}
-                  height={48}
-                />
-                <div>
-                  <h4 className="font-semibold text-gray-900">{testimonial.name}</h4>
-                  <p className="text-sm text-gray-600">{testimonial.role}</p>
-                </div>
-              </div>
-              <p className="text-gray-700 italic">"{testimonial.content}"</p>
-            </div>
-          ))}
         </div>
       </div>
     </section>
@@ -381,8 +319,7 @@ export const OptimizedLandingPage: React.FC = () => {
                   Ready to Transform Your Financial Future?
                 </h2>
                 <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
-                  Join thousands of people who have discovered their money personality and 
-                  are building wealth with confidence.
+                  Discover your money personality and start building wealth with confidence.
                 </p>
                 <button
                   onClick={() => setShowQuestionnaire(true)}

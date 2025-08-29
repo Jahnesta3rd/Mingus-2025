@@ -1,0 +1,397 @@
+{
+  "test_summary": {
+    "total_tests": 5,
+    "passed_tests": 5,
+    "failed_tests": 0,
+    "skipped_tests": 0,
+    "success_rate": 100.0,
+    "total_execution_time": 0.004520416259765625,
+    "average_execution_time": 0.000904083251953125
+  },
+  "feature_coverage": {
+    "Income Comparison Tool": 100.0,
+    "Top 10 Problems Verification": 10.0,
+    "Location-Based Features": 100.0
+  },
+  "detailed_results": [
+    {
+      "test_name": "Income Comparison Tool",
+      "status": "PASS",
+      "details": "Test completed in 0.00s",
+      "execution_time": 0.004417896270751953,
+      "data": {
+        "comparison_results": [
+          {
+            "test_case": {
+              "income": 45000,
+              "location": "Atlanta"
+            },
+            "analysis": "IncomeAnalysisResult(user_income=45000, comparisons=[IncomeComparison(comparison_group=<ComparisonGroup.NATIONAL_MEDIAN: 'national_median'>, group_name='National Median', user_income=45000, median_income=74580, percentile_rank=26.297963381826484, income_gap=29580, gap_percentage=39.66210780370073, context_message='National median income is $74,580', motivational_insight=\"There's a $29,580 opportunity gap compared to the national median. This represents significant career advancement potential.\", action_item='Target roles with $29,580 higher compensation to close the gap with national median.', data_source='2022 American Community Survey', confidence_level=0.95), IncomeComparison(comparison_group=<ComparisonGroup.AFRICAN_AMERICAN: 'african_american'>, group_name='African American', user_income=45000, median_income=52000, percentile_rank=42.17628524249952, income_gap=7000, gap_percentage=13.461538461538462, context_message='African American median income is $52,000', motivational_insight=\"There's a $7,000 opportunity gap compared to the African American median. This represents significant career advancement potential.\", action_item='Small adjustments in negotiation or role selection can close the $7,000 gap with African American median.', data_source='2022 American Community Survey', confidence_level=0.9), IncomeComparison(comparison_group=<ComparisonGroup.AGE_25_35: 'age_25_35'>, group_name='Ages 25-35', user_income=45000, median_income=58000, percentile_rank=34.97796217715812, income_gap=13000, gap_percentage=22.413793103448278, context_message='Median income for ages 25-35 is $58,000', motivational_insight=\"There's a $13,000 opportunity gap compared to the ages 25-35 median. This represents significant career advancement potential.\", action_item='Focus on skill development and networking to bridge the $13,000 gap with ages 25-35 median.', data_source='2022 American Community Survey', confidence_level=0.92), IncomeComparison(comparison_group=<ComparisonGroup.AFRICAN_AMERICAN_25_35: 'african_american_25_35'>, group_name='African American Ages 25-35', user_income=45000, median_income=48000, percentile_rank=46.40613352569982, income_gap=3000, gap_percentage=6.25, context_message='African American median income for ages 25-35 is $48,000', motivational_insight=\"There's a $3,000 opportunity gap compared to the African American ages 25-35 median. This represents significant career advancement potential.\", action_item='Small adjustments in negotiation or role selection can close the $3,000 gap with African American ages 25-35 median.', data_source='2022 American Community Survey', confidence_level=0.88), IncomeComparison(comparison_group=<ComparisonGroup.COLLEGE_GRADUATE: 'college_graduate'>, group_name='College Graduates', user_income=45000, median_income=85000, percentile_rank=16.396114726239386, income_gap=40000, gap_percentage=47.05882352941176, context_message='College graduate median income is $85,000', motivational_insight=\"There's a $40,000 opportunity gap compared to the college graduate median. This represents significant career advancement potential.\", action_item='Target roles with $40,000 higher compensation to close the gap with college graduate median.', data_source='2022 American Community Survey', confidence_level=0.93), IncomeComparison(comparison_group=<ComparisonGroup.AFRICAN_AMERICAN_COLLEGE: 'african_american_college'>, group_name='African American College Graduates', user_income=45000, median_income=65000, percentile_rank=29.478724856650985, income_gap=20000, gap_percentage=30.76923076923077, context_message='African American college graduate median income is $65,000', motivational_insight=\"There's a $20,000 opportunity gap compared to the African American college graduate median. This represents significant career advancement potential.\", action_item='Focus on skill development and networking to bridge the $20,000 gap with African American college graduate median.', data_source='2022 American Community Survey', confidence_level=0.89), IncomeComparison(comparison_group=<ComparisonGroup.METRO_AREA: 'metro_area'>, group_name='Atlanta Metro', user_income=45000, median_income=72000, percentile_rank=26.39481479966854, income_gap=27000, gap_percentage=37.5, context_message='Atlanta metro median income is $72,000', motivational_insight=\"There's a $27,000 opportunity gap compared to the Atlanta metro median. This represents significant career advancement potential.\", action_item='Target roles with $27,000 higher compensation to close the gap with Atlanta metro median.', data_source='2022 American Community Survey', confidence_level=0.91), IncomeComparison(comparison_group=<ComparisonGroup.AFRICAN_AMERICAN_METRO: 'african_american_metro'>, group_name='Atlanta African American', user_income=45000, median_income=55000, percentile_rank=39.2266654497988, income_gap=10000, gap_percentage=18.181818181818183, context_message='African American median income in Atlanta is $55,000', motivational_insight=\"There's a $10,000 opportunity gap compared to the African American Atlanta median. This represents significant career advancement potential.\", action_item='Small adjustments in negotiation or role selection can close the $10,000 gap with African American Atlanta median.', data_source='2022 American Community Survey', confidence_level=0.87)], overall_percentile=32.97140738844994, primary_gap=IncomeComparison(comparison_group=<ComparisonGroup.COLLEGE_GRADUATE: 'college_graduate'>, group_name='College Graduates', user_income=45000, median_income=85000, percentile_rank=16.396114726239386, income_gap=40000, gap_percentage=47.05882352941176, context_message='College graduate median income is $85,000', motivational_insight=\"There's a $40,000 opportunity gap compared to the college graduate median. This represents significant career advancement potential.\", action_item='Target roles with $40,000 higher compensation to close the gap with college graduate median.', data_source='2022 American Community Survey', confidence_level=0.93), career_opportunity_score=53.82432796228704, motivational_summary='Your biggest opportunity is closing the $40,000 gap with College Graduates. This represents significant career advancement potential that can transform your financial future.', action_plan=['Target roles offering $40,000 more than your current salary', 'Develop in-demand skills identified in your target roles', 'Build professional network in your target industry and location', 'Practice salary negotiation skills for your next role', 'Consider additional certifications or education if relevant'], next_steps=['Research target companies and roles in your field', 'Identify skill gaps and create a development plan', 'Begin networking in your target industry'], generated_at=datetime.datetime(2025, 8, 27, 16, 18, 39, 622694))",
+            "success": true
+          },
+          {
+            "test_case": {
+              "income": 75000,
+              "location": "Houston"
+            },
+            "analysis": "IncomeAnalysisResult(user_income=75000, comparisons=[IncomeComparison(comparison_group=<ComparisonGroup.NATIONAL_MEDIAN: 'national_median'>, group_name='National Median', user_income=75000, median_income=74580, percentile_rank=50.28122787325048, income_gap=-420, gap_percentage=-0.5631536604987932, context_message='National median income is $74,580', motivational_insight=\"You're earning $420 more than the national median! This shows strong career positioning.\", action_item='Leverage your strong position above the national median to negotiate for leadership roles.', data_source='2022 American Community Survey', confidence_level=0.95), IncomeComparison(comparison_group=<ComparisonGroup.AFRICAN_AMERICAN: 'african_american'>, group_name='African American', user_income=75000, median_income=52000, percentile_rank=69.14644059106564, income_gap=-23000, gap_percentage=-44.230769230769226, context_message='African American median income is $52,000', motivational_insight=\"You're earning $23,000 more than the African American median! This shows strong career positioning.\", action_item='Leverage your strong position above the African American median to negotiate for leadership roles.', data_source='2022 American Community Survey', confidence_level=0.9), IncomeComparison(comparison_group=<ComparisonGroup.AGE_25_35: 'age_25_35'>, group_name='Ages 25-35', user_income=75000, median_income=58000, percentile_rank=65.20569757165464, income_gap=-17000, gap_percentage=-29.310344827586203, context_message='Median income for ages 25-35 is $58,000', motivational_insight=\"You're earning $17,000 more than the ages 25-35 median! This shows strong career positioning.\", action_item='Leverage your strong position above the ages 25-35 median to negotiate for leadership roles.', data_source='2022 American Community Survey', confidence_level=0.92), IncomeComparison(comparison_group=<ComparisonGroup.AFRICAN_AMERICAN_25_35: 'african_american_25_35'>, group_name='African American Ages 25-35', user_income=75000, median_income=48000, percentile_rank=73.36160521956064, income_gap=-27000, gap_percentage=-56.25, context_message='African American median income for ages 25-35 is $48,000', motivational_insight=\"You're earning $27,000 more than the African American ages 25-35 median! This shows strong career positioning.\", action_item='Leverage your strong position above the African American ages 25-35 median to negotiate for leadership roles.', data_source='2022 American Community Survey', confidence_level=0.88), IncomeComparison(comparison_group=<ComparisonGroup.COLLEGE_GRADUATE: 'college_graduate'>, group_name='College Graduates', user_income=75000, median_income=85000, percentile_rank=42.36628483080621, income_gap=10000, gap_percentage=11.76470588235294, context_message='College graduate median income is $85,000', motivational_insight=\"There's a $10,000 opportunity gap compared to the college graduate median. This represents significant career advancement potential.\", action_item='Small adjustments in negotiation or role selection can close the $10,000 gap with college graduate median.', data_source='2022 American Community Survey', confidence_level=0.93), IncomeComparison(comparison_group=<ComparisonGroup.AFRICAN_AMERICAN_COLLEGE: 'african_american_college'>, group_name='African American College Graduates', user_income=75000, median_income=65000, percentile_rank=58.31385060775549, income_gap=-10000, gap_percentage=-15.384615384615385, context_message='African American college graduate median income is $65,000', motivational_insight=\"You're earning $10,000 more than the African American college graduate median! This shows strong career positioning.\", action_item='Leverage your strong position above the African American college graduate median to negotiate for leadership roles.', data_source='2022 American Community Survey', confidence_level=0.89), IncomeComparison(comparison_group=<ComparisonGroup.METRO_AREA: 'metro_area'>, group_name='Houston Metro', user_income=75000, median_income=68000, percentile_rank=55.42653296886137, income_gap=-7000, gap_percentage=-10.294117647058822, context_message='Houston metro median income is $68,000', motivational_insight=\"You're earning $7,000 more than the Houston metro median! This shows strong career positioning.\", action_item='Leverage your strong position above the Houston metro median to negotiate for leadership roles.', data_source='2022 American Community Survey', confidence_level=0.91), IncomeComparison(comparison_group=<ComparisonGroup.AFRICAN_AMERICAN_METRO: 'african_american_metro'>, group_name='Houston African American', user_income=75000, median_income=52000, percentile_rank=69.14644059106564, income_gap=-23000, gap_percentage=-44.230769230769226, context_message='African American median income in Houston is $52,000', motivational_insight=\"You're earning $23,000 more than the African American Houston median! This shows strong career positioning.\", action_item='Leverage your strong position above the African American Houston median to negotiate for leadership roles.', data_source='2022 American Community Survey', confidence_level=0.87)], overall_percentile=60.7085606317913, primary_gap=IncomeComparison(comparison_group=<ComparisonGroup.COLLEGE_GRADUATE: 'college_graduate'>, group_name='College Graduates', user_income=75000, median_income=85000, percentile_rank=42.36628483080621, income_gap=10000, gap_percentage=11.76470588235294, context_message='College graduate median income is $85,000', motivational_insight=\"There's a $10,000 opportunity gap compared to the college graduate median. This represents significant career advancement potential.\", action_item='Small adjustments in negotiation or role selection can close the $10,000 gap with college graduate median.', data_source='2022 American Community Survey', confidence_level=0.93), career_opportunity_score=23.52941176470588, motivational_summary='Your biggest opportunity is closing the $10,000 gap with College Graduates. This represents significant career advancement potential that can transform your financial future.', action_plan=['Target roles offering $10,000 more than your current salary', 'Develop in-demand skills identified in your target roles', 'Build professional network in your target industry and location', 'Practice salary negotiation skills for your next role', 'Consider additional certifications or education if relevant'], next_steps=['Focus on skill development and career positioning', 'Build your professional brand and online presence', 'Consider lateral moves to gain new experience'], generated_at=datetime.datetime(2025, 8, 27, 16, 18, 39, 623168))",
+            "success": true
+          },
+          {
+            "test_case": {
+              "income": 95000,
+              "location": "Washington DC"
+            },
+            "analysis": "IncomeAnalysisResult(user_income=95000, comparisons=[IncomeComparison(comparison_group=<ComparisonGroup.NATIONAL_MEDIAN: 'national_median'>, group_name='National Median', user_income=95000, median_income=74580, percentile_rank=61.93547229257056, income_gap=-20420, gap_percentage=-27.379994636631803, context_message='National median income is $74,580', motivational_insight=\"You're earning $20,420 more than the national median! This shows strong career positioning.\", action_item='Leverage your strong position above the national median to negotiate for leadership roles.', data_source='2022 American Community Survey', confidence_level=0.95), IncomeComparison(comparison_group=<ComparisonGroup.AFRICAN_AMERICAN: 'african_american'>, group_name='African American', user_income=95000, median_income=52000, percentile_rank=79.46689635430907, income_gap=-43000, gap_percentage=-82.6923076923077, context_message='African American median income is $52,000', motivational_insight=\"You're earning $43,000 more than the African American median! This shows strong career positioning.\", action_item='Leverage your strong position above the African American median to negotiate for leadership roles.', data_source='2022 American Community Survey', confidence_level=0.9), IncomeComparison(comparison_group=<ComparisonGroup.AGE_25_35: 'age_25_35'>, group_name='Ages 25-35', user_income=95000, median_income=58000, percentile_rank=77.34775265648055, income_gap=-37000, gap_percentage=-63.793103448275865, context_message='Median income for ages 25-35 is $58,000', motivational_insight=\"You're earning $37,000 more than the ages 25-35 median! This shows strong career positioning.\", action_item='Leverage your strong position above the ages 25-35 median to negotiate for leadership roles.', data_source='2022 American Community Survey', confidence_level=0.92), IncomeComparison(comparison_group=<ComparisonGroup.AFRICAN_AMERICAN_25_35: 'african_american_25_35'>, group_name='African American Ages 25-35', user_income=95000, median_income=48000, percentile_rank=83.00069513215271, income_gap=-47000, gap_percentage=-97.91666666666666, context_message='African American median income for ages 25-35 is $48,000', motivational_insight=\"You're earning $47,000 more than the African American ages 25-35 median! This shows strong career positioning.\", action_item='Leverage your strong position above the African American ages 25-35 median to negotiate for leadership roles.', data_source='2022 American Community Survey', confidence_level=0.88), IncomeComparison(comparison_group=<ComparisonGroup.COLLEGE_GRADUATE: 'college_graduate'>, group_name='College Graduates', user_income=95000, median_income=85000, percentile_rank=56.79244572311896, income_gap=-10000, gap_percentage=-11.76470588235294, context_message='College graduate median income is $85,000', motivational_insight=\"You're earning $10,000 more than the college graduate median! This shows strong career positioning.\", action_item='Leverage your strong position above the college graduate median to negotiate for leadership roles.', data_source='2022 American Community Survey', confidence_level=0.93), IncomeComparison(comparison_group=<ComparisonGroup.AFRICAN_AMERICAN_COLLEGE: 'african_american_college'>, group_name='African American College Graduates', user_income=95000, median_income=65000, percentile_rank=71.11378164744393, income_gap=-30000, gap_percentage=-46.15384615384615, context_message='African American college graduate median income is $65,000', motivational_insight=\"You're earning $30,000 more than the African American college graduate median! This shows strong career positioning.\", action_item='Leverage your strong position above the African American college graduate median to negotiate for leadership roles.', data_source='2022 American Community Survey', confidence_level=0.89), IncomeComparison(comparison_group=<ComparisonGroup.METRO_AREA: 'metro_area'>, group_name='Washington DC Metro', user_income=95000, median_income=95000, percentile_rank=50.0, income_gap=0, gap_percentage=0.0, context_message='Washington DC metro median income is $95,000', motivational_insight=\"You're earning $0 more than the Washington DC metro median! This shows strong career positioning.\", action_item='Leverage your strong position above the Washington DC metro median to negotiate for leadership roles.', data_source='2022 American Community Survey', confidence_level=0.91), IncomeComparison(comparison_group=<ComparisonGroup.AFRICAN_AMERICAN_METRO: 'african_american_metro'>, group_name='Washington DC African American', user_income=95000, median_income=72000, percentile_rank=64.5164299009319, income_gap=-23000, gap_percentage=-31.944444444444443, context_message='African American median income in Washington DC is $72,000', motivational_insight=\"You're earning $23,000 more than the African American Washington DC median! This shows strong career positioning.\", action_item='Leverage your strong position above the African American Washington DC median to negotiate for leadership roles.', data_source='2022 American Community Survey', confidence_level=0.87)], overall_percentile=68.17512696126765, primary_gap=IncomeComparison(comparison_group=<ComparisonGroup.METRO_AREA: 'metro_area'>, group_name='Washington DC Metro', user_income=95000, median_income=95000, percentile_rank=50.0, income_gap=0, gap_percentage=0.0, context_message='Washington DC metro median income is $95,000', motivational_insight=\"You're earning $0 more than the Washington DC metro median! This shows strong career positioning.\", action_item='Leverage your strong position above the Washington DC metro median to negotiate for leadership roles.', data_source='2022 American Community Survey', confidence_level=0.91), career_opportunity_score=25.0, motivational_summary=\"You're performing above key benchmarks! Focus on leveraging your strong position for leadership opportunities.\", action_plan=['Develop in-demand skills identified in your target roles', 'Build professional network in your target industry and location', 'Practice salary negotiation skills for your next role', 'Consider additional certifications or education if relevant'], next_steps=['Focus on skill development and career positioning', 'Build your professional brand and online presence', 'Consider lateral moves to gain new experience'], generated_at=datetime.datetime(2025, 8, 27, 16, 18, 39, 623645))",
+            "success": true
+          }
+        ],
+        "successful_comparisons": 3,
+        "total_test_cases": 3,
+        "success_rate": 100.0
+      }
+    },
+    {
+      "test_name": "Top 10 Problems Verification",
+      "status": "PASS",
+      "details": "Test completed in 0.00s",
+      "execution_time": 6.985664367675781e-05,
+      "data": {
+        "problems_addressed": [
+          "Income instability and lack of emergency funds"
+        ],
+        "total_problems": 10,
+        "addressed_count": 1,
+        "coverage_percentage": 10.0,
+        "problem_details": {
+          "Problem 1": {
+            "problem": "Limited access to generational wealth and family financial support",
+            "addressed": false,
+            "details": {
+              "services": [
+                "insights_service",
+                "calculator_service"
+              ]
+            }
+          },
+          "Problem 2": {
+            "problem": "Career advancement barriers in corporate environments",
+            "addressed": false,
+            "details": {
+              "services": [
+                "salary_service",
+                "insights_service"
+              ]
+            }
+          },
+          "Problem 3": {
+            "problem": "Student loan debt burden significantly above national averages",
+            "addressed": false,
+            "details": {
+              "services": [
+                "calculator_service",
+                "insights_service"
+              ]
+            }
+          },
+          "Problem 4": {
+            "problem": "Workplace microaggressions and cultural navigation challenges",
+            "addressed": false,
+            "details": {
+              "services": [
+                "insights_service",
+                "sms_templates"
+              ]
+            }
+          },
+          "Problem 5": {
+            "problem": "Limited access to professional networks and mentorship",
+            "addressed": false,
+            "details": {
+              "services": [
+                "insights_service",
+                "user_profile_service"
+              ]
+            }
+          },
+          "Problem 6": {
+            "problem": "Housing and homeownership barriers in desirable areas",
+            "addressed": false,
+            "details": {
+              "services": [
+                "calculator_service",
+                "insights_service"
+              ]
+            }
+          },
+          "Problem 7": {
+            "problem": "Income instability and lack of emergency funds",
+            "addressed": true,
+            "details": {
+              "services": [
+                "income_comparator",
+                "calculator_service"
+              ]
+            }
+          },
+          "Problem 8": {
+            "problem": "Financial literacy gaps and investment knowledge",
+            "addressed": false,
+            "details": {
+              "services": [
+                "insights_service",
+                "sms_templates"
+              ]
+            }
+          },
+          "Problem 9": {
+            "problem": "Systemic barriers to wealth building and investment",
+            "addressed": false,
+            "details": {
+              "services": [
+                "insights_service",
+                "calculator_service"
+              ]
+            }
+          },
+          "Problem 10": {
+            "problem": "Balancing individual success with community responsibility",
+            "addressed": false,
+            "details": {
+              "services": [
+                "sms_templates",
+                "insights_service"
+              ]
+            }
+          }
+        },
+        "available_services": {
+          "income_comparator": true,
+          "salary_service": false,
+          "sms_templates": false,
+          "insights_service": false,
+          "calculator_service": false,
+          "user_profile_service": false
+        }
+      }
+    },
+    {
+      "test_name": "Location-Based Features",
+      "status": "PASS",
+      "details": "Test completed in 0.00s",
+      "execution_time": 1.7881393432617188e-05,
+      "data": {
+        "location_features": {
+          "Atlanta": {
+            "income_comparison_support": true,
+            "salary_data_support": false,
+            "insights_support": false,
+            "metro_specific_data": true
+          },
+          "Houston": {
+            "income_comparison_support": true,
+            "salary_data_support": false,
+            "insights_support": false,
+            "metro_specific_data": true
+          },
+          "Washington DC": {
+            "income_comparison_support": true,
+            "salary_data_support": false,
+            "insights_support": false,
+            "metro_specific_data": true
+          },
+          "Dallas": {
+            "income_comparison_support": true,
+            "salary_data_support": false,
+            "insights_support": false,
+            "metro_specific_data": true
+          },
+          "New York City": {
+            "income_comparison_support": true,
+            "salary_data_support": false,
+            "insights_support": false,
+            "metro_specific_data": true
+          },
+          "Philadelphia": {
+            "income_comparison_support": true,
+            "salary_data_support": false,
+            "insights_support": false,
+            "metro_specific_data": true
+          },
+          "Chicago": {
+            "income_comparison_support": true,
+            "salary_data_support": false,
+            "insights_support": false,
+            "metro_specific_data": true
+          },
+          "Charlotte": {
+            "income_comparison_support": true,
+            "salary_data_support": false,
+            "insights_support": false,
+            "metro_specific_data": true
+          },
+          "Miami": {
+            "income_comparison_support": true,
+            "salary_data_support": false,
+            "insights_support": false,
+            "metro_specific_data": true
+          },
+          "Baltimore": {
+            "income_comparison_support": true,
+            "salary_data_support": false,
+            "insights_support": false,
+            "metro_specific_data": true
+          }
+        },
+        "metros_supported": 10,
+        "total_metros": 10,
+        "coverage_percentage": 100.0,
+        "location_services": {
+          "income_comparator": true,
+          "salary_service": false,
+          "insights_service": false
+        }
+      }
+    },
+    {
+      "test_name": "Cultural Sensitivity Analysis",
+      "status": "PASS",
+      "details": "Test completed in 0.00s",
+      "execution_time": 7.867813110351562e-06,
+      "data": {
+        "cultural_indicators": {
+          "positive_terms": [
+            "community",
+            "legacy",
+            "generational",
+            "excellence",
+            "representation",
+            "empowerment",
+            "foundation",
+            "success",
+            "achievement",
+            "inspiration",
+            "motivation",
+            "diversity",
+            "inclusion",
+            "equity",
+            "mentorship",
+            "leadership"
+          ],
+          "negative_terms": [
+            "deficit",
+            "lack",
+            "failure",
+            "problem",
+            "issue",
+            "struggle",
+            "difficulty",
+            "challenge",
+            "barrier"
+          ],
+          "african_american_terms": [
+            "african american",
+            "black",
+            "black professional",
+            "black community",
+            "black excellence",
+            "representation"
+          ]
+        },
+        "cultural_sensitivity_check": {
+          "sms_templates": false,
+          "insights_service": false,
+          "user_profile_service": false
+        },
+        "services_with_cultural_focus": 0,
+        "total_services_checked": 3
+      }
+    },
+    {
+      "test_name": "Target Demographic Verification",
+      "status": "PASS",
+      "details": "Test completed in 0.00s",
+      "execution_time": 6.9141387939453125e-06,
+      "data": {
+        "age_range": {
+          "target": [
+            25,
+            35
+          ],
+          "supported": true,
+          "verification_method": "Service initialization"
+        },
+        "income_range": {
+          "target": [
+            40000,
+            100000
+          ],
+          "supported": true,
+          "verification_method": "Service initialization"
+        },
+        "metro_areas": {
+          "target": [
+            "Atlanta",
+            "Houston",
+            "Washington DC",
+            "Dallas",
+            "New York City",
+            "Philadelphia",
+            "Chicago",
+            "Charlotte",
+            "Miami",
+            "Baltimore"
+          ],
+          "supported": 10,
+          "verification_method": "Location-based service availability"
+        },
+        "services_available": {
+          "income_comparator": true,
+          "salary_service": false,
+          "sms_templates": false,
+          "insights_service": false,
+          "calculator_service": false,
+          "user_profile_service": false
+        }
+      }
+    }
+  ],
+  "target_demographic_verification": {
+    "age_range": [
+      25,
+      35
+    ],
+    "income_range": [
+      40000,
+      100000
+    ],
+    "metro_areas": [
+      "Atlanta",
+      "Houston",
+      "Washington DC",
+      "Dallas",
+      "New York City",
+      "Philadelphia",
+      "Chicago",
+      "Charlotte",
+      "Miami",
+      "Baltimore"
+    ],
+    "top_10_problems": [
+      "Limited access to generational wealth and family financial support",
+      "Career advancement barriers in corporate environments",
+      "Student loan debt burden significantly above national averages",
+      "Workplace microaggressions and cultural navigation challenges",
+      "Limited access to professional networks and mentorship",
+      "Housing and homeownership barriers in desirable areas",
+      "Income instability and lack of emergency funds",
+      "Financial literacy gaps and investment knowledge",
+      "Systemic barriers to wealth building and investment",
+      "Balancing individual success with community responsibility"
+    ]
+  },
+  "recommendations": [
+    "Improve coverage for: Income Comparison Tool, Top 10 Problems Verification, Cultural Sensitivity Analysis, Target Demographic Verification",
+    "Ensure all top 10 problems for African American professionals are addressed"
+  ]
+}

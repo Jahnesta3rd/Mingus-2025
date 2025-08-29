@@ -1,0 +1,168 @@
+[
+  {
+    "test_name": "Page Load Speed",
+    "status": "PASS",
+    "score": 98.47765922546387,
+    "details": {
+      "connection_speeds": {
+        "4G": {
+          "actual_load_time": 0.07611703872680664,
+          "theoretical_time": 0.05,
+          "content_size_mb": 0.0,
+          "status_code": 403
+        },
+        "3G": {
+          "actual_load_time": 0.0006747245788574219,
+          "theoretical_time": 0.1,
+          "content_size_mb": 0.0,
+          "status_code": 403
+        },
+        "2G": {
+          "actual_load_time": 0.00035381317138671875,
+          "theoretical_time": 0.3,
+          "content_size_mb": 0.0,
+          "status_code": 403
+        }
+      }
+    },
+    "recommendations": [
+      "Optimize images and use WebP format",
+      "Implement lazy loading for images",
+      "Minify CSS, JavaScript, and HTML",
+      "Enable GZIP compression",
+      "Use CDN for static assets"
+    ]
+  },
+  {
+    "test_name": "Core Web Vitals",
+    "status": "WARNING",
+    "score": 87.66666666666667,
+    "details": {
+      "lcp_score": 85,
+      "fid_score": 90,
+      "cls_score": 88,
+      "overall_score": 87.66666666666667
+    },
+    "recommendations": [
+      "Optimize images and implement lazy loading for better LCP",
+      "Reduce JavaScript bundle size for better FID",
+      "Set explicit dimensions for images and videos to reduce CLS",
+      "Use font-display: swap for web fonts"
+    ]
+  },
+  {
+    "test_name": "Cross-Browser Compatibility",
+    "status": "PASS",
+    "score": 100.0,
+    "details": {
+      "css_features": {
+        "css_grid": false,
+        "css_flexbox": false,
+        "css_variables": false,
+        "css_custom_properties": false
+      },
+      "js_features": {
+        "es6_modules": false,
+        "async_await": false,
+        "arrow_functions": false
+      },
+      "compatibility_score": 100.0
+    },
+    "recommendations": [
+      "Add polyfills for modern JavaScript features",
+      "Use CSS fallbacks for modern CSS features",
+      "Test on actual browsers: Chrome, Firefox, Safari, Edge",
+      "Consider using Babel for JavaScript transpilation"
+    ]
+  },
+  {
+    "test_name": "Accessibility Compliance",
+    "status": "FAIL",
+    "score": 12.5,
+    "details": {
+      "accessibility_checks": {
+        "has_lang_attribute": false,
+        "has_title": false,
+        "has_meta_description": false,
+        "has_alt_attributes": false,
+        "has_aria_labels": false,
+        "has_semantic_html": false,
+        "has_skip_links": false,
+        "has_contrast_ratio": true
+      },
+      "passed_checks": 1,
+      "total_checks": 8
+    },
+    "recommendations": [
+      "Add proper ARIA labels to interactive elements",
+      "Ensure sufficient color contrast ratios",
+      "Add skip navigation links",
+      "Use semantic HTML elements",
+      "Test with screen readers",
+      "Add focus indicators for keyboard navigation"
+    ]
+  },
+  {
+    "test_name": "SSL and Security Headers",
+    "status": "FAIL",
+    "score": null,
+    "details": {
+      "error": "Cannot connect to host localhost:5000 ssl:False [None]"
+    },
+    "recommendations": [
+      "Implement proper SSL and security headers"
+    ]
+  },
+  {
+    "test_name": "Mobile-Friendliness",
+    "status": "FAIL",
+    "score": 16.666666666666664,
+    "details": {
+      "mobile_checks": {
+        "has_viewport_meta": false,
+        "has_responsive_design": false,
+        "has_touch_targets": false,
+        "has_readable_font_size": false,
+        "has_no_horizontal_scroll": false,
+        "has_fast_loading": true
+      },
+      "passed_checks": 1,
+      "total_checks": 6
+    },
+    "recommendations": [
+      "Ensure viewport meta tag is present",
+      "Implement responsive design with media queries",
+      "Use touch-friendly button sizes (min 44px)",
+      "Use readable font sizes (min 16px)",
+      "Prevent horizontal scrolling on mobile",
+      "Optimize images for mobile devices"
+    ]
+  },
+  {
+    "test_name": "JavaScript and CSS Errors",
+    "status": "PASS",
+    "score": 100,
+    "details": {
+      "javascript_issues": {
+        "console_errors": false,
+        "console_warnings": false,
+        "syntax_errors": false,
+        "reference_errors": false,
+        "type_errors": false
+      },
+      "css_issues": {
+        "invalid_css": false,
+        "missing_semicolons": false,
+        "unclosed_brackets": false
+      },
+      "total_issues": 0
+    },
+    "recommendations": [
+      "Remove console.error and console.warn statements from production",
+      "Fix any JavaScript syntax errors",
+      "Validate CSS for syntax errors",
+      "Use a linter for JavaScript and CSS",
+      "Implement proper error handling"
+    ]
+  }
+]

@@ -272,6 +272,7 @@ def require_https(f):
     """Decorator to require HTTPS"""
     @wraps(f)
     def decorated_function(*args, **kwargs):
+        # Only require HTTPS in production
         if not request.is_secure and current_app.config.get('ENV') == 'production':
             return jsonify({'error': 'HTTPS required'}), 403
         return f(*args, **kwargs)

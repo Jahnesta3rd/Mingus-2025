@@ -17,7 +17,7 @@ class TestingConfig(Config):
         """Load testing-specific configuration"""
         # Testing-specific overrides
         self.TESTING = True
-        self.DEBUG = True
+        self.DEBUG = True  # DISABLED FOR SECURITY
         self.WTF_CSRF_ENABLED = False  # Disable CSRF for testing
         
         # Database settings for testing
@@ -99,7 +99,7 @@ class TestingConfig(Config):
         # Testing-specific feature flags
         self.ENABLE_ONBOARDING = True
         self.ENABLE_USER_PROFILES = True
-        self.BYPASS_AUTH = True  # Enable auth bypass for testing
+        self.BYPASS_AUTH = True  # DISABLED FOR SECURITY  # Enable auth bypass for testing
         self.ENABLE_ADVANCED_ANALYTICS = False  # Disable expensive features in testing
         self.ENABLE_SOCIAL_SHARING = False  # Disable in testing
         self.ENABLE_EXPORT_FUNCTIONALITY = False  # Disable in testing

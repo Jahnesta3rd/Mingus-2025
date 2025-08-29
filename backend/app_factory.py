@@ -4,11 +4,15 @@ Flask Application Factory
 Initializes and configures the Flask application with services
 """
 
-from flask import Flask
+from flask import Flask, current_app
 from flask_cors import CORS
 from loguru import logger
 import os
 from typing import Optional
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 from backend.services.user_service import UserService
 from backend.services.onboarding_service import OnboardingService
@@ -16,8 +20,11 @@ from backend.services.audit_logging import AuditService
 from backend.services.verification_service import VerificationService
 from backend.middleware.security_middleware import SecurityMiddleware
 from backend.middleware.security import init_security
+
+# Import new assessment security integration
+from backend.security.assessment_security_integration import init_assessment_security
 from backend.models import Base  # Import shared Base
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 
 from config.development import DevelopmentConfig
@@ -49,7 +56,7 @@ def create_app(config_name: str = None) -> Flask:
     Returns:
         Configured Flask application
     """
-    app = Flask(__name__)
+    app = Flask(__name__, template_folder='../templates')
     
     # Load configuration
     app.config.from_object(DevelopmentConfig)
@@ -66,9 +73,17 @@ def create_app(config_name: str = None) -> Flask:
     # Initialize security middleware (NEW)
     security_components = init_security(app)
     
+    # Initialize assessment security integration
+    assessment_security = init_assessment_security(app)
+    
     # Initialize request logging using Flask hooks
     from backend.middleware.request_logger import setup_request_logging
     setup_request_logging(app)
+    
+    # Set DATABASE_URL directly from environment if not in config
+    if not app.config.get('DATABASE_URL') and os.getenv('DATABASE_URL'):
+        app.config['DATABASE_URL'] = os.getenv('DATABASE_URL')
+        logger.info(f"Loaded DATABASE_URL from environment: {app.config['DATABASE_URL']}")
     
     # Initialize database
     init_database(app)  # Re-enabled with fixed version
@@ -77,7 +92,10 @@ def create_app(config_name: str = None) -> Flask:
     if app.config.get('DATABASE_URL'):
         init_services(app)
     else:
-        logger.warning("Skipping service initialization: DATABASE_URL not set")
+        logger.warning("Skipping database-dependent service initialization: DATABASE_URL not set")
+    
+    # Initialize email service (independent of database)
+    init_email_service(app)
     
     # Register blueprints
     register_blueprints(app)
@@ -139,25 +157,70 @@ def init_database(app: Flask) -> None:
         app.config['DATABASE_ENGINE'] = engine
         app.config['DATABASE_SESSION'] = SessionLocal
         
-        # FIXED: Import all models to register them with the shared Base
-        from backend.models import (
-            User, UserProfile, OnboardingProgress, 
-            UserHealthCheckin, HealthSpendingCorrelation,
-            # Article library models
-            Article, UserArticleRead, UserArticleBookmark, UserArticleRating,
-            UserArticleProgress, ArticleRecommendation, ArticleAnalytics
-        )
+        # Initialize the global database session factory
+        from backend.database import init_database_session_factory
+        init_database_session_factory(database_url)
         
-        # Import encrypted models
-        from backend.models.encrypted_financial_models import (
-            EncryptedFinancialProfile, EncryptedIncomeSource, 
-            EncryptedDebtAccount, FinancialAuditLog
-        )
+        # Skip model imports to avoid conflicts - create tables directly
         
-        # Create all tables using the shared Base - MUCH SIMPLER!
+        # Create only the tables we need
         if app.config.get('CREATE_TABLES', True):
-            Base.metadata.create_all(bind=engine)
-            logger.info("Database tables created/verified using shared Base")
+            # Create tables manually to avoid model conflicts
+            with engine.connect() as conn:
+                # Create users table if it doesn't exist
+                conn.execute(text("""
+                    CREATE TABLE IF NOT EXISTS users (
+                        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                        email VARCHAR(255) UNIQUE NOT NULL,
+                        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+                    )
+                """))
+                
+                # Create questionnaire_submissions table if it doesn't exist
+                conn.execute(text("""
+                    CREATE TABLE IF NOT EXISTS questionnaire_submissions (
+                        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                        email VARCHAR(255) NOT NULL,
+                        answers JSONB NOT NULL,
+                        total_score INTEGER NOT NULL,
+                        wellness_level VARCHAR(100) NOT NULL,
+                        wellness_description TEXT,
+                        has_signed_up BOOLEAN DEFAULT FALSE,
+                        user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+                        source VARCHAR(100) DEFAULT 'financial_questionnaire',
+                        utm_source VARCHAR(100),
+                        utm_medium VARCHAR(100),
+                        utm_campaign VARCHAR(100),
+                        submitted_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+                        signed_up_at TIMESTAMP WITH TIME ZONE,
+                        CONSTRAINT questionnaire_submissions_email_unique UNIQUE (email)
+                    )
+                """))
+                
+                # Create relationship_questionnaire_submissions table if it doesn't exist
+                conn.execute(text("""
+                    CREATE TABLE IF NOT EXISTS relationship_questionnaire_submissions (
+                        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                        email VARCHAR(255) NOT NULL,
+                        answers JSONB NOT NULL,
+                        total_score INTEGER NOT NULL,
+                        connection_level VARCHAR(100) NOT NULL,
+                        connection_description TEXT,
+                        has_signed_up BOOLEAN DEFAULT FALSE,
+                        user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+                        source VARCHAR(100) DEFAULT 'relationship_questionnaire',
+                        utm_source VARCHAR(100),
+                        utm_medium VARCHAR(100),
+                        utm_campaign VARCHAR(100),
+                        submitted_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+                        signed_up_at TIMESTAMP WITH TIME ZONE,
+                        CONSTRAINT relationship_questionnaire_submissions_email_unique UNIQUE (email)
+                    )
+                """))
+                
+                conn.commit()
+            
+            logger.info("Questionnaire tables created/verified successfully")
         
         logger.info("Database initialized successfully")
         
@@ -199,6 +262,23 @@ def init_services(app: Flask) -> None:
         logger.error(f"Service initialization failed: {str(e)}")
         raise
 
+def init_email_service(app: Flask) -> None:
+    """
+    Initialize email service (independent of database)
+    
+    Args:
+        app: Flask application instance
+    """
+    try:
+        # Initialize Resend Email Service
+        from backend.services.resend_email_service import resend_email_service
+        app.resend_email_service = resend_email_service
+        logger.info("Resend email service initialized")
+        
+    except Exception as e:
+        logger.error(f"Email service initialization failed: {str(e)}")
+        logger.warning("Continuing without email service")
+
 def register_blueprints(app: Flask) -> None:
     """
     Register Flask blueprints
@@ -236,6 +316,8 @@ def register_blueprints(app: Flask) -> None:
             ("backend.routes.articles:articles_bp", "/api/articles"),
             ("backend.routes.memes:memes_bp", "/api/memes"),
             ("backend.routes.meme_admin:meme_admin_bp", "/admin/memes"),
+            ("backend.routes.calculator_routes:calculator_bp", "/api/v1/calculator"),
+            # ("backend.routes.assessment_routes:assessment_bp", "/api/assessments"),  # Temporarily disabled due to import issues
         ]:
             try:
                 module_name, attr_name = bp_import.split(":")
@@ -260,25 +342,56 @@ def register_root_routes(app: Flask) -> None:
 
     @app.route('/')
     def root():
-        return {
-            'message': 'Mingus API is running',
-            'version': '1.0.0',
-            'status': 'healthy'
-        }
+        """Serve the main landing page at root"""
+        import os
+        # Get the absolute path to the landing.html file
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        project_root = os.path.dirname(current_dir)
+        landing_path = os.path.join(project_root, 'landing.html')
+        
+        if os.path.exists(landing_path):
+            with open(landing_path, 'r', encoding='utf-8') as f:
+                return f.read(), 200, {'Content-Type': 'text/html'}
+        else:
+            return {
+                'message': 'Mingus API is running',
+                'version': '1.0.0',
+                'status': 'healthy',
+                'landing_path_checked': landing_path
+            }
+
+    @app.route('/landing')
+    def landing_page():
+        """Serve the landing page"""
+        import os
+        # Get the absolute path to the landing.html file
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        project_root = os.path.dirname(current_dir)
+        landing_path = os.path.join(project_root, 'landing.html')
+        
+        if os.path.exists(landing_path):
+            with open(landing_path, 'r', encoding='utf-8') as f:
+                return f.read(), 200, {'Content-Type': 'text/html'}
+        else:
+            return {'error': 'Landing page not found', 'landing_path_checked': landing_path}, 404
 
     @app.route('/health')
     def health_check():
         """Enhanced health check with article library status"""
         try:
-            # Check database connection
-            db = current_app.extensions.get('sqlalchemy')
-            db_status = "healthy"
+            # Check database connection using our raw SQLAlchemy setup
+            db_status = "not_configured"
             article_count = 0
             
-            if db:
+            # Check if we have database configuration
+            if current_app.config.get('DATABASE_URL') and current_app.config.get('DATABASE_ENGINE'):
                 try:
                     from sqlalchemy import text
-                    db.session.execute(text("SELECT 1"))
+                    engine = current_app.config.get('DATABASE_ENGINE')
+                    with engine.connect() as conn:
+                        conn.execute(text("SELECT 1"))
+                    
+                    db_status = "healthy"
                     
                     # Check article library tables if available
                     try:
@@ -289,8 +402,6 @@ def register_root_routes(app: Flask) -> None:
                         pass
                 except Exception as e:
                     db_status = f"unhealthy: {str(e)}"
-            else:
-                db_status = "not_configured"
             
             # Get article library status
             article_library_status = "not_integrated"

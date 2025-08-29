@@ -8,11 +8,12 @@ from loguru import logger
 import json
 from datetime import datetime
 from typing import Dict, Any
-from backend.models.financial_questionnaire_submission import FinancialQuestionnaireSubmission
+from backend.services.resend_email_service import resend_email_service
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
-from flask_mail import Message
 from sqlalchemy import func
+import re
+from backend.database import get_db_session
 
 financial_questionnaire_bp = Blueprint('financial_questionnaire', __name__)
 
@@ -21,84 +22,279 @@ limiter = Limiter(key_func=get_remote_address)
 
 @financial_questionnaire_bp.route('/questionnaire', methods=['GET'])
 def show_questionnaire():
-    """Display the financial questionnaire form"""
+    """Display the financial wellness questionnaire"""
     try:
-        return render_template('financial_questionnaire.html')
+        return render_template('financial_wellness_questionnaire.html')
     except Exception as e:
-        logger.error(f"Error rendering financial questionnaire: {str(e)}")
+        logger.error(f"Error rendering financial wellness questionnaire: {str(e)}")
+        return jsonify({'error': 'Failed to load questionnaire'}), 500
+
+@financial_questionnaire_bp.route('/relationship', methods=['GET'])
+def show_relationship_questionnaire():
+    """Display the relationship-spending connection questionnaire"""
+    try:
+        return render_template('relationship_questionnaire.html')
+    except Exception as e:
+        logger.error(f"Error rendering relationship questionnaire: {str(e)}")
         return jsonify({'error': 'Failed to load questionnaire'}), 500
 
 @financial_questionnaire_bp.route('/questionnaire', methods=['POST'])
 @limiter.limit('5 per minute')
 def submit_questionnaire():
-    """Process financial questionnaire submission"""
+    """Process financial wellness questionnaire submission with email"""
     try:
-        user_id = session.get('user_id')
-        if not user_id:
-            return jsonify({'error': 'Not authenticated'}), 401
-        
         data = request.get_json()
         if not data:
             return jsonify({'error': 'No data provided'}), 400
         
-        # Validate required fields
-        required_fields = ['monthly_income', 'monthly_expenses', 'current_savings', 'total_debt', 'risk_tolerance']
+        # Validate required fields for new questionnaire format
+        required_fields = ['email', 'answers', 'total_score', 'wellness_level', 'wellness_description']
         for field in required_fields:
             if field not in data or data[field] is None:
                 return jsonify({'error': f'Missing required field: {field}'}), 400
         
-        # Calculate financial health metrics
-        financial_health = calculate_financial_health(data)
+        # Validate email format
+        email = data['email'].strip().lower()
+        if not re.match(r'^[^\s@]+@[^\s@]+\.[^\s@]+$', email):
+            return jsonify({'error': 'Invalid email format'}), 400
         
-        # Store persistent record
-        session_db = current_app.config['DATABASE_SESSION']()
+        # Validate answers
+        answers = data['answers']
+        if not isinstance(answers, dict) or len(answers) != 5:
+            return jsonify({'error': 'Invalid answers format'}), 400
+        
+        # Validate score
+        total_score = int(data['total_score'])
+        if not 0 <= total_score <= 100:
+            return jsonify({'error': 'Invalid score range'}), 400
+        
+        # Store submission in database using raw SQL
         try:
-            submission = FinancialQuestionnaireSubmission(
-                user_id=user_id,
-                monthly_income=data['monthly_income'],
-                monthly_expenses=data['monthly_expenses'],
-                current_savings=data['current_savings'],
-                total_debt=data['total_debt'],
-                risk_tolerance=data['risk_tolerance'],
-                financial_goals=data.get('financial_goals', []),
-                financial_health_score=financial_health['score'],
-                financial_health_level=financial_health['level'],
-                recommendations=financial_health['recommendations'],
-                submitted_at=datetime.utcnow()
-            )
-            session_db.add(submission)
+            session_db = get_db_session()
+            logger.info(f"Database session created successfully")
+            
+            # Insert data using raw SQL to avoid ORM conflicts
+            from sqlalchemy import text
+            insert_query = text("""
+                INSERT INTO questionnaire_submissions 
+                (email, answers, total_score, wellness_level, wellness_description, source, submitted_at)
+                VALUES (:email, :answers, :total_score, :wellness_level, :wellness_description, :source, NOW())
+                ON CONFLICT (email) DO UPDATE SET
+                    answers = EXCLUDED.answers,
+                    total_score = EXCLUDED.total_score,
+                    wellness_level = EXCLUDED.wellness_level,
+                    wellness_description = EXCLUDED.wellness_description,
+                    submitted_at = NOW()
+            """)
+            
+            session_db.execute(insert_query, {
+                'email': email,
+                'answers': json.dumps(answers),  # Convert dict to JSON string
+                'total_score': total_score,
+                'wellness_level': data['wellness_level'],
+                'wellness_description': data['wellness_description'],
+                'source': 'financial_wellness_questionnaire'
+            })
+            
             session_db.commit()
+            logger.info(f"Questionnaire submission saved for email: {email}")
         except Exception as e:
-            session_db.rollback()
+            if 'session_db' in locals():
+                session_db.rollback()
             logger.error(f"Failed to save questionnaire submission: {e}")
+            logger.error(f"Exception type: {type(e)}")
+            import traceback
+            logger.error(f"Traceback: {traceback.format_exc()}")
+            # Don't fail the request if database save fails
         finally:
-            session_db.close()
+            if 'session_db' in locals():
+                session_db.close()
+                logger.info(f"Database session closed")
         
-        # Store in session for results page
-        session['questionnaire_results'] = financial_health
+        # Generate personalized recommendations
+        recommendations = generate_wellness_recommendations(total_score, data['wellness_level'])
         
-        # Email results to user
+        # Send email with results using Resend
+        email_sent = False
         try:
-            user_email = session.get('user_email')
-            if user_email and hasattr(current_app, 'mail'):
-                msg = Message(
-                    subject="Your Mingus Financial Health Results",
-                    recipients=[user_email],
-                    body=f"Your score: {financial_health['score']}\nLevel: {financial_health['level']}\nRecommendations: {financial_health['recommendations']}"
-                )
-                current_app.mail.send(msg)
+            # Create HTML email content
+            html_content = create_questionnaire_results_email(
+                email=email,
+                score=total_score,
+                wellness_level=data['wellness_level'],
+                wellness_description=data['wellness_description'],
+                recommendations=recommendations
+            )
+            
+            # Send email via Resend (use app context if available)
+            email_service = getattr(current_app, 'resend_email_service', resend_email_service)
+            result = email_service.send_email(
+                to_email=email,
+                subject="Your MINGUS Financial Wellness Assessment Results",
+                html_content=html_content
+            )
+            
+            if result['success']:
+                logger.info(f"Questionnaire results email sent successfully to: {email}")
+                email_sent = True
+            else:
+                logger.warning(f"Failed to send questionnaire results email to {email}: {result.get('error')}")
+                
         except Exception as e:
             logger.warning(f"Failed to send email: {e}")
         
-        return jsonify({
+        # Add email status to response
+        response_data = {
             'success': True,
             'message': 'Questionnaire submitted successfully',
-            'financial_health': financial_health
-        }), 200
+            'email': email,
+            'score': total_score,
+            'wellness_level': data['wellness_level'],
+            'recommendations': recommendations,
+            'email_sent': email_sent
+        }
+        
+        if not email_sent:
+            response_data['email_message'] = 'Email service temporarily unavailable. Your results have been saved.'
+        
+        return jsonify(response_data), 200
         
     except Exception as e:
         logger.error(f"Error submitting questionnaire: {str(e)}")
         return jsonify({'error': 'Failed to submit questionnaire'}), 500
+
+def create_questionnaire_results_email(email: str, score: int, wellness_level: str, wellness_description: str, recommendations: list) -> str:
+    """Create HTML email content for questionnaire results"""
+    
+    # Create recommendations HTML
+    recommendations_html = ""
+    for i, rec in enumerate(recommendations, 1):
+        recommendations_html += f"""
+        <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 10px 0; border-left: 4px solid #10b981;">
+            <h4 style="margin: 0 0 8px 0; color: #10b981;">{i}. {rec}</h4>
+        </div>
+        """
+    
+    # Determine score color based on wellness level
+    if score >= 80:
+        score_color = "#10b981"  # Green
+        score_emoji = "🎉"
+    elif score >= 60:
+        score_color = "#3b82f6"  # Blue
+        score_emoji = "👍"
+    elif score >= 40:
+        score_color = "#f59e0b"  # Orange
+        score_emoji = "📈"
+    else:
+        score_color = "#ef4444"  # Red
+        score_emoji = "💪"
+    
+    html_content = f"""
+    <div style="font-family: 'Inter', Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff;">
+        <!-- Header -->
+        <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 40px 30px; text-align: center; border-radius: 12px 12px 0 0;">
+            <h1 style="margin: 0; font-size: 28px; font-weight: 700;">Your Financial Wellness Results</h1>
+            <p style="margin: 10px 0 0 0; font-size: 16px; opacity: 0.9;">Personalized insights from MINGUS</p>
+        </div>
+        
+        <!-- Main Content -->
+        <div style="padding: 40px 30px; background: white;">
+            <!-- Score Section -->
+            <div style="text-align: center; margin-bottom: 40px;">
+                <div style="width: 120px; height: 120px; border-radius: 50%; background: {score_color}; color: white; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 36px; font-weight: 900;">
+                    {score}%
+                </div>
+                <h2 style="margin: 0 0 10px 0; color: #1f2937; font-size: 24px;">{score_emoji} {wellness_level}</h2>
+                <p style="margin: 0; color: #6b7280; font-size: 16px; line-height: 1.6;">{wellness_description}</p>
+            </div>
+            
+            <!-- Description -->
+            <div style="background: #f8fafc; padding: 25px; border-radius: 12px; margin-bottom: 30px; border: 1px solid #e2e8f0;">
+                <h3 style="margin: 0 0 15px 0; color: #1f2937; font-size: 20px;">What This Means</h3>
+                <p style="margin: 0; color: #4b5563; line-height: 1.6; font-size: 16px;">
+                    Your financial wellness score reflects your current relationship with money, including your habits, 
+                    mindset, and financial security. This assessment helps us provide personalized recommendations 
+                    to improve your financial well-being.
+                </p>
+            </div>
+            
+            <!-- Recommendations -->
+            <div style="margin-bottom: 30px;">
+                <h3 style="margin: 0 0 20px 0; color: #1f2937; font-size: 20px;">Your Personalized Recommendations</h3>
+                {recommendations_html}
+            </div>
+            
+            <!-- Next Steps -->
+            <div style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); padding: 25px; border-radius: 12px; margin-bottom: 30px; border: 1px solid #0ea5e9;">
+                <h3 style="margin: 0 0 15px 0; color: #0c4a6e; font-size: 20px;">Next Steps</h3>
+                <ul style="margin: 0; padding-left: 20px; color: #0c4a6e;">
+                    <li style="margin-bottom: 8px;">Review your personalized recommendations above</li>
+                    <li style="margin-bottom: 8px;">Set up a free MINGUS account to track your progress</li>
+                    <li style="margin-bottom: 8px;">Access our library of financial wellness resources</li>
+                    <li style="margin-bottom: 0;">Connect with our community for support and motivation</li>
+                </ul>
+            </div>
+            
+            <!-- CTA Button -->
+            <div style="text-align: center; margin: 40px 0;">
+                <a href="{current_app.config.get('FRONTEND_URL', 'https://mingusapp.com')}/signup?email={email}" 
+                   style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 18px 36px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px; display: inline-block; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);">
+                    Create Your Free Account
+                </a>
+            </div>
+            
+            <!-- Footer -->
+            <div style="border-top: 1px solid #e5e7eb; padding-top: 30px; text-align: center;">
+                <p style="margin: 0 0 15px 0; color: #6b7280; font-size: 14px;">
+                    Thank you for taking the MINGUS Financial Wellness Assessment!
+                </p>
+                <p style="margin: 0; color: #9ca3af; font-size: 12px;">
+                    This email was sent to {email}. If you have any questions, reply to this email.
+                </p>
+            </div>
+        </div>
+    </div>
+    """
+    
+    return html_content
+
+def generate_wellness_recommendations(score: int, wellness_level: str) -> list:
+    """Generate personalized recommendations based on wellness score"""
+    recommendations = []
+    
+    if score >= 80:
+        recommendations.extend([
+            "Continue your excellent financial habits and consider mentoring others",
+            "Explore advanced investment strategies and wealth-building opportunities",
+            "Consider setting up a legacy plan or charitable giving strategy"
+        ])
+    elif score >= 60:
+        recommendations.extend([
+            "Focus on building a 6-month emergency fund",
+            "Review and optimize your monthly budget for better savings",
+            "Consider starting a retirement investment plan"
+        ])
+    elif score >= 40:
+        recommendations.extend([
+            "Start with a 3-month emergency fund goal",
+            "Track your spending for 30 days to identify improvement areas",
+            "Consider working with a financial advisor"
+        ])
+    else:
+        recommendations.extend([
+            "Start with a 1-month emergency fund as your first goal",
+            "Focus on reducing high-interest debt first",
+            "Consider free financial education resources and counseling"
+        ])
+    
+    # Add universal recommendations
+    recommendations.extend([
+        "Set up automatic savings transfers",
+        "Review your insurance coverage annually",
+        "Create a monthly budget and stick to it"
+    ])
+    
+    return recommendations[:5]  # Return top 5 recommendations
 
 @financial_questionnaire_bp.route('/questionnaire/results', methods=['GET'])
 def show_results():
@@ -356,3 +552,261 @@ def generate_recommendations(score: int, level: str, monthly_income: float,
         })
     
     return recommendations 
+
+@financial_questionnaire_bp.route('/relationship', methods=['POST'])
+def submit_relationship_questionnaire():
+    """Submit relationship-spending connection questionnaire"""
+    try:
+        data = request.get_json()
+        
+        # Validate required fields
+        required_fields = ['email', 'answers', 'total_score', 'connection_level', 'connection_description']
+        for field in required_fields:
+            if field not in data:
+                return jsonify({'error': f'Missing required field: {field}'}), 400
+        
+        email = data['email'].strip().lower()
+        
+        # Validate email format
+        if not re.match(r'^[^\s@]+@[^\s@]+\.[^\s@]+$', email):
+            return jsonify({'error': 'Invalid email format'}), 400
+        
+        # Validate answers structure
+        answers = data['answers']
+        if not isinstance(answers, dict):
+            return jsonify({'error': 'Answers must be a dictionary'}), 400
+        
+        # Validate score
+        total_score = data['total_score']
+        if not isinstance(total_score, (int, float)) or total_score < 0 or total_score > 20:
+            return jsonify({'error': 'Total score must be a number between 0 and 20'}), 400
+        
+        connection_level = data['connection_level']
+        connection_description = data['connection_description']
+        
+        # Generate personalized recommendations
+        recommendations = generate_relationship_recommendations(total_score, connection_level, answers)
+        
+        # Store in database using raw SQL
+        try:
+            db_session = get_db_session()
+            
+            # Insert data using raw SQL to avoid ORM conflicts
+            from sqlalchemy import text
+            insert_query = text("""
+                INSERT INTO relationship_questionnaire_submissions 
+                (email, answers, total_score, connection_level, connection_description, source, submitted_at)
+                VALUES (:email, :answers, :total_score, :connection_level, :connection_description, :source, NOW())
+                ON CONFLICT (email) DO UPDATE SET
+                    answers = EXCLUDED.answers,
+                    total_score = EXCLUDED.total_score,
+                    connection_level = EXCLUDED.connection_level,
+                    connection_description = EXCLUDED.connection_description,
+                    submitted_at = NOW()
+            """)
+            
+            db_session.execute(insert_query, {
+                'email': email,
+                'answers': json.dumps(answers),  # Convert dict to JSON string
+                'total_score': total_score,
+                'connection_level': connection_level,
+                'connection_description': connection_description,
+                'source': 'relationship_questionnaire'
+            })
+            
+            db_session.commit()
+            logger.info(f"Relationship questionnaire submitted for: {email}")
+            
+        except Exception as db_error:
+            if 'db_session' in locals():
+                db_session.rollback()
+            logger.error(f"Database error storing relationship questionnaire: {str(db_error)}")
+            # Continue with email sending even if database fails
+        finally:
+            if 'db_session' in locals():
+                db_session.close()
+        
+        # Send email with results using Resend
+        email_sent = False
+        try:
+            # Create HTML email content
+            html_content = create_relationship_results_email(
+                email=email,
+                score=total_score,
+                connection_level=connection_level,
+                connection_description=connection_description,
+                recommendations=recommendations
+            )
+            
+            # Send email via Resend (use app context if available)
+            email_service = getattr(current_app, 'resend_email_service', resend_email_service)
+            result = email_service.send_email(
+                to_email=email,
+                subject="Your MINGUS Relationship-Spending Connection Analysis",
+                html_content=html_content
+            )
+            
+            if result['success']:
+                logger.info(f"Relationship questionnaire results email sent successfully to: {email}")
+                email_sent = True
+            else:
+                logger.warning(f"Failed to send relationship questionnaire results email to {email}: {result.get('error')}")
+                
+        except Exception as e:
+            logger.warning(f"Failed to send email: {e}")
+        
+        # Add email status to response
+        response_data = {
+            'success': True,
+            'message': 'Relationship questionnaire submitted successfully',
+            'email': email,
+            'score': total_score,
+            'connection_level': connection_level,
+            'recommendations': recommendations,
+            'email_sent': email_sent
+        }
+        
+        if not email_sent:
+            response_data['email_message'] = 'Email service temporarily unavailable. Your results have been saved.'
+        
+        return jsonify(response_data), 200
+        
+    except Exception as e:
+        logger.error(f"Error submitting relationship questionnaire: {str(e)}")
+        return jsonify({'error': 'Failed to submit questionnaire'}), 500
+
+def generate_relationship_recommendations(score, connection_level, answers):
+    """Generate personalized recommendations based on relationship-spending connection"""
+    recommendations = []
+    
+    # Base recommendations based on connection level
+    if connection_level == 'LOW':
+        recommendations.extend([
+            "Your relationships have minimal impact on spending - focus on other financial wellness areas",
+            "Consider how relationship changes might affect your spending in the future",
+            "Use your stable relationship foundation to build healthy financial habits"
+        ])
+    elif connection_level == 'MODERATE':
+        recommendations.extend([
+            "Set boundaries around social spending to maintain relationship quality",
+            "Create a 'relationship spending' budget category to track these expenses",
+            "Practice mindful spending before relationship-related purchases"
+        ])
+    else:  # HIGH
+        recommendations.extend([
+            "Address relationship issues directly rather than through compensatory spending",
+            "Set clear financial boundaries with friends and family",
+            "Consider relationship counseling to reduce stress spending"
+        ])
+    
+    # Specific recommendations based on answers
+    if answers.get('relationshipAffectedSpending'):
+        recommendations.append("Awareness is key - track when relationship stress triggers spending")
+    
+    spending_pattern = answers.get('spendingPattern')
+    if spending_pattern == 'celebration':
+        recommendations.append("Create celebration budgets to honor relationships sustainably")
+    elif spending_pattern == 'conflict':
+        recommendations.append("Develop healthy conflict resolution skills to reduce stress spending")
+    elif spending_pattern == 'social-pressure':
+        recommendations.append("Practice saying 'no' to social activities that strain your budget")
+    elif spending_pattern == 'guilt-gifts':
+        recommendations.append("Address guilt through communication rather than expensive gifts")
+    
+    # Support network recommendations
+    social_support = answers.get('socialSupport')
+    if social_support and social_support <= 2:
+        recommendations.append("Build your support network to reduce reliance on spending for comfort")
+    
+    return recommendations[:5]  # Limit to 5 recommendations
+
+def create_relationship_results_email(email, score, connection_level, connection_description, recommendations):
+    """Create HTML email content for relationship questionnaire results"""
+    
+    # Create recommendations HTML
+    recommendations_html = ""
+    for i, rec in enumerate(recommendations, 1):
+        recommendations_html += f"""
+        <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 10px 0; border-left: 4px solid #ec4899;">
+            <h4 style="margin: 0 0 8px 0; color: #ec4899;">{i}. {rec}</h4>
+        </div>
+        """
+    
+    # Determine score color based on connection level
+    if connection_level == 'LOW':
+        score_color = "#10b981"  # Green
+        score_emoji = "💚"
+    elif connection_level == 'MODERATE':
+        score_color = "#f97316"  # Orange
+        score_emoji = "💛"
+    else:  # HIGH
+        score_color = "#ec4899"  # Pink
+        score_emoji = "💖"
+    
+    html_content = f"""
+    <div style="font-family: 'Inter', Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff;">
+        <!-- Header -->
+        <div style="background: linear-gradient(135deg, #ec4899 0%, #f97316 100%); color: white; padding: 40px 30px; text-align: center; border-radius: 12px 12px 0 0;">
+            <h1 style="margin: 0; font-size: 28px; font-weight: 700;">Your Relationship-Spending Connection</h1>
+            <p style="margin: 10px 0 0 0; font-size: 16px; opacity: 0.9;">Personalized insights from MINGUS</p>
+        </div>
+        
+        <!-- Main Content -->
+        <div style="padding: 40px 30px; background: white;">
+            <!-- Score Section -->
+            <div style="text-align: center; margin-bottom: 40px;">
+                <div style="width: 120px; height: 120px; border-radius: 50%; background: {score_color}; color: white; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 36px; font-weight: 900;">
+                    {score_emoji}
+                </div>
+                <h2 style="margin: 0 0 10px 0; color: #1f2937; font-size: 24px;">{connection_level} Connection</h2>
+                <p style="margin: 0; color: #6b7280; font-size: 16px; line-height: 1.6;">{connection_description}</p>
+            </div>
+            
+            <!-- Description -->
+            <div style="background: #f8fafc; padding: 25px; border-radius: 12px; margin-bottom: 30px; border: 1px solid #e2e8f0;">
+                <h3 style="margin: 0 0 15px 0; color: #1f2937; font-size: 20px;">What This Means</h3>
+                <p style="margin: 0; color: #4b5563; line-height: 1.6; font-size: 16px;">
+                    Your relationship-spending connection score reflects how much your relationships influence your financial decisions. 
+                    Understanding this connection helps you make more conscious spending choices that align with your values and relationships.
+                </p>
+            </div>
+            
+            <!-- Recommendations -->
+            <div style="margin-bottom: 30px;">
+                <h3 style="margin: 0 0 20px 0; color: #1f2937; font-size: 20px;">Your Personalized Recommendations</h3>
+                {recommendations_html}
+            </div>
+            
+            <!-- Next Steps -->
+            <div style="background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 100%); padding: 25px; border-radius: 12px; margin-bottom: 30px; border: 1px solid #ec4899;">
+                <h3 style="margin: 0 0 15px 0; color: #831843; font-size: 20px;">Next Steps</h3>
+                <ul style="margin: 0; padding-left: 20px; color: #831843;">
+                    <li style="margin-bottom: 8px;">Review your personalized recommendations above</li>
+                    <li style="margin-bottom: 8px;">Set up a free MINGUS account to track your relationship-spending patterns</li>
+                    <li style="margin-bottom: 8px;">Access our library of relationship-conscious spending resources</li>
+                    <li style="margin-bottom: 0;">Connect with our community for support and motivation</li>
+                </ul>
+            </div>
+            
+            <!-- CTA Button -->
+            <div style="text-align: center; margin: 40px 0;">
+                <a href="{{ current_app.config.get('FRONTEND_URL', 'https://mingusapp.com') }}/signup?email={email}" 
+                   style="background: linear-gradient(135deg, #ec4899 0%, #f97316 100%); color: white; padding: 18px 36px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px; display: inline-block; box-shadow: 0 4px 12px rgba(236, 72, 153, 0.3);">
+                    Create Your Free Account
+                </a>
+            </div>
+            
+            <!-- Footer -->
+            <div style="border-top: 1px solid #e5e7eb; padding-top: 30px; text-align: center;">
+                <p style="margin: 0 0 15px 0; color: #6b7280; font-size: 14px;">
+                    Thank you for taking the MINGUS Relationship-Spending Connection Assessment!
+                </p>
+                <p style="margin: 0; color: #9ca3af; font-size: 12px;">
+                    This email was sent to {email}. If you have any questions, reply to this email.
+                </p>
+            </div>
+        </div>
+    </div>
+    """
+    
+    return html_content 

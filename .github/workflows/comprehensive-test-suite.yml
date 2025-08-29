@@ -1,0 +1,452 @@
+name: Comprehensive Test Suite
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+env:
+  PYTHON_VERSION: '3.11'
+  NODE_VERSION: '18'
+  DATABASE_URL: ${{ secrets.DATABASE_URL }}
+  TEST_DATABASE_URL: ${{ secrets.TEST_DATABASE_URL }}
+
+jobs:
+  # Backend API Tests
+  backend-tests:
+    name: Backend API Tests
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: test_db
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python ${{ env.PYTHON_VERSION }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    
+    - name: Cache pip dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+    
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install -r requirements-dev.txt
+    
+    - name: Run Backend API Tests
+      run: |
+        python tests/comprehensive_test_suite/run_comprehensive_tests.py --suite backend --coverage
+    
+    - name: Upload coverage reports
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage.xml
+        flags: backend
+        name: backend-coverage
+    
+    - name: Upload test results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: backend-test-results
+        path: test_report_*.json
+
+  # Mathematical Accuracy Tests
+  mathematical-tests:
+    name: Mathematical Accuracy Tests
+    runs-on: ubuntu-latest
+    needs: backend-tests
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python ${{ env.PYTHON_VERSION }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install -r requirements-dev.txt
+    
+    - name: Run Mathematical Accuracy Tests
+      run: |
+        python tests/comprehensive_test_suite/run_comprehensive_tests.py --suite mathematical --coverage
+    
+    - name: Upload test results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: mathematical-test-results
+        path: test_report_*.json
+
+  # Frontend Component Tests
+  frontend-tests:
+    name: Frontend Component Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Node.js ${{ env.NODE_VERSION }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        cache-dependency-path: frontend/package-lock.json
+    
+    - name: Install frontend dependencies
+      working-directory: frontend
+      run: npm ci
+    
+    - name: Run Frontend Component Tests
+      working-directory: frontend
+      run: |
+        npm run test:coverage
+        npm run test:e2e:ci
+    
+    - name: Upload frontend coverage
+      uses: codecov/codecov-action@v3
+      with:
+        file: frontend/coverage/lcov.info
+        flags: frontend
+        name: frontend-coverage
+    
+    - name: Upload frontend test results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: frontend-test-results
+        path: frontend/test-results/
+
+  # End-to-End Tests
+  e2e-tests:
+    name: End-to-End Tests
+    runs-on: ubuntu-latest
+    needs: [backend-tests, frontend-tests]
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: test_db
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python ${{ env.PYTHON_VERSION }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    
+    - name: Set up Node.js ${{ env.NODE_VERSION }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        cache-dependency-path: frontend/package-lock.json
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install -r requirements-dev.txt
+        cd frontend && npm ci
+    
+    - name: Start backend server
+      run: |
+        python -m flask run --host=0.0.0.0 --port=5000 &
+        sleep 10
+    
+    - name: Start frontend server
+      working-directory: frontend
+      run: |
+        npm run build
+        npm run start:ci &
+        sleep 10
+    
+    - name: Run E2E Tests
+      run: |
+        python tests/comprehensive_test_suite/run_comprehensive_tests.py --suite e2e
+    
+    - name: Upload E2E test results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: e2e-test-results
+        path: test_report_*.json
+
+  # Performance Tests
+  performance-tests:
+    name: Performance Tests
+    runs-on: ubuntu-latest
+    needs: [backend-tests, frontend-tests]
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: test_db
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python ${{ env.PYTHON_VERSION }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install -r requirements-dev.txt
+    
+    - name: Run Performance Tests
+      run: |
+        python tests/comprehensive_test_suite/run_comprehensive_tests.py --suite performance
+    
+    - name: Upload performance results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: performance-test-results
+        path: test_report_*.json
+
+  # Security Tests
+  security-tests:
+    name: Security Tests
+    runs-on: ubuntu-latest
+    needs: backend-tests
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: test_db
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python ${{ env.PYTHON_VERSION }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install -r requirements-dev.txt
+    
+    - name: Run Security Tests
+      run: |
+        python tests/comprehensive_test_suite/run_comprehensive_tests.py --suite security
+    
+    - name: Run Security Scan
+      run: |
+        bandit -r backend/ -f json -o security-scan-results.json
+    
+    - name: Upload security results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: security-test-results
+        path: |
+          test_report_*.json
+          security-scan-results.json
+
+  # Analytics Verification Tests
+  analytics-tests:
+    name: Analytics Verification Tests
+    runs-on: ubuntu-latest
+    needs: [backend-tests, frontend-tests]
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: test_db
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python ${{ env.PYTHON_VERSION }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install -r requirements-dev.txt
+    
+    - name: Run Analytics Tests
+      run: |
+        python tests/comprehensive_test_suite/run_comprehensive_tests.py --suite analytics
+    
+    - name: Upload analytics results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: analytics-test-results
+        path: test_report_*.json
+
+  # Full Test Suite (Nightly)
+  full-test-suite:
+    name: Full Comprehensive Test Suite
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [backend-tests, mathematical-tests, frontend-tests, e2e-tests, performance-tests, security-tests, analytics-tests]
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: test_db
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python ${{ env.PYTHON_VERSION }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    
+    - name: Set up Node.js ${{ env.NODE_VERSION }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        cache-dependency-path: frontend/package-lock.json
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install -r requirements-dev.txt
+        cd frontend && npm ci
+    
+    - name: Run Full Test Suite
+      run: |
+        python tests/comprehensive_test_suite/run_comprehensive_tests.py --coverage --parallel
+    
+    - name: Upload full test results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: full-test-suite-results
+        path: test_report_*.json
+
+  # Quality Gates
+  quality-gates:
+    name: Quality Gates
+    runs-on: ubuntu-latest
+    needs: [backend-tests, mathematical-tests, frontend-tests, e2e-tests, performance-tests, security-tests, analytics-tests]
+    if: always()
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Download all test results
+      uses: actions/download-artifact@v3
+      with:
+        path: test-results/
+    
+    - name: Check Test Coverage Requirements
+      run: |
+        echo "Checking test coverage requirements..."
+        # Backend: 90%+ coverage
+        # Frontend: 85%+ coverage
+        # This would be implemented based on coverage reports
+    
+    - name: Check Performance Thresholds
+      run: |
+        echo "Checking performance thresholds..."
+        # 45ms income comparison target
+        # 3s page load target
+        # This would be implemented based on performance test results
+    
+    - name: Check Security Requirements
+      run: |
+        echo "Checking security requirements..."
+        # No high/critical vulnerabilities
+        # This would be implemented based on security scan results
+    
+    - name: Check Accessibility Compliance
+      run: |
+        echo "Checking accessibility compliance..."
+        # AA compliance
+        # This would be implemented based on accessibility test results
+    
+    - name: Quality Gates Summary
+      run: |
+        echo "🎯 QUALITY GATES SUMMARY"
+        echo "All tests must pass: ${{ needs.backend-tests.result == 'success' && needs.frontend-tests.result == 'success' && needs.e2e-tests.result == 'success' && needs.performance-tests.result == 'success' && needs.security-tests.result == 'success' && needs.analytics-tests.result == 'success' }}"
+        echo "Performance thresholds met: ${{ needs.performance-tests.result == 'success' }}"
+        echo "Security scan passed: ${{ needs.security-tests.result == 'success' }}"
+        echo "Mathematical accuracy verified: ${{ needs.mathematical-tests.result == 'success' }}"
+    
+    - name: Fail if any quality gate fails
+      if: needs.backend-tests.result != 'success' || needs.frontend-tests.result != 'success' || needs.e2e-tests.result != 'success' || needs.performance-tests.result != 'success' || needs.security-tests.result != 'success' || needs.analytics-tests.result != 'success' || needs.mathematical-tests.result != 'success'
+      run: |
+        echo "❌ One or more quality gates failed"
+        exit 1

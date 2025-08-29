@@ -13,6 +13,9 @@ import Profile from './pages/Profile';
 // Article Library components and routes
 import ArticleLibraryRoutes from './routes/articleLibraryRoutes';
 
+// Assessment components and routes
+import AssessmentRoutes from './routes/assessmentRoutes';
+
 // Layout components
 import MainLayout from './components/Layout/MainLayout';
 import Navigation from './components/Layout/Navigation';
@@ -39,6 +42,9 @@ function App() {
                                     
                                     {/* Article Library routes - nested under /articles */}
                                     <Route path="/articles/*" element={<ArticleLibraryRoutes />} />
+                                    
+                                    {/* Assessment routes - nested under /assessments */}
+                                    <Route path="/assessments/*" element={<AssessmentRoutes />} />
                                     
                                     {/* Fallback */}
                                     <Route 

@@ -116,8 +116,8 @@ class StripeService:
         ),
         SubscriptionTier.PROFESSIONAL: TierFeatures(
             name="Professional Tier",
-            price_monthly=7500,  # $75.00
-            price_yearly=72000,  # $720.00 (20% discount)
+            price_monthly=9900,  # $99.00
+            price_yearly=95040,  # $950.40 (20% discount)
             description="Unlimited access with dedicated support for professionals",
             features={
                 "basic_analytics": True,

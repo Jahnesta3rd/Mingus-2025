@@ -1,56 +1,122 @@
-# Testing Framework
-pytest==7.4.3
-pytest-cov==4.1.0
-pytest-mock==3.12.0
-pytest-xdist==3.3.1
-pytest-html==4.1.1
-pytest-json-report==1.5.0
+# Development and Testing Dependencies for Comprehensive Test Suite
 
-# Test Data and Fixtures
-factory-boy==3.3.0
-faker==20.1.0
+# Core Testing Framework
+pytest>=7.4.0
+pytest-cov>=4.1.0
+pytest-xdist>=3.3.0
+pytest-html>=3.2.0
+pytest-json-report>=1.5.0
+pytest-mock>=3.11.0
+pytest-asyncio>=0.21.0
+
+# Selenium WebDriver for E2E and Frontend Testing
+selenium>=4.15.0
+webdriver-manager>=4.0.0
 
 # Performance Testing
-psutil==5.9.6
-locust==2.17.0
+psutil>=5.9.0
+memory-profiler>=0.61.0
 
 # Security Testing
-bandit==1.7.5
-safety==2.3.5
+bandit>=1.7.5
+safety>=2.3.0
 
-# Code Quality
-flake8==6.1.0
-black==23.11.0
-isort==5.12.0
-mypy==1.7.1
+# Code Quality and Linting
+flake8>=6.1.0
+black>=23.9.0
+isort>=5.12.0
+mypy>=1.6.0
 
-# Coverage
-coverage==7.3.2
-codecov==2.1.13
+# Coverage and Reporting
+coverage>=7.3.0
+codecov>=2.1.0
 
 # Database Testing
-pytest-postgresql==4.1.5
-pytest-sqlalchemy==1.0.0
+factory-boy>=3.3.0
+faker>=20.0.0
+
+# HTTP Testing
+requests>=2.31.0
+httpx>=0.25.0
+
+# Mock and Stub Libraries
+responses>=0.24.0
+freezegun>=1.2.0
+
+# Accessibility Testing
+axe-selenium-python>=4.0.0
+
+# Analytics Testing
+analytics-python>=1.4.0
+
+# Mathematical Testing
+numpy>=1.24.0
+pandas>=2.0.0
+
+# Environment and Configuration
+python-dotenv>=1.0.0
+pydantic>=2.4.0
+
+# Async Testing
+aiohttp>=3.8.0
+asyncio-mqtt>=0.13.0
+
+# Load Testing
+locust>=2.17.0
+
+# Browser Automation
+playwright>=1.39.0
+
+# Test Data Generation
+mimesis>=9.1.0
 
 # API Testing
-requests==2.31.0
-responses==0.24.1
+pytest-bdd>=6.1.0
+behave>=1.2.7
 
-# Mocking
-freezegun==1.2.2
-httpretty==1.1.4
+# Visual Testing
+pytest-image-diff>=0.1.0
+
+# Mobile Testing
+appium-python-client>=3.1.0
+
+# Cross-browser Testing
+pytest-selenium>=4.0.0
+
+# Accessibility Testing
+pytest-axe>=1.0.0
+
+# Performance Monitoring
+py-spy>=0.3.14
+
+# Memory Leak Detection
+objgraph>=3.6.0
+
+# Network Testing
+pytest-httpbin>=1.0.0
+
+# Time-based Testing
+pytest-timeout>=2.1.0
+
+# Parallel Testing
+pytest-parallel>=0.1.1
+
+# Test Reporting
+allure-pytest>=2.13.0
+
+# Database Migration Testing
+alembic>=1.12.0
+
+# Environment Isolation
+tox>=4.6.0
+
+# Documentation Testing
+doctest-ignore-unicode>=0.1.2
+
+# Type Checking
+types-requests>=2.31.0
+types-PyYAML>=6.0.0
 
 # Development Tools
-pre-commit==3.6.0
-tox==4.11.4
-
-# Documentation
-sphinx==7.2.6
-sphinx-rtd-theme==1.3.0
-
-# Debugging
-ipdb==0.13.13
-pytest-pdb==0.2.0
-
-# Environment Management
-python-dotenv==1.0.0 
+ipython>=8.15.0
+jupyter>=1.0.0 

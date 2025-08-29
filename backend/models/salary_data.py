@@ -11,12 +11,13 @@ from sqlalchemy import (
     Column, String, Integer, Numeric, Boolean, DateTime, Text, 
     UniqueConstraint, Index, ForeignKey, func, text
 )
-from sqlalchemy.dialects.postgresql import UUID, JSONB, DECIMAL
+from sqlalchemy.dialects.postgresql import UUID, JSONB
+from sqlalchemy import Numeric
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, validates
 from sqlalchemy.sql import func as sql_func
 
-from ..database import Base
+from .base import Base
 from ..utils.validators import validate_decimal_range, validate_confidence_score
 
 class SalaryBenchmark(Base):
@@ -35,20 +36,20 @@ class SalaryBenchmark(Base):
     education_level = Column(String(50))   # High School, Bachelor's, Master's, PhD
     
     # Salary data
-    median_salary = Column(DECIMAL(12,2), nullable=False, index=True)
-    mean_salary = Column(DECIMAL(12,2))
-    percentile_25 = Column(DECIMAL(12,2))
-    percentile_75 = Column(DECIMAL(12,2))
-    percentile_90 = Column(DECIMAL(12,2))
+    median_salary = Column(Numeric(12,2), nullable=False, index=True)
+    mean_salary = Column(Numeric(12,2))
+    percentile_25 = Column(Numeric(12,2))
+    percentile_75 = Column(Numeric(12,2))
+    percentile_90 = Column(Numeric(12,2))
     
     # Sample and confidence data
     sample_size = Column(Integer)
-    confidence_interval_lower = Column(DECIMAL(12,2))
-    confidence_interval_upper = Column(DECIMAL(12,2))
+    confidence_interval_lower = Column(Numeric(12,2))
+    confidence_interval_upper = Column(Numeric(12,2))
     
     # Data source information
     data_source = Column(String(50), nullable=False, index=True)  # BLS, Census, Indeed, etc.
-    source_confidence_score = Column(DECIMAL(3,2), default=0.0)
+    source_confidence_score = Column(Numeric(3,2), default=0.0)
     data_freshness_days = Column(Integer)
     
     # Temporal data
@@ -57,7 +58,7 @@ class SalaryBenchmark(Base):
     
     # Cache and metadata
     cache_key = Column(String(255), index=True)
-    metadata = Column(JSONB, index=True)
+    metadata_json = Column(JSONB, index=True)
     
     # Timestamps
     last_updated = Column(DateTime(timezone=True), default=sql_func.now(), onupdate=sql_func.now())
@@ -77,7 +78,7 @@ class SalaryBenchmark(Base):
         ),
         Index('idx_salary_benchmarks_location_occupation', 'location', 'occupation'),
         Index('idx_salary_benchmarks_location_industry', 'location', 'industry'),
-        Index('idx_salary_benchmarks_metadata_gin', 'metadata', postgresql_using='gin'),
+        Index('idx_salary_benchmarks_metadata_gin', 'metadata_json', postgresql_using='gin'),
     )
     
     @validates('median_salary')

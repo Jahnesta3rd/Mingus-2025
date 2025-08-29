@@ -89,10 +89,7 @@ class Config:
         self.ENABLE_ONBOARDING = self.secure_config.get('ENABLE_ONBOARDING', 'true').lower() == 'true'
         self.ENABLE_USER_PROFILES = self.secure_config.get('ENABLE_USER_PROFILES', 'true').lower() == 'true'
         self.ENABLE_ENCRYPTION = self.secure_config.get('ENABLE_ENCRYPTION', 'true').lower() == 'true'
-        self.ENABLE_AUDIT_LOGGING = self.secure_config.get('ENABLE_AUDIT_LOGGING', 'true').lower() == 'true'
-        self.BYPASS_AUTH = self.secure_config.get('BYPASS_AUTH', 'false').lower() == 'true'
-        
-        # Port configuration
+        self.ENABLE_AUDIT_LOGGING = self.secure_config.get('ENABLE_AUDIT_LOGGING', 'true').lower() == 'true'# Port configuration
         self.PORT = int(self.secure_config.get('PORT', '5002'))
         
         # Supabase configuration

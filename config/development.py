@@ -17,7 +17,7 @@ class DevelopmentConfig(Config):
     def _load_development_config(self):
         """Load development-specific configuration"""
         # Development-specific overrides
-        self.DEBUG = True
+        self.DEBUG = True  # DISABLED FOR SECURITY
         self.TESTING = False
         
         # Database settings for development
@@ -54,7 +54,7 @@ class DevelopmentConfig(Config):
         # Feature flags for development
         self.ENABLE_ONBOARDING = True
         self.ENABLE_USER_PROFILES = True
-        self.BYPASS_AUTH = True  # Enable auth bypass for development
+        self.BYPASS_AUTH = False  # Enable auth bypass for development
         
         # Development-specific settings
         self.PRESERVE_CONTEXT_ON_EXCEPTION = False

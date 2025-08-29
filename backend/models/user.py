@@ -36,6 +36,10 @@ class User(Base):
     meme_history = relationship("UserMemeHistory", back_populates="user")
     meme_preferences = relationship("UserMemePreferences", back_populates="user", uselist=False)
     
+    # Assessment system relationships
+    assessments = relationship("UserAssessment", back_populates="user")
+    leads = relationship("Lead", back_populates="user")
+    
     def __repr__(self):
         return f'<User {self.email}>'
     

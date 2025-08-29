@@ -1,0 +1,181 @@
+{
+  "test_date": "2025-08-27T16:05:50.027589",
+  "budget_tier_paywall": {
+    "tests_passed": 4,
+    "tests_failed": 0,
+    "details": [
+      {
+        "test": "AI spending analysis should be restricted for budget tier",
+        "status": "PASSED",
+        "feature": "ai_spending_analysis",
+        "access_granted": false,
+        "upgrade_required": true,
+        "upgrade_tier": "mid_tier"
+      },
+      {
+        "test": "Plaid integration should be restricted for budget tier",
+        "status": "PASSED",
+        "feature": "plaid_integration",
+        "access_granted": false,
+        "upgrade_required": true,
+        "upgrade_tier": "mid_tier"
+      },
+      {
+        "test": "Salary negotiation should be restricted for budget tier",
+        "status": "PASSED",
+        "feature": "salary_negotiation",
+        "access_granted": false,
+        "upgrade_required": true,
+        "upgrade_tier": "professional"
+      },
+      {
+        "test": "Team management should be restricted for budget tier",
+        "status": "PASSED",
+        "feature": "team_management",
+        "access_granted": false,
+        "upgrade_required": true,
+        "upgrade_tier": "professional"
+      }
+    ]
+  },
+  "mid_tier_paywall": {
+    "tests_passed": 3,
+    "tests_failed": 0,
+    "details": [
+      {
+        "test": "Salary negotiation should be restricted for mid-tier",
+        "status": "PASSED",
+        "feature": "salary_negotiation",
+        "access_granted": false,
+        "upgrade_required": true,
+        "upgrade_tier": "professional"
+      },
+      {
+        "test": "Team management should be restricted for mid-tier",
+        "status": "PASSED",
+        "feature": "team_management",
+        "access_granted": false,
+        "upgrade_required": true,
+        "upgrade_tier": "professional"
+      },
+      {
+        "test": "API access should be restricted for mid-tier",
+        "status": "PASSED",
+        "feature": "api_access",
+        "access_granted": false,
+        "upgrade_required": true,
+        "upgrade_tier": "professional"
+      }
+    ]
+  },
+  "professional_tier_access": {
+    "tests_passed": 3,
+    "tests_failed": 0,
+    "details": [
+      {
+        "test": "Salary negotiation should be available for professional tier",
+        "status": "PASSED",
+        "feature": "salary_negotiation",
+        "access_granted": true,
+        "upgrade_required": false
+      },
+      {
+        "test": "Team management should be available for professional tier",
+        "status": "PASSED",
+        "feature": "team_management",
+        "access_granted": true,
+        "upgrade_required": false
+      },
+      {
+        "test": "API access should be available for professional tier",
+        "status": "PASSED",
+        "feature": "api_access",
+        "access_granted": true,
+        "upgrade_required": false
+      }
+    ]
+  },
+  "educational_content": {
+    "tests_passed": 6,
+    "tests_failed": 0,
+    "details": [
+      {
+        "feature": "ai_spending_analysis",
+        "status": "PASSED",
+        "has_educational_content": true,
+        "has_upgrade_benefits": true
+      },
+      {
+        "feature": "plaid_integration",
+        "status": "PASSED",
+        "has_educational_content": true,
+        "has_upgrade_benefits": true
+      },
+      {
+        "feature": "career_planning",
+        "status": "PASSED",
+        "has_educational_content": true,
+        "has_upgrade_benefits": true
+      },
+      {
+        "feature": "salary_negotiation",
+        "status": "PASSED",
+        "has_educational_content": true,
+        "has_upgrade_benefits": true
+      },
+      {
+        "feature": "team_management",
+        "status": "PASSED",
+        "has_educational_content": true,
+        "has_upgrade_benefits": true
+      },
+      {
+        "feature": "api_access",
+        "status": "PASSED",
+        "has_educational_content": true,
+        "has_upgrade_benefits": true
+      }
+    ]
+  },
+  "unauthorized_access_prevention": {
+    "tests_passed": 5,
+    "tests_failed": 0,
+    "details": [
+      {
+        "test": "Invalid feature invalid_feature correctly rejected",
+        "status": "PASSED",
+        "feature": "invalid_feature",
+        "reason": "feature_not_found"
+      },
+      {
+        "test": "Invalid feature nonexistent_feature correctly rejected",
+        "status": "PASSED",
+        "feature": "nonexistent_feature",
+        "reason": "feature_not_found"
+      },
+      {
+        "test": "Invalid feature test_feature correctly rejected",
+        "status": "PASSED",
+        "feature": "test_feature",
+        "reason": "feature_not_found"
+      },
+      {
+        "test": "Invalid tier invalid_tier correctly rejected",
+        "status": "PASSED",
+        "tier": "invalid_tier"
+      },
+      {
+        "test": "Invalid tier nonexistent_tier correctly rejected",
+        "status": "PASSED",
+        "tier": "nonexistent_tier"
+      }
+    ]
+  },
+  "summary": {
+    "total_tests": 21,
+    "tests_passed": 21,
+    "tests_failed": 0,
+    "success_rate": 100.0,
+    "status": "PASSED"
+  }
+}

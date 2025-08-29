@@ -783,12 +783,12 @@ import tempfile
 from datetime import datetime, timedelta
 from unittest.mock import Mock, patch
 
-from app import create_app, db
+from app import create_app
+from backend.extensions import db
 from backend.models.articles import (
-    Article, UserAssessmentScores, UserArticleProgress,
-    ArticleFolder, ArticleBookmark, ArticleAnalytics
+    Article, UserArticleProgress, UserArticleBookmark, ArticleAnalytics
 )
-from backend.models.users import User
+from backend.models.user import User
 
 @pytest.fixture(scope='session')
 def app():

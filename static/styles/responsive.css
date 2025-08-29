@@ -172,3 +172,204 @@
   .gap-desktop-1 { gap: var(--spacing-md) !important; }
   .gap-desktop-2 { gap: var(--spacing-lg) !important; }
 } 
+/* ==========================================================================
+   Mobile-Specific Optimizations
+   ========================================================================== */
+
+/* Mobile Touch Targets */
+@media (max-width: 768px) {
+  /* Ensure minimum touch target size for all interactive elements */
+  .hero-cta-primary,
+  .hero-cta-secondary,
+  .landing-nav-cta,
+  .landing-nav-links a,
+  button,
+  input[type="submit"],
+  input[type="button"] {
+    min-height: 44px !important;
+    min-width: 44px !important;
+    padding: 12px 20px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+  
+  /* Touch feedback for buttons */
+  .hero-cta-primary:active,
+  .hero-cta-secondary:active,
+  .landing-nav-cta:active {
+    transform: scale(0.95) !important;
+    transition: transform 0.1s ease !important;
+  }
+  
+  /* Mobile typography improvements */
+  .hero-title {
+    font-size: 2rem !important;
+    line-height: 1.2 !important;
+    margin-bottom: 1rem !important;
+  }
+  
+  .hero-subtitle {
+    font-size: 1.1rem !important;
+    line-height: 1.5 !important;
+    margin-bottom: 2rem !important;
+  }
+  
+  /* Improve paragraph readability */
+  p {
+    font-size: 16px !important;
+    line-height: 1.6 !important;
+    margin-bottom: 1rem !important;
+  }
+  
+  /* Better heading hierarchy */
+  h1 { font-size: 2rem !important; }
+  h2 { font-size: 1.5rem !important; }
+  h3 { font-size: 1.25rem !important; }
+  
+  /* Mobile layout improvements */
+  .hero-section {
+    padding: 80px 20px 60px !important;
+  }
+  
+  .container {
+    padding: 0 20px !important;
+  }
+  
+  /* CTA container improvements */
+  .hero-cta-container {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 16px !important;
+    margin: 32px 0 !important;
+  }
+  
+  .hero-cta-container a {
+    width: 100% !important;
+    max-width: 300px !important;
+    margin: 0 auto !important;
+  }
+  
+  /* Social proof mobile optimization */
+  .social-proof {
+    flex-direction: column !important;
+    gap: 24px !important;
+    margin: 32px 0 !important;
+  }
+  
+  .proof-item {
+    text-align: center !important;
+    padding: 16px !important;
+    background: rgba(255,255,255,0.05) !important;
+    border-radius: 12px !important;
+  }
+  
+  /* Hide desktop navigation on mobile */
+  .landing-nav-links {
+    display: none !important;
+  }
+  
+  /* Mobile menu toggle button */
+  .mobile-menu-toggle {
+    display: flex !important;
+    flex-direction: column !important;
+    background: none !important;
+    border: none !important;
+    cursor: pointer !important;
+    padding: 8px !important;
+  }
+  
+  .mobile-menu-toggle span {
+    width: 25px !important;
+    height: 3px !important;
+    background: var(--text-primary) !important;
+    margin: 3px 0 !important;
+    transition: 0.3s !important;
+  }
+  
+  /* Mobile menu */
+  .mobile-menu {
+    display: none !important;
+    position: absolute !important;
+    top: 100% !important;
+    left: 0 !important;
+    right: 0 !important;
+    background: var(--bg-primary) !important;
+    border-top: 1px solid var(--border-color) !important;
+    padding: 20px !important;
+    flex-direction: column !important;
+    gap: 16px !important;
+  }
+  
+  .mobile-menu.active {
+    display: flex !important;
+  }
+  
+  .mobile-menu a {
+    padding: 12px 0 !important;
+    border-bottom: 1px solid var(--border-color) !important;
+    font-size: 16px !important;
+    font-weight: 500 !important;
+  }
+  
+  .mobile-cta {
+    background: var(--accent-green) !important;
+    color: var(--bg-primary) !important;
+    padding: 12px 20px !important;
+    border-radius: var(--border-radius) !important;
+    text-align: center !important;
+    font-weight: bold !important;
+    margin-top: 16px !important;
+  }
+}
+
+/* Performance optimizations for mobile */
+@media (max-width: 768px) {
+  /* Optimize images */
+  img {
+    max-width: 100% !important;
+    height: auto !important;
+  }
+  
+  /* Reduce animation duration for better performance */
+  * {
+    animation-duration: 0.3s !important;
+    transition-duration: 0.3s !important;
+  }
+  
+  /* Optimize grid layouts */
+  .features-grid,
+  .testimonials-grid,
+  .pricing-grid {
+    grid-template-columns: 1fr !important;
+    gap: 24px !important;
+  }
+  
+  /* Consistent card styling */
+  .card {
+    padding: 24px !important;
+    border-radius: 16px !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
+  }
+}
+
+/* Show/hide utilities for mobile */
+@media (max-width: 768px) {
+  .desktop-only {
+    display: none !important;
+  }
+  
+  .mobile-only {
+    display: block !important;
+  }
+}
+
+@media (min-width: 769px) {
+  .mobile-only {
+    display: none !important;
+  }
+  
+  .desktop-only {
+    display: block !important;
+  }
+}

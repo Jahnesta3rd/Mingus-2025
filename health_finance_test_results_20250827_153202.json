@@ -1,0 +1,167 @@
+{
+  "test_time": "2025-08-27T15:32:02.163907",
+  "base_url": "http://localhost:5002",
+  "total_tests": 8,
+  "passed_tests": 1,
+  "failed_tests": 7,
+  "success_rate": 12.5,
+  "test_results": {
+    "Weekly Check-in Form": false,
+    "Health-Finance Correlations": false,
+    "Relationship Status Impact": false,
+    "Physical Activity Correlation": false,
+    "Mindfulness Tracking": false,
+    "Health Check-in History": false,
+    "Health Onboarding": false,
+    "Health-Finance Models": true
+  },
+  "detailed_results": [
+    {
+      "endpoint": "/api/health/demo",
+      "method": "GET",
+      "success": false,
+      "error": "Connection refused - Flask app not running",
+      "description": "Demo health check-in form (no auth required)"
+    },
+    {
+      "endpoint": "/api/health/checkin",
+      "method": "GET",
+      "success": false,
+      "error": "Connection refused - Flask app not running",
+      "description": "Authenticated health check-in form"
+    },
+    {
+      "endpoint": "/api/health/checkin",
+      "method": "POST",
+      "success": false,
+      "error": "Connection refused - Flask app not running",
+      "description": "Health check-in submission"
+    },
+    {
+      "endpoint": "/api/health/correlations",
+      "method": "GET",
+      "success": false,
+      "error": "Connection refused - Flask app not running",
+      "description": "Health-spending correlations analysis"
+    },
+    {
+      "endpoint": "/api/health/insights",
+      "method": "GET",
+      "success": false,
+      "error": "Connection refused - Flask app not running",
+      "description": "Health insights and analysis"
+    },
+    {
+      "endpoint": "/api/health/trends",
+      "method": "GET",
+      "success": false,
+      "error": "Connection refused - Flask app not running",
+      "description": "Health trends analysis"
+    },
+    {
+      "endpoint": "/api/health/recommendations",
+      "method": "GET",
+      "success": false,
+      "error": "Connection refused - Flask app not running",
+      "description": "Relationship-based financial recommendations"
+    },
+    {
+      "endpoint": "/api/health/summary",
+      "method": "GET",
+      "success": false,
+      "error": "Connection refused - Flask app not running",
+      "description": "Health summary including relationship metrics"
+    },
+    {
+      "endpoint": "/api/health/dashboard",
+      "method": "GET",
+      "success": false,
+      "error": "Connection refused - Flask app not running",
+      "description": "Health dashboard with relationship insights"
+    },
+    {
+      "endpoint": "/api/health/analyze",
+      "method": "POST",
+      "success": false,
+      "error": "Connection refused - Flask app not running",
+      "description": "Physical activity correlation analysis"
+    },
+    {
+      "endpoint": "/api/health/patterns",
+      "method": "GET",
+      "success": false,
+      "error": "Connection refused - Flask app not running",
+      "description": "Activity-based spending patterns"
+    },
+    {
+      "endpoint": "/api/health/wellness-score",
+      "method": "GET",
+      "success": false,
+      "error": "Connection refused - Flask app not running",
+      "description": "Wellness score including physical activity"
+    },
+    {
+      "endpoint": "/api/health/mindfulness",
+      "method": "GET",
+      "success": false,
+      "error": "Connection refused - Flask app not running",
+      "description": "Mindfulness tracking and history"
+    },
+    {
+      "endpoint": "/api/health/mindfulness/insights",
+      "method": "GET",
+      "success": false,
+      "error": "Connection refused - Flask app not running",
+      "description": "Mindfulness-based financial insights"
+    },
+    {
+      "endpoint": "/api/health/mindfulness/goals",
+      "method": "GET",
+      "success": false,
+      "error": "Connection refused - Flask app not running",
+      "description": "Mindfulness goals and progress"
+    },
+    {
+      "endpoint": "/api/health/checkin/history",
+      "method": "GET",
+      "success": false,
+      "error": "Connection refused - Flask app not running",
+      "description": "Health check-in history"
+    },
+    {
+      "endpoint": "/api/health/stats",
+      "method": "GET",
+      "success": false,
+      "error": "Connection refused - Flask app not running",
+      "description": "Health statistics and analytics"
+    },
+    {
+      "endpoint": "/api/health/checkin/latest",
+      "method": "GET",
+      "success": false,
+      "error": "Connection refused - Flask app not running",
+      "description": "Latest health check-in"
+    },
+    {
+      "endpoint": "/api/health/onboarding",
+      "method": "GET",
+      "success": false,
+      "error": "Connection refused - Flask app not running",
+      "description": "Health onboarding flow"
+    },
+    {
+      "endpoint": "/api/health/onboarding/complete",
+      "method": "POST",
+      "success": false,
+      "error": "Connection refused - Flask app not running",
+      "description": "Health onboarding completion"
+    },
+    {
+      "endpoint": "/api/health/onboarding/status",
+      "method": "GET",
+      "success": false,
+      "error": "Connection refused - Flask app not running",
+      "description": "Health onboarding status"
+    }
+  ]
+}

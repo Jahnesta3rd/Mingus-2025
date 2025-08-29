@@ -1,0 +1,22 @@
+{
+  "start_time": "2025-08-26T15:57:26.927093",
+  "test_suites": {
+    "analytics": {
+      "duration": 10.439079999923706,
+      "return_code": 1,
+      "stdout": "============================= test session starts ==============================\nplatform darwin -- Python 3.12.7, pytest-8.0.2, pluggy-1.6.0 -- /opt/anaconda3/bin/python\ncachedir: .pytest_cache\nmetadata: {'Python': '3.12.7', 'Platform': 'macOS-10.16-x86_64-i386-64bit', 'Packages': {'pytest': '8.0.2', 'pluggy': '1.6.0'}, 'Plugins': {'asyncio': '0.23.5', 'anyio': '4.9.0', 'html': '4.1.1', 'metadata': '3.1.1', 'cov': '4.1.0', 'mock': '3.14.1'}}\nrootdir: /Users/johnniewatsoniii/Desktop/Mingus Application - Cursor\nconfigfile: pytest.ini\nplugins: asyncio-0.23.5, anyio-4.9.0, html-4.1.1, metadata-3.1.1, cov-4.1.0, mock-3.14.1\nasyncio: mode=Mode.STRICT\ncollecting ... collected 21 items\n\ntests/comprehensive_test_suite/test_analytics.py::TestEventTrackingAccuracy::test_assessment_start_event_tracking ERROR [  4%]\n\n==================================== ERRORS ====================================\n_ ERROR at setup of TestEventTrackingAccuracy.test_assessment_start_event_tracking _\ntests/comprehensive_test_suite/conftest.py:182: in mock_analytics\n    mock_analytics = Mock(spec=Analytics)\nE   NameError: name 'Analytics' is not defined\n=============================== warnings summary ===============================\n../../../../opt/anaconda3/lib/python3.12/site-packages/dateutil/tz/tz.py:37\n  /opt/anaconda3/lib/python3.12/site-packages/dateutil/tz/tz.py:37: DeprecationWarning: datetime.datetime.utcfromtimestamp() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.fromtimestamp(timestamp, datetime.UTC).\n    EPOCH = datetime.datetime.utcfromtimestamp(0)\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n============================= slowest 10 durations =============================\n\n(2 durations < 0.005s hidden.  Use -vv to show these durations.)\n=========================== short test summary info ============================\nERROR tests/comprehensive_test_suite/test_analytics.py::TestEventTrackingAccuracy::test_assessment_start_event_tracking\n!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!\n========================= 1 warning, 1 error in 0.44s ==========================\n",
+      "stderr": ""
+    }
+  },
+  "coverage": {},
+  "performance": {},
+  "security": {},
+  "summary": {
+    "total_suites": 1,
+    "passed_suites": 0,
+    "failed_suites": 1,
+    "success_rate": 0.0,
+    "total_duration": 10.439079999923706,
+    "end_time": "2025-08-26T15:57:37.366738"
+  }
+}
