@@ -15,6 +15,7 @@ class User(Base):
     full_name = Column(String(255))
     phone_number = Column(String(50))
     is_active = Column(Boolean, default=True)
+    email_verified = Column(Boolean, default=False)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
@@ -40,6 +41,15 @@ class User(Base):
     assessments = relationship("UserAssessment", back_populates="user")
     leads = relationship("Lead", back_populates="user")
     
+    # AI Job Assessment relationships
+    ai_job_assessments = relationship("AIJobAssessment", back_populates="user", foreign_keys="AIJobAssessment.user_id")
+    ai_profile_extension = relationship("AIUserProfileExtension", back_populates="user", uselist=False)
+    ai_onboarding_progress = relationship("AIOnboardingProgress", back_populates="user", uselist=False)
+    
+    # Authentication relationships
+    auth_tokens = relationship("AuthToken", back_populates="user")
+    email_verification = relationship("EmailVerification", back_populates="user", uselist=False)
+    
     def __repr__(self):
         return f'<User {self.email}>'
     
@@ -51,6 +61,7 @@ class User(Base):
             'full_name': self.full_name,
             'phone_number': self.phone_number,
             'is_active': self.is_active,
+            'email_verified': self.email_verified,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None
         } 
