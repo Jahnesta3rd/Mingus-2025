@@ -30,6 +30,7 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 
 from config.development import DevelopmentConfig
+from backend.config.unified_security_config import UnifiedSecurityConfig
 
 # Import metrics
 from backend.metrics import create_metrics_endpoint, health_check_timer, record_health_check_failure, record_health_check_success, update_system_metrics, update_database_metrics, update_redis_metrics
@@ -69,14 +70,28 @@ def create_app(config_name: str = None) -> Flask:
     # Load configuration
     app.config.from_object(DevelopmentConfig)
     
-    # Initialize CORS
-    CORS(app, resources={
-        r"/api/*": {
-            "origins": app.config.get('CORS_ORIGINS', ['http://localhost:3000']),
-            "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-            "allow_headers": ["Content-Type", "Authorization"]
-        }
-    })
+    # Initialize CORS with security best practices using unified security config
+    security_config = UnifiedSecurityConfig()
+    cors_origins = security_config.CORS_ORIGINS if security_config.CORS_ENABLED else ['http://localhost:3000']
+    
+    CORS(app, 
+         # Origins - only allow specific domains
+         origins=cors_origins,
+         
+         # Methods - restrict to only necessary HTTP methods
+         methods=security_config.CORS_METHODS,
+         
+         # Headers - only allow necessary headers
+         allow_headers=security_config.CORS_ALLOW_HEADERS,
+         
+         # Security settings
+         supports_credentials=security_config.CORS_SUPPORTS_CREDENTIALS,
+         max_age=3600,  # Cache preflight for 1 hour
+         
+         # Additional security
+         vary_header=True,
+         send_wildcard=False
+    )
     
     # Initialize security middleware (NEW)
     security_components = init_security(app)

@@ -115,7 +115,7 @@ class UnifiedSecurityConfig:
     
     # CORS Configuration
     CORS_ENABLED = os.getenv('CORS_ENABLED', 'true').lower() == 'true'
-    CORS_ORIGINS = os.getenv('CORS_ORIGINS', 'http://localhost:3000,https://yourdomain.com').split(',')
+    CORS_ORIGINS = os.getenv('CORS_ORIGINS', 'http://localhost:3000,https://mingus.app').split(',')
     CORS_METHODS = ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
     CORS_ALLOW_HEADERS = ['Content-Type', 'Authorization', 'X-Requested-With']
     CORS_EXPOSE_HEADERS = ['X-New-Token']
@@ -209,6 +209,18 @@ class UnifiedSecurityConfig:
                 'require_email_verification_after': cls.BRUTE_FORCE_REQUIRE_EMAIL_VERIFICATION_AFTER,
                 'suspicious_activity_threshold': cls.BRUTE_FORCE_SUSPICIOUS_ACTIVITY_THRESHOLD
             }
+        }
+    
+    @classmethod
+    def get_cors_config(cls) -> Dict[str, Any]:
+        """Get CORS configuration"""
+        return {
+            'enabled': cls.CORS_ENABLED,
+            'origins': cls.CORS_ORIGINS,
+            'methods': cls.CORS_METHODS,
+            'allow_headers': cls.CORS_ALLOW_HEADERS,
+            'expose_headers': cls.CORS_EXPOSE_HEADERS,
+            'supports_credentials': cls.CORS_SUPPORTS_CREDENTIALS
         }
     
     @classmethod

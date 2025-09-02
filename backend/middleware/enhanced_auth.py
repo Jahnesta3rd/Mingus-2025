@@ -57,6 +57,27 @@ def login_required(f: Callable) -> Callable:
     
     return decorated_function
 
+def require_auth(f: Callable) -> Callable:
+    """
+    Alias for login_required for compatibility
+    
+    Args:
+        f: Function to decorate
+        
+    Returns:
+        Decorated function with authentication check
+    """
+    return login_required(f)
+
+def get_current_user_id() -> Optional[str]:
+    """
+    Get the current user ID from the session
+    
+    Returns:
+        User ID if authenticated, None otherwise
+    """
+    return session.get('user_id')
+
 def email_verification_required(f: Callable) -> Callable:
     """
     Decorator to require email verification
