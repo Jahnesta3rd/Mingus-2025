@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="stylesheet" href="touch_target_optimization.css">
+
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mingus Lifestyle Questionnaire</title>
@@ -41,7 +43,7 @@
             <div class="option"><input type="radio" name="housing_status" value="rent">Rent an apartment/house</div>
             <div class="option"><input type="radio" name="housing_status" value="family">Live with family/relatives</div>
             <div class="option"><input type="radio" name="housing_status" value="roommates">Live with roommates/housemates</div>
-            <div class="option"><input type="radio" name="housing_status" value="other">Other: <input type="text" name="housing_status_other" style="margin-left:0.5rem;" placeholder="Please specify"></div>
+            <div class="option"><input type="radio" name="housing_status" value="other">Other: <input type="text" name="housing_status_other" style="margin-left:0.5rem;" placeholder="Please specify" class="form-input"></div>
           </div>
         </div>
         <div class="question">
@@ -72,7 +74,7 @@
             <div class="option"><input type="checkbox" name="housing_goals[]" value="no_change">No housing changes planned</div>
           </div>
         </div>
-        <div class="section-footer"><button type="button" class="btn" onclick="nextSection(1)">Next</button></div>
+        <div class="section-footer"><button type="button" class="btn btn-cta btn-primary" onclick="nextSection(1)">Next</button></div>
       </div>
       <!-- Section 2: Career & Professional Life -->
       <div class="section" data-section="2" style="display:none;">
@@ -87,7 +89,7 @@
             <div class="option"><input type="radio" name="employment_status" value="freelancer">Freelancer/Independent contractor</div>
             <div class="option"><input type="radio" name="employment_status" value="grad_student">Graduate student with assistantship</div>
             <div class="option"><input type="radio" name="employment_status" value="job_searching">Currently job searching</div>
-            <div class="option"><input type="radio" name="employment_status" value="other">Other: <input type="text" name="employment_status_other" style="margin-left:0.5rem;" placeholder="Please specify"></div>
+            <div class="option"><input type="radio" name="employment_status" value="other">Other: <input type="text" name="employment_status_other" style="margin-left:0.5rem;" placeholder="Please specify" class="form-input"></div>
           </div>
         </div>
         <div class="question">
@@ -134,7 +136,7 @@
             <div class="option"><input type="checkbox" name="side_hustle[]" value="not_interested">None and not interested</div>
           </div>
         </div>
-        <div class="section-footer"><button type="button" class="btn" onclick="nextSection(2)">Next</button></div>
+        <div class="section-footer"><button type="button" class="btn btn-cta btn-primary" onclick="nextSection(2)">Next</button></div>
       </div>
       <!-- Section 3: Family & Financial Responsibilities -->
       <div class="section" data-section="3" style="display:none;">
@@ -192,7 +194,7 @@
           <input type="range" name="family_pressure" min="1" max="10" value="5">
           <div class="slider-labels"><span>1: Little to no pressure</span><span>10: Significant ongoing pressure</span></div>
         </div>
-        <div class="section-footer"><button type="button" class="btn" onclick="nextSection(3)">Next</button></div>
+        <div class="section-footer"><button type="button" class="btn btn-cta btn-primary" onclick="nextSection(3)">Next</button></div>
       </div>
       <!-- Section 4: Social Life & Community -->
       <div class="section" data-section="4" style="display:none;">
@@ -244,7 +246,7 @@
           <input type="range" name="social_pressure" min="1" max="10" value="5">
           <div class="slider-labels"><span>1: Little pressure</span><span>10: Constant pressure</span></div>
         </div>
-        <div class="section-footer"><button type="button" class="btn" onclick="nextSection(4)">Next</button></div>
+        <div class="section-footer"><button type="button" class="btn btn-cta btn-primary" onclick="nextSection(4)">Next</button></div>
       </div>
       <!-- Section 5: Health & Wellness Priorities -->
       <div class="section" data-section="5" style="display:none;">
@@ -304,7 +306,7 @@
             <div class="option"><input type="checkbox" name="wellness_priority[]" value="apps">Wellness apps/programs</div>
           </div>
         </div>
-        <div class="section-footer"><button type="button" class="btn" onclick="nextSection(5)">Next</button></div>
+        <div class="section-footer"><button type="button" class="btn btn-cta btn-primary" onclick="nextSection(5)">Next</button></div>
       </div>
       <!-- Section 6: Financial Goals & Values -->
       <div class="section" data-section="6" style="display:none;">
@@ -375,7 +377,7 @@
             <div class="option"><input type="radio" name="money_relationship" value="complicated">I have a complicated relationship with money</div>
           </div>
         </div>
-        <div class="section-footer"><button type="button" class="btn" onclick="nextSection(6)">Next</button></div>
+        <div class="section-footer"><button type="button" class="btn btn-cta btn-primary" onclick="nextSection(6)">Next</button></div>
       </div>
       <!-- Section 7: Technology & Learning Preferences -->
       <div class="section" data-section="7" style="display:none;">
@@ -435,7 +437,7 @@
             <div class="option"><input type="radio" name="motivation_style" value="visual">Visual progress tracking</div>
           </div>
         </div>
-        <div class="section-footer"><button type="button" class="btn" onclick="nextSection(7)">Next</button></div>
+        <div class="section-footer"><button type="button" class="btn btn-cta btn-primary" onclick="nextSection(7)">Next</button></div>
       </div>
       <!-- Closing Section: Additional Context -->
       <div class="section" data-section="8" style="display:none;">
@@ -443,21 +445,21 @@
         <div class="section-desc">A few final questions to help us understand your unique story. Your responses are confidential and help us provide the best support possible.</div>
         <div class="question">
           <label class="question-label">1. Biggest Financial Challenge</label>
-          <textarea class="textarea" name="biggest_challenge" placeholder="What is your biggest financial challenge right now?"></textarea>
+          <textarea class="textarea" name="biggest_challenge" placeholder="What is your biggest financial challenge right now?" class="form-input"></textarea>
         </div>
         <div class="question">
           <label class="question-label">2. Success Definition</label>
-          <textarea class="textarea" name="success_definition" placeholder="What would financial success look like for you in 3 years?"></textarea>
+          <textarea class="textarea" name="success_definition" placeholder="What would financial success look like for you in 3 years?" class="form-input"></textarea>
         </div>
         <div class="question">
           <label class="question-label">3. Support Needs</label>
-          <textarea class="textarea" name="support_needs" placeholder="What kind of financial support or guidance would be most helpful to you?"></textarea>
+          <textarea class="textarea" name="support_needs" placeholder="What kind of financial support or guidance would be most helpful to you?" class="form-input"></textarea>
         </div>
         <div class="question">
           <label class="question-label">4. Cultural Considerations (Optional)</label>
-          <textarea class="textarea" name="cultural_considerations" placeholder="Is there anything about your cultural background or community that significantly influences your financial decisions?"></textarea>
+          <textarea class="textarea" name="cultural_considerations" placeholder="Is there anything about your cultural background or community that significantly influences your financial decisions?" class="form-input"></textarea>
         </div>
-        <div class="section-footer"><button type="button" class="btn" onclick="nextSection(8)">Finish</button></div>
+        <div class="section-footer"><button type="button" class="btn btn-cta btn-primary" onclick="nextSection(8)">Finish</button></div>
       </div>
     </form>
     <div id="completionMessage" style="display:none; text-align:center; margin-top:2rem;">

@@ -1,0 +1,455 @@
+{
+  "version": "1.2.0",
+  "targetDemographic": "African American professionals",
+  "optimizationFocus": "Network-aware performance across varying connection speeds",
+  
+  "performanceTargets": {
+    "coreWebVitals": {
+      "lcp": {
+        "3g": {
+          "target": 1800,
+          "acceptable": 2500,
+          "poor": 4000
+        },
+        "4g": {
+          "target": 1200,
+          "acceptable": 1800,
+          "poor": 2500
+        }
+      },
+      "fid": {
+        "3g": {
+          "target": 80,
+          "acceptable": 100,
+          "poor": 300
+        },
+        "4g": {
+          "target": 50,
+          "acceptable": 80,
+          "poor": 100
+        }
+      },
+      "cls": {
+        "3g": {
+          "target": 0.03,
+          "acceptable": 0.05,
+          "poor": 0.1
+        },
+        "4g": {
+          "target": 0.02,
+          "acceptable": 0.03,
+          "poor": 0.05
+        }
+      }
+    },
+    
+    "pageWeight": {
+      "3g": {
+        "initialLoad": 600000,
+        "totalLoad": 800000,
+        "criticalPath": 300000
+      },
+      "4g": {
+        "initialLoad": 800000,
+        "totalLoad": 1200000,
+        "criticalPath": 400000
+      }
+    },
+    
+    "loadTimes": {
+      "3g": {
+        "firstContentfulPaint": 1500,
+        "largestContentfulPaint": 2500,
+        "timeToInteractive": 3000,
+        "totalLoadTime": 2500
+      },
+      "4g": {
+        "firstContentfulPaint": 800,
+        "largestContentfulPaint": 1500,
+        "timeToInteractive": 2000,
+        "totalLoadTime": 1500
+      }
+    },
+    
+    "devicePerformance": {
+      "budgetAndroid": {
+        "fps": 60,
+        "memoryLimit": 25,
+        "appLaunchTime": 2000,
+        "touchResponse": 100
+      },
+      "midRangeAndroid": {
+        "fps": 60,
+        "memoryLimit": 50,
+        "appLaunchTime": 1500,
+        "touchResponse": 80
+      },
+      "highEndAndroid": {
+        "fps": 60,
+        "memoryLimit": 100,
+        "appLaunchTime": 1000,
+        "touchResponse": 60
+      },
+      "olderiPhone": {
+        "fps": 60,
+        "memoryLimit": 30,
+        "appLaunchTime": 2000,
+        "touchResponse": 100
+      },
+      "neweriPhone": {
+        "fps": 60,
+        "memoryLimit": 80,
+        "appLaunchTime": 1000,
+        "touchResponse": 60
+      }
+    }
+  },
+  
+  "networkProfiles": {
+    "4g-fast": {
+      "downlink": 10,
+      "rtt": 50,
+      "effectiveType": "4g",
+      "saveData": false,
+      "description": "High-speed 4G/LTE connection"
+    },
+    "4g-slow": {
+      "downlink": 2.5,
+      "rtt": 80,
+      "effectiveType": "4g",
+      "saveData": false,
+      "description": "Standard 4G connection"
+    },
+    "3g-fast": {
+      "downlink": 1.5,
+      "rtt": 100,
+      "effectiveType": "3g",
+      "saveData": false,
+      "description": "Fast 3G connection"
+    },
+    "3g-slow": {
+      "downlink": 0.75,
+      "rtt": 200,
+      "effectiveType": "3g",
+      "saveData": true,
+      "description": "Slow 3G connection"
+    },
+    "2g": {
+      "downlink": 0.25,
+      "rtt": 300,
+      "effectiveType": "2g",
+      "saveData": true,
+      "description": "2G connection"
+    }
+  },
+  
+  "deviceProfiles": {
+    "samsung_galaxy_a12": {
+      "type": "android",
+      "ram": 3,
+      "storage": 32,
+      "processor": "MediaTek Helio P35",
+      "capabilities": "low",
+      "commonInTargetDemographic": true,
+      "description": "Budget Android device common among African American professionals"
+    },
+    "samsung_galaxy_s21": {
+      "type": "android",
+      "ram": 8,
+      "storage": 128,
+      "processor": "Snapdragon 888",
+      "capabilities": "high",
+      "commonInTargetDemographic": true,
+      "description": "High-end Android device"
+    },
+    "google_pixel_4a": {
+      "type": "android",
+      "ram": 6,
+      "storage": 128,
+      "processor": "Snapdragon 730G",
+      "capabilities": "medium",
+      "commonInTargetDemographic": true,
+      "description": "Mid-range Android device"
+    },
+    "iphone_8": {
+      "type": "ios",
+      "ram": 2,
+      "storage": 64,
+      "processor": "A11 Bionic",
+      "capabilities": "medium",
+      "commonInTargetDemographic": true,
+      "description": "Older iPhone still in use"
+    },
+    "iphone_14": {
+      "type": "ios",
+      "ram": 6,
+      "storage": 128,
+      "processor": "A15 Bionic",
+      "capabilities": "high",
+      "commonInTargetDemographic": true,
+      "description": "Newer iPhone model"
+    }
+  },
+  
+  "carrierProfiles": {
+    "verizon": {
+      "coverage": "excellent",
+      "typicalSpeed": "8-12 Mbps",
+      "commonInCommunities": true,
+      "networkType": "4g",
+      "description": "Widely used in African American communities"
+    },
+    "att": {
+      "coverage": "good",
+      "typicalSpeed": "6-10 Mbps",
+      "commonInCommunities": true,
+      "networkType": "4g",
+      "description": "Common carrier in urban areas"
+    },
+    "tmobile": {
+      "coverage": "good",
+      "typicalSpeed": "5-8 Mbps",
+      "commonInCommunities": true,
+      "networkType": "4g",
+      "description": "Popular among younger professionals"
+    },
+    "sprint": {
+      "coverage": "fair",
+      "typicalSpeed": "2-4 Mbps",
+      "commonInCommunities": true,
+      "networkType": "3g",
+      "description": "Legacy carrier with 3G focus"
+    },
+    "metro": {
+      "coverage": "fair",
+      "typicalSpeed": "1.5-3 Mbps",
+      "commonInCommunities": true,
+      "networkType": "3g",
+      "description": "Budget carrier popular in target demographic"
+    },
+    "cricket": {
+      "coverage": "fair",
+      "typicalSpeed": "1.2-2.5 Mbps",
+      "commonInCommunities": true,
+      "networkType": "3g",
+      "description": "Budget carrier with limited speeds"
+    }
+  },
+  
+  "optimizationStrategies": {
+    "3g": {
+      "imageQuality": 60,
+      "videoQuality": "low",
+      "animationReduction": true,
+      "prefetchLimit": 2,
+      "cacheStrategy": "aggressive",
+      "criticalCSS": true,
+      "lazyLoading": true,
+      "serviceWorker": true,
+      "offlineFirst": true
+    },
+    "4g": {
+      "imageQuality": 85,
+      "videoQuality": "medium",
+      "animationReduction": false,
+      "prefetchLimit": 5,
+      "cacheStrategy": "balanced",
+      "criticalCSS": true,
+      "lazyLoading": true,
+      "serviceWorker": true,
+      "offlineFirst": false
+    }
+  },
+  
+  "financialCalculatorOptimization": {
+    "webWorkerEnabled": true,
+    "chunkSize": 100,
+    "calculationTimeout": 5000,
+    "memoryLimit": 50,
+    "offlineCalculations": true,
+    "cachedDataExpiry": 86400000
+  },
+  
+  "cachingStrategies": {
+    "staticAssets": {
+      "strategy": "cache-first",
+      "maxAge": 31536000,
+      "maxEntries": 100
+    },
+    "apiData": {
+      "strategy": "network-first",
+      "maxAge": 3600000,
+      "maxEntries": 50
+    },
+    "financialData": {
+      "strategy": "stale-while-revalidate",
+      "maxAge": 86400000,
+      "maxEntries": 25
+    },
+    "images": {
+      "strategy": "cache-first",
+      "maxAge": 604800000,
+      "maxEntries": 200
+    }
+  },
+  
+  "offlineCapabilities": {
+    "essentialFeatures": [
+      "salary-comparison",
+      "basic-calculations",
+      "cached-data-access",
+      "offline-results"
+    ],
+    "storageLimit": 50,
+    "syncOnReconnect": true,
+    "backgroundSync": true,
+    "pushNotifications": true
+  },
+  
+  "testingScenarios": {
+    "peakUsage": {
+      "concurrentUsers": 1000,
+      "testDuration": 120000,
+      "targetResponseTime": 3000,
+      "uptimeRequirement": 99.9
+    },
+    "networkSwitching": {
+      "testScenarios": [
+        "4g-to-3g",
+        "3g-to-offline",
+        "offline-to-4g",
+        "slow-to-fast"
+      ],
+      "gracefulDegradation": true,
+      "recoveryTime": 5000
+    },
+    "deviceSwitching": {
+      "testScenarios": [
+        "high-to-low-memory",
+        "fast-to-slow-processor",
+        "large-to-small-screen"
+      ],
+      "adaptiveUI": true,
+      "performanceMaintenance": true
+    }
+  },
+  
+  "monitoringMetrics": {
+    "realTime": [
+      "lcp",
+      "fid", 
+      "cls",
+      "fps",
+      "memory-usage",
+      "network-type",
+      "touch-response"
+    ],
+    "periodic": [
+      "page-weight",
+      "load-times",
+      "error-rates",
+      "user-satisfaction",
+      "conversion-rates"
+    ],
+    "alerts": {
+      "lcp_threshold": 2500,
+      "fid_threshold": 100,
+      "cls_threshold": 0.1,
+      "memory_threshold": 50,
+      "error_rate_threshold": 0.01
+    }
+  },
+  
+  "accessibilityRequirements": {
+    "screenReader": true,
+    "keyboardNavigation": true,
+    "highContrast": true,
+    "touchTargets": 44,
+    "fontScaling": true,
+    "reducedMotion": true
+  },
+  
+  "successCriteria": {
+    "performance": {
+      "sub1mbPageWeight": true,
+      "under2sLoadTime3G": true,
+      "under100msTouchResponse": true,
+      "60fpsScrolling": true
+    },
+    "userExperience": {
+      "seamlessOffline": true,
+      "fastCalculations": true,
+      "smoothNavigation": true,
+      "consistentPerformance": true
+    },
+    "businessImpact": {
+      "improvedEngagement": true,
+      "reducedBounceRate": true,
+      "increasedConversions": true,
+      "betterAccessibility": true
+    }
+  },
+  
+  "implementationPhases": {
+    "phase1": {
+      "duration": "2 weeks",
+      "focus": "Core optimization",
+      "deliverables": [
+        "Image optimization",
+        "Critical CSS",
+        "Service worker setup",
+        "Basic lazy loading"
+      ],
+      "targetMetrics": {
+        "pageWeight": "< 1.2MB",
+        "lcp": "< 2.5s (3G)",
+        "fid": "< 150ms"
+      }
+    },
+    "phase2": {
+      "duration": "2 weeks", 
+      "focus": "Network awareness",
+      "deliverables": [
+        "Network detection",
+        "Progressive loading",
+        "Offline functionality",
+        "Bandwidth optimization"
+      ],
+      "targetMetrics": {
+        "3gLoadTime": "< 2.5s",
+        "4gLoadTime": "< 1.5s",
+        "offlineFeatures": "100%"
+      }
+    },
+    "phase3": {
+      "duration": "2 weeks",
+      "focus": "Mobile optimization",
+      "deliverables": [
+        "Financial calculator optimization",
+        "Mobile caching",
+        "Touch improvements",
+        "Device optimization"
+      ],
+      "targetMetrics": {
+        "budgetAndroid": "60fps",
+        "olderiPhone": "< 2s launch",
+        "touchResponse": "< 100ms"
+      }
+    },
+    "phase4": {
+      "duration": "2 weeks",
+      "focus": "Testing and validation",
+      "deliverables": [
+        "Cross-device testing",
+        "Network testing",
+        "Peak usage testing",
+        "Performance monitoring"
+      ],
+      "targetMetrics": {
+        "allDevices": "meet targets",
+        "peakUsage": "< 3s response",
+        "uptime": "99.9%"
+      }
+    }
+  }
+}

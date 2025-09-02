@@ -93,8 +93,8 @@ const ExpensesStep: React.FC = () => {
         {/* Progress Header */}
         <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
           <div className="flex items-center justify-between mb-4">
-            <h1 className="text-2xl font-bold text-gray-900">Monthly Expenses</h1>
-            <span className="text-sm text-gray-500">Step 3 of 7</span>
+            <h1 className="text-2xl font-bold text-gray-900" className="text-4xl font-bold text-gray-900 mb-6">Monthly Expenses</h1>
+            <span className="text-base leading-relaxed text-gray-500">Step 3 of 7</span>
           </div>
           <div className="w-full bg-gray-200 rounded-full h-2">
             <div className="bg-gradient-to-r from-orange-500 to-red-600 h-2 rounded-full" style={{ width: '43%' }}></div>
@@ -103,7 +103,7 @@ const ExpensesStep: React.FC = () => {
 
         <div className="bg-white rounded-xl shadow-sm p-8">
           <div className="mb-8">
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">Track Your Monthly Expenses</h2>
+            <h2 className="text-xl font-semibold text-gray-900 mb-2" className="text-2xl font-semibold text-gray-800 mb-4">Track Your Monthly Expenses</h2>
             <p className="text-gray-600">Understanding your spending helps us provide better financial insights and recommendations.</p>
           </div>
 
@@ -118,7 +118,7 @@ const ExpensesStep: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {expenseCategories.map(category => (
                 <div key={category.key} className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-700">
+                  <label className="block text-base leading-relaxed font-medium text-gray-700">
                     <span className="text-lg mr-2">{category.icon}</span>
                     {category.label}
                   </label>
@@ -132,7 +132,7 @@ const ExpensesStep: React.FC = () => {
                     min="0"
                     step="0.01"
                   />
-                  <p className="text-xs text-gray-500">{category.description}</p>
+                  <p className="text-base leading-relaxed text-gray-500">{category.description}</p>
                 </div>
               ))}
             </div>
@@ -140,12 +140,12 @@ const ExpensesStep: React.FC = () => {
             {/* Total Summary */}
             <div className="bg-gradient-to-r from-orange-50 to-red-50 rounded-lg p-6 border border-orange-200">
               <div className="flex justify-between items-center">
-                <h3 className="text-lg font-semibold text-gray-900">Total Monthly Expenses</h3>
+                <h3 className="text-lg font-semibold text-gray-900" className="text-xl font-semibold text-gray-800 mb-3">Total Monthly Expenses</h3>
                 <span className="text-2xl font-bold text-orange-600">
                   ${totalExpenses.toLocaleString()}
                 </span>
               </div>
-              <p className="text-sm text-gray-600 mt-2">
+              <p className="text-base leading-relaxed text-gray-600 mt-2">
                 This helps us understand your spending patterns and provide personalized recommendations.
               </p>
             </div>
@@ -153,7 +153,7 @@ const ExpensesStep: React.FC = () => {
             {/* Tips */}
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
               <h4 className="font-semibold text-blue-800 mb-2">💡 Tips for accurate tracking:</h4>
-              <ul className="text-sm text-blue-700 space-y-1">
+              <ul className="text-base leading-relaxed text-blue-700 space-y-1">
                 <li>• Include all regular monthly expenses</li>
                 <li>• Don't forget annual expenses divided by 12</li>
                 <li>• Be honest - this helps us provide better advice</li>

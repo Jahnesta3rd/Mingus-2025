@@ -89,7 +89,7 @@ const FinancialQuestionnaireStep: React.FC = () => {
       <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-100 flex items-center justify-center p-4">
         <div className="max-w-2xl w-full bg-white rounded-2xl shadow-xl p-8 text-center">
           <div className="text-6xl mb-4">✅</div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">
+          <h1 className="text-2xl font-bold text-gray-900 mb-4" className="text-4xl font-bold text-gray-900 mb-6">
             Financial Assessment Complete!
           </h1>
           <p className="text-gray-600 mb-6">
@@ -112,8 +112,8 @@ const FinancialQuestionnaireStep: React.FC = () => {
       <div className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between mb-2">
-            <h1 className="text-xl font-semibold text-gray-900">Financial Assessment</h1>
-            <span className="text-sm text-gray-500">Step 5 of 7</span>
+            <h2 className="text-xl font-semibold text-gray-900" className="text-2xl font-semibold text-gray-800 mb-4">Financial Assessment</h2>
+            <span className="text-base leading-relaxed text-gray-500">Step 5 of 7</span>
           </div>
           <div className="w-full bg-gray-200 rounded-full h-2">
             <div className="bg-gradient-to-r from-purple-500 to-indigo-600 h-2 rounded-full" style={{ width: '71%' }}></div>
@@ -124,15 +124,15 @@ const FinancialQuestionnaireStep: React.FC = () => {
       <div className="max-w-4xl mx-auto px-4 py-8">
         <div className="bg-white rounded-xl shadow-sm p-8 mb-6">
           <div className="text-center mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4" className="text-2xl font-semibold text-gray-800 mb-4">
               Financial Wellness Assessment
             </h2>
             <p className="text-gray-600 mb-6">
               This quick assessment helps us understand your financial situation and provide personalized recommendations.
             </p>
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <h3 className="font-semibold text-blue-800 mb-2">What to expect:</h3>
-              <ul className="text-sm text-blue-700 space-y-1">
+              <h3 className="font-semibold text-blue-800 mb-2" className="text-xl font-semibold text-gray-800 mb-3">What to expect:</h3>
+              <ul className="text-base leading-relaxed text-blue-700 space-y-1">
                 <li>• 10-15 questions about your financial situation</li>
                 <li>• Takes about 3-5 minutes to complete</li>
                 <li>• Your answers help us provide better insights</li>

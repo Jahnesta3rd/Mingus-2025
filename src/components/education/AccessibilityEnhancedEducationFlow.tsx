@@ -274,7 +274,7 @@ export default function AccessibilityEnhancedEducationFlow({ onClose }: { onClos
                   id="education-flow-title" 
                   className="text-2xl font-bold text-white"
                   style={{ fontSize: accessibility.largeText ? '1.5rem' : undefined }}
-                >
+                 className="text-4xl font-bold text-gray-900 mb-6">
                   Welcome to Mingus
                 </h1>
                 <p 
@@ -298,7 +298,7 @@ export default function AccessibilityEnhancedEducationFlow({ onClose }: { onClos
 
           {/* Progress Indicator */}
           <div className="mt-4">
-            <div className="flex items-center justify-between text-sm text-gray-400 mb-2">
+            <div className="flex items-center justify-between text-base leading-relaxed text-gray-400 mb-2">
               <span>Step {currentStep + 1} of {cards.length}</span>
               <span>{Math.round(((currentStep + 1) / cards.length) * 100)}% Complete</span>
             </div>
@@ -334,7 +334,7 @@ export default function AccessibilityEnhancedEducationFlow({ onClose }: { onClos
               aria-labelledby="accessibility-title"
             >
               <div className="p-4">
-                <h2 id="accessibility-title" className="text-lg font-semibold text-white mb-3">
+                <h2 id="accessibility-title" className="text-lg font-semibold text-white mb-3" className="text-2xl font-semibold text-gray-800 mb-4">
                   Accessibility Settings
                 </h2>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -348,7 +348,7 @@ export default function AccessibilityEnhancedEducationFlow({ onClose }: { onClos
                     aria-pressed={accessibility.highContrast}
                   >
                     <Contrast className="w-5 h-5 mx-auto mb-1" aria-hidden="true" />
-                    <span className="text-sm">High Contrast</span>
+                    <span className="text-base leading-relaxed">High Contrast</span>
                   </button>
                   
                   <button
@@ -361,7 +361,7 @@ export default function AccessibilityEnhancedEducationFlow({ onClose }: { onClos
                     aria-pressed={accessibility.largeText}
                   >
                     <Type className="w-5 h-5 mx-auto mb-1" aria-hidden="true" />
-                    <span className="text-sm">Large Text</span>
+                    <span className="text-base leading-relaxed">Large Text</span>
                   </button>
                   
                   <button
@@ -378,7 +378,7 @@ export default function AccessibilityEnhancedEducationFlow({ onClose }: { onClos
                     ) : (
                       <Volume2 className="w-5 h-5 mx-auto mb-1" aria-hidden="true" />
                     )}
-                    <span className="text-sm">Screen Reader</span>
+                    <span className="text-base leading-relaxed">Screen Reader</span>
                   </button>
                   
                   <button
@@ -393,7 +393,7 @@ export default function AccessibilityEnhancedEducationFlow({ onClose }: { onClos
                     <div className="w-5 h-5 mx-auto mb-1 flex items-center justify-center" aria-hidden="true">
                       <div className="w-3 h-3 border-2 border-current rounded-full"></div>
                     </div>
-                    <span className="text-sm">Reduced Motion</span>
+                    <span className="text-base leading-relaxed">Reduced Motion</span>
                   </button>
                 </div>
               </div>
@@ -412,7 +412,7 @@ export default function AccessibilityEnhancedEducationFlow({ onClose }: { onClos
             aria-labelledby={`card-${currentStep}-title`}
           >
             <div className="flex items-center justify-between mb-4">
-              <h2 id={`card-${currentStep}-title`} className={`text-2xl font-bold ${currentCard.color}`}>
+              <h2 id={`card-${currentStep}-title`} className={`text-2xl font-bold ${currentCard.color}`} className="text-2xl font-semibold text-gray-800 mb-4">
                 {currentCard.title}
               </h2>
               <motion.div
@@ -448,7 +448,7 @@ export default function AccessibilityEnhancedEducationFlow({ onClose }: { onClos
             </ul>
 
             <button
-              className="text-blue-400 underline mb-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-gray-900 rounded"
+              className="text-blue-400 underline mb-2 text-base leading-relaxed focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-gray-900 rounded"
               onClick={() => setExpanded(!expanded)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
@@ -479,7 +479,7 @@ export default function AccessibilityEnhancedEducationFlow({ onClose }: { onClos
                   {/* Animated Progress Bar */}
                   <div className="mb-4">
                     <div className="flex items-center mb-1">
-                      <span className="text-sm text-gray-400 mr-2">Demo Score</span>
+                      <span className="text-base leading-relaxed text-gray-400 mr-2">Demo Score</span>
                       <TrendingUp className="w-4 h-4 text-blue-400" aria-hidden="true" />
                     </div>
                     <div 
@@ -503,7 +503,7 @@ export default function AccessibilityEnhancedEducationFlow({ onClose }: { onClos
                   {/* Dynamic Content Based on Card Type */}
                   {currentStep === 1 && (
                     <div className="mb-4 p-3 bg-gray-800 rounded-lg">
-                      <div className="text-sm text-gray-400 mb-3 text-center">Monthly Calendar Preview</div>
+                      <div className="text-base leading-relaxed text-gray-400 mb-3 text-center">Monthly Calendar Preview</div>
                       <div 
                         className="grid grid-cols-7 gap-1 mb-2"
                         role="grid"
@@ -516,7 +516,7 @@ export default function AccessibilityEnhancedEducationFlow({ onClose }: { onClos
                             <div
                               key={day}
                               className={`
-                                w-6 h-6 rounded text-xs flex items-center justify-center relative
+                                w-6 h-6 rounded text-base leading-relaxed flex items-center justify-center relative
                                 ${event ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-400'}
                               `}
                               role="gridcell"
@@ -584,7 +584,7 @@ export default function AccessibilityEnhancedEducationFlow({ onClose }: { onClos
             </AnimatePresence>
 
             {/* Testimonial */}
-            <div className="mt-4 text-sm text-gray-400 italic border-t border-gray-800 pt-2">
+            <div className="mt-4 text-base leading-relaxed text-gray-400 italic border-t border-gray-800 pt-2">
               <blockquote>
                 <span>"{testimonials[currentCard.testimonialIndex % testimonials.length].quote}"</span>
                 <footer className="block text-right text-gray-500 mt-1">

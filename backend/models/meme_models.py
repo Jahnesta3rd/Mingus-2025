@@ -45,8 +45,12 @@ class Meme(Base):
             name='valid_meme_category'
         ),
         CheckConstraint(
-            priority >= 1 and priority <= 10,
-            name='valid_meme_priority'
+            priority >= 1,
+            name='valid_meme_priority_min'
+        ),
+        CheckConstraint(
+            priority <= 10,
+            name='valid_meme_priority_max'
         ),
         Index('idx_memes_category', 'category'),
         Index('idx_memes_active', 'is_active'),
@@ -175,8 +179,12 @@ class UserMemePreferences(Base):
             name='valid_frequency_setting'
         ),
         CheckConstraint(
-            custom_frequency_days >= 1 and custom_frequency_days <= 30,
-            name='valid_custom_frequency_days'
+            custom_frequency_days >= 1,
+            name='valid_custom_frequency_days_min'
+        ),
+        CheckConstraint(
+            custom_frequency_days <= 30,
+            name='valid_custom_frequency_days_max'
         ),
         Index('idx_user_meme_preferences_enabled', 'memes_enabled'),
         Index('idx_user_meme_preferences_frequency', 'frequency_setting'),

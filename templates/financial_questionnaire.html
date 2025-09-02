@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="stylesheet" href="touch_target_optimization.css">
+
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Financial Health Assessment - Mingus</title>
@@ -99,13 +101,10 @@
     .section-icon {
       width: 24px;
       height: 24px;
-      background: linear-gradient(135deg, #2563eb, #3b82f6);
-      border-radius: 6px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 12px;
-      color: white;
+      font-size: 1.2rem;
     }
     
     .form-group {
@@ -117,38 +116,64 @@
       margin-bottom: 0.5rem;
       font-weight: 500;
       color: #374151;
-    }
-    
-    .form-input,
-    .form-select {
-      width: 100%;
-      padding: 0.75rem 1rem;
-      border: 1px solid #d1d5db;
-      border-radius: 8px;
       font-size: 1rem;
-      transition: all 0.3s ease;
     }
     
-    .form-input:focus,
-    .form-select:focus {
+    .form-label .required-indicator {
+      color: #dc2626;
+      margin-left: 0.25rem;
+    }
+    
+    .form-input, .form-select {
+      width: 100%;
+      padding: 0.75rem;
+      border: 2px solid #d1d5db;
+      border-radius: 0.5rem;
+      font-size: 1rem;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    
+    .form-input:focus, .form-select:focus {
       outline: none;
       border-color: #2563eb;
       box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
     }
     
+    .form-input.error, .form-select.error {
+      border-color: #dc2626;
+    }
+    
+    .form-input.error:focus, .form-select.error:focus {
+      border-color: #dc2626;
+      box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+    }
+    
+    .error-message {
+      display: none;
+      color: #dc2626;
+      font-size: 0.875rem;
+      margin-top: 0.5rem;
+      padding: 0.5rem;
+      background-color: #fef2f2;
+      border: 1px solid #fecaca;
+      border-radius: 0.375rem;
+    }
+    
+    .error-message.show {
+      display: block;
+    }
+    
     .range-container {
-      position: relative;
-      padding: 1rem 0;
+      margin-top: 1rem;
     }
     
     .range-slider {
       width: 100%;
       height: 6px;
-      background: #e5e7eb;
       border-radius: 3px;
+      background: #d1d5db;
       outline: none;
       -webkit-appearance: none;
-      appearance: none;
     }
     
     .range-slider::-webkit-slider-thumb {
@@ -156,31 +181,39 @@
       appearance: none;
       width: 20px;
       height: 20px;
-      background: #2563eb;
       border-radius: 50%;
+      background: #2563eb;
       cursor: pointer;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+    
+    .range-slider::-moz-range-thumb {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #2563eb;
+      cursor: pointer;
+      border: none;
     }
     
     .range-labels {
       display: flex;
       justify-content: space-between;
       margin-top: 0.5rem;
-      font-size: 0.85rem;
+      font-size: 0.875rem;
       color: #6b7280;
     }
     
     .range-value {
       text-align: center;
-      font-size: 1.1rem;
+      margin-top: 0.5rem;
       font-weight: 600;
       color: #2563eb;
-      margin-top: 0.5rem;
+      font-size: 1.1rem;
     }
     
     .checkbox-group {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
       gap: 1rem;
       margin-top: 1rem;
     }
@@ -189,45 +222,41 @@
       display: flex;
       align-items: center;
       gap: 0.5rem;
-      padding: 0.75rem;
-      border: 1px solid #e5e7eb;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-    
-    .checkbox-item:hover {
-      border-color: #2563eb;
-      background: #f8fafc;
     }
     
     .checkbox-item input[type="checkbox"] {
-      width: 18px;
-      height: 18px;
+      width: 1.25rem;
+      height: 1.25rem;
       accent-color: #2563eb;
+    }
+    
+    .checkbox-item label {
+      font-size: 0.95rem;
+      color: #374151;
+      cursor: pointer;
     }
     
     .submit-container {
       text-align: center;
-      margin-top: 3rem;
+      margin-top: 2rem;
     }
     
     .submit-btn {
       background: linear-gradient(135deg, #2563eb, #3b82f6);
       color: white;
       border: none;
-      padding: 1rem 3rem;
+      padding: 1rem 2rem;
+      border-radius: 0.5rem;
       font-size: 1.1rem;
       font-weight: 600;
-      border-radius: 8px;
       cursor: pointer;
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      min-width: 200px;
     }
     
-    .submit-btn:hover {
+    .submit-btn:hover:not(:disabled) {
       transform: translateY(-2px);
-      box-shadow: 0 8px 12px -1px rgba(37, 99, 235, 0.3);
+      box-shadow: 0 10px 25px rgba(37, 99, 235, 0.3);
     }
     
     .submit-btn:disabled {
@@ -236,36 +265,13 @@
       transform: none;
     }
     
-    .error-message {
-      color: #dc2626;
-      font-size: 0.9rem;
-      margin-top: 0.5rem;
-      display: none;
-    }
-    
-    .form-input.error,
-    .form-select.error {
-      border-color: #dc2626;
-    }
-    
-    .success-message {
-      background: #f0fdf4;
-      border: 1px solid #bbf7d0;
-      border-radius: 8px;
-      padding: 1rem;
-      margin-bottom: 2rem;
-      text-align: center;
-      color: #166534;
-      display: none;
-    }
-    
     .loading {
       display: inline-block;
-      width: 20px;
-      height: 20px;
-      border: 3px solid rgba(255, 255, 255, 0.3);
+      width: 1rem;
+      height: 1rem;
+      border: 2px solid #ffffff;
       border-radius: 50%;
-      border-top-color: #ffffff;
+      border-top-color: transparent;
       animation: spin 1s ease-in-out infinite;
       margin-right: 0.5rem;
     }
@@ -274,26 +280,99 @@
       to { transform: rotate(360deg); }
     }
     
-    @media (max-width: 768px) {
-      .questionnaire-container {
-        padding: 1rem;
-      }
-      
-      .header h1 {
-        font-size: 2rem;
-      }
-      
-      .questionnaire-form {
-        padding: 1.5rem;
-      }
-      
-      .checkbox-group {
-        grid-template-columns: 1fr;
+    .success-message {
+      display: none;
+      background: #ecfdf5;
+      border: 1px solid #a7f3d0;
+      color: #065f46;
+      padding: 1.5rem;
+      border-radius: 0.5rem;
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    
+    /* Accessibility improvements */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+    
+    .fieldset {
+      border: none;
+      padding: 0;
+      margin: 0;
+    }
+    
+    .legend {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #1f2937;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .form-help-text {
+      font-size: 0.875rem;
+      color: #6b7280;
+      margin-top: 0.25rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .validation-feedback {
+      margin-top: 0.5rem;
+      font-size: 0.875rem;
+    }
+    
+    .validation-feedback.success {
+      color: #059669;
+    }
+    
+    .validation-feedback.error {
+      color: #dc2626;
+    }
+    
+    .validation-feedback.info {
+      color: #2563eb;
+    }
+    
+    /* Focus indicators for keyboard navigation */
+    .form-input:focus-visible,
+    .form-select:focus-visible,
+    .submit-btn:focus-visible {
+      outline: 2px solid #2563eb;
+      outline-offset: 2px;
+    }
+    
+    /* High contrast mode support */
+    @media (prefers-contrast: high) {
+      .form-input, .form-select {
+        border-width: 3px;
       }
       
       .submit-btn {
-        width: 100%;
-        padding: 1rem;
+        border: 3px solid #ffffff;
+      }
+    }
+    
+    /* Reduced motion support */
+    @media (prefers-reduced-motion: reduce) {
+      .question-section {
+        animation: none;
+        opacity: 1;
+        transform: none;
+      }
+      
+      .submit-btn:hover:not(:disabled) {
+        transform: none;
       }
     }
   </style>
@@ -307,7 +386,7 @@
     </div>
 
     <!-- Progress indicator -->
-    <div class="progress-container">
+    <div class="progress-container" role="progressbar" aria-label="Form completion progress" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
       <div class="progress-bar">
         <div class="progress-fill" id="progressFill"></div>
       </div>
@@ -315,24 +394,26 @@
     </div>
 
     <!-- Success message -->
-    <div class="success-message" id="successMessage">
+    <div class="success-message" id="successMessage" role="alert" aria-live="polite">
       <strong>✅ Assessment submitted successfully!</strong><br>
       Your financial health score and personalized recommendations are being generated.
     </div>
 
     <!-- Financial Questionnaire Form -->
-    <form class="questionnaire-form" id="financialQuestionnaireForm">
+    <form class="questionnaire-form" id="financialQuestionnaireForm" novalidate aria-label="Financial Health Assessment Form">
       <!-- Income Section -->
-      <div class="question-section">
-        <div class="section-title">
-          <div class="section-icon">💰</div>
+      <fieldset class="fieldset">
+        <legend class="legend">
+          <div class="section-icon" aria-hidden="true">💰</div>
           Income
-        </div>
+        </legend>
         
         <div class="form-group">
           <label class="form-label" for="monthly_income">
             What's your approximate monthly income? (before taxes)
+            <span class="required-indicator" aria-label="required">*</span>
           </label>
+          <div class="form-help-text">Enter your total monthly income from all sources before taxes and deductions</div>
           <input 
             type="number" 
             id="monthly_income" 
@@ -342,22 +423,27 @@
             step="100"
             placeholder="e.g., 5000"
             required
+            aria-describedby="monthlyIncomeError monthlyIncomeHelp"
+            aria-invalid="false"
           >
-          <div class="error-message" id="monthlyIncomeError"></div>
+          <div class="error-message" id="monthlyIncomeError" role="alert" aria-live="polite"></div>
+          <div class="validation-feedback info" id="monthlyIncomeHelp">This information helps us provide accurate financial recommendations</div>
         </div>
-      </div>
+      </fieldset>
 
       <!-- Expenses Section -->
-      <div class="question-section">
-        <div class="section-title">
-          <div class="section-icon">📊</div>
+      <fieldset class="fieldset">
+        <legend class="legend">
+          <div class="section-icon" aria-hidden="true">📊</div>
           Monthly Expenses
-        </div>
+        </legend>
         
         <div class="form-group">
           <label class="form-label" for="monthly_expenses">
             What are your total monthly expenses? (rent, bills, food, etc.)
+            <span class="required-indicator" aria-label="required">*</span>
           </label>
+          <div class="form-help-text">Include all regular monthly expenses like housing, utilities, food, transportation, and entertainment</div>
           <input 
             type="number" 
             id="monthly_expenses" 
@@ -367,22 +453,27 @@
             step="100"
             placeholder="e.g., 3000"
             required
+            aria-describedby="monthlyExpensesError monthlyExpensesHelp"
+            aria-invalid="false"
           >
-          <div class="error-message" id="monthlyExpensesError"></div>
+          <div class="error-message" id="monthlyExpensesError" role="alert" aria-live="polite"></div>
+          <div class="validation-feedback info" id="monthlyExpensesHelp">Understanding your expenses helps us identify savings opportunities</div>
         </div>
-      </div>
+      </fieldset>
 
       <!-- Savings Section -->
-      <div class="question-section">
-        <div class="section-title">
-          <div class="section-icon">🏦</div>
+      <fieldset class="fieldset">
+        <legend class="legend">
+          <div class="section-icon" aria-hidden="true">🏦</div>
           Savings & Emergency Fund
-        </div>
+        </legend>
         
         <div class="form-group">
           <label class="form-label" for="current_savings">
             How much do you currently have in savings?
+            <span class="required-indicator" aria-label="required">*</span>
           </label>
+          <div class="form-help-text">Include all savings accounts, emergency funds, and liquid assets</div>
           <input 
             type="number" 
             id="current_savings" 
@@ -392,22 +483,27 @@
             step="100"
             placeholder="e.g., 10000"
             required
+            aria-describedby="currentSavingsError currentSavingsHelp"
+            aria-invalid="false"
           >
-          <div class="error-message" id="currentSavingsError"></div>
+          <div class="error-message" id="currentSavingsError" role="alert" aria-live="polite"></div>
+          <div class="validation-feedback info" id="currentSavingsHelp">Your current savings help us assess your financial security</div>
         </div>
-      </div>
+      </fieldset>
 
       <!-- Debt Section -->
-      <div class="question-section">
-        <div class="section-title">
-          <div class="section-icon">💳</div>
+      <fieldset class="fieldset">
+        <legend class="legend">
+          <div class="section-icon" aria-hidden="true">💳</div>
           Debt
-        </div>
+        </legend>
         
         <div class="form-group">
           <label class="form-label" for="total_debt">
             What's your total debt? (credit cards, loans, etc.)
+            <span class="required-indicator" aria-label="required">*</span>
           </label>
+          <div class="form-help-text">Include all outstanding balances on credit cards, loans, and other debts</div>
           <input 
             type="number" 
             id="total_debt" 
@@ -417,22 +513,27 @@
             step="100"
             placeholder="e.g., 15000"
             required
+            aria-describedby="totalDebtError totalDebtHelp"
+            aria-invalid="false"
           >
-          <div class="error-message" id="totalDebtError"></div>
+          <div class="error-message" id="totalDebtError" role="alert" aria-live="polite"></div>
+          <div class="validation-feedback info" id="totalDebtHelp">Understanding your debt helps us create a repayment strategy</div>
         </div>
-      </div>
+      </fieldset>
 
       <!-- Risk Tolerance Section -->
-      <div class="question-section">
-        <div class="section-title">
-          <div class="section-icon">🎯</div>
+      <fieldset class="fieldset">
+        <legend class="legend">
+          <div class="section-icon" aria-hidden="true">🎯</div>
           Investment Risk Tolerance
-        </div>
+        </legend>
         
         <div class="form-group">
           <label class="form-label" for="risk_tolerance">
             How comfortable are you with investment risk?
+            <span class="required-indicator" aria-label="required">*</span>
           </label>
+          <div class="form-help-text">Move the slider to indicate your comfort level with investment risk</div>
           <div class="range-container">
             <input 
               type="range" 
@@ -442,64 +543,80 @@
               min="1" 
               max="5" 
               value="3"
+              required
+              aria-describedby="riskToleranceValue riskToleranceHelp"
+              aria-valuemin="1"
+              aria-valuemax="5"
+              aria-valuenow="3"
+              aria-valuetext="Moderate"
             >
             <div class="range-labels">
               <span>Conservative</span>
               <span>Aggressive</span>
             </div>
-            <div class="range-value" id="riskToleranceValue">Moderate</div>
+            <div class="range-value" id="riskToleranceValue" aria-live="polite">Moderate</div>
+            <div class="validation-feedback info" id="riskToleranceHelp">Your risk tolerance helps us recommend appropriate investment strategies</div>
           </div>
-          <div class="error-message" id="riskToleranceError"></div>
         </div>
-      </div>
+      </fieldset>
 
       <!-- Financial Goals Section -->
-      <div class="question-section">
-        <div class="section-title">
-          <div class="section-icon">🎯</div>
+      <fieldset class="fieldset">
+        <legend class="legend">
+          <div class="section-icon" aria-hidden="true">🎯</div>
           Financial Goals
-        </div>
+        </legend>
         
         <div class="form-group">
           <label class="form-label">
             What are your main financial goals? (Select all that apply)
+            <span class="required-indicator" aria-label="required">*</span>
           </label>
-          <div class="checkbox-group">
+          <div class="form-help-text">Choose all the financial goals that are important to you</div>
+          <div class="checkbox-group" role="group" aria-labelledby="financial-goals-group">
             <div class="checkbox-item">
-              <input type="checkbox" id="goal_emergency" name="financial_goals" value="emergency_fund">
+              <input type="checkbox" id="goal_emergency" name="financial_goals" value="emergency_fund" aria-describedby="goal_emergency_desc">
               <label for="goal_emergency">Build emergency fund</label>
+              <div class="sr-only" id="goal_emergency_desc">Build a safety net for unexpected expenses</div>
             </div>
             <div class="checkbox-item">
-              <input type="checkbox" id="goal_debt" name="financial_goals" value="debt_payoff">
+              <input type="checkbox" id="goal_debt" name="financial_goals" value="debt_payoff" aria-describedby="goal_debt_desc">
               <label for="goal_debt">Pay off debt</label>
+              <div class="sr-only" id="goal_debt_desc">Eliminate high-interest debt to improve financial health</div>
             </div>
             <div class="checkbox-item">
-              <input type="checkbox" id="goal_savings" name="financial_goals" value="savings">
+              <input type="checkbox" id="goal_savings" name="financial_goals" value="savings" aria-describedby="goal_savings_desc">
               <label for="goal_savings">Save for major purchase</label>
+              <div class="sr-only" id="goal_savings_desc">Save for a car, home, or other major expense</div>
             </div>
             <div class="checkbox-item">
-              <input type="checkbox" id="goal_investment" name="financial_goals" value="investment">
+              <input type="checkbox" id="goal_investment" name="financial_goals" value="investment" aria-describedby="goal_investment_desc">
               <label for="goal_investment">Start investing</label>
+              <div class="sr-only" id="goal_investment_desc">Begin building wealth through investments</div>
             </div>
             <div class="checkbox-item">
-              <input type="checkbox" id="goal_retirement" name="financial_goals" value="retirement">
+              <input type="checkbox" id="goal_retirement" name="financial_goals" value="retirement" aria-describedby="goal_retirement_desc">
               <label for="goal_retirement">Plan for retirement</label>
+              <div class="sr-only" id="goal_retirement_desc">Secure your financial future for retirement</div>
             </div>
             <div class="checkbox-item">
-              <input type="checkbox" id="goal_home" name="financial_goals" value="home_purchase">
+              <input type="checkbox" id="goal_home" name="financial_goals" value="home_purchase" aria-describedby="goal_home_desc">
               <label for="goal_home">Buy a home</label>
+              <div class="sr-only" id="goal_home_desc">Save for a down payment on a home</div>
             </div>
           </div>
-          <div class="error-message" id="financialGoalsError"></div>
+          <div class="error-message" id="financialGoalsError" role="alert" aria-live="polite"></div>
+          <div class="validation-feedback info">Selecting your goals helps us create a personalized financial plan</div>
         </div>
-      </div>
+      </fieldset>
 
       <!-- Submit Button -->
       <div class="submit-container">
-        <button type="submit" class="submit-btn" id="submitBtn">
-          <span class="loading" id="loadingSpinner" style="display: none;"></span>
+        <button type="submit" class="submit-btn btn-cta btn-primary" id="submitBtn" aria-describedby="submitHelp">
+          <span class="loading" id="loadingSpinner" style="display: none;" aria-hidden="true"></span>
           Get My Financial Health Score
         </button>
+        <div class="validation-feedback info" id="submitHelp">Click submit to receive your personalized financial health assessment</div>
       </div>
     </form>
   </div>
@@ -516,6 +633,7 @@
         
         this.initializeEventListeners();
         this.updateProgress();
+        this.announceToScreenReader('Financial Health Assessment form loaded. Please fill out all required fields marked with an asterisk.');
       }
 
       initializeEventListeners() {
@@ -536,7 +654,11 @@
         // Real-time validation
         formFields.forEach(field => {
           field.addEventListener('blur', (e) => this.validateField(e.target));
+          field.addEventListener('input', (e) => this.clearFieldError(e.target));
         });
+
+        // Keyboard navigation support
+        this.form.addEventListener('keydown', (e) => this.handleKeyboardNavigation(e));
       }
 
       updateRangeValue(event) {
@@ -545,9 +667,14 @@
         const value = parseInt(slider.value);
         
         const labels = ['Very Conservative', 'Conservative', 'Moderate', 'Aggressive', 'Very Aggressive'];
-        valueDisplay.textContent = labels[value - 1];
+        const newLabel = labels[value - 1];
+        
+        valueDisplay.textContent = newLabel;
+        slider.setAttribute('aria-valuetext', newLabel);
+        slider.setAttribute('aria-valuenow', value);
         
         this.updateProgress();
+        this.announceToScreenReader(`Risk tolerance set to ${newLabel}`);
       }
 
       updateProgress() {
@@ -571,6 +698,11 @@
         const progress = totalFields > 0 ? (completedFields / totalFields) * 100 : 0;
         this.progressFill.style.width = `${progress}%`;
         this.progressText.textContent = `${Math.round(progress)}% Complete`;
+        
+        // Update ARIA progress bar
+        const progressBar = document.querySelector('[role="progressbar"]');
+        progressBar.setAttribute('aria-valuenow', Math.round(progress));
+        progressBar.setAttribute('aria-valuetext', `${Math.round(progress)}% complete`);
       }
 
       validateField(field) {
@@ -580,8 +712,10 @@
 
         // Remove existing error styling
         field.classList.remove('error');
+        field.setAttribute('aria-invalid', 'false');
         if (errorElement) {
           errorElement.style.display = 'none';
+          errorElement.classList.remove('show');
         }
 
         // Validation rules
@@ -594,18 +728,42 @@
             isValid = false;
             errorMessage = 'Please enter a positive number';
           }
+        } else if (field.type === 'checkbox' && field.name === 'financial_goals') {
+          // Check if at least one goal is selected
+          const checkboxes = this.form.querySelectorAll('input[name="financial_goals"]:checked');
+          if (checkboxes.length === 0) {
+            isValid = false;
+            errorMessage = 'Please select at least one financial goal';
+          }
         }
 
         // Apply error styling and message
         if (!isValid) {
           field.classList.add('error');
+          field.setAttribute('aria-invalid', 'true');
           if (errorElement) {
             errorElement.textContent = errorMessage;
             errorElement.style.display = 'block';
+            errorElement.classList.add('show');
           }
+          
+          // Announce error to screen reader
+          this.announceToScreenReader(`Error: ${errorMessage}`);
         }
 
         return isValid;
+      }
+
+      clearFieldError(field) {
+        if (field.classList.contains('error')) {
+          field.classList.remove('error');
+          field.setAttribute('aria-invalid', 'false');
+          const errorElement = document.getElementById(field.id + 'Error');
+          if (errorElement) {
+            errorElement.style.display = 'none';
+            errorElement.classList.remove('show');
+          }
+        }
       }
 
       validateForm() {
@@ -625,11 +783,18 @@
         event.preventDefault();
 
         if (!this.validateForm()) {
+          this.announceToScreenReader('Form has validation errors. Please correct them before submitting.');
+          // Focus first error field
+          const firstError = this.form.querySelector('.error');
+          if (firstError) {
+            firstError.focus();
+          }
           return;
         }
 
         // Show loading state
         this.setLoadingState(true);
+        this.announceToScreenReader('Submitting form, please wait...');
 
         try {
           const formData = new FormData(this.form);
@@ -656,6 +821,7 @@
 
           if (response.ok) {
             this.showSuccess();
+            this.announceToScreenReader('Assessment submitted successfully! Your financial health score is being generated.');
             // Redirect to results page after a short delay
             setTimeout(() => {
               window.location.href = '/api/financial/questionnaire/results';
@@ -666,6 +832,7 @@
           }
         } catch (error) {
           console.error('Submission error:', error);
+          this.announceToScreenReader(`Error submitting form: ${error.message}`);
           alert('Failed to submit financial questionnaire. Please try again.');
         } finally {
           this.setLoadingState(false);
@@ -678,11 +845,54 @@
         this.submitBtn.innerHTML = loading 
           ? '<span class="loading" id="loadingSpinner"></span>Processing...'
           : 'Get My Financial Health Score';
+        
+        if (loading) {
+          this.submitBtn.setAttribute('aria-busy', 'true');
+        } else {
+          this.submitBtn.removeAttribute('aria-busy');
+        }
       }
 
       showSuccess() {
         this.successMessage.style.display = 'block';
         this.form.style.display = 'none';
+      }
+
+      handleKeyboardNavigation(event) {
+        // Handle Enter key on form fields
+        if (event.key === 'Enter' && event.target.tagName !== 'BUTTON') {
+          event.preventDefault();
+          const nextField = this.getNextField(event.target);
+          if (nextField) {
+            nextField.focus();
+          }
+        }
+      }
+
+      getNextField(currentField) {
+        const formFields = Array.from(this.form.querySelectorAll('input, select, textarea, button'));
+        const currentIndex = formFields.indexOf(currentField);
+        return formFields[currentIndex + 1] || null;
+      }
+
+      announceToScreenReader(message) {
+        // Create a live region for screen reader announcements
+        let liveRegion = document.getElementById('screen-reader-announcements');
+        if (!liveRegion) {
+          liveRegion = document.createElement('div');
+          liveRegion.id = 'screen-reader-announcements';
+          liveRegion.setAttribute('aria-live', 'polite');
+          liveRegion.setAttribute('aria-atomic', 'true');
+          liveRegion.className = 'sr-only';
+          document.body.appendChild(liveRegion);
+        }
+        
+        liveRegion.textContent = message;
+        
+        // Clear the message after a short delay
+        setTimeout(() => {
+          liveRegion.textContent = '';
+        }, 1000);
       }
     }
 

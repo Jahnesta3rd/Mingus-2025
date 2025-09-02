@@ -57,7 +57,7 @@ class EncryptedFinancialProfile(Base):
     is_active = Column(Boolean, default=True)
     
     # Additional data
-    metadata = Column(JSONB)
+    extra_metadata = Column('metadata', JSONB)
     
     # Timestamps
     created_at = Column(DateTime(timezone=True), server_default=func.now())
@@ -148,7 +148,7 @@ class EncryptedFinancialProfile(Base):
             'last_sync_at': self.last_sync_at.isoformat() if self.last_sync_at else None,
             'sync_status': self.sync_status,
             'is_active': self.is_active,
-            'metadata': self.metadata,
+            'metadata': self.extra_metadata,
             'is_credit_account': self.is_credit_account,
             'available_credit': float(self.available_credit) if self.available_credit else None,
             'credit_utilization': float(self.credit_utilization) if self.credit_utilization else None,
@@ -477,7 +477,7 @@ class FinancialTransaction(Base):
     # Additional information
     reference_number = Column(String(255))
     status = Column(String(50), default='pending')  # pending, completed, failed, disputed
-    metadata = Column(JSONB)
+    extra_metadata = Column('metadata', JSONB)
     
     # Timestamps
     created_at = Column(DateTime(timezone=True), server_default=func.now())
@@ -547,7 +547,7 @@ class FinancialTransaction(Base):
             'posted_date': self.posted_date.isoformat() if self.posted_date else None,
             'reference_number': self.reference_number,
             'status': self.status,
-            'metadata': self.metadata,
+            'metadata': self.extra_metadata,
             'is_income': self.is_income,
             'is_expense': self.is_expense,
             'absolute_amount': float(self.absolute_amount) if self.absolute_amount else None,

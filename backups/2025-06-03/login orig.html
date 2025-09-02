@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="stylesheet" href="touch_target_optimization.css">
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mingus Login / Signup</title>
   <link rel="stylesheet" href="login.css">
@@ -131,24 +133,24 @@
       <p class="subtitle">Financial Wellness, Reimagined</p>
       <form id="login-form" autocomplete="off">
         <div class="input-group">
-          <input type="email" id="email" placeholder="Email address" required autocomplete="username">
+          <input type="email" id="email" placeholder="Email address" required autocomplete="username" class="form-input">
         </div>
         <div class="input-group">
-          <input type="password" id="password" placeholder="Password" required autocomplete="current-password">
+          <input type="password" id="password" placeholder="Password" required autocomplete="current-password" class="form-input">
         </div>
         <div class="terms-row">
           <input type="checkbox" id="terms" required>
           <label for="terms">I agree to the <a href="#" id="show-terms">Terms & Conditions</a></label>
         </div>
-        <button type="submit" class="main-btn">Sign In / Sign Up</button>
+        <button type="submit" class="main-btn btn-cta btn-primary">Sign In / Sign Up</button>
       </form>
       <div class="divider"><span>or</span></div>
 <div class="social-login">
-  <button class="social-btn google" id="google-login" title="Sign in with Google">
+  <button class="social-btn google btn-cta btn-primary" id="google-login" title="Sign in with Google">
     <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxOCIgaGVpZ2h0PSIxOCIgdmlld0JveD0iMCAwIDQ4IDQ4Ij48cGF0aCBmaWxsPSIjRUE0MzM1IiBkPSJNMjQgOS41YzMuNTQgMCA2LjcxIDEuMjIgOS4yMSAzLjZsNi44NS02Ljg1QzM1LjkgMi4zOCAzMC40NyAwIDI0IDAgMTQuNjIgMCA2LjUxIDUuMzggMi41NiAxMy4yMmw3Ljk4IDYuMTlDMTIuNDMgMTMuNzIgMTcuNzQgOS41IDI0IDkuNXoiLz48cGF0aCBmaWxsPSIjNDI4NUY0IiBkPSJNNDYuOTggMjQuNTVjMC0xLjU3LS4xNS0zLjA5LS40My00LjU1SDI0djkuMDJoMTIuOTdjLS41MSAyLjk2LTIuNjYgNS40OC01LjcyIDcuMThsNy43MyA2YzQuNTEtNC4xOCA3LjA5LTEwLjM2IDcuMDktMTcuNjV6Ii8+PHBhdGggZmlsbD0iI0ZCQkM1RiIgZD0iTTEwLjUzIDI4LjU5Yy0uNDgtMS40NS0uNzYtMi45OS0uNzYtNC41OXMuMjctMy4xNC43Ni00LjU5bC03Ljk4LTYuMTlDLjkyIDE2LjQ2IDAgMjAuMTIgMCAyNGMwIDMuODguOTIgNy41NCAyLjU2IDEwLjc4bDcuOTctNi4xOXoiLz48cGF0aCBmaWxsPSIjMzRBODUzIiBkPSJNMjQgNDhjNi40OCAwIDExLjkzLTIuMTMgMTUuODktNS44MWwtNy43My02Yy0yLjE1IDEuNDUtNC45MiAyLjMtOC4xNiAyLjMtNi4yNiAwLTExLjU3LTQuMjItMTMuNDctOS45MWwtNy45OCA2LjE5QzYuNTEgNDIuNjIgMTQuNjIgNDggMjQgNDh6Ii8+PHBhdGggZmlsbD0ibm9uZSIgZD0iTTAgMGg0OHY0OEgweiIvPjwvc3ZnPg==" alt="Google" class="social-icon" style="background: none;">
     <span>Google</span>
   </button>
-  <button class="social-btn linkedin" id="linkedin-login" title="Sign in with LinkedIn">
+  <button class="social-btn linkedin btn-cta btn-primary" id="linkedin-login" title="Sign in with LinkedIn">
     <img src="https://upload.wikimedia.org/wikipedia/commons/c/ca/LinkedIn_logo_initials.png" alt="LinkedIn" class="social-icon" style="background: none;">
     <span>LinkedIn</span>
   </button>

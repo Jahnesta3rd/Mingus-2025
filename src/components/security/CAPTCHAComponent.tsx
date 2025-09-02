@@ -100,15 +100,15 @@ export const CAPTCHAComponent: React.FC<CAPTCHAComponentProps> = ({
   }
 
   return (
-    <div className="captcha-container">
-      <div className="captcha-header">
+    <div className="captcha-container mb-6">
+      <div className="captcha-header mb-6">
         <h4>Security Verification</h4>
         <p>Please complete the CAPTCHA to continue</p>
       </div>
       
       <div 
         ref={captchaRef} 
-        className="captcha-widget"
+        className="captcha-widget mb-6"
         style={{ 
           display: 'flex', 
           justifyContent: 'center',
@@ -117,14 +117,14 @@ export const CAPTCHAComponent: React.FC<CAPTCHAComponentProps> = ({
       />
       
       {isVerified && (
-        <div className="captcha-success">
+        <div className="captcha-success mb-6">
           <span>✅ Verification completed</span>
         </div>
       )}
       
       <button 
         onClick={resetCAPTCHA}
-        className="captcha-reset-button"
+        className="captcha-reset-button font-semibold text-lg"
         disabled={!isVerified}
       >
         Reset CAPTCHA

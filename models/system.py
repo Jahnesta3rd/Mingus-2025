@@ -15,7 +15,7 @@ Date: January 2025
 
 import uuid
 from datetime import datetime, timezone, date, time
-from sqlalchemy import Column, String, Boolean, Integer, DateTime, Date, Time, Numeric, Text, ForeignKey
+from sqlalchemy import Column, String, Boolean, Integer, DateTime, Date, Time, Numeric, Text, ForeignKey, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import relationship, validates
 from sqlalchemy.sql import func
@@ -350,7 +350,7 @@ class NotificationPreference(Base):
     # Constraints
     __table_args__ = (
         # Ensure unique notification type per user
-        ('uq_user_notification_type', 'user_id', 'notification_type'),
+        UniqueConstraint('user_id', 'notification_type', name='uq_user_notification_type'),
     )
     
     # Validation

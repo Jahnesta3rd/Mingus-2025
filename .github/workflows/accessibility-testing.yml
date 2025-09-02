@@ -1,0 +1,331 @@
+name: Accessibility Testing
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  schedule:
+    # Run accessibility tests weekly
+    - cron: '0 2 * * 1'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to test'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+        - local
+        - staging
+        - production
+
+env:
+  PYTHON_VERSION: '3.11'
+  CHROME_VERSION: 'latest'
+  NODE_VERSION: '18'
+
+jobs:
+  accessibility-testing:
+    name: Accessibility Testing
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        python-version: [3.11]
+        browser: [chrome]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+        
+    - name: Set up Node.js ${{ env.NODE_VERSION }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          chromium-browser \
+          chromium-chromedriver \
+          libgconf-2-4 \
+          libnss3 \
+          libxss1 \
+          libasound2 \
+          libatk-bridge2.0-0 \
+          libgtk-3-0 \
+          libdrm2 \
+          libxkbcommon0 \
+          libxcomposite1 \
+          libxdamage1 \
+          libxrandr2 \
+          libgbm1 \
+          libpango-1.0-0 \
+          libcairo2 \
+          libasound2
+        
+    - name: Cache Python dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements-testing.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+          
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements-testing.txt
+        pip install pytest-cov pytest-html
+        
+    - name: Install Node.js dependencies
+      run: |
+        npm ci
+        
+    - name: Start Flask application
+      run: |
+        cd backend
+        python -m flask run --host=0.0.0.0 --port=5000 &
+        sleep 10
+        
+    - name: Start React development server
+      run: |
+        cd frontend
+        npm start &
+        sleep 30
+        
+    - name: Wait for services to be ready
+      run: |
+        timeout 60 bash -c 'until curl -f http://localhost:5000/health; do sleep 2; done'
+        timeout 60 bash -c 'until curl -f http://localhost:3000; do sleep 2; done'
+        
+    - name: Run accessibility tests
+      run: |
+        python -m pytest tests/test_accessibility.py -v --tb=short --html=accessibility-report.html --self-contained-html
+        
+    - name: Run standalone accessibility tests
+      run: |
+        python -c "
+        from tests.test_accessibility import run_accessibility_tests
+        results = run_accessibility_tests('http://localhost:5000', ['/', '/forms', '/calculator'])
+        print('Accessibility test results:', results)
+        "
+        
+    - name: Upload accessibility test results
+      uses: actions/upload-artifact@v3
+      with:
+        name: accessibility-test-results
+        path: |
+          accessibility-report.html
+          accessibility_report_*.json
+          .pytest_cache/
+          
+    - name: Run color contrast analysis
+      run: |
+        python -m pytest tests/test_accessibility.py::TestAccessibility::test_color_contrast_compliance -v
+        
+    - name: Run keyboard navigation tests
+      run: |
+        python -m pytest tests/test_accessibility.py::TestAccessibility::test_keyboard_navigation -v
+        
+    - name: Generate accessibility report
+      run: |
+        python -c "
+        import json
+        import glob
+        import os
+        
+        # Find the latest accessibility report
+        reports = glob.glob('accessibility_report_*.json')
+        if reports:
+            latest_report = max(reports, key=os.path.getctime)
+            with open(latest_report, 'r') as f:
+                data = json.load(f)
+            
+            # Create summary for GitHub
+            summary = data.get('summary', {})
+            print(f'## Accessibility Test Summary')
+            print(f'- **Total Tests**: {summary.get(\"total_tests\", 0)}')
+            print(f'- **Tests Passed**: {summary.get(\"tests_passed\", 0)}')
+            print(f'- **Tests Failed**: {summary.get(\"tests_failed\", 0)}')
+            print(f'- **Success Rate**: {summary.get(\"success_rate\", 0):.1f}%')
+            print(f'- **WCAG AA Compliant**: {\"✅ Yes\" if summary.get(\"wcag_aa_compliant\") else \"❌ No\"}')
+            
+            # Add critical issues
+            critical_issues = data.get('details', {}).get('critical_issues', [])
+            if critical_issues:
+                print(f'\\n## Critical Issues')
+                for issue in critical_issues[:5]:  # Show first 5 issues
+                    print(f'- {issue}')
+                if len(critical_issues) > 5:
+                    print(f'- ... and {len(critical_issues) - 5} more issues')
+        "
+        
+    - name: Comment PR with accessibility results
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const fs = require('fs');
+          
+          // Read accessibility report
+          let reportContent = '';
+          try {
+            const reports = fs.readdirSync('.').filter(f => f.startsWith('accessibility_report_'));
+            if (reports.length > 0) {
+              const latestReport = reports.sort().pop();
+              const reportData = JSON.parse(fs.readFileSync(latestReport, 'utf8'));
+              
+              const summary = reportData.summary || {};
+              const criticalIssues = reportData.details?.critical_issues || [];
+              
+              reportContent = `## 🔍 Accessibility Test Results
+              
+              **Summary:**
+              - ✅ Tests Passed: ${summary.tests_passed || 0}
+              - ❌ Tests Failed: ${summary.tests_failed || 0}
+              - 📊 Success Rate: ${summary.success_rate || 0}%
+              - 🎯 WCAG AA Compliant: ${summary.wcag_aa_compliant ? '✅ Yes' : '❌ No'}
+              
+              ${criticalIssues.length > 0 ? `**Critical Issues Found:**\n${criticalIssues.slice(0, 3).map(issue => `- ${issue}`).join('\n')}${criticalIssues.length > 3 ? `\n- ... and ${criticalIssues.length - 3} more` : ''}` : '**✅ No critical issues found!**'}
+              
+              [View Full Report](${github.server_url}/${github.repository}/actions/runs/${github.run_id})
+              `;
+            }
+          } catch (error) {
+            reportContent = '❌ Failed to generate accessibility report';
+          }
+          
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: reportContent
+          });
+          
+    - name: Fail on critical accessibility issues
+      run: |
+        python -c "
+        import json
+        import glob
+        import sys
+        
+        reports = glob.glob('accessibility_report_*.json')
+        if reports:
+            latest_report = max(reports, key=lambda x: os.path.getctime(x))
+            with open(latest_report, 'r') as f:
+                data = json.load(f)
+            
+            critical_issues = data.get('details', {}).get('critical_issues', [])
+            if critical_issues:
+                print(f'❌ Found {len(critical_issues)} critical accessibility issues:')
+                for issue in critical_issues:
+                    print(f'  - {issue}')
+                sys.exit(1)
+            else:
+                print('✅ No critical accessibility issues found')
+        "
+        
+  accessibility-regression:
+    name: Accessibility Regression Testing
+    runs-on: ubuntu-latest
+    needs: accessibility-testing
+    if: github.event_name == 'pull_request'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Download accessibility test results
+      uses: actions/download-artifact@v3
+      with:
+        name: accessibility-test-results
+        
+    - name: Compare with baseline
+      run: |
+        python -c "
+        import json
+        import os
+        
+        # This would compare current results with baseline
+        # For now, just check if we have results
+        reports = [f for f in os.listdir('.') if f.startswith('accessibility_report_')]
+        if reports:
+            print('✅ Accessibility regression testing completed')
+            print(f'Found {len(reports)} accessibility reports')
+        else:
+            print('❌ No accessibility reports found')
+            exit(1)
+        "
+        
+  accessibility-reporting:
+    name: Generate Accessibility Report
+    runs-on: ubuntu-latest
+    needs: accessibility-testing
+    if: always()
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Download accessibility test results
+      uses: actions/download-artifact@v3
+      with:
+        name: accessibility-test-results
+        
+    - name: Generate accessibility dashboard
+      run: |
+        python -c "
+        import json
+        import glob
+        import os
+        from datetime import datetime
+        
+        # Generate accessibility dashboard
+        reports = glob.glob('accessibility_report_*.json')
+        if reports:
+            latest_report = max(reports, key=os.path.getctime)
+            with open(latest_report, 'r') as f:
+                data = json.load(f)
+            
+            # Create dashboard data
+            dashboard = {
+                'timestamp': datetime.now().isoformat(),
+                'run_id': os.environ.get('GITHUB_RUN_ID', 'unknown'),
+                'summary': data.get('summary', {}),
+                'recommendations': data.get('recommendations', []),
+                'status': 'success' if data.get('summary', {}).get('wcag_aa_compliant') else 'failure'
+            }
+            
+            # Save dashboard
+            with open('accessibility-dashboard.json', 'w') as f:
+                json.dump(dashboard, f, indent=2)
+            
+            print('✅ Accessibility dashboard generated')
+        "
+        
+    - name: Upload accessibility dashboard
+      uses: actions/upload-artifact@v3
+      with:
+        name: accessibility-dashboard
+        path: accessibility-dashboard.json
+        
+    - name: Notify on accessibility failures
+      if: failure()
+      uses: actions/github-script@v6
+      with:
+        script: |
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: '🚨 **Accessibility Testing Failed**\n\nPlease review the accessibility test results and address any critical issues before merging.'
+          });

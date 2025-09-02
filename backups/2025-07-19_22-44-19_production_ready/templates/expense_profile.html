@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="stylesheet" href="touch_target_optimization.css">
+
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Expense Profile</title>
@@ -79,7 +81,7 @@
           </label>
           <label>
             Frequency
-            <select id="rent_or_mortgage_frequency" name="rent_or_mortgage_frequency">
+            <select id="rent_or_mortgage_frequency" name="rent_or_mortgage_frequency" class="form-input">
               <option value="monthly">Monthly</option>
               <option value="bi-weekly">Bi-weekly</option>
               <option value="weekly">Weekly</option>
@@ -97,7 +99,7 @@
           </label>
           <label>
             Frequency
-            <select id="utilities_frequency" name="utilities_frequency">
+            <select id="utilities_frequency" name="utilities_frequency" class="form-input">
               <option value="monthly">Monthly</option>
               <option value="bi-weekly">Bi-weekly</option>
               <option value="weekly">Weekly</option>
@@ -246,7 +248,7 @@
             <div class="credit-card-item">
               <label>
                 Credit Card 1 Name
-                <input type="text" id="credit_card1_name" name="credit_card1_name" placeholder="e.g., Chase Visa">
+                <input type="text" id="credit_card1_name" name="credit_card1_name" placeholder="e.g., Chase Visa" class="form-input">
               </label>
               <label>
                 Amount
@@ -254,7 +256,7 @@
                 <span class="monthly-conversion" id="credit_card1_monthly"></span>
               </label>
             </div>
-            <button type="button" id="addCreditCard" class="btn-mingus-secondary">+ Add Another Credit Card</button>
+            <button type="button" id="addCreditCard" class="btn-mingus-secondary btn-cta btn-primary">+ Add Another Credit Card</button>
           </div>
           
           <div id="loanList">
@@ -262,7 +264,7 @@
             <div class="loan-item">
               <label>
                 Loan 1 Name
-                <input type="text" id="loan_1_name" name="loan_1_name" placeholder="e.g., Student Loan">
+                <input type="text" id="loan_1_name" name="loan_1_name" placeholder="e.g., Student Loan" class="form-input">
               </label>
               <label>
                 Amount
@@ -270,7 +272,7 @@
                 <span class="monthly-conversion" id="loan_1_monthly"></span>
               </label>
             </div>
-            <button type="button" id="addLoan" class="btn-mingus-secondary">+ Add Another Loan</button>
+            <button type="button" id="addLoan" class="btn-mingus-secondary btn-cta btn-primary">+ Add Another Loan</button>
           </div>
         </div>
       </div>
@@ -358,9 +360,9 @@
     <div id="expenseWarnings" class="warning"></div>
     
     <div class="button-row">
-      <button type="button" id="prevBtn" class="btn-mingus-secondary">Previous</button>
-      <button type="button" id="skipBtn" class="btn-mingus-skip">Skip</button>
-      <button type="submit" id="nextBtn" class="btn-mingus-primary" disabled>Next</button>
+      <button type="button" id="prevBtn" class="btn-mingus-secondary btn-cta btn-primary">Previous</button>
+      <button type="button" id="skipBtn" class="btn-mingus-skip btn-cta btn-primary">Skip</button>
+      <button type="submit" id="nextBtn" class="btn-mingus-primary btn-cta btn-primary" disabled>Next</button>
       <span id="savingIndicator" class="saving-indicator" style="display:none;">Saving...</span>
     </div>
   </form>

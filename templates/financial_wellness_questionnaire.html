@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="stylesheet" href="touch_target_optimization.css">
+
   <meta charset="UTF-8">
   <title>Your Financial Wellness Check - MINGUS</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -450,11 +452,11 @@
       <div class="question-title">Get Your Personalized Results</div>
       <div class="question-subtitle">Enter your email to receive your financial wellness assessment and personalized recommendations</div>
       
-      <input type="email" id="emailInput" class="email-input" placeholder="your.email@example.com" required>
+      <input type="email" id="emailInput" class="email-input" placeholder="your.email@example.com" required class="form-input">
       <div class="error-message" id="emailError">Please enter a valid email address</div>
       
       <div class="navigation" style="justify-content: center;">
-        <button class="btn btn-primary" onclick="startAssessment()">Start Assessment</button>
+        <button class="btn btn-primary btn-cta btn-primary" onclick="startAssessment()">Start Assessment</button>
       </div>
     </div>
 
@@ -492,8 +494,8 @@
         </div>
       </div>
       <div class="navigation">
-        <button class="btn btn-secondary" onclick="previousQuestion()" disabled>Previous</button>
-        <button class="btn btn-primary" onclick="nextQuestion()" disabled>Next</button>
+        <button class="btn btn-secondary btn-cta btn-primary" onclick="previousQuestion()" disabled>Previous</button>
+        <button class="btn btn-primary btn-cta btn-primary" onclick="nextQuestion()" disabled>Next</button>
       </div>
     </div>
 
@@ -524,8 +526,8 @@
         </div>
       </div>
       <div class="navigation">
-        <button class="btn btn-secondary" onclick="previousQuestion()">Previous</button>
-        <button class="btn btn-primary" onclick="nextQuestion()" disabled>Next</button>
+        <button class="btn btn-secondary btn-cta btn-primary" onclick="previousQuestion()">Previous</button>
+        <button class="btn btn-primary btn-cta btn-primary" onclick="nextQuestion()" disabled>Next</button>
       </div>
     </div>
 
@@ -556,8 +558,8 @@
         </div>
       </div>
       <div class="navigation">
-        <button class="btn btn-secondary" onclick="previousQuestion()">Previous</button>
-        <button class="btn btn-primary" onclick="nextQuestion()" disabled>Next</button>
+        <button class="btn btn-secondary btn-cta btn-primary" onclick="previousQuestion()">Previous</button>
+        <button class="btn btn-primary btn-cta btn-primary" onclick="nextQuestion()" disabled>Next</button>
       </div>
     </div>
 
@@ -588,8 +590,8 @@
         </div>
       </div>
       <div class="navigation">
-        <button class="btn btn-secondary" onclick="previousQuestion()">Previous</button>
-        <button class="btn btn-primary" onclick="nextQuestion()" disabled>Next</button>
+        <button class="btn btn-secondary btn-cta btn-primary" onclick="previousQuestion()">Previous</button>
+        <button class="btn btn-primary btn-cta btn-primary" onclick="nextQuestion()" disabled>Next</button>
       </div>
     </div>
 
@@ -620,8 +622,8 @@
         </div>
       </div>
       <div class="navigation">
-        <button class="btn btn-secondary" onclick="previousQuestion()">Previous</button>
-        <button class="btn btn-primary" onclick="showResults()" disabled>Get Results</button>
+        <button class="btn btn-secondary btn-cta btn-primary" onclick="previousQuestion()">Previous</button>
+        <button class="btn btn-primary btn-cta btn-primary" onclick="showResults()" disabled>Get Results</button>
       </div>
     </div>
 
@@ -656,7 +658,7 @@
       </div>
 
       <div class="navigation" style="justify-content: center; margin-top: 2rem;">
-        <button class="btn btn-primary" onclick="restartAssessment()">Take Assessment Again</button>
+        <button class="btn btn-primary btn-cta btn-primary" onclick="restartAssessment()">Take Assessment Again</button>
       </div>
     </div>
   </div>

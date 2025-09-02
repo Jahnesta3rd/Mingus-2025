@@ -155,7 +155,7 @@ class PerformanceMetric(Base):
     subcategory = Column(String(100))
     
     # Additional data
-    metadata = Column(JSONB)
+    extra_metadata = Column('metadata', JSONB)
     
     # Timestamps
     created_at = Column(DateTime(timezone=True), server_default=func.now())
@@ -198,7 +198,7 @@ class PerformanceMetric(Base):
             'metric_unit': self.metric_unit,
             'category': self.category,
             'subcategory': self.subcategory,
-            'metadata': self.metadata,
+            'metadata': self.extra_metadata,
             'is_positive': self.is_positive,
             'formatted_value': self.formatted_value,
             'created_at': self.created_at.isoformat() if self.created_at else None

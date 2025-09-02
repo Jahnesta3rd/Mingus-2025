@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="stylesheet" href="touch_target_optimization.css">
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Job Recommendations - Mingus</title>
@@ -353,10 +355,10 @@
                                                 <div class="timeline-item">
                                                     <strong>Month 2:</strong> Complete skill development
                                                 </div>
-                                                <button class="btn btn-success btn-action w-100 mb-2">
+                                                <button class="btn btn-success btn-action w-100 mb-2 btn-cta btn-primary">
                                                     <i class="fas fa-paper-plane"></i> Apply Now
                                                 </button>
-                                                <button class="btn btn-outline-primary btn-action w-100">
+                                                <button class="btn btn-outline-primary btn-action w-100 btn-cta btn-primary">
                                                     <i class="fas fa-info-circle"></i> View Details
                                                 </button>
                                             </div>
@@ -419,10 +421,10 @@
                                                 <div class="timeline-item">
                                                     <strong>Month 2-3:</strong> Interview preparation
                                                 </div>
-                                                <button class="btn btn-primary btn-action w-100 mb-2">
+                                                <button class="btn btn-primary btn-action w-100 mb-2 btn-cta btn-primary">
                                                     <i class="fas fa-paper-plane"></i> Apply Now
                                                 </button>
-                                                <button class="btn btn-outline-primary btn-action w-100">
+                                                <button class="btn btn-outline-primary btn-action w-100 btn-cta btn-primary">
                                                     <i class="fas fa-info-circle"></i> View Details
                                                 </button>
                                             </div>
@@ -485,10 +487,10 @@
                                                 <div class="timeline-item">
                                                     <strong>Month 4-6:</strong> Apply and interview
                                                 </div>
-                                                <button class="btn btn-danger btn-action w-100 mb-2">
+                                                <button class="btn btn-danger btn-action w-100 mb-2 btn-cta btn-primary">
                                                     <i class="fas fa-paper-plane"></i> Apply Now
                                                 </button>
-                                                <button class="btn btn-outline-primary btn-action w-100">
+                                                <button class="btn btn-outline-primary btn-action w-100 btn-cta btn-primary">
                                                     <i class="fas fa-info-circle"></i> View Details
                                                 </button>
                                             </div>
@@ -595,13 +597,13 @@
                     <!-- Action Buttons -->
                     <div class="row mb-4">
                         <div class="col-12 text-center">
-                            <button class="btn btn-primary btn-lg me-3" onclick="downloadReport()">
+                            <button class="btn btn-primary btn-lg me-3 btn-cta btn-primary" onclick="downloadReport()">
                                 <i class="fas fa-download"></i> Download Report
                             </button>
-                            <button class="btn btn-success btn-lg me-3" onclick="scheduleFollowUp()">
+                            <button class="btn btn-success btn-lg me-3 btn-cta btn-primary" onclick="scheduleFollowUp()">
                                 <i class="fas fa-calendar-plus"></i> Schedule Follow-up
                             </button>
-                            <button class="btn btn-info btn-lg" onclick="shareResults()">
+                            <button class="btn btn-info btn-lg btn-cta btn-primary" onclick="shareResults()">
                                 <i class="fas fa-share"></i> Share Results
                             </button>
                         </div>
@@ -930,7 +932,7 @@
             alertDiv.innerHTML = `
                 <i class="fas fa-exclamation-triangle"></i>
                 ${message}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                <button type="button" class="btn-close btn-cta btn-primary" data-bs-dismiss="alert"></button>
             `;
 
             // Insert at top of page

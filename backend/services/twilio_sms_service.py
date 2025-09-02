@@ -446,6 +446,43 @@ class TwilioSMSService:
             logger.error(f"Error checking rate limit: {e}")
             return True  # Allow sending if rate limiting fails
     
+    def _check_identifier_rate_limit(self, identifier: str, limit_type: str = 'general') -> bool:
+        """Check rate limit for specific identifier and type"""
+        if not self.redis_client:
+            return True  # No Redis, skip rate limiting
+        
+        try:
+            current_time = datetime.utcnow()
+            
+            # Different rate limits for different types
+            if limit_type == '2fa':
+                # 2FA SMS: max 3 per hour per phone number
+                window_seconds = 3600  # 1 hour
+                max_attempts = 3
+                rate_key = f"sms_2fa_rate_limit:{identifier}:{current_time.strftime('%Y%m%d%H')}"
+            else:
+                # General SMS: use existing logic
+                window_seconds = self.rate_limits.window_seconds
+                max_attempts = self.rate_limits.regular_limit
+                rate_key = f"sms_rate_limit:{identifier}:{current_time.strftime('%Y%m%d%H%M')}"
+            
+            # Count attempts in current window
+            current_count = self.redis_client.get(rate_key)
+            
+            if current_count and int(current_count) >= max_attempts:
+                logger.warning(f"Rate limit exceeded for {limit_type}: {current_count}/{max_attempts}")
+                return False
+            
+            # Increment counter
+            self.redis_client.incr(rate_key)
+            self.redis_client.expire(rate_key, window_seconds)
+            
+            return True
+            
+        except Exception as e:
+            logger.error(f"Error checking rate limit for {limit_type}: {e}")
+            return True  # Allow sending if rate limiting fails
+    
     def _check_tcpa_compliance(self, phone_number: str, user_id: str = None) -> bool:
         """Check TCPA compliance for SMS sending"""
         if not self.redis_client:
@@ -685,6 +722,39 @@ class TwilioSMSService:
         # For now, return None
         return None
     
+    def send_2fa_code(self, phone_number: str, code: str, user_name: str) -> Dict[str, Any]:
+        """Send 2FA verification code via SMS"""
+        try:
+            # Check rate limiting
+            if not self._check_identifier_rate_limit(phone_number, '2fa'):
+                return {
+                    'success': False,
+                    'error': 'Rate limit exceeded for 2FA SMS'
+                }
+            
+            # Format message for 2FA
+            message = f"Your MINGUS verification code is: {code}. This code expires in 10 minutes. Don't share this code with anyone."
+            
+            # Send SMS with high priority
+            result = self._send_sms(phone_number, message, SMSPriority.HIGH)
+            
+            if result['success']:
+                # Track 2FA SMS cost
+                if self.redis_client:
+                    self.redis_client.incrbyfloat('sms_total_cost', 0.0075)  # Twilio US pricing
+                    self.redis_client.incr('sms_2fa_count')
+                
+                logger.info(f"2FA SMS sent to {phone_number} for user {user_name}")
+            
+            return result
+            
+        except Exception as e:
+            logger.error(f"Error sending 2FA SMS to {phone_number}: {e}")
+            return {
+                'success': False,
+                'error': str(e)
+            }
+    
     def get_sms_statistics(self, days: int = 30) -> Dict[str, Any]:
         """Get SMS statistics"""
         if not self.redis_client:
@@ -698,7 +768,8 @@ class TwilioSMSService:
                 'total_cost': 0.0,
                 'by_template': {},
                 'by_priority': {},
-                'by_month': {}
+                'by_month': {},
+                '2fa_count': 0
             }
             
             # Get total cost
@@ -711,6 +782,10 @@ class TwilioSMSService:
                 template_cost = self.redis_client.get(f"sms_cost_template:{template_name}")
                 if template_cost:
                     stats['by_template'][template_name] = float(template_cost)
+            
+            # Get 2FA SMS count
+            if self.redis_client:
+                stats['2fa_count'] = int(self.redis_client.get('sms_2fa_count') or 0)
             
             return stats
             

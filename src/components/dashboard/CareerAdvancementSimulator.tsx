@@ -120,10 +120,10 @@ const CareerAdvancementSimulator: React.FC<CareerAdvancementSimulatorProps> = ({
     <div className={`bg-white rounded-lg shadow-lg p-6 ${className}`}>
       {/* Header */}
       <div className="mb-6">
-        <h3 className="text-xl font-bold text-gray-900 mb-2">
+        <h3 className="text-xl font-bold text-gray-900 mb-2" className="text-xl font-semibold text-gray-800 mb-3">
           Career Advancement Simulator
         </h3>
-        <p className="text-sm text-gray-600">
+        <p className="text-base leading-relaxed text-gray-600">
           Explore your path to higher earnings through strategic career development
         </p>
       </div>
@@ -132,7 +132,7 @@ const CareerAdvancementSimulator: React.FC<CareerAdvancementSimulatorProps> = ({
       <div className="mb-8">
         <div className="flex justify-between items-center mb-4">
           <h4 className="font-semibold text-gray-900">Path to $100K</h4>
-          <div className="text-sm text-gray-600">
+          <div className="text-base leading-relaxed text-gray-600">
             {formatCurrency(currentSalary)} → {formatCurrency(targetSalary)}
           </div>
         </div>
@@ -144,14 +144,14 @@ const CareerAdvancementSimulator: React.FC<CareerAdvancementSimulatorProps> = ({
             style={{ width: `${getProgressPercentage()}%` }}
           ></div>
           <div className="absolute inset-0 flex items-center justify-center">
-            <span className="text-xs font-medium text-white drop-shadow">
+            <span className="text-base leading-relaxed font-medium text-white drop-shadow">
               {getProgressPercentage().toFixed(1)}%
             </span>
           </div>
         </div>
 
         {/* Milestone Markers */}
-        <div className="flex justify-between text-xs text-gray-500">
+        <div className="flex justify-between text-base leading-relaxed text-gray-500">
           <span>Current: {formatCurrency(currentSalary)}</span>
           <span>Target: {formatCurrency(targetSalary)}</span>
         </div>
@@ -162,8 +162,8 @@ const CareerAdvancementSimulator: React.FC<CareerAdvancementSimulatorProps> = ({
         {/* Education Level */}
         <div>
           <div className="flex justify-between items-center mb-2">
-            <label className="text-sm font-medium text-gray-700">Education Level</label>
-            <span className="text-sm text-gray-600">{params.targetEducation}</span>
+            <label className="text-base leading-relaxed font-medium text-gray-700">Education Level</label>
+            <span className="text-base leading-relaxed text-gray-600">{params.targetEducation}</span>
           </div>
           <select
             value={params.targetEducation}
@@ -181,8 +181,8 @@ const CareerAdvancementSimulator: React.FC<CareerAdvancementSimulatorProps> = ({
         {/* Years of Experience */}
         <div>
           <div className="flex justify-between items-center mb-2">
-            <label className="text-sm font-medium text-gray-700">Target Experience (Years)</label>
-            <span className="text-sm text-gray-600">{params.targetYearsOfExperience} years</span>
+            <label className="text-base leading-relaxed font-medium text-gray-700">Target Experience (Years)</label>
+            <span className="text-base leading-relaxed text-gray-600">{params.targetYearsOfExperience} years</span>
           </div>
           <input
             type="range"
@@ -192,7 +192,7 @@ const CareerAdvancementSimulator: React.FC<CareerAdvancementSimulatorProps> = ({
             onChange={(e) => handleParamChange('targetYearsOfExperience', parseInt(e.target.value))}
             className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
           />
-          <div className="flex justify-between text-xs text-gray-500 mt-1">
+          <div className="flex justify-between text-base leading-relaxed text-gray-500 mt-1">
             <span>1 year</span>
             <span>20 years</span>
           </div>
@@ -201,8 +201,8 @@ const CareerAdvancementSimulator: React.FC<CareerAdvancementSimulatorProps> = ({
         {/* Networking Score */}
         <div>
           <div className="flex justify-between items-center mb-2">
-            <label className="text-sm font-medium text-gray-700">Networking Score</label>
-            <span className="text-sm text-gray-600">{params.targetNetworkingScore}/10</span>
+            <label className="text-base leading-relaxed font-medium text-gray-700">Networking Score</label>
+            <span className="text-base leading-relaxed text-gray-600">{params.targetNetworkingScore}/10</span>
           </div>
           <input
             type="range"
@@ -212,7 +212,7 @@ const CareerAdvancementSimulator: React.FC<CareerAdvancementSimulatorProps> = ({
             onChange={(e) => handleParamChange('targetNetworkingScore', parseInt(e.target.value))}
             className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
           />
-          <div className="flex justify-between text-xs text-gray-500 mt-1">
+          <div className="flex justify-between text-base leading-relaxed text-gray-500 mt-1">
             <span>Beginner</span>
             <span>Expert</span>
           </div>
@@ -221,8 +221,8 @@ const CareerAdvancementSimulator: React.FC<CareerAdvancementSimulatorProps> = ({
         {/* Location */}
         <div>
           <div className="flex justify-between items-center mb-2">
-            <label className="text-sm font-medium text-gray-700">Target Location</label>
-            <span className="text-sm text-gray-600">{params.targetLocation}</span>
+            <label className="text-base leading-relaxed font-medium text-gray-700">Target Location</label>
+            <span className="text-base leading-relaxed text-gray-600">{params.targetLocation}</span>
           </div>
           <select
             value={params.targetLocation}
@@ -258,13 +258,13 @@ const CareerAdvancementSimulator: React.FC<CareerAdvancementSimulatorProps> = ({
                 <div className="text-2xl font-bold text-blue-600">
                   {formatCurrency(careerPath.targetSalary)}
                 </div>
-                <div className="text-sm text-gray-600">Projected Salary</div>
+                <div className="text-base leading-relaxed text-gray-600">Projected Salary</div>
               </div>
               <div>
                 <div className="text-2xl font-bold text-green-600">
                   {careerPath.roi.toFixed(0)}%
                 </div>
-                <div className="text-sm text-gray-600">ROI</div>
+                <div className="text-base leading-relaxed text-gray-600">ROI</div>
               </div>
             </div>
           </div>
@@ -278,9 +278,9 @@ const CareerAdvancementSimulator: React.FC<CareerAdvancementSimulatorProps> = ({
                   <div className="flex justify-between items-start mb-2">
                     <div>
                       <h5 className="font-medium text-gray-900">{step.title}</h5>
-                      <p className="text-sm text-gray-600">{step.description}</p>
+                      <p className="text-base leading-relaxed text-gray-600">{step.description}</p>
                     </div>
-                    <span className={`px-2 py-1 text-xs rounded-full ${
+                    <span className={`px-2 py-1 text-base leading-relaxed rounded-full ${
                       step.priority === 'high' ? 'bg-red-100 text-red-800' :
                       step.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' :
                       'bg-green-100 text-green-800'
@@ -288,7 +288,7 @@ const CareerAdvancementSimulator: React.FC<CareerAdvancementSimulatorProps> = ({
                       {step.priority}
                     </span>
                   </div>
-                  <div className="grid grid-cols-3 gap-4 text-sm">
+                  <div className="grid grid-cols-3 gap-4 text-base leading-relaxed">
                     <div>
                       <span className="text-gray-500">Cost:</span>
                       <div className="font-medium">{formatCurrency(step.cost)}</div>
@@ -310,7 +310,7 @@ const CareerAdvancementSimulator: React.FC<CareerAdvancementSimulatorProps> = ({
           {/* Investment Summary */}
           <div className="bg-gray-50 rounded-lg p-4">
             <h5 className="font-medium text-gray-900 mb-3">Investment Summary</h5>
-            <div className="space-y-2 text-sm">
+            <div className="space-y-2 text-base leading-relaxed">
               <div className="flex justify-between">
                 <span>Total Investment:</span>
                 <span className="font-medium">{formatCurrency(careerPath.totalInvestment)}</span>

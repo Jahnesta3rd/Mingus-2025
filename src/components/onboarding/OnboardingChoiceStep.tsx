@@ -89,7 +89,7 @@ const OnboardingChoiceStep: React.FC = () => {
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50 flex items-center justify-center p-4">
       <div className="max-w-4xl w-full">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">
+          <h1 className="text-3xl font-bold text-gray-900 mb-4" className="text-4xl font-bold text-gray-900 mb-6">
             Choose Your Onboarding Experience
           </h1>
           <p className="text-lg text-gray-600">
@@ -110,16 +110,16 @@ const OnboardingChoiceStep: React.FC = () => {
             >
               {selectedChoice === choice.id && (
                 <div className="absolute -top-3 -right-3 w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center">
-                  <span className="text-white text-sm">✓</span>
+                  <span className="text-white text-base leading-relaxed">✓</span>
                 </div>
               )}
               
               <div className="p-8">
                 <div className="text-center mb-6">
                   <div className="text-4xl mb-4">{choice.icon}</div>
-                  <h2 className="text-2xl font-bold text-gray-900 mb-2">{choice.title}</h2>
+                  <h2 className="text-2xl font-bold text-gray-900 mb-2" className="text-2xl font-semibold text-gray-800 mb-4">{choice.title}</h2>
                   <p className="text-gray-600 mb-4">{choice.subtitle}</p>
-                  <div className={`inline-block px-4 py-2 rounded-full text-sm font-medium text-white bg-gradient-to-r ${choice.color}`}>
+                  <div className={`inline-block px-4 py-2 rounded-full text-base leading-relaxed font-medium text-white bg-gradient-to-r ${choice.color}`}>
                     {choice.timeEstimate}
                   </div>
                 </div>
@@ -130,7 +130,7 @@ const OnboardingChoiceStep: React.FC = () => {
                   {choice.features.map((feature, index) => (
                     <div key={index} className="flex items-center space-x-3">
                       <div className={`w-2 h-2 rounded-full bg-gradient-to-r ${choice.color}`}></div>
-                      <span className="text-sm text-gray-600">{feature}</span>
+                      <span className="text-base leading-relaxed text-gray-600">{feature}</span>
                     </div>
                   ))}
                 </div>
@@ -167,7 +167,7 @@ const OnboardingChoiceStep: React.FC = () => {
             )}
           </button>
           
-          <p className="text-sm text-gray-500 mt-4">
+          <p className="text-base leading-relaxed text-gray-500 mt-4">
             You can always upgrade to the full experience later from your dashboard
           </p>
         </div>

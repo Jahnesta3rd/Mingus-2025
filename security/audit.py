@@ -1978,7 +1978,7 @@ class HealthDataPrivacyScanner(SecurityScanner):
             "blood_pressure": r'\b\d{2,3}/\d{2,3}\s*(mmHg|mm Hg)\b',
             "heart_rate": r'\b\d{2,3}\s*(bpm|BPM)\b',
             "weight": r'\b\d{2,3}\s*(kg|lb|lbs|pounds)\b',
-            "height": r'\b\d{1,2}'\d{1,2}"\b'
+            "height": r'\b\d{1,2}\'\d{1,2}"\b'
         }
         self.health_endpoints = [
             "/health",

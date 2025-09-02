@@ -14,20 +14,36 @@ from .user_health_checkin import UserHealthCheckin
 from .health_spending_correlation import HealthSpendingCorrelation
 from .user_goals import UserGoals
 
+# Two-factor authentication models
+from .two_factor_auth import (
+    TwoFactorAuth, 
+    TwoFactorBackupCode, 
+    TwoFactorVerificationAttempt,
+    TwoFactorRecoveryRequest
+)
+
+# Authentication models
+from .auth_tokens import AuthToken
+
+# Assessment models
+from .assessment_models import Assessment, UserAssessment, AssessmentResult, Lead, EmailSequence, EmailLog
+from .assessment_analytics_models import AssessmentAnalyticsEvent, AssessmentSession, ConversionFunnel
+
+# AI Job Assessment models
+from .ai_job_models import AIJobAssessment, AIJobRiskData, AICalculatorConversion
+from .ai_user_profile_extension import AIUserProfileExtension, AIOnboardingProgress
+
 # Article library models
 from .articles import (
     Article, UserArticleRead, UserArticleBookmark, UserArticleRating,
     UserArticleProgress, ArticleRecommendation, ArticleAnalytics, UserAssessmentScores
 )
 
-# Database session configuration
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+# Meme models
+from .meme_models import Meme, UserMemeHistory, UserMemePreferences
 
-# Create engine and session factory
-engine = create_engine('sqlite:///instance/mingus.db', echo=False)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-db_session = SessionLocal()
+# Email verification model
+from .email_verification import EmailVerification
 
 # Export everything needed
 __all__ = [
@@ -38,6 +54,29 @@ __all__ = [
     'UserHealthCheckin',
     'HealthSpendingCorrelation',
     'UserGoals',
+    # Two-factor authentication models
+    'TwoFactorAuth',
+    'TwoFactorBackupCode',
+    'TwoFactorVerificationAttempt',
+    'TwoFactorRecoveryRequest',
+    # Authentication models
+    'AuthToken',
+    # Assessment models
+    'Assessment',
+    'UserAssessment',
+    'AssessmentResult',
+    'Lead',
+    'EmailSequence',
+    'EmailLog',
+    'AssessmentAnalyticsEvent',
+    'AssessmentSession',
+    'ConversionFunnel',
+    # AI Job Assessment models
+    'AIJobAssessment',
+    'AIJobRiskData', 
+    'AICalculatorConversion',
+    'AIUserProfileExtension',
+    'AIOnboardingProgress',
     # Article library models
     'Article',
     'UserArticleRead',
@@ -47,6 +86,10 @@ __all__ = [
     'ArticleRecommendation',
     'ArticleAnalytics',
     'UserAssessmentScores',
-    'db_session',
-    'SessionLocal'
+    # Meme models
+    'Meme',
+    'UserMemeHistory',
+    'UserMemePreferences',
+    # Email verification model
+    'EmailVerification'
 ] 

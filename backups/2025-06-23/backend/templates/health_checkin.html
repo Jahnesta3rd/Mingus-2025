@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="stylesheet" href="touch_target_optimization.css">
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Health Check-in - Mingus</title>
@@ -377,7 +379,7 @@
                         <label class="form-label" for="physical_activity_level">
                             Activity Level
                         </label>
-                        <select id="physical_activity_level" name="physical_activity_level" class="form-select">
+                        <select id="physical_activity_level" name="physical_activity_level" class="form-select" class="form-input">
                             <option value="">Select activity level</option>
                             <option value="low">Low</option>
                             <option value="moderate">Moderate</option>
@@ -427,7 +429,7 @@
                         name="relationships_notes"
                         class="form-textarea"
                         placeholder="How are your relationships affecting your mood today?"
-                    ></textarea>
+                     class="form-input"></textarea>
                 </div>
             </div>
 
@@ -459,7 +461,7 @@
                         <label class="form-label" for="mindfulness_type">
                             Mindfulness Type
                         </label>
-                        <select id="mindfulness_type" name="mindfulness_type" class="form-select">
+                        <select id="mindfulness_type" name="mindfulness_type" class="form-select" class="form-input">
                             <option value="">Select type</option>
                             <option value="meditation">Meditation</option>
                             <option value="prayer">Prayer</option>
@@ -552,7 +554,7 @@
 
             <!-- Submit Button -->
             <div class="submit-container">
-                <button type="submit" class="submit-btn" id="submitBtn">
+                <button type="submit" class="submit-btn btn-cta btn-primary" id="submitBtn">
                     <span class="loading" id="loadingSpinner" style="display: none;"></span>
                     Submit Health Check-in
                 </button>

@@ -1,0 +1,433 @@
+{
+  "timestamp": "2025-08-30T08:39:29.276275",
+  "summary": {
+    "total_files_processed": 50,
+    "total_fixes_applied": 49,
+    "backup_directory": "typography_backup_20250830_083928"
+  },
+  "fixes": [
+    {
+      "file": "landing.html",
+      "backup": "typography_backup_20250830_083928/landing.html",
+      "fixes": [
+        "font-size: 14px \u2192 16px"
+      ],
+      "timestamp": "2025-08-30T08:39:28.919338"
+    },
+    {
+      "file": "responsive_typography_system.css",
+      "backup": "typography_backup_20250830_083928/responsive_typography_system.css",
+      "fixes": [
+        "--font-size-sm: 14px \u2192 18px",
+        "--line-height-tight: 1.2 \u2192 1.4",
+        "--line-height-normal: 1.4 \u2192 1.6"
+      ],
+      "timestamp": "2025-08-30T08:39:28.923346"
+    },
+    {
+      "file": "src/components/onboarding/OnboardingNavigation.tsx",
+      "backup": "typography_backup_20250830_083928/OnboardingNavigation.tsx",
+      "fixes": [
+        "text-xs \u2192 text-base",
+        "text-sm \u2192 text-base"
+      ],
+      "timestamp": "2025-08-30T08:39:28.931775"
+    },
+    {
+      "file": "src/components/onboarding/FeasibilityChecker.tsx",
+      "backup": "typography_backup_20250830_083928/FeasibilityChecker.tsx",
+      "fixes": [
+        "text-xs \u2192 text-base",
+        "text-sm \u2192 text-base"
+      ],
+      "timestamp": "2025-08-30T08:39:28.939913"
+    },
+    {
+      "file": "src/components/onboarding/FinancialQuestionnaireStep.tsx",
+      "backup": "typography_backup_20250830_083928/FinancialQuestionnaireStep.tsx",
+      "fixes": [
+        "text-sm \u2192 text-base"
+      ],
+      "timestamp": "2025-08-30T08:39:28.943766"
+    },
+    {
+      "file": "src/components/onboarding/OnboardingCompletion.tsx",
+      "backup": "typography_backup_20250830_083928/OnboardingCompletion.tsx",
+      "fixes": [
+        "text-sm \u2192 text-base"
+      ],
+      "timestamp": "2025-08-30T08:39:28.948762"
+    },
+    {
+      "file": "src/components/onboarding/OnboardingProgressTracker.tsx",
+      "backup": "typography_backup_20250830_083928/OnboardingProgressTracker.tsx",
+      "fixes": [
+        "text-xs \u2192 text-base",
+        "text-sm \u2192 text-base"
+      ],
+      "timestamp": "2025-08-30T08:39:28.955928"
+    },
+    {
+      "file": "src/components/onboarding/GoalTypeCard.tsx",
+      "backup": "typography_backup_20250830_083928/GoalTypeCard.tsx",
+      "fixes": [
+        "text-xs \u2192 text-base",
+        "text-sm \u2192 text-base"
+      ],
+      "timestamp": "2025-08-30T08:39:28.960488"
+    },
+    {
+      "file": "src/components/onboarding/OnboardingChoiceStep.tsx",
+      "backup": "typography_backup_20250830_083928/OnboardingChoiceStep.tsx",
+      "fixes": [
+        "text-sm \u2192 text-base"
+      ],
+      "timestamp": "2025-08-30T08:39:28.964700"
+    },
+    {
+      "file": "src/components/onboarding/SmartSuggestions.tsx",
+      "backup": "typography_backup_20250830_083928/SmartSuggestions.tsx",
+      "fixes": [
+        "text-xs \u2192 text-base",
+        "text-sm \u2192 text-base"
+      ],
+      "timestamp": "2025-08-30T08:39:28.969821"
+    },
+    {
+      "file": "src/components/onboarding/LifestyleQuestionnaireStep.tsx",
+      "backup": "typography_backup_20250830_083928/LifestyleQuestionnaireStep.tsx",
+      "fixes": [
+        "text-sm \u2192 text-base"
+      ],
+      "timestamp": "2025-08-30T08:39:28.973702"
+    },
+    {
+      "file": "src/components/onboarding/ExpensesStep.tsx",
+      "backup": "typography_backup_20250830_083928/ExpensesStep.tsx",
+      "fixes": [
+        "text-xs \u2192 text-base",
+        "text-sm \u2192 text-base"
+      ],
+      "timestamp": "2025-08-30T08:39:28.978739"
+    },
+    {
+      "file": "src/components/onboarding/ProgressTimeline.tsx",
+      "backup": "typography_backup_20250830_083928/ProgressTimeline.tsx",
+      "fixes": [
+        "text-xs \u2192 text-base",
+        "text-sm \u2192 text-base"
+      ],
+      "timestamp": "2025-08-30T08:39:28.982664"
+    },
+    {
+      "file": "src/components/onboarding/GoalsSetup.tsx",
+      "backup": "typography_backup_20250830_083928/GoalsSetup.tsx",
+      "fixes": [
+        "text-sm \u2192 text-base"
+      ],
+      "timestamp": "2025-08-30T08:39:28.987111"
+    },
+    {
+      "file": "src/components/onboarding/PreferencesStep.tsx",
+      "backup": "typography_backup_20250830_083928/PreferencesStep.tsx",
+      "fixes": [
+        "text-sm \u2192 text-base"
+      ],
+      "timestamp": "2025-08-30T08:39:28.993570"
+    },
+    {
+      "file": "src/components/onboarding/ProfileStep.tsx",
+      "backup": "typography_backup_20250830_083928/ProfileStep.tsx",
+      "fixes": [
+        "text-sm \u2192 text-base"
+      ],
+      "timestamp": "2025-08-30T08:39:28.998945"
+    },
+    {
+      "file": "src/components/onboarding/OnboardingProgressBar.tsx",
+      "backup": "typography_backup_20250830_083928/OnboardingProgressBar.tsx",
+      "fixes": [
+        "text-xs \u2192 text-base",
+        "text-sm \u2192 text-base"
+      ],
+      "timestamp": "2025-08-30T08:39:29.004064"
+    },
+    {
+      "file": "src/components/onboarding/VerificationStep.tsx",
+      "backup": "typography_backup_20250830_083928/VerificationStep.tsx",
+      "fixes": [
+        "text-xs \u2192 text-base",
+        "text-sm \u2192 text-base"
+      ],
+      "timestamp": "2025-08-30T08:39:29.009175"
+    },
+    {
+      "file": "src/components/dashboard/SalaryBenchmarkWidget.tsx",
+      "backup": "typography_backup_20250830_083928/SalaryBenchmarkWidget.tsx",
+      "fixes": [
+        "text-xs \u2192 text-base",
+        "text-sm \u2192 text-base"
+      ],
+      "timestamp": "2025-08-30T08:39:29.014905"
+    },
+    {
+      "file": "src/components/dashboard/IndustryRiskAnalysis.tsx",
+      "backup": "typography_backup_20250830_083928/IndustryRiskAnalysis.tsx",
+      "fixes": [
+        "text-sm \u2192 text-base"
+      ],
+      "timestamp": "2025-08-30T08:39:29.023613"
+    },
+    {
+      "file": "src/components/dashboard/OnboardingTab.tsx",
+      "backup": "typography_backup_20250830_083928/OnboardingTab.tsx",
+      "fixes": [
+        "text-sm \u2192 text-base"
+      ],
+      "timestamp": "2025-08-30T08:39:29.031136"
+    },
+    {
+      "file": "src/components/dashboard/IncomeComparisonDashboard.tsx",
+      "backup": "typography_backup_20250830_083928/IncomeComparisonDashboard.tsx",
+      "fixes": [
+        "text-xs \u2192 text-base",
+        "text-sm \u2192 text-base"
+      ],
+      "timestamp": "2025-08-30T08:39:29.035927"
+    },
+    {
+      "file": "src/components/dashboard/CareerAdvancementSimulator.tsx",
+      "backup": "typography_backup_20250830_083928/CareerAdvancementSimulator.tsx",
+      "fixes": [
+        "text-xs \u2192 text-base",
+        "text-sm \u2192 text-base"
+      ],
+      "timestamp": "2025-08-30T08:39:29.048116"
+    },
+    {
+      "file": "src/components/dashboard/JobSecurityDrillDown.tsx",
+      "backup": "typography_backup_20250830_083928/JobSecurityDrillDown.tsx",
+      "fixes": [
+        "text-xs \u2192 text-base",
+        "text-sm \u2192 text-base"
+      ],
+      "timestamp": "2025-08-30T08:39:29.059024"
+    },
+    {
+      "file": "src/components/dashboard/JobSecurityAnalysis.tsx",
+      "backup": "typography_backup_20250830_083928/JobSecurityAnalysis.tsx",
+      "fixes": [
+        "text-xs \u2192 text-base",
+        "text-sm \u2192 text-base"
+      ],
+      "timestamp": "2025-08-30T08:39:29.065208"
+    },
+    {
+      "file": "src/components/dashboard/JobSecurityExample.tsx",
+      "backup": "typography_backup_20250830_083928/JobSecurityExample.tsx",
+      "fixes": [
+        "text-sm \u2192 text-base"
+      ],
+      "timestamp": "2025-08-30T08:39:29.078668"
+    },
+    {
+      "file": "src/components/dashboard/CulturalContextIntegration.tsx",
+      "backup": "typography_backup_20250830_083928/CulturalContextIntegration.tsx",
+      "fixes": [
+        "text-xs \u2192 text-base",
+        "text-sm \u2192 text-base"
+      ],
+      "timestamp": "2025-08-30T08:39:29.084141"
+    },
+    {
+      "file": "src/components/aiCalculator/AICalculatorModal.tsx",
+      "backup": "typography_backup_20250830_083928/AICalculatorModal.tsx",
+      "fixes": [
+        "text-sm \u2192 text-base"
+      ],
+      "timestamp": "2025-08-30T08:39:29.088251"
+    },
+    {
+      "file": "src/components/leadCapture/ReportGenerationStep.tsx",
+      "backup": "typography_backup_20250830_083928/ReportGenerationStep.tsx",
+      "fixes": [
+        "text-xs \u2192 text-base",
+        "text-sm \u2192 text-base"
+      ],
+      "timestamp": "2025-08-30T08:39:29.096578"
+    },
+    {
+      "file": "src/components/leadCapture/BasicInfoStep.tsx",
+      "backup": "typography_backup_20250830_083928/BasicInfoStep.tsx",
+      "fixes": [
+        "text-sm \u2192 text-base"
+      ],
+      "timestamp": "2025-08-30T08:39:29.100663"
+    },
+    {
+      "file": "src/components/leadCapture/DetailedProfileStep.tsx",
+      "backup": "typography_backup_20250830_083928/DetailedProfileStep.tsx",
+      "fixes": [
+        "text-sm \u2192 text-base"
+      ],
+      "timestamp": "2025-08-30T08:39:29.104725"
+    },
+    {
+      "file": "src/components/leadCapture/ProgressIndicator.tsx",
+      "backup": "typography_backup_20250830_083928/ProgressIndicator.tsx",
+      "fixes": [
+        "text-xs \u2192 text-base",
+        "text-sm \u2192 text-base"
+      ],
+      "timestamp": "2025-08-30T08:39:29.107793"
+    },
+    {
+      "file": "src/components/common/PhoneNumberInput.tsx",
+      "backup": "typography_backup_20250830_083928/PhoneNumberInput.tsx",
+      "fixes": [
+        "text-xs \u2192 text-base",
+        "text-sm \u2192 text-base"
+      ],
+      "timestamp": "2025-08-30T08:39:29.123672"
+    },
+    {
+      "file": "src/components/common/PhoneNumberInputDemo.tsx",
+      "backup": "typography_backup_20250830_083928/PhoneNumberInputDemo.tsx",
+      "fixes": [
+        "text-sm \u2192 text-base"
+      ],
+      "timestamp": "2025-08-30T08:39:29.143185"
+    },
+    {
+      "file": "src/components/common/VerificationCodeInput.tsx",
+      "backup": "typography_backup_20250830_083928/VerificationCodeInput.tsx",
+      "fixes": [
+        "text-xs \u2192 text-base",
+        "text-sm \u2192 text-base"
+      ],
+      "timestamp": "2025-08-30T08:39:29.156968"
+    },
+    {
+      "file": "src/components/common/VerificationCodeInputDemo.tsx",
+      "backup": "typography_backup_20250830_083928/VerificationCodeInputDemo.tsx",
+      "fixes": [
+        "text-xs \u2192 text-base",
+        "text-sm \u2192 text-base"
+      ],
+      "timestamp": "2025-08-30T08:39:29.164554"
+    },
+    {
+      "file": "src/components/common/TabNavigation.tsx",
+      "backup": "typography_backup_20250830_083928/TabNavigation.tsx",
+      "fixes": [
+        "text-sm \u2192 text-base"
+      ],
+      "timestamp": "2025-08-30T08:39:29.170033"
+    },
+    {
+      "file": "src/components/common/TouchOptimizedChart.tsx",
+      "backup": "typography_backup_20250830_083928/TouchOptimizedChart.tsx",
+      "fixes": [
+        "text-xs \u2192 text-base",
+        "text-sm \u2192 text-base"
+      ],
+      "timestamp": "2025-08-30T08:39:29.174981"
+    },
+    {
+      "file": "src/components/checklist/NextStepsChecklist.tsx",
+      "backup": "typography_backup_20250830_083928/NextStepsChecklist.tsx",
+      "fixes": [
+        "text-xs \u2192 text-base",
+        "text-sm \u2192 text-base"
+      ],
+      "timestamp": "2025-08-30T08:39:29.183697"
+    },
+    {
+      "file": "src/components/tour/DashboardTour.tsx",
+      "backup": "typography_backup_20250830_083928/DashboardTour.tsx",
+      "fixes": [
+        "text-sm \u2192 text-base"
+      ],
+      "timestamp": "2025-08-30T08:39:29.195614"
+    },
+    {
+      "file": "src/components/education/PrivacyAssuranceCard.tsx",
+      "backup": "typography_backup_20250830_083928/PrivacyAssuranceCard.tsx",
+      "fixes": [
+        "text-xs \u2192 text-base",
+        "text-sm \u2192 text-base"
+      ],
+      "timestamp": "2025-08-30T08:39:29.209812"
+    },
+    {
+      "file": "src/components/education/EducationFlow.tsx",
+      "backup": "typography_backup_20250830_083928/EducationFlow.tsx",
+      "fixes": [
+        "text-sm \u2192 text-base"
+      ],
+      "timestamp": "2025-08-30T08:39:29.214431"
+    },
+    {
+      "file": "src/components/education/EducationalCardJobSecurity.tsx",
+      "backup": "typography_backup_20250830_083928/EducationalCardJobSecurity.tsx",
+      "fixes": [
+        "text-xs \u2192 text-base",
+        "text-sm \u2192 text-base"
+      ],
+      "timestamp": "2025-08-30T08:39:29.221636"
+    },
+    {
+      "file": "src/components/education/EducationalCardWellness.tsx",
+      "backup": "typography_backup_20250830_083928/EducationalCardWellness.tsx",
+      "fixes": [
+        "text-xs \u2192 text-base",
+        "text-sm \u2192 text-base"
+      ],
+      "timestamp": "2025-08-30T08:39:29.225929"
+    },
+    {
+      "file": "src/components/education/EducationFlowDemo.tsx",
+      "backup": "typography_backup_20250830_083928/EducationFlowDemo.tsx",
+      "fixes": [
+        "text-sm \u2192 text-base"
+      ],
+      "timestamp": "2025-08-30T08:39:29.229831"
+    },
+    {
+      "file": "src/components/education/AccessibilityEnhancedEducationFlow.tsx",
+      "backup": "typography_backup_20250830_083928/AccessibilityEnhancedEducationFlow.tsx",
+      "fixes": [
+        "text-xs \u2192 text-base",
+        "text-sm \u2192 text-base"
+      ],
+      "timestamp": "2025-08-30T08:39:29.235609"
+    },
+    {
+      "file": "src/components/education/EducationalCardCashFlow.tsx",
+      "backup": "typography_backup_20250830_083928/EducationalCardCashFlow.tsx",
+      "fixes": [
+        "text-xs \u2192 text-base",
+        "text-sm \u2192 text-base"
+      ],
+      "timestamp": "2025-08-30T08:39:29.239805"
+    },
+    {
+      "file": "src/components/questionnaires/QuestionnaireFlow.tsx",
+      "backup": "typography_backup_20250830_083928/QuestionnaireFlow.tsx",
+      "fixes": [
+        "text-xs \u2192 text-base",
+        "text-sm \u2192 text-base"
+      ],
+      "timestamp": "2025-08-30T08:39:29.257946"
+    },
+    {
+      "file": "src/components/questionnaires/QuestionnaireFlow 2.tsx",
+      "backup": "typography_backup_20250830_083928/QuestionnaireFlow 2.tsx",
+      "fixes": [
+        "text-xs \u2192 text-base",
+        "text-sm \u2192 text-base"
+      ],
+      "timestamp": "2025-08-30T08:39:29.276167"
+    }
+  ]
+}

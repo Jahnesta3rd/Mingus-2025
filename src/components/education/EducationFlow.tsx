@@ -149,7 +149,7 @@ export default function EducationFlow({ onClose }: { onClose: () => void }) {
                   id="education-flow-title" 
                   className="text-2xl font-bold text-white"
                   style={{ fontSize: accessibility.largeText ? '1.5rem' : undefined }}
-                >
+                 className="text-4xl font-bold text-gray-900 mb-6">
                   Welcome to Mingus
                 </h1>
                 <p 
@@ -173,7 +173,7 @@ export default function EducationFlow({ onClose }: { onClose: () => void }) {
 
           {/* Progress Indicator */}
           <div className="mt-4">
-            <div className="flex items-center justify-between text-sm text-gray-400 mb-2">
+            <div className="flex items-center justify-between text-base leading-relaxed text-gray-400 mb-2">
               <span>Step {currentStep + 1} of {cards.length}</span>
               <span>{Math.round(((currentStep + 1) / cards.length) * 100)}% Complete</span>
             </div>
@@ -209,7 +209,7 @@ export default function EducationFlow({ onClose }: { onClose: () => void }) {
               aria-labelledby="accessibility-title"
             >
               <div className="p-4">
-                <h2 id="accessibility-title" className="text-lg font-semibold text-white mb-3">
+                <h2 id="accessibility-title" className="text-lg font-semibold text-white mb-3" className="text-2xl font-semibold text-gray-800 mb-4">
                   Accessibility Settings
                 </h2>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -223,7 +223,7 @@ export default function EducationFlow({ onClose }: { onClose: () => void }) {
                     aria-pressed={accessibility.highContrast}
                   >
                     <Contrast className="w-5 h-5 mx-auto mb-1" aria-hidden="true" />
-                    <span className="text-sm">High Contrast</span>
+                    <span className="text-base leading-relaxed">High Contrast</span>
                   </button>
                   
                   <button
@@ -236,7 +236,7 @@ export default function EducationFlow({ onClose }: { onClose: () => void }) {
                     aria-pressed={accessibility.largeText}
                   >
                     <Type className="w-5 h-5 mx-auto mb-1" aria-hidden="true" />
-                    <span className="text-sm">Large Text</span>
+                    <span className="text-base leading-relaxed">Large Text</span>
                   </button>
                   
                   <button
@@ -253,7 +253,7 @@ export default function EducationFlow({ onClose }: { onClose: () => void }) {
                     ) : (
                       <Volume2 className="w-5 h-5 mx-auto mb-1" aria-hidden="true" />
                     )}
-                    <span className="text-sm">Screen Reader</span>
+                    <span className="text-base leading-relaxed">Screen Reader</span>
                   </button>
                   
                   <button
@@ -268,7 +268,7 @@ export default function EducationFlow({ onClose }: { onClose: () => void }) {
                     <div className="w-5 h-5 mx-auto mb-1 flex items-center justify-center" aria-hidden="true">
                       <div className="w-3 h-3 border-2 border-current rounded-full"></div>
                     </div>
-                    <span className="text-sm">Reduced Motion</span>
+                    <span className="text-base leading-relaxed">Reduced Motion</span>
                   </button>
                 </div>
               </div>
@@ -285,7 +285,7 @@ export default function EducationFlow({ onClose }: { onClose: () => void }) {
             <h2 
               className="text-xl font-semibold text-white mb-1"
               style={{ fontSize: accessibility.largeText ? '1.3rem' : undefined }}
-            >
+             className="text-2xl font-semibold text-gray-800 mb-4">
               {cards[currentStep].title}
             </h2>
             <p 

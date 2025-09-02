@@ -75,7 +75,7 @@ export default function EducationalCardCashFlow({ onSeePlanner, testimonialIndex
       aria-labelledby="smart-money-title"
     >
       <div className="flex items-center justify-between mb-4">
-        <h2 id="smart-money-title" className="text-2xl font-bold text-blue-400">
+        <h2 id="smart-money-title" className="text-2xl font-bold text-blue-400" className="text-2xl font-semibold text-gray-800 mb-4">
           Smart Money Moves, Real Life Focus
         </h2>
         <motion.div
@@ -116,7 +116,7 @@ export default function EducationalCardCashFlow({ onSeePlanner, testimonialIndex
       </ul>
 
       <button
-        className="text-blue-400 underline mb-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-gray-900 rounded"
+        className="text-blue-400 underline mb-2 text-base leading-relaxed focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-gray-900 rounded"
         onClick={() => setExpanded((e) => !e)}
         onKeyDown={handleKeyDown}
         aria-expanded={expanded}
@@ -141,7 +141,7 @@ export default function EducationalCardCashFlow({ onSeePlanner, testimonialIndex
             {/* Animated Progress Bar */}
             <div className="mb-4">
               <div className="flex items-center mb-1">
-                <span className="text-sm text-gray-400 mr-2">Planning Score</span>
+                <span className="text-base leading-relaxed text-gray-400 mr-2">Planning Score</span>
                 <TrendingUp className="w-4 h-4 text-blue-400" aria-hidden="true" />
               </div>
               <div 
@@ -165,7 +165,7 @@ export default function EducationalCardCashFlow({ onSeePlanner, testimonialIndex
             {/* Calendar with Money Icons */}
             <div className="mb-4 p-3 bg-gray-800 rounded-lg">
               <div className="flex items-center justify-between mb-3">
-                <span className="text-sm text-gray-400">Monthly Calendar Preview</span>
+                <span className="text-base leading-relaxed text-gray-400">Monthly Calendar Preview</span>
                 <div className="flex space-x-1" aria-hidden="true">
                   <DollarSign className="w-4 h-4 text-green-400" />
                   <AlertTriangle className="w-4 h-4 text-yellow-400" />
@@ -186,7 +186,7 @@ export default function EducationalCardCashFlow({ onSeePlanner, testimonialIndex
                     <div
                       key={day}
                       className={`
-                        w-6 h-6 rounded text-xs flex items-center justify-center relative
+                        w-6 h-6 rounded text-base leading-relaxed flex items-center justify-center relative
                         ${event ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-400'}
                       `}
                       role="gridcell"
@@ -208,7 +208,7 @@ export default function EducationalCardCashFlow({ onSeePlanner, testimonialIndex
               </div>
               
               {/* Event Legend */}
-              <div className="text-xs text-gray-400 space-y-1">
+              <div className="text-base leading-relaxed text-gray-400 space-y-1">
                 {importantDates.slice(0, 3).map((event, i) => (
                   <div key={i} className="flex items-center justify-between">
                     <span className="flex items-center">
@@ -225,7 +225,7 @@ export default function EducationalCardCashFlow({ onSeePlanner, testimonialIndex
 
             {/* Cash Flow Line Graph */}
             <div className="mb-4 p-3 bg-gray-800 rounded-lg">
-              <div className="text-sm text-gray-400 mb-2">Cash Flow Trend</div>
+              <div className="text-base leading-relaxed text-gray-400 mb-2">Cash Flow Trend</div>
               <svg 
                 width="100%" 
                 height="40"
@@ -249,7 +249,7 @@ export default function EducationalCardCashFlow({ onSeePlanner, testimonialIndex
                 <circle cx="80" cy="15" r="2" fill="#60a5fa" />
                 <circle cx="100" cy="10" r="2" fill="#60a5fa" />
               </svg>
-              <div className="text-xs text-gray-400 mt-1">
+              <div className="text-base leading-relaxed text-gray-400 mt-1">
                 Net cash flow: +$1,200 this month • Emergency buffer: 2.5 months
               </div>
             </div>
@@ -299,7 +299,7 @@ export default function EducationalCardCashFlow({ onSeePlanner, testimonialIndex
       </AnimatePresence>
 
       {/* Testimonial */}
-      <div className="mt-4 text-sm text-gray-400 italic border-t border-gray-800 pt-2">
+      <div className="mt-4 text-base leading-relaxed text-gray-400 italic border-t border-gray-800 pt-2">
         <blockquote>
           <span>"{testimonials[testimonialIndex % testimonials.length].quote}"</span>
           <footer className="block text-right text-gray-500 mt-1">

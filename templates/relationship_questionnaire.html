@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="stylesheet" href="touch_target_optimization.css">
+
   <meta charset="UTF-8">
   <title>Your Relationship-Spending Connection - MINGUS</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -189,9 +191,9 @@
     <div class="email-card active" id="emailCard">
       <h2>Ready to explore your relationship-spending connection?</h2>
       <p>Get your personalized analysis and discover how your relationships influence your spending patterns.</p>
-      <input type="email" class="email-input" id="emailInput" placeholder="Enter your email address" />
+      <input type="email" class="email-input" id="emailInput" placeholder="Enter your email address" / class="form-input">
       <div class="error-message" id="emailError">Please enter a valid email address</div>
-      <button class="btn" onclick="startAssessment()">Start My Assessment</button>
+      <button class="btn btn-cta btn-primary" onclick="startAssessment()">Start My Assessment</button>
     </div>
 
     <div id="questionnaireContent" class="hidden">
@@ -298,8 +300,8 @@
         </div>
 
         <div class="nav-buttons" id="navButtons" style="display: flex; justify-content: space-between; gap: 1rem; margin-top: 2rem;">
-          <button class="btn btn-secondary" id="backBtn" onclick="previousQuestion()" style="background: transparent; color: var(--text-secondary); border: 2px solid var(--border-color); display: none;">Back</button>
-          <button class="btn" id="nextBtn" onclick="nextQuestion()">Next</button>
+          <button class="btn btn-secondary btn-cta btn-primary" id="backBtn" onclick="previousQuestion()" style="background: transparent; color: var(--text-secondary); border: 2px solid var(--border-color); display: none;">Back</button>
+          <button class="btn btn-cta btn-primary" id="nextBtn" onclick="nextQuestion()">Next</button>
         </div>
       `;
 

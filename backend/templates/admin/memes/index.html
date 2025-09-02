@@ -144,7 +144,7 @@
                                     <i class="fas fa-edit"></i>
                                 </a>
                                 <button type="button" 
-                                        class="btn btn-outline-{{ 'success' if meme.is_active else 'warning' }}" 
+                                        class="btn btn-outline-{{ 'success' if meme.is_active else 'warning' }} btn-cta btn-primary" 
                                         title="{{ 'Deactivate' if meme.is_active else 'Activate' }}"
                                         onclick="toggleMemeStatus('{{ meme.id }}')">
                                     <i class="fas fa-{{ 'pause' if meme.is_active else 'play' }}"></i>
@@ -152,7 +152,7 @@
                                 <form method="POST" action="{{ url_for('meme_admin.delete', meme_id=meme.id) }}" 
                                       style="display: inline;" 
                                       onsubmit="return confirmDelete()">
-                                    <button type="submit" class="btn btn-outline-danger" title="Delete">
+                                    <button type="submit" class="btn btn-outline-danger btn-cta btn-primary" title="Delete">
                                         <i class="fas fa-trash"></i>
                                     </button>
                                 </form>

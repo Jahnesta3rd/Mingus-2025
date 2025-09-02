@@ -1,0 +1,545 @@
+{
+  "summary": {
+    "total_tests": 46,
+    "passed": 24,
+    "failed": 4,
+    "warnings": 18,
+    "security_score": 52.17,
+    "critical_issues": 0,
+    "high_issues": 1,
+    "medium_issues": 21,
+    "low_issues": 24
+  },
+  "results_by_category": {
+    "Authentication": [
+      "TestResult(test_name='Authentication Bypass', category='Authentication', status='PASS', details='Protected endpoint /api/user/profile properly requires authentication', severity='LOW', recommendation='Good - endpoint is properly protected', evidence=None)",
+      "TestResult(test_name='Authentication Bypass', category='Authentication', status='PASS', details='Protected endpoint /api/admin/users properly requires authentication', severity='LOW', recommendation='Good - endpoint is properly protected', evidence=None)",
+      "TestResult(test_name='Invalid Token Access', category='Authentication', status='PASS', details='Invalid token properly rejected: invalid_token...', severity='LOW', recommendation='Good - invalid tokens are properly rejected', evidence=None)",
+      "TestResult(test_name='Invalid Token Access', category='Authentication', status='PASS', details='Invalid token properly rejected: eyJhbGciOiJIUzI1NiIs...', severity='LOW', recommendation='Good - invalid tokens are properly rejected', evidence=None)",
+      "TestResult(test_name='Invalid Token Access', category='Authentication', status='PASS', details='Invalid token properly rejected: Bearer invalid_token...', severity='LOW', recommendation='Good - invalid tokens are properly rejected', evidence=None)",
+      "TestResult(test_name='Invalid Token Access', category='Authentication', status='PASS', details='Invalid token properly rejected: ...', severity='LOW', recommendation='Good - invalid tokens are properly rejected', evidence=None)",
+      "TestResult(test_name='Brute Force Protection', category='Authentication', status='PASS', details='Rate limiting activated after 6 failed attempts', severity='LOW', recommendation='Good - rate limiting is working', evidence=None)",
+      "TestResult(test_name='Account Lockout', category='Authentication', status='WARN', details='Account lockout functionality not detected', severity='MEDIUM', recommendation='Consider implementing account lockout after multiple failed attempts', evidence=None)",
+      "TestResult(test_name='Session Fixation', category='Authentication', status='PASS', details='Session fixation protection detected', severity='LOW', recommendation='Good - session IDs are properly managed', evidence=None)",
+      "TestResult(test_name='Session Hijacking Protection', category='Authentication', status='PASS', details='Session hijacking protection detected (User-Agent validation)', severity='LOW', recommendation='Good - User-Agent validation is working', evidence=None)",
+      "TestResult(test_name='Password Reset Enumeration', category='Authentication', status='FAIL', details='Email enumeration vulnerability detected for admin@example.com', severity='MEDIUM', recommendation='Use generic response messages for password reset', evidence=None)",
+      "TestResult(test_name='Password Reset Enumeration', category='Authentication', status='FAIL', details='Email enumeration vulnerability detected for nonexistent@example.com', severity='MEDIUM', recommendation='Use generic response messages for password reset', evidence=None)",
+      "TestResult(test_name='Password Reset Enumeration', category='Authentication', status='FAIL', details='Email enumeration vulnerability detected for test@example.com', severity='MEDIUM', recommendation='Use generic response messages for password reset', evidence=None)"
+    ],
+    "Financial Security": [
+      "TestResult(test_name='CSRF Protection', category='Financial Security', status='WARN', details='CSRF protection status unclear on /api/payment/subscriptions', severity='MEDIUM', recommendation='Verify CSRF protection implementation', evidence=None)",
+      "TestResult(test_name='CSRF Protection', category='Financial Security', status='WARN', details='CSRF protection status unclear on /api/financial/transactions', severity='MEDIUM', recommendation='Verify CSRF protection implementation', evidence=None)",
+      "TestResult(test_name='CSRF Protection', category='Financial Security', status='WARN', details='CSRF protection status unclear on /api/payment/payment-intents', severity='MEDIUM', recommendation='Verify CSRF protection implementation', evidence=None)",
+      "TestResult(test_name='CSRF Protection', category='Financial Security', status='WARN', details='CSRF protection status unclear on /api/financial/goals', severity='MEDIUM', recommendation='Verify CSRF protection implementation', evidence=None)",
+      "TestResult(test_name='XSS Protection', category='Financial Security', status='PASS', details='XSS protection active on /api/financial/transactions', severity='LOW', recommendation='Good - XSS protection is working', evidence=None)",
+      "TestResult(test_name='XSS Protection', category='Financial Security', status='PASS', details='XSS protection active on /api/financial/profile', severity='LOW', recommendation='Good - XSS protection is working', evidence=None)",
+      "TestResult(test_name='XSS Protection', category='Financial Security', status='PASS', details='XSS protection active on /api/goals/set', severity='LOW', recommendation='Good - XSS protection is working', evidence=None)",
+      "TestResult(test_name='Authorization Control', category='Financial Security', status='WARN', details='Authorization status unclear on /api/premium/analytics', severity='MEDIUM', recommendation='Verify authorization implementation', evidence=None)",
+      "TestResult(test_name='Authorization Control', category='Financial Security', status='WARN', details='Authorization status unclear on /api/premium/export', severity='MEDIUM', recommendation='Verify authorization implementation', evidence=None)",
+      "TestResult(test_name='Authorization Control', category='Financial Security', status='WARN', details='Authorization status unclear on /api/premium/advisor', severity='MEDIUM', recommendation='Verify authorization implementation', evidence=None)"
+    ],
+    "Infrastructure": [
+      "TestResult(test_name='HTTPS Enforcement', category='Infrastructure', status='WARN', details='Application not using HTTPS', severity='MEDIUM', recommendation='Enforce HTTPS for all connections', evidence=None)",
+      "TestResult(test_name='HSTS', category='Infrastructure', status='WARN', details='Strict-Transport-Security: max-age=31536000; includeSubDomains', severity='MEDIUM', recommendation='Verify HSTS configuration', evidence=None)",
+      "TestResult(test_name='Clickjacking Protection', category='Infrastructure', status='PASS', details='X-Frame-Options: DENY', severity='LOW', recommendation='Good - proper security header', evidence=None)",
+      "TestResult(test_name='MIME Sniffing Protection', category='Infrastructure', status='WARN', details='X-Content-Type-Options: nosniff', severity='MEDIUM', recommendation='Verify MIME Sniffing Protection configuration', evidence=None)",
+      "TestResult(test_name='XSS Protection', category='Infrastructure', status='WARN', details='X-XSS-Protection: 1; mode=block', severity='MEDIUM', recommendation='Verify XSS Protection configuration', evidence=None)",
+      "TestResult(test_name='CSP', category='Infrastructure', status='PASS', details='Content-Security-Policy is present', severity='LOW', recommendation='Good - CSP is configured', evidence=None)",
+      "TestResult(test_name='Referrer Policy', category='Infrastructure', status='WARN', details='Referrer-Policy: strict-origin-when-cross-origin', severity='MEDIUM', recommendation='Verify Referrer Policy configuration', evidence=None)",
+      "TestResult(test_name='Permissions Policy', category='Infrastructure', status='WARN', details='Permissions-Policy: geolocation=(), microphone=(), camera=()', severity='MEDIUM', recommendation='Verify Permissions Policy configuration', evidence=None)",
+      "TestResult(test_name='Directory Traversal', category='Infrastructure', status='PASS', details='Directory traversal protection in /api/file/', severity='LOW', recommendation='Good - path validation is working', evidence=None)",
+      "TestResult(test_name='Directory Traversal', category='Infrastructure', status='PASS', details='Directory traversal protection in /uploads/', severity='LOW', recommendation='Good - path validation is working', evidence=None)",
+      "TestResult(test_name='Directory Traversal', category='Infrastructure', status='PASS', details='Directory traversal protection in /static/', severity='LOW', recommendation='Good - path validation is working', evidence=None)",
+      "TestResult(test_name='Directory Traversal', category='Infrastructure', status='PASS', details='Directory traversal protection in /images/', severity='LOW', recommendation='Good - path validation is working', evidence=None)"
+    ],
+    "API Security": [
+      "TestResult(test_name='API Authentication', category='API Security', status='PASS', details='Proper authentication required for /api/user/profile', severity='LOW', recommendation='Good - API authentication is working', evidence=None)",
+      "TestResult(test_name='API Authentication', category='API Security', status='WARN', details='Authentication status unclear on /api/financial/transactions', severity='MEDIUM', recommendation='Verify API authentication implementation', evidence=None)",
+      "TestResult(test_name='API Authentication', category='API Security', status='PASS', details='Proper authentication required for /api/assessment/results', severity='LOW', recommendation='Good - API authentication is working', evidence=None)",
+      "TestResult(test_name='API Authentication', category='API Security', status='PASS', details='Proper authentication required for /api/admin/users', severity='LOW', recommendation='Good - API authentication is working', evidence=None)",
+      "TestResult(test_name='API Rate Limiting', category='API Security', status='FAIL', details='No rate limiting detected after 20 rapid requests', severity='HIGH', recommendation='Implement rate limiting for API endpoints', evidence=None)",
+      "TestResult(test_name='Input Validation', category='API Security', status='WARN', details='Validation status unclear for email', severity='MEDIUM', recommendation='Verify input validation implementation', evidence=None)",
+      "TestResult(test_name='Input Validation', category='API Security', status='WARN', details='Validation status unclear for amount', severity='MEDIUM', recommendation='Verify input validation implementation', evidence=None)",
+      "TestResult(test_name='Input Validation', category='API Security', status='WARN', details='Validation status unclear for responses', severity='MEDIUM', recommendation='Verify input validation implementation', evidence=None)",
+      "TestResult(test_name='Error Disclosure', category='API Security', status='PASS', details='No sensitive information disclosed in /api/user/nonexistent', severity='LOW', recommendation='Good - error messages are secure', evidence=None)",
+      "TestResult(test_name='Error Disclosure', category='API Security', status='PASS', details='No sensitive information disclosed in /api/financial/invalid', severity='LOW', recommendation='Good - error messages are secure', evidence=None)",
+      "TestResult(test_name='Error Disclosure', category='API Security', status='PASS', details='No sensitive information disclosed in /api/admin/unauthorized', severity='LOW', recommendation='Good - error messages are secure', evidence=None)"
+    ]
+  },
+  "results_by_severity": {
+    "critical": [],
+    "high": [
+      "TestResult(test_name='API Rate Limiting', category='API Security', status='FAIL', details='No rate limiting detected after 20 rapid requests', severity='HIGH', recommendation='Implement rate limiting for API endpoints', evidence=None)"
+    ],
+    "medium": [
+      "TestResult(test_name='Account Lockout', category='Authentication', status='WARN', details='Account lockout functionality not detected', severity='MEDIUM', recommendation='Consider implementing account lockout after multiple failed attempts', evidence=None)",
+      "TestResult(test_name='Password Reset Enumeration', category='Authentication', status='FAIL', details='Email enumeration vulnerability detected for admin@example.com', severity='MEDIUM', recommendation='Use generic response messages for password reset', evidence=None)",
+      "TestResult(test_name='Password Reset Enumeration', category='Authentication', status='FAIL', details='Email enumeration vulnerability detected for nonexistent@example.com', severity='MEDIUM', recommendation='Use generic response messages for password reset', evidence=None)",
+      "TestResult(test_name='Password Reset Enumeration', category='Authentication', status='FAIL', details='Email enumeration vulnerability detected for test@example.com', severity='MEDIUM', recommendation='Use generic response messages for password reset', evidence=None)",
+      "TestResult(test_name='CSRF Protection', category='Financial Security', status='WARN', details='CSRF protection status unclear on /api/payment/subscriptions', severity='MEDIUM', recommendation='Verify CSRF protection implementation', evidence=None)",
+      "TestResult(test_name='CSRF Protection', category='Financial Security', status='WARN', details='CSRF protection status unclear on /api/financial/transactions', severity='MEDIUM', recommendation='Verify CSRF protection implementation', evidence=None)",
+      "TestResult(test_name='CSRF Protection', category='Financial Security', status='WARN', details='CSRF protection status unclear on /api/payment/payment-intents', severity='MEDIUM', recommendation='Verify CSRF protection implementation', evidence=None)",
+      "TestResult(test_name='CSRF Protection', category='Financial Security', status='WARN', details='CSRF protection status unclear on /api/financial/goals', severity='MEDIUM', recommendation='Verify CSRF protection implementation', evidence=None)",
+      "TestResult(test_name='Authorization Control', category='Financial Security', status='WARN', details='Authorization status unclear on /api/premium/analytics', severity='MEDIUM', recommendation='Verify authorization implementation', evidence=None)",
+      "TestResult(test_name='Authorization Control', category='Financial Security', status='WARN', details='Authorization status unclear on /api/premium/export', severity='MEDIUM', recommendation='Verify authorization implementation', evidence=None)",
+      "TestResult(test_name='Authorization Control', category='Financial Security', status='WARN', details='Authorization status unclear on /api/premium/advisor', severity='MEDIUM', recommendation='Verify authorization implementation', evidence=None)",
+      "TestResult(test_name='HTTPS Enforcement', category='Infrastructure', status='WARN', details='Application not using HTTPS', severity='MEDIUM', recommendation='Enforce HTTPS for all connections', evidence=None)",
+      "TestResult(test_name='HSTS', category='Infrastructure', status='WARN', details='Strict-Transport-Security: max-age=31536000; includeSubDomains', severity='MEDIUM', recommendation='Verify HSTS configuration', evidence=None)",
+      "TestResult(test_name='MIME Sniffing Protection', category='Infrastructure', status='WARN', details='X-Content-Type-Options: nosniff', severity='MEDIUM', recommendation='Verify MIME Sniffing Protection configuration', evidence=None)",
+      "TestResult(test_name='XSS Protection', category='Infrastructure', status='WARN', details='X-XSS-Protection: 1; mode=block', severity='MEDIUM', recommendation='Verify XSS Protection configuration', evidence=None)",
+      "TestResult(test_name='Referrer Policy', category='Infrastructure', status='WARN', details='Referrer-Policy: strict-origin-when-cross-origin', severity='MEDIUM', recommendation='Verify Referrer Policy configuration', evidence=None)",
+      "TestResult(test_name='Permissions Policy', category='Infrastructure', status='WARN', details='Permissions-Policy: geolocation=(), microphone=(), camera=()', severity='MEDIUM', recommendation='Verify Permissions Policy configuration', evidence=None)",
+      "TestResult(test_name='API Authentication', category='API Security', status='WARN', details='Authentication status unclear on /api/financial/transactions', severity='MEDIUM', recommendation='Verify API authentication implementation', evidence=None)",
+      "TestResult(test_name='Input Validation', category='API Security', status='WARN', details='Validation status unclear for email', severity='MEDIUM', recommendation='Verify input validation implementation', evidence=None)",
+      "TestResult(test_name='Input Validation', category='API Security', status='WARN', details='Validation status unclear for amount', severity='MEDIUM', recommendation='Verify input validation implementation', evidence=None)",
+      "TestResult(test_name='Input Validation', category='API Security', status='WARN', details='Validation status unclear for responses', severity='MEDIUM', recommendation='Verify input validation implementation', evidence=None)"
+    ],
+    "low": [
+      "TestResult(test_name='Authentication Bypass', category='Authentication', status='PASS', details='Protected endpoint /api/user/profile properly requires authentication', severity='LOW', recommendation='Good - endpoint is properly protected', evidence=None)",
+      "TestResult(test_name='Authentication Bypass', category='Authentication', status='PASS', details='Protected endpoint /api/admin/users properly requires authentication', severity='LOW', recommendation='Good - endpoint is properly protected', evidence=None)",
+      "TestResult(test_name='Invalid Token Access', category='Authentication', status='PASS', details='Invalid token properly rejected: invalid_token...', severity='LOW', recommendation='Good - invalid tokens are properly rejected', evidence=None)",
+      "TestResult(test_name='Invalid Token Access', category='Authentication', status='PASS', details='Invalid token properly rejected: eyJhbGciOiJIUzI1NiIs...', severity='LOW', recommendation='Good - invalid tokens are properly rejected', evidence=None)",
+      "TestResult(test_name='Invalid Token Access', category='Authentication', status='PASS', details='Invalid token properly rejected: Bearer invalid_token...', severity='LOW', recommendation='Good - invalid tokens are properly rejected', evidence=None)",
+      "TestResult(test_name='Invalid Token Access', category='Authentication', status='PASS', details='Invalid token properly rejected: ...', severity='LOW', recommendation='Good - invalid tokens are properly rejected', evidence=None)",
+      "TestResult(test_name='Brute Force Protection', category='Authentication', status='PASS', details='Rate limiting activated after 6 failed attempts', severity='LOW', recommendation='Good - rate limiting is working', evidence=None)",
+      "TestResult(test_name='Session Fixation', category='Authentication', status='PASS', details='Session fixation protection detected', severity='LOW', recommendation='Good - session IDs are properly managed', evidence=None)",
+      "TestResult(test_name='Session Hijacking Protection', category='Authentication', status='PASS', details='Session hijacking protection detected (User-Agent validation)', severity='LOW', recommendation='Good - User-Agent validation is working', evidence=None)",
+      "TestResult(test_name='XSS Protection', category='Financial Security', status='PASS', details='XSS protection active on /api/financial/transactions', severity='LOW', recommendation='Good - XSS protection is working', evidence=None)",
+      "TestResult(test_name='XSS Protection', category='Financial Security', status='PASS', details='XSS protection active on /api/financial/profile', severity='LOW', recommendation='Good - XSS protection is working', evidence=None)",
+      "TestResult(test_name='XSS Protection', category='Financial Security', status='PASS', details='XSS protection active on /api/goals/set', severity='LOW', recommendation='Good - XSS protection is working', evidence=None)",
+      "TestResult(test_name='Clickjacking Protection', category='Infrastructure', status='PASS', details='X-Frame-Options: DENY', severity='LOW', recommendation='Good - proper security header', evidence=None)",
+      "TestResult(test_name='CSP', category='Infrastructure', status='PASS', details='Content-Security-Policy is present', severity='LOW', recommendation='Good - CSP is configured', evidence=None)",
+      "TestResult(test_name='Directory Traversal', category='Infrastructure', status='PASS', details='Directory traversal protection in /api/file/', severity='LOW', recommendation='Good - path validation is working', evidence=None)",
+      "TestResult(test_name='Directory Traversal', category='Infrastructure', status='PASS', details='Directory traversal protection in /uploads/', severity='LOW', recommendation='Good - path validation is working', evidence=None)",
+      "TestResult(test_name='Directory Traversal', category='Infrastructure', status='PASS', details='Directory traversal protection in /static/', severity='LOW', recommendation='Good - path validation is working', evidence=None)",
+      "TestResult(test_name='Directory Traversal', category='Infrastructure', status='PASS', details='Directory traversal protection in /images/', severity='LOW', recommendation='Good - path validation is working', evidence=None)",
+      "TestResult(test_name='API Authentication', category='API Security', status='PASS', details='Proper authentication required for /api/user/profile', severity='LOW', recommendation='Good - API authentication is working', evidence=None)",
+      "TestResult(test_name='API Authentication', category='API Security', status='PASS', details='Proper authentication required for /api/assessment/results', severity='LOW', recommendation='Good - API authentication is working', evidence=None)",
+      "TestResult(test_name='API Authentication', category='API Security', status='PASS', details='Proper authentication required for /api/admin/users', severity='LOW', recommendation='Good - API authentication is working', evidence=None)",
+      "TestResult(test_name='Error Disclosure', category='API Security', status='PASS', details='No sensitive information disclosed in /api/user/nonexistent', severity='LOW', recommendation='Good - error messages are secure', evidence=None)",
+      "TestResult(test_name='Error Disclosure', category='API Security', status='PASS', details='No sensitive information disclosed in /api/financial/invalid', severity='LOW', recommendation='Good - error messages are secure', evidence=None)",
+      "TestResult(test_name='Error Disclosure', category='API Security', status='PASS', details='No sensitive information disclosed in /api/admin/unauthorized', severity='LOW', recommendation='Good - error messages are secure', evidence=None)"
+    ]
+  },
+  "recommendations": [
+    "\u26a0\ufe0f HIGH: Prioritize fixing high-severity vulnerabilities",
+    "\ud83d\udd10 Authentication: Implement proper authentication and session management",
+    "\ud83d\udd0c API Security: Implement proper API authentication and rate limiting"
+  ],
+  "test_details": [
+    {
+      "test_name": "Authentication Bypass",
+      "category": "Authentication",
+      "status": "PASS",
+      "details": "Protected endpoint /api/user/profile properly requires authentication",
+      "severity": "LOW",
+      "recommendation": "Good - endpoint is properly protected",
+      "evidence": null
+    },
+    {
+      "test_name": "Authentication Bypass",
+      "category": "Authentication",
+      "status": "PASS",
+      "details": "Protected endpoint /api/admin/users properly requires authentication",
+      "severity": "LOW",
+      "recommendation": "Good - endpoint is properly protected",
+      "evidence": null
+    },
+    {
+      "test_name": "Invalid Token Access",
+      "category": "Authentication",
+      "status": "PASS",
+      "details": "Invalid token properly rejected: invalid_token...",
+      "severity": "LOW",
+      "recommendation": "Good - invalid tokens are properly rejected",
+      "evidence": null
+    },
+    {
+      "test_name": "Invalid Token Access",
+      "category": "Authentication",
+      "status": "PASS",
+      "details": "Invalid token properly rejected: eyJhbGciOiJIUzI1NiIs...",
+      "severity": "LOW",
+      "recommendation": "Good - invalid tokens are properly rejected",
+      "evidence": null
+    },
+    {
+      "test_name": "Invalid Token Access",
+      "category": "Authentication",
+      "status": "PASS",
+      "details": "Invalid token properly rejected: Bearer invalid_token...",
+      "severity": "LOW",
+      "recommendation": "Good - invalid tokens are properly rejected",
+      "evidence": null
+    },
+    {
+      "test_name": "Invalid Token Access",
+      "category": "Authentication",
+      "status": "PASS",
+      "details": "Invalid token properly rejected: ...",
+      "severity": "LOW",
+      "recommendation": "Good - invalid tokens are properly rejected",
+      "evidence": null
+    },
+    {
+      "test_name": "Brute Force Protection",
+      "category": "Authentication",
+      "status": "PASS",
+      "details": "Rate limiting activated after 6 failed attempts",
+      "severity": "LOW",
+      "recommendation": "Good - rate limiting is working",
+      "evidence": null
+    },
+    {
+      "test_name": "Account Lockout",
+      "category": "Authentication",
+      "status": "WARN",
+      "details": "Account lockout functionality not detected",
+      "severity": "MEDIUM",
+      "recommendation": "Consider implementing account lockout after multiple failed attempts",
+      "evidence": null
+    },
+    {
+      "test_name": "Session Fixation",
+      "category": "Authentication",
+      "status": "PASS",
+      "details": "Session fixation protection detected",
+      "severity": "LOW",
+      "recommendation": "Good - session IDs are properly managed",
+      "evidence": null
+    },
+    {
+      "test_name": "Session Hijacking Protection",
+      "category": "Authentication",
+      "status": "PASS",
+      "details": "Session hijacking protection detected (User-Agent validation)",
+      "severity": "LOW",
+      "recommendation": "Good - User-Agent validation is working",
+      "evidence": null
+    },
+    {
+      "test_name": "Password Reset Enumeration",
+      "category": "Authentication",
+      "status": "FAIL",
+      "details": "Email enumeration vulnerability detected for admin@example.com",
+      "severity": "MEDIUM",
+      "recommendation": "Use generic response messages for password reset",
+      "evidence": null
+    },
+    {
+      "test_name": "Password Reset Enumeration",
+      "category": "Authentication",
+      "status": "FAIL",
+      "details": "Email enumeration vulnerability detected for nonexistent@example.com",
+      "severity": "MEDIUM",
+      "recommendation": "Use generic response messages for password reset",
+      "evidence": null
+    },
+    {
+      "test_name": "Password Reset Enumeration",
+      "category": "Authentication",
+      "status": "FAIL",
+      "details": "Email enumeration vulnerability detected for test@example.com",
+      "severity": "MEDIUM",
+      "recommendation": "Use generic response messages for password reset",
+      "evidence": null
+    },
+    {
+      "test_name": "CSRF Protection",
+      "category": "Financial Security",
+      "status": "WARN",
+      "details": "CSRF protection status unclear on /api/payment/subscriptions",
+      "severity": "MEDIUM",
+      "recommendation": "Verify CSRF protection implementation",
+      "evidence": null
+    },
+    {
+      "test_name": "CSRF Protection",
+      "category": "Financial Security",
+      "status": "WARN",
+      "details": "CSRF protection status unclear on /api/financial/transactions",
+      "severity": "MEDIUM",
+      "recommendation": "Verify CSRF protection implementation",
+      "evidence": null
+    },
+    {
+      "test_name": "CSRF Protection",
+      "category": "Financial Security",
+      "status": "WARN",
+      "details": "CSRF protection status unclear on /api/payment/payment-intents",
+      "severity": "MEDIUM",
+      "recommendation": "Verify CSRF protection implementation",
+      "evidence": null
+    },
+    {
+      "test_name": "CSRF Protection",
+      "category": "Financial Security",
+      "status": "WARN",
+      "details": "CSRF protection status unclear on /api/financial/goals",
+      "severity": "MEDIUM",
+      "recommendation": "Verify CSRF protection implementation",
+      "evidence": null
+    },
+    {
+      "test_name": "XSS Protection",
+      "category": "Financial Security",
+      "status": "PASS",
+      "details": "XSS protection active on /api/financial/transactions",
+      "severity": "LOW",
+      "recommendation": "Good - XSS protection is working",
+      "evidence": null
+    },
+    {
+      "test_name": "XSS Protection",
+      "category": "Financial Security",
+      "status": "PASS",
+      "details": "XSS protection active on /api/financial/profile",
+      "severity": "LOW",
+      "recommendation": "Good - XSS protection is working",
+      "evidence": null
+    },
+    {
+      "test_name": "XSS Protection",
+      "category": "Financial Security",
+      "status": "PASS",
+      "details": "XSS protection active on /api/goals/set",
+      "severity": "LOW",
+      "recommendation": "Good - XSS protection is working",
+      "evidence": null
+    },
+    {
+      "test_name": "Authorization Control",
+      "category": "Financial Security",
+      "status": "WARN",
+      "details": "Authorization status unclear on /api/premium/analytics",
+      "severity": "MEDIUM",
+      "recommendation": "Verify authorization implementation",
+      "evidence": null
+    },
+    {
+      "test_name": "Authorization Control",
+      "category": "Financial Security",
+      "status": "WARN",
+      "details": "Authorization status unclear on /api/premium/export",
+      "severity": "MEDIUM",
+      "recommendation": "Verify authorization implementation",
+      "evidence": null
+    },
+    {
+      "test_name": "Authorization Control",
+      "category": "Financial Security",
+      "status": "WARN",
+      "details": "Authorization status unclear on /api/premium/advisor",
+      "severity": "MEDIUM",
+      "recommendation": "Verify authorization implementation",
+      "evidence": null
+    },
+    {
+      "test_name": "HTTPS Enforcement",
+      "category": "Infrastructure",
+      "status": "WARN",
+      "details": "Application not using HTTPS",
+      "severity": "MEDIUM",
+      "recommendation": "Enforce HTTPS for all connections",
+      "evidence": null
+    },
+    {
+      "test_name": "HSTS",
+      "category": "Infrastructure",
+      "status": "WARN",
+      "details": "Strict-Transport-Security: max-age=31536000; includeSubDomains",
+      "severity": "MEDIUM",
+      "recommendation": "Verify HSTS configuration",
+      "evidence": null
+    },
+    {
+      "test_name": "Clickjacking Protection",
+      "category": "Infrastructure",
+      "status": "PASS",
+      "details": "X-Frame-Options: DENY",
+      "severity": "LOW",
+      "recommendation": "Good - proper security header",
+      "evidence": null
+    },
+    {
+      "test_name": "MIME Sniffing Protection",
+      "category": "Infrastructure",
+      "status": "WARN",
+      "details": "X-Content-Type-Options: nosniff",
+      "severity": "MEDIUM",
+      "recommendation": "Verify MIME Sniffing Protection configuration",
+      "evidence": null
+    },
+    {
+      "test_name": "XSS Protection",
+      "category": "Infrastructure",
+      "status": "WARN",
+      "details": "X-XSS-Protection: 1; mode=block",
+      "severity": "MEDIUM",
+      "recommendation": "Verify XSS Protection configuration",
+      "evidence": null
+    },
+    {
+      "test_name": "CSP",
+      "category": "Infrastructure",
+      "status": "PASS",
+      "details": "Content-Security-Policy is present",
+      "severity": "LOW",
+      "recommendation": "Good - CSP is configured",
+      "evidence": null
+    },
+    {
+      "test_name": "Referrer Policy",
+      "category": "Infrastructure",
+      "status": "WARN",
+      "details": "Referrer-Policy: strict-origin-when-cross-origin",
+      "severity": "MEDIUM",
+      "recommendation": "Verify Referrer Policy configuration",
+      "evidence": null
+    },
+    {
+      "test_name": "Permissions Policy",
+      "category": "Infrastructure",
+      "status": "WARN",
+      "details": "Permissions-Policy: geolocation=(), microphone=(), camera=()",
+      "severity": "MEDIUM",
+      "recommendation": "Verify Permissions Policy configuration",
+      "evidence": null
+    },
+    {
+      "test_name": "Directory Traversal",
+      "category": "Infrastructure",
+      "status": "PASS",
+      "details": "Directory traversal protection in /api/file/",
+      "severity": "LOW",
+      "recommendation": "Good - path validation is working",
+      "evidence": null
+    },
+    {
+      "test_name": "Directory Traversal",
+      "category": "Infrastructure",
+      "status": "PASS",
+      "details": "Directory traversal protection in /uploads/",
+      "severity": "LOW",
+      "recommendation": "Good - path validation is working",
+      "evidence": null
+    },
+    {
+      "test_name": "Directory Traversal",
+      "category": "Infrastructure",
+      "status": "PASS",
+      "details": "Directory traversal protection in /static/",
+      "severity": "LOW",
+      "recommendation": "Good - path validation is working",
+      "evidence": null
+    },
+    {
+      "test_name": "Directory Traversal",
+      "category": "Infrastructure",
+      "status": "PASS",
+      "details": "Directory traversal protection in /images/",
+      "severity": "LOW",
+      "recommendation": "Good - path validation is working",
+      "evidence": null
+    },
+    {
+      "test_name": "API Authentication",
+      "category": "API Security",
+      "status": "PASS",
+      "details": "Proper authentication required for /api/user/profile",
+      "severity": "LOW",
+      "recommendation": "Good - API authentication is working",
+      "evidence": null
+    },
+    {
+      "test_name": "API Authentication",
+      "category": "API Security",
+      "status": "WARN",
+      "details": "Authentication status unclear on /api/financial/transactions",
+      "severity": "MEDIUM",
+      "recommendation": "Verify API authentication implementation",
+      "evidence": null
+    },
+    {
+      "test_name": "API Authentication",
+      "category": "API Security",
+      "status": "PASS",
+      "details": "Proper authentication required for /api/assessment/results",
+      "severity": "LOW",
+      "recommendation": "Good - API authentication is working",
+      "evidence": null
+    },
+    {
+      "test_name": "API Authentication",
+      "category": "API Security",
+      "status": "PASS",
+      "details": "Proper authentication required for /api/admin/users",
+      "severity": "LOW",
+      "recommendation": "Good - API authentication is working",
+      "evidence": null
+    },
+    {
+      "test_name": "API Rate Limiting",
+      "category": "API Security",
+      "status": "FAIL",
+      "details": "No rate limiting detected after 20 rapid requests",
+      "severity": "HIGH",
+      "recommendation": "Implement rate limiting for API endpoints",
+      "evidence": null
+    },
+    {
+      "test_name": "Input Validation",
+      "category": "API Security",
+      "status": "WARN",
+      "details": "Validation status unclear for email",
+      "severity": "MEDIUM",
+      "recommendation": "Verify input validation implementation",
+      "evidence": null
+    },
+    {
+      "test_name": "Input Validation",
+      "category": "API Security",
+      "status": "WARN",
+      "details": "Validation status unclear for amount",
+      "severity": "MEDIUM",
+      "recommendation": "Verify input validation implementation",
+      "evidence": null
+    },
+    {
+      "test_name": "Input Validation",
+      "category": "API Security",
+      "status": "WARN",
+      "details": "Validation status unclear for responses",
+      "severity": "MEDIUM",
+      "recommendation": "Verify input validation implementation",
+      "evidence": null
+    },
+    {
+      "test_name": "Error Disclosure",
+      "category": "API Security",
+      "status": "PASS",
+      "details": "No sensitive information disclosed in /api/user/nonexistent",
+      "severity": "LOW",
+      "recommendation": "Good - error messages are secure",
+      "evidence": null
+    },
+    {
+      "test_name": "Error Disclosure",
+      "category": "API Security",
+      "status": "PASS",
+      "details": "No sensitive information disclosed in /api/financial/invalid",
+      "severity": "LOW",
+      "recommendation": "Good - error messages are secure",
+      "evidence": null
+    },
+    {
+      "test_name": "Error Disclosure",
+      "category": "API Security",
+      "status": "PASS",
+      "details": "No sensitive information disclosed in /api/admin/unauthorized",
+      "severity": "LOW",
+      "recommendation": "Good - error messages are secure",
+      "evidence": null
+    }
+  ]
+}

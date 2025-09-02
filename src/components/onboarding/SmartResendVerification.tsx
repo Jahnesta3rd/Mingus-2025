@@ -315,24 +315,24 @@ export const SmartResendVerification: React.FC<SmartResendVerificationProps> = (
   };
 
   return (
-    <div className="smart-resend-verification">
-      <div className="verification-header">
+    <div className="smart-resend-verification mb-6">
+      <div className="verification-header mb-6">
         <button 
           onClick={onBack}
-          className="back-button"
+          className="back-button font-semibold text-lg"
           disabled={isLoading}
         >
           ← Back
         </button>
-        <h2>Verify Your Phone Number</h2>
+        <h2 className="text-2xl font-semibold text-gray-800 mb-4">Verify Your Phone Number</h2>
         <p className="verification-subtitle">
           We'll send a verification code to your phone number
         </p>
       </div>
 
-      <div className="verification-content">
+      <div className="verification-content mb-6">
         {/* Phone Number Input */}
-        <div className="phone-input-section">
+        <div className="phone-input-section mb-6">
           <label htmlFor="phone-number">Phone Number</label>
           <PhoneNumberInput
             id="phone-number"
@@ -345,7 +345,7 @@ export const SmartResendVerification: React.FC<SmartResendVerificationProps> = (
           {verificationStatus?.can_change_phone && (
             <button
               onClick={() => setShowChangePhone(!showChangePhone)}
-              className="change-phone-button"
+              className="change-phone-button font-semibold text-lg"
               disabled={isLoading}
             >
               Change Phone Number
@@ -355,27 +355,27 @@ export const SmartResendVerification: React.FC<SmartResendVerificationProps> = (
 
         {/* Change Phone Number Modal */}
         {showChangePhone && (
-          <div className="change-phone-modal">
-            <div className="modal-content">
-              <h3>Change Phone Number</h3>
+          <div className="change-phone-modal mb-6">
+            <div className="modal-content mb-6">
+              <h3 className="text-xl font-semibold text-gray-800 mb-3">Change Phone Number</h3>
               <PhoneNumberInput
                 value={newPhoneNumber}
                 onChange={setNewPhoneNumber}
                 disabled={isLoading}
                 placeholder="Enter new phone number"
               />
-              <div className="modal-actions">
+              <div className="modal-actions mb-6">
                 <button
                   onClick={changePhoneNumber}
                   disabled={isLoading || !newPhoneNumber}
-                  className="primary-button"
+                  className="primary-button font-semibold text-lg"
                 >
                   {isLoading ? 'Changing...' : 'Change Phone'}
                 </button>
                 <button
                   onClick={() => setShowChangePhone(false)}
                   disabled={isLoading}
-                  className="secondary-button"
+                  className="secondary-button font-semibold text-lg"
                 >
                   Cancel
                 </button>
@@ -385,7 +385,7 @@ export const SmartResendVerification: React.FC<SmartResendVerificationProps> = (
         )}
 
         {/* Send/Resend Button */}
-        <div className="send-code-section">
+        <div className="send-code-section mb-6">
           <button
             onClick={verificationStatus?.resend_count === 0 ? sendVerificationCode : resendVerificationCode}
             disabled={isResendDisabled()}
@@ -395,8 +395,8 @@ export const SmartResendVerification: React.FC<SmartResendVerificationProps> = (
           </button>
           
           {countdown > 0 && (
-            <div className="countdown-timer">
-              <div className="countdown-circle">
+            <div className="countdown-timer mb-6">
+              <div className="countdown-circle mb-6">
                 <span>{formatTime(countdown)}</span>
               </div>
             </div>
@@ -405,20 +405,20 @@ export const SmartResendVerification: React.FC<SmartResendVerificationProps> = (
 
         {/* Status Messages */}
         {success && (
-          <div className="success-message">
+          <div className="success-message mb-6">
             {success}
           </div>
         )}
 
         {error && (
-          <div className="error-message">
+          <div className="error-message mb-6">
             {error}
           </div>
         )}
 
         {/* Alternative Contact Suggestion */}
         {verificationStatus?.suggest_alternative && (
-          <div className="alternative-contact">
+          <div className="alternative-contact mb-6">
             <p>Having trouble receiving SMS?</p>
             <ul>
               <li>Check your phone's signal strength</li>
@@ -431,7 +431,7 @@ export const SmartResendVerification: React.FC<SmartResendVerificationProps> = (
 
         {/* Verification Code Input */}
         {verificationStatus?.has_active_verification && (
-          <div className="code-input-section">
+          <div className="code-input-section mb-6">
             <label htmlFor="verification-code">Enter Verification Code</label>
             <VerificationCodeInput
               id="verification-code"
@@ -445,7 +445,7 @@ export const SmartResendVerification: React.FC<SmartResendVerificationProps> = (
             <button
               onClick={verifyCode}
               disabled={isLoading || verificationCode.length !== 6}
-              className="verify-button"
+              className="verify-button font-semibold text-lg"
             >
               {isLoading ? 'Verifying...' : 'Verify Code'}
             </button>
@@ -454,11 +454,11 @@ export const SmartResendVerification: React.FC<SmartResendVerificationProps> = (
 
         {/* Attempt History */}
         {verificationStatus?.attempt_history && verificationStatus.attempt_history.length > 0 && (
-          <div className="attempt-history">
+          <div className="attempt-history mb-6">
             <h4>Recent Attempts</h4>
-            <div className="history-list">
+            <div className="history-list mb-6">
               {verificationStatus.attempt_history.slice(0, 5).map((attempt) => (
-                <div key={attempt.id} className="history-item">
+                <div key={attempt.id} className="history-item mb-6">
                   <span className="attempt-time">
                     {new Date(attempt.sent_at).toLocaleTimeString()}
                   </span>
@@ -476,14 +476,14 @@ export const SmartResendVerification: React.FC<SmartResendVerificationProps> = (
 
         {/* Analytics Summary */}
         {analytics.length > 0 && (
-          <div className="analytics-summary">
+          <div className="analytics-summary mb-6">
             <h4>Verification Activity</h4>
-            <div className="analytics-stats">
-              <div className="stat">
+            <div className="analytics-stats mb-6">
+              <div className="stat mb-6">
                 <span className="stat-label">Total Events:</span>
                 <span className="stat-value">{analytics.length}</span>
               </div>
-              <div className="stat">
+              <div className="stat mb-6">
                 <span className="stat-label">Last Activity:</span>
                 <span className="stat-value">
                   {new Date(analytics[0]?.created_at).toLocaleString()}

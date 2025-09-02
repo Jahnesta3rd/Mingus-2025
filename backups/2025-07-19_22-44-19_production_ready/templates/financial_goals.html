@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="stylesheet" href="touch_target_optimization.css">
+
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Financial Goals</title>
@@ -58,7 +60,7 @@
     <h2>Set Your Financial Goals</h2>
     <p>Dream big! Set goals that inspire you. We'll help you make them achievable over time.</p>
     <div id="goalsList"></div>
-    <button type="button" class="add-goal-btn" id="addGoalBtn">+ Add Another Goal</button>
+    <button type="button" class="add-goal-btn btn-cta btn-primary" id="addGoalBtn">+ Add Another Goal</button>
     <div class="timeline-container">
       <h3>Goal Timeline</h3>
       <div class="timeline-bar" id="timelineBar"></div>
@@ -66,9 +68,9 @@
     </div>
     <div id="goalWarnings" class="warning"></div>
     <div class="button-row">
-      <button type="button" id="prevBtn" class="btn-mingus-secondary">Previous</button>
-      <button type="button" id="skipBtn" class="btn-mingus-skip">Skip</button>
-      <button type="submit" id="nextBtn" class="btn-mingus-primary" disabled>Next</button>
+      <button type="button" id="prevBtn" class="btn-mingus-secondary btn-cta btn-primary">Previous</button>
+      <button type="button" id="skipBtn" class="btn-mingus-skip btn-cta btn-primary">Skip</button>
+      <button type="submit" id="nextBtn" class="btn-mingus-primary btn-cta btn-primary" disabled>Next</button>
       <span id="savingIndicator" class="saving-indicator" style="display:none;">Saving...</span>
     </div>
   </form>
@@ -122,10 +124,10 @@
           </div>
           <div class="goal-fields">
             <label>Goal Name
-              <input type="text" class="goal-name" value="${goal.goal_name || ''}" data-idx="${idx}" maxlength="40" placeholder="e.g. Emergency Fund">
+              <input type="text" class="goal-name" value="${goal.goal_name || ''}" data-idx="${idx}" maxlength="40" placeholder="e.g. Emergency Fund" class="form-input">
             </label>
             <label>Category
-              <select class="goal-category-select" data-idx="${idx}">
+              <select class="goal-category-select" data-idx="${idx}" class="form-input">
                 ${GOAL_CATEGORIES.map(cat => `<option value="${cat.value}" ${goal.goal_category===cat.value?'selected':''}>${cat.label}</option>`).join('')}
               </select>
             </label>

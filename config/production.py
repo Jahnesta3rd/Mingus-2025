@@ -90,6 +90,21 @@ class ProductionConfig(Config):
         self.SECURE_BROWSER_XSS_FILTER = True
         self.SECURE_FRAME_DENY = True
         
+        # Content Security Policy (CSP) configuration for production
+        self.CSP_DIRECTIVES = {
+            'default-src': ["'self'"],
+            'style-src': ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com", "https://fonts.googleapis.com"],
+            'script-src': ["'self'", "'unsafe-inline'", "https://www.googletagmanager.com", "https://www.clarity.ms"],
+            'font-src': ["'self'", "https://cdnjs.cloudflare.com", "https://fonts.gstatic.com"],
+            'img-src': ["'self'", "data:", "https:"],
+            'connect-src': ["'self'", "https://www.google-analytics.com", "https://www.clarity.ms"],
+            'frame-src': ["'none'"],
+            'object-src': ["'none'"],
+            'base-uri': ["'self'"],
+            'form-action': ["'self'"],
+            'upgrade-insecure-requests': []
+        }
+        
         # Session security for production
         self.SESSION_COOKIE_SECURE = True
         self.SESSION_COOKIE_HTTPONLY = True

@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="touch_target_optimization.css">
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MINGUS Mobile Responsive Design Audit</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f5f7;
+        }
+
+        .audit-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .audit-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .audit-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .audit-header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .device-tester {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .device-selector {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .device-btn {
+            padding: 12px 24px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .device-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .device-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .iframe-container {
+            border: 3px solid #ddd;
+            border-radius: 12px;
+            overflow: hidden;
+            background: white;
+            margin: 0 auto;
+            transition: all 0.3s ease;
+        }
+
+        .iframe-container.iphone-se {
+            width: 320px;
+            height: 568px;
+        }
+
+        .iframe-container.iphone-14 {
+            width: 375px;
+            height: 812px;
+        }
+
+        .iframe-container.iphone-14-plus {
+            width: 428px;
+            height: 926px;
+        }
+
+        .iframe-container.ipad {
+            width: 768px;
+            height: 1024px;
+        }
+
+        .iframe-container.desktop {
+            width: 1200px;
+            height: 800px;
+        }
+
+        .audit-frame {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .issues-panel {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .issues-panel h3 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+
+        .issue-category {
+            margin-bottom: 25px;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            background: #f8f9fa;
+        }
+
+        .issue-category h4 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .issue-item {
+            background: white;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 6px;
+            border: 1px solid #e9ecef;
+        }
+
+        .issue-item.critical {
+            border-left: 4px solid #dc3545;
+            background: #fff5f5;
+        }
+
+        .issue-item.warning {
+            border-left: 4px solid #ffc107;
+            background: #fffbf0;
+        }
+
+        .issue-item.info {
+            border-left: 4px solid #17a2b8;
+            background: #f0f8ff;
+        }
+
+        .issue-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .issue-description {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+        }
+
+        .issue-fix {
+            background: #e8f5e8;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            color: #155724;
+        }
+
+        .test-results {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .test-results h3 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .test-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+
+        .test-card h4 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .test-status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .test-status.pass {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .test-status.fail {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .test-status.warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .responsive-checklist {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .responsive-checklist h3 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .checklist-item:last-child {
+            border-bottom: none;
+        }
+
+        .checklist-checkbox {
+            width: 20px;
+            height: 20px;
+            margin-right: 15px;
+            accent-color: #667eea;
+        }
+
+        .checklist-text {
+            flex: 1;
+        }
+
+        .checklist-text h4 {
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .checklist-text p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .audit-container {
+                padding: 15px;
+            }
+
+            .audit-header h1 {
+                font-size: 2rem;
+            }
+
+            .device-selector {
+                justify-content: center;
+            }
+
+            .device-btn {
+                padding: 10px 20px;
+                font-size: 0.9rem;
+            }
+
+            .iframe-container {
+                transform: scale(0.8);
+                transform-origin: top center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .iframe-container {
+                transform: scale(0.6);
+            }
+
+            .device-btn {
+                padding: 8px 16px;
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="audit-container">
+        <div class="audit-header">
+            <h1>MINGUS Mobile Responsive Design Audit</h1>
+            <p>Comprehensive testing across all target device sizes</p>
+        </div>
+
+        <div class="device-tester">
+            <h3>Device Testing Interface</h3>
+            <div class="device-selector">
+                <button class="device-btn active btn-cta btn-primary" data-device="iphone-se">iPhone SE (320px)</button>
+                <button class="device-btn btn-cta btn-primary" data-device="iphone-14">iPhone 14 (375px)</button>
+                <button class="device-btn btn-cta btn-primary" data-device="iphone-14-plus">iPhone 14 Plus (428px)</button>
+                <button class="device-btn btn-cta btn-primary" data-device="ipad">iPad (768px)</button>
+                <button class="device-btn btn-cta btn-primary" data-device="desktop">Desktop (1200px)</button>
+            </div>
+            <div class="iframe-container iphone-se">
+                <iframe class="audit-frame" src="frontend/index.html" title="MINGUS Application"></iframe>
+            </div>
+        </div>
+
+        <div class="issues-panel">
+            <h3>Critical Responsive Design Issues Found</h3>
+            
+            <div class="issue-category">
+                <h4>1. Screen Size Failure Analysis</h4>
+                
+                <div class="issue-item critical">
+                    <div class="issue-title">Navigation Menu Overflow on iPhone SE (320px)</div>
+                    <div class="issue-description">The navigation menu items overflow horizontally on the smallest screen size, making them inaccessible.</div>
+                    <div class="issue-fix">
+/* Fix: Add proper mobile navigation */
+@media (max-width: 375px) {
+    .nav-links {
+        flex-direction: column;
+        width: 100%;
+        padding: 1rem;
+    }
+    
+    .nav-links li {
+        width: 100%;
+        text-align: center;
+    }
+}
+                    </div>
+                </div>
+
+                <div class="issue-item critical">
+                    <div class="issue-title">Subscription Modal Content Overflow</div>
+                    <div class="issue-description">The subscription tier cards in the conversion modal don't stack properly on mobile devices, causing horizontal scrolling.</div>
+                    <div class="issue-fix">
+/* Fix: Improve modal responsiveness */
+@media (max-width: 768px) {
+    .modal-content {
+        margin: 1rem;
+        max-width: calc(100vw - 2rem);
+    }
+    
+    .subscription-tiers {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+}
+                    </div>
+                </div>
+
+                <div class="issue-item warning">
+                    <div class="issue-title">Form Input Fields Too Small on Mobile</div>
+                    <div class="issue-description">Financial input forms have insufficient touch targets and small text on mobile devices.</div>
+                    <div class="issue-fix">
+/* Fix: Improve mobile form usability */
+@media (max-width: 768px) {
+    .form-control {
+        min-height: 44px;
+        font-size: 16px; /* Prevents zoom on iOS */
+        padding: 12px 16px;
+    }
+    
+    .btn {
+        min-height: 44px;
+        padding: 12px 24px;
+    }
+}
+                    </div>
+                </div>
+            </div>
+
+            <div class="issue-category">
+                <h4>2. Critical Mobile Functionality Testing</h4>
+                
+                <div class="issue-item critical">
+                    <div class="issue-title">Subscription Signup Flow Broken on Mobile</div>
+                    <div class="issue-description">Users cannot complete the $10/$20/$50 tier subscription signup on mobile due to layout issues and touch target problems.</div>
+                    <div class="issue-fix">
+/* Fix: Mobile-optimized subscription flow */
+@media (max-width: 768px) {
+    .subscription-tiers {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .tier-card {
+        width: 100%;
+        padding: 1.5rem;
+    }
+    
+    .tier-card button {
+        width: 100%;
+        min-height: 48px;
+    }
+}
+                    </div>
+                </div>
+
+                <div class="issue-item critical">
+                    <div class="issue-title">Financial Input Forms Unusable on Small Screens</div>
+                    <div class="issue-description">Number inputs, dropdowns, and form validation messages are not optimized for mobile interaction.</div>
+                    <div class="issue-fix">
+/* Fix: Mobile-optimized financial forms */
+@media (max-width: 768px) {
+    .assessment-form {
+        padding: 1rem;
+    }
+    
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-control {
+        width: 100%;
+        font-size: 16px;
+        min-height: 44px;
+    }
+    
+    .form-error {
+        font-size: 14px;
+        margin-top: 0.5rem;
+    }
+}
+                    </div>
+                </div>
+
+                <div class="issue-item warning">
+                    <div class="issue-title">Weekly Health/Relationship Check-in Not Mobile-Friendly</div>
+                    <div class="issue-description">The check-in forms and progress indicators are not optimized for mobile screens.</div>
+                    <div class="issue-fix">
+/* Fix: Mobile check-in optimization */
+@media (max-width: 768px) {
+    .check-in-form {
+        padding: 1rem;
+    }
+    
+    .progress-indicator {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .check-in-card {
+        margin-bottom: 1rem;
+    }
+}
+                    </div>
+                </div>
+            </div>
+
+            <div class="issue-category">
+                <h4>3. Layout and Navigation Assessment</h4>
+                
+                <div class="issue-item critical">
+                    <div class="issue-title">Mobile Navigation Menu Not Functional</div>
+                    <div class="issue-description">The hamburger menu doesn't work properly, and dropdown menus are not touch-friendly.</div>
+                    <div class="issue-fix">
+/* Fix: Functional mobile navigation */
+.mobile-menu-btn {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .mobile-menu-btn {
+        display: block;
+        padding: 0.5rem;
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+    }
+    
+    .nav-links {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        z-index: 1000;
+    }
+    
+    .nav-links.active {
+        display: flex;
+        flex-direction: column;
+        padding: 1rem;
+    }
+}
+                    </div>
+                </div>
+
+                <div class="issue-item critical">
+                    <div class="issue-title">Modal Dialogs and Popups Not Mobile-Optimized</div>
+                    <div class="issue-description">Modals don't close properly on mobile, and content overflows the viewport.</div>
+                    <div class="issue-fix">
+/* Fix: Mobile modal optimization */
+@media (max-width: 768px) {
+    .modal-container {
+        padding: 0;
+    }
+    
+    .modal-content {
+        width: 100%;
+        height: 100%;
+        max-width: none;
+        max-height: none;
+        border-radius: 0;
+        margin: 0;
+    }
+    
+    .modal-close {
+        position: fixed;
+        top: 1rem;
+        right: 1rem;
+        z-index: 1001;
+    }
+}
+                    </div>
+                </div>
+
+                <div class="issue-item warning">
+                    <div class="issue-title">Horizontal Scrolling Present on Multiple Pages</div>
+                    <div class="issue-description">Several pages have horizontal overflow that creates poor user experience on mobile.</div>
+                    <div class="issue-fix">
+/* Fix: Eliminate horizontal scrolling */
+@media (max-width: 768px) {
+    body {
+        overflow-x: hidden;
+    }
+    
+    .container {
+        padding: 0 1rem;
+        max-width: 100%;
+    }
+    
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .chart-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+}
+                    </div>
+                </div>
+            </div>
+
+            <div class="issue-category">
+                <h4>4. Content Readability on Mobile</h4>
+                
+                <div class="issue-item critical">
+                    <div class="issue-title">Text Too Small to Read Without Zooming</div>
+                    <div class="issue-description">Critical text elements are below the recommended 16px minimum for mobile readability.</div>
+                    <div class="issue-fix">
+/* Fix: Mobile typography optimization */
+@media (max-width: 768px) {
+    body {
+        font-size: 16px;
+        line-height: 1.5;
+    }
+    
+    h1 { font-size: 1.75rem; }
+    h2 { font-size: 1.5rem; }
+    h3 { font-size: 1.25rem; }
+    h4 { font-size: 1.125rem; }
+    
+    p, li, .form-control {
+        font-size: 16px;
+    }
+    
+    .btn {
+        font-size: 16px;
+    }
+}
+                    </div>
+                </div>
+
+                <div class="issue-item warning">
+                    <div class="issue-title">Images Don't Scale Properly</div>
+                    <div class="issue-description">Images break the layout and don't maintain aspect ratios on mobile devices.</div>
+                    <div class="issue-fix">
+/* Fix: Responsive images */
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+.hero-image {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+}
+
+@media (max-width: 768px) {
+    .hero-image {
+        height: 200px;
+    }
+}
+                    </div>
+                </div>
+
+                <div class="issue-item critical">
+                    <div class="issue-title">Financial Charts and Data Visualizations Unreadable</div>
+                    <div class="issue-description">Charts and graphs are too small and complex to understand on mobile screens.</div>
+                    <div class="issue-fix">
+/* Fix: Mobile-optimized charts */
+@media (max-width: 768px) {
+    .chart-container {
+        height: 250px;
+        margin: 1rem 0;
+    }
+    
+    .chart-legend {
+        flex-direction: column;
+        gap: 0.5rem;
+        font-size: 14px;
+    }
+    
+    .data-table {
+        font-size: 14px;
+        overflow-x: auto;
+    }
+    
+    .data-table th,
+    .data-table td {
+        padding: 0.5rem;
+        min-width: 80px;
+    }
+}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-results">
+            <h3>Responsive Design Test Results</h3>
+            <div class="test-grid">
+                <div class="test-card">
+                    <h4>iPhone SE (320px)</h4>
+                    <div class="test-status fail">FAILED</div>
+                    <p>Critical issues: Navigation overflow, form usability, modal problems</p>
+                </div>
+                <div class="test-card">
+                    <h4>iPhone 14 (375px)</h4>
+                    <div class="test-status warning">WARNING</div>
+                    <p>Major issues: Subscription flow, chart readability, touch targets</p>
+                </div>
+                <div class="test-card">
+                    <h4>iPhone 14 Plus (428px)</h4>
+                    <div class="test-status warning">WARNING</div>
+                    <p>Moderate issues: Form layout, modal sizing, typography</p>
+                </div>
+                <div class="test-card">
+                    <h4>iPad (768px)</h4>
+                    <div class="test-status pass">PASSED</div>
+                    <p>Minor issues: Some layout adjustments needed</p>
+                </div>
+                <div class="test-card">
+                    <h4>Desktop (1200px+)</h4>
+                    <div class="test-status pass">PASSED</div>
+                    <p>No significant responsive issues</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="responsive-checklist">
+            <h3>Mobile Responsive Design Checklist</h3>
+            
+            <div class="checklist-item">
+                <input type="checkbox" class="checklist-checkbox" id="check1">
+                <div class="checklist-text">
+                    <h4>Viewport Meta Tag</h4>
+                    <p>Ensure proper viewport configuration for mobile devices</p>
+                </div>
+            </div>
+
+            <div class="checklist-item">
+                <input type="checkbox" class="checklist-checkbox" id="check2">
+                <div class="checklist-text">
+                    <h4>Touch-Friendly Navigation</h4>
+                    <p>All navigation elements have minimum 44px touch targets</p>
+                </div>
+            </div>
+
+            <div class="checklist-item">
+                <input type="checkbox" class="checklist-checkbox" id="check3">
+                <div class="checklist-text">
+                    <h4>Mobile-Optimized Forms</h4>
+                    <p>Form inputs are properly sized and don't trigger zoom on iOS</p>
+                </div>
+            </div>
+
+            <div class="checklist-item">
+                <input type="checkbox" class="checklist-checkbox" id="check4">
+                <div class="checklist-text">
+                    <h4>Responsive Typography</h4>
+                    <p>All text is readable without zooming on mobile devices</p>
+                </div>
+            </div>
+
+            <div class="checklist-item">
+                <input type="checkbox" class="checklist-checkbox" id="check5">
+                <div class="checklist-text">
+                    <h4>Modal and Popup Optimization</h4>
+                    <p>All modals work properly on mobile and can be easily closed</p>
+                </div>
+            </div>
+
+            <div class="checklist-item">
+                <input type="checkbox" class="checklist-checkbox" id="check6">
+                <div class="checklist-text">
+                    <h4>No Horizontal Scrolling</h4>
+                    <p>All content fits within the viewport width on mobile</p>
+                </div>
+            </div>
+
+            <div class="checklist-item">
+                <input type="checkbox" class="checklist-checkbox" id="check7">
+                <div class="checklist-text">
+                    <h4>Responsive Images</h4>
+                    <p>Images scale properly and maintain aspect ratios</p>
+                </div>
+            </div>
+
+            <div class="checklist-item">
+                <input type="checkbox" class="checklist-checkbox" id="check8">
+                <div class="checklist-text">
+                    <h4>Mobile Data Visualization</h4>
+                    <p>Charts and graphs are readable and interactive on mobile</p>
+                </div>
+            </div>
+
+            <div class="checklist-item">
+                <input type="checkbox" class="checklist-checkbox" id="check9">
+                <div class="checklist-text">
+                    <h4>Performance Optimization</h4>
+                    <p>Page load times are acceptable on mobile networks</p>
+                </div>
+            </div>
+
+            <div class="checklist-item">
+                <input type="checkbox" class="checklist-checkbox" id="check10">
+                <div class="checklist-text">
+                    <h4>Accessibility Compliance</h4>
+                    <p>All interactive elements are accessible via screen readers</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Device testing functionality
+        const deviceButtons = document.querySelectorAll('.device-btn');
+        const iframeContainer = document.querySelector('.iframe-container');
+
+        deviceButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                // Remove active class from all buttons
+                deviceButtons.forEach(btn => btn.classList.remove('active'));
+                
+                // Add active class to clicked button
+                button.classList.add('active');
+                
+                // Update iframe container class
+                const device = button.getAttribute('data-device');
+                iframeContainer.className = `iframe-container ${device}`;
+            });
+        });
+
+        // Auto-check checklist items based on current issues
+        document.addEventListener('DOMContentLoaded', () => {
+            // Uncheck items that have issues
+            const checkboxes = document.querySelectorAll('.checklist-checkbox');
+            checkboxes.forEach((checkbox, index) => {
+                // Based on the audit findings, uncheck items with issues
+                if ([1, 2, 3, 4, 5, 6, 7, 8].includes(index + 1)) {
+                    checkbox.checked = false;
+                } else {
+                    checkbox.checked = true;
+                }
+            });
+        });
+
+        // Add keyboard navigation for accessibility
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                // Close any open modals or dropdowns
+                console.log('Escape key pressed - close modals');
+            }
+        });
+
+        // Test responsive behavior
+        function testResponsiveBehavior() {
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            
+            console.log(`Current viewport: ${width}x${height}`);
+            
+            // Test touch targets
+            const touchTargets = document.querySelectorAll('button, a, input, select');
+            touchTargets.forEach(target => {
+                const rect = target.getBoundingClientRect();
+                if (rect.width < 44 || rect.height < 44) {
+                    console.warn('Small touch target detected:', target);
+                }
+            });
+        }
+
+        // Run tests on load
+        window.addEventListener('load', testResponsiveBehavior);
+        window.addEventListener('resize', testResponsiveBehavior);
+    </script>
+</body>
+</html>

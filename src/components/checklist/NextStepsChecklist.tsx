@@ -206,14 +206,14 @@ export const NextStepsChecklist: React.FC<NextStepsChecklistProps> = ({
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h3 className="text-lg font-semibold text-gray-900">Next Steps</h3>
-          <p className="text-sm text-gray-600">
+          <h3 className="text-lg font-semibold text-gray-900" className="text-xl font-semibold text-gray-800 mb-3">Next Steps</h3>
+          <p className="text-base leading-relaxed text-gray-600">
             Complete these tasks to get the most out of Mingus
           </p>
         </div>
         <div className="flex items-center space-x-2">
           <Star className="text-yellow-500" size={20} />
-          <span className="text-sm font-medium text-gray-900">
+          <span className="text-base leading-relaxed font-medium text-gray-900">
             {completedCount}/{totalCount}
           </span>
         </div>
@@ -222,8 +222,8 @@ export const NextStepsChecklist: React.FC<NextStepsChecklistProps> = ({
       {/* Progress Bar */}
       <div className="mb-6">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-sm font-medium text-gray-700">Progress</span>
-          <span className="text-sm text-gray-500">{Math.round(progressPercentage)}%</span>
+          <span className="text-base leading-relaxed font-medium text-gray-700">Progress</span>
+          <span className="text-base leading-relaxed text-gray-500">{Math.round(progressPercentage)}%</span>
         </div>
         <div className="w-full bg-gray-200 rounded-full h-2">
           <motion.div
@@ -239,12 +239,12 @@ export const NextStepsChecklist: React.FC<NextStepsChecklistProps> = ({
       <div className="flex items-center justify-between mb-4">
         <button
           onClick={() => setShowCompleted(!showCompleted)}
-          className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+          className="text-base leading-relaxed text-blue-600 hover:text-blue-700 font-medium"
         >
           {showCompleted ? 'Hide completed' : 'Show completed'}
         </button>
         {completedCount > 0 && (
-          <span className="text-sm text-green-600 font-medium">
+          <span className="text-base leading-relaxed text-green-600 font-medium">
             Great progress! Keep it up! 🎉
           </span>
         )}
@@ -285,7 +285,7 @@ export const NextStepsChecklist: React.FC<NextStepsChecklistProps> = ({
                     <div className="text-gray-500">
                       {getCategoryIcon(item.category)}
                     </div>
-                    <h4 className={`text-sm font-medium ${
+                    <h4 className={`text-base leading-relaxed font-medium ${
                       item.completed ? 'text-green-800 line-through' : 'text-gray-900'
                     }`}>
                       {item.title}
@@ -293,7 +293,7 @@ export const NextStepsChecklist: React.FC<NextStepsChecklistProps> = ({
                     <div className={`w-2 h-2 rounded-full ${getPriorityColor(item.priority)}`} />
                   </div>
                   
-                  <p className={`text-sm ${
+                  <p className={`text-base leading-relaxed ${
                     item.completed ? 'text-green-700' : 'text-gray-600'
                   }`}>
                     {item.description}
@@ -305,20 +305,20 @@ export const NextStepsChecklist: React.FC<NextStepsChecklistProps> = ({
                       {item.action && !item.completed && (
                         <button
                           onClick={() => handleActionClick(item)}
-                          className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                          className="text-base leading-relaxed text-blue-600 hover:text-blue-700 font-medium"
                         >
                           {item.action.text}
                         </button>
                       )}
                       {item.estimatedTime && (
-                        <span className="text-xs text-gray-500">
+                        <span className="text-base leading-relaxed text-gray-500">
                           ~{item.estimatedTime} min
                         </span>
                       )}
                     </div>
                     
                     {item.completed && (
-                      <span className="text-xs text-green-600 font-medium">
+                      <span className="text-base leading-relaxed text-green-600 font-medium">
                         Completed! 🎉
                       </span>
                     )}
@@ -348,11 +348,11 @@ export const NextStepsChecklist: React.FC<NextStepsChecklistProps> = ({
         <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
           <div className="flex items-center space-x-2">
             <TrendingUp className="text-blue-600" size={20} />
-            <span className="text-sm font-medium text-blue-800">
+            <span className="text-base leading-relaxed font-medium text-blue-800">
               You're making great progress!
             </span>
           </div>
-          <p className="text-sm text-blue-700 mt-1">
+          <p className="text-base leading-relaxed text-blue-700 mt-1">
             {totalCount - completedCount} more steps to go. You've got this! 💪
           </p>
         </div>

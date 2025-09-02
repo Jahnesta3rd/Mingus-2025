@@ -16,13 +16,15 @@ load_dotenv()
 
 from backend.services.user_service import UserService
 from backend.services.onboarding_service import OnboardingService
-from backend.services.audit_logging import AuditService
+from backend.services.audit_service import AuditService
 from backend.services.verification_service import VerificationService
 from backend.middleware.security_middleware import SecurityMiddleware
 from backend.middleware.security import init_security
 
 # Import new assessment security integration
 from backend.security.assessment_security_integration import init_assessment_security
+# Import financial CSRF protection
+from backend.security.financial_csrf_protection import init_financial_csrf_protection
 from backend.models import Base  # Import shared Base
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
@@ -30,7 +32,7 @@ from sqlalchemy.orm import sessionmaker
 from config.development import DevelopmentConfig
 
 # Import metrics
-from .metrics import create_metrics_endpoint, health_check_timer, record_health_check_failure, record_health_check_success, update_system_metrics, update_database_metrics, update_redis_metrics
+from backend.metrics import create_metrics_endpoint, health_check_timer, record_health_check_failure, record_health_check_success, update_system_metrics, update_database_metrics, update_redis_metrics
 
 # Import health monitoring
 from backend.monitoring.health import create_health_routes
@@ -45,6 +47,12 @@ from backend.routes.onboarding_completion import onboarding_completion_bp
 # Import article library components
 from backend.integrations.article_library_integration import integrate_article_library
 from config.article_library import ArticleLibraryConfig
+
+# Import new database systems
+from backend.database.connection_pool import init_pool_manager, get_pool_manager
+from backend.database.health_checks import init_health_monitor, get_health_monitor
+from backend.monitoring.database_metrics import init_metrics_collector, get_metrics_collector
+from config.database import get_database_config, get_environment_variables
 
 def create_app(config_name: str = None) -> Flask:
     """
@@ -76,6 +84,9 @@ def create_app(config_name: str = None) -> Flask:
     # Initialize assessment security integration
     assessment_security = init_assessment_security(app)
     
+    # Initialize financial CSRF protection
+    financial_csrf = init_financial_csrf_protection(app)
+    
     # Initialize request logging using Flask hooks
     from backend.middleware.request_logger import setup_request_logging
     setup_request_logging(app)
@@ -85,8 +96,8 @@ def create_app(config_name: str = None) -> Flask:
         app.config['DATABASE_URL'] = os.getenv('DATABASE_URL')
         logger.info(f"Loaded DATABASE_URL from environment: {app.config['DATABASE_URL']}")
     
-    # Initialize database
-    init_database(app)  # Re-enabled with fixed version
+    # Initialize enhanced database systems
+    init_enhanced_database(app)
     
     # Initialize services (skip in testing if DATABASE_URL not set)
     if app.config.get('DATABASE_URL'):
@@ -94,33 +105,8 @@ def create_app(config_name: str = None) -> Flask:
     else:
         logger.warning("Skipping database-dependent service initialization: DATABASE_URL not set")
     
-    # Initialize email service (independent of database)
-    init_email_service(app)
-    
     # Register blueprints
     register_blueprints(app)
-    
-    # Register root routes
-    register_root_routes(app)
-    
-    # Add health check routes (NEW) if not already present
-    try:
-        if 'health_check' not in app.view_functions:
-            create_health_routes(app)
-    except Exception:
-        logger.warning("Skipping create_health_routes (optional dependencies missing)")
-    
-    # Integrate article library if enabled
-    if app.config.get('ENABLE_ARTICLE_LIBRARY', True):
-        try:
-            integration = integrate_article_library(app)
-            app.article_library_integration = integration
-            logger.info("Article library integration completed successfully")
-        except Exception as e:
-            logger.error(f"Article library integration failed: {str(e)}")
-            # Don't fail the entire app if article library integration fails
-    else:
-        logger.info("Article library integration disabled")
     
     # Register error handlers
     register_error_handlers(app)
@@ -130,6 +116,255 @@ def create_app(config_name: str = None) -> Flask:
     
     logger.info(f"Flask app initialized with config: {config_name}")
     return app
+
+def init_enhanced_database(app: Flask) -> None:
+    """
+    Initialize enhanced database connection pooling and health monitoring
+    """
+    try:
+        # Get database configuration for current environment
+        environment = os.getenv('FLASK_ENV', 'development')
+        db_config = get_database_config(environment)
+        
+        # Set environment variables for database configuration
+        env_vars = get_environment_variables(environment)
+        for key, value in env_vars.items():
+            os.environ[key] = value
+        
+        # Initialize connection pool manager
+        init_pool_manager(app.config.get('DATABASE_URL'))
+        pool_manager = get_pool_manager()
+        
+        # Start connection pool monitoring
+        pool_manager.start_monitoring()
+        logger.info("Database connection pool manager initialized and monitoring started")
+        
+        # Initialize health monitor
+        init_health_monitor(pool_manager)
+        health_monitor = get_health_monitor()
+        
+        # Start health monitoring
+        health_monitor.start_monitoring()
+        logger.info("Database health monitoring initialized and started")
+        
+        # Initialize metrics collector
+        collection_interval = int(os.getenv('DB_METRICS_COLLECTION_INTERVAL', '60'))
+        init_metrics_collector(collection_interval)
+        metrics_collector = get_metrics_collector()
+        
+        # Start metrics collection
+        metrics_collector.start_collection()
+        logger.info("Database metrics collection initialized and started")
+        
+        # Store managers in app config for access
+        app.config['DATABASE_POOL_MANAGER'] = pool_manager
+        app.config['DATABASE_HEALTH_MONITOR'] = health_monitor
+        app.config['DATABASE_METRICS_COLLECTOR'] = metrics_collector
+        
+        # Initialize legacy database session factory for compatibility
+        from backend.database import init_database_session_factory
+        init_database_session_factory(app.config.get('DATABASE_URL'))
+        
+        # Create tables if needed
+        if app.config.get('CREATE_TABLES', True):
+            create_enhanced_tables(app, pool_manager)
+        
+        logger.info("Enhanced database systems initialized successfully")
+        
+    except Exception as e:
+        logger.error(f"Failed to initialize enhanced database systems: {e}")
+        # Fall back to legacy initialization
+        init_database(app)
+
+def create_enhanced_tables(app: Flask, pool_manager) -> None:
+    """Create enhanced database tables with connection pooling"""
+    try:
+        # Get main pool for table creation
+        main_pool = pool_manager.get_pool('main')
+        if not main_pool:
+            logger.error("Main connection pool not available for table creation")
+            return
+        
+        with main_pool.connect() as conn:
+            # Create users table if it doesn't exist
+            conn.execute(text("""
+                CREATE TABLE IF NOT EXISTS users (
+                    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                    email VARCHAR(255) UNIQUE NOT NULL,
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+                )
+            """))
+            
+            # Create questionnaire_submissions table if it doesn't exist
+            conn.execute(text("""
+                CREATE TABLE IF NOT EXISTS questionnaire_submissions (
+                    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                    email VARCHAR(255) NOT NULL,
+                    answers JSONB NOT NULL,
+                    total_score INTEGER NOT NULL,
+                    wellness_level VARCHAR(100) NOT NULL,
+                    wellness_description TEXT,
+                    has_signed_up BOOLEAN DEFAULT FALSE,
+                    user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+                    source VARCHAR(100) DEFAULT 'financial_questionnaire',
+                    utm_source VARCHAR(100),
+                    utm_medium VARCHAR(100),
+                    utm_campaign VARCHAR(100),
+                    submitted_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+                    signed_up_at TIMESTAMP WITH TIME ZONE,
+                    CONSTRAINT questionnaire_submissions_email_unique UNIQUE (email)
+                )
+            """))
+            
+            # Create relationship_questionnaire_submissions table if it doesn't exist
+            conn.execute(text("""
+                CREATE TABLE IF NOT EXISTS relationship_questionnaire_submissions (
+                    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                    email VARCHAR(255) NOT NULL,
+                    answers JSONB NOT NULL,
+                    total_score INTEGER NOT NULL,
+                    connection_level VARCHAR(100) NOT NULL,
+                    connection_description TEXT,
+                    has_signed_up BOOLEAN DEFAULT FALSE,
+                    user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+                    source VARCHAR(100) DEFAULT 'relationship_questionnaire',
+                    utm_source VARCHAR(100),
+                    utm_medium VARCHAR(100),
+                    utm_campaign VARCHAR(100),
+                    submitted_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+                    signed_up_at TIMESTAMP WITH TIME ZONE,
+                    CONSTRAINT relationship_questionnaire_submissions_email_unique UNIQUE (email)
+                )
+            """))
+            
+            # Create database monitoring tables
+            conn.execute(text("""
+                CREATE TABLE IF NOT EXISTS database_health_logs (
+                    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                    timestamp TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+                    component VARCHAR(100) NOT NULL,
+                    status VARCHAR(50) NOT NULL,
+                    message TEXT,
+                    details JSONB,
+                    response_time_ms INTEGER
+                )
+            """))
+            
+            conn.execute(text("""
+                CREATE TABLE IF NOT EXISTS connection_pool_metrics (
+                    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                    timestamp TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+                    pool_name VARCHAR(100) NOT NULL,
+                    pool_size INTEGER NOT NULL,
+                    active_connections INTEGER NOT NULL,
+                    idle_connections INTEGER NOT NULL,
+                    connection_errors INTEGER NOT NULL,
+                    checkout_errors INTEGER NOT NULL,
+                    checkin_errors INTEGER NOT NULL,
+                    connection_leaks INTEGER NOT NULL,
+                    slow_queries INTEGER NOT NULL
+                )
+            """))
+            
+            conn.execute(text("""
+                CREATE TABLE IF NOT EXISTS database_performance_metrics (
+                    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                    timestamp TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+                    metric_name VARCHAR(100) NOT NULL,
+                    metric_value NUMERIC NOT NULL,
+                    metric_unit VARCHAR(50),
+                    pool_name VARCHAR(100),
+                    additional_data JSONB
+                )
+            """))
+            
+            conn.commit()
+            
+        logger.info("Enhanced database tables created/verified successfully")
+        
+    except Exception as e:
+        logger.error(f"Error creating enhanced database tables: {e}")
+        # Fall back to legacy table creation
+        create_legacy_tables(app)
+
+def create_legacy_tables(app: Flask) -> None:
+    """Fallback to legacy table creation method"""
+    try:
+        # Create engine
+        engine = create_engine(
+            app.config.get('DATABASE_URL'),
+            pool_size=app.config.get('DB_POOL_SIZE', 10),
+            max_overflow=app.config.get('DB_MAX_OVERFLOW', 20),
+            pool_pre_ping=True,
+            pool_recycle=3600
+        )
+        
+        # Create session factory
+        SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+        
+        # Store in app config
+        app.config['DATABASE_ENGINE'] = engine
+        app.config['DATABASE_SESSION'] = SessionLocal
+        
+        # Create only the tables we need
+        with engine.connect() as conn:
+            # Create users table if it doesn't exist
+            conn.execute(text("""
+                CREATE TABLE IF NOT EXISTS users (
+                    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                    email VARCHAR(255) UNIQUE NOT NULL,
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+                )
+            """))
+            
+            # Create questionnaire_submissions table if it doesn't exist
+            conn.execute(text("""
+                CREATE TABLE IF NOT EXISTS questionnaire_submissions (
+                    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                    email VARCHAR(255) NOT NULL,
+                    answers JSONB NOT NULL,
+                    total_score INTEGER NOT NULL,
+                    wellness_level VARCHAR(100) NOT NULL,
+                    wellness_description TEXT,
+                    has_signed_up BOOLEAN DEFAULT FALSE,
+                    user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+                    source VARCHAR(100) DEFAULT 'financial_questionnaire',
+                    utm_source VARCHAR(100),
+                    utm_medium VARCHAR(100),
+                    utm_campaign VARCHAR(100),
+                    submitted_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+                    signed_up_at TIMESTAMP WITH TIME ZONE,
+                    CONSTRAINT questionnaire_submissions_email_unique UNIQUE (email)
+                )
+            """))
+            
+            # Create relationship_questionnaire_submissions table if it doesn't exist
+            conn.execute(text("""
+                CREATE TABLE IF NOT EXISTS relationship_questionnaire_submissions (
+                    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                    email VARCHAR(255) NOT NULL,
+                    answers JSONB NOT NULL,
+                    total_score INTEGER NOT NULL,
+                    connection_level VARCHAR(100) NOT NULL,
+                    connection_description TEXT,
+                    has_signed_up BOOLEAN DEFAULT FALSE,
+                    user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+                    source VARCHAR(100) DEFAULT 'relationship_questionnaire',
+                    utm_source VARCHAR(100),
+                    utm_medium VARCHAR(100),
+                    utm_campaign VARCHAR(100),
+                    submitted_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+                    signed_up_at TIMESTAMP WITH TIME ZONE,
+                    CONSTRAINT questionnaire_submissions_email_unique UNIQUE (email)
+                )
+            """))
+            
+            conn.commit()
+        
+        logger.info("Legacy database tables created/verified successfully")
+        
+    except Exception as e:
+        logger.error(f"Error creating legacy database tables: {e}")
 
 def init_database(app: Flask) -> None:
     """
@@ -214,7 +449,7 @@ def init_database(app: Flask) -> None:
                         utm_campaign VARCHAR(100),
                         submitted_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
                         signed_up_at TIMESTAMP WITH TIME ZONE,
-                        CONSTRAINT relationship_questionnaire_submissions_email_unique UNIQUE (email)
+                        CONSTRAINT questionnaire_submissions_email_unique UNIQUE (email)
                     )
                 """))
                 
@@ -222,11 +457,12 @@ def init_database(app: Flask) -> None:
             
             logger.info("Questionnaire tables created/verified successfully")
         
-        logger.info("Database initialized successfully")
+        # Store engine in app config
+        app.config['DATABASE_ENGINE'] = engine
         
     except Exception as e:
-        logger.error(f"Database initialization failed: {str(e)}")
-        logger.warning("Continuing without database setup")
+        logger.error(f"Database initialization failed: {e}")
+        raise
 
 def init_services(app: Flask) -> None:
     """
@@ -240,21 +476,24 @@ def init_services(app: Flask) -> None:
         if not database_url:
             raise ValueError("DATABASE_URL not configured")
         
-        # Initialize UserService
-        user_service = UserService(app.config['DATABASE_SESSION'])
-        app.user_service = user_service
+        # Initialize UserService with app context
+        with app.app_context():
+            user_service = UserService(app.config['DATABASE_SESSION'])
+            app.user_service = user_service
+            
+            # Initialize OnboardingService
+            onboarding_service = OnboardingService(app.config['DATABASE_SESSION'])
+            app.onboarding_service = onboarding_service
         
-        # Initialize OnboardingService
-        onboarding_service = OnboardingService(app.config['DATABASE_SESSION'])
-        app.onboarding_service = onboarding_service
+        # Initialize AuditService with app context
+        with app.app_context():
+            audit_service = AuditService(app.config['DATABASE_SESSION'])
+            app.audit_service = audit_service
         
-        # Initialize AuditService
-        audit_service = AuditService(app.config['DATABASE_SESSION'])
-        app.audit_service = audit_service
-        
-        # Initialize VerificationService
-        verification_service = VerificationService(app.config['DATABASE_SESSION'])
-        app.verification_service = verification_service
+        # Initialize VerificationService with app context
+        with app.app_context():
+            verification_service = VerificationService(app.config['DATABASE_SESSION'])
+            app.verification_service = verification_service
         
         logger.info("Services initialized successfully")
         
@@ -291,6 +530,15 @@ def register_blueprints(app: Flask) -> None:
         from backend.routes.health import health_bp
         app.register_blueprint(auth_bp, url_prefix='/api/auth')
         app.register_blueprint(health_bp, url_prefix='/api/health')
+
+        # Register email verification blueprint
+        try:
+            from backend.routes.email_verification import email_verification_bp
+            app.register_blueprint(email_verification_bp, url_prefix='/api/email-verification')
+            logger.info("Email verification blueprint registered successfully")
+        except Exception as e:
+            logger.error(f"Failed to register email verification blueprint: {e}")
+            # Continue with other blueprints even if email verification fails
 
         # Optional blueprints guarded for missing optional deps in test env
         try:

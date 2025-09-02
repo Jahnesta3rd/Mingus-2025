@@ -1,57 +1,263 @@
 """
-Advanced Rate Limiting Middleware
-Comprehensive rate limiting with Redis support, configurable limits, and security monitoring
+Comprehensive Rate Limiting Middleware for Financial Application
+Advanced rate limiting with Redis support, multiple strategies, and cultural sensitivity
 """
 
 import time
 import logging
 import json
+import hashlib
 from functools import wraps
-from typing import Dict, Any, Optional, Tuple
-from flask import request, jsonify, g, current_app
+from typing import Dict, Any, Optional, Tuple, List, Union
+from flask import request, jsonify, g, current_app, Response
 import redis
 import re
+from datetime import datetime, timedelta
 
 logger = logging.getLogger(__name__)
 
-class AdvancedRateLimiter:
-    """Advanced rate limiting implementation with Redis support and comprehensive monitoring"""
+class RateLimitStrategy:
+    """Base class for rate limiting strategies"""
+    
+    def __init__(self, redis_client: redis.Redis):
+        self.redis_client = redis_client
+    
+    def check_rate_limit(self, identifier: str, limits: Dict[str, Any]) -> Dict[str, Any]:
+        """Check rate limit using sliding window algorithm"""
+        raise NotImplementedError
+    
+    def get_remaining_requests(self, identifier: str, limits: Dict[str, Any]) -> int:
+        """Get remaining requests for identifier"""
+        raise NotImplementedError
+
+class SlidingWindowStrategy(RateLimitStrategy):
+    """Sliding window rate limiting implementation"""
+    
+    def check_rate_limit(self, identifier: str, limits: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Check rate limit using sliding window algorithm
+        
+        Args:
+            identifier: Client identifier
+            limits: Rate limit configuration
+            
+        Returns:
+            Dictionary with rate limit information
+        """
+        try:
+            key = f"rate_limit:{identifier}"
+            current_time = time.time()
+            window_size = limits['window']
+            
+            # Remove expired entries (older than window_size)
+            self.redis_client.zremrangebyscore(key, 0, current_time - window_size)
+            
+            # Get current request count
+            current_requests = self.redis_client.zcard(key)
+            
+            if current_requests >= limits['requests']:
+                # Rate limit exceeded
+                oldest_request = self.redis_client.zrange(key, 0, 0, withscores=True)
+                if oldest_request:
+                    oldest_time = oldest_request[0][1]
+                    window_remaining = window_size - (current_time - oldest_time)
+                else:
+                    window_remaining = window_size
+                
+                return {
+                    'limited': True,
+                    'requests_made': current_requests,
+                    'limit': limits['requests'],
+                    'window_remaining': max(0, window_remaining),
+                    'retry_after': max(1, window_remaining)  # Ensure retry_after is at least 1 second
+                }
+            
+            # Add current request
+            self.redis_client.zadd(key, {str(current_time): current_time})
+            self.redis_client.expire(key, window_size)
+            
+            return {
+                'limited': False,
+                'requests_made': current_requests + 1,
+                'limit': limits['requests'],
+                'window_remaining': window_size,
+                'remaining_requests': limits['requests'] - (current_requests + 1)
+            }
+            
+        except Exception as e:
+            logger.error(f"Sliding window rate limit check error: {e}")
+            # Allow request if rate limiting fails
+            return {
+                'limited': False,
+                'requests_made': 0,
+                'limit': limits['requests'],
+                'window_remaining': limits['window'],
+                'remaining_requests': limits['requests']
+            }
+    
+    def get_remaining_requests(self, identifier: str, limits: Dict[str, Any]) -> int:
+        """Get remaining requests for identifier"""
+        try:
+            key = f"rate_limit:{identifier}"
+            current_time = time.time()
+            window_size = limits['window']
+            
+            # Remove expired entries
+            self.redis_client.zremrangebyscore(key, 0, current_time - window_size)
+            
+            # Get current count
+            current_requests = self.redis_client.zcard(key)
+            return max(0, limits['requests'] - current_requests)
+            
+        except Exception as e:
+            logger.error(f"Error getting remaining requests: {e}")
+            return limits['requests']
+
+class ComprehensiveRateLimiter:
+    """Comprehensive rate limiting with multiple strategies and cultural sensitivity"""
     
     def __init__(self, redis_client: Optional[redis.Redis] = None):
         self.redis_client = redis_client
-        self.default_limits = {
-            'assessment_submit': {'requests': 3, 'window': 300},   # 3 per 5 minutes
-            'assessment_view': {'requests': 20, 'window': 300},    # 20 per 5 minutes
-            'api_general': {'requests': 100, 'window': 3600},      # 100 per hour
-            'auth': {'requests': 10, 'window': 300},              # 10 per 5 minutes
-            'register': {'requests': 5, 'window': 300},           # 5 per 5 minutes
-            'login': {'requests': 10, 'window': 300},             # 10 per 5 minutes
-            'password_reset': {'requests': 3, 'window': 3600},    # 3 per hour
-            'financial': {'requests': 50, 'window': 3600},        # 50 per hour
-            'admin': {'requests': 200, 'window': 3600},           # 200 per hour
-            'meme_upload': {'requests': 10, 'window': 3600},      # 10 per hour
-            'meme_view': {'requests': 100, 'window': 3600},       # 100 per hour
-            'analytics': {'requests': 30, 'window': 3600},        # 30 per hour
-            'communication': {'requests': 20, 'window': 3600},    # 20 per hour
-            'webhook': {'requests': 100, 'window': 3600},         # 100 per hour
+        self.strategy = SlidingWindowStrategy(redis_client) if redis_client else None
+        
+        # Rate limit configurations with cultural sensitivity
+        self.rate_limits = {
+            # Authentication endpoints - protect against brute force
+            'login': {
+                'requests': 5,
+                'window': 900,  # 15 minutes
+                'message': 'Too many login attempts. Please wait before trying again.',
+                'cultural_message': 'We understand the importance of secure access to your financial information. Please take a moment before your next attempt.'
+            },
+            'password_reset': {
+                'requests': 3,
+                'window': 3600,  # 1 hour
+                'message': 'Too many password reset attempts. Please wait before trying again.',
+                'cultural_message': 'Your security is our priority. Please wait before requesting another password reset.'
+            },
+            'register': {
+                'requests': 5,
+                'window': 900,  # 15 minutes
+                'message': 'Too many registration attempts. Please wait before trying again.',
+                'cultural_message': 'We appreciate your interest in joining our community. Please wait before your next registration attempt.'
+            },
+            
+            # Financial data endpoints - protect sensitive information
+            'financial_api': {
+                'requests': 100,
+                'window': 60,  # 1 minute
+                'message': 'Too many financial data requests. Please wait before trying again.',
+                'cultural_message': 'We\'re processing your financial data requests. Please wait a moment before your next request.'
+            },
+            'financial_hourly': {
+                'requests': 1000,
+                'window': 3600,  # 1 hour
+                'message': 'Hourly financial API limit exceeded. Please wait before trying again.',
+                'cultural_message': 'We\'ve reached our hourly limit for financial data requests. Please wait before your next request.'
+            },
+            
+            # Payment endpoints - critical security
+            'payment': {
+                'requests': 10,
+                'window': 3600,  # 1 hour
+                'message': 'Too many payment requests. Please wait before trying again.',
+                'cultural_message': 'We\'re processing your payment requests. Please wait before your next payment attempt.'
+            },
+            'stripe_webhook': {
+                'requests': 200,
+                'window': 3600,  # 1 hour
+                'message': 'Too many webhook requests. Please wait before trying again.',
+                'cultural_message': 'We\'re processing your webhook requests. Please wait before your next attempt.'
+            },
+            
+            # General API endpoints
+            'api_general': {
+                'requests': 1000,
+                'window': 3600,  # 1 hour
+                'message': 'Hourly API limit exceeded. Please wait before trying again.',
+                'cultural_message': 'We\'ve reached our hourly API limit. Please wait before your next request.'
+            },
+            'api_per_minute': {
+                'requests': 100,
+                'window': 60,  # 1 minute
+                'message': 'Too many API requests. Please wait before trying again.',
+                'cultural_message': 'We\'re processing your requests. Please wait a moment before your next request.'
+            },
+            
+            # Assessment and onboarding endpoints
+            'assessment_submit': {
+                'requests': 3,
+                'window': 300,  # 5 minutes
+                'message': 'Too many assessment submissions. Please wait before trying again.',
+                'cultural_message': 'We\'re processing your assessment. Please wait before your next submission.'
+            },
+            'assessment_view': {
+                'requests': 20,
+                'window': 300,  # 5 minutes
+                'message': 'Too many assessment views. Please wait before trying again.',
+                'cultural_message': 'We\'re loading your assessment data. Please wait before your next request.'
+            }
         }
+        
+        # Admin and whitelisted IPs
+        self.admin_ips = self._load_admin_ips()
+        self.whitelisted_ips = self._load_whitelisted_ips()
+    
+    def _load_admin_ips(self) -> List[str]:
+        """Load admin IP addresses from configuration"""
+        try:
+            admin_ips = current_app.config.get('ADMIN_IPS', [])
+            if isinstance(admin_ips, str):
+                admin_ips = [ip.strip() for ip in admin_ips.split(',') if ip.strip()]
+            return admin_ips
+        except Exception:
+            return []
+    
+    def _load_whitelisted_ips(self) -> List[str]:
+        """Load whitelisted IP addresses from configuration"""
+        try:
+            whitelisted_ips = current_app.config.get('WHITELISTED_IPS', [])
+            if isinstance(whitelisted_ips, str):
+                whitelisted_ips = [ip.strip() for ip in whitelisted_ips.split(',') if ip.strip()]
+            return whitelisted_ips
+        except Exception:
+            return []
     
     def get_identifier(self, request) -> str:
         """Get unique client identifier for rate limiting"""
         try:
+            # Check if IP is admin or whitelisted
+            ip_address = self._get_client_ip(request)
+            if ip_address in self.admin_ips:
+                return f"admin:{ip_address}"
+            if ip_address in self.whitelisted_ips:
+                return f"whitelisted:{ip_address}"
+            
             # Use user ID if authenticated, otherwise IP address
             user_id = g.get('user_id')
             if user_id:
                 return f"user:{user_id}"
             
             # Fallback to IP address with user agent hash
-            ip_address = request.remote_addr or 'unknown'
             user_agent = request.headers.get('User-Agent', 'unknown')[:50]
             return f"ip:{ip_address}:{hash(user_agent) % 1000}"
             
         except Exception as e:
             logger.error(f"Error getting client identifier: {e}")
             return 'unknown'
+    
+    def _get_client_ip(self, request) -> str:
+        """Get client IP address considering proxies"""
+        # Check for forwarded headers
+        forwarded_for = request.headers.get('X-Forwarded-For')
+        if forwarded_for:
+            return forwarded_for.split(',')[0].strip()
+        
+        real_ip = request.headers.get('X-Real-IP')
+        if real_ip:
+            return real_ip
+        
+        return request.remote_addr or 'unknown'
     
     def is_rate_limited(self, identifier: str, endpoint_type: str) -> Dict[str, Any]:
         """
@@ -65,13 +271,24 @@ class AdvancedRateLimiter:
             Dictionary with rate limit information
         """
         try:
-            limits = self.default_limits.get(endpoint_type, self.default_limits['api_general'])
-            key = f"rate_limit:{endpoint_type}:{identifier}"
+            # Check if identifier is admin or whitelisted
+            if identifier.startswith('admin:') or identifier.startswith('whitelisted:'):
+                return {
+                    'limited': False,
+                    'requests_made': 0,
+                    'limit': float('inf'),
+                    'window_remaining': float('inf'),
+                    'remaining_requests': float('inf'),
+                    'bypassed': True
+                }
             
-            if self.redis_client:
-                return self._check_redis_rate_limit(key, limits)
+            # Get rate limit configuration
+            limits = self.rate_limits.get(endpoint_type, self.rate_limits['api_general'])
+            
+            if self.strategy and self.redis_client:
+                return self.strategy.check_rate_limit(identifier, limits)
             else:
-                return self._check_memory_rate_limit(key, limits)
+                return self._check_memory_rate_limit(identifier, limits)
                 
         except Exception as e:
             logger.error(f"Rate limit check error: {e}")
@@ -79,65 +296,12 @@ class AdvancedRateLimiter:
             return {
                 'limited': False,
                 'requests_made': 0,
-                'limit': limits['requests'],
-                'window_remaining': limits['window']
+                'limit': 100,
+                'window_remaining': 3600,
+                'remaining_requests': 100
             }
     
-    def _check_redis_rate_limit(self, key: str, limits: Dict[str, Any]) -> Dict[str, Any]:
-        """Check rate limit using Redis"""
-        try:
-            # Get current usage
-            current_usage = self.redis_client.get(key)
-            if current_usage:
-                usage_data = json.loads(current_usage)
-                requests_made = usage_data['requests']
-                window_start = usage_data['window_start']
-                
-                # Check if we're still in the same window
-                if time.time() - window_start < limits['window']:
-                    if requests_made >= limits['requests']:
-                        return {
-                            'limited': True,
-                            'requests_made': requests_made,
-                            'limit': limits['requests'],
-                            'window_remaining': limits['window'] - (time.time() - window_start)
-                        }
-                    
-                    # Increment counter
-                    usage_data['requests'] += 1
-                    self.redis_client.setex(key, limits['window'], json.dumps(usage_data))
-                    
-                    return {
-                        'limited': False,
-                        'requests_made': usage_data['requests'],
-                        'limit': limits['requests'],
-                        'window_remaining': limits['window'] - (time.time() - window_start)
-                    }
-            
-            # First request in new window
-            usage_data = {
-                'requests': 1,
-                'window_start': time.time()
-            }
-            self.redis_client.setex(key, limits['window'], json.dumps(usage_data))
-            
-            return {
-                'limited': False,
-                'requests_made': 1,
-                'limit': limits['requests'],
-                'window_remaining': limits['window']
-            }
-            
-        except Exception as e:
-            logger.error(f"Redis rate limit check error: {e}")
-            return {
-                'limited': False,
-                'requests_made': 0,
-                'limit': limits['requests'],
-                'window_remaining': limits['window']
-            }
-    
-    def _check_memory_rate_limit(self, key: str, limits: Dict[str, Any]) -> Dict[str, Any]:
+    def _check_memory_rate_limit(self, identifier: str, limits: Dict[str, Any]) -> Dict[str, Any]:
         """Check rate limit using in-memory storage (fallback)"""
         try:
             # Use Flask app context for in-memory storage
@@ -154,8 +318,8 @@ class AdvancedRateLimiter:
                 del cache[k]
             
             # Check current count
-            if key in cache:
-                entry = cache[key]
+            if identifier in cache:
+                entry = cache[identifier]
                 if current_time <= entry['expires_at']:
                     current_count = entry['count'] + 1
                     entry['count'] = current_count
@@ -165,17 +329,18 @@ class AdvancedRateLimiter:
                             'limited': True,
                             'requests_made': current_count,
                             'limit': limits['requests'],
-                            'window_remaining': entry['expires_at'] - current_time
+                            'window_remaining': entry['expires_at'] - current_time,
+                            'retry_after': entry['expires_at'] - current_time
                         }
                 else:
                     current_count = 1
-                    cache[key] = {
+                    cache[identifier] = {
                         'count': current_count,
                         'expires_at': current_time + limits['window']
                     }
             else:
                 current_count = 1
-                cache[key] = {
+                cache[identifier] = {
                     'count': current_count,
                     'expires_at': current_time + limits['window']
                 }
@@ -184,7 +349,8 @@ class AdvancedRateLimiter:
                 'limited': False,
                 'requests_made': current_count,
                 'limit': limits['requests'],
-                'window_remaining': limits['window']
+                'window_remaining': limits['window'],
+                'remaining_requests': limits['requests'] - current_count
             }
             
         except Exception as e:
@@ -193,13 +359,17 @@ class AdvancedRateLimiter:
                 'limited': False,
                 'requests_made': 0,
                 'limit': limits['requests'],
-                'window_remaining': limits['window']
+                'window_remaining': limits['window'],
+                'remaining_requests': limits['requests']
             }
     
     def log_rate_limit_violation(self, identifier: str, endpoint_type: str, limit_info: Dict):
         """Log rate limit violations for security monitoring"""
         try:
             from backend.monitoring.logging_config import log_security_event
+            
+            # Get cultural context for logging
+            cultural_context = self._get_cultural_context(request)
             
             log_security_event("rate_limit_exceeded", {
                 "identifier": identifier,
@@ -208,18 +378,61 @@ class AdvancedRateLimiter:
                 "limit": limit_info['limit'],
                 "endpoint": request.endpoint,
                 "user_agent": request.headers.get('User-Agent'),
-                "ip_address": request.remote_addr,
+                "ip_address": self._get_client_ip(request),
                 "method": request.method,
-                "path": request.path
-            }, g.get('user_id'), request.remote_addr)
+                "path": request.path,
+                "cultural_context": cultural_context
+            }, g.get('user_id'), self._get_client_ip(request))
             
         except Exception as e:
             logger.error(f"Error logging rate limit violation: {e}")
+    
+    def _get_cultural_context(self, request) -> Dict[str, Any]:
+        """Get cultural context for the request"""
+        try:
+            # Check for cultural indicators in headers or user agent
+            user_agent = request.headers.get('User-Agent', '').lower()
+            accept_language = request.headers.get('Accept-Language', '')
+            
+            cultural_indicators = {
+                'african_american_focused': False,
+                'financial_professional': False,
+                'mobile_user': 'mobile' in user_agent,
+                'preferred_language': accept_language.split(',')[0] if accept_language else 'en'
+            }
+            
+            # Check if this is a financial professional (based on endpoint patterns)
+            if any(pattern in request.path.lower() for pattern in ['financial', 'payment', 'stripe', 'plaid']):
+                cultural_indicators['financial_professional'] = True
+            
+            # Check if this is an African American focused application
+            if any(pattern in request.path.lower() for pattern in ['assessment', 'onboarding', 'career']):
+                cultural_indicators['african_american_focused'] = True
+            
+            return cultural_indicators
+            
+        except Exception as e:
+            logger.error(f"Error getting cultural context: {e}")
+            return {}
+    
+    def get_rate_limit_message(self, endpoint_type: str, cultural: bool = True) -> str:
+        """Get culturally appropriate rate limit message"""
+        try:
+            limits = self.rate_limits.get(endpoint_type, self.rate_limits['api_general'])
+            
+            if cultural:
+                return limits.get('cultural_message', limits['message'])
+            else:
+                return limits['message']
+                
+        except Exception as e:
+            logger.error(f"Error getting rate limit message: {e}")
+            return "Rate limit exceeded. Please wait before trying again."
 
 # Global rate limiter instance
 _rate_limiter = None
 
-def get_rate_limiter() -> AdvancedRateLimiter:
+def get_rate_limiter() -> ComprehensiveRateLimiter:
     """Get global rate limiter instance"""
     global _rate_limiter
     if _rate_limiter is None:
@@ -228,10 +441,12 @@ def get_rate_limiter() -> AdvancedRateLimiter:
         try:
             if hasattr(current_app, 'redis_client'):
                 redis_client = current_app.redis_client
+            elif hasattr(current_app, 'extensions') and 'redis' in current_app.extensions:
+                redis_client = current_app.extensions['redis']
         except RuntimeError:
             pass  # Outside app context
         
-        _rate_limiter = AdvancedRateLimiter(redis_client)
+        _rate_limiter = ComprehensiveRateLimiter(redis_client)
     return _rate_limiter
 
 def rate_limited(endpoint_type: str, custom_limits: Optional[Dict] = None):
@@ -250,7 +465,7 @@ def rate_limited(endpoint_type: str, custom_limits: Optional[Dict] = None):
                 
                 # Override default limits if provided
                 if custom_limits:
-                    rate_limiter.default_limits[endpoint_type] = custom_limits
+                    rate_limiter.rate_limits[endpoint_type] = custom_limits
                 
                 identifier = rate_limiter.get_identifier(request)
                 limit_info = rate_limiter.is_rate_limited(identifier, endpoint_type)
@@ -260,14 +475,11 @@ def rate_limited(endpoint_type: str, custom_limits: Optional[Dict] = None):
                     
                     response = jsonify({
                         "error": "Rate limit exceeded",
-                        "message": f"Too many requests for {endpoint_type}",
+                        "message": rate_limiter.get_rate_limit_message(endpoint_type),
                         "retry_after": int(limit_info['window_remaining'])
                     })
                     response.status_code = 429
-                    response.headers['Retry-After'] = str(int(limit_info['window_remaining']))
-                    response.headers['X-RateLimit-Limit'] = str(limit_info['limit'])
-                    response.headers['X-RateLimit-Remaining'] = '0'
-                    response.headers['X-RateLimit-Reset'] = str(int(time.time() + limit_info['window_remaining']))
+                    response = add_rate_limit_headers(response, limit_info)
                     
                     return response
                 
@@ -283,18 +495,22 @@ def rate_limited(endpoint_type: str, custom_limits: Optional[Dict] = None):
         return decorated_function
     return decorator
 
-def add_rate_limit_headers(response):
+def add_rate_limit_headers(response: Response, limit_info: Dict[str, Any]) -> Response:
     """Add rate limit headers to response"""
     try:
-        if hasattr(g, 'rate_limit_info'):
-            info = g.rate_limit_info
-            response.headers['X-RateLimit-Limit'] = str(info['limit'])
-            response.headers['X-RateLimit-Remaining'] = str(info['limit'] - info['requests_made'])
-            response.headers['X-RateLimit-Reset'] = str(int(time.time() + info['window_remaining']))
+        if not limit_info.get('bypassed', False):
+            response.headers['X-RateLimit-Limit'] = str(limit_info['limit'])
+            response.headers['X-RateLimit-Remaining'] = str(limit_info.get('remaining_requests', 0))
+            response.headers['X-RateLimit-Reset'] = str(int(time.time() + limit_info['window_remaining']))
+            
+            if limit_info.get('limited', False):
+                response.headers['Retry-After'] = str(int(limit_info.get('retry_after', 0)))
+        
+        return response
+        
     except Exception as e:
         logger.error(f"Error adding rate limit headers: {e}")
-    
-    return response
+        return response
 
 # Legacy decorators for backward compatibility
 def rate_limit(action: str, max_requests: Optional[int] = None, 
@@ -319,14 +535,11 @@ def rate_limit(action: str, max_requests: Optional[int] = None,
                     
                     response = jsonify({
                         'error': 'Rate limit exceeded',
-                        'message': f'Too many requests for {action}',
+                        'message': limiter.get_rate_limit_message(action),
                         'retry_after': int(limit_info['window_remaining'])
                     })
                     response.status_code = 429
-                    response.headers['Retry-After'] = str(int(limit_info['window_remaining']))
-                    response.headers['X-RateLimit-Limit'] = str(limit_info['limit'])
-                    response.headers['X-RateLimit-Remaining'] = '0'
-                    response.headers['X-RateLimit-Reset'] = str(int(time.time() + limit_info['window_remaining']))
+                    response = add_rate_limit_headers(response, limit_info)
                     
                     return response
                 
@@ -374,7 +587,7 @@ def rate_limit_by_ip(action: str, max_requests: int, window: int):
                     limiter.log_rate_limit_violation(identifier, action, limit_info)
                     return jsonify({
                         'error': 'Rate limit exceeded',
-                        'message': f'Too many requests from this IP address',
+                        'message': limiter.get_rate_limit_message(action),
                         'retry_after': int(limit_info['window_remaining'])
                     }), 429
                 
@@ -410,7 +623,7 @@ def rate_limit_by_user(action: str, max_requests: int, window: int):
                     limiter.log_rate_limit_violation(identifier, action, limit_info)
                     return jsonify({
                         'error': 'Rate limit exceeded',
-                        'message': f'Too many requests for this user',
+                        'message': limiter.get_rate_limit_message(action),
                         'retry_after': int(limit_info['window_remaining'])
                     }), 429
                 

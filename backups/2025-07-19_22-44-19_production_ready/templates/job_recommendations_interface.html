@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="stylesheet" href="touch_target_optimization.css">
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Your Career Advancement Opportunities - Mingus</title>
@@ -75,7 +77,7 @@
             <section class="progress-section" role="region" aria-labelledby="progress-title">
                 <div class="progress-header">
                     <h2 id="progress-title">Your Application Progress</h2>
-                    <button class="btn btn-outline" onclick="updateProgress()">
+                    <button class="btn btn-outline btn-cta btn-primary" onclick="updateProgress()">
                         <i class="fas fa-sync-alt" aria-hidden="true"></i>
                         Update Progress
                     </button>
@@ -214,15 +216,15 @@
                         
                         <!-- Action Buttons -->
                         <div class="action-buttons">
-                            <button class="btn btn-success" onclick="applyToJob('conservative')">
+                            <button class="btn btn-success btn-cta btn-primary" onclick="applyToJob('conservative')">
                                 <i class="fas fa-paper-plane" aria-hidden="true"></i>
                                 Apply Now
                             </button>
-                            <button class="btn btn-outline" onclick="viewJobDetails('conservative')">
+                            <button class="btn btn-outline btn-cta btn-primary" onclick="viewJobDetails('conservative')">
                                 <i class="fas fa-info-circle" aria-hidden="true"></i>
                                 View Details
                             </button>
-                            <button class="btn btn-secondary" onclick="saveRecommendation('conservative')">
+                            <button class="btn btn-secondary btn-cta btn-primary" onclick="saveRecommendation('conservative')">
                                 <i class="fas fa-bookmark" aria-hidden="true"></i>
                                 Save for Later
                             </button>
@@ -331,15 +333,15 @@
                         
                         <!-- Action Buttons -->
                         <div class="action-buttons">
-                            <button class="btn btn-primary" onclick="applyToJob('optimal')">
+                            <button class="btn btn-primary btn-cta btn-primary" onclick="applyToJob('optimal')">
                                 <i class="fas fa-paper-plane" aria-hidden="true"></i>
                                 Apply Now
                             </button>
-                            <button class="btn btn-outline" onclick="viewJobDetails('optimal')">
+                            <button class="btn btn-outline btn-cta btn-primary" onclick="viewJobDetails('optimal')">
                                 <i class="fas fa-info-circle" aria-hidden="true"></i>
                                 View Details
                             </button>
-                            <button class="btn btn-secondary" onclick="saveRecommendation('optimal')">
+                            <button class="btn btn-secondary btn-cta btn-primary" onclick="saveRecommendation('optimal')">
                                 <i class="fas fa-bookmark" aria-hidden="true"></i>
                                 Save for Later
                             </button>
@@ -448,15 +450,15 @@
                         
                         <!-- Action Buttons -->
                         <div class="action-buttons">
-                            <button class="btn btn-primary" onclick="applyToJob('stretch')">
+                            <button class="btn btn-primary btn-cta btn-primary" onclick="applyToJob('stretch')">
                                 <i class="fas fa-paper-plane" aria-hidden="true"></i>
                                 Apply Now
                             </button>
-                            <button class="btn btn-outline" onclick="viewJobDetails('stretch')">
+                            <button class="btn btn-outline btn-cta btn-primary" onclick="viewJobDetails('stretch')">
                                 <i class="fas fa-info-circle" aria-hidden="true"></i>
                                 View Details
                             </button>
-                            <button class="btn btn-secondary" onclick="saveRecommendation('stretch')">
+                            <button class="btn btn-secondary btn-cta btn-primary" onclick="saveRecommendation('stretch')">
                                 <i class="fas fa-bookmark" aria-hidden="true"></i>
                                 Save for Later
                             </button>
@@ -472,15 +474,15 @@
                     <p>Take action today and start your journey toward higher income and career growth.</p>
                     
                     <div class="cta-buttons">
-                        <button class="btn btn-success btn-lg" onclick="downloadReport()">
+                        <button class="btn btn-success btn-lg btn-cta btn-primary" onclick="downloadReport()">
                             <i class="fas fa-download" aria-hidden="true"></i>
                             Download Full Report
                         </button>
-                        <button class="btn btn-outline btn-lg" onclick="scheduleConsultation()">
+                        <button class="btn btn-outline btn-lg btn-cta btn-primary" onclick="scheduleConsultation()">
                             <i class="fas fa-calendar" aria-hidden="true"></i>
                             Schedule Career Consultation
                         </button>
-                        <button class="btn btn-secondary btn-lg" onclick="shareResults()">
+                        <button class="btn btn-secondary btn-lg btn-cta btn-primary" onclick="shareResults()">
                             <i class="fas fa-share" aria-hidden="true"></i>
                             Share Results
                         </button>
@@ -727,8 +729,8 @@
                         ${content}
                     </div>
                     <div class="modal-footer">
-                        <button onclick="hideModal()" class="btn btn-secondary">Cancel</button>
-                        ${buttonText ? `<button onclick="this.onclick = ${buttonAction}" class="btn btn-primary">${buttonText}</button>` : ''}
+                        <button onclick="hideModal()" class="btn btn-secondary btn-cta btn-primary">Cancel</button>
+                        ${buttonText ? `<button onclick="this.onclick = ${buttonAction}" class="btn btn-primary btn-cta btn-primary">${buttonText}</button>` : ''}
                     </div>
                 </div>
             `;

@@ -76,10 +76,10 @@ const CulturalContextIntegration: React.FC<CulturalContextIntegrationProps> = ({
     <div className={`bg-white rounded-lg shadow-lg p-6 ${className}`}>
       {/* Header */}
       <div className="mb-6">
-        <h3 className="text-xl font-bold text-gray-900 mb-2">
+        <h3 className="text-xl font-bold text-gray-900 mb-2" className="text-xl font-semibold text-gray-800 mb-3">
           Cultural Context & Equity Insights
         </h3>
-        <p className="text-sm text-gray-600">
+        <p className="text-base leading-relaxed text-gray-600">
           Understanding systemic factors and opportunities for African American professionals
         </p>
       </div>
@@ -88,7 +88,7 @@ const CulturalContextIntegration: React.FC<CulturalContextIntegrationProps> = ({
       <div className="flex border-b border-gray-200 mb-6">
         <button
           onClick={() => setActiveTab('gaps')}
-          className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+          className={`px-4 py-2 text-base leading-relaxed font-medium border-b-2 transition-colors ${
             activeTab === 'gaps'
               ? 'border-red-500 text-red-600'
               : 'border-transparent text-gray-500 hover:text-gray-700'
@@ -98,7 +98,7 @@ const CulturalContextIntegration: React.FC<CulturalContextIntegrationProps> = ({
         </button>
         <button
           onClick={() => setActiveTab('premium')}
-          className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+          className={`px-4 py-2 text-base leading-relaxed font-medium border-b-2 transition-colors ${
             activeTab === 'premium'
               ? 'border-green-500 text-green-600'
               : 'border-transparent text-gray-500 hover:text-gray-700'
@@ -108,7 +108,7 @@ const CulturalContextIntegration: React.FC<CulturalContextIntegrationProps> = ({
         </button>
         <button
           onClick={() => setActiveTab('community')}
-          className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+          className={`px-4 py-2 text-base leading-relaxed font-medium border-b-2 transition-colors ${
             activeTab === 'community'
               ? 'border-blue-500 text-blue-600'
               : 'border-transparent text-gray-500 hover:text-gray-700'
@@ -129,7 +129,7 @@ const CulturalContextIntegration: React.FC<CulturalContextIntegrationProps> = ({
                 -{formatCurrency(culturalData.salaryGap)}
               </div>
             </div>
-            <p className="text-sm text-red-700">
+            <p className="text-base leading-relaxed text-red-700">
               African American professionals in {industry} earn on average{' '}
               {formatCurrency(culturalData.salaryGap)} less than their white counterparts
               with similar qualifications and experience.
@@ -143,7 +143,7 @@ const CulturalContextIntegration: React.FC<CulturalContextIntegrationProps> = ({
               {culturalData.systemicBarriers.map((barrier, index) => (
                 <div key={index} className="flex items-start space-x-3">
                   <div className="flex-shrink-0 w-2 h-2 bg-red-500 rounded-full mt-2"></div>
-                  <p className="text-sm text-gray-700">{barrier}</p>
+                  <p className="text-base leading-relaxed text-gray-700">{barrier}</p>
                 </div>
               ))}
             </div>
@@ -152,7 +152,7 @@ const CulturalContextIntegration: React.FC<CulturalContextIntegrationProps> = ({
           {/* Action Items */}
           <div className="bg-gray-50 rounded-lg p-4">
             <h5 className="font-medium text-gray-900 mb-3">What You Can Do</h5>
-            <div className="space-y-2 text-sm">
+            <div className="space-y-2 text-base leading-relaxed">
               <div className="flex items-center space-x-2">
                 <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
                 <span>Document your achievements and contributions</span>
@@ -184,7 +184,7 @@ const CulturalContextIntegration: React.FC<CulturalContextIntegrationProps> = ({
                 +{formatCurrency(culturalData.representationPremium)}
               </div>
             </div>
-            <p className="text-sm text-green-700">
+            <p className="text-base leading-relaxed text-green-700">
               Companies with diverse leadership teams offer on average{' '}
               {formatCurrency(culturalData.representationPremium)} more in compensation
               to African American professionals.
@@ -199,7 +199,7 @@ const CulturalContextIntegration: React.FC<CulturalContextIntegrationProps> = ({
                 +{formatCurrency(culturalData.diverseLeadershipBonus)}
               </div>
             </div>
-            <p className="text-sm text-blue-700">
+            <p className="text-base leading-relaxed text-blue-700">
               Additional compensation potential when working for companies with
               African American representation in leadership positions.
             </p>
@@ -218,9 +218,9 @@ const CulturalContextIntegration: React.FC<CulturalContextIntegrationProps> = ({
                 <div key={index} className="border border-gray-200 rounded-lg p-3">
                   <div className="flex justify-between items-center mb-2">
                     <h5 className="font-medium text-gray-900">{company.name}</h5>
-                    <span className="text-sm text-green-600 font-medium">{company.bonus}</span>
+                    <span className="text-base leading-relaxed text-green-600 font-medium">{company.bonus}</span>
                   </div>
-                  <p className="text-xs text-gray-600">
+                  <p className="text-base leading-relaxed text-gray-600">
                     {company.diversity} African American leadership representation
                   </p>
                 </div>
@@ -231,7 +231,7 @@ const CulturalContextIntegration: React.FC<CulturalContextIntegrationProps> = ({
           {/* Research Insights */}
           <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
             <h5 className="font-medium text-yellow-900 mb-2">Research Insights</h5>
-            <p className="text-sm text-yellow-800">
+            <p className="text-base leading-relaxed text-yellow-800">
               Studies show that companies with diverse leadership teams are 35% more likely
               to have above-average financial returns and offer more equitable compensation
               structures for all employees.
@@ -245,7 +245,7 @@ const CulturalContextIntegration: React.FC<CulturalContextIntegrationProps> = ({
           {/* Community Wealth Building Overview */}
           <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
             <h4 className="font-semibold text-purple-900 mb-3">Community Wealth Building</h4>
-            <p className="text-sm text-purple-700">
+            <p className="text-base leading-relaxed text-purple-700">
               Leverage community networks and resources to accelerate your career growth
               and build generational wealth.
             </p>
@@ -257,22 +257,22 @@ const CulturalContextIntegration: React.FC<CulturalContextIntegrationProps> = ({
               <div className="text-3xl font-bold text-blue-600 mb-2">
                 {culturalData.communityWealthBuilding.mentorshipOpportunities}
               </div>
-              <div className="text-sm text-gray-600">Mentorship Programs</div>
-              <div className="text-xs text-gray-500 mt-1">Available in your area</div>
+              <div className="text-base leading-relaxed text-gray-600">Mentorship Programs</div>
+              <div className="text-base leading-relaxed text-gray-500 mt-1">Available in your area</div>
             </div>
             <div className="text-center p-4 border border-gray-200 rounded-lg">
               <div className="text-3xl font-bold text-green-600 mb-2">
                 {culturalData.communityWealthBuilding.networkingGroups}
               </div>
-              <div className="text-sm text-gray-600">Professional Networks</div>
-              <div className="text-xs text-gray-500 mt-1">Active groups nearby</div>
+              <div className="text-base leading-relaxed text-gray-600">Professional Networks</div>
+              <div className="text-base leading-relaxed text-gray-500 mt-1">Active groups nearby</div>
             </div>
             <div className="text-center p-4 border border-gray-200 rounded-lg">
               <div className="text-3xl font-bold text-purple-600 mb-2">
                 {culturalData.communityWealthBuilding.investmentOpportunities}
               </div>
-              <div className="text-sm text-gray-600">Investment Groups</div>
-              <div className="text-xs text-gray-500 mt-1">Wealth building focused</div>
+              <div className="text-base leading-relaxed text-gray-600">Investment Groups</div>
+              <div className="text-base leading-relaxed text-gray-500 mt-1">Wealth building focused</div>
             </div>
           </div>
 
@@ -304,13 +304,13 @@ const CulturalContextIntegration: React.FC<CulturalContextIntegrationProps> = ({
                   <div className="flex justify-between items-start mb-2">
                     <div>
                       <h5 className="font-medium text-gray-900">{org.name}</h5>
-                      <p className="text-sm text-gray-600">{org.focus}</p>
+                      <p className="text-base leading-relaxed text-gray-600">{org.focus}</p>
                     </div>
-                    <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                    <span className="text-base leading-relaxed bg-blue-100 text-blue-800 px-2 py-1 rounded">
                       {org.members}
                     </span>
                   </div>
-                  <p className="text-xs text-gray-500">{org.benefits}</p>
+                  <p className="text-base leading-relaxed text-gray-500">{org.benefits}</p>
                 </div>
               ))}
             </div>
@@ -319,7 +319,7 @@ const CulturalContextIntegration: React.FC<CulturalContextIntegrationProps> = ({
           {/* Wealth Building Tips */}
           <div className="bg-gray-50 rounded-lg p-4">
             <h5 className="font-medium text-gray-900 mb-3">Wealth Building Strategies</h5>
-            <div className="space-y-2 text-sm">
+            <div className="space-y-2 text-base leading-relaxed">
               <div className="flex items-center space-x-2">
                 <span className="w-2 h-2 bg-green-500 rounded-full"></span>
                 <span>Join investment clubs focused on African American communities</span>

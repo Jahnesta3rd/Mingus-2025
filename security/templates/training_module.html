@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="stylesheet" href="touch_target_optimization.css">
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ module.title }} - MINGUS Security Training</title>
@@ -359,11 +361,11 @@
                 </div>
             </div>
             <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-3">
-                <button type="button" class="btn btn-secondary me-md-2" onclick="window.print()">
+                <button type="button" class="btn btn-secondary me-md-2 btn-cta btn-primary" onclick="window.print()">
                     <i class="fas fa-print me-2"></i>
                     Print Module
                 </button>
-                <button type="button" class="btn btn-start-training" id="startTrainingBtn" onclick="startTraining()">
+                <button type="button" class="btn btn-start-training btn-cta btn-primary" id="startTrainingBtn" onclick="startTraining()">
                     <i class="fas fa-play me-2"></i>
                     Start Training
                 </button>
@@ -380,11 +382,11 @@
                 {{ module.content | safe }}
             </div>
             <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
-                <button type="button" class="btn btn-secondary me-md-2" onclick="previousSection()">
+                <button type="button" class="btn btn-secondary me-md-2 btn-cta btn-primary" onclick="previousSection()">
                     <i class="fas fa-arrow-left me-2"></i>
                     Previous
                 </button>
-                <button type="button" class="btn btn-primary" onclick="nextSection()">
+                <button type="button" class="btn btn-primary btn-cta btn-primary" onclick="nextSection()">
                     Next
                     <i class="fas fa-arrow-right ms-2"></i>
                 </button>
@@ -401,11 +403,11 @@
                 <!-- Quiz questions will be dynamically loaded here -->
             </div>
             <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
-                <button type="button" class="btn btn-secondary me-md-2" onclick="previousSection()">
+                <button type="button" class="btn btn-secondary me-md-2 btn-cta btn-primary" onclick="previousSection()">
                     <i class="fas fa-arrow-left me-2"></i>
                     Back to Content
                 </button>
-                <button type="button" class="btn btn-submit-quiz" id="submitQuizBtn" onclick="submitQuiz()">
+                <button type="button" class="btn btn-submit-quiz btn-cta btn-primary" id="submitQuizBtn" onclick="submitQuiz()">
                     <i class="fas fa-check me-2"></i>
                     Submit Quiz
                 </button>
@@ -438,11 +440,11 @@
                 </div>
             </div>
             <div class="mt-4">
-                <button type="button" class="btn btn-success me-2" onclick="downloadCertificate()">
+                <button type="button" class="btn btn-success me-2 btn-cta btn-primary" onclick="downloadCertificate()">
                     <i class="fas fa-download me-2"></i>
                     Download Certificate
                 </button>
-                <button type="button" class="btn btn-primary" onclick="returnToDashboard()">
+                <button type="button" class="btn btn-primary btn-cta btn-primary" onclick="returnToDashboard()">
                     <i class="fas fa-home me-2"></i>
                     Return to Dashboard
                 </button>
@@ -470,14 +472,14 @@
                         <i class="fas fa-check-circle me-2"></i>
                         Training Completed
                     </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close btn-cta btn-primary" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <p>Congratulations! You have successfully completed the <strong>{{ module.title }}</strong> training module.</p>
                     <p>Your certificate has been issued and your progress has been recorded.</p>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Continue</button>
+                    <button type="button" class="btn btn-primary btn-cta btn-primary" data-bs-dismiss="modal">Continue</button>
                 </div>
             </div>
         </div>
@@ -492,13 +494,13 @@
                         <i class="fas fa-exclamation-triangle me-2"></i>
                         Error
                     </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close btn-cta btn-primary" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <p id="errorMessage">An error occurred during training.</p>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-secondary btn-cta btn-primary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>

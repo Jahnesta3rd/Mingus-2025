@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="touch_target_optimization.css">
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    
+    <title>MINGUS Mobile Responsive Test</title>
+    
+    <!-- Mobile Responsive Fixes -->
+    <link rel="stylesheet" href="mobile_responsive_fixes.css">
+    
+    <style>
+        /* Additional test styles */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f5f5f7;
+            color: #333;
+        }
+        
+        .test-section {
+            margin: 2rem 0;
+            padding: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: white;
+        }
+        
+        .test-title {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #667eea;
+        }
+        
+        .device-info {
+            background: #e3f2fd;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            font-family: monospace;
+        }
+        
+        .subscription-tiers {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        
+        .tier-card {
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .tier-card:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+        
+        .tier-card.selected {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+        
+        .tier-price {
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 1rem 0;
+        }
+        
+        .tier-features {
+            list-style: none;
+            padding: 0;
+            margin: 1rem 0;
+        }
+        
+        .tier-features li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .tier-features li:last-child {
+            border-bottom: none;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn:hover {
+            background: #5a6fd8;
+            transform: translateY(-1px);
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .chart-container {
+            height: 300px;
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 1rem 0;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+        
+        .data-table th,
+        .data-table td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .data-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+        
+        .progress-indicator {
+            display: flex;
+            justify-content: space-between;
+            margin: 2rem 0;
+        }
+        
+        .progress-step {
+            flex: 1;
+            text-align: center;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin: 0 0.5rem;
+        }
+        
+        .progress-step.active {
+            background: #667eea;
+            color: white;
+        }
+        
+        .progress-step.completed {
+            background: #27ae60;
+            color: white;
+        }
+        
+        .rating-scale {
+            display: flex;
+            justify-content: space-between;
+            gap: 0.5rem;
+            margin: 1rem 0;
+        }
+        
+        .rating-option {
+            flex: 1;
+            padding: 1rem;
+            text-align: center;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .rating-option:hover,
+        .rating-option.selected {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+        
+        .forecast-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        
+        .forecast-metric {
+            text-align: center;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .forecast-metric .value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .forecast-metric .label {
+            font-size: 0.875rem;
+            color: #666;
+            margin-top: 0.25rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header with Navigation -->
+    <header class="header" role="banner">
+        <nav class="nav-container" role="navigation" aria-label="Main navigation">
+            <a href="/" class="logo" aria-label="MINGUS Home">
+                <span>MINGUS</span>
+            </a>
+            
+            <ul class="nav-links" role="menubar">
+                <li role="none">
+                    <a href="#dashboard" data-page="dashboard" role="menuitem" aria-current="page">Dashboard</a>
+                </li>
+                <li role="none">
+                    <a href="#assessments" data-page="assessments" role="menuitem">Assessments</a>
+                </li>
+                <li role="none">
+                    <a href="#analytics" data-page="analytics" role="menuitem">Analytics</a>
+                </li>
+                <li role="none">
+                    <a href="#profile" data-page="profile" role="menuitem">Profile</a>
+                </li>
+            </ul>
+            
+            <div class="user-menu">
+                <span id="username" aria-label="Current user">Guest</span>
+                <button id="loginBtn" class="btn btn-primary btn-cta btn-primary" aria-label="Login to your account">
+                    Login
+                </button>
+            </div>
+            
+            <button class="mobile-menu-btn btn-cta btn-primary" aria-label="Toggle mobile menu" aria-expanded="false" aria-controls="nav-links">
+                <span class="menu-icon">☰</span>
+            </button>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main id="main-content" role="main">
+        <div class="container">
+            <h1>MINGUS Mobile Responsive Test</h1>
+            
+            <!-- Device Information -->
+            <div class="device-info">
+                <strong>Device Info:</strong><br>
+                Screen Width: <span id="screen-width"></span>px<br>
+                Viewport Width: <span id="viewport-width"></span>px<br>
+                Device Pixel Ratio: <span id="pixel-ratio"></span><br>
+                User Agent: <span id="user-agent"></span>
+            </div>
+            
+            <!-- Navigation Test -->
+            <div class="test-section">
+                <h2 class="test-title">1. Navigation Menu Test</h2>
+                <p>Test the hamburger menu functionality on mobile devices. The menu should:</p>
+                <ul>
+                    <li>Open/close when hamburger button is tapped</li>
+                    <li>Stack vertically on mobile</li>
+                    <li>Have proper touch targets (44px minimum)</li>
+                    <li>Close when clicking outside or pressing Escape</li>
+                </ul>
+                <button class="btn btn-cta btn-primary" onclick="testMobileMenu()">Test Mobile Menu</button>
+            </div>
+            
+            <!-- Subscription Modal Test -->
+            <div class="test-section">
+                <h2 class="test-title">2. Subscription Modal Test</h2>
+                <p>Test the subscription modal with $10/$20/$50 tiers:</p>
+                <button class="btn btn-cta btn-primary" onclick="openSubscriptionModal()">Open Subscription Modal</button>
+            </div>
+            
+            <!-- Form Test -->
+            <div class="test-section">
+                <h2 class="test-title">3. Form Input Test</h2>
+                <p>Test form inputs for mobile optimization:</p>
+                <form class="form-container">
+                    <div class="form-group">
+                        <label class="form-label" for="name">Full Name</label>
+                        <input type="text" id="name" class="form-control" required class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="email">Email Address</label>
+                        <input type="email" id="email" class="form-control" required class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="income">Annual Income</label>
+                        <input type="number" id="income" class="form-control" min="0" step="1000">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="occupation">Occupation</label>
+                        <select id="occupation" class="form-control" class="form-input">
+                            <option value="">Select occupation</option>
+                            <option value="software-engineer">Software Engineer</option>
+                            <option value="designer">Designer</option>
+                            <option value="manager">Manager</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-cta btn-primary">Submit Assessment</button>
+                </form>
+            </div>
+            
+            <!-- Typography Test -->
+            <div class="test-section">
+                <h2 class="test-title">4. Typography Scaling Test</h2>
+                <p>Test responsive typography scaling (16px minimum base):</p>
+                <h1>Heading 1 - Should be readable on all devices</h1>
+                <h2>Heading 2 - Properly scaled for mobile</h2>
+                <h3>Heading 3 - Optimized for touch interfaces</h3>
+                <h4>Heading 4 - Clear hierarchy maintained</h4>
+                <p>This is body text that should be at least 16px on mobile devices to prevent zoom on iOS. The line height should be comfortable for reading on small screens.</p>
+                <p class="text-sm">Small text (14px) for secondary information</p>
+                <p class="text-lg">Large text (18px) for emphasis</p>
+            </div>
+            
+            <!-- Layout Test -->
+            <div class="test-section">
+                <h2 class="test-title">5. Layout Container Test</h2>
+                <p>Test responsive grid and flexbox layouts:</p>
+                
+                <h3>Grid Layout</h3>
+                <div class="grid grid-4">
+                    <div class="card">Grid Item 1</div>
+                    <div class="card">Grid Item 2</div>
+                    <div class="card">Grid Item 3</div>
+                    <div class="card">Grid Item 4</div>
+                </div>
+                
+                <h3>Flexbox Layout</h3>
+                <div class="flex flex-row">
+                    <div class="card">Flex Item 1</div>
+                    <div class="card">Flex Item 2</div>
+                    <div class="card">Flex Item 3</div>
+                </div>
+            </div>
+            
+            <!-- Data Visualization Test -->
+            <div class="test-section">
+                <h2 class="test-title">6. Data Visualization Test</h2>
+                <p>Test charts and tables for mobile optimization:</p>
+                
+                <h3>Chart Container</h3>
+                <div class="chart-container">
+                    <p>Chart would render here - should be responsive and touch-friendly</p>
+                </div>
+                
+                <h3>Data Table</h3>
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Month</th>
+                                <th>Income</th>
+                                <th>Expenses</th>
+                                <th>Savings</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>January</td>
+                                <td>$5,000</td>
+                                <td>$3,200</td>
+                                <td>$1,800</td>
+                            </tr>
+                            <tr>
+                                <td>February</td>
+                                <td>$5,200</td>
+                                <td>$3,100</td>
+                                <td>$2,100</td>
+                            </tr>
+                            <tr>
+                                <td>March</td>
+                                <td>$5,500</td>
+                                <td>$3,300</td>
+                                <td>$2,200</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Progress Indicator Test -->
+            <div class="test-section">
+                <h2 class="test-title">7. Progress Indicator Test</h2>
+                <p>Test progress indicators for mobile:</p>
+                <div class="progress-indicator">
+                    <div class="progress-step completed">Step 1</div>
+                    <div class="progress-step active">Step 2</div>
+                    <div class="progress-step">Step 3</div>
+                    <div class="progress-step">Step 4</div>
+                </div>
+            </div>
+            
+            <!-- Check-in Form Test -->
+            <div class="test-section">
+                <h2 class="test-title">8. Check-in Form Test</h2>
+                <p>Test weekly health/relationship check-in forms:</p>
+                <div class="check-in-form">
+                    <div class="check-in-section">
+                        <h3>Financial Health</h3>
+                        <p>How would you rate your financial health this week?</p>
+                        <div class="rating-scale">
+                            <div class="rating-option" data-rating="1">1</div>
+                            <div class="rating-option" data-rating="2">2</div>
+                            <div class="rating-option" data-rating="3">3</div>
+                            <div class="rating-option" data-rating="4">4</div>
+                            <div class="rating-option" data-rating="5">5</div>
+                        </div>
+                    </div>
+                    
+                    <div class="check-in-section">
+                        <h3>Career Satisfaction</h3>
+                        <p>How satisfied are you with your career progress?</p>
+                        <div class="rating-scale">
+                            <div class="rating-option" data-rating="1">1</div>
+                            <div class="rating-option" data-rating="2">2</div>
+                            <div class="rating-option" data-rating="3">3</div>
+                            <div class="rating-option" data-rating="4">4</div>
+                            <div class="rating-option" data-rating="5">5</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Career Recommendations Test -->
+            <div class="test-section">
+                <h2 class="test-title">9. Career Recommendations Test</h2>
+                <p>Test career recommendation cards:</p>
+                <div class="recommendation-card">
+                    <h4>Software Engineering</h4>
+                    <p>Based on your skills and interests, consider pursuing software engineering roles.</p>
+                    <div class="recommendation-actions">
+                        <button class="btn btn-cta btn-primary">Learn More</button>
+                        <button class="btn btn-outline btn-cta btn-primary">Save for Later</button>
+                    </div>
+                </div>
+                
+                <div class="recommendation-card">
+                    <h4>Product Management</h4>
+                    <p>Your analytical skills make you a great fit for product management positions.</p>
+                    <div class="recommendation-actions">
+                        <button class="btn btn-cta btn-primary">Learn More</button>
+                        <button class="btn btn-outline btn-cta btn-primary">Save for Later</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Financial Forecast Test -->
+            <div class="test-section">
+                <h2 class="test-title">10. Financial Forecast Test</h2>
+                <p>Test financial forecast components:</p>
+                <div class="forecast-container">
+                    <div class="forecast-chart">
+                        <p>Financial forecast chart would render here</p>
+                    </div>
+                    
+                    <div class="forecast-summary">
+                        <h3>Forecast Summary</h3>
+                        <div class="forecast-metrics">
+                            <div class="forecast-metric">
+                                <div class="value">$75,000</div>
+                                <div class="label">Projected Income</div>
+                            </div>
+                            <div class="forecast-metric">
+                                <div class="value">$45,000</div>
+                                <div class="label">Projected Expenses</div>
+                            </div>
+                            <div class="forecast-metric">
+                                <div class="value">$30,000</div>
+                                <div class="label">Projected Savings</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Touch Target Test -->
+            <div class="test-section">
+                <h2 class="test-title">11. Touch Target Test</h2>
+                <p>Test touch-friendly buttons and interactive elements (44px minimum):</p>
+                <div class="btn-group">
+                    <button class="btn btn-cta btn-primary">Button 1</button>
+                    <button class="btn btn-cta btn-primary">Button 2</button>
+                    <button class="btn btn-cta btn-primary">Button 3</button>
+                </div>
+                
+                <div style="margin-top: 1rem;">
+                    <button class="btn btn-primary btn-cta btn-primary">Primary Action</button>
+                    <button class="btn btn-secondary btn-cta btn-primary">Secondary Action</button>
+                    <button class="btn btn-outline btn-cta btn-primary">Outline Button</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal Container -->
+    <div id="modal-container" class="modal-container" role="dialog" aria-hidden="true">
+        <div class="modal-overlay" tabindex="-1"></div>
+        <div class="modal-content" role="document">
+            <button class="modal-close" aria-label="Close modal">×</button>
+            <div class="modal-body"></div>
+        </div>
+    </div>
+
+    <!-- Mobile Navigation Script -->
+    <script src="mobile_navigation.js"></script>
+    
+    <script>
+        // Device information display
+        function updateDeviceInfo() {
+            document.getElementById('screen-width').textContent = screen.width;
+            document.getElementById('viewport-width').textContent = window.innerWidth;
+            document.getElementById('pixel-ratio').textContent = window.devicePixelRatio;
+            document.getElementById('user-agent').textContent = navigator.userAgent.substring(0, 50) + '...';
+        }
+        
+        // Update device info on load and resize
+        updateDeviceInfo();
+        window.addEventListener('resize', updateDeviceInfo);
+        
+        // Test mobile menu
+        function testMobileMenu() {
+            if (window.mobileNav) {
+                window.mobileNav.toggleMobileMenu();
+            } else {
+                alert('Mobile navigation not initialized');
+            }
+        }
+        
+        // Open subscription modal
+        function openSubscriptionModal() {
+            const modalContent = `
+                <h2>Choose Your Subscription Plan</h2>
+                <p>Select the plan that best fits your financial goals:</p>
+                
+                <div class="subscription-tiers">
+                    <div class="tier-card" data-tier="basic" data-amount="10">
+                        <h3>Basic Plan</h3>
+                        <div class="tier-price">$10/month</div>
+                        <ul class="tier-features">
+                            <li>Basic financial assessment</li>
+                            <li>Income comparison tools</li>
+                            <li>Email support</li>
+                        </ul>
+                        <button class="btn btn-cta btn-primary">Subscribe $10</button>
+                    </div>
+                    
+                    <div class="tier-card" data-tier="pro" data-amount="20">
+                        <h3>Pro Plan</h3>
+                        <div class="tier-price">$20/month</div>
+                        <ul class="tier-features">
+                            <li>Advanced financial assessment</li>
+                            <li>Tax optimization tools</li>
+                            <li>Career advancement insights</li>
+                            <li>Priority support</li>
+                        </ul>
+                        <button class="btn btn-cta btn-primary">Subscribe $20</button>
+                    </div>
+                    
+                    <div class="tier-card" data-tier="premium" data-amount="50">
+                        <h3>Premium Plan</h3>
+                        <div class="tier-price">$50/month</div>
+                        <ul class="tier-features">
+                            <li>Complete financial assessment</li>
+                            <li>Personalized coaching</li>
+                            <li>Investment recommendations</li>
+                            <li>24/7 support</li>
+                            <li>Custom reports</li>
+                        </ul>
+                        <button class="btn btn-cta btn-primary">Subscribe $50</button>
+                    </div>
+                </div>
+            `;
+            
+            if (window.mobileNav) {
+                window.mobileNav.openModal(modalContent);
+            } else {
+                alert('Mobile navigation not initialized');
+            }
+        }
+        
+        // Rating option selection
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('rating-option')) {
+                const ratingScale = e.target.closest('.rating-scale');
+                ratingScale.querySelectorAll('.rating-option').forEach(option => {
+                    option.classList.remove('selected');
+                });
+                e.target.classList.add('selected');
+            }
+        });
+        
+        // Tier card selection
+        document.addEventListener('click', (e) => {
+            if (e.target.closest('.tier-card')) {
+                const tierCard = e.target.closest('.tier-card');
+                const subscriptionTiers = tierCard.closest('.subscription-tiers');
+                if (subscriptionTiers) {
+                    subscriptionTiers.querySelectorAll('.tier-card').forEach(card => {
+                        card.classList.remove('selected');
+                    });
+                    tierCard.classList.add('selected');
+                }
+            }
+        });
+        
+        // Form validation test
+        document.querySelector('form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            alert('Form submitted successfully! This would normally send data to the server.');
+        });
+        
+        // Initialize mobile functionality
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('Mobile responsive test page loaded');
+            console.log('Screen width:', window.innerWidth);
+            console.log('Device pixel ratio:', window.devicePixelRatio);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,88 @@
+{
+  "algorithm": "AES_256_GCM",
+  "key_size_bits": 256,
+  "iv_size_bytes": 16,
+  "tag_size_bytes": 16,
+  "compression_enabled": false,
+  "performance_mode": "balanced",
+  "rotation_policies": [
+    {
+      "key_type": "financial_data",
+      "rotation_interval_days": 90,
+      "max_key_age_days": 365,
+      "grace_period_days": 30,
+      "auto_rotation": true,
+      "batch_size": 500
+    },
+    {
+      "key_type": "pii",
+      "rotation_interval_days": 180,
+      "max_key_age_days": 730,
+      "grace_period_days": 60,
+      "auto_rotation": true,
+      "batch_size": 1000
+    },
+    {
+      "key_type": "session",
+      "rotation_interval_days": 30,
+      "max_key_age_days": 90,
+      "grace_period_days": 7,
+      "auto_rotation": true,
+      "batch_size": 2000
+    },
+    {
+      "key_type": "api_keys",
+      "rotation_interval_days": 90,
+      "max_key_age_days": 365,
+      "grace_period_days": 30,
+      "auto_rotation": true,
+      "batch_size": 1000
+    },
+    {
+      "key_type": "audit_logs",
+      "rotation_interval_days": 365,
+      "max_key_age_days": 1825,
+      "grace_period_days": 90,
+      "auto_rotation": true,
+      "batch_size": 5000
+    }
+  ],
+  "storage_backend": "file",
+  "compression_threshold_bytes": 1024,
+  "hardware_acceleration": true,
+  "audit_logging": true,
+  "performance_tuning": {
+    "balanced": {
+      "key_derivation_iterations": 50000,
+      "memory_cost": 32768,
+      "parallel_factor": 2,
+      "cache_encrypted_data": true
+    },
+    "security": {
+      "key_derivation_iterations": 100000,
+      "memory_cost": 65536,
+      "parallel_factor": 4,
+      "cache_encrypted_data": false
+    },
+    "performance": {
+      "key_derivation_iterations": 10000,
+      "memory_cost": 16384,
+      "parallel_factor": 1,
+      "cache_encrypted_data": true
+    }
+  },
+  "monitoring": {
+    "enable_metrics": true,
+    "enable_alerts": true,
+    "key_rotation_alerts": true,
+    "performance_alerts": true,
+    "security_alerts": true
+  },
+  "compliance": {
+    "pci_dss": true,
+    "sox": true,
+    "gdpr": true,
+    "hipaa": false,
+    "audit_trail": true
+  }
+}

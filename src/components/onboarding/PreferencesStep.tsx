@@ -134,8 +134,8 @@ const PreferencesStep: React.FC = () => {
         {/* Progress Header */}
         <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
           <div className="flex items-center justify-between mb-4">
-            <h1 className="text-2xl font-bold text-gray-900">Preferences</h1>
-            <span className="text-sm text-gray-500">Step 4 of 7</span>
+            <h1 className="text-2xl font-bold text-gray-900" className="text-4xl font-bold text-gray-900 mb-6">Preferences</h1>
+            <span className="text-base leading-relaxed text-gray-500">Step 4 of 7</span>
           </div>
           <div className="w-full bg-gray-200 rounded-full h-2">
             <div className="bg-gradient-to-r from-green-500 to-blue-600 h-2 rounded-full" style={{ width: '57%' }}></div>
@@ -144,7 +144,7 @@ const PreferencesStep: React.FC = () => {
 
         <div className="bg-white rounded-xl shadow-sm p-8">
           <div className="mb-8">
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">Your Financial Preferences</h2>
+            <h2 className="text-xl font-semibold text-gray-900 mb-2" className="text-2xl font-semibold text-gray-800 mb-4">Your Financial Preferences</h2>
             <p className="text-gray-600">Help us tailor your experience with personalized recommendations.</p>
           </div>
 
@@ -157,7 +157,7 @@ const PreferencesStep: React.FC = () => {
 
             {/* Risk Tolerance */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-4">
+              <label className="block text-base leading-relaxed font-medium text-gray-700 mb-4">
                 What's your risk tolerance for investments?
               </label>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -176,7 +176,7 @@ const PreferencesStep: React.FC = () => {
                     onClick={() => setFormData(prev => ({ ...prev, risk_tolerance: option.value }))}
                   >
                     <div className="font-medium text-gray-900">{option.label}</div>
-                    <div className="text-sm text-gray-600">{option.desc}</div>
+                    <div className="text-base leading-relaxed text-gray-600">{option.desc}</div>
                   </div>
                 ))}
               </div>
@@ -184,7 +184,7 @@ const PreferencesStep: React.FC = () => {
 
             {/* Investment Experience */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-base leading-relaxed font-medium text-gray-700 mb-2">
                 Investment Experience Level
               </label>
               <select
@@ -204,7 +204,7 @@ const PreferencesStep: React.FC = () => {
 
             {/* Financial Goals */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-4">
+              <label className="block text-base leading-relaxed font-medium text-gray-700 mb-4">
                 What are your primary financial goals? (Select all that apply)
               </label>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -216,7 +216,7 @@ const PreferencesStep: React.FC = () => {
                       onChange={() => handleGoalToggle(goal)}
                       className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                     />
-                    <span className="text-sm font-medium text-gray-900">{goal}</span>
+                    <span className="text-base leading-relaxed font-medium text-gray-900">{goal}</span>
                   </label>
                 ))}
               </div>
@@ -224,7 +224,7 @@ const PreferencesStep: React.FC = () => {
 
             {/* Communication Preferences */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-base leading-relaxed font-medium text-gray-700 mb-2">
                 Preferred Communication Method
               </label>
               <select
@@ -240,7 +240,7 @@ const PreferencesStep: React.FC = () => {
               </select>
               {formData.preferred_communication === 'sms' && (
                 <div className="mt-4 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-lg p-6 text-[var(--text-primary)]">
-                  <label className="block text-sm font-medium mb-2" htmlFor="phone">Phone Number</label>
+                  <label className="block text-base leading-relaxed font-medium mb-2" htmlFor="phone">Phone Number</label>
                   <input
                     id="phone"
                     type="tel"
@@ -268,7 +268,7 @@ const PreferencesStep: React.FC = () => {
 
             {/* Notification Preferences */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-4">
+              <label className="block text-base leading-relaxed font-medium text-gray-700 mb-4">
                 What notifications would you like to receive?
               </label>
               <div className="space-y-3">
@@ -280,7 +280,7 @@ const PreferencesStep: React.FC = () => {
                       onChange={() => handleNotificationToggle(notification)}
                       className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                     />
-                    <span className="text-sm font-medium text-gray-900">{notification}</span>
+                    <span className="text-base leading-relaxed font-medium text-gray-900">{notification}</span>
                   </label>
                 ))}
               </div>

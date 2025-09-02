@@ -13,7 +13,8 @@ from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from backend.models.user import User
-from backend.models.auth_tokens import AuthToken, EmailVerification
+from backend.models.auth_tokens import AuthToken
+from backend.models.email_verification import EmailVerification
 from backend.services.resend_email_service import resend_email_service
 
 logger = logging.getLogger(__name__)

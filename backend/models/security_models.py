@@ -1,15 +1,14 @@
 """
-Security Models for MINGUS Assessment System
-Models for tracking security events, validation failures, and audit logs
+Security Models for MINGUS
+Handles security-related data and configurations
 """
 
-from sqlalchemy import Column, String, DateTime, Text, Integer, Boolean, JSON
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import Column, String, Integer, DateTime, Boolean, ForeignKey, Text, Index
+from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from datetime import datetime
+from .base import Base
 import uuid
-
-Base = declarative_base()
 
 class SecurityEvent(Base):
     """Model for tracking security events and potential attacks"""

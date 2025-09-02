@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="stylesheet" href="touch_target_optimization.css">
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create Account - Mingus</title>
@@ -149,22 +151,22 @@
             <form id="registerForm" autocomplete="off">
                 <div class="name-row">
                     <div class="input-group">
-                        <input type="text" id="first_name" name="first_name" placeholder="First Name" required autocomplete="given-name">
+                        <input type="text" id="first_name" name="first_name" placeholder="First Name" required autocomplete="given-name" class="form-input">
                     </div>
                     <div class="input-group">
-                        <input type="text" id="last_name" name="last_name" placeholder="Last Name" required autocomplete="family-name">
+                        <input type="text" id="last_name" name="last_name" placeholder="Last Name" required autocomplete="family-name" class="form-input">
                     </div>
                 </div>
                 <div class="input-group">
-                    <input type="email" id="email" name="email" placeholder="Email address" required autocomplete="username">
+                    <input type="email" id="email" name="email" placeholder="Email address" required autocomplete="username" class="form-input">
                 </div>
                 <div class="input-group">
                     <input type="tel" id="phone_number" name="phone_number" placeholder="Phone Number (Optional)" autocomplete="tel">
                 </div>
                 <div class="input-group">
-                    <input type="password" id="password" name="password" placeholder="Password" required autocomplete="new-password">
+                    <input type="password" id="password" name="password" placeholder="Password" required autocomplete="new-password" class="form-input">
                 </div>
-                <button type="submit" class="main-btn">Create Account</button>
+                <button type="submit" class="main-btn btn-cta btn-primary">Create Account</button>
             </form>
             <p class="footer-text">Already have an account? <a href="/api/auth/login">Sign In</a></p>
         </div>

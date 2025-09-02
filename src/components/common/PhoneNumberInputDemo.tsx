@@ -34,7 +34,7 @@ export const PhoneNumberInputDemo: React.FC = () => {
       <div className="max-w-2xl mx-auto space-y-8">
         {/* Header */}
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-white mb-2">
+          <h1 className="text-3xl font-bold text-white mb-2" className="text-4xl font-bold text-gray-900 mb-6">
             Phone Number Input Component
           </h1>
           <p className="text-gray-400">
@@ -44,7 +44,7 @@ export const PhoneNumberInputDemo: React.FC = () => {
 
         {/* Basic Usage */}
         <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
-          <h2 className="text-xl font-semibold text-white mb-4">Basic Usage</h2>
+          <h2 className="text-xl font-semibold text-white mb-4" className="text-2xl font-semibold text-gray-800 mb-4">Basic Usage</h2>
           <PhoneNumberInput
             value={phoneNumber}
             onChange={setPhoneNumber}
@@ -52,14 +52,14 @@ export const PhoneNumberInputDemo: React.FC = () => {
             placeholder="Enter your phone number"
             required
           />
-          <div className="mt-4 p-3 bg-gray-700 rounded text-sm text-gray-300">
+          <div className="mt-4 p-3 bg-gray-700 rounded text-base leading-relaxed text-gray-300">
             <strong>Current value:</strong> {phoneNumber || 'None'}
           </div>
         </div>
 
         {/* Loading State */}
         <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
-          <h2 className="text-xl font-semibold text-white mb-4">Loading State</h2>
+          <h2 className="text-xl font-semibold text-white mb-4" className="text-2xl font-semibold text-gray-800 mb-4">Loading State</h2>
           <PhoneNumberInput
             value={loadingPhone}
             onChange={handleLoadingChange}
@@ -67,14 +67,14 @@ export const PhoneNumberInputDemo: React.FC = () => {
             placeholder="Type to see loading state"
             loading={loadingPhone.length > 5}
           />
-          <div className="mt-2 text-sm text-gray-400">
+          <div className="mt-2 text-base leading-relaxed text-gray-400">
             Type more than 5 characters to see the loading spinner
           </div>
         </div>
 
         {/* Disabled State */}
         <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
-          <h2 className="text-xl font-semibold text-white mb-4">Disabled State</h2>
+          <h2 className="text-xl font-semibold text-white mb-4" className="text-2xl font-semibold text-gray-800 mb-4">Disabled State</h2>
           <PhoneNumberInput
             value={disabledPhone}
             onChange={setDisabledPhone}
@@ -86,7 +86,7 @@ export const PhoneNumberInputDemo: React.FC = () => {
 
         {/* Error State */}
         <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
-          <h2 className="text-xl font-semibold text-white mb-4">Error State</h2>
+          <h2 className="text-xl font-semibold text-white mb-4" className="text-2xl font-semibold text-gray-800 mb-4">Error State</h2>
           <PhoneNumberInput
             value={errorPhone}
             onChange={handleErrorChange}
@@ -98,7 +98,7 @@ export const PhoneNumberInputDemo: React.FC = () => {
 
         {/* Different Sizes and Styles */}
         <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
-          <h2 className="text-xl font-semibold text-white mb-4">Different Styles</h2>
+          <h2 className="text-xl font-semibold text-white mb-4" className="text-2xl font-semibold text-gray-800 mb-4">Different Styles</h2>
           
           <div className="space-y-4">
             <PhoneNumberInput
@@ -121,7 +121,7 @@ export const PhoneNumberInputDemo: React.FC = () => {
 
         {/* Accessibility Features */}
         <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
-          <h2 className="text-xl font-semibold text-white mb-4">Accessibility Features</h2>
+          <h2 className="text-xl font-semibold text-white mb-4" className="text-2xl font-semibold text-gray-800 mb-4">Accessibility Features</h2>
           <div className="space-y-4">
             <PhoneNumberInput
               value=""
@@ -132,7 +132,7 @@ export const PhoneNumberInputDemo: React.FC = () => {
               name="accessible-phone"
               aria-describedby="accessibility-help"
             />
-            <div id="accessibility-help" className="text-sm text-gray-400">
+            <div id="accessibility-help" className="text-base leading-relaxed text-gray-400">
               This input includes proper ARIA labels, error announcements, and keyboard navigation support.
             </div>
           </div>
@@ -140,12 +140,12 @@ export const PhoneNumberInputDemo: React.FC = () => {
 
         {/* Usage Examples */}
         <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
-          <h2 className="text-xl font-semibold text-white mb-4">Usage Examples</h2>
+          <h2 className="text-xl font-semibold text-white mb-4" className="text-2xl font-semibold text-gray-800 mb-4">Usage Examples</h2>
           
           <div className="space-y-4">
             <div>
-              <h3 className="text-lg font-medium text-white mb-2">Form Integration</h3>
-              <pre className="bg-gray-900 p-4 rounded text-sm text-green-400 overflow-x-auto">
+              <h3 className="text-lg font-medium text-white mb-2" className="text-xl font-semibold text-gray-800 mb-3">Form Integration</h3>
+              <pre className="bg-gray-900 p-4 rounded text-base leading-relaxed text-green-400 overflow-x-auto">
 {`// In a form component
 const [phone, setPhone] = useState('');
 
@@ -160,8 +160,8 @@ const [phone, setPhone] = useState('');
             </div>
 
             <div>
-              <h3 className="text-lg font-medium text-white mb-2">With Validation</h3>
-              <pre className="bg-gray-900 p-4 rounded text-sm text-green-400 overflow-x-auto">
+              <h3 className="text-lg font-medium text-white mb-2" className="text-xl font-semibold text-gray-800 mb-3">With Validation</h3>
+              <pre className="bg-gray-900 p-4 rounded text-base leading-relaxed text-green-400 overflow-x-auto">
 {`// Custom validation
 const validatePhone = (phone: string) => {
   if (!phone) return 'Phone number is required';
@@ -178,8 +178,8 @@ const validatePhone = (phone: string) => {
             </div>
 
             <div>
-              <h3 className="text-lg font-medium text-white mb-2">Loading State</h3>
-              <pre className="bg-gray-900 p-4 rounded text-sm text-green-400 overflow-x-auto">
+              <h3 className="text-lg font-medium text-white mb-2" className="text-xl font-semibold text-gray-800 mb-3">Loading State</h3>
+              <pre className="bg-gray-900 p-4 rounded text-base leading-relaxed text-green-400 overflow-x-auto">
 {`// With loading state
 const [isLoading, setIsLoading] = useState(false);
 
@@ -196,7 +196,7 @@ const [isLoading, setIsLoading] = useState(false);
 
         {/* Features List */}
         <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
-          <h2 className="text-xl font-semibold text-white mb-4">Features</h2>
+          <h2 className="text-xl font-semibold text-white mb-4" className="text-2xl font-semibold text-gray-800 mb-4">Features</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <div className="flex items-center text-green-400">

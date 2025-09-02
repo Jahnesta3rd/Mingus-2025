@@ -432,16 +432,11 @@ CREATE INDEX IF NOT EXISTS idx_security_events_severity ON security_events(sever
 CREATE INDEX IF NOT EXISTS idx_security_events_threat_level ON security_events(threat_level);
 CREATE INDEX IF NOT EXISTS idx_security_events_investigation_status ON security_events(investigation_status);
 
--- Insert default pricing tiers with tier-specific features and limits
-INSERT OR IGNORE INTO pricing_tiers (
-    tier_type, name, description, monthly_price, yearly_price, 
-    max_health_checkins_per_month, max_financial_reports_per_month, max_ai_insights_per_month,
-    max_projects, max_team_members, max_storage_gb, max_api_calls_per_month, 
-    advanced_analytics, priority_support, custom_integrations
-) VALUES
-('budget', 'Budget', 'Perfect for individuals getting started with MINGUS', 9.99, 99.99, 4, 2, 0, 1, 1, 1, 1000, 0, 0, 0),
-('mid_tier', 'Mid-Tier', 'Advanced features for serious personal finance management', 29.99, 299.99, 12, 10, 50, 10, 5, 10, 10000, 1, 0, 0),
-('professional', 'Professional', 'Complete financial management solution for professionals and teams', 99.99, 999.99, -1, -1, -1, -1, -1, 100, 100000, 1, 1, 1);
+-- Insert default pricing tiers
+INSERT INTO pricing_tiers (tier_type, name, description, monthly_price, yearly_price, max_health_checkins_per_month, max_financial_reports_per_month, max_ai_insights_per_month, max_projects, max_team_members, max_storage_gb, max_api_calls_per_month, advanced_analytics, priority_support, custom_integrations, is_active, created_at, updated_at) VALUES
+('budget', 'Budget Tier', 'Perfect for individuals getting started with personal finance management', 15.00, 144.00, 4, 2, 0, 1, 1, 1, 1000, 0, 0, 0, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('mid_tier', 'Mid-Tier', 'Ideal for serious users who want advanced financial insights and career protection', 35.00, 336.00, 12, 10, 50, 3, 2, 5, 5000, 1, 1, 0, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('professional', 'Professional Tier', 'Comprehensive solution for professionals, teams, and businesses', 100.00, 960.00, -1, -1, -1, -1, 10, 50, 10000, 1, 1, 1, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 -- Create triggers for updated_at timestamps
 CREATE TRIGGER IF NOT EXISTS update_customers_updated_at 

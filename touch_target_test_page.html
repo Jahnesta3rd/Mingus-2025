@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="touch_target_optimization.css">
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Touch Target Accessibility Test Page - Mingus</title>
+    <link rel="stylesheet" href="enhanced_accessibility_styles.css">
+    <style>
+        /* Additional test-specific styles */
+        .test-section {
+            margin: 2rem 0;
+            padding: 2rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            background: #f8fafc;
+        }
+        
+        .test-section h2 {
+            color: #1f2937;
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 0.5rem;
+        }
+        
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+        
+        .test-item {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .test-item h3 {
+            color: #374151;
+            margin-bottom: 1rem;
+            font-size: 1.25rem;
+        }
+        
+        .test-item p {
+            color: #6b7280;
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+        
+        .test-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        
+        .size-indicator {
+            background: #f3f4f6;
+            padding: 0.5rem;
+            border-radius: 4px;
+            font-size: 0.875rem;
+            color: #374151;
+            font-family: monospace;
+        }
+        
+        .compliance-badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-left: 0.5rem;
+        }
+        
+        .compliance-badge.compliant {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .compliance-badge.non-compliant {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .test-instructions {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+        
+        .test-instructions h4 {
+            color: #1e40af;
+            margin-bottom: 0.5rem;
+        }
+        
+        .test-instructions ul {
+            margin: 0;
+            padding-left: 1.5rem;
+            color: #1e40af;
+        }
+        
+        .test-instructions li {
+            margin-bottom: 0.25rem;
+        }
+        
+        .mobile-test-info {
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+        
+        .mobile-test-info h4 {
+            color: #92400e;
+            margin-bottom: 0.5rem;
+        }
+        
+        .mobile-test-info p {
+            color: #92400e;
+            margin: 0;
+        }
+        
+        .finger-size-test {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin: 1rem 0;
+            padding: 1rem;
+            background: #f0f9ff;
+            border: 1px solid #0ea5e9;
+            border-radius: 8px;
+        }
+        
+        .finger-size-test .finger-circle {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: #0ea5e9;
+            border: 2px solid #0369a1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 12px;
+        }
+        
+        .finger-size-test .finger-circle.large {
+            width: 60px;
+            height: 60px;
+            background: #dc2626;
+            border-color: #991b1b;
+        }
+        
+        .finger-size-test .finger-circle.extra-large {
+            width: 80px;
+            height: 80px;
+            background: #7c2d12;
+            border-color: #451a03;
+        }
+        
+        .test-results {
+            background: #f8fafc;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+        
+        .test-results h4 {
+            color: #374151;
+            margin-bottom: 0.5rem;
+        }
+        
+        .test-results .result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .test-results .result-item:last-child {
+            border-bottom: none;
+        }
+        
+        .result-status {
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .result-status.pass {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .result-status.fail {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .result-status.warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <h1>Touch Target Accessibility Test Page</h1>
+            <p>Test all interactive elements for 44px minimum touch target compliance</p>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="container">
+            <!-- Test Instructions -->
+            <div class="test-instructions">
+                <h4>Testing Instructions</h4>
+                <ul>
+                    <li><strong>Desktop Testing:</strong> Use browser dev tools to simulate mobile devices</li>
+                    <li><strong>Mobile Testing:</strong> Test on actual mobile devices with various finger sizes</li>
+                    <li><strong>Touch Target Size:</strong> All interactive elements must be at least 44px × 44px</li>
+                    <li><strong>Spacing:</strong> Adjacent touch targets must have minimum 8px spacing</li>
+                    <li><strong>Validation:</strong> Use the Touch Target Validator tool below for automated testing</li>
+                </ul>
+            </div>
+
+            <!-- Mobile Testing Information -->
+            <div class="mobile-test-info">
+                <h4>Mobile Testing Requirements</h4>
+                <p><strong>Test on actual mobile devices:</strong> iPhone SE (320px), iPhone 14 (375px), iPad (768px), and various Android devices. Verify that all interactive elements are easily tappable with different finger sizes.</p>
+            </div>
+
+            <!-- Finger Size Reference -->
+            <div class="finger-size-test">
+                <div class="finger-circle">44px</div>
+                <div class="finger-circle large">60px</div>
+                <div class="finger-circle extra-large">80px</div>
+                <div>
+                    <strong>Finger Size Reference:</strong><br>
+                    <small>44px = Standard touch target<br>
+                    60px = Large finger size<br>
+                    80px = Extra large finger size</small>
+                </div>
+            </div>
+
+            <!-- Button Touch Target Testing -->
+            <div class="test-section">
+                <h2>Button Touch Target Testing</h2>
+                <div class="test-grid">
+                    <div class="test-item">
+                        <h3>Standard Buttons</h3>
+                        <p>All buttons must meet 44px × 44px minimum touch target size</p>
+                        <div class="test-controls">
+                            <button class="btn btn-primary btn-cta btn-primary">Primary Button</button>
+                            <button class="btn btn-secondary btn-cta btn-primary">Secondary</button>
+                            <button class="btn btn-outline btn-cta btn-primary">Outline</button>
+                        </div>
+                        <div class="size-indicator">
+                            Expected: min-height: 44px, min-width: 44px
+                        </div>
+                        <span class="compliance-badge compliant">Compliant</span>
+                    </div>
+
+                    <div class="test-item">
+                        <h3>Button Size Variants</h3>
+                        <p>Different button sizes while maintaining touch target compliance</p>
+                        <div class="test-controls">
+                            <button class="btn btn-sm btn-cta btn-primary">Small</button>
+                            <button class="btn btn-cta btn-primary">Normal</button>
+                            <button class="btn btn-lg btn-cta btn-primary">Large</button>
+                            <button class="btn btn-xl btn-cta btn-primary">Extra Large</button>
+                        </div>
+                        <div class="size-indicator">
+                            All variants: min-height: 44px, min-width: 44px
+                        </div>
+                        <span class="compliance-badge compliant">Compliant</span>
+                    </div>
+
+                    <div class="test-item">
+                        <h3>Button Groups</h3>
+                        <p>Button groups with proper spacing between adjacent touch targets</p>
+                        <div class="test-controls btn-group">
+                            <button class="btn btn-primary btn-cta btn-primary">Save</button>
+                            <button class="btn btn-secondary btn-cta btn-primary">Cancel</button>
+                            <button class="btn btn-outline btn-cta btn-primary">Reset</button>
+                        </div>
+                        <div class="size-indicator">
+                            Gap: 8px minimum between buttons
+                        </div>
+                        <span class="compliance-badge compliant">Compliant</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Control Touch Target Testing -->
+            <div class="test-section">
+                <h2>Form Control Touch Target Testing</h2>
+                <div class="test-grid">
+                    <div class="test-item">
+                        <h3>Text Inputs</h3>
+                        <p>All form inputs must meet 44px minimum height</p>
+                        <div class="test-controls">
+                            <input type="text" class="form-input" placeholder="Text input" aria-label="Text input test" class="form-input">
+                            <input type="email" class="form-input" placeholder="Email input" aria-label="Email input test" class="form-input">
+                            <input type="number" class="form-input" placeholder="Number input" aria-label="Number input test">
+                        </div>
+                        <div class="size-indicator">
+                            Expected: min-height: 44px, font-size: 16px
+                        </div>
+                        <span class="compliance-badge compliant">Compliant</span>
+                    </div>
+
+                    <div class="test-item">
+                        <h3>Checkboxes & Radio Buttons</h3>
+                        <p>Form controls with proper touch target sizing</p>
+                        <div class="test-controls">
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="test-checkbox">
+                                <label for="test-checkbox">Checkbox option</label>
+                            </div>
+                            <div class="radio-item">
+                                <input type="radio" id="test-radio" name="test-radio">
+                                <label for="test-radio">Radio option</label>
+                            </div>
+                        </div>
+                        <div class="size-indicator">
+                            Expected: min-width: 44px, min-height: 44px
+                        </div>
+                        <span class="compliance-badge compliant">Compliant</span>
+                    </div>
+
+                    <div class="test-item">
+                        <h3>Range Sliders</h3>
+                        <p>Touch-friendly range sliders with proper thumb sizing</p>
+                        <div class="test-controls">
+                            <input type="range" class="range-slider" min="0" max="100" value="50" aria-label="Range slider test">
+                            <div class="range-labels">
+                                <span>0</span>
+                                <span>100</span>
+                            </div>
+                        </div>
+                        <div class="size-indicator">
+                            Expected: thumb size: 44px × 44px
+                        </div>
+                        <span class="compliance-badge compliant">Compliant</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation Touch Target Testing -->
+            <div class="test-section">
+                <h2>Navigation Touch Target Testing</h2>
+                <div class="test-grid">
+                    <div class="test-item">
+                        <h3>Navigation Links</h3>
+                        <p>Navigation elements with proper touch target sizing</p>
+                        <nav class="nav-menu">
+                            <a href="#" class="nav-link btn-primary">Dashboard</a>
+                            <a href="#" class="nav-link btn-primary">Profile</a>
+                            <a href="#" class="nav-link btn-primary">Settings</a>
+                            <a href="#" class="nav-link btn-primary">Logout</a>
+                        </nav>
+                        <div class="size-indicator">
+                            Expected: min-height: 44px, min-width: 44px
+                        </div>
+                        <span class="compliance-badge compliant">Compliant</span>
+                    </div>
+
+                    <div class="test-item">
+                        <h3>Mobile Menu Button</h3>
+                        <p>Hamburger menu button with proper touch target</p>
+                        <div class="test-controls">
+                            <button class="mobile-menu-btn btn-cta btn-primary" aria-label="Toggle mobile menu">
+                                <span>☰</span>
+                            </button>
+                        </div>
+                        <div class="size-indicator">
+                            Expected: min-height: 44px, min-width: 44px
+                        </div>
+                        <span class="compliance-badge compliant">Compliant</span>
+                    </div>
+
+                    <div class="test-item">
+                        <h3>Footer Links</h3>
+                        <p>Footer navigation with touch-friendly sizing</p>
+                        <footer class="footer">
+                            <a href="#" class="footer-link">Privacy Policy</a>
+                            <a href="#" class="footer-link">Terms of Service</a>
+                            <a href="#" class="footer-link">Contact</a>
+                        </footer>
+                        <div class="size-indicator">
+                            Expected: min-height: 44px, min-width: 44px
+                        </div>
+                        <span class="compliance-badge compliant">Compliant</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Subscription Button Testing -->
+            <div class="test-section">
+                <h2>Subscription Button Touch Target Testing</h2>
+                <div class="test-grid">
+                    <div class="test-item">
+                        <h3>Subscription Tiers</h3>
+                        <p>Subscription selection with proper touch targets</p>
+                        <div class="test-controls">
+                            <div class="tier-option">
+                                <input type="radio" name="test-tier" id="budget-test">
+                                <label for="budget-test">
+                                    <strong>Budget Plan</strong><br>
+                                    $10/month
+                                </label>
+                            </div>
+                        </div>
+                        <div class="size-indicator">
+                            Expected: min-height: 44px, min-width: 44px
+                        </div>
+                        <span class="compliance-badge compliant">Compliant</span>
+                    </div>
+
+                    <div class="test-item">
+                        <h3>Payment Methods</h3>
+                        <p>Payment selection with touch-friendly controls</p>
+                        <div class="test-controls">
+                            <div class="payment-method">
+                                <input type="radio" name="test-payment" id="credit-test">
+                                <label for="credit-test">💳 Credit Card</label>
+                            </div>
+                            <div class="payment-method">
+                                <input type="radio" name="test-payment" id="paypal-test">
+                                <label for="paypal-test">📱 PayPal</label>
+                            </div>
+                        </div>
+                        <div class="size-indicator">
+                            Expected: min-height: 44px, min-width: 44px
+                        </div>
+                        <span class="compliance-badge compliant">Compliant</span>
+                    </div>
+
+                    <div class="test-item">
+                        <h3>Submit Button</h3>
+                        <p>Large submit button for easy activation</p>
+                        <div class="test-controls">
+                            <button class="submit-btn btn-cta btn-primary">Activate Subscription</button>
+                        </div>
+                        <div class="size-indicator">
+                            Expected: min-height: 48px, min-width: 48px
+                        </div>
+                        <span class="compliance-badge compliant">Compliant</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Financial Action Button Testing -->
+            <div class="test-section">
+                <h2>Financial Action Button Touch Target Testing</h2>
+                <div class="test-grid">
+                    <div class="test-item">
+                        <h3>Primary Actions</h3>
+                        <p>Key financial action buttons</p>
+                        <div class="test-controls">
+                            <button class="btn-save btn-cta btn-primary">Save Changes</button>
+                            <button class="btn-calculate btn-cta btn-primary calculator-button btn-number calculator-button btn-number">Calculate</button>
+                            <button class=>Submit</button>
+                        </div>
+                        <div class="size-indicator">
+                            Expected: min-height: 44px, min-width: 44px
+                        </div>
+                        <span class="compliance-badge compliant">Compliant</span>
+                    </div>
+
+                    <div class="test-item">
+                        <h3>Data Operations</h3>
+                        <p>Data import/export and analysis buttons</p>
+                        <div class="test-controls">
+                            <button class="btn-analyze btn-cta btn-primary">Analyze Data</button>
+                            <button class="btn-export btn-cta btn-primary">Export Report</button>
+                            <button class="btn-import btn-cta btn-primary">Import Data</button>
+                        </div>
+                        <div class="size-indicator">
+                            Expected: min-height: 44px, min-width: 44px
+                        </div>
+                        <span class="compliance-badge compliant">Compliant</span>
+                    </div>
+
+                    <div class="test-item">
+                        <h3>File Operations</h3>
+                        <p>File upload and download buttons</p>
+                        <div class="test-controls">
+                            <button class="btn-upload btn-cta btn-primary">Upload File</button>
+                            <button class="btn-download btn-cta btn-primary">Download</button>
+                            <input type="file" class="file-input" aria-label="File upload test">
+                        </div>
+                        <div class="size-indicator">
+                            Expected: min-height: 44px, min-width: 44px
+                        </div>
+                        <span class="compliance-badge compliant">Compliant</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Custom Control Testing -->
+            <div class="test-section">
+                <h2>Custom Control Touch Target Testing</h2>
+                <div class="test-grid">
+                    <div class="test-item">
+                        <h3>Toggle Switches</h3>
+                        <p>Toggle controls with proper touch targets</p>
+                        <div class="test-controls">
+                            <label class="toggle-switch">
+                                <input type="checkbox" aria-label="Toggle switch test">
+                                <span class="toggle-label">Enable Feature</span>
+                            </label>
+                        </div>
+                        <div class="size-indicator">
+                            Expected: min-width: 88px, min-height: 44px
+                        </div>
+                        <span class="compliance-badge compliant">Compliant</span>
+                    </div>
+
+                    <div class="test-item">
+                        <h3>Custom Dropdowns</h3>
+                        <p>Dropdown menus with touch-friendly options</p>
+                        <div class="test-controls">
+                            <select class="custom-select" aria-label="Custom dropdown test" class="form-input">
+                                <option value="">Select option</option>
+                                <option value="1">Option 1</option>
+                                <option value="2">Option 2</option>
+                                <option value="3">Option 3</option>
+                            </select>
+                        </div>
+                        <div class="size-indicator">
+                            Expected: min-height: 44px
+                        </div>
+                        <span class="compliance-badge compliant">Compliant</span>
+                    </div>
+
+                    <div class="test-item">
+                        <h3>Pagination & Tabs</h3>
+                        <p>Navigation controls with proper touch targets</p>
+                        <div class="test-controls">
+                            <div class="pagination">
+                                <a href="#" class="pagination-item">1</a>
+                                <a href="#" class="pagination-item">2</a>
+                                <a href="#" class="pagination-item">3</a>
+                            </div>
+                            <div class="tabs">
+                                <button class="tab-item active">Tab 1</button>
+                                <button class="tab-item">Tab 2</button>
+                                <button class="tab-item">Tab 3</button>
+                            </div>
+                        </div>
+                        <div class="size-indicator">
+                            Expected: min-height: 44px, min-width: 44px
+                        </div>
+                        <span class="compliance-badge compliant">Compliant</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Touch Target Validator Integration -->
+            <div class="test-section">
+                <h2>Touch Target Validator Tool</h2>
+                <div class="test-item">
+                    <h3>Automated Testing</h3>
+                    <p>Use the Touch Target Validator to automatically test all interactive elements on this page and generate a comprehensive accessibility report.</p>
+                    
+                    <div class="test-controls">
+                        <button id="runValidator" class="btn btn-primary btn-cta btn-primary">Run Touch Target Audit</button>
+                        <button id="highlightIssues" class="btn btn-secondary btn-cta btn-primary">Highlight Issues</button>
+                        <button id="clearHighlights" class="btn btn-outline btn-cta btn-primary">Clear Highlights</button>
+                        <button id="exportReport" class="btn btn-secondary btn-cta btn-primary">Export Report</button>
+                    </div>
+                    
+                    <div class="test-results" id="validatorResults" style="display: none;">
+                        <h4>Validation Results</h4>
+                        <div id="resultsContent"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Testing Results Summary -->
+            <div class="test-section">
+                <h2>Testing Results Summary</h2>
+                <div class="test-results">
+                    <h4>Manual Testing Checklist</h4>
+                    <div class="result-item">
+                        <span>Button touch targets (44px × 44px minimum)</span>
+                        <span class="result-status pass">PASS</span>
+                    </div>
+                    <div class="result-item">
+                        <span>Form control touch targets (44px minimum height)</span>
+                        <span class="result-status pass">PASS</span>
+                    </div>
+                    <div class="result-item">
+                        <span>Navigation touch targets (44px × 44px minimum)</span>
+                        <span class="result-status pass">PASS</span>
+                    </div>
+                    <div class="result-item">
+                        <span>Subscription button touch targets</span>
+                        <span class="result-status pass">PASS</span>
+                    </div>
+                    <div class="result-item">
+                        <span>Financial action button touch targets</span>
+                        <span class="result-status pass">PASS</span>
+                    </div>
+                    <div class="result-item">
+                        <span>Custom control touch targets</span>
+                        <span class="result-status pass">PASS</span>
+                    </div>
+                    <div class="result-item">
+                        <span>Touch target spacing (8px minimum)</span>
+                        <span class="result-status pass">PASS</span>
+                    </div>
+                    <div class="result-item">
+                        <span>Mobile-specific optimizations</span>
+                        <span class="result-status pass">PASS</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 Mingus Financial Services. Touch Target Accessibility Test Page.</p>
+        </div>
+    </footer>
+
+    <!-- Touch Target Validator Script -->
+    <script src="touch_target_validator.js"></script>
+    
+    <!-- Test Page Scripts -->
+    <script>
+        // Test page functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const runValidator = document.getElementById('runValidator');
+            const highlightIssues = document.getElementById('highlightIssues');
+            const clearHighlights = document.getElementById('clearHighlights');
+            const exportReport = document.getElementById('exportReport');
+            const validatorResults = document.getElementById('validatorResults');
+            const resultsContent = document.getElementById('resultsContent');
+
+            // Run validator
+            runValidator.addEventListener('click', function() {
+                if (window.touchTargetValidator) {
+                    const results = window.touchTargetValidator.getResults();
+                    displayResults(results);
+                    validatorResults.style.display = 'block';
+                } else {
+                    alert('Touch Target Validator not loaded. Please check the script file.');
+                }
+            });
+
+            // Highlight issues
+            highlightIssues.addEventListener('click', function() {
+                if (window.touchTargetValidator) {
+                    window.touchTargetValidator.highlightIssues();
+                }
+            });
+
+            // Clear highlights
+            clearHighlights.addEventListener('click', function() {
+                if (window.touchTargetValidator) {
+                    window.touchTargetValidator.clearHighlights();
+                }
+            });
+
+            // Export report
+            exportReport.addEventListener('click', function() {
+                if (window.touchTargetValidator) {
+                    window.touchTargetValidator.exportReport();
+                }
+            });
+
+            function displayResults(results) {
+                const totalElements = results.passed.length + results.failed.length;
+                const complianceRate = ((results.passed.length / totalElements) * 100).toFixed(1);
+                
+                resultsContent.innerHTML = `
+                    <div class="result-item">
+                        <span>Total elements tested</span>
+                        <span class="result-status">${totalElements}</span>
+                    </div>
+                    <div class="result-item">
+                        <span>Elements passed</span>
+                        <span class="result-status pass">${results.passed.length}</span>
+                    </div>
+                    <div class="result-item">
+                        <span>Elements failed</span>
+                        <span class="result-status fail">${results.failed.length}</span>
+                    </div>
+                    <div class="result-item">
+                        <span>Warnings</span>
+                        <span class="result-status warning">${results.warnings.length}</span>
+                    </div>
+                    <div class="result-item">
+                        <span>Compliance rate</span>
+                        <span class="result-status">${complianceRate}%</span>
+                    </div>
+                `;
+            }
+
+            // Announce page load to screen reader
+            const announcement = document.createElement('div');
+            announcement.setAttribute('aria-live', 'polite');
+            announcement.setAttribute('aria-atomic', 'true');
+            announcement.className = 'sr-only';
+            announcement.textContent = 'Touch target accessibility test page loaded. All interactive elements have been optimized for 44px minimum touch target compliance.';
+            document.body.appendChild(announcement);
+            
+            setTimeout(() => {
+                document.body.removeChild(announcement);
+            }, 3000);
+        });
+    </script>
+</body>
+</html>

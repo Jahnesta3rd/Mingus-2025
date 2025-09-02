@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="stylesheet" href="touch_target_optimization.css">
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     
@@ -225,7 +227,7 @@
                                        class="form-input" 
                                        required 
                                        minlength="2"
-                                       aria-describedby="name-error">
+                                       aria-describedby="name-error" class="form-input">
                                 <div id="name-error" class="form-error hidden"></div>
                             </div>
                             <div class="form-group">
@@ -235,11 +237,11 @@
                                        name="email" 
                                        class="form-input" 
                                        required
-                                       aria-describedby="email-error">
+                                       aria-describedby="email-error" class="form-input">
                                 <div id="email-error" class="form-error hidden"></div>
                             </div>
                             <button type="button" 
-                                    class="next-btn" 
+                                    class="next-btn btn-cta btn-primary" 
                                     data-nav="next"
                                     aria-label="Continue to next step">
                                 Continue
@@ -249,13 +251,13 @@
                         <!-- Step 2: Bank Connection -->
                         <div class="form-step" data-step="2">
                             <button type="button" 
-                                    class="bank-connect-btn" 
+                                    class="bank-connect-btn btn-cta btn-primary" 
                                     data-nav="next"
                                     aria-label="Connect your bank account">
                                 Connect Your Bank Account
                             </button>
                             <button type="button" 
-                                    class="back-btn" 
+                                    class="back-btn btn-cta btn-primary" 
                                     data-nav="prev"
                                     aria-label="Go back to previous step">
                                 Back
@@ -269,7 +271,7 @@
                                 <p>We're preparing your personalized financial wellness journey.</p>
                             </div>
                             <button type="submit" 
-                                    class="submit-btn"
+                                    class="submit-btn btn-cta btn-primary"
                                     aria-label="Complete signup">
                                 Start My Journey
                             </button>

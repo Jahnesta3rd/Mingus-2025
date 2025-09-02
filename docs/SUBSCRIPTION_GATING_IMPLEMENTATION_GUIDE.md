@@ -30,7 +30,7 @@ This guide documents the comprehensive subscription gating and graceful feature 
 - **Data Export**: 5 per month
 - **API Access**: Not available
 
-### Professional Tier ($75/month)
+### Professional Tier ($100/month)
 - **All Features**: Unlimited access
 - **API Access**: 10,000 requests per month
 - **Dedicated Account Manager**: Yes

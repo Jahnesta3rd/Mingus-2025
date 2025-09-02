@@ -1,0 +1,110 @@
+{
+  "test_suite": "Email Verification System",
+  "timestamp": "2025-09-02T12:02:44.374885",
+  "overall_status": "error",
+  "summary": {
+    "total_tests": 0,
+    "total_passed": 0,
+    "total_failed": 0,
+    "total_skipped": 0,
+    "total_execution_time": 35.043373107910156,
+    "success_rate": 0
+  },
+  "detailed_results": {
+    "test_email_verification_comprehensive.py": {
+      "status": "error",
+      "message": "Test file not found: test_email_verification_comprehensive.py",
+      "tests_run": 0,
+      "tests_passed": 0,
+      "tests_failed": 0,
+      "tests_skipped": 0,
+      "execution_time": 0
+    },
+    "test_email_verification_rate_limiting.py": {
+      "status": "error",
+      "message": "Test file not found: test_email_verification_rate_limiting.py",
+      "tests_run": 0,
+      "tests_passed": 0,
+      "tests_failed": 0,
+      "tests_skipped": 0,
+      "execution_time": 0
+    },
+    "test_email_verification_templates.py": {
+      "status": "error",
+      "message": "Test file not found: test_email_verification_templates.py",
+      "tests_run": 0,
+      "tests_passed": 0,
+      "tests_failed": 0,
+      "tests_skipped": 0,
+      "execution_time": 0
+    },
+    "test_email_verification_migrations.py": {
+      "status": "error",
+      "message": "Test file not found: test_email_verification_migrations.py",
+      "tests_run": 0,
+      "tests_passed": 0,
+      "tests_failed": 0,
+      "tests_skipped": 0,
+      "execution_time": 0
+    },
+    "comprehensive": {
+      "status": "failed",
+      "execution_time": 35.03880596160889,
+      "return_code": 4,
+      "stdout": "============================= test session starts ==============================\nplatform darwin -- Python 3.12.7, pytest-8.4.1, pluggy-1.6.0 -- /opt/anaconda3/bin/python\ncachedir: .pytest_cache\nmetadata: {'Python': '3.12.7', 'Platform': 'macOS-10.16-x86_64-i386-64bit', 'Packages': {'pytest': '8.4.1', 'pluggy': '1.6.0'}, 'Plugins': {'asyncio': '0.23.5', 'anyio': '4.9.0', 'html': '4.1.1', 'xdist': '3.8.0', 'sqlalchemy': '0.3.0', 'timeout': '2.4.0', 'metadata': '3.1.1', 'cov': '4.1.0', 'github-actions-annotate-failures': '0.3.0', 'mock': '3.14.1', 'benchmark': '5.1.0'}}\nbenchmark: 5.1.0 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)\nrootdir: /Users/johnniewatsoniii/Desktop/Mingus Application - Cursor\nconfigfile: pytest.ini\nplugins: asyncio-0.23.5, anyio-4.9.0, html-4.1.1, xdist-3.8.0, sqlalchemy-0.3.0, timeout-2.4.0, metadata-3.1.1, cov-4.1.0, github-actions-annotate-failures-0.3.0, mock-3.14.1, benchmark-5.1.0\nasyncio: mode=Mode.STRICT\ncollecting ... collected 0 items\n\n=============================== warnings summary ===============================\n../models/base.py:8\n  /Users/johnniewatsoniii/Desktop/Mingus Application - Cursor/backend/models/base.py:8: MovedIn20Warning: The ``declarative_base()`` function is now available as sqlalchemy.orm.declarative_base(). (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)\n    Base = declarative_base()\n\n../models/user_goals.py:13\n  /Users/johnniewatsoniii/Desktop/Mingus Application - Cursor/backend/models/user_goals.py:13: MovedIn20Warning: The ``declarative_base()`` function is now available as sqlalchemy.orm.declarative_base(). (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)\n    Base = declarative_base()\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n============================= 2 warnings in 0.04s ==============================\n",
+      "stderr": "WARNING:backend.services.resend_email_service:RESEND_API_KEY not configured\nERROR: file or directory not found: backend/tests/test_email_verification_comprehensive.py\n\n"
+    },
+    "coverage": {
+      "status": "error",
+      "message": "Coverage file not found"
+    },
+    "performance": {
+      "status": "success",
+      "total_execution_time": 0,
+      "test_file_performance": {
+        "test_email_verification_comprehensive.py": {
+          "execution_time": 0,
+          "meets_threshold": true
+        },
+        "test_email_verification_rate_limiting.py": {
+          "execution_time": 0,
+          "meets_threshold": true
+        },
+        "test_email_verification_templates.py": {
+          "execution_time": 0,
+          "meets_threshold": true
+        },
+        "test_email_verification_migrations.py": {
+          "execution_time": 0,
+          "meets_threshold": true
+        },
+        "comprehensive": {
+          "execution_time": 35.03880596160889,
+          "meets_threshold": false
+        }
+      },
+      "performance_thresholds": {
+        "unit_tests": 0.5,
+        "integration_tests": 2.0,
+        "security_tests": 1.0,
+        "performance_tests": 5.0,
+        "total_test_time": 30.0
+      },
+      "meets_thresholds": false
+    },
+    "security": {
+      "status": "success",
+      "security_tests_passed": 0,
+      "security_tests_failed": 0,
+      "security_coverage": 0,
+      "vulnerabilities_detected": 0,
+      "security_score": 0
+    },
+    "total_time": 35.043373107910156,
+    "timestamp": "2025-09-02T12:02:44.374885"
+  },
+  "recommendations": [
+    "Optimize test execution time to meet performance thresholds",
+    "Improve security test coverage and vulnerability detection"
+  ]
+}

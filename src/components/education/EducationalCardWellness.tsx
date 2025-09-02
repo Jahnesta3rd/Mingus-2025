@@ -66,7 +66,7 @@ export default function EducationalCardWellness({ onSeeWellness, testimonialInde
       aria-labelledby="wellness-title"
     >
       <div className="flex items-center justify-between mb-4">
-        <h2 id="wellness-title" className="text-2xl font-bold text-blue-400">
+        <h2 id="wellness-title" className="text-2xl font-bold text-blue-400" className="text-2xl font-semibold text-gray-800 mb-4">
           Whole-Life Wellness = Wealth
         </h2>
         <motion.div
@@ -108,7 +108,7 @@ export default function EducationalCardWellness({ onSeeWellness, testimonialInde
       </ul>
 
       <button
-        className="text-blue-400 underline mb-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-gray-900 rounded"
+        className="text-blue-400 underline mb-2 text-base leading-relaxed focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-gray-900 rounded"
         onClick={() => setExpanded((e) => !e)}
         onKeyDown={handleKeyDown}
         aria-expanded={expanded}
@@ -133,7 +133,7 @@ export default function EducationalCardWellness({ onSeeWellness, testimonialInde
             {/* Animated Progress Bar */}
             <div className="mb-4">
               <div className="flex items-center mb-1">
-                <span className="text-sm text-gray-400 mr-2">Wellness Score</span>
+                <span className="text-base leading-relaxed text-gray-400 mr-2">Wellness Score</span>
                 <HeartPulse className="w-4 h-4 text-blue-400" aria-hidden="true" />
               </div>
               <div 
@@ -156,7 +156,7 @@ export default function EducationalCardWellness({ onSeeWellness, testimonialInde
 
             {/* Interconnected Circles Visualization */}
             <div className="mb-4 p-3 bg-gray-800 rounded-lg">
-              <div className="text-sm text-gray-400 mb-3 text-center">Health Metrics Connection</div>
+              <div className="text-base leading-relaxed text-gray-400 mb-3 text-center">Health Metrics Connection</div>
               <div className="relative h-32 flex items-center justify-center">
                 {/* Central Dollar Sign */}
                 <motion.div
@@ -209,7 +209,7 @@ export default function EducationalCardWellness({ onSeeWellness, testimonialInde
               </div>
               
               {/* Metrics Labels */}
-              <div className="grid grid-cols-2 gap-2 text-xs text-gray-400 mt-2">
+              <div className="grid grid-cols-2 gap-2 text-base leading-relaxed text-gray-400 mt-2">
                 <div className="flex items-center">
                   <div className="w-3 h-3 bg-red-500 rounded-full mr-1" aria-hidden="true"></div>
                   Physical Health
@@ -231,7 +231,7 @@ export default function EducationalCardWellness({ onSeeWellness, testimonialInde
 
             {/* Health-Spending Correlation Chart */}
             <div className="mb-4 p-3 bg-gray-800 rounded-lg">
-              <div className="text-sm text-gray-400 mb-2">Health-Spending Correlation</div>
+              <div className="text-base leading-relaxed text-gray-400 mb-2">Health-Spending Correlation</div>
               <div className="space-y-2">
                 {[
                   { health: "High Stress", spending: "Impulse purchases up 40%", color: "text-red-400" },
@@ -243,7 +243,7 @@ export default function EducationalCardWellness({ onSeeWellness, testimonialInde
                     initial={{ x: -20, opacity: 0 }}
                     animate={{ x: 0, opacity: 1 }}
                     transition={{ delay: 1.2 + i * 0.1 }}
-                    className="flex justify-between items-center text-xs"
+                    className="flex justify-between items-center text-base leading-relaxed"
                   >
                     <span className="text-gray-300">{item.health}</span>
                     <span className={item.color}>{item.spending}</span>
@@ -297,7 +297,7 @@ export default function EducationalCardWellness({ onSeeWellness, testimonialInde
       </AnimatePresence>
 
       {/* Testimonial */}
-      <div className="mt-4 text-sm text-gray-400 italic border-t border-gray-800 pt-2">
+      <div className="mt-4 text-base leading-relaxed text-gray-400 italic border-t border-gray-800 pt-2">
         <blockquote>
           <span>"{testimonials[testimonialIndex % testimonials.length].quote}"</span>
           <footer className="block text-right text-gray-500 mt-1">

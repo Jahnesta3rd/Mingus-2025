@@ -1,0 +1,1355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="touch_target_optimization.css">
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Job Impact Calculator - MINGUS</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&family=Lato:wght@400;700&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-purple: #8A31FF;
+            --primary-green: #10b981;
+            --primary-green-dark: #059669;
+            --bg-primary: #FFFFFF;
+            --bg-secondary: #F5F5F5;
+            --bg-tertiary: #EBEBEB;
+            --text-primary: #000000;
+            --text-secondary: #333333;
+            --text-muted: #363328;
+            --border-color: #000000;
+            --accent-orange: #f97316;
+            --shadow-lg: 0px 4px 8px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 414px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 16px 24px;
+            background: #EDEDED;
+            border-bottom: 1px solid #E1E1E1;
+        }
+
+        .logo {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 12px 40px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-family: 'Open Sans';
+            font-weight: 700;
+            font-size: 16px;
+            color: var(--text-primary);
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 32px 24px;
+            background: var(--bg-primary);
+            text-align: center;
+        }
+
+        .hero-headline {
+            font-family: 'Inter';
+            font-weight: 700;
+            font-size: 28px;
+            line-height: 120%;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+        }
+
+        .hero-subtext {
+            font-family: 'Open Sans';
+            font-weight: 400;
+            font-size: 16px;
+            line-height: 150%;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+        }
+
+        /* Calculator Form */
+        .calculator-form {
+            padding: 24px;
+            background: var(--bg-secondary);
+        }
+
+        .form-step {
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .form-step.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 24px;
+        }
+
+        .step-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--bg-tertiary);
+            margin: 0 8px;
+            transition: var(--transition);
+        }
+
+        .step-dot.active {
+            background: var(--primary-green);
+        }
+
+        .step-dot.completed {
+            background: var(--primary-purple);
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-label {
+            display: block;
+            font-family: 'Inter';
+            font-weight: 600;
+            font-size: 16px;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-family: 'Open Sans';
+            font-size: 16px;
+            background: var(--bg-primary);
+            transition: var(--transition);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-purple);
+            box-shadow: 0 0 0 3px rgba(138, 49, 255, 0.1);
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-family: 'Open Sans';
+            font-size: 16px;
+            background: var(--bg-primary);
+            cursor: pointer;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--bg-primary);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .checkbox-item:hover {
+            border-color: var(--primary-purple);
+            background: rgba(138, 49, 255, 0.05);
+        }
+
+        .checkbox-item.selected {
+            border-color: var(--primary-green);
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .checkbox-input {
+            width: 20px;
+            height: 20px;
+            accent-color: var(--primary-green);
+        }
+
+        .checkbox-label {
+            font-family: 'Open Sans';
+            font-size: 14px;
+            color: var(--text-primary);
+            flex: 1;
+        }
+
+        /* Navigation Buttons */
+        .form-navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 32px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Inter';
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        .btn-secondary:hover {
+            background: var(--border-color);
+            color: var(--bg-primary);
+        }
+
+        .btn-primary {
+            background: var(--primary-purple);
+            color: var(--bg-primary);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-green);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Results Section */
+        .results-section {
+            padding: 32px 24px;
+            background: var(--bg-primary);
+            display: none;
+        }
+
+        .results-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .results-title {
+            font-family: 'Inter';
+            font-weight: 700;
+            font-size: 24px;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+        }
+
+        .risk-level {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-family: 'Inter';
+            font-weight: 600;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .risk-low {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--primary-green-dark);
+        }
+
+        .risk-medium {
+            background: rgba(245, 158, 11, 0.2);
+            color: #d97706;
+        }
+
+        .risk-high {
+            background: rgba(239, 68, 68, 0.2);
+            color: #dc2626;
+        }
+
+        .score-cards {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .score-card {
+            padding: 20px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .score-value {
+            font-family: 'Inter';
+            font-weight: 700;
+            font-size: 32px;
+            color: var(--primary-purple);
+            margin-bottom: 8px;
+        }
+
+        .score-label {
+            font-family: 'Open Sans';
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .recommendations {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .recommendations-title {
+            font-family: 'Inter';
+            font-weight: 600;
+            font-size: 18px;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+        }
+
+        .recommendation-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .recommendation-icon {
+            width: 20px;
+            height: 20px;
+            background: var(--primary-green);
+            border-radius: 50%;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .recommendation-text {
+            font-family: 'Open Sans';
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        /* Email Collection */
+        .email-collection {
+            background: linear-gradient(135deg, var(--primary-purple) 0%, var(--primary-green) 100%);
+            color: var(--bg-primary);
+            padding: 32px 24px;
+            text-align: center;
+            border-radius: 8px;
+            margin-bottom: 24px;
+        }
+
+        .email-title {
+            font-family: 'Inter';
+            font-weight: 700;
+            font-size: 20px;
+            margin-bottom: 16px;
+        }
+
+        .email-subtext {
+            font-family: 'Open Sans';
+            font-size: 16px;
+            margin-bottom: 24px;
+            opacity: 0.9;
+        }
+
+        .email-form {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .email-input {
+            padding: 12px 16px;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Open Sans';
+            font-size: 16px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+
+        .email-input:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-email {
+            background: var(--bg-primary);
+            color: var(--primary-purple);
+            font-weight: 600;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-email:hover {
+            background: var(--bg-secondary);
+            transform: translateY(-2px);
+        }
+
+        /* Loading State */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px 24px;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--bg-tertiary);
+            border-top: 4px solid var(--primary-purple);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Success Message */
+        .success-message {
+            display: none;
+            text-align: center;
+            padding: 40px 24px;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            margin: 24px 0;
+        }
+
+        .success-icon {
+            width: 60px;
+            height: 60px;
+            background: var(--primary-green);
+            border-radius: 50%;
+            margin: 0 auto 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--bg-primary);
+            font-size: 24px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 414px) {
+            .container {
+                max-width: 100%;
+            }
+            
+            .hero-headline {
+                font-size: 24px;
+            }
+            
+            .score-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">MINGUS</div>
+        </header>
+
+        <!-- Hero Section -->
+        <section class="hero">
+            <h1 class="hero-headline">AI Job Impact Calculator</h1>
+            <p class="hero-subtext">Discover how artificial intelligence might affect your career and get personalized recommendations to stay ahead of the curve.</p>
+        </section>
+
+        <!-- Calculator Form -->
+        <section class="calculator-form">
+            <!-- Step Indicator -->
+            <div class="step-indicator">
+                <div class="step-dot active" data-step="1"></div>
+                <div class="step-dot" data-step="2"></div>
+                <div class="step-dot" data-step="3"></div>
+                <div class="step-dot" data-step="4"></div>
+            </div>
+
+            <!-- Step 1: Basic Information -->
+            <div class="form-step active" data-step="1">
+                <div class="form-group">
+                    <label class="form-label">What's your job title?</label>
+                    <input type="text" class="form-input" id="job-title" placeholder="e.g., Software Engineer, Marketing Manager" class="form-input">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">What industry do you work in?</label>
+                    <select class="form-select" id="industry" class="form-input">
+                        <option value="">Select your industry</option>
+                        <option value="technology">Technology</option>
+                        <option value="finance">Finance & Banking</option>
+                        <option value="healthcare">Healthcare</option>
+                        <option value="marketing">Marketing & Advertising</option>
+                        <option value="retail">Retail</option>
+                        <option value="manufacturing">Manufacturing</option>
+                        <option value="education">Education</option>
+                        <option value="legal">Legal</option>
+                        <option value="consulting">Consulting</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">What's your experience level?</label>
+                    <select class="form-select" id="experience-level" class="form-input">
+                        <option value="">Select experience level</option>
+                        <option value="entry">Entry Level (0-2 years)</option>
+                        <option value="mid">Mid Level (3-7 years)</option>
+                        <option value="senior">Senior Level (8-15 years)</option>
+                        <option value="executive">Executive (15+ years)</option>
+                    </select>
+                </div>
+
+                <div class="form-navigation">
+                    <button class="btn btn-secondary btn-cta btn-primary" disabled>Previous</button>
+                    <button class="btn btn-primary btn-cta btn-primary" onclick="nextStep()">Next</button>
+                </div>
+            </div>
+
+            <!-- Step 2: Daily Tasks -->
+            <div class="form-step" data-step="2">
+                <div class="form-group">
+                    <label class="form-label">Which of these tasks do you perform regularly? (Select all that apply)</label>
+                    <div class="checkbox-group" id="tasks-group">
+                        <div class="checkbox-item" data-task="data_entry">
+                            <input type="checkbox" class="checkbox-input" id="task-data-entry">
+                            <label class="checkbox-label" for="task-data-entry">Data entry and processing</label>
+                        </div>
+                        <div class="checkbox-item" data-task="reporting">
+                            <input type="checkbox" class="checkbox-input" id="task-reporting">
+                            <label class="checkbox-label" for="task-reporting">Creating reports and presentations</label>
+                        </div>
+                        <div class="checkbox-item" data-task="customer_service">
+                            <input type="checkbox" class="checkbox-input" id="task-customer-service">
+                            <label class="checkbox-label" for="task-customer-service">Customer service and support</label>
+                        </div>
+                        <div class="checkbox-item" data-task="content_creation">
+                            <input type="checkbox" class="checkbox-input" id="task-content-creation">
+                            <label class="checkbox-label" for="task-content-creation">Content creation and writing</label>
+                        </div>
+                        <div class="checkbox-item" data-task="analysis">
+                            <input type="checkbox" class="checkbox-input" id="task-analysis">
+                            <label class="checkbox-label" for="task-analysis">Data analysis and insights</label>
+                        </div>
+                        <div class="checkbox-item" data-task="project_management">
+                            <input type="checkbox" class="checkbox-input" id="task-project-management">
+                            <label class="checkbox-label" for="task-project-management">Project management and coordination</label>
+                        </div>
+                        <div class="checkbox-item" data-task="creative_design">
+                            <input type="checkbox" class="checkbox-input" id="task-creative-design">
+                            <label class="checkbox-label" for="task-creative-design">Creative design and visual work</label>
+                        </div>
+                        <div class="checkbox-item" data-task="sales">
+                            <input type="checkbox" class="checkbox-input" id="task-sales">
+                            <label class="checkbox-label" for="task-sales">Sales and business development</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-navigation">
+                    <button class="btn btn-secondary btn-cta btn-primary" onclick="previousStep()">Previous</button>
+                    <button class="btn btn-primary btn-cta btn-primary" onclick="nextStep()">Next</button>
+                </div>
+            </div>
+
+            <!-- Step 3: Work Environment -->
+            <div class="form-step" data-step="3">
+                <div class="form-group">
+                    <label class="form-label">How often do you work remotely?</label>
+                    <select class="form-select" id="remote-work" class="form-input">
+                        <option value="">Select frequency</option>
+                        <option value="never">Never</option>
+                        <option value="rarely">Rarely (1-2 days/month)</option>
+                        <option value="sometimes">Sometimes (1-2 days/week)</option>
+                        <option value="often">Often (3-4 days/week)</option>
+                        <option value="always">Always (fully remote)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">How often do you use AI tools in your work?</label>
+                    <select class="form-select" id="ai-usage" class="form-input">
+                        <option value="">Select frequency</option>
+                        <option value="never">Never</option>
+                        <option value="rarely">Rarely</option>
+                        <option value="sometimes">Sometimes</option>
+                        <option value="often">Often</option>
+                        <option value="always">Always</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">What's your team size?</label>
+                    <select class="form-select" id="team-size" class="form-input">
+                        <option value="">Select team size</option>
+                        <option value="1-5">1-5 people</option>
+                        <option value="6-10">6-10 people</option>
+                        <option value="11-25">11-25 people</option>
+                        <option value="26-50">26-50 people</option>
+                        <option value="50+">50+ people</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">How would you rate your technical skills?</label>
+                    <select class="form-select" id="tech-skills" class="form-input">
+                        <option value="">Select skill level</option>
+                        <option value="basic">Basic</option>
+                        <option value="intermediate">Intermediate</option>
+                        <option value="advanced">Advanced</option>
+                        <option value="expert">Expert</option>
+                    </select>
+                </div>
+
+                <div class="form-navigation">
+                    <button class="btn btn-secondary btn-cta btn-primary" onclick="previousStep()">Previous</button>
+                    <button class="btn btn-primary btn-cta btn-primary" onclick="nextStep()">Next</button>
+                </div>
+            </div>
+
+            <!-- Step 4: Concerns and Contact -->
+            <div class="form-step" data-step="4">
+                <div class="form-group">
+                    <label class="form-label">What are your main concerns about AI in the workplace? (Select all that apply)</label>
+                    <div class="checkbox-group" id="concerns-group">
+                        <div class="checkbox-item" data-concern="job_loss">
+                            <input type="checkbox" class="checkbox-input" id="concern-job-loss">
+                            <label class="checkbox-label" for="concern-job-loss">Job displacement or layoffs</label>
+                        </div>
+                        <div class="checkbox-item" data-concern="skill_gap">
+                            <input type="checkbox" class="checkbox-input" id="concern-skill-gap">
+                            <label class="checkbox-label" for="concern-skill-gap">Keeping up with new skills</label>
+                        </div>
+                        <div class="checkbox-item" data-concern="automation">
+                            <input type="checkbox" class="checkbox-input" id="concern-automation">
+                            <label class="checkbox-label" for="concern-automation">Tasks becoming automated</label>
+                        </div>
+                        <div class="checkbox-item" data-concern="competition">
+                            <input type="checkbox" class="checkbox-input" id="concern-competition">
+                            <label class="checkbox-label" for="concern-competition">Increased competition</label>
+                        </div>
+                        <div class="checkbox-item" data-concern="ethical">
+                            <input type="checkbox" class="checkbox-input" id="concern-ethical">
+                            <label class="checkbox-label" for="concern-ethical">Ethical concerns about AI</label>
+                        </div>
+                        <div class="checkbox-item" data-concern="none">
+                            <input type="checkbox" class="checkbox-input" id="concern-none">
+                            <label class="checkbox-label" for="concern-none">No major concerns</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">First Name</label>
+                    <input type="text" class="form-input" id="first-name" placeholder="Enter your first name" class="form-input">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Email Address</label>
+                    <input type="email" class="form-input" id="email" placeholder="Enter your email address" class="form-input">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Location (Optional)</label>
+                    <input type="text" class="form-input" id="location" placeholder="City, State or Country" class="form-input">
+                </div>
+
+                <div class="form-navigation">
+                    <button class="btn btn-secondary btn-cta btn-primary" onclick="previousStep()">Previous</button>
+                    <button class="btn btn-primary btn-cta btn-primary" onclick="calculateResults()">Get My Results</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Loading State -->
+        <section class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Analyzing your job impact...</p>
+        </section>
+
+        <!-- Results Section -->
+        <section class="results-section" id="results">
+            <div class="results-header">
+                <h2 class="results-title">Your AI Job Impact Analysis</h2>
+                <div class="risk-level" id="risk-level-display">Medium Risk</div>
+            </div>
+
+            <div class="score-cards">
+                <div class="score-card">
+                    <div class="score-value" id="automation-score">65%</div>
+                    <div class="score-label">Automation Risk</div>
+                </div>
+                <div class="score-card">
+                    <div class="score-value" id="augmentation-score">75%</div>
+                    <div class="score-label">AI Augmentation Potential</div>
+                </div>
+            </div>
+
+            <div class="recommendations">
+                <h3 class="recommendations-title">Personalized Recommendations</h3>
+                <div id="recommendations-list">
+                    <!-- Recommendations will be populated here -->
+                </div>
+            </div>
+
+            <!-- Email Collection -->
+            <div class="email-collection" id="email-collection">
+                <h3 class="email-title">Get Your Detailed Report</h3>
+                <p class="email-subtext">Receive a comprehensive analysis with specific action steps to future-proof your career.</p>
+                <form class="email-form" id="email-form">
+                    <input type="email" class="email-input" id="results-email" placeholder="Enter your email address" required class="form-input">
+                    <button type="submit" class="btn-email btn-cta btn-primary">Send My Report</button>
+                </form>
+            </div>
+
+            <!-- Success Message -->
+            <div class="success-message" id="success-message">
+                <div class="success-icon">
+                    <i class="fas fa-check"></i>
+                </div>
+                <h3>Report Sent!</h3>
+                <p>Check your email for your detailed AI job impact analysis and personalized recommendations.</p>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // AI Calculator Analytics Integration
+        let sessionId = null;
+        let stepStartTime = null;
+        let calculatorStartTime = null;
+        let currentStep = 1;
+        let formData = {
+            job_title: '',
+            industry: '',
+            experience_level: '',
+            tasks: [],
+            remote_work_frequency: '',
+            ai_usage_frequency: '',
+            team_size: '',
+            tech_skills_level: '',
+            concerns: [],
+            first_name: '',
+            email: '',
+            location: ''
+        };
+        
+        // Initialize analytics when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            sessionId = generateSessionId();
+            calculatorStartTime = Date.now();
+            stepStartTime = Date.now();
+            
+            // Track calculator opened
+            trackCalculatorOpened();
+            
+            // Track form start
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'begin_checkout', {
+                    'currency': 'USD',
+                    'value': 25,
+                    'event_category': 'AI Job Assessment'
+                });
+            }
+        });
+        
+        // Generate unique session ID
+        function generateSessionId() {
+            return 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        }
+        
+        // Track calculator opened
+        function trackCalculatorOpened() {
+            const eventData = {
+                event_type: 'ai_calculator_opened',
+                session_id: sessionId,
+                timestamp: new Date().toISOString(),
+                source: getUrlParameter('utm_source') || 'direct',
+                medium: getUrlParameter('utm_medium') || 'none',
+                campaign: getUrlParameter('utm_campaign') || 'none'
+            };
+            
+            // Send to analytics endpoint
+            sendAnalyticsEvent(eventData);
+            
+            // Track with GA4
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'ai_calculator_opened', {
+                    'session_id': sessionId,
+                    'source': eventData.source,
+                    'medium': eventData.medium,
+                    'campaign': eventData.campaign
+                });
+            }
+        }
+        
+        // Track step completed
+        function trackStepCompleted(stepNumber) {
+            const stepEndTime = Date.now();
+            const timeOnStep = stepStartTime ? (stepEndTime - stepStartTime) / 1000 : 0;
+            
+            const eventData = {
+                event_type: 'calculator_step_completed',
+                session_id: sessionId,
+                timestamp: new Date().toISOString(),
+                step_number: stepNumber,
+                time_on_step: timeOnStep
+            };
+            
+            // Send to analytics endpoint
+            sendAnalyticsEvent(eventData);
+            
+            // Track with GA4
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'calculator_step_completed', {
+                    'session_id': sessionId,
+                    'step_number': stepNumber,
+                    'time_on_step': timeOnStep
+                });
+            }
+            
+            // Start timer for next step
+            stepStartTime = stepEndTime;
+        }
+        
+        // Track assessment submitted
+        function trackAssessmentSubmitted(jobTitle, industry, riskLevel) {
+            const assessmentEndTime = Date.now();
+            const assessmentCompletionTime = (assessmentEndTime - calculatorStartTime) / 1000;
+            
+            const eventData = {
+                event_type: 'assessment_submitted',
+                session_id: sessionId,
+                timestamp: new Date().toISOString(),
+                job_title: jobTitle,
+                industry: industry,
+                risk_level: riskLevel,
+                assessment_completion_time: assessmentCompletionTime
+            };
+            
+            // Send to analytics endpoint
+            sendAnalyticsEvent(eventData);
+            
+            // Track with GA4
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'assessment_submitted', {
+                    'session_id': sessionId,
+                    'job_title': jobTitle,
+                    'industry': industry,
+                    'risk_level': riskLevel,
+                    'assessment_completion_time': assessmentCompletionTime
+                });
+            }
+        }
+        
+        // Track conversion offer viewed
+        function trackConversionOfferViewed(riskLevel) {
+            const timeToView = (Date.now() - calculatorStartTime) / 1000;
+            
+            const eventData = {
+                event_type: 'conversion_offer_viewed',
+                session_id: sessionId,
+                timestamp: new Date().toISOString(),
+                risk_level: riskLevel,
+                time_to_view: timeToView
+            };
+            
+            // Send to analytics endpoint
+            sendAnalyticsEvent(eventData);
+            
+            // Track with GA4
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'conversion_offer_viewed', {
+                    'session_id': sessionId,
+                    'risk_level': riskLevel,
+                    'time_to_view': timeToView
+                });
+            }
+        }
+        
+        // Track paid upgrade clicked
+        function trackPaidUpgradeClicked(riskLevel) {
+            const assessmentCompletionTime = (Date.now() - calculatorStartTime) / 1000;
+            
+            const eventData = {
+                event_type: 'paid_upgrade_clicked',
+                session_id: sessionId,
+                timestamp: new Date().toISOString(),
+                risk_level: riskLevel,
+                assessment_completion_time: assessmentCompletionTime
+            };
+            
+            // Send to analytics endpoint
+            sendAnalyticsEvent(eventData);
+            
+            // Track with GA4
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'paid_upgrade_clicked', {
+                    'session_id': sessionId,
+                    'risk_level': riskLevel,
+                    'assessment_completion_time': assessmentCompletionTime
+                });
+            }
+        }
+        
+        // Track performance metrics
+        function trackPerformanceMetric(metricName, metricValue) {
+            const eventData = {
+                event_type: 'performance_metric',
+                session_id: sessionId,
+                timestamp: new Date().toISOString(),
+                performance_metric: metricName,
+                metric_value: metricValue
+            };
+            
+            // Send to analytics endpoint
+            sendAnalyticsEvent(eventData);
+        }
+        
+        // Track errors
+        function trackError(errorType, errorMessage, severity = 'medium') {
+            const eventData = {
+                event_type: 'calculator_error',
+                session_id: sessionId,
+                timestamp: new Date().toISOString(),
+                error_type: errorType,
+                error_message: errorMessage,
+                severity: severity
+            };
+            
+            // Send to analytics endpoint
+            sendAnalyticsEvent(eventData);
+            
+            // Track with GA4
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'calculator_error', {
+                    'session_id': sessionId,
+                    'error_type': errorType,
+                    'error_message': errorMessage,
+                    'severity': severity
+                });
+            }
+        }
+        
+        // Send analytics event to backend
+        function sendAnalyticsEvent(eventData) {
+            fetch('/api/analytics/event', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-Token': getCsrfToken()
+                },
+                body: JSON.stringify(eventData)
+            }).catch(error => {
+                console.error('Error sending analytics event:', error);
+            });
+        }
+        
+        // Get URL parameter
+        function getUrlParameter(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+        
+        // Get CSRF token
+        function getCsrfToken() {
+            return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+        }
+
+        // Step Navigation
+        function nextStep() {
+            if (validateCurrentStep()) {
+                if (currentStep < 4) {
+                    // Track step completion
+                    trackStepCompleted(currentStep);
+                    
+                    currentStep++;
+                    updateStepDisplay();
+                }
+            }
+        }
+
+        function previousStep() {
+            if (currentStep > 1) {
+                currentStep--;
+                updateStepDisplay();
+            }
+        }
+
+        function updateStepDisplay() {
+            // Hide all steps
+            document.querySelectorAll('.form-step').forEach(step => {
+                step.classList.remove('active');
+            });
+
+            // Show current step
+            document.querySelector(`[data-step="${currentStep}"]`).classList.add('active');
+
+            // Update step indicators
+            document.querySelectorAll('.step-dot').forEach((dot, index) => {
+                dot.classList.remove('active', 'completed');
+                if (index + 1 === currentStep) {
+                    dot.classList.add('active');
+                } else if (index + 1 < currentStep) {
+                    dot.classList.add('completed');
+                }
+            });
+        }
+
+        // Validation
+        function validateCurrentStep() {
+            switch (currentStep) {
+                case 1:
+                    const jobTitle = document.getElementById('job-title').value.trim();
+                    const industry = document.getElementById('industry').value;
+                    const experienceLevel = document.getElementById('experience-level').value;
+                    
+                    if (!jobTitle || !industry || !experienceLevel) {
+                        alert('Please fill in all fields before continuing.');
+                        return false;
+                    }
+                    
+                    formData.job_title = jobTitle;
+                    formData.industry = industry;
+                    formData.experience_level = experienceLevel;
+                    break;
+
+                case 2:
+                    const selectedTasks = document.querySelectorAll('#tasks-group input:checked');
+                    if (selectedTasks.length === 0) {
+                        alert('Please select at least one task you perform regularly.');
+                        return false;
+                    }
+                    
+                    formData.tasks = Array.from(selectedTasks).map(task => task.id.replace('task-', '').replace('-', '_'));
+                    break;
+
+                case 3:
+                    const remoteWork = document.getElementById('remote-work').value;
+                    const aiUsage = document.getElementById('ai-usage').value;
+                    const teamSize = document.getElementById('team-size').value;
+                    const techSkills = document.getElementById('tech-skills').value;
+                    
+                    if (!remoteWork || !aiUsage || !teamSize || !techSkills) {
+                        alert('Please fill in all fields before continuing.');
+                        return false;
+                    }
+                    
+                    formData.remote_work_frequency = remoteWork;
+                    formData.ai_usage_frequency = aiUsage;
+                    formData.team_size = teamSize;
+                    formData.tech_skills_level = techSkills;
+                    break;
+
+                case 4:
+                    const selectedConcerns = document.querySelectorAll('#concerns-group input:checked');
+                    const firstName = document.getElementById('first-name').value.trim();
+                    const email = document.getElementById('email').value.trim();
+                    
+                    if (selectedConcerns.length === 0) {
+                        alert('Please select at least one concern or "No major concerns".');
+                        return false;
+                    }
+                    
+                    if (!firstName || !email) {
+                        alert('Please provide your first name and email address.');
+                        return false;
+                    }
+                    
+                    if (!isValidEmail(email)) {
+                        alert('Please enter a valid email address.');
+                        return false;
+                    }
+                    
+                    formData.concerns = Array.from(selectedConcerns).map(concern => concern.id.replace('concern-', '').replace('-', '_'));
+                    formData.first_name = firstName;
+                    formData.email = email;
+                    formData.location = document.getElementById('location').value.trim();
+                    break;
+            }
+            
+            return true;
+        }
+
+        function isValidEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+
+        // Checkbox interactions
+        document.querySelectorAll('.checkbox-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const checkbox = this.querySelector('input[type="checkbox"]');
+                checkbox.checked = !checkbox.checked;
+                this.classList.toggle('selected', checkbox.checked);
+            });
+        });
+
+        // Calculate Results
+        function calculateResults() {
+            if (!validateCurrentStep()) return;
+
+            // Track step completion for final step
+            trackStepCompleted(currentStep);
+
+            // Show loading
+            document.querySelector('.calculator-form').style.display = 'none';
+            document.getElementById('loading').style.display = 'block';
+
+            // Simulate calculation delay
+            setTimeout(() => {
+                const results = calculateJobImpact(formData);
+                displayResults(results);
+                
+                // Track assessment submitted
+                trackAssessmentSubmitted(formData.job_title, formData.industry, results.riskLevel);
+                
+                // Track conversion offer viewed
+                trackConversionOfferViewed(results.riskLevel);
+                
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('results').style.display = 'block';
+            }, 2000);
+        }
+
+        function calculateJobImpact(data) {
+            // Base scores based on job title keywords
+            let automationScore = 50;
+            let augmentationScore = 50;
+            let riskLevel = 'medium';
+
+            // Adjust based on job title
+            const jobTitle = data.job_title.toLowerCase();
+            if (jobTitle.includes('data entry') || jobTitle.includes('bookkeeping') || jobTitle.includes('administrative')) {
+                automationScore = 75;
+                augmentationScore = 25;
+                riskLevel = 'high';
+            } else if (jobTitle.includes('software') || jobTitle.includes('engineer') || jobTitle.includes('developer')) {
+                automationScore = 20;
+                augmentationScore = 80;
+                riskLevel = 'low';
+            } else if (jobTitle.includes('manager') || jobTitle.includes('director') || jobTitle.includes('executive')) {
+                automationScore = 30;
+                augmentationScore = 70;
+                riskLevel = 'low';
+            }
+
+            // Adjust based on industry
+            if (data.industry === 'technology') {
+                automationScore -= 10;
+                augmentationScore += 10;
+            } else if (data.industry === 'manufacturing') {
+                automationScore += 15;
+                augmentationScore -= 10;
+            }
+
+            // Adjust based on tasks
+            data.tasks.forEach(task => {
+                if (task === 'data_entry') automationScore += 10;
+                if (task === 'analysis') augmentationScore += 15;
+                if (task === 'creative_design') automationScore -= 5;
+            });
+
+            // Adjust based on AI usage
+            if (data.ai_usage_frequency === 'often' || data.ai_usage_frequency === 'always') {
+                automationScore -= 5;
+                augmentationScore += 10;
+            }
+
+            // Determine final risk level
+            if (automationScore > 70) riskLevel = 'high';
+            else if (automationScore < 30) riskLevel = 'low';
+
+            // Ensure scores are within bounds
+            automationScore = Math.max(0, Math.min(100, automationScore));
+            augmentationScore = Math.max(0, Math.min(100, augmentationScore));
+
+            return {
+                automationScore,
+                augmentationScore,
+                riskLevel,
+                recommendations: generateRecommendations(automationScore, augmentationScore, riskLevel, data)
+            };
+        }
+
+        function generateRecommendations(automationScore, augmentationScore, riskLevel, data) {
+            const recommendations = [];
+
+            if (riskLevel === 'high') {
+                recommendations.push('Focus on developing skills that complement AI rather than compete with it');
+                recommendations.push('Consider transitioning to roles that require human creativity and emotional intelligence');
+                recommendations.push('Build expertise in AI tools to become more valuable in your field');
+            } else if (riskLevel === 'medium') {
+                recommendations.push('Stay updated with AI trends in your industry');
+                recommendations.push('Develop skills that enhance your ability to work alongside AI');
+                recommendations.push('Consider how AI can augment your current role');
+            } else {
+                recommendations.push('Continue developing your technical and analytical skills');
+                recommendations.push('Explore ways to leverage AI to increase your productivity');
+                recommendations.push('Consider mentoring others in AI adoption');
+            }
+
+            if (data.ai_usage_frequency === 'never' || data.ai_usage_frequency === 'rarely') {
+                recommendations.push('Start experimenting with AI tools relevant to your field');
+            }
+
+            return recommendations;
+        }
+
+        function displayResults(results) {
+            document.getElementById('automation-score').textContent = results.automationScore + '%';
+            document.getElementById('augmentation-score').textContent = results.augmentationScore + '%';
+            
+            const riskLevelDisplay = document.getElementById('risk-level-display');
+            riskLevelDisplay.textContent = results.riskLevel.charAt(0).toUpperCase() + results.riskLevel.slice(1) + ' Risk';
+            riskLevelDisplay.className = `risk-level risk-${results.riskLevel}`;
+
+            const recommendationsList = document.getElementById('recommendations-list');
+            recommendationsList.innerHTML = results.recommendations.map(rec => `
+                <div class="recommendation-item">
+                    <div class="recommendation-icon"></div>
+                    <div class="recommendation-text">${rec}</div>
+                </div>
+            `).join('');
+        }
+
+        // Email form submission
+        document.getElementById('email-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('results-email').value.trim();
+            if (!isValidEmail(email)) {
+                alert('Please enter a valid email address.');
+                return;
+            }
+
+            // Submit to backend
+            submitAssessment(email);
+        });
+
+        async function submitAssessment(email) {
+            try {
+                const assessmentData = {
+                    ...formData,
+                    email: email,
+                    automation_score: parseInt(document.getElementById('automation-score').textContent),
+                    augmentation_score: parseInt(document.getElementById('augmentation-score').textContent),
+                    overall_risk_level: document.getElementById('risk-level-display').textContent.toLowerCase().replace(' risk', ''),
+                    assessment_type: 'ai_job_risk'
+                };
+
+                const response = await fetch('/api/ai-job-assessment', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(assessmentData)
+                });
+
+                if (response.ok) {
+                    // Track successful submission
+                    trackPerformanceMetric('assessment_submission_success', 1);
+                    
+                    document.getElementById('email-collection').style.display = 'none';
+                    document.getElementById('success-message').style.display = 'block';
+                } else {
+                    throw new Error('Failed to submit assessment');
+                }
+            } catch (error) {
+                console.error('Error submitting assessment:', error);
+                
+                // Track error
+                trackError('assessment_submission_failed', error.message, 'high');
+                
+                alert('There was an error submitting your assessment. Please try again.');
+            }
+        }
+
+        // Add click tracking for conversion offers
+        document.addEventListener('click', function(e) {
+            if (e.target.matches('.upgrade-btn, .premium-btn, .pro-btn')) {
+                const riskLevel = document.getElementById('risk-level-display')?.textContent.toLowerCase().replace(' risk', '') || 'medium';
+                trackPaidUpgradeClicked(riskLevel);
+            }
+        });
+        
+        // Track performance metrics
+        window.addEventListener('load', function() {
+            const loadTime = Date.now() - calculatorStartTime;
+            trackPerformanceMetric('page_load_time', loadTime);
+        });
+        
+        // Track errors
+        window.addEventListener('error', function(e) {
+            trackError('javascript_error', e.message, 'medium');
+        });
+        
+        // Track unhandled promise rejections
+        window.addEventListener('unhandledrejection', function(e) {
+            trackError('promise_rejection', e.reason, 'medium');
+        });
+    </script>
+</body>
+</html>

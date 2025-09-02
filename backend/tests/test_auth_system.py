@@ -12,7 +12,8 @@ from unittest.mock import patch, MagicMock
 from werkzeug.security import generate_password_hash
 
 from backend.services.auth_service import AuthService
-from backend.models.auth_tokens import AuthToken, EmailVerification
+from backend.models.auth_tokens import AuthToken
+from backend.models.email_verification import EmailVerification
 from backend.models.user import User
 from backend.services.resend_email_service import resend_email_service
 

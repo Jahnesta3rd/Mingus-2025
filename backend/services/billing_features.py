@@ -10,9 +10,9 @@ from typing import Dict, List, Optional, Tuple, Any
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy import and_, func
-from email.mime.text import MimeText
-from email.mime.multipart import MimeMultipart
-from email.mime.application import MimeApplication
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from email.mime.application import MIMEApplication
 import json
 import requests
 
@@ -32,27 +32,34 @@ class BillingFeaturesError(Exception):
 class BillingFeatures:
     """Comprehensive billing features for MINGUS"""
     
-    def __init__(self, db_session: Session, config: Config):
+    def __init__(self, db_session: Session, config):
         self.db = db_session
         self.config = config
         self.stripe = stripe
-        self.stripe.api_key = config.STRIPE_SECRET_KEY
+        
+        # Handle both object and dictionary configs
+        if hasattr(config, 'STRIPE_SECRET_KEY'):
+            self.stripe.api_key = config.STRIPE_SECRET_KEY
+        elif isinstance(config, dict) and 'STRIPE_SECRET_KEY' in config:
+            self.stripe.api_key = config['STRIPE_SECRET_KEY']
+        else:
+            self.stripe.api_key = None
         
         # Email configuration
-        self.smtp_host = getattr(config, 'SMTP_HOST', 'smtp.gmail.com')
-        self.smtp_port = getattr(config, 'SMTP_PORT', 587)
-        self.smtp_username = getattr(config, 'SMTP_USERNAME', '')
-        self.smtp_password = getattr(config, 'SMTP_PASSWORD', '')
-        self.from_email = getattr(config, 'FROM_EMAIL', 'billing@mingus.com')
+        self.smtp_host = getattr(config, 'SMTP_HOST', 'smtp.gmail.com') if hasattr(config, 'SMTP_HOST') else config.get('SMTP_HOST', 'smtp.gmail.com')
+        self.smtp_port = getattr(config, 'SMTP_PORT', 587) if hasattr(config, 'SMTP_PORT') else config.get('SMTP_PORT', 587)
+        self.smtp_username = getattr(config, 'SMTP_USERNAME', '') if hasattr(config, 'SMTP_USERNAME') else config.get('SMTP_USERNAME', '')
+        self.smtp_password = getattr(config, 'SMTP_PASSWORD', '') if hasattr(config, 'SMTP_PASSWORD') else config.get('SMTP_PASSWORD', '')
+        self.from_email = getattr(config, 'FROM_EMAIL', 'billing@mingus.com') if hasattr(config, 'FROM_EMAIL') else config.get('FROM_EMAIL', 'billing@mingus.com')
         
         # Tax service configuration
-        self.tax_service_url = getattr(config, 'TAX_SERVICE_URL', '')
-        self.tax_service_api_key = getattr(config, 'TAX_SERVICE_API_KEY', '')
+        self.tax_service_url = getattr(config, 'TAX_SERVICE_URL', '') if hasattr(config, 'TAX_SERVICE_URL') else config.get('TAX_SERVICE_URL', '')
+        self.tax_service_api_key = getattr(config, 'TAX_SERVICE_API_KEY', '') if hasattr(config, 'TAX_SERVICE_API_KEY') else config.get('TAX_SERVICE_API_KEY', '')
         
         # Currency configuration
         self.default_currency = 'USD'
         self.supported_currencies = ['USD', 'EUR', 'GBP', 'CAD', 'AUD']
-        self.exchange_rate_api_url = getattr(config, 'EXCHANGE_RATE_API_URL', '')
+        self.exchange_rate_api_url = getattr(config, 'EXCHANGE_RATE_API_URL', '') if hasattr(config, 'EXCHANGE_RATE_API_URL') else config.get('EXCHANGE_RATE_API_URL', '')
     
     # ============================================================================
     # AUTOMATIC INVOICE GENERATION

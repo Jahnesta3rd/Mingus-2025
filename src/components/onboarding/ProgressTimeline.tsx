@@ -64,7 +64,7 @@ const ProgressTimeline: React.FC<ProgressTimelineProps> = ({
   if (milestones.length === 0) {
     return (
       <div className="p-6 bg-gray-50 rounded-xl border border-gray-200">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4" className="text-xl font-semibold text-gray-800 mb-3">
           Your Progress Roadmap
         </h3>
         <p className="text-gray-600">
@@ -76,7 +76,7 @@ const ProgressTimeline: React.FC<ProgressTimelineProps> = ({
 
   return (
     <div className="p-6 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl border border-purple-200">
-      <h3 className="text-lg font-semibold text-purple-900 mb-6 flex items-center">
+      <h3 className="text-lg font-semibold text-purple-900 mb-6 flex items-center" className="text-xl font-semibold text-gray-800 mb-3">
         <span className="text-2xl mr-2">🗺️</span>
         Your Progress Roadmap
       </h3>
@@ -91,7 +91,7 @@ const ProgressTimeline: React.FC<ProgressTimelineProps> = ({
             <div key={index} className="relative flex items-start">
               {/* Milestone Point */}
               <div className="relative z-10 flex-shrink-0 w-16 h-16 bg-white border-4 border-purple-400 rounded-full flex items-center justify-center shadow-lg">
-                <div className="text-xs font-bold text-purple-600">
+                <div className="text-base leading-relaxed font-bold text-purple-600">
                   {Math.round(milestone.percentage * 100)}%
                 </div>
               </div>
@@ -102,16 +102,16 @@ const ProgressTimeline: React.FC<ProgressTimelineProps> = ({
                   <div className="text-lg font-bold text-purple-900">
                     ${milestone.amount.toLocaleString()}
                   </div>
-                  <div className="text-sm text-gray-600">
+                  <div className="text-base leading-relaxed text-gray-600">
                     {formatDate(milestone.date)}
                   </div>
                 </div>
                 
-                <div className="text-sm text-purple-700 mb-2">
+                <div className="text-base leading-relaxed text-purple-700 mb-2">
                   {milestone.celebration}
                 </div>
                 
-                <div className="text-xs text-gray-500">
+                <div className="text-base leading-relaxed text-gray-500">
                   {milestone.monthsFromNow} month{milestone.monthsFromNow !== 1 ? 's' : ''} from now
                 </div>
                 
@@ -135,19 +135,19 @@ const ProgressTimeline: React.FC<ProgressTimelineProps> = ({
             <div className="text-2xl font-bold text-purple-600">
               ${monthlyContribution.toLocaleString()}
             </div>
-            <div className="text-xs text-gray-600">Monthly Contribution</div>
+            <div className="text-base leading-relaxed text-gray-600">Monthly Contribution</div>
           </div>
           <div>
             <div className="text-2xl font-bold text-purple-600">
               {Math.ceil((goal.targetAmount - (goal.currentAmount || 0)) / monthlyContribution)}
             </div>
-            <div className="text-xs text-gray-600">Months to Goal</div>
+            <div className="text-base leading-relaxed text-gray-600">Months to Goal</div>
           </div>
           <div>
             <div className="text-2xl font-bold text-purple-600">
               ${(goal.currentAmount || 0).toLocaleString()}
             </div>
-            <div className="text-xs text-gray-600">Already Saved</div>
+            <div className="text-base leading-relaxed text-gray-600">Already Saved</div>
           </div>
         </div>
       </div>

@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="stylesheet" href="touch_target_optimization.css">
+
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Financial Profile</title>
@@ -130,7 +132,7 @@
       </label>
       <label>
         Frequency <span class="tooltip" title="How often do you receive this income?">?</span>
-        <select id="primaryIncomeFrequency" name="primaryIncomeFrequency" required>
+        <select id="primaryIncomeFrequency" name="primaryIncomeFrequency" required class="form-input">
           <option value="">Select frequency</option>
           <option value="weekly">Weekly</option>
           <option value="bi-weekly">Bi-weekly</option>
@@ -166,7 +168,7 @@
         </label>
         <label>
           Frequency
-          <select id="childSupportFrequency" name="childSupportFrequency">
+          <select id="childSupportFrequency" name="childSupportFrequency" class="form-input">
             <option value="">Select frequency</option>
             <option value="weekly">Weekly</option>
             <option value="bi-weekly">Bi-weekly</option>
@@ -181,9 +183,9 @@
       </div>
     </div>
     <div class="button-row">
-      <button type="button" id="prevBtn" class="btn-mingus-secondary">Previous</button>
-      <button type="button" id="skipBtn" class="btn-mingus-skip">Skip</button>
-      <button type="submit" id="nextBtn" class="btn-mingus-primary" disabled>Next</button>
+      <button type="button" id="prevBtn" class="btn-mingus-secondary btn-cta btn-primary">Previous</button>
+      <button type="button" id="skipBtn" class="btn-mingus-skip btn-cta btn-primary">Skip</button>
+      <button type="submit" id="nextBtn" class="btn-mingus-primary btn-cta btn-primary" disabled>Next</button>
       <span id="savingIndicator" class="saving-indicator" style="display:none;">Saving...</span>
     </div>
   </form>
@@ -673,7 +675,7 @@
             <span class="monthly-conversion" id="secondaryMonthly${idx}"></span>
           </label>
           <label>Frequency
-            <select data-idx="${idx}" class="secondaryFrequency">
+            <select data-idx="${idx}" class="secondaryFrequency" class="form-input">
               <option value="">Select frequency</option>
               <option value="weekly" ${inc.frequency==='weekly'?'selected':''}>Weekly</option>
               <option value="bi-weekly" ${inc.frequency==='bi-weekly'?'selected':''}>Bi-weekly</option>

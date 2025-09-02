@@ -74,25 +74,28 @@ class SecurityHeaders:
             "default-src 'self'",
             
             # Script sources - allow inline scripts for React/JS frameworks
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+            "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.clarity.ms",
             
             # Style sources - allow inline styles and Google Fonts
-            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+            "style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com",
             
             # Font sources
-            "font-src 'self' https://fonts.gstatic.com data:",
+            "font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com data:",
             
             # Image sources
             "img-src 'self' data: https: blob:",
             
             # Connect sources for API calls
-            "connect-src 'self' https://api.mingus.com https://analytics.mingus.com",
+            "connect-src 'self' https://www.google-analytics.com https://www.clarity.ms",
             
             # Media sources
             "media-src 'self'",
             
             # Object sources - block plugins
             "object-src 'none'",
+            
+            # Frame sources - block frames
+            "frame-src 'none'",
             
             # Frame ancestors - prevent embedding
             "frame-ancestors 'none'",

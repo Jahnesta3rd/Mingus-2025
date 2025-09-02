@@ -107,13 +107,13 @@ const JobSecurityAnalysis: React.FC<JobSecurityAnalysisProps> = ({
             <Shield className="w-6 h-6 text-[#00e676]" />
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-white">Job Security Analysis</h3>
+            <h3 className="text-lg font-semibold text-white" className="text-xl font-semibold text-gray-800 mb-3">Job Security Analysis</h3>
             <p className="text-gray-400">
               Last updated {formatDate(data.last_updated)}
             </p>
           </div>
         </div>
-        <div className={`px-3 py-1 rounded-full text-sm font-medium ${riskLevel.color} ${riskLevel.text}`}>
+        <div className={`px-3 py-1 rounded-full text-base leading-relaxed font-medium ${riskLevel.color} ${riskLevel.text}`}>
           {riskLevel.level}
         </div>
       </div>
@@ -151,12 +151,12 @@ const JobSecurityAnalysis: React.FC<JobSecurityAnalysisProps> = ({
                 <div className={`text-3xl font-bold ${getScoreColor(data.overall_score)}`}>
                   {data.overall_score}
                 </div>
-                <div className="text-sm text-gray-400">Score</div>
+                <div className="text-base leading-relaxed text-gray-400">Score</div>
               </div>
             </div>
           </div>
           <div className="mt-4 text-center">
-            <div className="text-sm text-gray-400">Confidence Level</div>
+            <div className="text-base leading-relaxed text-gray-400">Confidence Level</div>
             <div className="text-lg font-semibold text-white">{data.confidence_level}%</div>
           </div>
         </div>
@@ -171,7 +171,7 @@ const JobSecurityAnalysis: React.FC<JobSecurityAnalysisProps> = ({
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center space-x-2">
                   <Users className="w-4 h-4 text-[#00e676]" />
-                  <span className="text-sm font-medium text-gray-300">User Perception</span>
+                  <span className="text-base leading-relaxed font-medium text-gray-300">User Perception</span>
                 </div>
                 <ChevronRight className="w-4 h-4 text-gray-500" />
               </div>
@@ -182,7 +182,7 @@ const JobSecurityAnalysis: React.FC<JobSecurityAnalysisProps> = ({
                     style={{ width: `${data.user_perception_score}%` }}
                   />
                 </div>
-                <span className={`text-sm font-semibold ${getScoreColor(data.user_perception_score)}`}>
+                <span className={`text-base leading-relaxed font-semibold ${getScoreColor(data.user_perception_score)}`}>
                   {data.user_perception_score}
                 </span>
               </div>
@@ -194,7 +194,7 @@ const JobSecurityAnalysis: React.FC<JobSecurityAnalysisProps> = ({
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center space-x-2">
                   <Building className="w-4 h-4 text-[#00e676]" />
-                  <span className="text-sm font-medium text-gray-300">External Data</span>
+                  <span className="text-base leading-relaxed font-medium text-gray-300">External Data</span>
                 </div>
                 <ChevronRight className="w-4 h-4 text-gray-500" />
               </div>
@@ -205,7 +205,7 @@ const JobSecurityAnalysis: React.FC<JobSecurityAnalysisProps> = ({
                     style={{ width: `${data.external_data_score}%` }}
                   />
                 </div>
-                <span className={`text-sm font-semibold ${getScoreColor(data.external_data_score)}`}>
+                <span className={`text-base leading-relaxed font-semibold ${getScoreColor(data.external_data_score)}`}>
                   {data.external_data_score}
                 </span>
               </div>
@@ -217,8 +217,8 @@ const JobSecurityAnalysis: React.FC<JobSecurityAnalysisProps> = ({
       {/* Context Information */}
       {(data.employer_name || data.industry_sector || data.location) && (
         <div className="bg-[#00e676]/10 rounded-lg p-4 mb-6 border border-[#00e676]/20">
-          <h4 className="text-sm font-semibold text-[#00e676] mb-3">Analysis Context</h4>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+          <h4 className="text-base leading-relaxed font-semibold text-[#00e676] mb-3">Analysis Context</h4>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-base leading-relaxed">
             {data.employer_name && (
               <div className="flex items-center space-x-2">
                 <Building className="w-4 h-4 text-[#00e676]" />
@@ -253,8 +253,8 @@ const JobSecurityAnalysis: React.FC<JobSecurityAnalysisProps> = ({
             {data.risk_factors.map((factor, index) => (
               <div key={index} className="bg-[#ff2d2d]/10 rounded-lg p-3 border border-[#ff2d2d]/20">
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-sm font-medium text-[#ff2d2d]">{factor.category}</span>
-                  <span className={`px-2 py-1 rounded text-xs font-medium ${
+                  <span className="text-base leading-relaxed font-medium text-[#ff2d2d]">{factor.category}</span>
+                  <span className={`px-2 py-1 rounded text-base leading-relaxed font-medium ${
                     factor.severity === 'high' ? 'bg-[#ff2d2d] text-white' :
                     factor.severity === 'medium' ? 'bg-[#ff2d2d]/50 text-white' :
                     'bg-[#00e676]/50 text-[#181a1b]'
@@ -262,7 +262,7 @@ const JobSecurityAnalysis: React.FC<JobSecurityAnalysisProps> = ({
                     {factor.severity.toUpperCase()}
                   </span>
                 </div>
-                <p className="text-sm text-gray-300">{factor.description}</p>
+                <p className="text-base leading-relaxed text-gray-300">{factor.description}</p>
                 <div className="mt-2 flex items-center space-x-2">
                   <div className="flex-1 bg-[#ff2d2d]/20 rounded-full h-1">
                     <div 
@@ -270,7 +270,7 @@ const JobSecurityAnalysis: React.FC<JobSecurityAnalysisProps> = ({
                       style={{ width: `${factor.impact_score}%` }}
                     />
                   </div>
-                  <span className="text-xs text-[#ff2d2d]">{factor.impact_score}% impact</span>
+                  <span className="text-base leading-relaxed text-[#ff2d2d]">{factor.impact_score}% impact</span>
                 </div>
               </div>
             ))}
@@ -288,7 +288,7 @@ const JobSecurityAnalysis: React.FC<JobSecurityAnalysisProps> = ({
               <div key={index} className="bg-[#00e676]/10 rounded-lg p-3 border border-[#00e676]/20">
                 <div className="flex items-center space-x-2">
                   <CheckCircle className="w-4 h-4 text-[#00e676] flex-shrink-0" />
-                  <span className="text-sm text-gray-300">{indicator}</span>
+                  <span className="text-base leading-relaxed text-gray-300">{indicator}</span>
                 </div>
               </div>
             ))}
@@ -304,21 +304,21 @@ const JobSecurityAnalysis: React.FC<JobSecurityAnalysisProps> = ({
             <div key={index} className="bg-[#181a1b] rounded-lg p-4 border-l-4 border-[#00e676]">
               <div className="flex items-start justify-between mb-2">
                 <div className="flex items-center space-x-2">
-                  <span className={`px-2 py-1 rounded text-xs font-medium ${
+                  <span className={`px-2 py-1 rounded text-base leading-relaxed font-medium ${
                     rec.priority === 'high' ? 'bg-[#ff2d2d] text-white' :
                     rec.priority === 'medium' ? 'bg-[#ff2d2d]/50 text-white' :
                     'bg-[#00e676] text-[#181a1b]'
                   }`}>
                     {rec.priority.toUpperCase()} PRIORITY
                   </span>
-                  <span className="text-xs text-gray-500">{rec.category}</span>
+                  <span className="text-base leading-relaxed text-gray-500">{rec.category}</span>
                 </div>
               </div>
               <h5 className="font-medium text-white mb-2">{rec.title}</h5>
-              <p className="text-sm text-gray-400 mb-3">{rec.description}</p>
+              <p className="text-base leading-relaxed text-gray-400 mb-3">{rec.description}</p>
               <div className="space-y-1">
                 {rec.action_items.map((item, itemIndex) => (
-                  <div key={itemIndex} className="flex items-center space-x-2 text-sm text-gray-300">
+                  <div key={itemIndex} className="flex items-center space-x-2 text-base leading-relaxed text-gray-300">
                     <div className="w-1.5 h-1.5 bg-[#00e676] rounded-full"></div>
                     <span>{item}</span>
                   </div>
@@ -335,7 +335,7 @@ const JobSecurityAnalysis: React.FC<JobSecurityAnalysisProps> = ({
           <h4 className="text-md font-semibold text-white">12-Week Trend</h4>
           <button
             onClick={() => setShowTrends(!showTrends)}
-            className="text-sm text-[#00e676] hover:text-[#00c060] flex items-center space-x-1"
+            className="text-base leading-relaxed text-[#00e676] hover:text-[#00c060] flex items-center space-x-1"
           >
             <span>{showTrends ? 'Hide' : 'Show'} Details</span>
             <ChevronRight className={`w-4 h-4 transition-transform ${showTrends ? 'rotate-90' : ''}`} />
@@ -347,14 +347,14 @@ const JobSecurityAnalysis: React.FC<JobSecurityAnalysisProps> = ({
             <div className="flex items-center justify-between mb-4">
               <div className="space-y-1">
                 {data.trend_data.slice(-3).map((point, index) => (
-                  <div key={index} className="flex items-center space-x-3 text-sm">
+                  <div key={index} className="flex items-center space-x-3 text-base leading-relaxed">
                     <span className="text-gray-400 w-16">{formatDate(point.date)}</span>
                     <span className={`font-semibold ${getScoreColor(point.score)}`}>
                       {point.score}
                     </span>
                     {getTrendIcon(point.change)}
                     {point.change && (
-                      <span className={`text-xs ${point.change > 0 ? 'text-[#00e676]' : 'text-[#ff2d2d]'}`}>
+                      <span className={`text-base leading-relaxed ${point.change > 0 ? 'text-[#00e676]' : 'text-[#ff2d2d]'}`}>
                         {point.change > 0 ? '+' : ''}{point.change}
                       </span>
                     )}

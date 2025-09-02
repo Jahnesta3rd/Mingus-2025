@@ -1,0 +1,158 @@
+{
+  "accessibility_testing": {
+    "base_url": "http://localhost:5000",
+    "pages": [
+      "/",
+      "/forms",
+      "/calculator",
+      "/dashboard",
+      "/profile"
+    ],
+    "headless": true,
+    "output_dir": "reports",
+    "fail_on_critical": true,
+    "generate_report": true,
+    "notify_slack": false,
+    "slack_webhook": "",
+    "timeout": 300,
+    "retry_attempts": 3,
+    "parallel_tests": 2,
+    "browser_options": {
+      "window_size": "1920,1080",
+      "disable_gpu": true,
+      "no_sandbox": true,
+      "disable_dev_shm_usage": true
+    },
+    "axe_core": {
+      "version": "4.7.0",
+      "rules": {
+        "color-contrast": { "enabled": true },
+        "landmark-one-main": { "enabled": true },
+        "page-has-heading-one": { "enabled": true },
+        "skip-link": { "enabled": true },
+        "form-field-multiple-labels": { "enabled": true },
+        "label": { "enabled": true },
+        "input-image-alt": { "enabled": true },
+        "image-alt": { "enabled": true },
+        "link-name": { "enabled": true },
+        "button-name": { "enabled": true }
+      },
+      "tags": [
+        "wcag2a",
+        "wcag2aa",
+        "wcag21a",
+        "wcag21aa"
+      ]
+    },
+    "wcag_requirements": {
+      "level": "AA",
+      "version": "2.1",
+      "color_contrast": {
+        "normal_text": 4.5,
+        "large_text": 3.0,
+        "ui_components": 3.0
+      },
+      "touch_targets": {
+        "minimum_size": 44,
+        "unit": "px"
+      },
+      "focus_indicators": {
+        "required": true,
+        "visible": true
+      }
+    },
+    "financial_specific": {
+      "currency_formatting": true,
+      "percentage_formatting": true,
+      "calculation_announcements": true,
+      "table_navigation": true,
+      "form_validation": true
+    },
+    "reporting": {
+      "formats": [
+        "html",
+        "json",
+        "junit",
+        "markdown"
+      ],
+      "include_screenshots": false,
+      "include_violations": true,
+      "include_recommendations": true,
+      "include_technical_details": true
+    },
+    "notifications": {
+      "email": {
+        "enabled": false,
+        "smtp_server": "",
+        "smtp_port": 587,
+        "username": "",
+        "password": "",
+        "recipients": []
+      },
+      "slack": {
+        "enabled": false,
+        "webhook_url": "",
+        "channel": "#accessibility",
+        "username": "Accessibility Bot"
+      },
+      "teams": {
+        "enabled": false,
+        "webhook_url": "",
+        "title": "Accessibility Test Results"
+      }
+    },
+    "ci_cd": {
+      "github_actions": {
+        "enabled": true,
+        "fail_on_critical": true,
+        "comment_on_pr": true,
+        "upload_artifacts": true
+      },
+      "jenkins": {
+        "enabled": false,
+        "junit_output": "reports/junit.xml",
+        "coverage_output": "reports/coverage"
+      },
+      "gitlab": {
+        "enabled": false,
+        "junit_output": "reports/junit.xml",
+        "coverage_output": "reports/coverage"
+      }
+    },
+    "environments": {
+      "development": {
+        "base_url": "http://localhost:5000",
+        "headless": false,
+        "timeout": 120
+      },
+      "staging": {
+        "base_url": "https://staging.mingus.com",
+        "headless": true,
+        "timeout": 300
+      },
+      "production": {
+        "base_url": "https://mingus.com",
+        "headless": true,
+        "timeout": 300,
+        "fail_on_critical": true
+      }
+    },
+    "performance": {
+      "max_page_load_time": 30,
+      "max_test_execution_time": 300,
+      "memory_limit": "2GB",
+      "cpu_limit": "2"
+    },
+    "security": {
+      "ignore_ssl_errors": false,
+      "allow_insecure_content": false,
+      "custom_headers": {},
+      "authentication": {
+        "enabled": false,
+        "type": "basic",
+        "username": "",
+        "password": ""
+      }
+    }
+  }
+}

@@ -1,0 +1,972 @@
+{
+  "results": [
+    {
+      "device": {
+        "name": "iPhone SE",
+        "width": 320,
+        "height": 568,
+        "category": "small_mobile"
+      },
+      "page_url": "/health",
+      "viewport_size": [
+        320,
+        568
+      ],
+      "overall_score": 15.0,
+      "issues": [],
+      "recommendations": [],
+      "touch_targets_count": 0,
+      "css_breakpoints_count": 0
+    },
+    {
+      "device": {
+        "name": "iPhone 14",
+        "width": 375,
+        "height": 812,
+        "category": "standard_mobile"
+      },
+      "page_url": "/health",
+      "viewport_size": [
+        375,
+        812
+      ],
+      "overall_score": 15.0,
+      "issues": [],
+      "recommendations": [],
+      "touch_targets_count": 0,
+      "css_breakpoints_count": 0
+    },
+    {
+      "device": {
+        "name": "iPhone 14 Plus",
+        "width": 428,
+        "height": 926,
+        "category": "large_mobile"
+      },
+      "page_url": "/health",
+      "viewport_size": [
+        428,
+        926
+      ],
+      "overall_score": 15.0,
+      "issues": [],
+      "recommendations": [],
+      "touch_targets_count": 0,
+      "css_breakpoints_count": 0
+    },
+    {
+      "device": {
+        "name": "Samsung Galaxy S21",
+        "width": 360,
+        "height": 800,
+        "category": "android_mobile"
+      },
+      "page_url": "/health",
+      "viewport_size": [
+        360,
+        800
+      ],
+      "overall_score": 15.0,
+      "issues": [],
+      "recommendations": [],
+      "touch_targets_count": 0,
+      "css_breakpoints_count": 0
+    },
+    {
+      "device": {
+        "name": "Google Pixel",
+        "width": 411,
+        "height": 731,
+        "category": "android_mobile"
+      },
+      "page_url": "/health",
+      "viewport_size": [
+        411,
+        731
+      ],
+      "overall_score": 15.0,
+      "issues": [],
+      "recommendations": [],
+      "touch_targets_count": 0,
+      "css_breakpoints_count": 0
+    },
+    {
+      "device": {
+        "name": "Budget Android",
+        "width": 320,
+        "height": 640,
+        "category": "budget_mobile"
+      },
+      "page_url": "/health",
+      "viewport_size": [
+        320,
+        640
+      ],
+      "overall_score": 15.0,
+      "issues": [],
+      "recommendations": [],
+      "touch_targets_count": 0,
+      "css_breakpoints_count": 0
+    },
+    {
+      "device": {
+        "name": "iPad",
+        "width": 768,
+        "height": 1024,
+        "category": "tablet"
+      },
+      "page_url": "/health",
+      "viewport_size": [
+        768,
+        1024
+      ],
+      "overall_score": 15.0,
+      "issues": [],
+      "recommendations": [],
+      "touch_targets_count": 0,
+      "css_breakpoints_count": 0
+    },
+    {
+      "device": {
+        "name": "iPhone SE",
+        "width": 320,
+        "height": 568,
+        "category": "small_mobile"
+      },
+      "page_url": "/budget",
+      "viewport_size": [
+        320,
+        568
+      ],
+      "overall_score": 15.0,
+      "issues": [],
+      "recommendations": [],
+      "touch_targets_count": 0,
+      "css_breakpoints_count": 0
+    },
+    {
+      "device": {
+        "name": "iPhone 14",
+        "width": 375,
+        "height": 812,
+        "category": "standard_mobile"
+      },
+      "page_url": "/budget",
+      "viewport_size": [
+        375,
+        812
+      ],
+      "overall_score": 15.0,
+      "issues": [],
+      "recommendations": [],
+      "touch_targets_count": 0,
+      "css_breakpoints_count": 0
+    },
+    {
+      "device": {
+        "name": "iPhone 14 Plus",
+        "width": 428,
+        "height": 926,
+        "category": "large_mobile"
+      },
+      "page_url": "/budget",
+      "viewport_size": [
+        428,
+        926
+      ],
+      "overall_score": 15.0,
+      "issues": [],
+      "recommendations": [],
+      "touch_targets_count": 0,
+      "css_breakpoints_count": 0
+    },
+    {
+      "device": {
+        "name": "Samsung Galaxy S21",
+        "width": 360,
+        "height": 800,
+        "category": "android_mobile"
+      },
+      "page_url": "/budget",
+      "viewport_size": [
+        360,
+        800
+      ],
+      "overall_score": 15.0,
+      "issues": [],
+      "recommendations": [],
+      "touch_targets_count": 0,
+      "css_breakpoints_count": 0
+    },
+    {
+      "device": {
+        "name": "Google Pixel",
+        "width": 411,
+        "height": 731,
+        "category": "android_mobile"
+      },
+      "page_url": "/budget",
+      "viewport_size": [
+        411,
+        731
+      ],
+      "overall_score": 15.0,
+      "issues": [],
+      "recommendations": [],
+      "touch_targets_count": 0,
+      "css_breakpoints_count": 0
+    },
+    {
+      "device": {
+        "name": "Budget Android",
+        "width": 320,
+        "height": 640,
+        "category": "budget_mobile"
+      },
+      "page_url": "/budget",
+      "viewport_size": [
+        320,
+        640
+      ],
+      "overall_score": 15.0,
+      "issues": [],
+      "recommendations": [],
+      "touch_targets_count": 0,
+      "css_breakpoints_count": 0
+    },
+    {
+      "device": {
+        "name": "iPad",
+        "width": 768,
+        "height": 1024,
+        "category": "tablet"
+      },
+      "page_url": "/budget",
+      "viewport_size": [
+        768,
+        1024
+      ],
+      "overall_score": 15.0,
+      "issues": [],
+      "recommendations": [],
+      "touch_targets_count": 0,
+      "css_breakpoints_count": 0
+    },
+    {
+      "device": {
+        "name": "iPhone SE",
+        "width": 320,
+        "height": 568,
+        "category": "small_mobile"
+      },
+      "page_url": "/profile",
+      "viewport_size": [
+        320,
+        568
+      ],
+      "overall_score": 15.0,
+      "issues": [],
+      "recommendations": [],
+      "touch_targets_count": 0,
+      "css_breakpoints_count": 0
+    },
+    {
+      "device": {
+        "name": "iPhone 14",
+        "width": 375,
+        "height": 812,
+        "category": "standard_mobile"
+      },
+      "page_url": "/profile",
+      "viewport_size": [
+        375,
+        812
+      ],
+      "overall_score": 15.0,
+      "issues": [],
+      "recommendations": [],
+      "touch_targets_count": 0,
+      "css_breakpoints_count": 0
+    },
+    {
+      "device": {
+        "name": "iPhone 14 Plus",
+        "width": 428,
+        "height": 926,
+        "category": "large_mobile"
+      },
+      "page_url": "/profile",
+      "viewport_size": [
+        428,
+        926
+      ],
+      "overall_score": 15.0,
+      "issues": [],
+      "recommendations": [],
+      "touch_targets_count": 0,
+      "css_breakpoints_count": 0
+    },
+    {
+      "device": {
+        "name": "Samsung Galaxy S21",
+        "width": 360,
+        "height": 800,
+        "category": "android_mobile"
+      },
+      "page_url": "/profile",
+      "viewport_size": [
+        360,
+        800
+      ],
+      "overall_score": 15.0,
+      "issues": [],
+      "recommendations": [],
+      "touch_targets_count": 0,
+      "css_breakpoints_count": 0
+    },
+    {
+      "device": {
+        "name": "Google Pixel",
+        "width": 411,
+        "height": 731,
+        "category": "android_mobile"
+      },
+      "page_url": "/profile",
+      "viewport_size": [
+        411,
+        731
+      ],
+      "overall_score": 15.0,
+      "issues": [],
+      "recommendations": [],
+      "touch_targets_count": 0,
+      "css_breakpoints_count": 0
+    },
+    {
+      "device": {
+        "name": "Budget Android",
+        "width": 320,
+        "height": 640,
+        "category": "budget_mobile"
+      },
+      "page_url": "/profile",
+      "viewport_size": [
+        320,
+        640
+      ],
+      "overall_score": 15.0,
+      "issues": [],
+      "recommendations": [],
+      "touch_targets_count": 0,
+      "css_breakpoints_count": 0
+    },
+    {
+      "device": {
+        "name": "iPad",
+        "width": 768,
+        "height": 1024,
+        "category": "tablet"
+      },
+      "page_url": "/profile",
+      "viewport_size": [
+        768,
+        1024
+      ],
+      "overall_score": 15.0,
+      "issues": [],
+      "recommendations": [],
+      "touch_targets_count": 0,
+      "css_breakpoints_count": 0
+    },
+    {
+      "device": {
+        "name": "iPhone SE",
+        "width": 320,
+        "height": 568,
+        "category": "small_mobile"
+      },
+      "page_url": "/articles",
+      "viewport_size": [
+        320,
+        568
+      ],
+      "overall_score": 15.0,
+      "issues": [],
+      "recommendations": [],
+      "touch_targets_count": 0,
+      "css_breakpoints_count": 0
+    },
+    {
+      "device": {
+        "name": "iPhone 14",
+        "width": 375,
+        "height": 812,
+        "category": "standard_mobile"
+      },
+      "page_url": "/articles",
+      "viewport_size": [
+        375,
+        812
+      ],
+      "overall_score": 15.0,
+      "issues": [],
+      "recommendations": [],
+      "touch_targets_count": 0,
+      "css_breakpoints_count": 0
+    },
+    {
+      "device": {
+        "name": "iPhone 14 Plus",
+        "width": 428,
+        "height": 926,
+        "category": "large_mobile"
+      },
+      "page_url": "/articles",
+      "viewport_size": [
+        428,
+        926
+      ],
+      "overall_score": 15.0,
+      "issues": [],
+      "recommendations": [],
+      "touch_targets_count": 0,
+      "css_breakpoints_count": 0
+    },
+    {
+      "device": {
+        "name": "Samsung Galaxy S21",
+        "width": 360,
+        "height": 800,
+        "category": "android_mobile"
+      },
+      "page_url": "/articles",
+      "viewport_size": [
+        360,
+        800
+      ],
+      "overall_score": 15.0,
+      "issues": [],
+      "recommendations": [],
+      "touch_targets_count": 0,
+      "css_breakpoints_count": 0
+    },
+    {
+      "device": {
+        "name": "Google Pixel",
+        "width": 411,
+        "height": 731,
+        "category": "android_mobile"
+      },
+      "page_url": "/articles",
+      "viewport_size": [
+        411,
+        731
+      ],
+      "overall_score": 15.0,
+      "issues": [],
+      "recommendations": [],
+      "touch_targets_count": 0,
+      "css_breakpoints_count": 0
+    },
+    {
+      "device": {
+        "name": "Budget Android",
+        "width": 320,
+        "height": 640,
+        "category": "budget_mobile"
+      },
+      "page_url": "/articles",
+      "viewport_size": [
+        320,
+        640
+      ],
+      "overall_score": 15.0,
+      "issues": [],
+      "recommendations": [],
+      "touch_targets_count": 0,
+      "css_breakpoints_count": 0
+    },
+    {
+      "device": {
+        "name": "iPad",
+        "width": 768,
+        "height": 1024,
+        "category": "tablet"
+      },
+      "page_url": "/articles",
+      "viewport_size": [
+        768,
+        1024
+      ],
+      "overall_score": 15.0,
+      "issues": [],
+      "recommendations": [],
+      "touch_targets_count": 0,
+      "css_breakpoints_count": 0
+    },
+    {
+      "device": {
+        "name": "iPhone SE",
+        "width": 320,
+        "height": 568,
+        "category": "small_mobile"
+      },
+      "page_url": "/assessments",
+      "viewport_size": [
+        320,
+        568
+      ],
+      "overall_score": 15.0,
+      "issues": [],
+      "recommendations": [],
+      "touch_targets_count": 0,
+      "css_breakpoints_count": 0
+    },
+    {
+      "device": {
+        "name": "iPhone 14",
+        "width": 375,
+        "height": 812,
+        "category": "standard_mobile"
+      },
+      "page_url": "/assessments",
+      "viewport_size": [
+        375,
+        812
+      ],
+      "overall_score": 15.0,
+      "issues": [],
+      "recommendations": [],
+      "touch_targets_count": 0,
+      "css_breakpoints_count": 0
+    },
+    {
+      "device": {
+        "name": "iPhone 14 Plus",
+        "width": 428,
+        "height": 926,
+        "category": "large_mobile"
+      },
+      "page_url": "/assessments",
+      "viewport_size": [
+        428,
+        926
+      ],
+      "overall_score": 15.0,
+      "issues": [],
+      "recommendations": [],
+      "touch_targets_count": 0,
+      "css_breakpoints_count": 0
+    },
+    {
+      "device": {
+        "name": "Samsung Galaxy S21",
+        "width": 360,
+        "height": 800,
+        "category": "android_mobile"
+      },
+      "page_url": "/assessments",
+      "viewport_size": [
+        360,
+        800
+      ],
+      "overall_score": 15.0,
+      "issues": [],
+      "recommendations": [],
+      "touch_targets_count": 0,
+      "css_breakpoints_count": 0
+    },
+    {
+      "device": {
+        "name": "Google Pixel",
+        "width": 411,
+        "height": 731,
+        "category": "android_mobile"
+      },
+      "page_url": "/assessments",
+      "viewport_size": [
+        411,
+        731
+      ],
+      "overall_score": 15.0,
+      "issues": [],
+      "recommendations": [],
+      "touch_targets_count": 0,
+      "css_breakpoints_count": 0
+    },
+    {
+      "device": {
+        "name": "Budget Android",
+        "width": 320,
+        "height": 640,
+        "category": "budget_mobile"
+      },
+      "page_url": "/assessments",
+      "viewport_size": [
+        320,
+        640
+      ],
+      "overall_score": 15.0,
+      "issues": [],
+      "recommendations": [],
+      "touch_targets_count": 0,
+      "css_breakpoints_count": 0
+    },
+    {
+      "device": {
+        "name": "iPad",
+        "width": 768,
+        "height": 1024,
+        "category": "tablet"
+      },
+      "page_url": "/assessments",
+      "viewport_size": [
+        768,
+        1024
+      ],
+      "overall_score": 15.0,
+      "issues": [],
+      "recommendations": [],
+      "touch_targets_count": 0,
+      "css_breakpoints_count": 0
+    },
+    {
+      "device": {
+        "name": "iPhone SE",
+        "width": 320,
+        "height": 568,
+        "category": "small_mobile"
+      },
+      "page_url": "/payment",
+      "viewport_size": [
+        320,
+        568
+      ],
+      "overall_score": 15.0,
+      "issues": [],
+      "recommendations": [],
+      "touch_targets_count": 0,
+      "css_breakpoints_count": 0
+    },
+    {
+      "device": {
+        "name": "iPhone 14",
+        "width": 375,
+        "height": 812,
+        "category": "standard_mobile"
+      },
+      "page_url": "/payment",
+      "viewport_size": [
+        375,
+        812
+      ],
+      "overall_score": 15.0,
+      "issues": [],
+      "recommendations": [],
+      "touch_targets_count": 0,
+      "css_breakpoints_count": 0
+    },
+    {
+      "device": {
+        "name": "iPhone 14 Plus",
+        "width": 428,
+        "height": 926,
+        "category": "large_mobile"
+      },
+      "page_url": "/payment",
+      "viewport_size": [
+        428,
+        926
+      ],
+      "overall_score": 15.0,
+      "issues": [],
+      "recommendations": [],
+      "touch_targets_count": 0,
+      "css_breakpoints_count": 0
+    },
+    {
+      "device": {
+        "name": "Samsung Galaxy S21",
+        "width": 360,
+        "height": 800,
+        "category": "android_mobile"
+      },
+      "page_url": "/payment",
+      "viewport_size": [
+        360,
+        800
+      ],
+      "overall_score": 15.0,
+      "issues": [],
+      "recommendations": [],
+      "touch_targets_count": 0,
+      "css_breakpoints_count": 0
+    },
+    {
+      "device": {
+        "name": "Google Pixel",
+        "width": 411,
+        "height": 731,
+        "category": "android_mobile"
+      },
+      "page_url": "/payment",
+      "viewport_size": [
+        411,
+        731
+      ],
+      "overall_score": 15.0,
+      "issues": [],
+      "recommendations": [],
+      "touch_targets_count": 0,
+      "css_breakpoints_count": 0
+    },
+    {
+      "device": {
+        "name": "Budget Android",
+        "width": 320,
+        "height": 640,
+        "category": "budget_mobile"
+      },
+      "page_url": "/payment",
+      "viewport_size": [
+        320,
+        640
+      ],
+      "overall_score": 15.0,
+      "issues": [],
+      "recommendations": [],
+      "touch_targets_count": 0,
+      "css_breakpoints_count": 0
+    },
+    {
+      "device": {
+        "name": "iPad",
+        "width": 768,
+        "height": 1024,
+        "category": "tablet"
+      },
+      "page_url": "/payment",
+      "viewport_size": [
+        768,
+        1024
+      ],
+      "overall_score": 15.0,
+      "issues": [],
+      "recommendations": [],
+      "touch_targets_count": 0,
+      "css_breakpoints_count": 0
+    },
+    {
+      "device": {
+        "name": "iPhone SE",
+        "width": 320,
+        "height": 568,
+        "category": "small_mobile"
+      },
+      "page_url": "/subscription",
+      "viewport_size": [
+        320,
+        568
+      ],
+      "overall_score": 15.0,
+      "issues": [],
+      "recommendations": [],
+      "touch_targets_count": 0,
+      "css_breakpoints_count": 0
+    },
+    {
+      "device": {
+        "name": "iPhone 14",
+        "width": 375,
+        "height": 812,
+        "category": "standard_mobile"
+      },
+      "page_url": "/subscription",
+      "viewport_size": [
+        375,
+        812
+      ],
+      "overall_score": 15.0,
+      "issues": [],
+      "recommendations": [],
+      "touch_targets_count": 0,
+      "css_breakpoints_count": 0
+    },
+    {
+      "device": {
+        "name": "iPhone 14 Plus",
+        "width": 428,
+        "height": 926,
+        "category": "large_mobile"
+      },
+      "page_url": "/subscription",
+      "viewport_size": [
+        428,
+        926
+      ],
+      "overall_score": 15.0,
+      "issues": [],
+      "recommendations": [],
+      "touch_targets_count": 0,
+      "css_breakpoints_count": 0
+    },
+    {
+      "device": {
+        "name": "Samsung Galaxy S21",
+        "width": 360,
+        "height": 800,
+        "category": "android_mobile"
+      },
+      "page_url": "/subscription",
+      "viewport_size": [
+        360,
+        800
+      ],
+      "overall_score": 15.0,
+      "issues": [],
+      "recommendations": [],
+      "touch_targets_count": 0,
+      "css_breakpoints_count": 0
+    },
+    {
+      "device": {
+        "name": "Google Pixel",
+        "width": 411,
+        "height": 731,
+        "category": "android_mobile"
+      },
+      "page_url": "/subscription",
+      "viewport_size": [
+        411,
+        731
+      ],
+      "overall_score": 15.0,
+      "issues": [],
+      "recommendations": [],
+      "touch_targets_count": 0,
+      "css_breakpoints_count": 0
+    },
+    {
+      "device": {
+        "name": "Budget Android",
+        "width": 320,
+        "height": 640,
+        "category": "budget_mobile"
+      },
+      "page_url": "/subscription",
+      "viewport_size": [
+        320,
+        640
+      ],
+      "overall_score": 15.0,
+      "issues": [],
+      "recommendations": [],
+      "touch_targets_count": 0,
+      "css_breakpoints_count": 0
+    },
+    {
+      "device": {
+        "name": "iPad",
+        "width": 768,
+        "height": 1024,
+        "category": "tablet"
+      },
+      "page_url": "/subscription",
+      "viewport_size": [
+        768,
+        1024
+      ],
+      "overall_score": 15.0,
+      "issues": [],
+      "recommendations": [],
+      "touch_targets_count": 0,
+      "css_breakpoints_count": 0
+    }
+  ],
+  "report": {
+    "test_timestamp": "2025-08-31T12:52:32.344879",
+    "total_tests": 49,
+    "devices_tested": [
+      "iPhone 14 Plus",
+      "iPhone 14",
+      "Budget Android",
+      "iPad",
+      "Samsung Galaxy S21",
+      "Google Pixel",
+      "iPhone SE"
+    ],
+    "pages_tested": [
+      "/budget",
+      "/articles",
+      "/payment",
+      "/health",
+      "/assessments",
+      "/subscription",
+      "/profile"
+    ],
+    "overall_average_score": 15.0,
+    "device_performance": {
+      "iPhone 14 Plus": {
+        "average_score": 15.0,
+        "tests_run": 7
+      },
+      "iPhone 14": {
+        "average_score": 15.0,
+        "tests_run": 7
+      },
+      "Budget Android": {
+        "average_score": 15.0,
+        "tests_run": 7
+      },
+      "iPad": {
+        "average_score": 15.0,
+        "tests_run": 7
+      },
+      "Samsung Galaxy S21": {
+        "average_score": 15.0,
+        "tests_run": 7
+      },
+      "Google Pixel": {
+        "average_score": 15.0,
+        "tests_run": 7
+      },
+      "iPhone SE": {
+        "average_score": 15.0,
+        "tests_run": 7
+      }
+    },
+    "page_performance": {
+      "/budget": {
+        "average_score": 15.0,
+        "tests_run": 7
+      },
+      "/articles": {
+        "average_score": 15.0,
+        "tests_run": 7
+      },
+      "/payment": {
+        "average_score": 15.0,
+        "tests_run": 7
+      },
+      "/health": {
+        "average_score": 15.0,
+        "tests_run": 7
+      },
+      "/assessments": {
+        "average_score": 15.0,
+        "tests_run": 7
+      },
+      "/subscription": {
+        "average_score": 15.0,
+        "tests_run": 7
+      },
+      "/profile": {
+        "average_score": 15.0,
+        "tests_run": 7
+      }
+    },
+    "common_issues": [],
+    "critical_issues": [],
+    "recommendations": []
+  }
+}

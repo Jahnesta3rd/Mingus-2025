@@ -139,7 +139,7 @@ const DetailedProfileStep: React.FC<DetailedProfileStepProps> = ({
   return (
     <div className="max-w-2xl mx-auto">
       <div className="text-center mb-8">
-        <h2 className="text-3xl font-bold text-gray-900 mb-4">
+        <h2 className="text-3xl font-bold text-gray-900 mb-4" className="text-2xl font-semibold text-gray-800 mb-4">
           Tell Us More About Your Career
         </h2>
         <p className="text-lg text-gray-600">
@@ -150,7 +150,7 @@ const DetailedProfileStep: React.FC<DetailedProfileStepProps> = ({
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Industry */}
         <div>
-          <label htmlFor="industry" className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="industry" className="block text-base leading-relaxed font-medium text-gray-700 mb-2">
             Industry <span className="text-red-500">*</span>
           </label>
           <select
@@ -179,13 +179,13 @@ const DetailedProfileStep: React.FC<DetailedProfileStepProps> = ({
             <option value="Other">Other</option>
           </select>
           {errors.industry && (
-            <p className="mt-1 text-sm text-red-600">{errors.industry}</p>
+            <p className="mt-1 text-base leading-relaxed text-red-600">{errors.industry}</p>
           )}
         </div>
 
         {/* Current Role */}
         <div>
-          <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="role" className="block text-base leading-relaxed font-medium text-gray-700 mb-2">
             Current Role <span className="text-red-500">*</span>
           </label>
           <input
@@ -200,13 +200,13 @@ const DetailedProfileStep: React.FC<DetailedProfileStepProps> = ({
             required
           />
           {errors.role && (
-            <p className="mt-1 text-sm text-red-600">{errors.role}</p>
+            <p className="mt-1 text-base leading-relaxed text-red-600">{errors.role}</p>
           )}
         </div>
 
         {/* Education */}
         <div>
-          <label htmlFor="education" className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="education" className="block text-base leading-relaxed font-medium text-gray-700 mb-2">
             Highest Education Level <span className="text-red-500">*</span>
           </label>
           <select
@@ -227,13 +227,13 @@ const DetailedProfileStep: React.FC<DetailedProfileStepProps> = ({
             <option value="Professional Certification">Professional Certification</option>
           </select>
           {errors.education && (
-            <p className="mt-1 text-sm text-red-600">{errors.education}</p>
+            <p className="mt-1 text-base leading-relaxed text-red-600">{errors.education}</p>
           )}
         </div>
 
         {/* Years of Experience */}
         <div>
-          <label htmlFor="yearsOfExperience" className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="yearsOfExperience" className="block text-base leading-relaxed font-medium text-gray-700 mb-2">
             Years of Professional Experience <span className="text-red-500">*</span>
           </label>
           <input
@@ -250,13 +250,13 @@ const DetailedProfileStep: React.FC<DetailedProfileStepProps> = ({
             required
           />
           {errors.yearsOfExperience && (
-            <p className="mt-1 text-sm text-red-600">{errors.yearsOfExperience}</p>
+            <p className="mt-1 text-base leading-relaxed text-red-600">{errors.yearsOfExperience}</p>
           )}
         </div>
 
         {/* Company Size */}
         <div>
-          <label htmlFor="companySize" className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="companySize" className="block text-base leading-relaxed font-medium text-gray-700 mb-2">
             Company Size
           </label>
           <select
@@ -277,7 +277,7 @@ const DetailedProfileStep: React.FC<DetailedProfileStepProps> = ({
 
         {/* Target Salary */}
         <div>
-          <label htmlFor="targetSalary" className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="targetSalary" className="block text-base leading-relaxed font-medium text-gray-700 mb-2">
             Target Annual Salary <span className="text-red-500">*</span>
           </label>
           <div className="relative">
@@ -297,16 +297,16 @@ const DetailedProfileStep: React.FC<DetailedProfileStepProps> = ({
             />
           </div>
           {errors.targetSalary && (
-            <p className="mt-1 text-sm text-red-600">{errors.targetSalary}</p>
+            <p className="mt-1 text-base leading-relaxed text-red-600">{errors.targetSalary}</p>
           )}
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-1 text-base leading-relaxed text-gray-500">
             Based on your current salary of ${basicInfo.currentSalary.toLocaleString()}
           </p>
         </div>
 
         {/* Career Goals */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-3">
+          <label className="block text-base leading-relaxed font-medium text-gray-700 mb-3">
             Career Goals (Select all that apply)
           </label>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -318,7 +318,7 @@ const DetailedProfileStep: React.FC<DetailedProfileStepProps> = ({
                   onChange={() => handleCareerGoalToggle(goal)}
                   className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                 />
-                <span className="text-sm text-gray-700">{goal}</span>
+                <span className="text-base leading-relaxed text-gray-700">{goal}</span>
               </label>
             ))}
           </div>
@@ -326,7 +326,7 @@ const DetailedProfileStep: React.FC<DetailedProfileStepProps> = ({
 
         {/* Skills */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-3">
+          <label className="block text-base leading-relaxed font-medium text-gray-700 mb-3">
             Skills You Want to Develop (Select all that apply)
           </label>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -338,7 +338,7 @@ const DetailedProfileStep: React.FC<DetailedProfileStepProps> = ({
                   onChange={() => handleSkillToggle(skill)}
                   className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                 />
-                <span className="text-sm text-gray-700">{skill}</span>
+                <span className="text-base leading-relaxed text-gray-700">{skill}</span>
               </label>
             ))}
           </div>
@@ -346,7 +346,7 @@ const DetailedProfileStep: React.FC<DetailedProfileStepProps> = ({
 
         {/* Preferred Location */}
         <div>
-          <label htmlFor="preferredLocation" className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="preferredLocation" className="block text-base leading-relaxed font-medium text-gray-700 mb-2">
             Preferred Location for Next Role
           </label>
           <select

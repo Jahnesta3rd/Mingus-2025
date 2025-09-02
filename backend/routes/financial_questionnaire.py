@@ -4,6 +4,8 @@ Handles simplified financial assessment for users who choose "Keep It Brief"
 """
 
 from flask import Blueprint, render_template, request, jsonify, session, current_app
+from backend.middleware.auth import require_auth
+
 from loguru import logger
 import json
 from datetime import datetime
@@ -21,6 +23,7 @@ financial_questionnaire_bp = Blueprint('financial_questionnaire', __name__)
 limiter = Limiter(key_func=get_remote_address)
 
 @financial_questionnaire_bp.route('/questionnaire', methods=['GET'])
+@require_auth
 def show_questionnaire():
     """Display the financial wellness questionnaire"""
     try:
@@ -30,6 +33,7 @@ def show_questionnaire():
         return jsonify({'error': 'Failed to load questionnaire'}), 500
 
 @financial_questionnaire_bp.route('/relationship', methods=['GET'])
+@require_auth
 def show_relationship_questionnaire():
     """Display the relationship-spending connection questionnaire"""
     try:
@@ -40,6 +44,7 @@ def show_relationship_questionnaire():
 
 @financial_questionnaire_bp.route('/questionnaire', methods=['POST'])
 @limiter.limit('5 per minute')
+@require_auth
 def submit_questionnaire():
     """Process financial wellness questionnaire submission with email"""
     try:
@@ -297,6 +302,7 @@ def generate_wellness_recommendations(score: int, wellness_level: str) -> list:
     return recommendations[:5]  # Return top 5 recommendations
 
 @financial_questionnaire_bp.route('/questionnaire/results', methods=['GET'])
+@require_auth
 def show_results():
     """Display financial questionnaire results"""
     try:
@@ -310,6 +316,7 @@ def show_results():
         return jsonify({'error': 'Failed to load results'}), 500
 
 @financial_questionnaire_bp.route('/questionnaire/history', methods=['GET'])
+@require_auth
 def questionnaire_history():
     user_id = session.get('user_id')
     if not user_id:
@@ -322,6 +329,7 @@ def questionnaire_history():
         session_db.close()
 
 @financial_questionnaire_bp.route('/admin/analytics', methods=['GET'])
+@require_auth
 def admin_analytics():
     # Example: count brief vs deep, average score, most common goals
     session_db = current_app.config['DATABASE_SESSION']()
@@ -554,6 +562,7 @@ def generate_recommendations(score: int, level: str, monthly_income: float,
     return recommendations 
 
 @financial_questionnaire_bp.route('/relationship', methods=['POST'])
+@require_auth
 def submit_relationship_questionnaire():
     """Submit relationship-spending connection questionnaire"""
     try:

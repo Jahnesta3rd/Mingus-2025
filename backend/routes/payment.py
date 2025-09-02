@@ -16,6 +16,7 @@ Date: January 2025
 """
 
 import os
+from backend.middleware.auth import require_auth
 import logging
 import uuid
 from flask import Blueprint, request, jsonify, current_app
@@ -30,6 +31,7 @@ from ..middleware.auth import require_auth
 from ..utils.auth_decorators import admin_required
 from ..config.stripe import validate_stripe_environment, get_stripe_environment_info
 from ..security.stripe_security import get_stripe_security_manager
+from ..security.financial_csrf_protection import require_payment_csrf, require_subscription_csrf
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -68,6 +70,7 @@ def before_request():
 
 @payment_bp.route('/customers', methods=['POST'])
 @login_required
+@require_payment_csrf
 def create_customer():
     """
     Create a new Stripe customer for the current user.
@@ -257,6 +260,7 @@ def update_my_customer():
 # =====================================================
 
 @payment_bp.route('/subscriptions/tiers', methods=['GET'])
+@require_auth
 def get_subscription_tiers():
     """
     Get all available subscription tiers.
@@ -306,6 +310,7 @@ def get_subscription_tiers():
 
 @payment_bp.route('/subscriptions', methods=['POST'])
 @login_required
+@require_subscription_csrf
 def create_subscription():
     """
     Create a new subscription for the current user.
@@ -469,6 +474,7 @@ def get_subscription(subscription_id: str):
 
 @payment_bp.route('/subscriptions/<subscription_id>', methods=['PUT'])
 @login_required
+@require_subscription_csrf
 def update_subscription(subscription_id: str):
     """
     Update a subscription (change tier or billing cycle).
@@ -536,6 +542,7 @@ def update_subscription(subscription_id: str):
 
 @payment_bp.route('/subscriptions/<subscription_id>/cancel', methods=['POST'])
 @login_required
+@require_subscription_csrf
 def cancel_subscription(subscription_id: str):
     """
     Cancel a subscription.
@@ -595,6 +602,7 @@ def cancel_subscription(subscription_id: str):
 
 @payment_bp.route('/payment-intents', methods=['POST'])
 @login_required
+@require_payment_csrf
 def create_payment_intent():
     """
     Create a payment intent for one-time payments.
@@ -707,6 +715,7 @@ def get_payment_methods():
 
 @payment_bp.route('/payment-methods', methods=['POST'])
 @login_required
+@require_payment_csrf
 def attach_payment_method():
     """
     Attach a payment method to the current user's customer.
@@ -759,6 +768,7 @@ def attach_payment_method():
 
 @payment_bp.route('/payment-methods/<payment_method_id>', methods=['DELETE'])
 @login_required
+@require_payment_csrf
 def detach_payment_method(payment_method_id: str):
     """
     Detach a payment method from the current user's customer.
@@ -1121,6 +1131,7 @@ def handle_portal_return():
 
 @payment_bp.route('/portal/configuration', methods=['GET'])
 @admin_required
+@require_auth
 def get_portal_configurations():
     """
     Get all available Stripe Customer Portal configurations.
@@ -1163,6 +1174,7 @@ def get_portal_configurations():
 
 @payment_bp.route('/portal/configuration', methods=['POST'])
 @admin_required
+@require_auth
 def create_portal_configuration():
     """
     Create a custom Stripe Customer Portal configuration with branding.
@@ -1253,6 +1265,7 @@ def create_portal_configuration():
 
 @payment_bp.route('/portal/configuration/<configuration_id>', methods=['PUT'])
 @admin_required
+@require_auth
 def update_portal_configuration(configuration_id: str):
     """
     Update an existing Stripe Customer Portal configuration.
@@ -1305,6 +1318,7 @@ def update_portal_configuration(configuration_id: str):
 
 @payment_bp.route('/portal/analytics', methods=['GET'])
 @admin_required
+@require_auth
 def get_portal_analytics():
     """
     Get analytics and insights for Stripe Customer Portal usage.
@@ -1418,6 +1432,7 @@ def handle_portal_webhook():
 # =====================================================
 
 @payment_bp.route('/config', methods=['GET'])
+@require_auth
 def get_payment_config():
     """
     Get payment configuration for client-side integration.
@@ -1455,6 +1470,7 @@ def get_payment_config():
 
 @payment_bp.route('/environment', methods=['GET'])
 @admin_required
+@require_auth
 def get_stripe_environment():
     """
     Get Stripe environment information (admin only).
@@ -1492,6 +1508,7 @@ def get_stripe_environment():
 
 @payment_bp.route('/validate', methods=['GET'])
 @admin_required
+@require_auth
 def validate_stripe_setup():
     """
     Validate Stripe configuration (admin only).
@@ -1589,6 +1606,7 @@ def calculate_proration():
 
 @payment_bp.route('/admin/refunds', methods=['POST'])
 @admin_required
+@require_auth
 def create_refund():
     """
     Create a refund for a payment (admin only).

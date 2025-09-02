@@ -51,6 +51,21 @@ class DevelopmentConfig(Config):
         # Security settings for development
         self.WTF_CSRF_ENABLED = False  # Disable CSRF for API testing
         
+        # Content Security Policy (CSP) configuration
+        self.CSP_DIRECTIVES = {
+            'default-src': ["'self'"],
+            'style-src': ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com", "https://fonts.googleapis.com"],
+            'script-src': ["'self'", "'unsafe-inline'", "https://www.googletagmanager.com", "https://www.clarity.ms"],
+            'font-src': ["'self'", "https://cdnjs.cloudflare.com", "https://fonts.gstatic.com"],
+            'img-src': ["'self'", "data:", "https:", "http:"],
+            'connect-src': ["'self'", "https://www.google-analytics.com", "https://www.clarity.ms"],
+            'frame-src': ["'none'"],
+            'object-src': ["'none'"],
+            'base-uri': ["'self'"],
+            'form-action': ["'self'"],
+            'upgrade-insecure-requests': []
+        }
+        
         # Feature flags for development
         self.ENABLE_ONBOARDING = True
         self.ENABLE_USER_PROFILES = True

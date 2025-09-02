@@ -136,8 +136,8 @@ const VerificationStep: React.FC<VerificationStepProps> = ({ userId }) => {
         {/* Progress Header */}
         <div className="bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-lg p-6 mb-6">
           <div className="flex items-center justify-between mb-4">
-            <h1 className="text-xl font-semibold text-[var(--text-primary)]">Verify Your Phone</h1>
-            <span className="text-sm text-[var(--text-muted)]">Step 3 of 7</span>
+            <h1 className="text-xl font-semibold text-[var(--text-primary)]" className="text-4xl font-bold text-gray-900 mb-6">Verify Your Phone</h1>
+            <span className="text-base leading-relaxed text-[var(--text-muted)]">Step 3 of 7</span>
           </div>
           <div className="w-full bg-[var(--border-color)] rounded-full h-2">
             <div className="bg-[var(--accent-green)] h-2 rounded-full" style={{ width: '43%' }}></div>
@@ -147,13 +147,13 @@ const VerificationStep: React.FC<VerificationStepProps> = ({ userId }) => {
         <div className="bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-lg p-6">
           {error && (
             <div className="mb-4 p-3 bg-red-900/20 border border-red-500/30 rounded-lg">
-              <p className="text-red-400 text-sm">{error}</p>
+              <p className="text-red-400 text-base leading-relaxed">{error}</p>
             </div>
           )}
 
           {success && (
             <div className="mb-4 p-3 bg-green-900/20 border border-green-500/30 rounded-lg">
-              <p className="text-green-400 text-sm">Phone verified successfully! Redirecting...</p>
+              <p className="text-green-400 text-base leading-relaxed">Phone verified successfully! Redirecting...</p>
             </div>
           )}
 
@@ -161,10 +161,10 @@ const VerificationStep: React.FC<VerificationStepProps> = ({ userId }) => {
             <div className="space-y-6">
               <div className="text-center">
                 <div className="text-4xl mb-4">📱</div>
-                <h2 className="text-lg font-semibold text-[var(--text-primary)] mb-2">
+                <h2 className="text-lg font-semibold text-[var(--text-primary)] mb-2" className="text-2xl font-semibold text-gray-800 mb-4">
                   Verify Your Phone Number
                 </h2>
-                <p className="text-[var(--text-secondary)] text-sm">
+                <p className="text-[var(--text-secondary)] text-base leading-relaxed">
                   We'll send you a verification code to secure your account
                 </p>
               </div>
@@ -207,10 +207,10 @@ const VerificationStep: React.FC<VerificationStepProps> = ({ userId }) => {
             <div className="space-y-6">
               <div className="text-center">
                 <div className="text-4xl mb-4">🔐</div>
-                <h2 className="text-lg font-semibold text-[var(--text-primary)] mb-2">
+                <h2 className="text-lg font-semibold text-[var(--text-primary)] mb-2" className="text-2xl font-semibold text-gray-800 mb-4">
                   Enter Verification Code
                 </h2>
-                <p className="text-[var(--text-secondary)] text-sm">
+                <p className="text-[var(--text-secondary)] text-base leading-relaxed">
                   We sent a 6-digit code to {phoneNumber}
                 </p>
               </div>
@@ -258,7 +258,7 @@ const VerificationStep: React.FC<VerificationStepProps> = ({ userId }) => {
 
         {/* Help Text */}
         <div className="mt-4 text-center">
-          <p className="text-[var(--text-muted)] text-xs">
+          <p className="text-[var(--text-muted)] text-base leading-relaxed">
             Your phone number helps us keep your account secure and send important updates
           </p>
         </div>

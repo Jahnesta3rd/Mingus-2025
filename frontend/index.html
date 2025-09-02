@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="stylesheet" href="touch_target_optimization.css">
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -279,6 +281,15 @@
     <link rel="stylesheet" href="/src/css/style.css" media="print" onload="this.media='all'">
     <noscript><link rel="stylesheet" href="/src/css/style.css"></noscript>
     
+    <!-- Touch Interaction Styles -->
+    <link rel="stylesheet" href="/src/css/touch-interactions.css">
+    
+    <!-- Mobile Responsive Fixes - Critical for mobile functionality -->
+    <link rel="stylesheet" href="mobile_responsive_fixes.css">
+    
+    <!-- Accessibility Styles - WCAG 2.1 AA Compliance -->
+    <link rel="stylesheet" href="accessibility_styles.css">
+    
     <!-- Schema.org structured data -->
     <script type="application/ld+json">
     {
@@ -329,12 +340,12 @@
             
             <div class="user-menu">
                 <span id="username" aria-label="Current user">Guest</span>
-                <button id="loginBtn" class="btn btn-primary" aria-label="Login to your account">
+                <button id="loginBtn" class="btn btn-primary btn-cta btn-primary" aria-label="Login to your account">
                     Login
                 </button>
             </div>
             
-            <button class="mobile-menu-btn" aria-label="Toggle mobile menu" aria-expanded="false">
+            <button class="mobile-menu-btn btn-cta btn-primary" aria-label="Toggle mobile menu" aria-expanded="false" aria-controls="nav-links">
                 <span class="menu-icon">☰</span>
             </button>
         </nav>
@@ -396,7 +407,7 @@
         <div class="error-content">
             <h2>Something went wrong</h2>
             <p>We're sorry, but something unexpected happened. Please try refreshing the page.</p>
-            <button class="btn btn-primary" onclick="location.reload()">Refresh Page</button>
+            <button class="btn btn-primary btn-cta btn-primary" onclick="location.reload()">Refresh Page</button>
         </div>
     </div>
 
@@ -409,12 +420,24 @@
     <script src="/src/js/components.js"></script>
     <script src="/src/js/app.js"></script>
     
+    <!-- Touch Interaction Systems -->
+    <script src="/src/js/touch-interactions.js"></script>
+    <script src="/src/js/gesture-system.js"></script>
+    <script src="/src/js/mobile-design-patterns.js"></script>
+    <script src="/src/js/touch-accessibility.js"></script>
+    
+    <!-- Mobile Navigation and Responsive Functionality -->
+    <script src="mobile_navigation.js"></script>
+    
     <!-- Analytics Configuration -->
     <script src="/src/js/analytics-config.js"></script>
     
     <!-- Enhanced Analytics (load asynchronously) -->
     <script src="/src/js/analytics-enhanced.js" async></script>
     <script src="/src/js/analytics-integration.js" async></script>
+    
+    <!-- Accessibility Enhancements - WCAG 2.1 AA Compliance -->
+    <script src="accessibility_enhancements.js"></script>
     
     <!-- Service Worker registration -->
     <script>

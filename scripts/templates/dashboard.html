@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="stylesheet" href="touch_target_optimization.css">
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mingus Domain Approval Interface - Step 3</title>
@@ -620,12 +622,12 @@
                         </div>
                         <p class="text-muted small mb-3">{{ action.description }}</p>
                         <div class="d-flex gap-2">
-                            <button class="btn btn-sm {{ 'btn-approve' if 'approve' in action.action.lower() else 'btn-reject' }}"
+                            <button class="btn btn-sm {{ 'btn-approve' if 'approve' in action.action.lower() else 'btn-reject' }} btn-cta btn-primary"
                                     onclick="executeBulkAction('{{ action_id }}', '{{ 'approved' if 'approve' in action.action.lower() else 'rejected' }}')">
                                 <i class="fas {{ 'fa-check' if 'approve' in action.action.lower() else 'fa-times' }}"></i>
                                 Execute
                             </button>
-                            <button class="btn btn-sm btn-preview" onclick="previewBulkAction('{{ action_id }}')">
+                            <button class="btn btn-sm btn-preview btn-cta btn-primary" onclick="previewBulkAction('{{ action_id }}')">
                                 <i class="fas fa-eye"></i> Preview
                             </button>
                         </div>
@@ -640,10 +642,10 @@
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h5 class="mb-0"><i class="fas fa-list"></i> Domain Review Queue</h5>
                 <div class="d-flex gap-2">
-                    <button class="btn btn-sm btn-preview" onclick="loadMoreDomains()">
+                    <button class="btn btn-sm btn-preview btn-cta btn-primary" onclick="loadMoreDomains()">
                         <i class="fas fa-sync"></i> Load More
                     </button>
-                    <button class="btn btn-sm btn-undo" onclick="undoLastDecision()">
+                    <button class="btn btn-sm btn-undo btn-cta btn-primary" onclick="undoLastDecision()">
                         <i class="fas fa-undo"></i> Undo Last
                     </button>
                 </div>
@@ -736,16 +738,16 @@
                     </div>
                     
                     <div class="domain-actions">
-                        <button class="btn btn-approve" onclick="approveDomain('{{ domain.domain }}')">
+                        <button class="btn btn-approve btn-cta btn-primary" onclick="approveDomain('{{ domain.domain }}')">
                             <i class="fas fa-check"></i> Approve
                         </button>
-                        <button class="btn btn-reject" onclick="rejectDomain('{{ domain.domain }}')">
+                        <button class="btn btn-reject btn-cta btn-primary" onclick="rejectDomain('{{ domain.domain }}')">
                             <i class="fas fa-times"></i> Reject
                         </button>
-                        <button class="btn btn-review" onclick="reviewLater('{{ domain.domain }}')">
+                        <button class="btn btn-review btn-cta btn-primary" onclick="reviewLater('{{ domain.domain }}')">
                             <i class="fas fa-clock"></i> Review Later
                         </button>
-                        <button class="btn btn-preview" onclick="previewDomain('{{ domain.domain }}')">
+                        <button class="btn btn-preview btn-cta btn-primary" onclick="previewDomain('{{ domain.domain }}')">
                             <i class="fas fa-external-link-alt"></i> Preview
                         </button>
                     </div>
@@ -762,10 +764,10 @@
     
     <!-- Floating Actions -->
     <div class="floating-actions">
-        <button class="floating-btn export" onclick="exportDecisions()" title="Export Approved Domains">
+        <button class="floating-btn export btn-cta btn-primary" onclick="exportDecisions()" title="Export Approved Domains">
             <i class="fas fa-download"></i>
         </button>
-        <button class="floating-btn stats" onclick="showStats()" title="Session Statistics">
+        <button class="floating-btn stats btn-cta btn-primary" onclick="showStats()" title="Session Statistics">
             <i class="fas fa-chart-bar"></i>
         </button>
     </div>
@@ -997,16 +999,16 @@
                 </div>
                 
                 <div class="domain-actions">
-                    <button class="btn btn-approve" onclick="approveDomain('${domain.domain}')">
+                    <button class="btn btn-approve btn-cta btn-primary" onclick="approveDomain('${domain.domain}')">
                         <i class="fas fa-check"></i> Approve
                     </button>
-                    <button class="btn btn-reject" onclick="rejectDomain('${domain.domain}')">
+                    <button class="btn btn-reject btn-cta btn-primary" onclick="rejectDomain('${domain.domain}')">
                         <i class="fas fa-times"></i> Reject
                     </button>
-                    <button class="btn btn-review" onclick="reviewLater('${domain.domain}')">
+                    <button class="btn btn-review btn-cta btn-primary" onclick="reviewLater('${domain.domain}')">
                         <i class="fas fa-clock"></i> Review Later
                     </button>
-                    <button class="btn btn-preview" onclick="previewDomain('${domain.domain}')">
+                    <button class="btn btn-preview btn-cta btn-primary" onclick="previewDomain('${domain.domain}')">
                         <i class="fas fa-external-link-alt"></i> Preview
                     </button>
                 </div>

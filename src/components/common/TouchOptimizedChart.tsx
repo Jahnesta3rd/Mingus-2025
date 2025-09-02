@@ -76,8 +76,8 @@ const TouchOptimizedChart: React.FC<TouchOptimizedChartProps> = ({
           onClick={() => handleClick(index)}
         >
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-gray-700">{item.label}</span>
-            <span className="text-sm text-gray-500">
+            <span className="text-base leading-relaxed font-medium text-gray-700">{item.label}</span>
+            <span className="text-base leading-relaxed text-gray-500">
               ${item.value.toLocaleString()}
             </span>
           </div>
@@ -94,7 +94,7 @@ const TouchOptimizedChart: React.FC<TouchOptimizedChartProps> = ({
             />
             {activeIndex === index && (
               <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-xs font-semibold text-white drop-shadow">
+                <span className="text-base leading-relaxed font-semibold text-white drop-shadow">
                   {((item.value / maxValue) * 100).toFixed(0)}%
                 </span>
               </div>
@@ -174,8 +174,8 @@ const TouchOptimizedChart: React.FC<TouchOptimizedChartProps> = ({
                 className="w-4 h-4 rounded-full"
                 style={{ backgroundColor: item.color }}
               />
-              <span className="text-sm font-medium">{item.label}</span>
-              <span className="text-sm text-gray-500 ml-auto">
+              <span className="text-base leading-relaxed font-medium">{item.label}</span>
+              <span className="text-base leading-relaxed text-gray-500 ml-auto">
                 ${item.value.toLocaleString()}
               </span>
             </div>
@@ -198,8 +198,8 @@ const TouchOptimizedChart: React.FC<TouchOptimizedChartProps> = ({
           onClick={() => handleClick(index)}
         >
           <div className="flex justify-between items-center mb-2">
-            <span className="text-sm font-medium text-gray-700">{item.label}</span>
-            <span className="text-sm text-gray-500">
+            <span className="text-base leading-relaxed font-medium text-gray-700">{item.label}</span>
+            <span className="text-base leading-relaxed text-gray-500">
               {item.percentage || ((item.value / maxValue) * 100).toFixed(1)}%
             </span>
           </div>
@@ -255,7 +255,7 @@ const TouchOptimizedChart: React.FC<TouchOptimizedChartProps> = ({
       </div>
       
       {/* Labels */}
-      <div className="flex justify-between text-xs text-gray-500">
+      <div className="flex justify-between text-base leading-relaxed text-gray-500">
         {data.map((item, index) => (
           <div
             key={index}
@@ -295,9 +295,9 @@ const TouchOptimizedChart: React.FC<TouchOptimizedChartProps> = ({
     <div className={`bg-white rounded-lg p-6 shadow-sm ${className}`}>
       {title && (
         <div className="mb-4">
-          <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
+          <h3 className="text-lg font-semibold text-gray-900" className="text-xl font-semibold text-gray-800 mb-3">{title}</h3>
           {subtitle && (
-            <p className="text-sm text-gray-600 mt-1">{subtitle}</p>
+            <p className="text-base leading-relaxed text-gray-600 mt-1">{subtitle}</p>
           )}
         </div>
       )}

@@ -313,7 +313,7 @@ export const VerificationCodeInput: React.FC<VerificationCodeInputProps> = ({
       {error && (
         <div 
           id={errorId}
-          className="absolute top-full left-0 right-0 mt-2 text-sm text-red-500 text-center"
+          className="absolute top-full left-0 right-0 mt-2 text-base leading-relaxed text-red-500 text-center"
           role="alert"
           aria-live="polite"
         >
@@ -324,7 +324,7 @@ export const VerificationCodeInput: React.FC<VerificationCodeInputProps> = ({
       {/* Helper Text */}
       <div 
         id={descriptionId}
-        className="absolute top-full left-0 right-0 mt-8 text-xs text-gray-400 text-center"
+        className="absolute top-full left-0 right-0 mt-8 text-base leading-relaxed text-gray-400 text-center"
       >
         Enter the {length}-digit verification code sent to your device
       </div>

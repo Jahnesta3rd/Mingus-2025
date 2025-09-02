@@ -82,7 +82,7 @@ const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
   return (
     <div className="max-w-2xl mx-auto">
       <div className="text-center mb-8">
-        <h2 className="text-3xl font-bold text-gray-900 mb-4">
+        <h2 className="text-3xl font-bold text-gray-900 mb-4" className="text-2xl font-semibold text-gray-800 mb-4">
           Let's Get Started
         </h2>
         <p className="text-lg text-gray-600">
@@ -94,7 +94,7 @@ const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
         {/* Name Fields */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="firstName" className="block text-base leading-relaxed font-medium text-gray-700 mb-2">
               First Name
             </label>
             <input
@@ -107,7 +107,7 @@ const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
             />
           </div>
           <div>
-            <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="lastName" className="block text-base leading-relaxed font-medium text-gray-700 mb-2">
               Last Name
             </label>
             <input
@@ -123,7 +123,7 @@ const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
 
         {/* Email Field */}
         <div>
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="email" className="block text-base leading-relaxed font-medium text-gray-700 mb-2">
             Email Address <span className="text-red-500">*</span>
           </label>
           <input
@@ -138,13 +138,13 @@ const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
             required
           />
           {errors.email && (
-            <p className="mt-1 text-sm text-red-600">{errors.email}</p>
+            <p className="mt-1 text-base leading-relaxed text-red-600">{errors.email}</p>
           )}
         </div>
 
         {/* Phone Field */}
         <div>
-          <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="phone" className="block text-base leading-relaxed font-medium text-gray-700 mb-2">
             Phone Number (Optional)
           </label>
           <input
@@ -159,7 +159,7 @@ const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
 
         {/* Current Salary Field */}
         <div>
-          <label htmlFor="currentSalary" className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="currentSalary" className="block text-base leading-relaxed font-medium text-gray-700 mb-2">
             Current Annual Salary <span className="text-red-500">*</span>
           </label>
           <div className="relative">
@@ -179,16 +179,16 @@ const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
             />
           </div>
           {errors.currentSalary && (
-            <p className="mt-1 text-sm text-red-600">{errors.currentSalary}</p>
+            <p className="mt-1 text-base leading-relaxed text-red-600">{errors.currentSalary}</p>
           )}
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-1 text-base leading-relaxed text-gray-500">
             This helps us provide accurate salary comparisons
           </p>
         </div>
 
         {/* Location Field */}
         <div>
-          <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="location" className="block text-base leading-relaxed font-medium text-gray-700 mb-2">
             Location <span className="text-red-500">*</span>
           </label>
           <select
@@ -410,7 +410,7 @@ const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
             <option value="Other">Other</option>
           </select>
           {errors.location && (
-            <p className="mt-1 text-sm text-red-600">{errors.location}</p>
+            <p className="mt-1 text-base leading-relaxed text-red-600">{errors.location}</p>
           )}
         </div>
 
@@ -434,13 +434,13 @@ const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
 
         {/* Privacy Notice */}
         <div className="text-center">
-          <p className="text-sm text-gray-500">
+          <p className="text-base leading-relaxed text-gray-500">
             By continuing, you agree to our{' '}
-            <a href="/privacy" className="text-blue-600 hover:underline">
+            <a text-blue-600 hover:underline className="text-blue-600 hover:underline font-medium text-base">
               Privacy Policy
             </a>{' '}
             and{' '}
-            <a href="/terms" className="text-blue-600 hover:underline">
+            <a text-blue-600 hover:underline className="text-blue-600 hover:underline font-medium text-base">
               Terms of Service
             </a>
           </p>

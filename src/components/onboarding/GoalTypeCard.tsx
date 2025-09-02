@@ -41,12 +41,12 @@ const GoalTypeCard: React.FC<GoalTypeCardProps> = ({
       {/* Title */}
       <h3 className={`text-lg font-semibold mb-2 ${
         selected ? 'text-blue-900' : 'text-gray-900'
-      }`}>
+      }`} className="text-xl font-semibold text-gray-800 mb-3">
         {name}
       </h3>
 
       {/* Description */}
-      <p className={`text-sm mb-4 ${
+      <p className={`text-base leading-relaxed mb-4 ${
         selected ? 'text-blue-700' : 'text-gray-600'
       }`}>
         {description}
@@ -57,7 +57,7 @@ const GoalTypeCard: React.FC<GoalTypeCardProps> = ({
         {examples.map((example, index) => (
           <div
             key={index}
-            className={`text-xs px-2 py-1 rounded-full ${
+            className={`text-base leading-relaxed px-2 py-1 rounded-full ${
               selected
                 ? 'bg-blue-100 text-blue-800'
                 : 'bg-gray-100 text-gray-600'

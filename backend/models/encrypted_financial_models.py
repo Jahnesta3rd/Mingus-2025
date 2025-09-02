@@ -1,20 +1,18 @@
 """
-Encrypted Financial Models
-Provides field-level encryption for sensitive financial data using django-encrypted-model-fields
+Encrypted Financial Profile Models
+Stores encrypted financial data with AES-256 encryption
 """
 
 import uuid
 import os
 from datetime import datetime
 from typing import Optional, Dict, Any
-from sqlalchemy import Column, String, Integer, DateTime, Boolean, ForeignKey, Text, DECIMAL
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.sql import func
+from sqlalchemy import Column, String, DateTime, Text, Boolean, ForeignKey, Integer, DECIMAL
 from sqlalchemy.orm import relationship
+from sqlalchemy.sql import func
+from .base import Base
 from cryptography.fernet import Fernet
 import base64
-
-Base = declarative_base()
 
 # Encryption key management
 def get_encryption_key():

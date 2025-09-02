@@ -35,7 +35,7 @@
                     <label for="category" class="form-label">
                         <i class="fas fa-tags me-1"></i>Category <span class="text-danger">*</span>
                     </label>
-                    <select class="form-select" id="category" name="category" required>
+                    <select class="form-select" id="category" name="category" required class="form-input">
                         <option value="">Select a category...</option>
                         {% for category in categories %}
                         <option value="{{ category }}">{{ category|replace('_', ' ')|title }}</option>
@@ -52,7 +52,7 @@
                         <i class="fas fa-comment me-1"></i>Caption <span class="text-danger">*</span>
                     </label>
                     <textarea class="form-control" id="caption" name="caption" rows="3" 
-                              placeholder="Enter the meme caption..." required></textarea>
+                              placeholder="Enter the meme caption..." required class="form-input"></textarea>
                     <div class="form-text">
                         The main text that appears with the meme
                     </div>
@@ -64,7 +64,7 @@
                         <i class="fas fa-universal-access me-1"></i>Alt Text <span class="text-danger">*</span>
                     </label>
                     <textarea class="form-control" id="alt_text" name="alt_text" rows="2" 
-                              placeholder="Describe the image for accessibility..." required></textarea>
+                              placeholder="Describe the image for accessibility..." required class="form-input"></textarea>
                     <div class="form-text">
                         Description of the image for screen readers and accessibility
                     </div>
@@ -75,7 +75,7 @@
                     <label for="priority" class="form-label">
                         <i class="fas fa-star me-1"></i>Priority
                     </label>
-                    <select class="form-select" id="priority" name="priority">
+                    <select class="form-select" id="priority" name="priority" class="form-input">
                         <option value="1">1 - Low Priority</option>
                         <option value="2">2</option>
                         <option value="3">3</option>
@@ -98,7 +98,7 @@
                         <i class="fas fa-hashtag me-1"></i>Tags
                     </label>
                     <input type="text" class="form-control" id="tags" name="tags" 
-                           placeholder="Enter tags separated by commas...">
+                           placeholder="Enter tags separated by commas..." class="form-input">
                     <div class="form-text">
                         Optional tags for better categorization (e.g., "funny, finance, motivation")
                     </div>
@@ -110,7 +110,7 @@
                         <i class="fas fa-user me-1"></i>Source Attribution
                     </label>
                     <input type="text" class="form-control" id="source_attribution" name="source_attribution" 
-                           placeholder="Credit to original creator (optional)">
+                           placeholder="Credit to original creator (optional)" class="form-input">
                     <div class="form-text">
                         Credit the original creator if applicable
                     </div>
@@ -122,7 +122,7 @@
                         <i class="fas fa-sticky-note me-1"></i>Admin Notes
                     </label>
                     <textarea class="form-control" id="admin_notes" name="admin_notes" rows="3" 
-                              placeholder="Internal notes for admin use..."></textarea>
+                              placeholder="Internal notes for admin use..." class="form-input"></textarea>
                     <div class="form-text">
                         Internal notes not visible to users
                     </div>
@@ -146,7 +146,7 @@
                     <a href="{{ url_for('meme_admin.index') }}" class="btn btn-outline-secondary">
                         <i class="fas fa-times me-1"></i>Cancel
                     </a>
-                    <button type="submit" class="btn btn-success">
+                    <button type="submit" class="btn btn-success btn-cta btn-primary">
                         <i class="fas fa-save me-1"></i>Create Meme
                     </button>
                 </div>

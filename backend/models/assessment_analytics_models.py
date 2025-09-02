@@ -259,7 +259,7 @@ class RealTimeMetrics(Base):
     last_updated = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
     
     # Additional context
-    metadata = Column(JSONB, default={})
+    metric_metadata = Column(JSONB, default={})
     
     def __repr__(self):
         return f'<RealTimeMetrics {self.metric_type}:{self.value}:{self.period_start}>'

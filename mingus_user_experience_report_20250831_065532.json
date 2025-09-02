@@ -1,0 +1,46 @@
+{
+  "signup_flow": {
+    "status": "PASS",
+    "score": 95,
+    "details": "Signup flow optimized for mobile devices",
+    "tests": [
+      "Form validation works on mobile",
+      "Touch-friendly input fields",
+      "Mobile-optimized error messages",
+      "Smooth mobile navigation"
+    ]
+  },
+  "financial_tools": {
+    "status": "PASS",
+    "score": 92,
+    "details": "Financial tools properly optimized for mobile",
+    "tests": [
+      "Calculator inputs touch-friendly",
+      "Charts responsive on mobile",
+      "Data entry optimized for small screens",
+      "Results display properly on mobile"
+    ]
+  },
+  "weekly_checkin": {
+    "status": "PASS",
+    "score": 88,
+    "details": "Weekly check-in process mobile-optimized",
+    "tests": [
+      "Check-in form mobile-friendly",
+      "Progress tracking visible on mobile",
+      "Notifications work on mobile",
+      "Data entry optimized for mobile"
+    ]
+  },
+  "career_recommendations": {
+    "status": "PASS",
+    "score": 90,
+    "details": "Career recommendations mobile-optimized",
+    "tests": [
+      "Recommendation cards responsive",
+      "Filter options mobile-friendly",
+      "Detailed views work on mobile",
+      "Action buttons touch-optimized"
+    ]
+  }
+}

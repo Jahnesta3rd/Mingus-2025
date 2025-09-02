@@ -100,15 +100,15 @@ const OnboardingNavigation: React.FC<OnboardingNavigationProps> = ({
     <div className="space-y-4">
       {error && (
         <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-          <p className="text-red-600 text-sm">{error}</p>
+          <p className="text-red-600 text-base leading-relaxed">{error}</p>
         </div>
       )}
 
       {showProgress && (
         <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-medium text-gray-700">Onboarding Progress</h3>
-            <span className="text-sm text-gray-500">
+            <h3 className="text-base leading-relaxed font-medium text-gray-700" className="text-xl font-semibold text-gray-800 mb-3">Onboarding Progress</h3>
+            <span className="text-base leading-relaxed text-gray-500">
               {steps.filter(s => s.completed).length} of {steps.length} steps
             </span>
           </div>
@@ -131,7 +131,7 @@ const OnboardingNavigation: React.FC<OnboardingNavigationProps> = ({
             ))}
           </div>
 
-          <div className="flex justify-between text-xs text-gray-500">
+          <div className="flex justify-between text-base leading-relaxed text-gray-500">
             <span>{getCurrentStepInfo()?.displayName}</span>
             {getNextStepInfo() && (
               <span>Next: {getNextStepInfo()?.displayName}</span>

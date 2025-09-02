@@ -8,7 +8,7 @@ from backend.models.user import User
 from backend.models.user_goals import UserGoals
 from backend.models.user_preferences import UserPreferences
 from backend.models.reminder_schedule import ReminderSchedule
-from backend.models import db_session
+from backend.database import get_db_session
 from backend.services.health_reminder_service import HealthReminderService
 from backend.services.email_service import EmailService
 
@@ -32,6 +32,7 @@ def get_completion_data(user_id: str):
             return jsonify({'error': 'Unauthorized access'}), 403
 
         # Get user data
+        db_session = get_db_session()
         user = db_session.query(User).filter(User.id == current_user.id).first()
         if not user:
             return jsonify({'error': 'User not found'}), 404
@@ -82,6 +83,7 @@ def get_completion_data(user_id: str):
 def schedule_first_checkin():
     """Schedule the user's first weekly check-in reminder."""
     try:
+        db_session = get_db_session()
         data = request.get_json()
         user_id = data.get('user_id')
         preferences = data.get('preferences', {})
@@ -179,6 +181,7 @@ def schedule_first_checkin():
 def save_engagement_preferences():
     """Save user engagement preferences."""
     try:
+        db_session = get_db_session()
         data = request.get_json()
         user_id = data.get('user_id')
         preferences = data.get('preferences', {})
@@ -219,6 +222,7 @@ def save_engagement_preferences():
 def mark_onboarding_complete():
     """Mark onboarding as complete and trigger welcome sequence."""
     try:
+        db_session = get_db_session()
         data = request.get_json()
         user_id = data.get('user_id')
         completed_at = data.get('completed_at')
@@ -303,6 +307,7 @@ def get_mobile_app_info():
 def get_community_stats():
     """Get community statistics for engagement motivation."""
     try:
+        db_session = get_db_session()
         # Get real community stats from database
         total_users = db_session.query(User).count()
         active_users = db_session.query(User).filter(
@@ -364,6 +369,7 @@ def send_welcome_email():
 def create_first_checkin_reminder():
     """Create the first check-in reminder."""
     try:
+        db_session = get_db_session()
         data = request.get_json()
         user_id = data.get('user_id')
         scheduled_date = data.get('scheduled_date')

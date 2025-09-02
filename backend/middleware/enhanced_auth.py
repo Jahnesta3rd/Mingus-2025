@@ -1,384 +1,427 @@
 #!/usr/bin/env python3
 """
-Enhanced Authentication Middleware for MINGUS Assessment System
-Integrates secure JWT validation, brute force protection, and session security
+Enhanced Authentication Middleware
+Provides authentication decorators with email verification integration
 """
 
-import logging
 from functools import wraps
-from flask import request, jsonify, current_app, g, session
-from typing import Optional, Dict, Any
+from flask import request, jsonify, session, current_app, g
+from loguru import logger
+from typing import Optional, Callable, Any
+import re
 
-# Import security components
-from backend.security.secure_jwt_manager import get_jwt_manager
-from backend.security.brute_force_protection import get_brute_force_protection
-from backend.security.secure_session_manager import get_session_manager
-
-logger = logging.getLogger(__name__)
-
-def require_auth(f):
-    """Enhanced authentication decorator with security features"""
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        try:
-            # Get security components
-            jwt_manager = get_jwt_manager()
-            brute_force_protection = get_brute_force_protection()
-            session_manager = get_session_manager()
-            
-            # Check for JWT token first (preferred method)
-            auth_header = request.headers.get('Authorization')
-            token = None
-            session_id = None
-            
-            if auth_header and auth_header.startswith('Bearer '):
-                token = auth_header[7:]
-                
-                # Validate JWT token with enhanced security
-                jwt_result = jwt_manager.validate_secure_token(token)
-                
-                if jwt_result.get('valid'):
-                    payload = jwt_result['payload']
-                    user_id = payload.get('sub')
-                    
-                    # Check for token rotation
-                    if jwt_result.get('rotation_needed'):
-                        # Create new token
-                        new_token = jwt_manager.refresh_token(token)
-                        if new_token:
-                            # Add new token to response headers
-                            g.new_token = new_token
-                    
-                    # Set user context
-                    g.current_user_id = user_id
-                    g.auth_method = 'jwt'
-                    g.token_payload = payload
-                    
-                    logger.debug(f"JWT authentication successful for user {user_id}")
-                    return f(*args, **kwargs)
-                else:
-                    logger.warning(f"JWT validation failed: {jwt_result.get('reason')}")
-            
-            # Check for session-based authentication
-            session_id = request.cookies.get('session_id') or request.headers.get('X-Session-ID')
-            
-            if session_id:
-                session_result = session_manager.validate_session(session_id)
-                
-                if session_result.get('valid'):
-                    session_data = session_result['session']
-                    user_id = session_data.user_id
-                    
-                    # Set user context
-                    g.current_user_id = user_id
-                    g.auth_method = 'session'
-                    g.session_data = session_data
-                    
-                    logger.debug(f"Session authentication successful for user {user_id}")
-                    return f(*args, **kwargs)
-                else:
-                    logger.warning(f"Session validation failed: {session_result.get('reason')}")
-            
-            # No valid authentication found
-            logger.error("No valid authentication found")
-            return jsonify({"error": "Authentication required"}), 401
-            
-        except Exception as e:
-            logger.error(f"Authentication error: {str(e)}")
-            return jsonify({"error": "Authentication failed"}), 401
+def login_required(f: Callable) -> Callable:
+    """
+    Decorator to require user authentication
     
-    return decorated
-
-def require_assessment_auth(f):
-    """Enhanced authentication decorator specifically for assessment endpoints"""
+    Args:
+        f: Function to decorate
+        
+    Returns:
+        Decorated function with authentication check
+    """
     @wraps(f)
-    def decorated(*args, **kwargs):
+    def decorated_function(*args, **kwargs):
         try:
-            # First, require basic authentication
-            auth_result = require_auth(lambda: None)()
-            if hasattr(auth_result, 'status_code') and auth_result.status_code == 401:
-                return auth_result
+            # Check if user is authenticated via session
+            user_id = session.get('user_id')
             
-            # Get security components
-            brute_force_protection = get_brute_force_protection()
-            
-            # Get assessment ID from request
-            assessment_id = request.args.get('assessment_id') or \
-                          request.json.get('assessment_id') if request.is_json else None
-            
-            if not assessment_id:
-                return jsonify({"error": "Assessment ID required"}), 400
-            
-            # Check assessment submission protection
-            user_id = g.current_user_id
-            protection_result = brute_force_protection.check_assessment_submission_protection(
-                user_id, assessment_id
-            )
-            
-            if not protection_result.get('allowed'):
+            if not user_id:
                 return jsonify({
-                    "error": "Assessment submission temporarily blocked",
-                    "reason": protection_result.get('reason'),
-                    "retry_after": protection_result.get('retry_after')
-                }), 429
+                    'error': 'Authentication required',
+                    'code': 'AUTH_REQUIRED'
+                }), 401
             
-            # Set assessment context
-            g.assessment_id = assessment_id
-            g.assessment_attempts = protection_result.get('attempts', 0)
+            # Get user from database to verify session validity
+            user = current_app.user_service.get_user_by_id(user_id)
+            if not user:
+                # Clear invalid session
+                session.clear()
+                return jsonify({
+                    'error': 'Invalid session',
+                    'code': 'INVALID_SESSION'
+                }), 401
+            
+            # Store user in Flask g for access in route handlers
+            g.current_user = user
+            g.user_id = user_id
             
             return f(*args, **kwargs)
             
         except Exception as e:
-            logger.error(f"Assessment authentication error: {str(e)}")
-            return jsonify({"error": "Assessment authentication failed"}), 401
+            logger.error(f"Authentication error: {e}")
+            return jsonify({
+                'error': 'Authentication failed',
+                'code': 'AUTH_ERROR'
+            }), 500
     
-    return decorated
+    return decorated_function
 
-def require_secure_auth(f):
-    """Enhanced authentication decorator with additional security checks"""
+def email_verification_required(f: Callable) -> Callable:
+    """
+    Decorator to require email verification
+    
+    Args:
+        f: Function to decorate
+        
+    Returns:
+        Decorated function with email verification check
+    """
     @wraps(f)
-    def decorated(*args, **kwargs):
+    def decorated_function(*args, **kwargs):
         try:
-            # First, require basic authentication
-            auth_result = require_auth(lambda: None)()
-            if hasattr(auth_result, 'status_code') and auth_result.status_code == 401:
-                return auth_result
-            
-            # Get security components
-            jwt_manager = get_jwt_manager()
-            brute_force_protection = get_brute_force_protection()
-            
-            user_id = g.current_user_id
-            
-            # Check for suspicious activity
-            suspicious_activity = brute_force_protection.get_suspicious_activity(hours=1)
-            user_suspicious = [event for event in suspicious_activity 
-                             if event.get('identifier') == user_id]
-            
-            if user_suspicious:
-                logger.warning(f"Suspicious activity detected for user {user_id}")
+            # First check authentication
+            user_id = session.get('user_id')
+            if not user_id:
                 return jsonify({
-                    "error": "Suspicious activity detected",
-                    "message": "Please contact support for assistance"
+                    'error': 'Authentication required',
+                    'code': 'AUTH_REQUIRED'
+                }), 401
+            
+            # Get user from database
+            user = current_app.user_service.get_user_by_id(user_id)
+            if not user:
+                session.clear()
+                return jsonify({
+                    'error': 'Invalid session',
+                    'code': 'INVALID_SESSION'
+                }), 401
+            
+            # Check if email is verified
+            if not user.get('email_verified'):
+                return jsonify({
+                    'error': 'Email verification required',
+                    'code': 'EMAIL_VERIFICATION_REQUIRED',
+                    'message': 'Please verify your email address to access this feature'
                 }), 403
             
-            # Additional security checks can be added here
-            # For example, check if user's account is flagged, etc.
+            # Store user in Flask g
+            g.current_user = user
+            g.user_id = user_id
             
             return f(*args, **kwargs)
             
         except Exception as e:
-            logger.error(f"Secure authentication error: {str(e)}")
-            return jsonify({"error": "Secure authentication failed"}), 401
+            logger.error(f"Email verification check error: {e}")
+            return jsonify({
+                'error': 'Verification check failed',
+                'code': 'VERIFICATION_ERROR'
+            }), 500
     
-    return decorated
+    return decorated_function
 
-def get_current_user_id() -> Optional[str]:
-    """Get the current user ID from authentication context"""
-    try:
-        if hasattr(g, 'current_user_id'):
-            return g.current_user_id
-        
-        # Fallback to session
-        return session.get('user_id')
-        
-    except Exception as e:
-        logger.error(f"Error getting current user ID: {str(e)}")
-        return None
-
-def get_current_user_info() -> Optional[Dict[str, Any]]:
-    """Get current user information from authentication context"""
-    try:
-        user_info = {}
-        
-        if hasattr(g, 'current_user_id'):
-            user_info['user_id'] = g.current_user_id
-            user_info['auth_method'] = getattr(g, 'auth_method', 'unknown')
-            
-            if hasattr(g, 'token_payload'):
-                user_info['token_payload'] = g.token_payload
-            
-            if hasattr(g, 'session_data'):
-                user_info['session_data'] = g.session_data
-        
-        return user_info if user_info else None
-        
-    except Exception as e:
-        logger.error(f"Error getting current user info: {str(e)}")
-        return None
-
-def logout_user():
-    """Enhanced logout function with security cleanup"""
-    try:
-        jwt_manager = get_jwt_manager()
-        session_manager = get_session_manager()
-        
-        # Get current authentication info
-        user_info = get_current_user_info()
-        if not user_info:
-            return
-        
-        user_id = user_info.get('user_id')
-        
-        # Revoke JWT token if present
-        auth_header = request.headers.get('Authorization')
-        if auth_header and auth_header.startswith('Bearer '):
-            token = auth_header[7:]
-            jwt_manager.revoke_token(token)
-        
-        # Revoke session if present
-        session_id = request.cookies.get('session_id') or request.headers.get('X-Session-ID')
-        if session_id:
-            session_manager.revoke_session(session_id, user_id)
-        
-        # Clear session data
-        session.clear()
-        
-        # Clear Flask context
-        if hasattr(g, 'current_user_id'):
-            del g.current_user_id
-        if hasattr(g, 'auth_method'):
-            del g.auth_method
-        if hasattr(g, 'token_payload'):
-            del g.token_payload
-        if hasattr(g, 'session_data'):
-            del g.session_data
-        
-        logger.info(f"User {user_id} logged out successfully")
-        
-    except Exception as e:
-        logger.error(f"Error during logout: {str(e)}")
-
-def create_auth_response(user_id: str, remember_me: bool = False) -> Dict[str, Any]:
-    """Create enhanced authentication response with security features"""
-    try:
-        jwt_manager = get_jwt_manager()
-        session_manager = get_session_manager()
-        brute_force_protection = get_brute_force_protection()
-        
-        # Create secure JWT token
-        token = jwt_manager.create_secure_token(user_id)
-        
-        # Create secure session
-        session_id = session_manager.create_secure_session(user_id, token, remember_me)
-        
-        # Record successful login
-        brute_force_protection.record_successful_attempt(user_id, 'login')
-        
-        # Get user info (implement based on your user model)
-        user_info = get_user_info(user_id)
-        
-        response_data = {
-            'success': True,
-            'token': token,
-            'session_id': session_id,
-            'user': user_info,
-            'auth_method': 'jwt_session'
-        }
-        
-        # Add token info
-        token_info = jwt_manager.get_token_info(token)
-        if token_info:
-            response_data['token_info'] = {
-                'expires_at': token_info['expires_at'].isoformat(),
-                'issued_at': token_info['issued_at'].isoformat()
-            }
-        
-        return response_data
-        
-    except Exception as e:
-        logger.error(f"Error creating auth response: {str(e)}")
-        raise
-
-def get_user_info(user_id: str) -> Dict[str, Any]:
-    """Get user information (implement based on your user model)"""
-    # This is a placeholder - implement with your actual user database
-    # Example implementation:
+def optional_auth(f: Callable) -> Callable:
     """
-    from your_models import User
+    Decorator for optional authentication (user can be authenticated or not)
     
-    user = User.query.get(user_id)
-    if user:
-        return {
-            'id': user.id,
-            'email': user.email,
-            'first_name': user.first_name,
-            'last_name': user.last_name,
-            'role': user.role
-        }
-    return None
+    Args:
+        f: Function to decorate
+        
+    Returns:
+        Decorated function with optional user context
     """
-    return {
-        'id': user_id,
-        'email': f'user_{user_id}@example.com',
-        'first_name': 'User',
-        'last_name': user_id
-    }
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        try:
+            user_id = session.get('user_id')
+            
+            if user_id:
+                # User is authenticated, get user data
+                user = current_app.user_service.get_user_by_id(user_id)
+                if user:
+                    g.current_user = user
+                    g.user_id = user_id
+                    g.is_authenticated = True
+                else:
+                    # Clear invalid session
+                    session.clear()
+                    g.is_authenticated = False
+            else:
+                g.is_authenticated = False
+            
+            return f(*args, **kwargs)
+            
+        except Exception as e:
+            logger.error(f"Optional auth error: {e}")
+            g.is_authenticated = False
+            return f(*args, **kwargs)
+    
+    return decorated_function
 
-def validate_auth_request(request_data: Dict[str, Any]) -> Dict[str, Any]:
-    """Validate authentication request data"""
-    errors = []
+def admin_required(f: Callable) -> Callable:
+    """
+    Decorator to require admin privileges
     
-    # Validate email
-    email = request_data.get('email', '').strip()
-    if not email:
-        errors.append("Email is required")
-    elif not is_valid_email(email):
-        errors.append("Invalid email format")
+    Args:
+        f: Function to decorate
+        
+    Returns:
+        Decorated function with admin check
+    """
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        try:
+            # First check authentication
+            user_id = session.get('user_id')
+            if not user_id:
+                return jsonify({
+                    'error': 'Authentication required',
+                    'code': 'AUTH_REQUIRED'
+                }), 401
+            
+            # Get user from database
+            user = current_app.user_service.get_user_by_id(user_id)
+            if not user:
+                session.clear()
+                return jsonify({
+                    'error': 'Invalid session',
+                    'code': 'INVALID_SESSION'
+                }), 401
+            
+            # Check if user is admin
+            if not user.get('is_admin'):
+                return jsonify({
+                    'error': 'Admin privileges required',
+                    'code': 'ADMIN_REQUIRED'
+                }), 403
+            
+            # Store user in Flask g
+            g.current_user = user
+            g.user_id = user_id
+            
+            return f(*args, **kwargs)
+            
+        except Exception as e:
+            logger.error(f"Admin check error: {e}")
+            return jsonify({
+                'error': 'Admin check failed',
+                'code': 'ADMIN_CHECK_ERROR'
+            }), 500
     
-    # Validate password
-    password = request_data.get('password', '')
-    if not password:
-        errors.append("Password is required")
-    elif len(password) < 8:
-        errors.append("Password must be at least 8 characters long")
-    
-    return {
-        'valid': len(errors) == 0,
-        'errors': errors
-    }
+    return decorated_function
 
-def is_valid_email(email: str) -> bool:
-    """Basic email validation"""
-    import re
-    pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
-    return re.match(pattern, email) is not None
+def rate_limit_by_user(f: Callable) -> Callable:
+    """
+    Decorator for rate limiting by authenticated user
+    
+    Args:
+        f: Function to decorate
+        
+    Returns:
+        Decorated function with rate limiting
+    """
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        try:
+            user_id = session.get('user_id')
+            if not user_id:
+                # Fall back to IP-based rate limiting
+                return f(*args, **kwargs)
+            
+            # Import rate limiting service
+            from ..services.rate_limit_service import RateLimitService
+            rate_limit_service = RateLimitService()
+            
+            # Check user-specific rate limit
+            if not rate_limit_service.check_user_limit(user_id, f.__name__):
+                return jsonify({
+                    'error': 'Rate limit exceeded',
+                    'code': 'RATE_LIMIT_EXCEEDED',
+                    'message': 'Too many requests. Please try again later.'
+                }), 429
+            
+            return f(*args, **kwargs)
+            
+        except Exception as e:
+            logger.error(f"Rate limiting error: {e}")
+            # Continue without rate limiting if service fails
+            return f(*args, **kwargs)
+    
+    return decorated_function
 
-def handle_auth_error(error_type: str, details: Dict[str, Any] = None) -> Dict[str, Any]:
-    """Handle authentication errors with appropriate responses"""
-    error_responses = {
-        'invalid_credentials': {
-            'error': 'Invalid credentials',
-            'message': 'Email or password is incorrect'
-        },
-        'account_locked': {
-            'error': 'Account temporarily locked',
-            'message': 'Too many failed login attempts'
-        },
-        'rate_limited': {
-            'error': 'Rate limit exceeded',
-            'message': 'Too many requests, please try again later'
-        },
-        'token_expired': {
-            'error': 'Token expired',
-            'message': 'Please log in again'
-        },
-        'session_expired': {
-            'error': 'Session expired',
-            'message': 'Please log in again'
-        },
-        'suspicious_activity': {
-            'error': 'Suspicious activity detected',
-            'message': 'Please contact support for assistance'
-        }
-    }
+def validate_email_verification_status(f: Callable) -> Callable:
+    """
+    Decorator to validate email verification status and provide context
     
-    response = error_responses.get(error_type, {
-        'error': 'Authentication error',
-        'message': 'An error occurred during authentication'
-    })
+    Args:
+        f: Function to decorate
+        
+    Returns:
+        Decorated function with verification status context
+    """
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        try:
+            user_id = session.get('user_id')
+            
+            if user_id:
+                # Get user and verification status
+                user = current_app.user_service.get_user_by_id(user_id)
+                if user:
+                    g.current_user = user
+                    g.user_id = user_id
+                    g.email_verified = user.get('email_verified', False)
+                    
+                    # Get verification details if not verified
+                    if not g.email_verified:
+                        try:
+                            from ..services.email_verification_service import EmailVerificationService
+                            verification_service = EmailVerificationService()
+                            
+                            # Check if verification is pending
+                            pending_verification = verification_service.get_pending_verification(user_id)
+                            if pending_verification:
+                                g.pending_verification = {
+                                    'id': pending_verification.id,
+                                    'expires_at': pending_verification.expires_at.isoformat() if pending_verification.expires_at else None,
+                                    'verification_type': pending_verification.verification_type
+                                }
+                        except Exception as e:
+                            logger.warning(f"Could not get verification details: {e}")
+                            g.pending_verification = None
+                else:
+                    g.email_verified = False
+                    g.pending_verification = None
+            else:
+                g.email_verified = False
+                g.pending_verification = None
+            
+            return f(*args, **kwargs)
+            
+        except Exception as e:
+            logger.error(f"Email verification status check error: {e}")
+            g.email_verified = False
+            g.pending_verification = None
+            return f(*args, **kwargs)
     
-    if details:
-        response.update(details)
+    return decorated_function
+
+def csrf_protected(f: Callable) -> Callable:
+    """
+    Decorator for CSRF protection
     
-    return response
+    Args:
+        f: Function to decorate
+        
+    Returns:
+        Decorated function with CSRF protection
+    """
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        try:
+            # Skip CSRF check for GET requests
+            if request.method == 'GET':
+                return f(*args, **kwargs)
+            
+            # Get CSRF token from headers
+            csrf_token = request.headers.get('X-CSRF-Token')
+            if not csrf_token:
+                return jsonify({
+                    'error': 'CSRF token required',
+                    'code': 'CSRF_TOKEN_REQUIRED'
+                }), 400
+            
+            # Validate CSRF token
+            if not validate_csrf_token(csrf_token):
+                return jsonify({
+                    'error': 'Invalid CSRF token',
+                    'code': 'INVALID_CSRF_TOKEN'
+                }), 400
+            
+            return f(*args, **kwargs)
+            
+        except Exception as e:
+            logger.error(f"CSRF protection error: {e}")
+            return jsonify({
+                'error': 'CSRF protection failed',
+                'code': 'CSRF_ERROR'
+            }), 500
+    
+    return decorated_function
+
+def validate_csrf_token(token: str) -> bool:
+    """
+    Validate CSRF token
+    
+    Args:
+        token: CSRF token to validate
+        
+    Returns:
+        True if token is valid, False otherwise
+    """
+    try:
+        # Get session CSRF token
+        session_token = session.get('csrf_token')
+        if not session_token:
+            return False
+        
+        # Compare tokens (constant-time comparison)
+        if len(token) != len(session_token):
+            return False
+        
+        result = 0
+        for x, y in zip(token, session_token):
+            result |= ord(x) ^ ord(y)
+        
+        return result == 0
+        
+    except Exception as e:
+        logger.error(f"CSRF token validation error: {e}")
+        return False
+
+def generate_csrf_token() -> str:
+    """
+    Generate a new CSRF token
+    
+    Returns:
+        New CSRF token
+    """
+    import secrets
+    token = secrets.token_urlsafe(32)
+    session['csrf_token'] = token
+    return token
+
+def get_current_user() -> Optional[dict]:
+    """
+    Get current authenticated user from Flask g
+    
+    Returns:
+        Current user dict or None if not authenticated
+    """
+    return getattr(g, 'current_user', None)
+
+def get_user_id() -> Optional[str]:
+    """
+    Get current user ID from Flask g
+    
+    Returns:
+        Current user ID or None if not authenticated
+    """
+    return getattr(g, 'user_id', None)
+
+def is_authenticated() -> bool:
+    """
+    Check if user is authenticated
+    
+    Returns:
+        True if authenticated, False otherwise
+    """
+    return getattr(g, 'is_authenticated', False)
+
+def is_email_verified() -> bool:
+    """
+    Check if current user's email is verified
+    
+    Returns:
+        True if email is verified, False otherwise
+    """
+    return getattr(g, 'email_verified', False)
+
+def get_pending_verification() -> Optional[dict]:
+    """
+    Get pending email verification details
+    
+    Returns:
+        Pending verification dict or None
+    """
+    return getattr(g, 'pending_verification', None)

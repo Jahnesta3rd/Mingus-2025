@@ -38,7 +38,7 @@ export function OnboardingTab() {
       case 'welcome':
         return (
           <div className="text-center py-12">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Welcome to Mingus!</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4" className="text-2xl font-semibold text-gray-800 mb-4">Welcome to Mingus!</h2>
             <p className="text-gray-600 mb-6">Let's get started with your financial wellness journey.</p>
             <button
               onClick={() => navigate('/onboarding/welcome')}
@@ -51,7 +51,7 @@ export function OnboardingTab() {
       case 'choice':
         return (
           <div className="text-center py-12">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Choose Your Experience</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4" className="text-2xl font-semibold text-gray-800 mb-4">Choose Your Experience</h2>
             <p className="text-gray-600 mb-6">Select how detailed you'd like your setup to be.</p>
             <button
               onClick={() => navigate('/onboarding/choice')}
@@ -64,7 +64,7 @@ export function OnboardingTab() {
       case 'profile':
         return (
           <div className="text-center py-12">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Profile Setup</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4" className="text-2xl font-semibold text-gray-800 mb-4">Profile Setup</h2>
             <p className="text-gray-600 mb-6">Tell us about yourself to personalize your experience.</p>
             <button
               onClick={() => navigate('/onboarding/profile')}
@@ -77,7 +77,7 @@ export function OnboardingTab() {
       case 'preferences':
         return (
           <div className="text-center py-12">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Preferences</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4" className="text-2xl font-semibold text-gray-800 mb-4">Preferences</h2>
             <p className="text-gray-600 mb-6">Customize your experience and notifications.</p>
             <button
               onClick={() => navigate('/onboarding/preferences')}
@@ -90,7 +90,7 @@ export function OnboardingTab() {
       case 'expenses':
         return (
           <div className="text-center py-12">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Monthly Expenses</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4" className="text-2xl font-semibold text-gray-800 mb-4">Monthly Expenses</h2>
             <p className="text-gray-600 mb-6">Track your spending to get better insights.</p>
             <button
               onClick={() => navigate('/onboarding/expenses')}
@@ -103,7 +103,7 @@ export function OnboardingTab() {
       case 'goals':
         return (
           <div className="text-center py-12">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Financial Goals</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4" className="text-2xl font-semibold text-gray-800 mb-4">Financial Goals</h2>
             <p className="text-gray-600 mb-6">Set your financial goals and priorities.</p>
             <button
               onClick={() => navigate('/onboarding/goals')}
@@ -116,7 +116,7 @@ export function OnboardingTab() {
       case 'financial_questionnaire':
         return (
           <div className="text-center py-12">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Financial Assessment</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4" className="text-2xl font-semibold text-gray-800 mb-4">Financial Assessment</h2>
             <p className="text-gray-600 mb-6">Complete a quick financial questionnaire.</p>
             <button
               onClick={() => navigate('/onboarding/financial-questionnaire')}
@@ -129,7 +129,7 @@ export function OnboardingTab() {
       case 'lifestyle_questionnaire':
         return (
           <div className="text-center py-12">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Lifestyle Assessment</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4" className="text-2xl font-semibold text-gray-800 mb-4">Lifestyle Assessment</h2>
             <p className="text-gray-600 mb-6">Share your lifestyle preferences for personalized insights.</p>
             <button
               onClick={() => navigate('/onboarding/lifestyle-questionnaire')}
@@ -142,7 +142,7 @@ export function OnboardingTab() {
       case 'complete':
         return (
           <div className="text-center py-12">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">🎉 Onboarding Complete!</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4" className="text-2xl font-semibold text-gray-800 mb-4">🎉 Onboarding Complete!</h2>
             <p className="text-gray-600 mb-6">You're all set to start your financial wellness journey.</p>
             <button
               onClick={() => navigate('/onboarding/complete')}
@@ -155,7 +155,7 @@ export function OnboardingTab() {
       default:
         return (
           <div className="text-center py-12">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Welcome to Mingus!</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4" className="text-2xl font-semibold text-gray-800 mb-4">Welcome to Mingus!</h2>
             <p className="text-gray-600 mb-6">Let's get started with your financial wellness journey.</p>
             <button
               onClick={() => navigate('/onboarding/welcome')}
@@ -184,7 +184,7 @@ export function OnboardingTab() {
   return (
     <div className="space-y-6">
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">
+        <h2 className="text-2xl font-bold text-gray-900 mb-4" className="text-2xl font-semibold text-gray-800 mb-4">
           Welcome to Mingus! 🎉
         </h2>
         <p className="text-gray-600 mb-6">
@@ -200,31 +200,31 @@ export function OnboardingTab() {
       </div>
       
       <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl border border-purple-200 p-6">
-        <h3 className="text-lg font-semibold text-purple-900 mb-4">
+        <h3 className="text-lg font-semibold text-purple-900 mb-4" className="text-xl font-semibold text-gray-800 mb-3">
           What's Next?
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="bg-white p-4 rounded-lg border border-purple-100">
             <h4 className="font-semibold text-purple-800 mb-2">📊 Financial Profile</h4>
-            <p className="text-sm text-gray-600">
+            <p className="text-base leading-relaxed text-gray-600">
               Set up your financial baseline and preferences
             </p>
           </div>
           <div className="bg-white p-4 rounded-lg border border-purple-100">
             <h4 className="font-semibold text-purple-800 mb-2">🎯 Goals & Dreams</h4>
-            <p className="text-sm text-gray-600">
+            <p className="text-base leading-relaxed text-gray-600">
               Define your financial goals and priorities
             </p>
           </div>
           <div className="bg-white p-4 rounded-lg border border-purple-100">
             <h4 className="font-semibold text-purple-800 mb-2">📝 Quick Assessment</h4>
-            <p className="text-sm text-gray-600">
+            <p className="text-base leading-relaxed text-gray-600">
               Complete our brief financial questionnaire
             </p>
           </div>
           <div className="bg-white p-4 rounded-lg border border-purple-100">
             <h4 className="font-semibold text-purple-800 mb-2">🌟 Lifestyle Insights</h4>
-            <p className="text-sm text-gray-600">
+            <p className="text-base leading-relaxed text-gray-600">
               Share your lifestyle preferences for personalized advice
             </p>
           </div>

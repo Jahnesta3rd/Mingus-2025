@@ -2,23 +2,23 @@
 
 ## 🎯 **Project Overview**
 
-This document summarizes the complete implementation of MINGUS subscription tier access control system with Stripe integration, covering all three tiers: Budget ($15/month), Mid-Tier ($35/month), and Professional ($75/month).
+This document summarizes the complete implementation of MINGUS subscription tier access control system with Stripe integration, covering all three tiers: Budget ($15/month), Mid-Tier ($35/month), and Professional ($100/month).
 
 ## 📊 **Tier Structure & Pricing**
 
 ### **Budget Tier ($15/month)**
 - **Monthly Price**: $15.00
-- **Yearly Price**: $150.00
+- **Yearly Price**: $144.00
 - **Target Audience**: Individual users, basic needs
 
 ### **Mid-Tier ($35/month)**
 - **Monthly Price**: $35.00
-- **Yearly Price**: $350.00
+- **Yearly Price**: $336.00
 - **Target Audience**: Serious users, small teams
 
-### **Professional Tier ($75/month)**
-- **Monthly Price**: $75.00
-- **Yearly Price**: $750.00
+### **Professional Tier ($100/month)**
+- **Monthly Price**: $100.00
+- **Yearly Price**: $960.00
 - **Target Audience**: Professionals, teams, businesses
 
 ## 🔐 **Feature Access Control by Tier**
@@ -49,7 +49,7 @@ This document summarizes the complete implementation of MINGUS subscription tier
 | API Access | None | N/A | Not available |
 | Support | Priority email (3 requests) | 2 (67%) | Better support |
 
-### **Professional Tier ($75/month) Limits**
+### **Professional Tier ($100/month) Limits**
 
 | Feature | Limit | Upgrade Threshold | Notes |
 |---------|-------|-------------------|-------|

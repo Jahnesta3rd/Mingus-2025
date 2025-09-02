@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="stylesheet" href="touch_target_optimization.css">
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ policy.title }} - MINGUS Security Policy</title>
@@ -277,11 +279,11 @@
             {% endif %}
 
             <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                <button type="button" class="btn btn-secondary me-md-2" onclick="window.print()">
+                <button type="button" class="btn btn-secondary me-md-2 btn-cta btn-primary" onclick="window.print()">
                     <i class="fas fa-print me-2"></i>
                     Print Policy
                 </button>
-                <button type="button" class="btn btn-acknowledge" onclick="acknowledgePolicy()">
+                <button type="button" class="btn btn-acknowledge btn-cta btn-primary" onclick="acknowledgePolicy()">
                     <i class="fas fa-check me-2"></i>
                     I Acknowledge This Policy
                 </button>
@@ -310,7 +312,7 @@
                         <i class="fas fa-check-circle text-success me-2"></i>
                         Policy Acknowledged
                     </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close btn-cta btn-primary" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <p>Thank you for acknowledging the <strong>{{ policy.title }}</strong> policy.</p>
@@ -322,7 +324,7 @@
                     </ul>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary btn-cta btn-primary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
@@ -337,13 +339,13 @@
                         <i class="fas fa-exclamation-triangle me-2"></i>
                         Error
                     </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close btn-cta btn-primary" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <p id="errorMessage">An error occurred while acknowledging the policy.</p>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-secondary btn-cta btn-primary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>

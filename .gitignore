@@ -1,3 +1,9 @@
+# Environment variables
+.env
+.env.local
+.env.production
+.env.staging
+
 # Python
 __pycache__/
 *.py[cod]
@@ -20,58 +26,29 @@ wheels/
 .installed.cfg
 *.egg
 
-# Virtual Environment
+# Virtual environments
 venv/
-ENV/
 env/
+ENV/
 
 # IDE
-.idea/
 .vscode/
+.idea/
 *.swp
 *.swo
 
-# Note: .cursor/ directory is explicitly tracked for chat history and AI data
-# Do not add .cursor/ to this ignore list
-
-# Environment variables - ignore all .env files except examples
-.env
-.env.local
-.env.development
-.env.testing
-.env.production
-.env.staging
-.env.generated
-*.env
-*.env.*
-Mingus.env.rtf
-
-# Allow .env.example and .env.template to be tracked
-!.env.example
-!.env.template
+# OS
+.DS_Store
+Thumbs.db
 
 # Logs
 *.log
+logs/
 
-# Local development
-.DS_Store
-.coverage
-htmlcov/
+# Database
+*.db
+*.sqlite3
 
-# Documentation
-*.docx
-*.csv
-schema.txt
-schema*.txt
-schema*.json
-
-# Test files
-TESTING*.docx
-backups/2025-06-09-backup/
-test-clone/
-Mingus-Cypress-Tests/node_modules/
-backups/2025-06-29/
-
-# Generated files
-generated_keys.json
-.env.generated
+# Temporary files
+*.tmp
+*.temp

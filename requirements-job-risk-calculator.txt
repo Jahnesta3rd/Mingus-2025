@@ -1,0 +1,51 @@
+# Job Risk Calculator System Dependencies
+# Core dependencies for the sophisticated job risk calculation system
+
+# Data processing and analysis
+pandas>=1.5.0
+numpy>=1.21.0
+
+# Fuzzy string matching (optional enhancement)
+fuzzywuzzy>=0.18.0
+python-Levenshtein>=0.12.0
+
+# Logging and monitoring
+structlog>=22.1.0
+
+# Testing and validation
+pytest>=7.0.0
+pytest-cov>=4.0.0
+
+# Data validation
+pydantic>=1.10.0
+
+# Configuration management
+python-dotenv>=0.19.0
+
+# JSON handling
+jsonschema>=4.0.0
+
+# Statistical analysis (for A/B testing)
+scipy>=1.9.0
+
+# Machine learning (for future enhancements)
+scikit-learn>=1.1.0
+
+# Web framework (if needed for API endpoints)
+fastapi>=0.85.0
+uvicorn>=0.18.0
+
+# Database (if needed for storing results)
+sqlalchemy>=1.4.0
+psycopg2-binary>=2.9.0
+
+# Caching (for performance optimization)
+redis>=4.0.0
+
+# Monitoring and metrics
+prometheus-client>=0.14.0
+
+# Development tools
+black>=22.0.0
+flake8>=5.0.0
+mypy>=0.991

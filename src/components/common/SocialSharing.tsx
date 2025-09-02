@@ -78,7 +78,7 @@ const SocialSharing: React.FC<SocialSharingProps> = ({
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
           <div className="bg-white rounded-2xl p-6 w-full max-w-sm mx-auto shadow-2xl">
             <div className="flex justify-between items-center mb-6">
-              <h3 className="text-lg font-semibold text-gray-900">Share This</h3>
+              <h3 className="text-lg font-semibold text-gray-900" className="text-xl font-semibold text-gray-800 mb-3">Share This</h3>
               <button
                 onClick={() => setIsModalOpen(false)}
                 className="p-2 hover:bg-gray-100 rounded-full transition-colors"

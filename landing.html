@@ -1,319 +1,50 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Accessibility CSS - Must be loaded first -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/wcag_accessibility.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/touch_target_optimization.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <meta charset="UTF-8">
-  <title>MINGUS - Break Free From Financial Stress</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <meta charset="UTF-8">
+    <title>MINGUS - AI Job Impact Calculator | Will AI Replace Your Job?</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <!-- Accessibility Meta Tags -->
+    <meta name="description" content="Discover if AI will replace your job with our free AI Job Impact Calculator. 12,847+ professionals assessed this month. Get your personalized risk score and career protection plan.">
+    <meta name="keywords" content="AI job impact calculator, AI job replacement, career security, AI disruption, job risk assessment, African American professionals, financial wellness, MINGUS">
+    <meta name="author" content="MINGUS">
+    
+    <!-- Accessibility JavaScript -->
+    <script src="{{ url_for('static', filename='js/accessibility.js') }}" defer></script>
   
   <!-- SEO Meta Tags -->
-  <meta name="description" content="Break free from apps that profit from your financial stress. MINGUS puts YOU back in control with AI-powered financial intelligence.">
-  <meta name="keywords" content="financial intelligence, AI finance, financial stress, money management, financial freedom, MINGUS">
+  <meta name="description" content="Discover if AI will replace your job with our free AI Job Impact Calculator. 12,847+ professionals assessed this month. Get your personalized risk score and career protection plan.">
+  <meta name="keywords" content="AI job impact calculator, AI job replacement, career security, AI disruption, job risk assessment, African American professionals, financial wellness, MINGUS">
   <meta name="author" content="MINGUS">
   
   <!-- Open Graph / Facebook -->
-  <meta property="og:title" content="MINGUS - Break Free From Financial Stress">
-  <meta property="og:description" content="Break free from financial stress with AI-powered insights and intelligent financial management">
+  <meta property="og:title" content="Will AI Replace Your Job? Free AI Job Impact Calculator">
+  <meta property="og:description" content="Featured in Washington Post analysis. Get your AI job risk score in 2 minutes. 12,847+ professionals assessed this month.">
   <meta property="og:image" content="https://yourdomain.com/og-image.jpg">
   <meta property="og:url" content="https://yourdomain.com/">
   <meta property="og:type" content="website">
   
   <!-- Google Analytics 4 -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-LR5TV15ZTM">
-        // Social Sharing Functions
-        function shareToFacebook() {
-            const url = encodeURIComponent(window.location.href);
-            const text = encodeURIComponent('Transform your financial future with MINGUS - AI-powered financial wellness!');
-            window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${text}`, '_blank');
-            trackSocialInteraction('facebook', 'share');
-        }
-        
-        function shareToTwitter() {
-            const url = encodeURIComponent(window.location.href);
-            const text = encodeURIComponent('Transform your financial future with @mingusfinancial! #FinancialWellness #AI #PersonalFinance');
-            window.open(`https://twitter.com/intent/tweet?url=${url}&text=${text}`, '_blank');
-            trackSocialInteraction('twitter', 'share');
-        }
-        
-        function shareToLinkedIn() {
-            const url = encodeURIComponent(window.location.href);
-            const text = encodeURIComponent('Transform your financial future with MINGUS - AI-powered financial wellness platform');
-            window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}`, '_blank');
-            trackSocialInteraction('linkedin', 'share');
-        }
-        
-        function shareToWhatsApp() {
-            const url = encodeURIComponent(window.location.href);
-            const text = encodeURIComponent('Check out MINGUS - AI-powered financial wellness!');
-            window.open(`https://wa.me/?text=${text}%20${url}`, '_blank');
-            trackSocialInteraction('whatsapp', 'share');
-        }
-        
-        function trackSocialInteraction(platform, action) {
-            if (typeof gtag !== 'undefined') {
-                gtag('event', 'social_interaction', {
-                    'social_network': platform,
-                    'social_action': action,
-                    'content_type': 'landing_page'
-                });
-            }
-        }
-
-        // Social Sharing Functions
-        function shareToFacebook() {
-            const url = encodeURIComponent(window.location.href);
-            const text = encodeURIComponent('Transform your financial future with MINGUS - AI-powered financial wellness!');
-            window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${text}`, '_blank');
-            trackSocialInteraction('facebook', 'share');
-        }
-        
-        function shareToTwitter() {
-            const url = encodeURIComponent(window.location.href);
-            const text = encodeURIComponent('Transform your financial future with @mingusfinancial! #FinancialWellness #AI #PersonalFinance');
-            window.open(`https://twitter.com/intent/tweet?url=${url}&text=${text}`, '_blank');
-            trackSocialInteraction('twitter', 'share');
-        }
-        
-        function shareToLinkedIn() {
-            const url = encodeURIComponent(window.location.href);
-            const text = encodeURIComponent('Transform your financial future with MINGUS - AI-powered financial wellness platform');
-            window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}`, '_blank');
-            trackSocialInteraction('linkedin', 'share');
-        }
-        
-        function shareToWhatsApp() {
-            const url = encodeURIComponent(window.location.href);
-            const text = encodeURIComponent('Check out MINGUS - AI-powered financial wellness!');
-            window.open(`https://wa.me/?text=${text}%20${url}`, '_blank');
-            trackSocialInteraction('whatsapp', 'share');
-        }
-        
-        function trackSocialInteraction(platform, action) {
-            if (typeof gtag !== 'undefined') {
-                gtag('event', 'social_interaction', {
-                    'social_network': platform,
-                    'social_action': action,
-                    'content_type': 'landing_page'
-                });
-            }
-        }
-</script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-LR5TV15ZTM"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
     gtag('config', 'G-LR5TV15ZTM', {
-      page_title: 'MINGUS Landing Page',
+      page_title: 'MINGUS AI Job Impact Calculator',
       page_location: window.location.href,
       custom_map: {
         'custom_parameter_1': 'clarity_session_id',
         'custom_parameter_2': 'user_segment'
       }
     });
-  
-        // Social Sharing Functions
-        function shareToFacebook() {
-            const url = encodeURIComponent(window.location.href);
-            const text = encodeURIComponent('Transform your financial future with MINGUS - AI-powered financial wellness!');
-            window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${text}`, '_blank');
-            trackSocialInteraction('facebook', 'share');
-        }
-        
-        function shareToTwitter() {
-            const url = encodeURIComponent(window.location.href);
-            const text = encodeURIComponent('Transform your financial future with @mingusfinancial! #FinancialWellness #AI #PersonalFinance');
-            window.open(`https://twitter.com/intent/tweet?url=${url}&text=${text}`, '_blank');
-            trackSocialInteraction('twitter', 'share');
-        }
-        
-        function shareToLinkedIn() {
-            const url = encodeURIComponent(window.location.href);
-            const text = encodeURIComponent('Transform your financial future with MINGUS - AI-powered financial wellness platform');
-            window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}`, '_blank');
-            trackSocialInteraction('linkedin', 'share');
-        }
-        
-        function shareToWhatsApp() {
-            const url = encodeURIComponent(window.location.href);
-            const text = encodeURIComponent('Check out MINGUS - AI-powered financial wellness!');
-            window.open(`https://wa.me/?text=${text}%20${url}`, '_blank');
-            trackSocialInteraction('whatsapp', 'share');
-        }
-        
-        function trackSocialInteraction(platform, action) {
-            if (typeof gtag !== 'undefined') {
-                gtag('event', 'social_interaction', {
-                    'social_network': platform,
-                    'social_action': action,
-                    'content_type': 'landing_page'
-                });
-            }
-        }
-
-        // Social Sharing Functions
-        function shareToFacebook() {
-            const url = encodeURIComponent(window.location.href);
-            const text = encodeURIComponent('Transform your financial future with MINGUS - AI-powered financial wellness!');
-            window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${text}`, '_blank');
-            trackSocialInteraction('facebook', 'share');
-        }
-        
-        function shareToTwitter() {
-            const url = encodeURIComponent(window.location.href);
-            const text = encodeURIComponent('Transform your financial future with @mingusfinancial! #FinancialWellness #AI #PersonalFinance');
-            window.open(`https://twitter.com/intent/tweet?url=${url}&text=${text}`, '_blank');
-            trackSocialInteraction('twitter', 'share');
-        }
-        
-        function shareToLinkedIn() {
-            const url = encodeURIComponent(window.location.href);
-            const text = encodeURIComponent('Transform your financial future with MINGUS - AI-powered financial wellness platform');
-            window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}`, '_blank');
-            trackSocialInteraction('linkedin', 'share');
-        }
-        
-        function shareToWhatsApp() {
-            const url = encodeURIComponent(window.location.href);
-            const text = encodeURIComponent('Check out MINGUS - AI-powered financial wellness!');
-            window.open(`https://wa.me/?text=${text}%20${url}`, '_blank');
-            trackSocialInteraction('whatsapp', 'share');
-        }
-        
-        function trackSocialInteraction(platform, action) {
-            if (typeof gtag !== 'undefined') {
-                gtag('event', 'social_interaction', {
-                    'social_network': platform,
-                    'social_action': action,
-                    'content_type': 'landing_page'
-                });
-            }
-        }
-</script>
-  
-  <script>
-  // Enhanced conversion tracking
-  function trackConversion(eventName, value = 20) {
-    if (typeof gtag !== 'undefined') {
-      gtag('event', 'generate_lead', {
-        'currency': 'USD',
-        'value': value,
-        'event_category': 'Lead Generation',
-        'event_label': eventName
-      });
-    }
-  }
-
-  // Track assessment start
-  function trackAssessmentStart() {
-    gtag('event', 'begin_checkout', {
-      'currency': 'USD',
-      'value': 20,
-      'event_category': 'Assessment'
-    });
-  }
-
-  // Track email capture
-  function trackEmailCapture(email) {
-    trackConversion('email_captured');
-  }
-
-  // Track assessment completion
-  function trackAssessmentComplete(score) {
-    trackConversion('assessment_complete', 25);
-  }
-
-  // Auto-track CTA clicks
-  document.addEventListener('DOMContentLoaded', function() {
-    const ctaButtons = document.querySelectorAll('.cta-button, .btn-primary, [href*="assessment"]');
-    ctaButtons.forEach(button => {
-      button.addEventListener('click', function() {
-        gtag('event', 'click', {
-          'event_category': 'CTA',
-          'event_label': this.textContent.trim()
-        });
-      });
-    });
-  });
-  
-        // Social Sharing Functions
-        function shareToFacebook() {
-            const url = encodeURIComponent(window.location.href);
-            const text = encodeURIComponent('Transform your financial future with MINGUS - AI-powered financial wellness!');
-            window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${text}`, '_blank');
-            trackSocialInteraction('facebook', 'share');
-        }
-        
-        function shareToTwitter() {
-            const url = encodeURIComponent(window.location.href);
-            const text = encodeURIComponent('Transform your financial future with @mingusfinancial! #FinancialWellness #AI #PersonalFinance');
-            window.open(`https://twitter.com/intent/tweet?url=${url}&text=${text}`, '_blank');
-            trackSocialInteraction('twitter', 'share');
-        }
-        
-        function shareToLinkedIn() {
-            const url = encodeURIComponent(window.location.href);
-            const text = encodeURIComponent('Transform your financial future with MINGUS - AI-powered financial wellness platform');
-            window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}`, '_blank');
-            trackSocialInteraction('linkedin', 'share');
-        }
-        
-        function shareToWhatsApp() {
-            const url = encodeURIComponent(window.location.href);
-            const text = encodeURIComponent('Check out MINGUS - AI-powered financial wellness!');
-            window.open(`https://wa.me/?text=${text}%20${url}`, '_blank');
-            trackSocialInteraction('whatsapp', 'share');
-        }
-        
-        function trackSocialInteraction(platform, action) {
-            if (typeof gtag !== 'undefined') {
-                gtag('event', 'social_interaction', {
-                    'social_network': platform,
-                    'social_action': action,
-                    'content_type': 'landing_page'
-                });
-            }
-        }
-
-        // Social Sharing Functions
-        function shareToFacebook() {
-            const url = encodeURIComponent(window.location.href);
-            const text = encodeURIComponent('Transform your financial future with MINGUS - AI-powered financial wellness!');
-            window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${text}`, '_blank');
-            trackSocialInteraction('facebook', 'share');
-        }
-        
-        function shareToTwitter() {
-            const url = encodeURIComponent(window.location.href);
-            const text = encodeURIComponent('Transform your financial future with @mingusfinancial! #FinancialWellness #AI #PersonalFinance');
-            window.open(`https://twitter.com/intent/tweet?url=${url}&text=${text}`, '_blank');
-            trackSocialInteraction('twitter', 'share');
-        }
-        
-        function shareToLinkedIn() {
-            const url = encodeURIComponent(window.location.href);
-            const text = encodeURIComponent('Transform your financial future with MINGUS - AI-powered financial wellness platform');
-            window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}`, '_blank');
-            trackSocialInteraction('linkedin', 'share');
-        }
-        
-        function shareToWhatsApp() {
-            const url = encodeURIComponent(window.location.href);
-            const text = encodeURIComponent('Check out MINGUS - AI-powered financial wellness!');
-            window.open(`https://wa.me/?text=${text}%20${url}`, '_blank');
-            trackSocialInteraction('whatsapp', 'share');
-        }
-        
-        function trackSocialInteraction(platform, action) {
-            if (typeof gtag !== 'undefined') {
-                gtag('event', 'social_interaction', {
-                    'social_network': platform,
-                    'social_action': action,
-                    'content_type': 'landing_page'
-                });
-            }
-        }
-</script>
+  </script>
   
   <!-- Microsoft Clarity -->
   <script type="text/javascript">
@@ -322,171 +53,16 @@
         t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
         y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
     })(window, document, "clarity", "script", "shdin8hbm3");
-  
-        // Social Sharing Functions
-        function shareToFacebook() {
-            const url = encodeURIComponent(window.location.href);
-            const text = encodeURIComponent('Transform your financial future with MINGUS - AI-powered financial wellness!');
-            window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${text}`, '_blank');
-            trackSocialInteraction('facebook', 'share');
-        }
-        
-        function shareToTwitter() {
-            const url = encodeURIComponent(window.location.href);
-            const text = encodeURIComponent('Transform your financial future with @mingusfinancial! #FinancialWellness #AI #PersonalFinance');
-            window.open(`https://twitter.com/intent/tweet?url=${url}&text=${text}`, '_blank');
-            trackSocialInteraction('twitter', 'share');
-        }
-        
-        function shareToLinkedIn() {
-            const url = encodeURIComponent(window.location.href);
-            const text = encodeURIComponent('Transform your financial future with MINGUS - AI-powered financial wellness platform');
-            window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}`, '_blank');
-            trackSocialInteraction('linkedin', 'share');
-        }
-        
-        function shareToWhatsApp() {
-            const url = encodeURIComponent(window.location.href);
-            const text = encodeURIComponent('Check out MINGUS - AI-powered financial wellness!');
-            window.open(`https://wa.me/?text=${text}%20${url}`, '_blank');
-            trackSocialInteraction('whatsapp', 'share');
-        }
-        
-        function trackSocialInteraction(platform, action) {
-            if (typeof gtag !== 'undefined') {
-                gtag('event', 'social_interaction', {
-                    'social_network': platform,
-                    'social_action': action,
-                    'content_type': 'landing_page'
-                });
-            }
-        }
-
-        // Social Sharing Functions
-        function shareToFacebook() {
-            const url = encodeURIComponent(window.location.href);
-            const text = encodeURIComponent('Transform your financial future with MINGUS - AI-powered financial wellness!');
-            window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${text}`, '_blank');
-            trackSocialInteraction('facebook', 'share');
-        }
-        
-        function shareToTwitter() {
-            const url = encodeURIComponent(window.location.href);
-            const text = encodeURIComponent('Transform your financial future with @mingusfinancial! #FinancialWellness #AI #PersonalFinance');
-            window.open(`https://twitter.com/intent/tweet?url=${url}&text=${text}`, '_blank');
-            trackSocialInteraction('twitter', 'share');
-        }
-        
-        function shareToLinkedIn() {
-            const url = encodeURIComponent(window.location.href);
-            const text = encodeURIComponent('Transform your financial future with MINGUS - AI-powered financial wellness platform');
-            window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}`, '_blank');
-            trackSocialInteraction('linkedin', 'share');
-        }
-        
-        function shareToWhatsApp() {
-            const url = encodeURIComponent(window.location.href);
-            const text = encodeURIComponent('Check out MINGUS - AI-powered financial wellness!');
-            window.open(`https://wa.me/?text=${text}%20${url}`, '_blank');
-            trackSocialInteraction('whatsapp', 'share');
-        }
-        
-        function trackSocialInteraction(platform, action) {
-            if (typeof gtag !== 'undefined') {
-                gtag('event', 'social_interaction', {
-                    'social_network': platform,
-                    'social_action': action,
-                    'content_type': 'landing_page'
-                });
-            }
-        }
-</script>
-  
-  <!-- Analytics Integration -->
-  <script src="analytics-integration.js">
-        // Social Sharing Functions
-        function shareToFacebook() {
-            const url = encodeURIComponent(window.location.href);
-            const text = encodeURIComponent('Transform your financial future with MINGUS - AI-powered financial wellness!');
-            window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${text}`, '_blank');
-            trackSocialInteraction('facebook', 'share');
-        }
-        
-        function shareToTwitter() {
-            const url = encodeURIComponent(window.location.href);
-            const text = encodeURIComponent('Transform your financial future with @mingusfinancial! #FinancialWellness #AI #PersonalFinance');
-            window.open(`https://twitter.com/intent/tweet?url=${url}&text=${text}`, '_blank');
-            trackSocialInteraction('twitter', 'share');
-        }
-        
-        function shareToLinkedIn() {
-            const url = encodeURIComponent(window.location.href);
-            const text = encodeURIComponent('Transform your financial future with MINGUS - AI-powered financial wellness platform');
-            window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}`, '_blank');
-            trackSocialInteraction('linkedin', 'share');
-        }
-        
-        function shareToWhatsApp() {
-            const url = encodeURIComponent(window.location.href);
-            const text = encodeURIComponent('Check out MINGUS - AI-powered financial wellness!');
-            window.open(`https://wa.me/?text=${text}%20${url}`, '_blank');
-            trackSocialInteraction('whatsapp', 'share');
-        }
-        
-        function trackSocialInteraction(platform, action) {
-            if (typeof gtag !== 'undefined') {
-                gtag('event', 'social_interaction', {
-                    'social_network': platform,
-                    'social_action': action,
-                    'content_type': 'landing_page'
-                });
-            }
-        }
-
-        // Social Sharing Functions
-        function shareToFacebook() {
-            const url = encodeURIComponent(window.location.href);
-            const text = encodeURIComponent('Transform your financial future with MINGUS - AI-powered financial wellness!');
-            window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${text}`, '_blank');
-            trackSocialInteraction('facebook', 'share');
-        }
-        
-        function shareToTwitter() {
-            const url = encodeURIComponent(window.location.href);
-            const text = encodeURIComponent('Transform your financial future with @mingusfinancial! #FinancialWellness #AI #PersonalFinance');
-            window.open(`https://twitter.com/intent/tweet?url=${url}&text=${text}`, '_blank');
-            trackSocialInteraction('twitter', 'share');
-        }
-        
-        function shareToLinkedIn() {
-            const url = encodeURIComponent(window.location.href);
-            const text = encodeURIComponent('Transform your financial future with MINGUS - AI-powered financial wellness platform');
-            window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}`, '_blank');
-            trackSocialInteraction('linkedin', 'share');
-        }
-        
-        function shareToWhatsApp() {
-            const url = encodeURIComponent(window.location.href);
-            const text = encodeURIComponent('Check out MINGUS - AI-powered financial wellness!');
-            window.open(`https://wa.me/?text=${text}%20${url}`, '_blank');
-            trackSocialInteraction('whatsapp', 'share');
-        }
-        
-        function trackSocialInteraction(platform, action) {
-            if (typeof gtag !== 'undefined') {
-                gtag('event', 'social_interaction', {
-                    'social_network': platform,
-                    'social_action': action,
-                    'content_type': 'landing_page'
-                });
-            }
-        }
-</script>
+  </script>
   
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&family=Lato:wght@400;700&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
   
   <style>
+    /* Import responsive typography and spacing systems */
+    @import url('{{ url_for("static", filename="css/responsive_typography_system.css") }}');
+    @import url('{{ url_for("static", filename="css/mobile_spacing_system.css") }}');
+    
     :root {
       --primary-purple: #8A31FF;
       --primary-green: #10b981;
@@ -518,30 +94,10 @@
     }
 
     .container {
-      max-width: 414px;
+      max-width: var(--container-max-width);
       margin: 0 auto;
       position: relative;
-    }
-
-    /* Social Proof Banner */
-    .social-proof-banner {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 8px 121px;
-      background: var(--bg-secondary);
-      font-family: 'Inter';
-      font-weight: 600;
-      font-size: 12px;
-      line-height: 120%;
-      text-align: center;
-      color: var(--text-primary);
-      animation: pulse 2s infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% { background: var(--bg-secondary); }
-      50% { background: #E8F5E8; }
+      padding: 0 var(--container-padding);
     }
 
     /* Header */
@@ -550,7 +106,7 @@
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      padding: 8px 24px;
+      padding: var(--space-2) var(--space-6);
       background: #EDEDED;
       border-bottom: 1px solid #E1E1E1;
     }
@@ -559,7 +115,8 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      width: 390px;
+      width: 100%;
+      max-width: 390px;
       height: 58px;
       filter: drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.05));
     }
@@ -597,1351 +154,1227 @@
       cursor: pointer;
     }
 
+    .nav-link {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      background: var(--primary-purple);
+      color: white;
+      text-decoration: none;
+      border-radius: 4px;
+      transition: var(--transition);
+    }
+
+    .nav-link:hover {
+      background: #7c2dff;
+      transform: translateY(-1px);
+    }
+
     /* Hero Section */
     .hero {
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      padding: 32px 24px;
-      background: var(--bg-primary);
+      padding: var(--space-8) var(--space-6);
+      background: linear-gradient(135deg, rgba(138, 49, 255, 0.05) 0%, rgba(16, 185, 129, 0.05) 100%);
     }
 
     .hero-content {
       display: flex;
       flex-direction: column;
       align-items: flex-start;
-      width: 366px;
-      gap: 24px;
+      width: 100%;
+      max-width: 366px;
+      gap: var(--space-6);
     }
 
     .hero-text {
       display: flex;
       flex-direction: column;
-      gap: 16px;
-    }
-
-    .social-proof-tag {
-      font-family: 'Lato';
-      font-weight: 400;
-      font-size: 16px;
-      line-height: 150%;
-      color: var(--primary-green);
+      gap: var(--space-4);
     }
 
     .hero-headline {
       font-family: 'Inter';
-      font-weight: 700;
-      font-size: 34px;
-      line-height: 120%;
+      font-weight: 900;
+      font-size: var(--text-5xl);
+      line-height: var(--line-height-tight);
       color: var(--text-primary);
     }
 
     .hero-subtext {
       font-family: 'Open Sans';
       font-weight: 400;
-      font-size: 16px;
-      line-height: 150%;
+      font-size: var(--text-lg);
+      line-height: var(--line-height-relaxed);
       color: var(--text-secondary);
     }
 
-    /* Visual Section */
-    .visual-section {
+    .hero-stats {
       display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 32px 157px;
-      background: var(--bg-primary);
-      border: 2px solid var(--border-color);
-      margin: 24px 0;
+      gap: var(--space-4);
+      flex-wrap: wrap;
+      margin-top: var(--space-4);
     }
 
-    .visual-content {
-      font-family: 'Open Sans';
-      font-weight: 700;
-      font-size: 18px;
-      line-height: 130%;
-      text-align: center;
-      color: var(--text-primary);
+    .stat-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      font-size: 16px;  /* Fixed: Increased from 14px to meet minimum readability */
+      color: var(--text-secondary);
     }
 
-    /* CTA Section */
-    .cta-section {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 32px 24px;
-      background: var(--bg-primary);
-    }
-
-    .main-cta {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 16px 32px;
-      background: var(--primary-purple);
-      border: none;
-      border-radius: 8px;
-      font-family: 'Inter';
-      font-weight: 600;
+    .stat-icon {
+      color: var(--primary-green);
       font-size: 16px;
-      color: var(--bg-primary);
-      cursor: pointer;
-      transition: var(--transition);
-      text-decoration: none;
+    }
+
+    /* Lead Magnet Grid */
+    .lead-magnet-section {
+      padding: var(--space-8) var(--space-6);
+      background: var(--bg-primary);
+    }
+
+    .lead-magnet-content {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-6);
       width: 100%;
       max-width: 366px;
-    }
-
-    .main-cta:hover {
-      background: var(--primary-green);
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-lg);
-    }
-
-    .reduce-fud {
-      font-family: 'Open Sans';
-      font-weight: 400;
-      font-size: 14px;
-      line-height: 150%;
-      text-align: center;
-      color: var(--text-muted);
-      margin-top: 16px;
-    }
-
-    /* Social Proof Section */
-    .social-proof-section {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 32px 24px;
-      background: var(--bg-secondary);
-    }
-
-    .social-proof-number {
-      font-family: 'Inter';
-      font-weight: 700;
-      font-size: 48px;
-      line-height: 120%;
-      text-align: center;
-      color: var(--primary-green);
-    }
-
-    /* Product Section */
-    .product-section {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 32px 24px;
-      background: var(--bg-primary);
-    }
-
-    .product-content {
-      display: flex;
-      flex-direction: column;
-      gap: 24px;
-      width: 366px;
+      margin: 0 auto;
     }
 
     .section-title {
       font-family: 'Inter';
       font-weight: 700;
-      font-size: 24px;
-      line-height: 120%;
+      font-size: var(--text-3xl);
+      line-height: var(--line-height-tight);
       color: var(--text-primary);
       text-align: center;
     }
 
-    /* Dropdown Section */
-    .dropdown-section {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
+    .calculator-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: var(--space-4);
       width: 100%;
     }
 
-    .dropdown-header {
+    .calculator-card {
       display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 16px;
+      flex-direction: column;
+      gap: var(--space-3);
+      padding: var(--space-5);
       background: var(--bg-secondary);
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      cursor: pointer;
-    }
-
-    .dropdown-text {
-      font-family: 'Inter';
-      font-weight: 600;
-      font-size: 16px;
-      color: var(--text-primary);
-    }
-
-    .dropdown-arrow {
-      width: 20px;
-      height: 20px;
-      background: var(--text-primary);
+      border: 2px solid var(--border-color);
+      border-radius: 12px;
+      position: relative;
       transition: var(--transition);
     }
 
-    /* Feature Grid */
-    .feature-grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 16px;
-      width: 100%;
+    .calculator-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
     }
 
-    .feature-card {
+    .ai-calculator-highlight {
+      border: 3px solid var(--primary-green);
+      box-shadow: 0 8px 24px rgba(16, 185, 129, 0.2);
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, rgba(138, 49, 255, 0.05) 100%);
+    }
+
+    .calculator-header {
       display: flex;
-      flex-direction: column;
-      gap: 12px;
-      padding: 16px;
-      background: var(--bg-secondary);
-      border: 1px solid var(--border-color);
+      align-items: center;
+      gap: var(--space-3);
+    }
+
+    .calculator-icon {
+      width: 48px;
+      height: 48px;
+      background: var(--primary-purple);
       border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 24px;
     }
 
-    .feature-image {
-      width: 100%;
-      height: 120px;
-      background: var(--bg-tertiary);
-      border: 1px solid var(--border-color);
-      border-radius: 4px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-family: 'Open Sans';
-      font-weight: 400;
-      font-size: 14px;
-      color: var(--text-muted);
-    }
-
-    .feature-tag {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 4px 8px;
+    .ai-calculator-icon {
       background: var(--primary-green);
-      border-radius: 4px;
+    }
+
+    .calculator-title {
       font-family: 'Inter';
-      font-weight: 600;
-      font-size: 12px;
-      color: var(--bg-primary);
-      width: fit-content;
-    }
-
-    .feature-info {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .feature-details {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .feature-rating {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    .star {
-      width: 16px;
-      height: 16px;
-      background: var(--accent-orange);
-    }
-
-    .rating-text {
-      font-family: 'Open Sans';
-      font-weight: 400;
-      font-size: 12px;
-      color: var(--text-muted);
-    }
-
-    .feature-title {
-      font-family: 'Inter';
-      font-weight: 600;
-      font-size: 16px;
+      font-weight: 700;
+      font-size: var(--text-xl);
+      line-height: var(--line-height-tight);
       color: var(--text-primary);
     }
 
-    .feature-description {
+    .calculator-description {
       font-family: 'Open Sans';
       font-weight: 400;
-      font-size: 14px;
+      font-size: var(--text-base);
+      line-height: var(--line-height-relaxed);
       color: var(--text-secondary);
     }
 
-    .feature-cta {
+    .calculator-cta {
       display: flex;
-      justify-content: center;
       align-items: center;
-      padding: 12px 24px;
+      justify-content: center;
+      gap: var(--space-2);
+      padding: var(--space-3) var(--space-4);
       background: var(--primary-purple);
-      border: none;
-      border-radius: 6px;
-      font-family: 'Inter';
-      font-weight: 600;
-      font-size: 14px;
-      color: var(--bg-primary);
-      cursor: pointer;
-      transition: var(--transition);
+      color: white;
       text-decoration: none;
+      border-radius: 8px;
+      font-weight: 600;
+      transition: var(--transition);
+      min-height: 44px;
+      min-width: 44px;
     }
 
-    .feature-cta:hover {
-      background: var(--primary-green);
+    .calculator-cta:hover {
+      background: #7c2dff;
       transform: translateY(-1px);
+    }
+
+    .ai-calculator-cta {
+      background: var(--primary-green);
+    }
+
+    .ai-calculator-cta:hover {
+      background: var(--primary-green-dark);
+    }
+
+    /* Value Proposition Section */
+    .value-prop-section {
+      padding: var(--space-8) var(--space-6);
+      background: var(--bg-secondary);
+    }
+
+    .value-prop-content {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-6);
+      width: 100%;
+      max-width: 366px;
+      margin: 0 auto;
+    }
+
+    .value-prop-card {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+      padding: var(--space-4);
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+    }
+
+    .value-prop-title {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      font-family: 'Inter';
+      font-weight: 600;
+      font-size: var(--text-lg);
+      color: var(--text-primary);
+    }
+
+    .value-prop-text {
+      font-family: 'Open Sans';
+      font-weight: 400;
+      font-size: var(--text-base);
+      line-height: var(--line-height-relaxed);
+      color: var(--text-secondary);
     }
 
     /* Testimonials Section */
     .testimonials-section {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 32px 24px;
-      background: var(--bg-secondary);
+      padding: var(--space-8) var(--space-6);
+      background: var(--bg-primary);
     }
 
     .testimonials-content {
       display: flex;
       flex-direction: column;
-      gap: 16px;
-      width: 366px;
+      gap: var(--space-6);
+      width: 100%;
+      max-width: 366px;
+      margin: 0 auto;
     }
 
     .testimonial-card {
       display: flex;
       flex-direction: column;
-      gap: 12px;
-      padding: 16px;
-      background: var(--bg-primary);
+      gap: var(--space-3);
+      padding: var(--space-4);
+      background: var(--bg-secondary);
       border: 1px solid var(--border-color);
       border-radius: 8px;
+    }
+
+    .testimonial-text {
       font-family: 'Open Sans';
       font-weight: 400;
-      font-size: 14px;
+      font-size: var(--text-base);
+      line-height: var(--line-height-relaxed);
       color: var(--text-secondary);
       font-style: italic;
     }
 
-    /* Differentiators Section */
-    .differentiators-section {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 32px 24px;
-      background: var(--bg-primary);
-    }
-
-    .differentiators-content {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      width: 366px;
-    }
-
-    .diff-card {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      padding: 16px;
-      background: var(--bg-secondary);
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-    }
-
-    .diff-card-content {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .diff-title {
+    .testimonial-author {
       font-family: 'Inter';
       font-weight: 600;
-      font-size: 16px;
+      font-size: var(--text-sm);
       color: var(--text-primary);
     }
 
-    .diff-text {
-      font-family: 'Open Sans';
-      font-weight: 400;
-      font-size: 14px;
-      color: var(--text-secondary);
-    }
-
-    /* FAQ Section */
-    .faq-section {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 32px 24px;
+    /* Pricing Section */
+    .pricing-section {
+      padding: var(--space-8) var(--space-6);
       background: var(--bg-secondary);
     }
 
-    .faq-content {
+    .pricing-content {
       display: flex;
       flex-direction: column;
-      gap: 16px;
-      width: 366px;
+      gap: var(--space-6);
+      width: 100%;
+      max-width: 366px;
+      margin: 0 auto;
     }
 
-    .faq-list {
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: var(--space-4);
+      width: 100%;
+    }
+
+    .pricing-card {
       display: flex;
       flex-direction: column;
-      gap: 12px;
-    }
-
-    .faq-item {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .faq-question {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 12px;
+      gap: var(--space-3);
+      padding: var(--space-5);
       background: var(--bg-primary);
-      border: 1px solid var(--border-color);
-      border-radius: 6px;
-      cursor: pointer;
-    }
-
-    .faq-question-text {
-      font-family: 'Inter';
-      font-weight: 600;
-      font-size: 14px;
-      color: var(--text-primary);
-    }
-
-    .faq-arrow {
-      width: 16px;
-      height: 16px;
-      background: var(--text-primary);
+      border: 2px solid var(--border-color);
+      border-radius: 12px;
+      position: relative;
       transition: var(--transition);
     }
 
-    .faq-divider {
-      height: 1px;
-      background: var(--border-color);
-      margin: 8px 0;
+    .pricing-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .featured {
+      border: 3px solid var(--primary-green);
+      box-shadow: 0 8px 24px rgba(16, 185, 129, 0.2);
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, rgba(138, 49, 255, 0.05) 100%);
+    }
+
+    .featured-badge {
+      position: absolute;
+      top: var(--space-2);
+      right: var(--space-2);
+      background: var(--primary-green);
+      color: white;
+      padding: var(--space-1) var(--space-2);
+      border-radius: 8px;
+      font-family: 'Inter';
+      font-weight: 700;
+      font-size: var(--text-sm);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .plan-name {
+      font-family: 'Inter';
+      font-weight: 700;
+      font-size: var(--text-2xl);
+      line-height: var(--line-height-tight);
+      color: var(--text-primary);
+      text-align: center;
+    }
+
+    .plan-price {
+      font-family: 'Inter';
+      font-weight: 900;
+      font-size: var(--text-4xl);
+      line-height: var(--line-height-tight);
+      color: var(--primary-purple);
+      text-align: center;
+      margin-top: var(--space-2);
+    }
+
+    .plan-period {
+      font-family: 'Open Sans';
+      font-weight: 400;
+      font-size: var(--text-base);
+      line-height: var(--line-height-relaxed);
+      color: var(--text-secondary);
+      text-align: center;
+      margin-top: var(--space-1);
+    }
+
+    .plan-savings {
+      font-family: 'Open Sans';
+      font-weight: 400;
+      font-size: var(--text-sm);
+      line-height: var(--line-height-relaxed);
+      color: var(--primary-green);
+      text-align: center;
+      margin-top: var(--space-2);
+    }
+
+    .plan-features {
+      list-style: none;
+      padding: 0;
+      margin-top: var(--space-4);
+    }
+
+    .plan-features li {
+      font-family: 'Open Sans';
+      font-weight: 400;
+      font-size: var(--text-base);
+      line-height: var(--line-height-relaxed);
+      color: var(--text-secondary);
+      margin-bottom: var(--space-2);
+      display: flex;
+      align-items: center;
+      gap: var(--space-1);
+    }
+
+    .plan-features li i {
+      color: var(--primary-green);
+      font-size: 16px;
+    }
+
+    .plan-limits {
+      margin-top: var(--space-4);
+      padding-top: var(--space-4);
+      border-top: 1px solid var(--border-color);
+    }
+
+    .plan-limits strong {
+      font-family: 'Inter';
+      font-weight: 700;
+      font-size: var(--text-base);
+      line-height: var(--line-height-relaxed);
+      color: var(--text-primary);
+      margin-bottom: var(--space-2);
+    }
+
+    .plan-limits ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .plan-limits ul li {
+      font-family: 'Open Sans';
+      font-weight: 400;
+      font-size: var(--text-base);
+      line-height: var(--line-height-relaxed);
+      color: var(--text-secondary);
+      margin-bottom: var(--space-1);
+    }
+
+    .plan-cta {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-2);
+      padding: var(--space-3) var(--space-4);
+      background: var(--primary-purple);
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 600;
+      transition: var(--transition);
+      min-height: 44px;
+      min-width: 44px;
+      margin-top: var(--space-4);
+    }
+
+    .plan-cta:hover {
+      background: #7c2dff;
+      transform: translateY(-1px);
+    }
+
+    .pricing-cta-container {
+      display: flex;
+      justify-content: center;
+      margin-top: var(--space-6);
+    }
+
+    .hero-cta-primary {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-2);
+      padding: var(--space-3) var(--space-4);
+      background: var(--primary-purple);
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 600;
+      transition: var(--transition);
+      min-height: 44px;
+      min-width: 44px;
+    }
+
+    .hero-cta-primary:hover {
+      background: #7c2dff;
+      transform: translateY(-1px);
     }
 
     /* Final CTA Section */
     .final-cta-section {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 32px 24px;
-      background: linear-gradient(135deg, var(--primary-purple) 0%, var(--primary-green) 100%);
-      color: var(--bg-primary);
+      padding: var(--space-8) var(--space-6);
+      background: var(--bg-secondary);
     }
 
     .final-cta-content {
       display: flex;
       flex-direction: column;
-      gap: 24px;
-      width: 366px;
+      gap: var(--space-6);
+      width: 100%;
+      max-width: 366px;
+      margin: 0 auto;
       text-align: center;
-    }
-
-    .final-content {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
     }
 
     .final-headline {
       font-family: 'Inter';
       font-weight: 700;
-      font-size: 28px;
-      line-height: 120%;
-      color: var(--bg-primary);
+      font-size: var(--text-3xl);
+      line-height: var(--line-height-tight);
+      color: var(--text-primary);
     }
 
     .final-subtext {
       font-family: 'Open Sans';
       font-weight: 400;
-      font-size: 16px;
-      line-height: 150%;
-      color: var(--bg-primary);
+      font-size: var(--text-lg);
+      line-height: var(--line-height-relaxed);
+      color: var(--text-secondary);
     }
 
-    .final-cta {
-      display: flex;
-      justify-content: center;
+    .btn-cta {
+      display: inline-flex;
       align-items: center;
-      padding: 16px 32px;
-      background: var(--bg-primary);
-      border: none;
-      border-radius: 8px;
-      font-family: 'Inter';
-      font-weight: 600;
-      font-size: 16px;
-      color: var(--primary-purple);
-      cursor: pointer;
-      transition: var(--transition);
+      justify-content: center;
+      gap: var(--space-2);
+      padding: var(--space-3) var(--space-4);
+      background: var(--primary-purple);
+      color: white;
       text-decoration: none;
+      border-radius: 8px;
+      font-weight: 600;
+      transition: var(--transition);
+      min-height: 44px;
+      min-width: 44px;
     }
 
-    .final-cta:hover {
+    .btn-cta:hover {
+      background: #7c2dff;
+      transform: translateY(-1px);
+    }
+
+    .btn-primary {
+      background: var(--primary-purple);
+    }
+
+    .share-buttons {
+      display: flex;
+      gap: var(--space-2);
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .share-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding: var(--space-2) var(--space-3);
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: 500;
+      transition: var(--transition);
+      min-height: 44px;
+      min-width: 44px;
+    }
+
+    .share-btn:hover {
       background: var(--bg-secondary);
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-lg);
     }
 
     /* Footer */
     .footer {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 32px 24px;
-      background: var(--text-primary);
-      color: var(--bg-primary);
+      padding: var(--space-6);
+      background: var(--bg-primary);
+      border-top: 1px solid var(--border-color);
     }
 
     .footer-content {
       display: flex;
       flex-direction: column;
-      gap: 16px;
-      width: 366px;
+      gap: var(--space-4);
       text-align: center;
+      max-width: 366px;
+      margin: 0 auto;
+    }
+
+    .contact-info {
       font-family: 'Open Sans';
-      font-weight: 400;
-      font-size: 14px;
-    }
-
-    /* Urgency Banner */
-    .urgency-banner {
-      background: linear-gradient(135deg, var(--accent-orange) 0%, #dc2626 100%);
-      color: white;
-      padding: 12px 24px;
-      text-align: center;
-      font-weight: 600;
-      font-size: 14px;
-      animation: glow 2s ease-in-out infinite alternate;
-    }
-
-    @keyframes glow {
-      from { box-shadow: 0 0 5px var(--accent-orange); }
-      to { box-shadow: 0 0 20px var(--accent-orange), 0 0 30px var(--accent-orange); }
-    }
-
-    /* Performance Dashboard */
-    .performance-dashboard {
-      background: var(--bg-secondary);
-      padding: 24px;
-      border-radius: 8px;
-      margin: 24px 0;
-    }
-
-    .dashboard-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 16px;
-    }
-
-    .dashboard-title {
-      font-family: 'Inter';
-      font-weight: 600;
-      font-size: 18px;
-      color: var(--text-primary);
-    }
-
-    .dashboard-metric {
-      font-family: 'Inter';
-      font-weight: 700;
-      font-size: 24px;
-      color: var(--primary-green);
-    }
-
-    .progress-bars {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .progress-item {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .progress-label {
-      font-family: 'Open Sans';
-      font-weight: 400;
-      font-size: 12px;
+      font-size: var(--text-sm);
       color: var(--text-secondary);
     }
 
-    .progress-bar {
-      width: 100%;
-      height: 8px;
+    .contact-link {
+      color: var(--primary-purple);
+      text-decoration: underline;
+    }
+
+    .footer-navigation {
+      display: flex;
+      gap: var(--space-2);
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .footer-link {
+      color: var(--primary-purple);
+      text-decoration: underline;
+      font-size: var(--text-sm);
+    }
+
+    .social-links {
+      display: flex;
+      gap: var(--space-2);
+      justify-content: center;
+    }
+
+    .social-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      color: var(--primary-green);
+      text-decoration: none;
+      transition: var(--transition);
+      min-height: 44px;
+      min-width: 44px;
+    }
+
+    .social-link:hover {
       background: var(--bg-tertiary);
-      border-radius: 4px;
-      overflow: hidden;
+      transform: translateY(-1px);
     }
 
-    .progress-fill {
-      height: 100%;
-      background: linear-gradient(90deg, var(--primary-green) 0%, var(--primary-purple) 100%);
-      border-radius: 4px;
-      transition: width 1s ease-in-out;
-      position: relative;
-    }
-
-    .progress-fill::after {
-      content: '';
-      position: absolute;
+    /* Exit Intent Popup */
+    .exit-popup {
+      display: none;
+      position: fixed;
       top: 0;
       left: 0;
-      right: 0;
-      bottom: 0;
-      background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.3) 50%, transparent 100%);
-      animation: shimmer 2s infinite;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
     }
 
-    @keyframes shimmer {
-      0% { transform: translateX(-100%); }
-      100% { transform: translateX(100%); }
+    .popup-content {
+      background: var(--bg-primary);
+      padding: var(--space-6);
+      border-radius: 12px;
+      max-width: 400px;
+      width: 90%;
+      position: relative;
+      border: 2px solid var(--border-color);
+    }
+
+    .popup-close {
+      position: absolute;
+      top: var(--space-2);
+      right: var(--space-2);
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      padding: var(--space-1);
+      border-radius: 4px;
+      min-height: 44px;
+      min-width: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .popup-title {
+      font-family: 'Inter';
+      font-weight: 700;
+      font-size: var(--text-xl);
+      color: var(--text-primary);
+      margin-bottom: var(--space-3);
+    }
+
+    .popup-text {
+      font-family: 'Open Sans';
+      font-size: var(--text-base);
+      color: var(--text-secondary);
+      margin-bottom: var(--space-4);
+      line-height: var(--line-height-relaxed);
+    }
+
+    /* Utility Classes */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    .touch-target {
+      min-height: 44px;
+      min-width: 44px;
     }
 
     /* Responsive Design */
-    @media (max-width: 414px) {
-      .container {
-        max-width: 100%;
-        padding: 0 16px;
+    @media (max-width: 768px) {
+      .hero-headline {
+        font-size: var(--text-4xl);
       }
       
-      .hero-content,
-      .product-content,
-      .testimonials-content,
-      .differentiators-content,
-      .faq-content,
-      .final-cta-content,
-      .footer-content {
-        width: 100%;
+      .section-title {
+        font-size: var(--text-2xl);
+      }
+      
+      .final-headline {
+        font-size: var(--text-2xl);
       }
     }
-
-    /* Animations */
-    .fade-in {
-      opacity: 0;
-      transform: translateY(20px);
-      transition: opacity 0.6s ease, transform 0.6s ease;
-    }
-
-    .fade-in.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  
-        /* Social Sharing Buttons */
-        .share-buttons {
-            display: flex;
-            gap: 0.5rem;
-            margin-top: 1rem;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-        
-        .share-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.75rem 1.5rem;
-            border: none;
-            border-radius: 8px;
-            color: white;
-            font-weight: 600;
-            text-decoration: none;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 0.9rem;
-        }
-        
-        .share-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-        }
-        
-        .share-btn.facebook { background: #1877f2; }
-        .share-btn.twitter { background: #1da1f2; }
-        .share-btn.linkedin { background: #0077b5; }
-        .share-btn.whatsapp { background: #25d366; }
-        
-        .share-btn.facebook:hover { background: #166fe5; }
-        .share-btn.twitter:hover { background: #1a91da; }
-        .share-btn.linkedin:hover { background: #006097; }
-        .share-btn.whatsapp:hover { background: #128c7e; }
-
-        /* Enhanced Social Proof */
-        .social-proof-section {
-            padding: 4rem 0;
-            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(102, 126, 234, 0.1) 100%);
-        }
-        
-        .social-proof-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 2rem;
-            margin: 3rem 0;
-        }
-        
-        .proof-card {
-            text-align: center;
-            padding: 2rem;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 16px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-        }
-        
-        .proof-number {
-            font-size: 2.5rem;
-            font-weight: 900;
-            color: var(--primary-color);
-            margin-bottom: 0.5rem;
-        }
-        
-        .proof-label {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: var(--text-color);
-            margin-bottom: 0.5rem;
-        }
-        
-        .proof-source {
-            font-size: 0.9rem;
-            color: var(--text-light);
-        }
-        
-        .social-media-proof {
-            text-align: center;
-            margin-top: 3rem;
-        }
-        
-        .social-media-proof h3 {
-            font-size: 1.5rem;
-            margin-bottom: 2rem;
-            color: var(--text-color);
-        }
-        
-        .media-logos {
-            display: flex;
-            justify-content: center;
-            gap: 3rem;
-            flex-wrap: wrap;
-        }
-        
-        .media-logo {
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: var(--text-light);
-            opacity: 0.7;
-            transition: opacity 0.3s ease;
-        }
-        
-        .media-logo:hover {
-            opacity: 1;
-        }
-
-        /* Influencer Content */
-        .influencer-section {
-            padding: 4rem 0;
-            background: var(--surface-color);
-        }
-        
-        .influencer-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 3rem;
-            margin: 3rem 0;
-        }
-        
-        .influencer-card {
-            display: flex;
-            gap: 1.5rem;
-            padding: 2rem;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 16px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-        }
-        
-        .influencer-image img {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            object-fit: cover;
-        }
-        
-        .influencer-content h3 {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--text-color);
-            margin-bottom: 0.5rem;
-        }
-        
-        .influencer-title {
-            font-size: 1rem;
-            color: var(--primary-color);
-            margin-bottom: 1rem;
-            font-weight: 600;
-        }
-        
-        .influencer-content blockquote {
-            font-style: italic;
-            color: var(--text-light);
-            line-height: 1.6;
-            border-left: 3px solid var(--primary-color);
-            padding-left: 1rem;
-        }
-
-        /* Social Media Links */
-        .social-links {
-            display: flex;
-            gap: 1rem;
-            margin-top: 1rem;
-        }
-        
-        .social-link {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 40px;
-            height: 40px;
-            background: var(--primary-color);
-            color: white;
-            border-radius: 50%;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            font-size: 1.2rem;
-        }
-        
-        .social-link:hover {
-            background: var(--secondary-color);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-        }
-        
-        .social-link.facebook:hover { background: #1877f2; }
-        .social-link.twitter:hover { background: #1da1f2; }
-        .social-link.linkedin:hover { background: #0077b5; }
-        .social-link.instagram:hover { background: #e4405f; }
-        .social-link.youtube:hover { background: #ff0000; }
-        
-        /* Marketing page social links */
-        .footer a[href*="facebook"]:hover { color: #1877f2 !important; }
-        .footer a[href*="twitter"]:hover { color: #1da1f2 !important; }
-        .footer a[href*="linkedin"]:hover { color: #0077b5 !important; }
-        .footer a[href*="instagram"]:hover { color: #e4405f !important; }
-        .footer a[href*="youtube"]:hover { color: #ff0000 !important; }
-
-        /* Social Sharing Buttons */
-        .share-buttons {
-            display: flex;
-            gap: 0.5rem;
-            margin-top: 1rem;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-        
-        .share-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.75rem 1.5rem;
-            border: none;
-            border-radius: 8px;
-            color: white;
-            font-weight: 600;
-            text-decoration: none;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 0.9rem;
-        }
-        
-        .share-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-        }
-        
-        .share-btn.facebook { background: #1877f2; }
-        .share-btn.twitter { background: #1da1f2; }
-        .share-btn.linkedin { background: #0077b5; }
-        .share-btn.whatsapp { background: #25d366; }
-        
-        .share-btn.facebook:hover { background: #166fe5; }
-        .share-btn.twitter:hover { background: #1a91da; }
-        .share-btn.linkedin:hover { background: #006097; }
-        .share-btn.whatsapp:hover { background: #128c7e; }
-
-        /* Enhanced Social Proof */
-        .social-proof-section {
-            padding: 4rem 0;
-            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(102, 126, 234, 0.1) 100%);
-        }
-        
-        .social-proof-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 2rem;
-            margin: 3rem 0;
-        }
-        
-        .proof-card {
-            text-align: center;
-            padding: 2rem;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 16px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-        }
-        
-        .proof-number {
-            font-size: 2.5rem;
-            font-weight: 900;
-            color: var(--primary-color);
-            margin-bottom: 0.5rem;
-        }
-        
-        .proof-label {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: var(--text-color);
-            margin-bottom: 0.5rem;
-        }
-        
-        .proof-source {
-            font-size: 0.9rem;
-            color: var(--text-light);
-        }
-        
-        .social-media-proof {
-            text-align: center;
-            margin-top: 3rem;
-        }
-        
-        .social-media-proof h3 {
-            font-size: 1.5rem;
-            margin-bottom: 2rem;
-            color: var(--text-color);
-        }
-        
-        .media-logos {
-            display: flex;
-            justify-content: center;
-            gap: 3rem;
-            flex-wrap: wrap;
-        }
-        
-        .media-logo {
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: var(--text-light);
-            opacity: 0.7;
-            transition: opacity 0.3s ease;
-        }
-        
-        .media-logo:hover {
-            opacity: 1;
-        }
-
-        /* Influencer Content */
-        .influencer-section {
-            padding: 4rem 0;
-            background: var(--surface-color);
-        }
-        
-        .influencer-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 3rem;
-            margin: 3rem 0;
-        }
-        
-        .influencer-card {
-            display: flex;
-            gap: 1.5rem;
-            padding: 2rem;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 16px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-        }
-        
-        .influencer-image img {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            object-fit: cover;
-        }
-        
-        .influencer-content h3 {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--text-color);
-            margin-bottom: 0.5rem;
-        }
-        
-        .influencer-title {
-            font-size: 1rem;
-            color: var(--primary-color);
-            margin-bottom: 1rem;
-            font-weight: 600;
-        }
-        
-        .influencer-content blockquote {
-            font-style: italic;
-            color: var(--text-light);
-            line-height: 1.6;
-            border-left: 3px solid var(--primary-color);
-            padding-left: 1rem;
-        }
-</style>
+  </style>
 </head>
 <body>
   <div class="container">
-    <!-- Social Proof Banner -->
-    <div class="social-proof-banner">
-                  ✅ Break free from financial stress with intelligent insights
-    </div>
+    <!-- Skip Links for Accessibility -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    <a href="#navigation" class="skip-link">Skip to navigation</a>
+    <a href="#footer" class="skip-link">Skip to footer</a>
+    <a href="#search" class="skip-link">Skip to search</a>
 
     <!-- Header -->
-    <header class="header">
+    <header class="header" role="banner">
       <div class="nav-container">
         <div class="logo-section">
-          <div class="logo">MINGUS</div>
+          <div class="logo" role="img" aria-label="MINGUS Financial Logo">MINGUS</div>
         </div>
         <div class="nav-icons">
-          <div class="nav-icon"></div>
-          <div class="nav-icon"></div>
+          <button class="nav-icon touch-target" aria-label="Settings" title="Open settings menu">
+            <i class="fas fa-cog" aria-hidden="true"></i>
+            <span class="sr-only">Settings</span>
+          </button>
+          <button class="nav-icon touch-target" aria-label="Notifications" title="View notifications">
+            <i class="fas fa-bell" aria-hidden="true"></i>
+            <span class="sr-only">Notifications</span>
+          </button>
+          <a href="#pricing" class="nav-link touch-target" aria-label="View pricing plans" title="View pricing plans">
+            <i class="fas fa-dollar-sign" aria-hidden="true"></i>
+            <span class="sr-only">Pricing</span>
+          </a>
         </div>
       </div>
     </header>
 
-
-
-    <!-- Hero Section -->
-    <section class="hero fade-in">
-      <div class="hero-content">
-        <div class="hero-text">
-          <div class="social-proof-tag">✅ AI-Powered Financial Intelligence</div>
-          <h1 class="hero-headline">Break Free From Apps That Profit From Your Financial Stress</h1>
-          <p class="hero-subtext">Discover how your relationships impact your spending habits and get a personalized action plan to achieve financial freedom.</p>
-        </div>
-
-      </div>
-    </section>
-
-    <!-- Visual Section -->
-    <section class="visual-section fade-in">
-      <div class="visual-content">
-        "I saved $2,400 in 3 months after taking this assessment" - Sarah M.
-      </div>
-    </section>
-
-    <!-- Performance Dashboard -->
-    <section class="performance-dashboard fade-in">
-      <div class="dashboard-header">
-        <div class="dashboard-title">Your Financial Health Score</div>
-        <div class="dashboard-metric">85/100</div>
-      </div>
-      <div class="progress-bars">
-        <div class="progress-item">
-          <div class="progress-label">Stress Level</div>
-          <div class="progress-bar">
-            <div class="progress-fill" style="--target-width: 65%; width: 65%;"></div>
+    <!-- Main Content -->
+    <main id="main-content" role="main">
+      <!-- Hero Section -->
+      <section class="hero" aria-labelledby="hero-headline">
+        <div class="hero-content">
+          <div class="hero-text">
+            <h1 id="hero-headline" class="hero-headline">Will AI Replace Your Job?</h1>
+            <p class="hero-subtext">Get your personalized AI job risk assessment and create career protection strategies in just 2 minutes.</p>
+          </div>
+          
+          <div class="hero-stats" role="region" aria-label="Platform statistics">
+            <div class="stat-item">
+              <i class="fas fa-users stat-icon" aria-hidden="true"></i>
+              <span>12,847+ professionals assessed this month</span>
+            </div>
+            <div class="stat-item">
+              <i class="fas fa-clock stat-icon" aria-hidden="true"></i>
+              <span>2-minute assessment</span>
+            </div>
+            <div class="stat-item">
+              <i class="fas fa-shield-alt stat-icon" aria-hidden="true"></i>
+              <span>Free career protection plan</span>
+            </div>
           </div>
         </div>
-        <div class="progress-item">
-          <div class="progress-label">Relationship Impact</div>
-          <div class="progress-bar">
-            <div class="progress-fill" style="--target-width: 78%; width: 78%;"></div>
-          </div>
-        </div>
-        <div class="progress-item">
-          <div class="progress-label">Financial Control</div>
-          <div class="progress-bar">
-            <div class="progress-fill" style="--target-width: 92%; width: 92%;"></div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Social Proof Section -->
-          <section class="social-proof-section fade-in">
-        <div class="social-proof-number">Start Today</div>
-        <p>Take this assessment and transform your financial life</p>
       </section>
 
-    <!-- Product Section -->
-    <section class="product-section fade-in">
-      <div class="product-content">
-        <h2 class="section-title">Why Choose MINGUS?</h2>
+      <!-- Lead Magnet Section -->
+      <section class="lead-magnet-section" aria-labelledby="lead-magnet-title">
+        <div class="lead-magnet-content">
+          <h2 id="lead-magnet-title" class="section-title">Free Financial Tools</h2>
+          
+          <div class="calculator-grid">
+            <article class="calculator-card ai-calculator-highlight" role="article" aria-labelledby="ai-calculator-title">
+              <div class="calculator-header">
+                <div class="calculator-icon ai-calculator-icon" aria-hidden="true">
+                  <i class="fas fa-robot" aria-hidden="true"></i>
+                </div>
+                <h3 id="ai-calculator-title" class="calculator-title">AI Job Impact Calculator</h3>
+              </div>
+              <p class="calculator-description">Discover your automation risk and get personalized career protection strategies.</p>
+              <a href="/ai-job-impact-calculator.html" class="calculator-cta ai-calculator-cta btn-cta btn-primary" aria-describedby="ai-calculator-desc">
+                Get My Free Assessment
+              </a>
+              <div id="ai-calculator-desc" class="sr-only">AI Job Impact Calculator - Assess your job automation risk and get personalized career protection strategies</div>
+            </article>
+
+            <article class="calculator-card" role="article" aria-labelledby="budget-calculator-title">
+              <div class="calculator-header">
+                <div class="calculator-icon" aria-hidden="true">
+                  <i class="fas fa-calculator" aria-hidden="true"></i>
+                </div>
+                <h3 id="budget-calculator-title" class="calculator-title">Budget Calculator</h3>
+              </div>
+              <p class="calculator-description">Create a personalized budget plan and track your financial progress.</p>
+              <a href="/budget-calculator.html" class="calculator-cta btn-cta btn-primary" aria-describedby="budget-calculator-desc">
+                Start Budgeting
+              </a>
+              <div id="budget-calculator-desc" class="sr-only">Budget Calculator - Create a personalized budget plan and track your financial progress</div>
+            </article>
+
+            <article class="calculator-card" role="article" aria-labelledby="income-comparison-title">
+              <div class="calculator-header">
+                <div class="calculator-icon" aria-hidden="true">
+                  <i class="fas fa-chart-line" aria-hidden="true"></i>
+                </div>
+                <h3 id="income-comparison-title" class="calculator-title">Income Comparison Tool</h3>
+              </div>
+              <p class="calculator-description">Compare different career paths and salary potential to make informed decisions.</p>
+              <a href="/income-comparison.html" class="calculator-cta btn-cta btn-primary" aria-describedby="income-comparison-desc">
+                Compare Careers
+              </a>
+              <div id="income-comparison-desc" class="sr-only">Income Comparison Tool - Compare different career paths and salary potential to make informed career decisions</div>
+            </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- Value Proposition Section -->
+    <section class="value-prop-section" aria-labelledby="value-prop-title">
+      <div class="value-prop-content">
+        <h2 id="value-prop-title" class="section-title">Why African American Professionals Choose MINGUS</h2>
         
-        <div class="dropdown-section">
-          <div class="dropdown-header">
-            <div class="dropdown-text">AI-Powered Insights</div>
-            <div class="dropdown-arrow"></div>
+        <div class="value-prop-card" role="article">
+          <div class="value-prop-title">
+            <i class="fas fa-shield-alt" style="color: var(--primary-green);" aria-hidden="true"></i>
+            <span>Career Protection & Advancement</span>
+          </div>
+          <div class="value-prop-text">
+            Stay ahead of AI disruption with personalized career strategies. Our assessments help you identify high-value skills and transition opportunities that protect your income and advance your career.
           </div>
         </div>
-
-        <div class="feature-grid">
-          <div class="feature-card">
-            <div class="feature-image">📊 Financial Health Dashboard</div>
-            <div class="feature-tag">NEW</div>
-            <div class="feature-info">
-              <div class="feature-details">
-                <div class="feature-rating">
-                  <div class="star"></div>
-                  <div class="star"></div>
-                  <div class="star"></div>
-                  <div class="star"></div>
-                  <div class="star"></div>
-                  <div class="rating-text">Start Now</div>
-                </div>
-              </div>
-              <div class="feature-title">Real-Time Financial Analysis</div>
-              <div class="feature-description">Get instant insights into your spending patterns and relationship influences on your finances.</div>
-                              <a href="/api/questionnaire/relationship" class="feature-cta">Start Assessment</a>
-            </div>
+        
+        <div class="value-prop-card" role="article">
+          <div class="value-prop-title">
+            <i class="fas fa-chart-pie" style="color: var(--primary-purple);" aria-hidden="true"></i>
+            <span>Financial Wellness Planning</span>
           </div>
-
-          <div class="feature-card">
-            <div class="feature-image">🎯 Personalized Action Plan</div>
-            <div class="feature-tag">FREE</div>
-            <div class="feature-info">
-              <div class="feature-details">
-                <div class="feature-rating">
-                  <div class="star"></div>
-                  <div class="star"></div>
-                  <div class="star"></div>
-                  <div class="star"></div>
-                  <div class="star"></div>
-                  <div class="rating-text">Get Started</div>
-                </div>
-              </div>
-              <div class="feature-title">Custom 30-Day Strategy</div>
-              <div class="feature-description">Receive a detailed action plan tailored to your unique financial personality and goals.</div>
-              <a href="/api/questionnaire/questionnaire" class="feature-cta">Get Your Plan</a>
-            </div>
+          <div class="value-prop-text">
+            Connect job security to financial planning. Understand how career changes impact your financial goals and create a comprehensive strategy for long-term wealth building.
           </div>
-
-          <div class="feature-card">
-            <div class="feature-image">🛡️ Relationship Impact Analysis</div>
-            <div class="feature-tag">PRO</div>
-            <div class="feature-info">
-              <div class="feature-details">
-                <div class="feature-rating">
-                  <div class="star"></div>
-                  <div class="star"></div>
-                  <div class="star"></div>
-                  <div class="star"></div>
-                  <div class="star"></div>
-                  <div class="rating-text">Learn More</div>
-                </div>
-              </div>
-              <div class="feature-title">Understand Your Triggers</div>
-              <div class="feature-description">Discover how your relationships affect your spending and learn to make better financial decisions.</div>
-                              <a href="/api/questionnaire/relationship" class="feature-cta">Learn More</a>
-            </div>
+        </div>
+        
+        <div class="value-prop-card" role="article">
+          <div class="value-prop-title">
+            <i class="fas fa-users" style="color: var(--accent-orange);" aria-hidden="true"></i>
+            <span>Community & Support</span>
+          </div>
+          <div class="value-prop-text">
+            Join a community of professionals navigating AI disruption together. Share experiences, strategies, and support each other's career and financial growth.
           </div>
         </div>
       </div>
     </section>
 
-        
-
-
-        <!-- Testimonials Section -->
-    <section class="testimonials-section fade-in">
+    <!-- Testimonials Section -->
+    <section class="testimonials-section" aria-labelledby="testimonials-title">
       <div class="testimonials-content">
-        <h2 class="section-title">What Our Users Say</h2>
+        <h2 id="testimonials-title" class="section-title">Success Stories</h2>
         
-        <div class="testimonial-card">
-          "Take the first step toward understanding your financial patterns and building a healthier relationship with money."
+        <div class="testimonial-card" role="article">
+          <blockquote class="testimonial-text">
+            "The AI job risk calculator showed me my role was at 60% automation risk. I immediately started learning AI collaboration skills and got promoted within 6 months. MINGUS literally saved my career."
+          </blockquote>
+          <cite class="testimonial-author">- Marcus Johnson, Marketing Director</cite>
         </div>
         
-        <div class="testimonial-card">
-          "Discover how your relationships and emotions influence your spending decisions."
+        <div class="testimonial-card" role="article">
+          <blockquote class="testimonial-text">
+            "As a Black professional, I was worried about AI bias in hiring. MINGUS helped me understand how to position my unique value and skills that AI can't replicate."
+          </blockquote>
+          <cite class="testimonial-author">- Dr. Sarah Williams, Healthcare Administrator</cite>
         </div>
         
-        <div class="testimonial-card">
-          "Get personalized insights to help you make better financial choices and achieve your goals."
-        </div>
-      </div>
-    </section>
-
-    <!-- Differentiators Section -->
-    <section class="differentiators-section fade-in">
-      <div class="differentiators-content">
-        <h2 class="section-title">How MINGUS is Different</h2>
-        
-        <div class="diff-card">
-          <div class="diff-card-content">
-            <div class="diff-title">🤖 AI-Powered Analysis</div>
-            <div class="diff-text">Unlike traditional budgeting apps, MINGUS uses advanced AI to understand the emotional and relational factors affecting your spending.</div>
-          </div>
-        </div>
-        
-        <div class="diff-card">
-          <div class="diff-card-content">
-            <div class="diff-title">🎯 Personalized Insights</div>
-            <div class="diff-text">Get recommendations tailored to your unique financial personality, not generic advice that doesn't work for everyone.</div>
-          </div>
-        </div>
-        
-        <div class="diff-card">
-          <div class="diff-card-content">
-            <div class="diff-title">📊 Real-Time Tracking</div>
-            <div class="diff-text">Monitor your progress with detailed analytics and see exactly how your new habits are improving your financial health.</div>
-          </div>
+        <div class="testimonial-card" role="article">
+          <blockquote class="testimonial-text">
+            "The relationship impact calculator revealed how my stress spending was affecting my savings. I've saved $3,200 in 4 months by understanding my triggers."
+          </blockquote>
+          <cite class="testimonial-author">- David Thompson, Software Engineer</cite>
         </div>
       </div>
     </section>
 
-    <!-- FAQ Section -->
-    <section class="faq-section fade-in">
-      <div class="faq-content">
-        <h2 class="section-title">Frequently Asked Questions</h2>
+    <!-- Pricing Section -->
+    <section id="pricing" class="pricing-section" aria-labelledby="pricing-title">
+      <div class="pricing-content">
+        <h2 id="pricing-title" class="section-title">Choose Your Financial Freedom Plan</h2>
+        <p class="pricing-subtitle">Flexible pricing options designed to grow with your financial needs and goals.</p>
         
-        <div class="faq-list">
-          <div class="faq-item">
-            <div class="faq-question">
-              <div class="faq-question-text">How long does the assessment take?</div>
-              <div class="faq-arrow"></div>
+        <div class="pricing-grid">
+          <div class="pricing-card" role="article">
+            <h3 class="plan-name">Budget Tier</h3>
+            <div class="plan-price">$15</div>
+            <div class="plan-period">per month</div>
+            <div class="plan-savings">Save $36/year with annual billing</div>
+            <ul class="plan-features">
+              <li>Basic Analytics & Reporting</li>
+              <li>Goal Setting & Tracking</li>
+              <li>Email Support</li>
+              <li>Mobile App Access</li>
+              <li>Data Export (2/month)</li>
+              <li>Basic Notifications</li>
+            </ul>
+            <div class="plan-limits">
+              <strong>Monthly Limits:</strong>
+              <ul>
+                <li>Health Check-ins: 4</li>
+                <li>Financial Reports: 2</li>
+                <li>AI Insights: Not available</li>
+                <li>Goals per Account: 3</li>
+                <li>Analytics Reports: 5</li>
+              </ul>
             </div>
-            <div class="faq-divider"></div>
+            <a href="/quiz" class="plan-cta btn-cta btn-primary">Start Budget Plan</a>
           </div>
-          
-          <div class="faq-item">
-            <div class="faq-question">
-              <div class="faq-question-text">Is my information secure?</div>
-              <div class="faq-arrow"></div>
+
+          <div class="pricing-card featured" role="article">
+            <div class="featured-badge">Most Popular</div>
+            <h3 class="plan-name">Mid-Tier</h3>
+            <div class="plan-price">$35</div>
+            <div class="plan-period">per month</div>
+            <div class="plan-savings">Save $84/year with annual billing</div>
+            <ul class="plan-features">
+              <li>Everything in Budget Tier</li>
+              <li>Advanced AI Insights (50/month)</li>
+              <li>Career Risk Management (Unlimited)</li>
+              <li>Priority Support</li>
+              <li>Custom Reports (5/month)</li>
+              <li>Portfolio Optimization</li>
+              <li>Investment Tracking</li>
+              <li>Debt Optimization</li>
+              <li>Tax Planning</li>
+            </ul>
+            <div class="plan-limits">
+              <strong>Monthly Limits:</strong>
+              <ul>
+                <li>Health Check-ins: 12</li>
+                <li>Financial Reports: 10</li>
+                <li>AI Insights: 50</li>
+                <li>Goals per Account: 10</li>
+                <li>Analytics Reports: 20</li>
+                <li>Investment Accounts: 5</li>
+                <li>Custom Categories: 20</li>
+              </ul>
             </div>
-            <div class="faq-divider"></div>
+            <a href="/quiz" class="plan-cta btn-cta btn-primary">Start Mid-Tier Plan</a>
           </div>
-          
-          <div class="faq-item">
-            <div class="faq-question">
-              <div class="faq-question-text">What do I get after completing the assessment?</div>
-              <div class="faq-arrow"></div>
+
+          <div class="pricing-card" role="article">
+            <h3 class="plan-name">Professional Tier</h3>
+            <div class="plan-price">$100</div>
+            <div class="plan-period">per month</div>
+            <div class="plan-savings">Save $240/year with annual billing</div>
+            <ul class="plan-features">
+              <li>Everything in Mid-Tier</li>
+              <li>Unlimited Access to All Features</li>
+              <li>Dedicated Account Manager</li>
+              <li>Team Management (10 members)</li>
+              <li>White-Label Reports</li>
+              <li>API Access (10,000 requests/month)</li>
+              <li>Custom Integrations</li>
+              <li>Priority Feature Requests</li>
+              <li>Phone Support</li>
+              <li>Onboarding Call</li>
+            </ul>
+            <div class="plan-limits">
+              <strong>Unlimited Access:</strong>
+              <ul>
+                <li>All Features: Unlimited</li>
+                <li>Team Members: Up to 10</li>
+                <li>API Requests: 10,000/month</li>
+                <li>Priority Support: Unlimited</li>
+              </ul>
             </div>
-            <div class="faq-divider"></div>
+            <a href="/quiz" class="plan-cta btn-cta btn-primary">Start Professional Plan</a>
           </div>
-          
-          <div class="faq-item">
-            <div class="faq-question">
-              <div class="faq-question-text">Can I retake the assessment?</div>
-              <div class="faq-arrow"></div>
-            </div>
-            <div class="faq-divider"></div>
-          </div>
+        </div>
+
+        <div class="pricing-cta-container">
+          <a href="/quiz" class="hero-cta-primary btn-cta btn-primary">
+            Determine Your Perfect Plan
+            <span>→</span>
+          </a>
         </div>
       </div>
     </section>
 
     <!-- Final CTA Section -->
-    <section class="final-cta-section fade-in">
+    <section class="final-cta-section" aria-labelledby="final-cta-title">
       <div class="final-cta-content">
-        <div class="final-content">
-          <h2 class="final-headline">Ready to Transform Your Financial Life?</h2>
-          <p class="final-subtext">Discover the secret to financial freedom through better understanding of your relationship with money.</p>
+        <h2 id="final-cta-title" class="final-headline">Ready to Secure Your Future?</h2>
+        <p class="final-subtext">Get your personalized AI job risk assessment and create career protection strategies.</p>
+        <a href="/ai-job-impact-calculator.html" class="final-cta btn-cta btn-primary" aria-describedby="final-cta-desc">Get Your Free AI Risk Assessment</a>
+        <div id="final-cta-desc" class="sr-only">Get your personalized AI job risk assessment</div>
+        
+        <div class="share-buttons" role="group" aria-label="Share this page">
+          <button onclick="shareToFacebook()" class="share-btn facebook btn-cta btn-primary" aria-label="Share on Facebook">
+            <i class="fab fa-facebook-f" aria-hidden="true"></i> Share
+          </button>
+          <button onclick="shareToTwitter()" class="share-btn twitter btn-cta btn-primary" aria-label="Share on Twitter">
+            <i class="fab fa-twitter" aria-hidden="true"></i> Tweet
+          </button>
+          <button onclick="shareToLinkedIn()" class="share-btn linkedin btn-cta btn-primary" aria-label="Share on LinkedIn">
+            <i class="fab fa-linkedin-in" aria-hidden="true"></i> Share
+          </button>
+          <button onclick="shareToWhatsApp()" class="share-btn whatsapp btn-cta btn-primary" aria-label="Share on WhatsApp">
+            <i class="fab fa-whatsapp" aria-hidden="true"></i> Share
+          </button>
         </div>
-                  <a href="/api/questionnaire/questionnaire" class="final-cta">Start Your FREE Assessment Now</a>
-        <div class="share-buttons">
-            <button onclick="shareToFacebook()" class="share-btn facebook" aria-label="Share on Facebook">
-                <i class="fab fa-facebook-f"></i> Share
-            </button>
-            <button onclick="shareToTwitter()" class="share-btn twitter" aria-label="Share on Twitter">
-                <i class="fab fa-twitter"></i> Tweet
-            </button>
-            <button onclick="shareToLinkedIn()" class="share-btn linkedin" aria-label="Share on LinkedIn">
-                <i class="fab fa-linkedin-in"></i> Share
-            </button>
-            <button onclick="shareToWhatsApp()" class="share-btn whatsapp" aria-label="Share on WhatsApp">
-                <i class="fab fa-whatsapp"></i> Share
-            </button>
-        </div>
-
-        <div class="share-buttons">
-            <button onclick="shareToFacebook()" class="share-btn facebook" aria-label="Share on Facebook">
-                <i class="fab fa-facebook-f"></i> Share
-            </button>
-            <button onclick="shareToTwitter()" class="share-btn twitter" aria-label="Share on Twitter">
-                <i class="fab fa-twitter"></i> Tweet
-            </button>
-            <button onclick="shareToLinkedIn()" class="share-btn linkedin" aria-label="Share on LinkedIn">
-                <i class="fab fa-linkedin-in"></i> Share
-            </button>
-            <button onclick="shareToWhatsApp()" class="share-btn whatsapp" aria-label="Share on WhatsApp">
-                <i class="fab fa-whatsapp"></i> Share
-            </button>
-        </div>
-
       </div>
-    </section>
+      </section>
+    </main>
 
     <!-- Footer -->
-    <footer class="footer">
+    <footer class="footer" role="contentinfo" id="footer">
       <div class="footer-content">
-        <div>Contact us: <a href="mailto:support@mingus.com" style="color: var(--primary-green);">support@mingus.com</a> | +1 555-555-5555</div>
-        <div>
-          <a href="#" style="color: var(--primary-green); margin: 0 8px;">Privacy Policy</a> | 
-          <a href="#" style="color: var(--primary-green); margin: 0 8px;">Terms of Service</a> | 
-          <a href="#" style="color: var(--primary-green); margin: 0 8px;">About</a> | 
-          <a href="#" style="color: var(--primary-green); margin: 0 8px;">Blog</a>
+        <div class="contact-info">
+          <span>Contact us: </span>
+          <a href="mailto:support@mingus.com" class="contact-link touch-target" aria-label="Send email to support@mingus.com">support@mingus.com</a>
+          <span> | +1 555-555-5555</span>
         </div>
+        <nav class="footer-navigation" role="navigation" aria-label="Footer navigation">
+          <a href="#" class="footer-link touch-target">Privacy Policy</a>
+          <span aria-hidden="true"> | </span>
+          <a href="#" class="footer-link touch-target">Terms of Service</a>
+          <span aria-hidden="true"> | </span>
+          <a href="#pricing" class="footer-link touch-target">Pricing</a>
+          <span aria-hidden="true"> | </span>
+          <a href="#" class="footer-link touch-target">About</a>
+          <span aria-hidden="true"> | </span>
+          <a href="#" class="footer-link touch-target">Blog</a>
+        </nav>
         
-        <div style="margin-top: 16px;">
-          <div style="display: flex; gap: 1rem; justify-content: center; margin-bottom: 1rem;">
-            <a href="https://facebook.com/mingusfinancial" aria-label="Follow us on Facebook" style="color: var(--primary-green); font-size: 1.5rem;">
-              <i class="fab fa-facebook-f"></i>
-            </a>
-            <a href="https://twitter.com/mingusfinancial" aria-label="Follow us on Twitter" style="color: var(--primary-green); font-size: 1.5rem;">
-              <i class="fab fa-twitter"></i>
-            </a>
-            <a href="https://linkedin.com/company/mingusfinancial" aria-label="Follow us on LinkedIn" style="color: var(--primary-green); font-size: 1.5rem;">
-              <i class="fab fa-linkedin-in"></i>
-            </a>
-            <a href="https://instagram.com/mingusfinancial" aria-label="Follow us on Instagram" style="color: var(--primary-green); font-size: 1.5rem;">
-              <i class="fab fa-instagram"></i>
-            </a>
-            <a href="https://youtube.com/@mingusfinancial" aria-label="Follow us on YouTube" style="color: var(--primary-green); font-size: 1.5rem;">
-              <i class="fab fa-youtube"></i>
-            </a>
-          </div>
+        <div class="social-links">
+          <nav class="social-navigation" role="navigation" aria-label="Social media links">
+            <div style="display: flex; gap: 1rem; justify-content: center; margin-bottom: 1rem;">
+              <a href="https://facebook.com/mingusfinancial" aria-label="Follow us on Facebook" class="social-link" style="color: var(--primary-green); font-size: 1.5rem;">
+                <i class="fab fa-facebook-f" aria-hidden="true"></i>
+                <span class="sr-only">Facebook</span>
+              </a>
+              <a href="https://twitter.com/mingusfinancial" aria-label="Follow us on Twitter" class="social-link" style="color: var(--primary-green); font-size: 1.5rem;">
+                <i class="fab fa-twitter" aria-hidden="true"></i>
+                <span class="sr-only">Twitter</span>
+              </a>
+              <a href="https://linkedin.com/company/mingusfinancial" aria-label="Follow us on LinkedIn" class="social-link" style="color: var(--primary-green); font-size: 1.5rem;">
+                <i class="fab fa-linkedin-in" aria-hidden="true"></i>
+                <span class="sr-only">LinkedIn</span>
+              </a>
+              <a href="https://instagram.com/mingusfinancial" aria-label="Follow us on Instagram" class="social-link" style="color: var(--primary-green); font-size: 1.5rem;">
+                <i class="fab fa-instagram" aria-hidden="true"></i>
+                <span class="sr-only">Instagram</span>
+              </a>
+              <a href="https://youtube.com/@mingusfinancial" aria-label="Follow us on YouTube" class="social-link" style="color: var(--primary-green); font-size: 1.5rem;">
+                <i class="fab fa-youtube" aria-hidden="true"></i>
+                <span class="sr-only">YouTube</span>
+              </a>
+            </div>
+          </nav>
         </div>
-<div style="margin-top: 16px;">&copy; 2024 MINGUS. All rights reserved.</div>
+        <div style="margin-top: 16px;">&copy; 2024 MINGUS. All rights reserved.</div>
       </div>
     </footer>
   </div>
 
+  <!-- Exit Intent Popup -->
+  <div class="exit-popup" id="exitPopup" role="dialog" aria-labelledby="popup-title" aria-describedby="popup-text" aria-modal="true" aria-hidden="true">
+    <div class="popup-content">
+      <button class="popup-close touch-target" onclick="closeExitPopup()" aria-label="Close popup">
+        <span aria-hidden="true">&times;</span>
+        <span class="sr-only">Close</span>
+      </button>
+      <h2 id="popup-title" class="popup-title">Wait! Don't Leave Without Your AI Risk Assessment</h2>
+      <div id="popup-text" class="popup-text">
+        Get your personalized AI job risk score in just 2 minutes. Discover your automation risk and create protection strategies.
+      </div>
+      <a href="/ai-job-impact-calculator.html" class="calculator-cta ai-calculator-cta btn-cta btn-primary" style="width: 100%;" aria-describedby="popup-cta-desc">
+        Get My Free Assessment
+      </a>
+      <div id="popup-cta-desc" class="sr-only">Get your personalized AI job risk assessment</div>
+    </div>
+  </div>
+
   <script>
-    // Animate progress bars on load
-    document.addEventListener('DOMContentLoaded', function() {
-      const progressBars = document.querySelectorAll('.progress-fill');
+    // Enhanced conversion tracking
+    function trackConversion(eventName, value = 20) {
+      if (typeof gtag !== 'undefined') {
+        gtag('event', 'generate_lead', {
+          'currency': 'USD',
+          'value': value,
+          'event_category': 'Lead Generation',
+          'event_label': eventName
+        });
+      }
+    }
+
+    // Track assessment start
+    function trackAssessmentStart() {
+      gtag('event', 'begin_checkout', {
+        'currency': 'USD',
+        'value': 20,
+        'event_category': 'Assessment'
+      });
+    }
+
+    // Track email capture
+    function trackEmailCapture(email) {
+      trackConversion('email_captured');
+    }
+
+    // Track assessment completion
+    function trackAssessmentComplete(score) {
+      trackConversion('assessment_complete', 25);
+    }
+
+    // Exit intent popup
+    let exitIntentShown = false;
+    
+    document.addEventListener('mouseleave', function(e) {
+      if (e.clientY <= 0 && !exitIntentShown) {
+        showExitPopup();
+        exitIntentShown = true;
+      }
+    });
+
+    function showExitPopup() {
+      document.getElementById('exitPopup').style.display = 'flex';
+      document.getElementById('exitPopup').setAttribute('aria-hidden', 'false');
+      trackConversion('exit_intent_popup_shown');
       
-      progressBars.forEach(bar => {
-        const targetWidth = bar.style.getPropertyValue('--target-width');
-        bar.style.width = '0%';
-        
-        setTimeout(() => {
-          bar.style.width = targetWidth;
-        }, 500);
+      // Announce to screen readers
+      if (window.Accessibility && window.Accessibility.announce) {
+        window.Accessibility.announce('Exit intent popup opened', 'assertive');
+      }
+    }
+
+    function closeExitPopup() {
+      document.getElementById('exitPopup').style.display = 'none';
+      document.getElementById('exitPopup').setAttribute('aria-hidden', 'true');
+      
+      // Announce to screen readers
+      if (window.Accessibility && window.Accessibility.announce) {
+        window.Accessibility.announce('Exit intent popup closed');
+      }
+    }
+
+    // Close popup when clicking outside
+    document.getElementById('exitPopup').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeExitPopup();
+      }
+    });
+
+    // Auto-track CTA clicks
+    document.addEventListener('DOMContentLoaded', function() {
+      const ctaButtons = document.querySelectorAll('.cta-button, .btn-primary, [href*="calculator"], [href*="assessment"]');
+      ctaButtons.forEach(button => {
+        button.addEventListener('click', function() {
+          gtag('event', 'click', {
+            'event_category': 'CTA',
+            'event_label': this.textContent.trim()
+          });
+        });
       });
     });
+
+    // Social Sharing Functions
+    function shareToFacebook() {
+      const url = encodeURIComponent(window.location.href);
+      const text = encodeURIComponent('Will AI replace your job? Get your free AI job risk assessment with MINGUS!');
+      window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${text}`, '_blank');
+      trackSocialInteraction('facebook', 'share');
+    }
+    
+    function shareToTwitter() {
+      const url = encodeURIComponent(window.location.href);
+      const text = encodeURIComponent('Will AI replace your job? Get your free risk assessment! @mingusfinancial #AIJobs #CareerSecurity');
+      window.open(`https://twitter.com/intent/tweet?url=${url}&text=${text}`, '_blank');
+      trackSocialInteraction('twitter', 'share');
+    }
+    
+    function shareToLinkedIn() {
+      const url = encodeURIComponent(window.location.href);
+      const text = encodeURIComponent('Will AI replace your job? Get your free AI job risk assessment with MINGUS');
+      window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}`, '_blank');
+      trackSocialInteraction('linkedin', 'share');
+    }
+    
+    function shareToWhatsApp() {
+      const url = encodeURIComponent(window.location.href);
+      const text = encodeURIComponent('Will AI replace your job? Check out this free AI job risk calculator!');
+      window.open(`https://wa.me/?text=${text}%20${url}`, '_blank');
+      trackSocialInteraction('whatsapp', 'share');
+    }
+    
+    function trackSocialInteraction(platform, action) {
+      if (typeof gtag !== 'undefined') {
+        gtag('event', 'social_interaction', {
+          'social_network': platform,
+          'social_action': action,
+          'content_type': 'landing_page'
+        });
+      }
+    }
 
     // Intersection Observer for fade-in animations
     const observerOptions = {
@@ -1953,19 +1386,6 @@
       entries.forEach(entry => {
         if (entry.isIntersecting) {
           entry.target.classList.add('visible');
-          
-          // Special animation for hero section
-          if (entry.target.classList.contains('hero')) {
-            const cta = entry.target.querySelector('.main-cta');
-            if (cta) {
-              setTimeout(() => {
-                cta.style.transform = 'scale(1.05)';
-                setTimeout(() => {
-                  cta.style.transform = 'scale(1)';
-                }, 200);
-              }, 1000);
-            }
-          }
         }
       });
     }, observerOptions);
@@ -1974,98 +1394,39 @@
       observer.observe(el);
     });
 
-    // Smooth scrolling for anchor links
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-      anchor.addEventListener('click', function (e) {
-        e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
-        
-        if (target) {
-          target.scrollIntoView({
-            behavior: 'smooth',
-            block: 'start'
-          });
-        }
-      });
-    });
-  
-        // Social Sharing Functions
-        function shareToFacebook() {
-            const url = encodeURIComponent(window.location.href);
-            const text = encodeURIComponent('Transform your financial future with MINGUS - AI-powered financial wellness!');
-            window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${text}`, '_blank');
-            trackSocialInteraction('facebook', 'share');
-        }
-        
-        function shareToTwitter() {
-            const url = encodeURIComponent(window.location.href);
-            const text = encodeURIComponent('Transform your financial future with @mingusfinancial! #FinancialWellness #AI #PersonalFinance');
-            window.open(`https://twitter.com/intent/tweet?url=${url}&text=${text}`, '_blank');
-            trackSocialInteraction('twitter', 'share');
-        }
-        
-        function shareToLinkedIn() {
-            const url = encodeURIComponent(window.location.href);
-            const text = encodeURIComponent('Transform your financial future with MINGUS - AI-powered financial wellness platform');
-            window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}`, '_blank');
-            trackSocialInteraction('linkedin', 'share');
-        }
-        
-        function shareToWhatsApp() {
-            const url = encodeURIComponent(window.location.href);
-            const text = encodeURIComponent('Check out MINGUS - AI-powered financial wellness!');
-            window.open(`https://wa.me/?text=${text}%20${url}`, '_blank');
-            trackSocialInteraction('whatsapp', 'share');
-        }
-        
-        function trackSocialInteraction(platform, action) {
-            if (typeof gtag !== 'undefined') {
-                gtag('event', 'social_interaction', {
-                    'social_network': platform,
-                    'social_action': action,
-                    'content_type': 'landing_page'
-                });
-            }
-        }
+    // Progressive profiling - track user behavior
+    let userEngagement = {
+      timeOnPage: 0,
+      scrollDepth: 0,
+      interactions: 0
+    };
 
-        // Social Sharing Functions
-        function shareToFacebook() {
-            const url = encodeURIComponent(window.location.href);
-            const text = encodeURIComponent('Transform your financial future with MINGUS - AI-powered financial wellness!');
-            window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${text}`, '_blank');
-            trackSocialInteraction('facebook', 'share');
-        }
-        
-        function shareToTwitter() {
-            const url = encodeURIComponent(window.location.href);
-            const text = encodeURIComponent('Transform your financial future with @mingusfinancial! #FinancialWellness #AI #PersonalFinance');
-            window.open(`https://twitter.com/intent/tweet?url=${url}&text=${text}`, '_blank');
-            trackSocialInteraction('twitter', 'share');
-        }
-        
-        function shareToLinkedIn() {
-            const url = encodeURIComponent(window.location.href);
-            const text = encodeURIComponent('Transform your financial future with MINGUS - AI-powered financial wellness platform');
-            window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}`, '_blank');
-            trackSocialInteraction('linkedin', 'share');
-        }
-        
-        function shareToWhatsApp() {
-            const url = encodeURIComponent(window.location.href);
-            const text = encodeURIComponent('Check out MINGUS - AI-powered financial wellness!');
-            window.open(`https://wa.me/?text=${text}%20${url}`, '_blank');
-            trackSocialInteraction('whatsapp', 'share');
-        }
-        
-        function trackSocialInteraction(platform, action) {
-            if (typeof gtag !== 'undefined') {
-                gtag('event', 'social_interaction', {
-                    'social_network': platform,
-                    'social_action': action,
-                    'content_type': 'landing_page'
-                });
-            }
-        }
-</script>
+    // Track time on page
+    setInterval(() => {
+      userEngagement.timeOnPage += 1;
+    }, 1000);
+
+    // Track scroll depth
+    window.addEventListener('scroll', () => {
+      const scrollPercent = (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100;
+      userEngagement.scrollDepth = Math.max(userEngagement.scrollDepth, scrollPercent);
+    });
+
+    // Track interactions
+    document.addEventListener('click', () => {
+      userEngagement.interactions += 1;
+    });
+
+    // Send engagement data when user leaves
+    window.addEventListener('beforeunload', () => {
+      if (typeof gtag !== 'undefined') {
+        gtag('event', 'user_engagement', {
+          'time_on_page': userEngagement.timeOnPage,
+          'scroll_depth': userEngagement.scrollDepth,
+          'interactions': userEngagement.interactions
+        });
+      }
+    });
+  </script>
 </body>
 </html> 

@@ -4,13 +4,11 @@ Stores user financial goals and objectives
 """
 
 from sqlalchemy import Column, String, Integer, DateTime, Boolean, ForeignKey, Text, DECIMAL
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 import uuid
 from datetime import datetime
-
-Base = declarative_base()
+from .base import Base
 
 class UserGoals(Base):
     """

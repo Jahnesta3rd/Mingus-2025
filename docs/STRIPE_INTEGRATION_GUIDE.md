@@ -45,8 +45,8 @@ The application offers three subscription tiers:
   - 5 investment accounts
   - 20 custom categories
 
-#### 3. Professional Tier ($75/month)
-- **Price**: $75/month or $720/year (20% discount)
+#### 3. Professional Tier ($100/month)
+- **Price**: $100/month or $960/year (20% discount)
 - **Features**: All Mid-Tier features plus:
   - Unlimited access to all features
   - Dedicated account manager

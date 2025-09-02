@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="touch_target_optimization.css">
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mingus Financial - Visual Accessibility Demo</title>
+    
+    <!-- Enhanced Accessibility Styles -->
+    <link rel="stylesheet" href="enhanced_accessibility_styles.css">
+    
+    <!-- Additional Demo Styles -->
+    <style>
+        /* Demo-specific styles */
+        .demo-section {
+            margin: 2rem 0;
+            padding: 2rem;
+            border: 2px solid var(--border-primary);
+            border-radius: var(--radius-lg);
+            background-color: var(--bg-surface);
+        }
+        
+        .demo-title {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            font-size: var(--font-size-2xl);
+        }
+        
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+        
+        .demo-card {
+            background-color: var(--bg-secondary);
+            padding: 1.5rem;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-primary);
+        }
+        
+        .demo-card h3 {
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+        }
+        
+        .contrast-test-panel {
+            background-color: var(--bg-surface);
+            padding: 1.5rem;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-primary);
+            margin: 1rem 0;
+        }
+        
+        .contrast-input-group {
+            display: flex;
+            gap: 1rem;
+            margin: 1rem 0;
+            align-items: center;
+        }
+        
+        .contrast-input-group label {
+            min-width: 120px;
+            color: var(--text-primary);
+        }
+        
+        .contrast-input-group input {
+            flex: 1;
+            padding: 0.5rem;
+            border: 2px solid var(--border-primary);
+            border-radius: var(--radius-sm);
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+        
+        .contrast-result {
+            margin: 1rem 0;
+            padding: 1rem;
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+        }
+        
+        .contrast-result.pass {
+            background-color: var(--success-color);
+            color: var(--text-primary);
+        }
+        
+        .contrast-result.fail {
+            background-color: var(--error-color);
+            color: var(--text-primary);
+        }
+        
+        .accessibility-controls {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            background-color: var(--bg-surface);
+            padding: 1rem;
+            border-radius: var(--radius-md);
+            border: 2px solid var(--border-primary);
+            z-index: 1000;
+            min-width: 250px;
+        }
+        
+        .accessibility-controls h3 {
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            font-size: var(--font-size-lg);
+        }
+        
+        .control-group {
+            margin: 1rem 0;
+        }
+        
+        .control-group label {
+            display: block;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+            font-size: var(--font-size-sm);
+        }
+        
+        .control-group input,
+        .control-group select {
+            width: 100%;
+            padding: 0.5rem;
+            border: 2px solid var(--border-primary);
+            border-radius: var(--radius-sm);
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+        
+        .control-btn {
+            background-color: var(--primary-color);
+            color: var(--text-primary);
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-weight: 600;
+            margin: 0.25rem;
+            transition: all var(--transition-fast);
+        }
+        
+        .control-btn:hover,
+        .control-btn:focus {
+            background-color: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+        
+        .financial-data-demo {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        
+        .financial-item {
+            padding: 1rem;
+            border-radius: var(--radius-md);
+            text-align: center;
+            font-weight: 600;
+        }
+        
+        .financial-item.profit {
+            background-color: var(--profit-color);
+            color: var(--text-primary);
+        }
+        
+        .financial-item.loss {
+            background-color: var(--loss-color);
+            color: var(--text-primary);
+        }
+        
+        .financial-item.neutral {
+            background-color: var(--neutral-color);
+            color: var(--text-primary);
+        }
+        
+        .motion-demo {
+            text-align: center;
+            padding: 2rem;
+        }
+        
+        .animated-element {
+            display: inline-block;
+            padding: 1rem 2rem;
+            background-color: var(--primary-color);
+            color: var(--text-primary);
+            border-radius: var(--radius-md);
+            margin: 1rem;
+            animation: demo-bounce 2s infinite;
+        }
+        
+        @keyframes demo-bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        .reduced-motion .animated-element {
+            animation: none;
+        }
+        
+        .focus-demo {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        
+        .focus-demo button,
+        .focus-demo a {
+            padding: 1rem;
+            border: 2px solid var(--border-primary);
+            border-radius: var(--radius-md);
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+            text-decoration: none;
+            text-align: center;
+            transition: all var(--transition-fast);
+        }
+        
+        .focus-demo button:hover,
+        .focus-demo button:focus,
+        .focus-demo a:hover,
+        .focus-demo a:focus {
+            background-color: var(--primary-color);
+            color: var(--text-primary);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .skip-link {
+            position: absolute;
+            top: -40px;
+            left: 6px;
+            background: var(--primary-color);
+            color: var(--text-primary);
+            padding: 8px 16px;
+            text-decoration: none;
+            border-radius: var(--radius-md);
+            z-index: 10000;
+            transition: top var(--transition-normal);
+            font-weight: 600;
+        }
+        
+        .skip-link:focus {
+            top: 6px;
+        }
+        
+        .test-results {
+            background-color: var(--bg-surface);
+            padding: 1.5rem;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-primary);
+            margin: 1rem 0;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .test-result-item {
+            padding: 0.5rem;
+            margin: 0.5rem 0;
+            border-radius: var(--radius-sm);
+            border-left: 4px solid var(--border-primary);
+        }
+        
+        .test-result-item.pass {
+            border-left-color: var(--success-color);
+            background-color: rgba(39, 174, 96, 0.1);
+        }
+        
+        .test-result-item.fail {
+            border-left-color: var(--error-color);
+            background-color: rgba(231, 76, 60, 0.1);
+        }
+        
+        .test-result-item.error {
+            border-left-color: var(--warning-color);
+            background-color: rgba(243, 156, 18, 0.1);
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: var(--radius-sm);
+            font-size: var(--font-size-xs);
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .status-badge.pass {
+            background-color: var(--success-color);
+            color: var(--text-primary);
+        }
+        
+        .status-badge.fail {
+            background-color: var(--error-color);
+            color: var(--text-primary);
+        }
+        
+        .status-badge.error {
+            background-color: var(--warning-color);
+            color: var(--text-primary);
+        }
+    </style>
+</head>
+<body>
+    <!-- Skip Link for Accessibility -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    
+    <!-- Accessibility Controls Panel -->
+    <div class="accessibility-controls">
+        <h3>♿ Accessibility Controls</h3>
+        
+        <div class="control-group">
+            <label for="high-contrast-toggle">High Contrast</label>
+            <button id="high-contrast-toggle" class="control-btn btn-cta btn-primary">Toggle</button>
+        </div>
+        
+        <div class="control-group">
+            <label for="motion-toggle">Motion</label>
+            <button id="motion-toggle" class="control-btn btn-cta btn-primary">Toggle</button>
+        </div>
+        
+        <div class="control-group">
+            <label for="font-size">Font Size</label>
+            <select id="font-size" class="form-input">
+                <option value="normal">Normal</option>
+                <option value="large">Large</option>
+                <option value="x-large">Extra Large</option>
+            </select>
+        </div>
+        
+        <div class="control-group">
+            <label for="line-spacing">Line Spacing</label>
+            <select id="line-spacing" class="form-input">
+                <option value="normal">Normal</option>
+                <option value="relaxed">Relaxed</option>
+                <option value="loose">Loose</option>
+            </select>
+        </div>
+        
+        <div class="control-group">
+            <button id="run-contrast-test" class="control-btn btn-cta btn-primary">Run Contrast Test</button>
+        </div>
+        
+        <div class="control-group">
+            <button id="export-results" class="control-btn btn-cta btn-primary">Export Results</button>
+        </div>
+    </div>
+    
+    <!-- Main Content -->
+    <main id="main-content">
+        <header class="demo-section">
+            <h1 class="demo-title">🎯 Mingus Financial - Visual Accessibility Demo</h1>
+            <p>This page demonstrates comprehensive visual accessibility features including color contrast compliance, visual indicators beyond color, typography accessibility, and motion accessibility controls.</p>
+        </header>
+        
+        <!-- Color Contrast Testing Section -->
+        <section class="demo-section">
+            <h2 class="demo-title">🔍 Color Contrast Testing</h2>
+            <p>Test color combinations for WCAG AA (4.5:1) and AAA (7:1) compliance.</p>
+            
+            <div class="contrast-test-panel">
+                <h3>Manual Contrast Test</h3>
+                <div class="contrast-input-group">
+                    <label for="text-color">Text Color:</label>
+                    <input type="color" id="text-color" value="#ffffff">
+                </div>
+                <div class="contrast-input-group">
+                    <label for="bg-color">Background Color:</label>
+                    <input type="color" id="bg-color" value="#000000">
+                </div>
+                <button id="test-contrast" class="control-btn btn-cta btn-primary">Test Contrast</button>
+                <div id="contrast-result" class="contrast-result"></div>
+            </div>
+            
+            <div class="contrast-test-panel">
+                <h3>Automated Page Audit</h3>
+                <p>Click the button below to run a comprehensive contrast audit of all elements on this page.</p>
+                <button id="run-audit" class="control-btn btn-cta btn-primary">Run Page Audit</button>
+                <div id="audit-results" class="test-results"></div>
+            </div>
+        </section>
+        
+        <!-- Visual Indicators Section -->
+        <section class="demo-section">
+            <h2 class="demo-title">🎨 Visual Indicators Beyond Color</h2>
+            <p>Financial status indicators with multiple visual cues: patterns, icons, and text labels.</p>
+            
+            <div class="demo-grid">
+                <div class="demo-card">
+                    <h3>Financial Status Indicators</h3>
+                    <div class="financial-data-demo">
+                        <div class="financial-item profit status-indicator status-profit">
+                            <div>+$2,450</div>
+                            <div>Profit</div>
+                        </div>
+                        <div class="financial-item loss status-indicator status-loss">
+                            <div>-$890</div>
+                            <div>Loss</div>
+                        </div>
+                        <div class="financial-item neutral status-indicator status-neutral">
+                            <div>$0</div>
+                            <div>Neutral</div>
+                        </div>
+                    </div>
+                    <p>Each indicator uses color, patterns, icons, and text labels for maximum accessibility.</p>
+                </div>
+                
+                <div class="demo-card">
+                    <h3>Form Validation States</h3>
+                    <div class="form-input-wrapper">
+                        <input type="email" class="form-input" placeholder="Enter email address" value="invalid-email" class="form-input">
+                        <span class="validation-icon">✗</span>
+                    </div>
+                    <div class="form-input-wrapper">
+                        <input type="text" class="form-input" placeholder="Enter name" value="John Doe" class="form-input">
+                        <span class="validation-icon">✓</span>
+                    </div>
+                    <p>Form validation uses icons, colors, and patterns to indicate status.</p>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Typography Accessibility Section -->
+        <section class="demo-section">
+            <h2 class="demo-title">📝 Typography Accessibility</h2>
+            <p>Scalable fonts with proper line spacing and visual hierarchy.</p>
+            
+            <div class="demo-grid">
+                <div class="demo-card">
+                    <h3>Heading Hierarchy</h3>
+                    <h1>Heading 1 - Main Title</h1>
+                    <h2>Heading 2 - Section Title</h2>
+                    <h3>Heading 3 - Subsection</h3>
+                    <h4>Heading 4 - Minor Section</h4>
+                    <p>All headings use proper contrast ratios and scalable sizing.</p>
+                </div>
+                
+                <div class="demo-card">
+                    <h3>Body Text Examples</h3>
+                    <p>This is standard body text with 1.5x line spacing for optimal readability. The text is sized at 16px minimum to ensure accessibility.</p>
+                    <p>Financial data is presented with clear typography and sufficient contrast ratios. Users can zoom up to 200% without losing readability.</p>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Motion and Animation Section -->
+        <section class="demo-section">
+            <h2 class="demo-title">🎬 Motion and Animation Accessibility</h2>
+            <p>Safe animations with reduced motion support and user controls.</p>
+            
+            <div class="motion-demo">
+                <div class="animated-element">Animated Element</div>
+                <p>This element animates by default but respects user motion preferences.</p>
+                <p>Use the motion toggle in the accessibility panel to control animations.</p>
+            </div>
+            
+            <div class="demo-grid">
+                <div class="demo-card">
+                    <h3>Motion Controls</h3>
+                    <p>Users can pause, resume, or disable motion entirely.</p>
+                    <p>All animations are designed to be safe for users with vestibular disorders.</p>
+                </div>
+                
+                <div class="demo-card">
+                    <h3>Hover Effects</h3>
+                    <p>Hover effects work with both mouse and keyboard focus.</p>
+                    <p>Effects are subtle and don't cause motion sickness.</p>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Focus Management Section -->
+        <section class="demo-section">
+            <h2 class="demo-title">🎯 Focus Management</h2>
+            <p>Enhanced focus indicators and keyboard navigation support.</p>
+            
+            <div class="focus-demo">
+                <button class="interactive-element">Button 1</button>
+                <a href="#" class="interactive-element">Link 1</a>
+                <button class="interactive-element">Button 2</button>
+                <a href="#" class="interactive-element">Link 2</a>
+            </div>
+            
+            <p>Use Tab to navigate between elements. Focus indicators are clearly visible with high contrast outlines.</p>
+            <p>Keyboard shortcuts: Alt+S (skip to content), Alt+H (toggle high contrast), Alt+M (toggle motion)</p>
+        </section>
+        
+        <!-- Financial Data Visualization Section -->
+        <section class="demo-section">
+            <h2 class="demo-title">📊 Financial Data Accessibility</h2>
+            <p>Financial information presented with multiple accessibility features.</p>
+            
+            <div class="demo-grid">
+                <div class="demo-card">
+                    <h3>Data Table Example</h3>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Investments</td>
+                                <td data-financial-status="profit">$15,420</td>
+                                <td><span class="status-indicator status-profit">↗ Profit</span></td>
+                            </tr>
+                            <tr>
+                                <td>Expenses</td>
+                                <td data-financial-status="loss">$8,750</td>
+                                <td><span class="status-indicator status-loss">↘ Loss</span></td>
+                            </tr>
+                            <tr>
+                                <td>Savings</td>
+                                <td data-financial-status="neutral">$2,100</td>
+                                <td><span class="status-indicator status-neutral">→ Neutral</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="demo-card">
+                    <h3>Chart Legend</h3>
+                    <div class="chart-legend">
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: var(--profit-color);"></div>
+                            <span>Profit</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: var(--loss-color);"></div>
+                            <span>Loss</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: var(--neutral-color);"></div>
+                            <span>Neutral</span>
+                        </div>
+                    </div>
+                    <p>Charts include descriptive legends with both color and text labels.</p>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Test Results Section -->
+        <section class="demo-section">
+            <h2 class="demo-title">📋 Accessibility Test Results</h2>
+            <p>Results from automated accessibility testing and manual verification.</p>
+            
+            <div id="accessibility-status" class="demo-card">
+                <h3>Current Status</h3>
+                <p>Run the contrast test to see detailed results.</p>
+            </div>
+        </section>
+    </main>
+    
+    <!-- Scripts -->
+    <script src="enhanced_accessibility_manager.js"></script>
+    <script src="contrast_testing_tool.js"></script>
+    
+    <script>
+        // Initialize accessibility manager
+        let accessibilityManager;
+        let contrastTester;
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize managers
+            accessibilityManager = new EnhancedAccessibilityManager();
+            contrastTester = new ContrastTestingTool();
+            
+            // Setup accessibility controls
+            setupAccessibilityControls();
+            
+            // Setup contrast testing
+            setupContrastTesting();
+            
+            // Announce page load
+            announcePageLoad();
+        });
+        
+        function setupAccessibilityControls() {
+            // High contrast toggle
+            document.getElementById('high-contrast-toggle').addEventListener('click', function() {
+                accessibilityManager.toggleHighContrastMode();
+                updateControlButtonText();
+            });
+            
+            // Motion toggle
+            document.getElementById('motion-toggle').addEventListener('click', function() {
+                accessibilityManager.toggleReducedMotion();
+                updateControlButtonText();
+            });
+            
+            // Font size control
+            document.getElementById('font-size').addEventListener('change', function() {
+                const size = this.value;
+                document.documentElement.style.fontSize = size === 'large' ? '18px' : 
+                                                       size === 'x-large' ? '20px' : '16px';
+            });
+            
+            // Line spacing control
+            document.getElementById('line-spacing').addEventListener('change', function() {
+                const spacing = this.value;
+                document.documentElement.style.setProperty('--line-height-normal', 
+                    spacing === 'relaxed' ? '1.75' : 
+                    spacing === 'loose' ? '2' : '1.5');
+            });
+            
+            // Run contrast test
+            document.getElementById('run-contrast-test').addEventListener('click', function() {
+                runContrastTest();
+            });
+            
+            // Export results
+            document.getElementById('export-results').addEventListener('click', function() {
+                exportTestResults();
+            });
+        }
+        
+        function setupContrastTesting() {
+            // Manual contrast test
+            document.getElementById('test-contrast').addEventListener('click', function() {
+                const textColor = document.getElementById('text-color').value;
+                const bgColor = document.getElementById('bg-color').value;
+                
+                const result = contrastTester.testColorCombination(textColor, bgColor);
+                displayContrastResult(result);
+            });
+            
+            // Page audit
+            document.getElementById('run-audit').addEventListener('click', function() {
+                runPageAudit();
+            });
+        }
+        
+        function displayContrastResult(result) {
+            const resultDiv = document.getElementById('contrast-result');
+            
+            if (result.status === 'error') {
+                resultDiv.className = 'contrast-result fail';
+                resultDiv.textContent = `Error: ${result.message}`;
+                return;
+            }
+            
+            const passes = result.passes;
+            resultDiv.className = `contrast-result ${passes ? 'pass' : 'fail'}`;
+            
+            resultDiv.innerHTML = `
+                <strong>Contrast Ratio: ${result.contrastRatio.toFixed(2)}:1</strong><br>
+                <strong>WCAG Level: ${result.wcagLevel.level}</strong><br>
+                <strong>Status: ${passes ? 'PASS' : 'FAIL'}</strong><br>
+                ${result.wcagLevel.passesAAA ? '✅ Meets AAA (7:1)' : ''}<br>
+                ${result.wcagLevel.passesAA ? '✅ Meets AA (4.5:1)' : '❌ Fails AA (4.5:1)'}
+            `;
+        }
+        
+        async function runPageAudit() {
+            const resultsDiv = document.getElementById('audit-results');
+            resultsDiv.innerHTML = '<p>Running comprehensive page audit...</p>';
+            
+            try {
+                const results = await contrastTester.runComprehensiveAudit();
+                displayAuditResults(results);
+            } catch (error) {
+                resultsDiv.innerHTML = `<p>Error running audit: ${error.message}</p>`;
+            }
+        }
+        
+        function displayAuditResults(results) {
+            const resultsDiv = document.getElementById('audit-results');
+            
+            let html = `
+                <h4>Audit Results (${new Date(results.timestamp).toLocaleString()})</h4>
+                <p><strong>Total Elements:</strong> ${results.summary.totalElements}</p>
+                <p><strong>Passing WCAG AA:</strong> ${results.summary.passingAA + results.summary.passingAAA}</p>
+                <p><strong>Passing WCAG AAA:</strong> ${results.summary.passingAAA}</p>
+                <p><strong>Failing:</strong> ${results.summary.failing}</p>
+                <p><strong>Compliance Rate:</strong> ${results.summary.complianceRate.toFixed(1)}%</p>
+            `;
+            
+            if (results.criticalIssues.length > 0) {
+                html += '<h4>Critical Issues:</h4>';
+                results.criticalIssues.forEach(issue => {
+                    html += `
+                        <div class="test-result-item fail">
+                            <strong>${issue.elementPath}</strong><br>
+                            <span class="status-badge fail">Fail</span>
+                            Contrast: ${issue.contrastRatio.toFixed(2)}:1 (Required: ${issue.requiredRatio}:1)<br>
+                            ${issue.recommendation}
+                        </div>
+                    `;
+                });
+            }
+            
+            if (results.recommendations.length > 0) {
+                html += '<h4>Recommendations:</h4>';
+                results.recommendations.forEach(rec => {
+                    html += `
+                        <div class="test-result-item">
+                            <strong>[${rec.priority.toUpperCase()}] ${rec.type}</strong><br>
+                            ${rec.description}<br>
+                            <em>Action: ${rec.action}</em>
+                        </div>
+                    `;
+                });
+            }
+            
+            resultsDiv.innerHTML = html;
+            
+            // Update accessibility status
+            updateAccessibilityStatus(results);
+        }
+        
+        function updateAccessibilityStatus(results) {
+            const statusDiv = document.getElementById('accessibility-status');
+            const status = contrastTester.getAccessibilityStatus();
+            
+            statusDiv.innerHTML = `
+                <h3>Current Status</h3>
+                <p><strong>Contrast Compliance:</strong> ${status.contrastCompliance}</p>
+                <p><strong>WCAG Level:</strong> ${status.wcagLevel}</p>
+                <p><strong>Critical Issues:</strong> ${status.criticalIssues}</p>
+                <p><strong>Recommendations:</strong> ${status.recommendations}</p>
+                <p><strong>Last Tested:</strong> ${new Date(status.lastTested).toLocaleString()}</p>
+            `;
+        }
+        
+        function updateControlButtonText() {
+            const highContrastBtn = document.getElementById('high-contrast-toggle');
+            const motionBtn = document.getElementById('motion-toggle');
+            
+            highContrastBtn.textContent = accessibilityManager.isHighContrastMode ? 'Disable' : 'Enable';
+            motionBtn.textContent = accessibilityManager.isReducedMotion ? 'Enable' : 'Disable';
+        }
+        
+        function runContrastTest() {
+            // Run a quick test on the current page
+            const testResults = accessibilityManager.getAccessibilityStatus();
+            console.log('Accessibility Status:', testResults);
+            
+            // Update status display
+            const statusDiv = document.getElementById('accessibility-status');
+            statusDiv.innerHTML = `
+                <h3>Quick Test Results</h3>
+                <p><strong>High Contrast Mode:</strong> ${testResults.highContrastMode ? 'Enabled' : 'Disabled'}</p>
+                <p><strong>Reduced Motion:</strong> ${testResults.reducedMotion ? 'Enabled' : 'Disabled'}</p>
+                <p><strong>Focusable Elements:</strong> ${testResults.focusableElements}</p>
+                <p><strong>Settings Saved:</strong> ${testResults.settings ? 'Yes' : 'No'}</p>
+            `;
+        }
+        
+        function exportTestResults() {
+            if (contrastTester.testResults && contrastTester.testResults.summary) {
+                const results = contrastTester.exportResults();
+                const blob = new Blob([results], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `contrast-audit-${new Date().toISOString().split('T')[0]}.json`;
+                a.click();
+                
+                URL.revokeObjectURL(url);
+            } else {
+                alert('No test results to export. Please run a contrast test first.');
+            }
+        }
+        
+        function announcePageLoad() {
+            // Announce page load for screen readers
+            const announcement = document.createElement('div');
+            announcement.className = 'sr-only';
+            announcement.setAttribute('aria-live', 'polite');
+            announcement.textContent = 'Mingus Financial Visual Accessibility Demo page loaded. Use Tab to navigate and explore accessibility features.';
+            
+            document.body.appendChild(announcement);
+            
+            setTimeout(() => {
+                announcement.remove();
+            }, 3000);
+        }
+        
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(event) {
+            // Alt + S: Skip to main content
+            if (event.altKey && event.key === 'S') {
+                event.preventDefault();
+                document.getElementById('main-content').focus();
+            }
+            
+            // Alt + H: Toggle high contrast
+            if (event.altKey && event.key === 'H') {
+                event.preventDefault();
+                accessibilityManager.toggleHighContrastMode();
+                updateControlButtonText();
+            }
+            
+            // Alt + M: Toggle motion
+            if (event.altKey && event.key === 'M') {
+                event.preventDefault();
+                accessibilityManager.toggleReducedMotion();
+                updateControlButtonText();
+            }
+        });
+    </script>
+</body>
+</html>

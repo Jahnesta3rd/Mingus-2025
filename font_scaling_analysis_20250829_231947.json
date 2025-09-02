@@ -1,0 +1,2322 @@
+{
+  "timestamp": "2025-08-29T23:19:47.142256",
+  "summary": {
+    "total_font_sizes": 208,
+    "total_issues": 43,
+    "fixed_sizes": 30,
+    "responsive_sizes": 0,
+    "heading_elements": 5
+  },
+  "issues": [
+    {
+      "type": "fixed_size",
+      "severity": "medium",
+      "message": "Fixed font size 16px may not scale properly",
+      "file": "landing.html",
+      "source": "CSS",
+      "value": "16px"
+    },
+    {
+      "type": "mobile_minimum",
+      "severity": "high",
+      "message": "Font size 14.0px is below mobile minimum of 16px",
+      "file": "landing.html",
+      "source": "CSS",
+      "value": 14.0
+    },
+    {
+      "type": "fixed_size",
+      "severity": "medium",
+      "message": "Fixed font size 14px may not scale properly",
+      "file": "landing.html",
+      "source": "CSS",
+      "value": "14px"
+    },
+    {
+      "type": "fixed_size",
+      "severity": "medium",
+      "message": "Fixed font size 16px may not scale properly",
+      "file": "landing.html",
+      "source": "CSS",
+      "value": "16px"
+    },
+    {
+      "type": "fixed_size",
+      "severity": "medium",
+      "message": "Fixed font size 24px may not scale properly",
+      "file": "landing.html",
+      "source": "CSS",
+      "value": "24px"
+    },
+    {
+      "type": "mobile_minimum",
+      "severity": "high",
+      "message": "Font size 12.0px is below mobile minimum of 16px",
+      "file": "landing.html",
+      "source": "CSS",
+      "value": 12.0
+    },
+    {
+      "type": "fixed_size",
+      "severity": "medium",
+      "message": "Fixed font size 12px may not scale properly",
+      "file": "landing.html",
+      "source": "CSS",
+      "value": "12px"
+    },
+    {
+      "type": "mobile_minimum",
+      "severity": "high",
+      "message": "Font size 12.0px is below mobile minimum of 16px",
+      "file": "landing.html",
+      "source": "CSS",
+      "value": 12.0
+    },
+    {
+      "type": "fixed_size",
+      "severity": "medium",
+      "message": "Fixed font size 12px may not scale properly",
+      "file": "landing.html",
+      "source": "CSS",
+      "value": "12px"
+    },
+    {
+      "type": "fixed_size",
+      "severity": "medium",
+      "message": "Fixed font size 18px may not scale properly",
+      "file": "landing.html",
+      "source": "CSS",
+      "value": "18px"
+    },
+    {
+      "type": "fixed_size",
+      "severity": "medium",
+      "message": "Fixed font size 48px may not scale properly",
+      "file": "landing.html",
+      "source": "CSS",
+      "value": "48px"
+    },
+    {
+      "type": "mobile_minimum",
+      "severity": "high",
+      "message": "Font size 12.0px is below mobile minimum of 16px",
+      "file": "landing.html",
+      "source": "CSS",
+      "value": 12.0
+    },
+    {
+      "type": "fixed_size",
+      "severity": "medium",
+      "message": "Fixed font size 12px may not scale properly",
+      "file": "landing.html",
+      "source": "CSS",
+      "value": "12px"
+    },
+    {
+      "type": "fixed_size",
+      "severity": "medium",
+      "message": "Fixed font size 24px may not scale properly",
+      "file": "landing.html",
+      "source": "CSS",
+      "value": "24px"
+    },
+    {
+      "type": "fixed_size",
+      "severity": "medium",
+      "message": "Fixed font size 20px may not scale properly",
+      "file": "landing.html",
+      "source": "CSS",
+      "value": "20px"
+    },
+    {
+      "type": "mobile_minimum",
+      "severity": "high",
+      "message": "Font size 14.0px is below mobile minimum of 16px",
+      "file": "landing.html",
+      "source": "CSS",
+      "value": 14.0
+    },
+    {
+      "type": "fixed_size",
+      "severity": "medium",
+      "message": "Fixed font size 14px may not scale properly",
+      "file": "landing.html",
+      "source": "CSS",
+      "value": "14px"
+    },
+    {
+      "type": "fixed_size",
+      "severity": "medium",
+      "message": "Fixed font size 28px may not scale properly",
+      "file": "landing.html",
+      "source": "CSS",
+      "value": "28px"
+    },
+    {
+      "type": "fixed_size",
+      "severity": "medium",
+      "message": "Fixed font size 16px may not scale properly",
+      "file": "landing.html",
+      "source": "CSS",
+      "value": "16px"
+    },
+    {
+      "type": "fixed_size",
+      "severity": "medium",
+      "message": "Fixed font size 16px may not scale properly",
+      "file": "landing.html",
+      "source": "CSS",
+      "value": "16px"
+    },
+    {
+      "type": "mobile_minimum",
+      "severity": "high",
+      "message": "Font size 14.0px is below mobile minimum of 16px",
+      "file": "landing.html",
+      "source": "CSS",
+      "value": 14.0
+    },
+    {
+      "type": "fixed_size",
+      "severity": "medium",
+      "message": "Fixed font size 14px may not scale properly",
+      "file": "landing.html",
+      "source": "CSS",
+      "value": "14px"
+    },
+    {
+      "type": "too_large",
+      "severity": "medium",
+      "message": "Font size 376.0px may be too large for mobile",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "value": 376.0
+    },
+    {
+      "type": "fixed_size",
+      "severity": "medium",
+      "message": "Fixed font size 376px) and (max-width: 414px) {\n  .hero-headline {\n    font-size: var(--text-5xl) may not scale properly",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "value": "376px) and (max-width: 414px) {\n  .hero-headline {\n    font-size: var(--text-5xl)"
+    },
+    {
+      "type": "mobile_minimum",
+      "severity": "high",
+      "message": "Font size 10.0px is below mobile minimum of 16px",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "value": 10.0
+    },
+    {
+      "type": "too_small",
+      "severity": "critical",
+      "message": "Font size 10.0px is too small for readability",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "value": 10.0
+    },
+    {
+      "type": "fixed_size",
+      "severity": "medium",
+      "message": "Fixed font size 10px may not scale properly",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "value": "10px"
+    },
+    {
+      "type": "mobile_minimum",
+      "severity": "high",
+      "message": "Font size 12.0px is below mobile minimum of 16px",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "value": 12.0
+    },
+    {
+      "type": "fixed_size",
+      "severity": "medium",
+      "message": "Fixed font size 12px may not scale properly",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "value": "12px"
+    },
+    {
+      "type": "mobile_minimum",
+      "severity": "high",
+      "message": "Font size 14.0px is below mobile minimum of 16px",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "value": 14.0
+    },
+    {
+      "type": "fixed_size",
+      "severity": "medium",
+      "message": "Fixed font size 14px may not scale properly",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "value": "14px"
+    },
+    {
+      "type": "fixed_size",
+      "severity": "medium",
+      "message": "Fixed font size 16px may not scale properly",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "value": "16px"
+    },
+    {
+      "type": "fixed_size",
+      "severity": "medium",
+      "message": "Fixed font size 18px may not scale properly",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "value": "18px"
+    },
+    {
+      "type": "fixed_size",
+      "severity": "medium",
+      "message": "Fixed font size 20px may not scale properly",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "value": "20px"
+    },
+    {
+      "type": "fixed_size",
+      "severity": "medium",
+      "message": "Fixed font size 24px may not scale properly",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "value": "24px"
+    },
+    {
+      "type": "fixed_size",
+      "severity": "medium",
+      "message": "Fixed font size 28px may not scale properly",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "value": "28px"
+    },
+    {
+      "type": "fixed_size",
+      "severity": "medium",
+      "message": "Fixed font size 32px may not scale properly",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "value": "32px"
+    },
+    {
+      "type": "fixed_size",
+      "severity": "medium",
+      "message": "Fixed font size 36px may not scale properly",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "value": "36px"
+    },
+    {
+      "type": "fixed_size",
+      "severity": "medium",
+      "message": "Fixed font size 16px may not scale properly",
+      "file": "mobile_spacing_system.css",
+      "source": "CSS",
+      "value": "16px"
+    },
+    {
+      "type": "mobile_minimum",
+      "severity": "high",
+      "message": "Font size 14.0px is below mobile minimum of 16px",
+      "file": "mobile_spacing_system.css",
+      "source": "CSS",
+      "value": 14.0
+    },
+    {
+      "type": "fixed_size",
+      "severity": "medium",
+      "message": "Fixed font size 14px may not scale properly",
+      "file": "mobile_spacing_system.css",
+      "source": "CSS",
+      "value": "14px"
+    },
+    {
+      "type": "mobile_minimum",
+      "severity": "high",
+      "message": "Font size 14.0px is below mobile minimum of 16px",
+      "file": "mobile_spacing_system.css",
+      "source": "CSS",
+      "value": 14.0
+    },
+    {
+      "type": "fixed_size",
+      "severity": "medium",
+      "message": "Fixed font size 14px may not scale properly",
+      "file": "mobile_spacing_system.css",
+      "source": "CSS",
+      "value": "14px"
+    }
+  ],
+  "font_sizes": [
+    {
+      "value": 16.0,
+      "unit": "px",
+      "type": "fixed",
+      "file": "landing.html",
+      "source": "CSS",
+      "raw_value": "16px"
+    },
+    {
+      "value": "var(--text-5xl)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "landing.html",
+      "source": "CSS",
+      "raw_value": "var(--text-5xl)"
+    },
+    {
+      "value": "var(--text-lg)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "landing.html",
+      "source": "CSS",
+      "raw_value": "var(--text-lg)"
+    },
+    {
+      "value": 14.0,
+      "unit": "px",
+      "type": "fixed",
+      "file": "landing.html",
+      "source": "CSS",
+      "raw_value": "14px"
+    },
+    {
+      "value": 16.0,
+      "unit": "px",
+      "type": "fixed",
+      "file": "landing.html",
+      "source": "CSS",
+      "raw_value": "16px"
+    },
+    {
+      "value": "var(--text-3xl)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "landing.html",
+      "source": "CSS",
+      "raw_value": "var(--text-3xl)"
+    },
+    {
+      "value": 24.0,
+      "unit": "px",
+      "type": "fixed",
+      "file": "landing.html",
+      "source": "CSS",
+      "raw_value": "24px"
+    },
+    {
+      "value": "var(--text-xl)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "landing.html",
+      "source": "CSS",
+      "raw_value": "var(--text-xl)"
+    },
+    {
+      "value": "var(--text-base)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "landing.html",
+      "source": "CSS",
+      "raw_value": "var(--text-base)"
+    },
+    {
+      "value": 12.0,
+      "unit": "px",
+      "type": "fixed",
+      "file": "landing.html",
+      "source": "CSS",
+      "raw_value": "12px"
+    },
+    {
+      "value": 12.0,
+      "unit": "px",
+      "type": "fixed",
+      "file": "landing.html",
+      "source": "CSS",
+      "raw_value": "12px"
+    },
+    {
+      "value": "var(--text-sm)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "landing.html",
+      "source": "CSS",
+      "raw_value": "var(--text-sm)"
+    },
+    {
+      "value": "var(--text-base)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "landing.html",
+      "source": "CSS",
+      "raw_value": "var(--text-base)"
+    },
+    {
+      "value": 18.0,
+      "unit": "px",
+      "type": "fixed",
+      "file": "landing.html",
+      "source": "CSS",
+      "raw_value": "18px"
+    },
+    {
+      "value": "var(--text-base)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "landing.html",
+      "source": "CSS",
+      "raw_value": "var(--text-base)"
+    },
+    {
+      "value": 48.0,
+      "unit": "px",
+      "type": "fixed",
+      "file": "landing.html",
+      "source": "CSS",
+      "raw_value": "48px"
+    },
+    {
+      "value": "var(--text-base)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "landing.html",
+      "source": "CSS",
+      "raw_value": "var(--text-base)"
+    },
+    {
+      "value": 12.0,
+      "unit": "px",
+      "type": "fixed",
+      "file": "landing.html",
+      "source": "CSS",
+      "raw_value": "12px"
+    },
+    {
+      "value": 24.0,
+      "unit": "px",
+      "type": "fixed",
+      "file": "landing.html",
+      "source": "CSS",
+      "raw_value": "24px"
+    },
+    {
+      "value": 20.0,
+      "unit": "px",
+      "type": "fixed",
+      "file": "landing.html",
+      "source": "CSS",
+      "raw_value": "20px"
+    },
+    {
+      "value": 14.0,
+      "unit": "px",
+      "type": "fixed",
+      "file": "landing.html",
+      "source": "CSS",
+      "raw_value": "14px"
+    },
+    {
+      "value": 28.0,
+      "unit": "px",
+      "type": "fixed",
+      "file": "landing.html",
+      "source": "CSS",
+      "raw_value": "28px"
+    },
+    {
+      "value": 16.0,
+      "unit": "px",
+      "type": "fixed",
+      "file": "landing.html",
+      "source": "CSS",
+      "raw_value": "16px"
+    },
+    {
+      "value": 16.0,
+      "unit": "px",
+      "type": "fixed",
+      "file": "landing.html",
+      "source": "CSS",
+      "raw_value": "16px"
+    },
+    {
+      "value": 14.0,
+      "unit": "px",
+      "type": "fixed",
+      "file": "landing.html",
+      "source": "CSS",
+      "raw_value": "14px"
+    },
+    {
+      "value": 0.9,
+      "unit": "rem",
+      "type": "relative",
+      "file": "landing.html",
+      "source": "CSS",
+      "raw_value": "0.9rem"
+    },
+    {
+      "value": 1.5,
+      "unit": "rem",
+      "type": "relative",
+      "file": "landing.html",
+      "source": "CSS",
+      "raw_value": "1.5rem"
+    },
+    {
+      "value": 1.5,
+      "unit": "rem",
+      "type": "relative",
+      "file": "landing.html",
+      "source": "CSS",
+      "raw_value": "1.5rem"
+    },
+    {
+      "value": 1.5,
+      "unit": "rem",
+      "type": "relative",
+      "file": "landing.html",
+      "source": "CSS",
+      "raw_value": "1.5rem"
+    },
+    {
+      "value": 1.5,
+      "unit": "rem",
+      "type": "relative",
+      "file": "landing.html",
+      "source": "CSS",
+      "raw_value": "1.5rem"
+    },
+    {
+      "value": 1.5,
+      "unit": "rem",
+      "type": "relative",
+      "file": "landing.html",
+      "source": "CSS",
+      "raw_value": "1.5rem"
+    },
+    {
+      "value": "var(--line-height-tight)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "landing.html",
+      "source": "CSS Variable",
+      "raw_value": "var(--line-height-tight)"
+    },
+    {
+      "value": "var(--line-height-relaxed)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "landing.html",
+      "source": "CSS Variable",
+      "raw_value": "var(--line-height-relaxed)"
+    },
+    {
+      "value": "var(--primary-green)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "landing.html",
+      "source": "CSS Variable",
+      "raw_value": "var(--primary-green)"
+    },
+    {
+      "value": "var(--line-height-tight)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "landing.html",
+      "source": "CSS Variable",
+      "raw_value": "var(--line-height-tight)"
+    },
+    {
+      "value": "var(--text-primary)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "landing.html",
+      "source": "CSS Variable",
+      "raw_value": "var(--text-primary)"
+    },
+    {
+      "value": "var(--text-secondary)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "landing.html",
+      "source": "CSS Variable",
+      "raw_value": "var(--text-secondary)"
+    },
+    {
+      "value": "var(--primary-green)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "landing.html",
+      "source": "CSS Variable",
+      "raw_value": "var(--primary-green)"
+    },
+    {
+      "value": "var(--space-3)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "landing.html",
+      "source": "CSS Variable",
+      "raw_value": "var(--space-3)"
+    },
+    {
+      "value": "var(--space-md) var(--space-xl)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "landing.html",
+      "source": "CSS Variable",
+      "raw_value": "var(--space-md) var(--space-xl)"
+    },
+    {
+      "value": "var(--space-3)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "landing.html",
+      "source": "CSS Variable",
+      "raw_value": "var(--space-3)"
+    },
+    {
+      "value": "var(--text-secondary)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "landing.html",
+      "source": "CSS Variable",
+      "raw_value": "var(--text-secondary)"
+    },
+    {
+      "value": "var(--text-secondary)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "landing.html",
+      "source": "CSS Variable",
+      "raw_value": "var(--text-secondary)"
+    },
+    {
+      "value": "var(--space-4)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "landing.html",
+      "source": "CSS Variable",
+      "raw_value": "var(--space-4)"
+    },
+    {
+      "value": "var(--space-6)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "landing.html",
+      "source": "CSS Variable",
+      "raw_value": "var(--space-6)"
+    },
+    {
+      "value": 1.5,
+      "unit": "rem",
+      "type": "relative",
+      "file": "landing.html",
+      "source": "Inline Style",
+      "raw_value": "1.5rem"
+    },
+    {
+      "value": 1.5,
+      "unit": "rem",
+      "type": "relative",
+      "file": "landing.html",
+      "source": "Inline Style",
+      "raw_value": "1.5rem"
+    },
+    {
+      "value": 1.5,
+      "unit": "rem",
+      "type": "relative",
+      "file": "landing.html",
+      "source": "Inline Style",
+      "raw_value": "1.5rem"
+    },
+    {
+      "value": 1.5,
+      "unit": "rem",
+      "type": "relative",
+      "file": "landing.html",
+      "source": "Inline Style",
+      "raw_value": "1.5rem"
+    },
+    {
+      "value": 1.5,
+      "unit": "rem",
+      "type": "relative",
+      "file": "landing.html",
+      "source": "Inline Style",
+      "raw_value": "1.5rem"
+    },
+    {
+      "value": "var(--font-size-base)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS",
+      "raw_value": "var(--font-size-base)"
+    },
+    {
+      "value": "var(--text-xs)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS",
+      "raw_value": "var(--text-xs)"
+    },
+    {
+      "value": "var(--text-sm)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS",
+      "raw_value": "var(--text-sm)"
+    },
+    {
+      "value": "var(--text-base)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS",
+      "raw_value": "var(--text-base)"
+    },
+    {
+      "value": "var(--text-lg)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS",
+      "raw_value": "var(--text-lg)"
+    },
+    {
+      "value": "var(--text-xl)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS",
+      "raw_value": "var(--text-xl)"
+    },
+    {
+      "value": "var(--text-2xl)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS",
+      "raw_value": "var(--text-2xl)"
+    },
+    {
+      "value": "var(--text-3xl)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS",
+      "raw_value": "var(--text-3xl)"
+    },
+    {
+      "value": "var(--text-4xl)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS",
+      "raw_value": "var(--text-4xl)"
+    },
+    {
+      "value": "var(--text-5xl)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS",
+      "raw_value": "var(--text-5xl)"
+    },
+    {
+      "value": "var(--text-6xl)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS",
+      "raw_value": "var(--text-6xl)"
+    },
+    {
+      "value": "var(--text-5xl)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS",
+      "raw_value": "var(--text-5xl)"
+    },
+    {
+      "value": "var(--text-4xl)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS",
+      "raw_value": "var(--text-4xl)"
+    },
+    {
+      "value": "var(--text-3xl)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS",
+      "raw_value": "var(--text-3xl)"
+    },
+    {
+      "value": "var(--text-2xl)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS",
+      "raw_value": "var(--text-2xl)"
+    },
+    {
+      "value": "var(--text-xl)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS",
+      "raw_value": "var(--text-xl)"
+    },
+    {
+      "value": "var(--text-lg)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS",
+      "raw_value": "var(--text-lg)"
+    },
+    {
+      "value": "var(--text-base)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS",
+      "raw_value": "var(--text-base)"
+    },
+    {
+      "value": "var(--text-lg)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS",
+      "raw_value": "var(--text-lg)"
+    },
+    {
+      "value": "var(--text-sm)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS",
+      "raw_value": "var(--text-sm)"
+    },
+    {
+      "value": "var(--text-5xl)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS",
+      "raw_value": "var(--text-5xl)"
+    },
+    {
+      "value": "var(--text-lg)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS",
+      "raw_value": "var(--text-lg)"
+    },
+    {
+      "value": "var(--text-3xl)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS",
+      "raw_value": "var(--text-3xl)"
+    },
+    {
+      "value": "var(--text-xl)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS",
+      "raw_value": "var(--text-xl)"
+    },
+    {
+      "value": "var(--text-xl)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS",
+      "raw_value": "var(--text-xl)"
+    },
+    {
+      "value": "var(--text-base)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS",
+      "raw_value": "var(--text-base)"
+    },
+    {
+      "value": "var(--text-base)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS",
+      "raw_value": "var(--text-base)"
+    },
+    {
+      "value": "var(--text-sm)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS",
+      "raw_value": "var(--text-sm)"
+    },
+    {
+      "value": "var(--text-base)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS",
+      "raw_value": "var(--text-base)"
+    },
+    {
+      "value": "var(--text-lg)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS",
+      "raw_value": "var(--text-lg)"
+    },
+    {
+      "value": "var(--text-sm)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS",
+      "raw_value": "var(--text-sm)"
+    },
+    {
+      "value": "var(--text-base)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS",
+      "raw_value": "var(--text-base)"
+    },
+    {
+      "value": "var(--text-base)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS",
+      "raw_value": "var(--text-base)"
+    },
+    {
+      "value": "var(--text-sm)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS",
+      "raw_value": "var(--text-sm)"
+    },
+    {
+      "value": "var(--text-sm)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS",
+      "raw_value": "var(--text-sm)"
+    },
+    {
+      "value": "var(--text-4xl)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS",
+      "raw_value": "var(--text-4xl)"
+    },
+    {
+      "value": "var(--text-base)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS",
+      "raw_value": "var(--text-base)"
+    },
+    {
+      "value": "var(--text-2xl)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS",
+      "raw_value": "var(--text-2xl)"
+    },
+    {
+      "value": "var(--text-lg)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS",
+      "raw_value": "var(--text-lg)"
+    },
+    {
+      "value": "var(--text-base)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS",
+      "raw_value": "var(--text-base)"
+    },
+    {
+      "value": "var(--text-5xl)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS",
+      "raw_value": "var(--text-5xl)"
+    },
+    {
+      "value": "var(--text-lg)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS",
+      "raw_value": "var(--text-lg)"
+    },
+    {
+      "value": "var(--text-3xl)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS",
+      "raw_value": "var(--text-3xl)"
+    },
+    {
+      "value": "var(--text-xl)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS",
+      "raw_value": "var(--text-xl)"
+    },
+    {
+      "value": "var(--text-6xl)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS",
+      "raw_value": "var(--text-6xl)"
+    },
+    {
+      "value": "var(--text-xl)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS",
+      "raw_value": "var(--text-xl)"
+    },
+    {
+      "value": "var(--text-4xl)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS",
+      "raw_value": "var(--text-4xl)"
+    },
+    {
+      "value": "var(--text-2xl)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS",
+      "raw_value": "var(--text-2xl)"
+    },
+    {
+      "value": "var(--text-sm)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS",
+      "raw_value": "var(--text-sm)"
+    },
+    {
+      "value": "var(--text-4xl)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS",
+      "raw_value": "var(--text-4xl)"
+    },
+    {
+      "value": "var(--text-lg)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS",
+      "raw_value": "var(--text-lg)"
+    },
+    {
+      "value": "var(--text-2xl)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS",
+      "raw_value": "var(--text-2xl)"
+    },
+    {
+      "value": 0.75,
+      "unit": "rem",
+      "type": "relative",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "0.75rem"
+    },
+    {
+      "value": 0.875,
+      "unit": "rem",
+      "type": "relative",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "0.875rem"
+    },
+    {
+      "value": 1.0,
+      "unit": "rem",
+      "type": "relative",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "1rem"
+    },
+    {
+      "value": 1.125,
+      "unit": "rem",
+      "type": "relative",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "1.125rem"
+    },
+    {
+      "value": 1.25,
+      "unit": "rem",
+      "type": "relative",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "1.25rem"
+    },
+    {
+      "value": 1.5,
+      "unit": "rem",
+      "type": "relative",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "1.5rem"
+    },
+    {
+      "value": 1.875,
+      "unit": "rem",
+      "type": "relative",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "1.875rem"
+    },
+    {
+      "value": 2.25,
+      "unit": "rem",
+      "type": "relative",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "2.25rem"
+    },
+    {
+      "value": 3.0,
+      "unit": "rem",
+      "type": "relative",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "3rem"
+    },
+    {
+      "value": 3.75,
+      "unit": "rem",
+      "type": "relative",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "3.75rem"
+    },
+    {
+      "value": 0.75,
+      "unit": "rem",
+      "type": "relative",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "0.75rem"
+    },
+    {
+      "value": 0.875,
+      "unit": "rem",
+      "type": "relative",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "0.875rem"
+    },
+    {
+      "value": 1.0,
+      "unit": "rem",
+      "type": "relative",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "1rem"
+    },
+    {
+      "value": 1.125,
+      "unit": "rem",
+      "type": "relative",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "1.125rem"
+    },
+    {
+      "value": 1.25,
+      "unit": "rem",
+      "type": "relative",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "1.25rem"
+    },
+    {
+      "value": 1.375,
+      "unit": "rem",
+      "type": "relative",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "1.375rem"
+    },
+    {
+      "value": 1.625,
+      "unit": "rem",
+      "type": "relative",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "1.625rem"
+    },
+    {
+      "value": 1.875,
+      "unit": "rem",
+      "type": "relative",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "1.875rem"
+    },
+    {
+      "value": 2.25,
+      "unit": "rem",
+      "type": "relative",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "2.25rem"
+    },
+    {
+      "value": 2.75,
+      "unit": "rem",
+      "type": "relative",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "2.75rem"
+    },
+    {
+      "value": 0.75,
+      "unit": "rem",
+      "type": "relative",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "0.75rem"
+    },
+    {
+      "value": 0.875,
+      "unit": "rem",
+      "type": "relative",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "0.875rem"
+    },
+    {
+      "value": 1.0,
+      "unit": "rem",
+      "type": "relative",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "1rem"
+    },
+    {
+      "value": 1.125,
+      "unit": "rem",
+      "type": "relative",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "1.125rem"
+    },
+    {
+      "value": 1.25,
+      "unit": "rem",
+      "type": "relative",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "1.25rem"
+    },
+    {
+      "value": 1.5,
+      "unit": "rem",
+      "type": "relative",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "1.5rem"
+    },
+    {
+      "value": 1.875,
+      "unit": "rem",
+      "type": "relative",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "1.875rem"
+    },
+    {
+      "value": 2.25,
+      "unit": "rem",
+      "type": "relative",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "2.25rem"
+    },
+    {
+      "value": 2.75,
+      "unit": "rem",
+      "type": "relative",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "2.75rem"
+    },
+    {
+      "value": 3.25,
+      "unit": "rem",
+      "type": "relative",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "3.25rem"
+    },
+    {
+      "value": 0.75,
+      "unit": "rem",
+      "type": "relative",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "0.75rem"
+    },
+    {
+      "value": 0.875,
+      "unit": "rem",
+      "type": "relative",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "0.875rem"
+    },
+    {
+      "value": 1.0,
+      "unit": "rem",
+      "type": "relative",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "1rem"
+    },
+    {
+      "value": 1.125,
+      "unit": "rem",
+      "type": "relative",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "1.125rem"
+    },
+    {
+      "value": 1.25,
+      "unit": "rem",
+      "type": "relative",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "1.25rem"
+    },
+    {
+      "value": 1.5,
+      "unit": "rem",
+      "type": "relative",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "1.5rem"
+    },
+    {
+      "value": 1.875,
+      "unit": "rem",
+      "type": "relative",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "1.875rem"
+    },
+    {
+      "value": 2.25,
+      "unit": "rem",
+      "type": "relative",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "2.25rem"
+    },
+    {
+      "value": 3.0,
+      "unit": "rem",
+      "type": "relative",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "3rem"
+    },
+    {
+      "value": 3.75,
+      "unit": "rem",
+      "type": "relative",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "3.75rem"
+    },
+    {
+      "value": "var(--text-sm)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "var(--text-sm)"
+    },
+    {
+      "value": "var(--text-lg)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "var(--text-lg)"
+    },
+    {
+      "value": "var(--text-2xl)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "var(--text-2xl)"
+    },
+    {
+      "value": "var(--text-4xl)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "var(--text-4xl)"
+    },
+    {
+      "value": "var(--text-6xl)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "var(--text-6xl)"
+    },
+    {
+      "value": "var(--line-height-tight)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "var(--line-height-tight)"
+    },
+    {
+      "value": "var(--line-height-tight)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "var(--line-height-tight)"
+    },
+    {
+      "value": "var(--line-height-normal)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "var(--line-height-normal)"
+    },
+    {
+      "value": "var(--line-height-normal)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "var(--line-height-normal)"
+    },
+    {
+      "value": "var(--line-height-normal)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "var(--line-height-normal)"
+    },
+    {
+      "value": "var(--line-height-normal)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "var(--line-height-normal)"
+    },
+    {
+      "value": "var(--line-height-relaxed)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "var(--line-height-relaxed)"
+    },
+    {
+      "value": "var(--line-height-relaxed)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "var(--line-height-relaxed)"
+    },
+    {
+      "value": "var(--line-height-relaxed)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "var(--line-height-relaxed)"
+    },
+    {
+      "value": "var(--line-height-tight)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "var(--line-height-tight)"
+    },
+    {
+      "value": "var(--line-height-relaxed)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "var(--line-height-relaxed)"
+    },
+    {
+      "value": "var(--line-height-normal)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "var(--line-height-normal)"
+    },
+    {
+      "value": "var(--line-height-relaxed)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "var(--line-height-relaxed)"
+    },
+    {
+      "value": "var(--line-height-normal)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "var(--line-height-normal)"
+    },
+    {
+      "value": "var(--line-height-relaxed)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "var(--line-height-relaxed)"
+    },
+    {
+      "value": "var(--line-height-normal)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "var(--line-height-normal)"
+    },
+    {
+      "value": "var(--line-height-normal)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "var(--line-height-normal)"
+    },
+    {
+      "value": "var(--line-height-normal)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "var(--line-height-normal)"
+    },
+    {
+      "value": "var(--line-height-normal)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "var(--line-height-normal)"
+    },
+    {
+      "value": "var(--line-height-normal)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "var(--line-height-normal)"
+    },
+    {
+      "value": "var(--line-height-normal)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "var(--line-height-normal)"
+    },
+    {
+      "value": "var(--line-height-normal)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "var(--line-height-normal)"
+    },
+    {
+      "value": "var(--line-height-relaxed)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "var(--line-height-relaxed)"
+    },
+    {
+      "value": "var(--line-height-relaxed)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "var(--line-height-relaxed)"
+    },
+    {
+      "value": "var(--space-md)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "var(--space-md)"
+    },
+    {
+      "value": "var(--space-md)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "var(--space-md)"
+    },
+    {
+      "value": "var(--space-sm)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "var(--space-sm)"
+    },
+    {
+      "value": "var(--space-xs)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "var(--space-xs)"
+    },
+    {
+      "value": 376.0,
+      "unit": "px",
+      "type": "fixed",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "376px) and (max-width: 414px) {\n  .hero-headline {\n    font-size: var(--text-5xl)"
+    },
+    {
+      "value": "var(--space-lg)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "var(--space-lg)"
+    },
+    {
+      "value": "var(--space-md)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "var(--space-md)"
+    },
+    {
+      "value": "var(--space-sm)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "var(--space-sm)"
+    },
+    {
+      "value": "var(--space-xl)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "var(--space-xl)"
+    },
+    {
+      "value": "var(--space-xl)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "var(--space-xl)"
+    },
+    {
+      "value": "var(--space-lg)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "var(--space-lg)"
+    },
+    {
+      "value": "var(--space-md)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "var(--space-md)"
+    },
+    {
+      "value": 10.0,
+      "unit": "px",
+      "type": "fixed",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "10px"
+    },
+    {
+      "value": 12.0,
+      "unit": "px",
+      "type": "fixed",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "12px"
+    },
+    {
+      "value": 14.0,
+      "unit": "px",
+      "type": "fixed",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "14px"
+    },
+    {
+      "value": 16.0,
+      "unit": "px",
+      "type": "fixed",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "16px"
+    },
+    {
+      "value": 18.0,
+      "unit": "px",
+      "type": "fixed",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "18px"
+    },
+    {
+      "value": 20.0,
+      "unit": "px",
+      "type": "fixed",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "20px"
+    },
+    {
+      "value": 24.0,
+      "unit": "px",
+      "type": "fixed",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "24px"
+    },
+    {
+      "value": 28.0,
+      "unit": "px",
+      "type": "fixed",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "28px"
+    },
+    {
+      "value": 32.0,
+      "unit": "px",
+      "type": "fixed",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "32px"
+    },
+    {
+      "value": 36.0,
+      "unit": "px",
+      "type": "fixed",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "36px"
+    },
+    {
+      "value": "var(--text-lg)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "var(--text-lg)"
+    },
+    {
+      "value": "var(--space-xs)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "var(--space-xs)"
+    },
+    {
+      "value": "var(--text-4xl)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "Media Query",
+      "raw_value": "var(--text-4xl)"
+    },
+    {
+      "value": "var(--text-5xl)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "Media Query",
+      "raw_value": "var(--text-5xl)"
+    },
+    {
+      "value": "var(--text-6xl)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "Media Query",
+      "raw_value": "var(--text-6xl)"
+    },
+    {
+      "value": "var(--text-sm)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "responsive_typography_system.css",
+      "source": "Media Query",
+      "raw_value": "var(--text-sm)"
+    },
+    {
+      "value": 16.0,
+      "unit": "px",
+      "type": "fixed",
+      "file": "mobile_spacing_system.css",
+      "source": "CSS",
+      "raw_value": "16px"
+    },
+    {
+      "value": 14.0,
+      "unit": "px",
+      "type": "fixed",
+      "file": "mobile_spacing_system.css",
+      "source": "CSS",
+      "raw_value": "14px"
+    },
+    {
+      "value": 14.0,
+      "unit": "px",
+      "type": "fixed",
+      "file": "mobile_spacing_system.css",
+      "source": "CSS",
+      "raw_value": "14px"
+    },
+    {
+      "value": "var(--space-4)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "mobile_spacing_system.css",
+      "source": "CSS Variable",
+      "raw_value": "var(--space-4)"
+    },
+    {
+      "value": "var(--space-3)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "mobile_spacing_system.css",
+      "source": "CSS Variable",
+      "raw_value": "var(--space-3)"
+    },
+    {
+      "value": "var(--space-4)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "mobile_spacing_system.css",
+      "source": "CSS Variable",
+      "raw_value": "var(--space-4)"
+    },
+    {
+      "value": "var(--space-5)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "mobile_spacing_system.css",
+      "source": "CSS Variable",
+      "raw_value": "var(--space-5)"
+    },
+    {
+      "value": "var(--space-2)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "mobile_spacing_system.css",
+      "source": "CSS Variable",
+      "raw_value": "var(--space-2)"
+    },
+    {
+      "value": "var(--space-2)",
+      "unit": "css-var",
+      "type": "variable",
+      "file": "mobile_spacing_system.css",
+      "source": "CSS Variable",
+      "raw_value": "var(--space-2)"
+    }
+  ],
+  "headings": [
+    {
+      "level": "H1",
+      "file": "landing.html",
+      "type": "HTML Element"
+    },
+    {
+      "level": "H2",
+      "file": "landing.html",
+      "type": "HTML Element"
+    },
+    {
+      "level": "H2",
+      "file": "landing.html",
+      "type": "HTML Element"
+    },
+    {
+      "level": "H2",
+      "file": "landing.html",
+      "type": "HTML Element"
+    },
+    {
+      "level": "H2",
+      "file": "landing.html",
+      "type": "HTML Element"
+    }
+  ],
+  "fixed_sizes": [
+    {
+      "value": 16.0,
+      "unit": "px",
+      "type": "fixed",
+      "file": "landing.html",
+      "source": "CSS",
+      "raw_value": "16px"
+    },
+    {
+      "value": 14.0,
+      "unit": "px",
+      "type": "fixed",
+      "file": "landing.html",
+      "source": "CSS",
+      "raw_value": "14px"
+    },
+    {
+      "value": 16.0,
+      "unit": "px",
+      "type": "fixed",
+      "file": "landing.html",
+      "source": "CSS",
+      "raw_value": "16px"
+    },
+    {
+      "value": 24.0,
+      "unit": "px",
+      "type": "fixed",
+      "file": "landing.html",
+      "source": "CSS",
+      "raw_value": "24px"
+    },
+    {
+      "value": 12.0,
+      "unit": "px",
+      "type": "fixed",
+      "file": "landing.html",
+      "source": "CSS",
+      "raw_value": "12px"
+    },
+    {
+      "value": 12.0,
+      "unit": "px",
+      "type": "fixed",
+      "file": "landing.html",
+      "source": "CSS",
+      "raw_value": "12px"
+    },
+    {
+      "value": 18.0,
+      "unit": "px",
+      "type": "fixed",
+      "file": "landing.html",
+      "source": "CSS",
+      "raw_value": "18px"
+    },
+    {
+      "value": 48.0,
+      "unit": "px",
+      "type": "fixed",
+      "file": "landing.html",
+      "source": "CSS",
+      "raw_value": "48px"
+    },
+    {
+      "value": 12.0,
+      "unit": "px",
+      "type": "fixed",
+      "file": "landing.html",
+      "source": "CSS",
+      "raw_value": "12px"
+    },
+    {
+      "value": 24.0,
+      "unit": "px",
+      "type": "fixed",
+      "file": "landing.html",
+      "source": "CSS",
+      "raw_value": "24px"
+    },
+    {
+      "value": 20.0,
+      "unit": "px",
+      "type": "fixed",
+      "file": "landing.html",
+      "source": "CSS",
+      "raw_value": "20px"
+    },
+    {
+      "value": 14.0,
+      "unit": "px",
+      "type": "fixed",
+      "file": "landing.html",
+      "source": "CSS",
+      "raw_value": "14px"
+    },
+    {
+      "value": 28.0,
+      "unit": "px",
+      "type": "fixed",
+      "file": "landing.html",
+      "source": "CSS",
+      "raw_value": "28px"
+    },
+    {
+      "value": 16.0,
+      "unit": "px",
+      "type": "fixed",
+      "file": "landing.html",
+      "source": "CSS",
+      "raw_value": "16px"
+    },
+    {
+      "value": 16.0,
+      "unit": "px",
+      "type": "fixed",
+      "file": "landing.html",
+      "source": "CSS",
+      "raw_value": "16px"
+    },
+    {
+      "value": 14.0,
+      "unit": "px",
+      "type": "fixed",
+      "file": "landing.html",
+      "source": "CSS",
+      "raw_value": "14px"
+    },
+    {
+      "value": 376.0,
+      "unit": "px",
+      "type": "fixed",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "376px) and (max-width: 414px) {\n  .hero-headline {\n    font-size: var(--text-5xl)"
+    },
+    {
+      "value": 10.0,
+      "unit": "px",
+      "type": "fixed",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "10px"
+    },
+    {
+      "value": 12.0,
+      "unit": "px",
+      "type": "fixed",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "12px"
+    },
+    {
+      "value": 14.0,
+      "unit": "px",
+      "type": "fixed",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "14px"
+    },
+    {
+      "value": 16.0,
+      "unit": "px",
+      "type": "fixed",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "16px"
+    },
+    {
+      "value": 18.0,
+      "unit": "px",
+      "type": "fixed",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "18px"
+    },
+    {
+      "value": 20.0,
+      "unit": "px",
+      "type": "fixed",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "20px"
+    },
+    {
+      "value": 24.0,
+      "unit": "px",
+      "type": "fixed",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "24px"
+    },
+    {
+      "value": 28.0,
+      "unit": "px",
+      "type": "fixed",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "28px"
+    },
+    {
+      "value": 32.0,
+      "unit": "px",
+      "type": "fixed",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "32px"
+    },
+    {
+      "value": 36.0,
+      "unit": "px",
+      "type": "fixed",
+      "file": "responsive_typography_system.css",
+      "source": "CSS Variable",
+      "raw_value": "36px"
+    },
+    {
+      "value": 16.0,
+      "unit": "px",
+      "type": "fixed",
+      "file": "mobile_spacing_system.css",
+      "source": "CSS",
+      "raw_value": "16px"
+    },
+    {
+      "value": 14.0,
+      "unit": "px",
+      "type": "fixed",
+      "file": "mobile_spacing_system.css",
+      "source": "CSS",
+      "raw_value": "14px"
+    },
+    {
+      "value": 14.0,
+      "unit": "px",
+      "type": "fixed",
+      "file": "mobile_spacing_system.css",
+      "source": "CSS",
+      "raw_value": "14px"
+    }
+  ],
+  "responsive_sizes": [],
+  "recommendations": [
+    {
+      "priority": "high",
+      "category": "Mobile Readability",
+      "title": "Increase Font Sizes Below 16px",
+      "description": "Found 11 font sizes below the mobile minimum of 16px. These should be increased to ensure readability on mobile devices.",
+      "action": "Update all font sizes below 16px to meet mobile minimum standards"
+    },
+    {
+      "priority": "medium",
+      "category": "Responsive Design",
+      "title": "Replace Fixed Font Sizes",
+      "description": "Found 30 fixed font sizes that don't scale responsively. Consider using relative units (rem, em) or CSS custom properties.",
+      "action": "Convert fixed pixel values to relative units or CSS variables"
+    },
+    {
+      "priority": "critical",
+      "category": "Accessibility",
+      "title": "Fix Extremely Small Font Sizes",
+      "description": "Found 1 font sizes below 12px. These are too small for any device and should be increased immediately.",
+      "action": "Increase all font sizes below 12px to at least 14px"
+    },
+    {
+      "priority": "medium",
+      "category": "Responsive Design",
+      "title": "Improve Responsive Font Scaling",
+      "description": "Only 0 responsive font sizes found vs 30 fixed sizes. Consider implementing a responsive typography system.",
+      "action": "Implement CSS custom properties and media queries for responsive font scaling"
+    }
+  ]
+}

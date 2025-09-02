@@ -17,9 +17,14 @@ def init_security(app):
     security_middleware = SecurityMiddleware()
     security_middleware.init_app(app)
     
+    # Initialize CSP middleware
+    from backend.middleware.csp_middleware import init_csp
+    csp_middleware = init_csp(app)
+    
     # Return security components for potential use
     return {
         'middleware': security_middleware,
+        'csp_middleware': csp_middleware,
         'decorators': {
             'require_https': require_https,
             'validate_financial_data': validate_financial_data,

@@ -170,7 +170,7 @@ export const PhoneNumberInput = forwardRef<HTMLDivElement, PhoneNumberInputProps
         {label && (
           <label 
             htmlFor={id}
-            className="block text-sm font-medium text-gray-200 mb-2"
+            className="block text-base leading-relaxed font-medium text-gray-200 mb-2"
           >
             {label}
             {required && <span className="text-red-500 ml-1">*</span>}
@@ -251,7 +251,7 @@ export const PhoneNumberInput = forwardRef<HTMLDivElement, PhoneNumberInputProps
         {(error || (isValid === false && validationMessage)) && (
           <div 
             id={errorId}
-            className="mt-2 text-sm text-red-500 flex items-center"
+            className="mt-2 text-base leading-relaxed text-red-500 flex items-center"
             role="alert"
             aria-live="polite"
           >
@@ -274,7 +274,7 @@ export const PhoneNumberInput = forwardRef<HTMLDivElement, PhoneNumberInputProps
         {/* Helper Text */}
         <div 
           id={descriptionId}
-          className="mt-1 text-xs text-gray-400"
+          className="mt-1 text-base leading-relaxed text-gray-400"
         >
           Enter your phone number in any format. We'll automatically format it for you.
         </div>

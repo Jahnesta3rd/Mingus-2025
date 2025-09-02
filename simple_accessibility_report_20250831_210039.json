@@ -1,0 +1,23 @@
+{
+  "summary": {
+    "total_pages": 0,
+    "overall_score": 0,
+    "wcag_aa_compliant": false,
+    "critical_issues": 0,
+    "warnings": 0
+  },
+  "details": {
+    "timestamp": "2025-08-31 21:00:39",
+    "base_url": "http://localhost:5001",
+    "pages_tested": 0,
+    "overall_score": 0,
+    "wcag_aa_compliance": false,
+    "critical_issues": [],
+    "warnings": [],
+    "recommendations": []
+  },
+  "recommendations": [
+    "Implement comprehensive accessibility improvements",
+    "Consider accessibility training for development team"
+  ]
+}

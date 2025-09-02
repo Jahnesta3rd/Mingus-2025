@@ -241,7 +241,7 @@
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <button type="button" 
-                                class="btn btn-{{ 'success' if meme.is_active else 'warning' }} me-2"
+                                class="btn btn-{{ 'success' if meme.is_active else 'warning' }} me-2 btn-cta btn-primary"
                                 onclick="toggleMemeStatus('{{ meme.id }}')">
                             <i class="fas fa-{{ 'pause' if meme.is_active else 'play' }} me-1"></i>
                             {{ 'Deactivate' if meme.is_active else 'Activate' }} Meme
@@ -254,7 +254,7 @@
                         <form method="POST" action="{{ url_for('meme_admin.delete', meme_id=meme.id) }}" 
                               style="display: inline;" 
                               onsubmit="return confirmDelete('Are you sure you want to delete this meme? This action cannot be undone.')">
-                            <button type="submit" class="btn btn-danger">
+                            <button type="submit" class="btn btn-danger btn-cta btn-primary">
                                 <i class="fas fa-trash me-1"></i>Delete Meme
                             </button>
                         </form>

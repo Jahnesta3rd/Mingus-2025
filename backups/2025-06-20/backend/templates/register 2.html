@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="stylesheet" href="touch_target_optimization.css">
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create Account - Mingus</title>
@@ -140,18 +142,18 @@
             <p class="subtitle">Create Your Account</p>
             <form action="/api/auth/register" method="POST" autocomplete="off">
                 <div class="input-group">
-                    <input type="text" name="full_name" placeholder="Full Name" required autocomplete="name">
+                    <input type="text" name="full_name" placeholder="Full Name" required autocomplete="name" class="form-input">
                 </div>
                 <div class="input-group">
-                    <input type="email" name="email" placeholder="Email address" required autocomplete="username">
+                    <input type="email" name="email" placeholder="Email address" required autocomplete="username" class="form-input">
                 </div>
                 <div class="input-group">
                     <input type="tel" name="phone_number" placeholder="Phone Number" required autocomplete="tel">
                 </div>
                 <div class="input-group">
-                    <input type="password" name="password" placeholder="Password" required autocomplete="new-password">
+                    <input type="password" name="password" placeholder="Password" required autocomplete="new-password" class="form-input">
                 </div>
-                <button type="submit" class="main-btn">Create Account</button>
+                <button type="submit" class="main-btn btn-cta btn-primary">Create Account</button>
             </form>
             <p class="footer-text">Already have an account? <a href="/api/auth/login">Sign In</a></p>
         </div>

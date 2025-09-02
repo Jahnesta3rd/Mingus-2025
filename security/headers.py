@@ -110,38 +110,34 @@ class SecurityHeadersMiddleware:
                 csp_script_src=[
                     "'self'",
                     "'nonce-{nonce}'",
-                    "https://js.stripe.com",
-                    "https://checkout.stripe.com",
-                    "https://www.google-analytics.com",
                     "https://www.googletagmanager.com",
-                    "https://clarity.microsoft.com"
+                    "https://www.clarity.ms"
                 ],
                 csp_style_src=[
                     "'self'",
                     "'unsafe-inline'",
-                    "https://fonts.googleapis.com",
-                    "https://cdn.jsdelivr.net"
+                    "https://cdnjs.cloudflare.com",
+                    "https://fonts.googleapis.com"
+                ],
+                csp_font_src=[
+                    "'self'",
+                    "https://cdnjs.cloudflare.com",
+                    "https://fonts.gstatic.com"
+                ],
+                csp_img_src=[
+                    "'self'",
+                    "data:",
+                    "https:"
                 ],
                 csp_connect_src=[
                     "'self'",
-                    "https://api.stripe.com",
-                    "https://js.stripe.com",
                     "https://www.google-analytics.com",
-                    "https://analytics.google.com",
-                    "https://clarity.microsoft.com",
-                    "https://c.clarity.ms"
+                    "https://www.clarity.ms"
                 ],
-                csp_frame_src=[
-                    "'self'",
-                    "https://js.stripe.com",
-                    "https://hooks.stripe.com",
-                    "https://checkout.stripe.com"
-                ],
-                csp_form_action=[
-                    "'self'",
-                    "https://api.stripe.com",
-                    "https://checkout.stripe.com"
-                ],
+                csp_frame_src=["'none'"],
+                csp_object_src=["'none'"],
+                csp_base_uri=["'self'"],
+                csp_form_action=["'self'"],
                 csp_upgrade_insecure_requests=True,
                 csp_block_all_mixed_content=True,
                 x_frame_options="DENY",
@@ -157,21 +153,37 @@ class SecurityHeadersMiddleware:
                 csp_script_src=[
                     "'self'",
                     "'unsafe-inline'",
-                    "'unsafe-eval'",  # Allow eval for development tools
-                    "https://js.stripe.com"
+                    "https://www.googletagmanager.com",
+                    "https://www.clarity.ms"
                 ],
                 csp_style_src=[
                     "'self'",
                     "'unsafe-inline'",
+                    "https://cdnjs.cloudflare.com",
                     "https://fonts.googleapis.com"
+                ],
+                csp_font_src=[
+                    "'self'",
+                    "https://cdnjs.cloudflare.com",
+                    "https://fonts.gstatic.com"
+                ],
+                csp_img_src=[
+                    "'self'",
+                    "data:",
+                    "https:",
+                    "http:"
                 ],
                 csp_connect_src=[
                     "'self'",
-                    "https://api.stripe.com",
-                    "https://js.stripe.com",
+                    "https://www.google-analytics.com",
+                    "https://www.clarity.ms",
                     "ws://localhost:*",  # Allow WebSocket connections in development
                     "wss://localhost:*"
                 ],
+                csp_frame_src=["'none'"],
+                csp_object_src=["'none'"],
+                csp_base_uri=["'self'"],
+                csp_form_action=["'self'"],
                 csp_upgrade_insecure_requests=False,  # Allow HTTP in development
                 csp_block_all_mixed_content=False,
                 x_frame_options="SAMEORIGIN",  # Less restrictive for development

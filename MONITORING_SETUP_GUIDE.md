@@ -1,641 +1,471 @@
-# 🔍 PostgreSQL Monitoring Setup Guide
-## MINGUS Database Monitoring and Alerting Configuration
+# Comprehensive Performance Monitoring Setup Guide
 
-### **Date**: January 2025
-### **Status**: 📋 **SETUP GUIDE**
-### **Priority**: 🔴 **CRITICAL FOR PRODUCTION**
+This guide explains how to set up and use the comprehensive performance monitoring system for your Flask financial application.
 
----
+## 🚀 Overview
 
-## **📋 Overview**
+The monitoring system provides:
 
-This guide provides step-by-step instructions for setting up the PostgreSQL monitoring and alerting system for the MINGUS application. The monitoring system tracks database performance, health metrics, and sends alerts for critical issues.
+- **Real-time performance metrics collection** for Flask, PostgreSQL, Redis, and Celery
+- **Database query performance monitoring** with detailed query analysis
+- **Redis cache performance tracking** including hit rates and operation timing
+- **API response time monitoring** with endpoint-specific metrics
+- **User experience metrics** (Core Web Vitals) collection
+- **System resource monitoring** (CPU, memory, disk, network)
+- **Prometheus integration** for metrics export
+- **Grafana dashboards** for visualization
+- **Alerting system** for performance issues
 
-### **Key Features**
-- ✅ **Real-time Monitoring**: 30-second monitoring intervals
-- ✅ **Performance Metrics**: Query time, connection pool, cache hit ratio
-- ✅ **Health Alerts**: Email, webhook, and Slack notifications
-- ✅ **Trend Analysis**: Performance trend tracking
-- ✅ **Health Scoring**: Overall database health assessment
+## 📋 Prerequisites
 
----
+- Python 3.8+
+- Docker and Docker Compose
+- PostgreSQL database
+- Redis cache
+- Celery worker setup
 
-## **🔧 Installation and Setup**
+## 🛠️ Installation
 
-### **1. Prerequisites**
+### 1. Install Dependencies
 
-#### **Required Python Packages**
 ```bash
-pip install psycopg2-binary schedule requests
+# Install monitoring dependencies
+pip install -r requirements-monitoring.txt
+
+# Or install core packages individually
+pip install prometheus-client psutil redis psycopg2-binary flask-limiter flask-caching
 ```
 
-#### **Required Environment Variables**
+### 2. Environment Configuration
+
+Create a `.env` file with your configuration:
+
 ```bash
-# Database Configuration
-DATABASE_URL=postgresql://mingus_user:mingus_password@localhost:5432/mingus_production
+# Flask Environment
+FLASK_ENV=production  # or development, testing
 
-# Alert Configuration
-EMAIL_ALERTS_ENABLED=true
-WEBHOOK_ALERTS_ENABLED=false
-SLACK_ALERTS_ENABLED=false
+# Database
+POSTGRES_PASSWORD=your_secure_password
+DATABASE_URL=postgresql://user:pass@localhost:5432/mingus_financial
 
-# Email Configuration (if using email alerts)
+# Redis
+REDIS_URL=redis://localhost:6379
+
+# Celery
+CELERY_BROKER_URL=redis://localhost:6379
+CELERY_RESULT_BACKEND=redis://localhost:6379
+
+# Monitoring
+PROMETHEUS_ENABLED=true
+PROMETHEUS_PORT=9090
+LOG_LEVEL=INFO
+
+# Alerting (optional)
 SMTP_SERVER=smtp.gmail.com
 SMTP_PORT=587
-SMTP_USERNAME=your-email@gmail.com
-SMTP_PASSWORD=your-app-password
-FROM_EMAIL=alerts@mingus.com
-TO_EMAIL=admin@mingus.com
+SMTP_USERNAME=your_email@gmail.com
+SMTP_PASSWORD=your_app_password
+ALERT_FROM_EMAIL=alerts@yourcompany.com
+ALERT_TO_EMAILS=admin@yourcompany.com,dev@yourcompany.com
 
-# Webhook Configuration (if using webhook alerts)
-WEBHOOK_URL=https://your-webhook-endpoint.com/alerts
-
-# Slack Configuration (if using Slack alerts)
-SLACK_WEBHOOK_URL=https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK
+# Slack (optional)
+SLACK_WEBHOOK_URL=https://hooks.slack.com/services/YOUR/WEBHOOK/URL
+SLACK_CHANNEL=#monitoring
 ```
 
-### **2. File Structure**
-```
-mingus-app/
-├── POSTGRESQL_MONITORING_ALERTS.py
-├── monitoring/
-│   ├── config/
-│   │   └── monitoring_config.json
-│   ├── logs/
-│   │   └── postgresql_monitoring.log
-│   └── reports/
-│       └── health_reports/
-└── scripts/
-    ├── start_monitoring.sh
-    └── stop_monitoring.sh
-```
+## 🔧 Integration with Flask App
 
-### **3. Configuration File**
-Create `monitoring/config/monitoring_config.json`:
-```json
-{
-  "database": {
-    "url": "postgresql://mingus_user:mingus_password@localhost:5432/mingus_production",
-    "connection_timeout": 10,
-    "pool_size": 5
-  },
-  "monitoring": {
-    "interval_seconds": 30,
-    "metrics_history_size": 1000,
-    "alert_history_size": 100
-  },
-  "alerts": {
-    "email_enabled": true,
-    "webhook_enabled": false,
-    "slack_enabled": false,
-    "email": {
-      "smtp_server": "smtp.gmail.com",
-      "smtp_port": 587,
-      "username": "your-email@gmail.com",
-      "password": "your-app-password",
-      "from_email": "alerts@mingus.com",
-      "to_email": "admin@mingus.com"
-    },
-    "webhook": {
-      "url": "https://your-webhook-endpoint.com/alerts"
-    },
-    "slack": {
-      "webhook_url": "https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK"
-    }
-  },
-  "thresholds": {
-    "connection_count": {
-      "warning": 80,
-      "critical": 95
-    },
-    "query_time_avg": {
-      "warning": 100,
-      "critical": 500
-    },
-    "cache_hit_ratio": {
-      "warning": 0.85,
-      "critical": 0.70
-    },
-    "disk_usage_percent": {
-      "warning": 80,
-      "critical": 90
-    },
-    "memory_usage_percent": {
-      "warning": 85,
-      "critical": 95
-    },
-    "error_rate": {
-      "warning": 0.05,
-      "critical": 0.10
-    },
-    "slow_queries": {
-      "warning": 10,
-      "critical": 50
-    }
-  }
-}
+### Option 1: Automatic Setup (Recommended)
+
+Add this to your Flask app factory or main app file:
+
+```python
+from monitoring.setup_monitoring import setup_monitoring_for_app
+
+def create_app():
+    app = Flask(__name__)
+    
+    # Your existing app configuration...
+    
+    # Setup comprehensive monitoring
+    monitor = setup_monitoring_for_app(app)
+    
+    return app
 ```
 
----
+### Option 2: Manual Setup
 
-## **🚀 Deployment Options**
+```python
+from monitoring.comprehensive_monitor import comprehensive_monitor
+from monitoring.api import monitoring_bp
+from monitoring.prometheus_exporter import prometheus_metrics, start_background_updater
 
-### **Option 1: Direct Python Execution**
+def create_app():
+    app = Flask(__name__)
+    
+    # Initialize monitoring
+    comprehensive_monitor.init_app(app)
+    
+    # Register monitoring blueprint
+    app.register_blueprint(monitoring_bp)
+    
+    # Add Prometheus metrics endpoint
+    app.add_url_rule('/metrics', 'prometheus_metrics', prometheus_metrics)
+    
+    # Start background metrics updater
+    start_background_updater()
+    
+    return app
+```
 
-#### **Start Monitoring**
+## 🐳 Docker Setup
+
+### 1. Start Monitoring Stack
+
 ```bash
-# Navigate to project directory
-cd /path/to/mingus-app
-
-# Set environment variables
-export DATABASE_URL="postgresql://mingus_user:mingus_password@localhost:5432/mingus_production"
-export EMAIL_ALERTS_ENABLED="true"
-export SMTP_USERNAME="your-email@gmail.com"
-export SMTP_PASSWORD="your-app-password"
-
-# Start monitoring
-python POSTGRESQL_MONITORING_ALERTS.py
-```
-
-#### **Run as Background Process**
-```bash
-# Start in background
-nohup python POSTGRESQL_MONITORING_ALERTS.py > monitoring.log 2>&1 &
-
-# Check if running
-ps aux | grep POSTGRESQL_MONITORING_ALERTS
-
-# Stop monitoring
-pkill -f POSTGRESQL_MONITORING_ALERTS
-```
-
-### **Option 2: Systemd Service (Linux)**
-
-#### **Create Service File**
-Create `/etc/systemd/system/mingus-monitoring.service`:
-```ini
-[Unit]
-Description=MINGUS PostgreSQL Monitoring
-After=network.target
-
-[Service]
-Type=simple
-User=mingus
-WorkingDirectory=/path/to/mingus-app
-Environment=DATABASE_URL=postgresql://mingus_user:mingus_password@localhost:5432/mingus_production
-Environment=EMAIL_ALERTS_ENABLED=true
-Environment=SMTP_USERNAME=your-email@gmail.com
-Environment=SMTP_PASSWORD=your-app-password
-ExecStart=/usr/bin/python3 POSTGRESQL_MONITORING_ALERTS.py
-Restart=always
-RestartSec=10
-
-[Install]
-WantedBy=multi-user.target
-```
-
-#### **Enable and Start Service**
-```bash
-# Reload systemd
-sudo systemctl daemon-reload
-
-# Enable service
-sudo systemctl enable mingus-monitoring
-
-# Start service
-sudo systemctl start mingus-monitoring
+# Start the complete monitoring stack
+docker-compose -f docker-compose.monitoring.yml up -d
 
 # Check status
-sudo systemctl status mingus-monitoring
-
-# View logs
-sudo journalctl -u mingus-monitoring -f
+docker-compose -f docker-compose.monitoring.yml ps
 ```
 
-### **Option 3: Docker Container**
+### 2. Access Monitoring Services
 
-#### **Create Dockerfile**
-Create `Dockerfile.monitoring`:
-```dockerfile
-FROM python:3.9-slim
+- **Prometheus**: http://localhost:9090
+- **Grafana**: http://localhost:3000 (admin/admin123)
+- **Alert Manager**: http://localhost:9093
+- **cAdvisor**: http://localhost:8080
+- **Jaeger**: http://localhost:16686
 
-WORKDIR /app
+### 3. Configure Grafana
 
-# Install dependencies
-COPY requirements.txt .
-RUN pip install -r requirements.txt
+1. Login to Grafana (admin/admin123)
+2. Add Prometheus as a data source:
+   - URL: `http://prometheus:9090`
+   - Access: Server (default)
+3. Import dashboards from `monitoring/grafana/dashboards/`
 
-# Copy monitoring script
-COPY POSTGRESQL_MONITORING_ALERTS.py .
+## 📊 Available Metrics
 
-# Create directories
-RUN mkdir -p /app/logs /app/reports
+### API Metrics
+- Request count by endpoint and method
+- Response time percentiles
+- Status code distribution
+- Request/response sizes
 
-# Run monitoring
-CMD ["python", "POSTGRESQL_MONITORING_ALERTS.py"]
+### Database Metrics
+- Query execution time
+- Slow query detection
+- Table-level statistics
+- Connection pool status
+
+### Redis Metrics
+- Operation timing
+- Memory usage
+- Hit rates
+- Connection status
+
+### Celery Metrics
+- Task execution time
+- Success/failure rates
+- Queue depths
+- Worker status
+
+### System Metrics
+- CPU usage
+- Memory consumption
+- Disk I/O
+- Network traffic
+
+### Core Web Vitals
+- Largest Contentful Paint (LCP)
+- First Input Delay (FID)
+- Cumulative Layout Shift (CLS)
+- Time to First Byte (TTFB)
+
+## 🌐 Frontend Integration
+
+### 1. Include Performance Monitor
+
+Add this to your HTML templates:
+
+```html
+<script src="/static/js/performance-monitor.js"></script>
 ```
 
-#### **Create docker-compose.yml**
-```yaml
-version: '3.8'
-services:
-  postgresql-monitoring:
-    build:
-      context: .
-      dockerfile: Dockerfile.monitoring
-    environment:
-      - DATABASE_URL=${DATABASE_URL}
-      - EMAIL_ALERTS_ENABLED=${EMAIL_ALERTS_ENABLED}
-      - SMTP_USERNAME=${SMTP_USERNAME}
-      - SMTP_PASSWORD=${SMTP_PASSWORD}
-    volumes:
-      - ./logs:/app/logs
-      - ./reports:/app/reports
-    restart: unless-stopped
-    depends_on:
-      - postgres
+### 2. Configure Monitoring
+
+```javascript
+// Configure the performance monitor
+window.performanceMonitor.setConfig({
+    endpoint: '/monitoring/web-vitals',
+    sampleRate: 1.0,  // 100% sampling
+    enableDebug: true,
+    customMetrics: [
+        { name: 'page_load_time', value: Date.now() - performance.timing.navigationStart },
+        { name: 'user_interaction_count', value: 0 }
+    ]
+});
 ```
 
-#### **Run with Docker**
+### 3. Custom Metrics
+
+```javascript
+// Record custom business metrics
+window.performanceMonitor.recordCustomMetric('transaction_amount', 1500.00, {
+    currency: 'USD',
+    transaction_type: 'deposit'
+});
+
+// Record user interactions
+window.performanceMonitor.recordCustomMetric('form_submission', 1, {
+    form_name: 'loan_application',
+    user_type: 'premium'
+});
+```
+
+## 📈 Monitoring Endpoints
+
+### REST API Endpoints
+
+- `GET /monitoring/health` - Health check
+- `GET /monitoring/metrics` - Comprehensive metrics summary
+- `GET /monitoring/metrics/database` - Database metrics
+- `GET /monitoring/metrics/redis` - Redis metrics
+- `GET /monitoring/metrics/api` - API metrics
+- `GET /monitoring/metrics/celery` - Celery metrics
+- `GET /monitoring/metrics/system` - System metrics
+- `GET /monitoring/metrics/web-vitals` - Web vitals metrics
+- `POST /monitoring/web-vitals` - Submit web vitals
+- `GET /monitoring/config` - Current configuration
+- `PUT /monitoring/config/thresholds` - Update thresholds
+- `GET /monitoring/export` - Export metrics (JSON/CSV)
+- `POST /monitoring/reset` - Reset all metrics
+
+### Prometheus Endpoint
+
+- `GET /metrics` - Prometheus-formatted metrics
+
+### Dashboard Endpoints
+
+- `GET /monitoring/dashboard` - Built-in monitoring dashboard
+- `GET /monitoring/test-web-vitals` - Web vitals test page
+
+## 🔍 Query Examples
+
+### Get Slow Database Queries
+
 ```bash
-# Build and start
-docker-compose up -d postgresql-monitoring
-
-# View logs
-docker-compose logs -f postgresql-monitoring
-
-# Stop
-docker-compose down
+curl "http://localhost:5001/monitoring/metrics/database?slow_only=true&limit=10"
 ```
 
----
+### Get API Performance by Endpoint
 
-## **📊 Monitoring Metrics**
-
-### **Key Metrics Tracked**
-
-#### **Connection Metrics**
-- **Total Connections**: Number of active database connections
-- **Active Connections**: Connections currently processing queries
-- **Idle Connections**: Connections waiting for queries
-- **Connection Pool Utilization**: Percentage of pool capacity used
-
-#### **Performance Metrics**
-- **Average Query Time**: Mean response time for queries
-- **Maximum Query Time**: Slowest query response time
-- **Slow Queries**: Number of queries taking >1 second
-- **Total Queries**: Total number of queries executed
-
-#### **Cache Metrics**
-- **Cache Hit Ratio**: Percentage of queries served from cache
-- **Memory Usage**: Database memory utilization
-- **Shared Buffer Usage**: Shared buffer pool utilization
-
-#### **System Metrics**
-- **Disk Usage**: Database storage utilization
-- **Uptime**: Database server uptime
-- **Error Rate**: Percentage of failed queries
-- **Conflict Count**: Database conflicts and deadlocks
-
-### **Alert Thresholds**
-
-#### **Warning Level**
-- Connection count > 80
-- Average query time > 100ms
-- Cache hit ratio < 85%
-- Disk usage > 80%
-- Memory usage > 85%
-- Error rate > 5%
-- Slow queries > 10
-
-#### **Critical Level**
-- Connection count > 95
-- Average query time > 500ms
-- Cache hit ratio < 70%
-- Disk usage > 90%
-- Memory usage > 95%
-- Error rate > 10%
-- Slow queries > 50
-
----
-
-## **🔔 Alert Configuration**
-
-### **Email Alerts**
-
-#### **Gmail Setup**
-1. Enable 2-factor authentication
-2. Generate app password
-3. Configure SMTP settings:
-   ```bash
-   SMTP_SERVER=smtp.gmail.com
-   SMTP_PORT=587
-   SMTP_USERNAME=your-email@gmail.com
-   SMTP_PASSWORD=your-16-char-app-password
-   ```
-
-#### **Custom SMTP Setup**
 ```bash
-# For other providers
-SMTP_SERVER=your-smtp-server.com
-SMTP_PORT=587
-SMTP_USERNAME=your-username
-SMTP_PASSWORD=your-password
+curl "http://localhost:5001/monitoring/metrics/api?endpoint=forecast&limit=20"
 ```
 
-### **Webhook Alerts**
+### Get System Metrics for Last Hour
 
-#### **Configure Webhook Endpoint**
 ```bash
-WEBHOOK_URL=https://your-webhook-endpoint.com/alerts
+curl "http://localhost:5001/monitoring/metrics/system?hours=1&limit=100"
 ```
 
-#### **Webhook Payload Format**
-```json
-{
-  "level": "CRITICAL",
-  "subject": "Database Connection Failure",
-  "message": "Unable to connect to PostgreSQL database",
-  "timestamp": "2025-01-15T10:30:00Z",
-  "source": "mingus_postgresql_monitor"
-}
+### Export Metrics as CSV
+
+```bash
+curl "http://localhost:5001/monitoring/export?format=csv" -o metrics.csv
 ```
 
-### **Slack Alerts**
+## 🚨 Alerting Configuration
 
-#### **Create Slack Webhook**
-1. Go to Slack App settings
-2. Create new app
-3. Enable Incoming Webhooks
-4. Create webhook URL
-5. Configure environment variable:
-   ```bash
-   SLACK_WEBHOOK_URL=https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK
-   ```
+### 1. Update Thresholds
 
-#### **Slack Message Format**
-```json
-{
-  "attachments": [{
-    "color": "#ff0000",
-    "title": "PostgreSQL Alert: Database Connection Failure",
-    "text": "Unable to connect to PostgreSQL database",
-    "fields": [
-      {
-        "title": "Level",
-        "value": "CRITICAL",
-        "short": true
-      },
-      {
-        "title": "Time",
-        "value": "2025-01-15 10:30:00",
-        "short": true
-      }
-    ],
-    "footer": "MINGUS PostgreSQL Monitor"
-  }]
-}
+```bash
+curl -X PUT "http://localhost:5001/monitoring/config/thresholds" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "slow_query_threshold_ms": 2000,
+    "slow_api_threshold_ms": 5000,
+    "memory_usage_max_percent": 85
+  }'
 ```
 
----
+### 2. Email Alerts
 
-## **📈 Health Reports**
+Configure SMTP settings in your `.env` file and the system will automatically send alerts when thresholds are exceeded.
 
-### **Report Generation**
-The monitoring system automatically generates health reports every monitoring cycle.
+### 3. Slack Alerts
 
-#### **Health Score Calculation**
-- **Base Score**: 100 points
-- **Connection Penalty**: -20 points if >80 connections
-- **Query Time Penalty**: -20 points if >200ms average
-- **Cache Penalty**: -15 points if <80% cache hit
-- **Error Penalty**: -25 points if >5% error rate
+Set up Slack webhook integration for real-time notifications.
 
-#### **Health Status Levels**
-- **HEALTHY**: 80-100 points
-- **DEGRADED**: 60-79 points
-- **CRITICAL**: 0-59 points
+## 📝 Performance Decorators
 
-### **Report Access**
+Use the built-in decorators to monitor specific functions:
+
 ```python
-# Generate health report
-monitor = PostgreSQLMonitor(database_url, alert_config)
-health_report = monitor.generate_health_report()
-print(json.dumps(health_report, indent=2))
+from monitoring.comprehensive_monitor import monitor_performance
+
+@monitor_performance(operation_type='database')
+def complex_database_query():
+    # Your database operation
+    pass
+
+@monitor_performance(operation_type='redis')
+def cache_operation():
+    # Your cache operation
+    pass
+
+@monitor_performance(operation_type='api')
+def business_logic():
+    # Your business logic
+    pass
 ```
 
-#### **Sample Health Report**
-```json
-{
-  "status": "HEALTHY",
-  "health_score": 85,
-  "timestamp": "2025-01-15T10:30:00Z",
-  "metrics": {
-    "connection_count": 25,
-    "active_connections": 8,
-    "query_time_avg": 75.5,
-    "cache_hit_ratio": 0.92,
-    "disk_usage_percent": 45.2,
-    "memory_usage_percent": 68.7,
-    "error_rate": 0.01,
-    "uptime_seconds": 86400
-  },
-  "trends": {
-    "connection_trend": 2,
-    "query_time_trend": -5.2,
-    "cache_hit_trend": 0.01
-  },
-  "recent_alerts": []
+## 🧪 Testing
+
+### 1. Test Monitoring Setup
+
+```bash
+# Run the setup script
+python backend/setup_monitoring.py
+
+# Test individual components
+curl http://localhost:5001/monitoring/health
+curl http://localhost:5001/monitoring/metrics
+```
+
+### 2. Test Web Vitals Collection
+
+Visit `/monitoring/test-web-vitals` to test frontend metrics collection.
+
+### 3. Load Testing
+
+```bash
+# Install locust for load testing
+pip install locust
+
+# Run load test
+locust -f load_test.py --host=http://localhost:5001
+```
+
+## 🔧 Troubleshooting
+
+### Common Issues
+
+1. **Metrics not appearing**: Check if monitoring is properly initialized
+2. **High memory usage**: Adjust `max_metrics_per_type` in configuration
+3. **Prometheus connection issues**: Verify Docker network configuration
+4. **Frontend metrics not sending**: Check browser console for errors
+
+### Debug Mode
+
+Enable debug logging:
+
+```python
+import logging
+logging.getLogger('monitoring').setLevel(logging.DEBUG)
+```
+
+### Performance Impact
+
+The monitoring system is designed to have minimal performance impact:
+- Metrics are collected asynchronously
+- Memory usage is bounded
+- Sampling can be configured
+- Background cleanup prevents memory leaks
+
+## 📚 Advanced Configuration
+
+### Custom Metrics
+
+Extend the monitoring system with custom metrics:
+
+```python
+from monitoring.comprehensive_monitor import comprehensive_monitor
+
+# Add custom business metrics
+comprehensive_monitor.add_custom_metric('business_value', 1000.0, {
+    'metric_type': 'revenue',
+    'period': 'daily'
+})
+```
+
+### Custom Alerting
+
+Implement custom alerting logic:
+
+```python
+def custom_alert_handler(alert):
+    # Your custom alert handling logic
+    if alert.level == 'critical':
+        # Send SMS, create ticket, etc.
+        pass
+
+comprehensive_monitor.alert_callbacks.append(custom_alert_handler)
+```
+
+### Data Retention
+
+Configure data retention policies:
+
+```python
+# In monitoring/config.py
+config = {
+    'metrics_retention_days': 90,  # Keep 90 days of data
+    'max_metrics_per_type': 50000,  # Store up to 50k metrics per type
 }
 ```
 
----
+## 🚀 Production Deployment
 
-## **🔧 Troubleshooting**
+### 1. Security Considerations
 
-### **Common Issues**
+- Use HTTPS in production
+- Implement authentication for monitoring endpoints
+- Restrict access to monitoring services
+- Use environment variables for sensitive configuration
 
-#### **Connection Failures**
-```bash
-# Check database connectivity
-psql $DATABASE_URL -c "SELECT 1;"
+### 2. Scaling
 
-# Verify environment variables
-echo $DATABASE_URL
-echo $SMTP_USERNAME
-```
+- Use Redis for distributed metrics storage
+- Implement metrics aggregation across multiple instances
+- Use load balancers for monitoring endpoints
+- Consider using external monitoring services (DataDog, New Relic)
 
-#### **Permission Issues**
-```bash
-# Check file permissions
-ls -la POSTGRESQL_MONITORING_ALERTS.py
+### 3. Backup and Recovery
 
-# Fix permissions if needed
-chmod +x POSTGRESQL_MONITORING_ALERTS.py
-```
+- Backup Prometheus data volumes
+- Export metrics regularly
+- Monitor monitoring system health
+- Have fallback monitoring in place
 
-#### **Email Alert Failures**
-```bash
-# Test SMTP connection
-python -c "
-import smtplib
-server = smtplib.SMTP('smtp.gmail.com', 587)
-server.starttls()
-server.login('your-email@gmail.com', 'your-app-password')
-server.quit()
-print('SMTP connection successful')
-"
-```
+## 📞 Support
 
-#### **High Resource Usage**
-```bash
-# Check monitoring process
-ps aux | grep POSTGRESQL_MONITORING_ALERTS
+For issues and questions:
 
-# Monitor memory usage
-top -p $(pgrep -f POSTGRESQL_MONITORING_ALERTS)
-```
+1. Check the troubleshooting section
+2. Review logs in `/logs/` directory
+3. Check monitoring system health endpoints
+4. Verify Docker container status
 
-### **Log Analysis**
-```bash
-# View monitoring logs
-tail -f postgresql_monitoring.log
+## 🔄 Updates and Maintenance
 
-# Search for errors
-grep ERROR postgresql_monitoring.log
+### Regular Maintenance
 
-# Search for alerts
-grep ALERT postgresql_monitoring.log
-```
+- Monitor disk usage for metrics storage
+- Review and adjust thresholds
+- Clean up old metrics data
+- Update monitoring dependencies
+
+### Version Updates
+
+- Backup configuration before updates
+- Test in staging environment
+- Update monitoring stack components
+- Verify metrics continuity
 
 ---
 
-## **📋 Maintenance**
-
-### **Daily Tasks**
-- Review monitoring logs for errors
-- Check alert history for patterns
-- Verify email/webhook/Slack notifications
-- Monitor health score trends
-
-### **Weekly Tasks**
-- Review performance metrics trends
-- Analyze slow query patterns
-- Update alert thresholds if needed
-- Clean up old log files
-
-### **Monthly Tasks**
-- Review and optimize monitoring queries
-- Update monitoring configuration
-- Test alert delivery systems
-- Generate monthly performance report
-
-### **Log Rotation**
-```bash
-# Create logrotate configuration
-sudo tee /etc/logrotate.d/mingus-monitoring << EOF
-/path/to/mingus-app/postgresql_monitoring.log {
-    daily
-    rotate 30
-    compress
-    delaycompress
-    missingok
-    notifempty
-    create 644 mingus mingus
-}
-EOF
-```
-
----
-
-## **🔒 Security Considerations**
-
-### **Database Security**
-- Use SSL connections for database access
-- Implement connection pooling with limits
-- Use read-only database user for monitoring
-- Regularly rotate database passwords
-
-### **Alert Security**
-- Use app passwords for email (not regular passwords)
-- Secure webhook endpoints with authentication
-- Use HTTPS for all webhook URLs
-- Regularly rotate API keys and tokens
-
-### **Access Control**
-- Limit monitoring script access to necessary users
-- Use environment variables for sensitive data
-- Implement proper file permissions
-- Monitor access to monitoring logs
-
----
-
-## **📞 Support**
-
-### **Getting Help**
-- Check the troubleshooting section above
-- Review monitoring logs for error details
-- Test individual components separately
-- Contact the development team for assistance
-
-### **Useful Commands**
-```bash
-# Check monitoring status
-systemctl status mingus-monitoring
-
-# View recent logs
-journalctl -u mingus-monitoring --since "1 hour ago"
-
-# Test database connection
-psql $DATABASE_URL -c "SELECT version();"
-
-# Generate health report
-python -c "
-from POSTGRESQL_MONITORING_ALERTS import PostgreSQLMonitor
-import os
-monitor = PostgreSQLMonitor(os.getenv('DATABASE_URL'), {})
-print(monitor.generate_health_report())
-"
-```
-
----
-
-## **✅ Setup Checklist**
-
-### **Installation** ✅
-- [ ] Python dependencies installed
-- [ ] Environment variables configured
-- [ ] Configuration file created
-- [ ] Monitoring script tested
-
-### **Deployment** ✅
-- [ ] Monitoring service started
-- [ ] Log files created and writable
-- [ ] Database connection verified
-- [ ] Initial metrics collected
-
-### **Alerting** ✅
-- [ ] Email alerts configured and tested
-- [ ] Webhook alerts configured (if using)
-- [ ] Slack alerts configured (if using)
-- [ ] Alert thresholds reviewed
-
-### **Monitoring** ✅
-- [ ] Health reports generated
-- [ ] Performance metrics tracked
-- [ ] Alert history populated
-- [ ] Log rotation configured
-
----
-
-**🎯 Next Steps**
-
-1. **Complete the setup checklist above**
-2. **Test all alert channels**
-3. **Review and adjust alert thresholds**
-4. **Set up log rotation and maintenance**
-5. **Document any custom configurations**
-
----
-
-**📞 For questions or issues**: Contact the development team or refer to the troubleshooting section above. 
+This monitoring system provides comprehensive visibility into your Flask financial application's performance. Start with the basic setup and gradually enable advanced features as needed. 

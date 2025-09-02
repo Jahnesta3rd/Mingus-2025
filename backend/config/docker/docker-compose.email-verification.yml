@@ -1,0 +1,304 @@
+# ============================================================================
+# MINGUS Email Verification System - Docker Compose Configuration
+# ============================================================================
+# 
+# This Docker Compose file provides the email verification system
+# infrastructure that can be integrated with your existing MINGUS setup.
+# 
+# Usage:
+#   docker-compose -f docker-compose.yml -f docker-compose.email-verification.yml up -d
+# 
+# ============================================================================
+
+version: '3.8'
+
+services:
+  # ============================================================================
+  # EMAIL VERIFICATION REDIS INSTANCE
+  # ============================================================================
+  # 
+  # Dedicated Redis instance for email verification rate limiting
+  # Uses separate database from main application Redis
+  # 
+  email-verification-redis:
+    image: redis:7-alpine
+    container_name: mingus-email-verification-redis
+    restart: unless-stopped
+    ports:
+      - "6380:6379"  # Different port to avoid conflicts
+    volumes:
+      - email_verification_redis_data:/data
+      - ./redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
+    command: redis-server /usr/local/etc/redis/redis.conf
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-}
+    networks:
+      - mingus-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # ============================================================================
+  # EMAIL VERIFICATION CELERY WORKER
+  # ============================================================================
+  # 
+  # Dedicated Celery worker for email verification tasks
+  # Handles email sending, reminders, and cleanup operations
+  # 
+  email-verification-worker:
+    build:
+      context: ../..
+      dockerfile: backend/Dockerfile
+      target: development
+    container_name: mingus-email-verification-worker
+    restart: unless-stopped
+    volumes:
+      - ../..:/app
+      - ./logs:/app/logs
+    environment:
+      - FLASK_ENV=${FLASK_ENV:-development}
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL:-redis://email-verification-redis:6379/1}
+      - CELERY_BROKER_URL=${CELERY_BROKER_URL:-redis://email-verification-redis:6379/2}
+      - EMAIL_VERIFICATION_SECRET=${EMAIL_VERIFICATION_SECRET}
+      - EMAIL_VERIFICATION_DEBUG=${EMAIL_VERIFICATION_DEBUG:-false}
+      - EMAIL_VERIFICATION_MOCK_EMAIL_SERVICE=${EMAIL_VERIFICATION_MOCK_EMAIL_SERVICE:-true}
+    command: >
+      celery -A backend.tasks.email_verification_tasks worker
+      --loglevel=info
+      --concurrency=2
+      --queues=email_verification
+      --hostname=email-verification-worker@%h
+    depends_on:
+      email-verification-redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    networks:
+      - mingus-network
+    healthcheck:
+      test: ["CMD", "celery", "-A", "backend.tasks.email_verification_tasks", "inspect", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # ============================================================================
+  # EMAIL VERIFICATION CELERY BEAT SCHEDULER
+  # ============================================================================
+  # 
+  # Celery Beat scheduler for periodic email verification tasks
+  # Handles reminder scheduling, cleanup, and analytics
+  # 
+  email-verification-beat:
+    build:
+      context: ../..
+      dockerfile: backend/Dockerfile
+      target: development
+    container_name: mingus-email-verification-beat
+    restart: unless-stopped
+    volumes:
+      - ../..:/app
+      - ./logs:/app/logs
+    environment:
+      - FLASK_ENV=${FLASK_ENV:-development}
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL:-redis://email-verification-redis:6379/1}
+      - CELERY_BROKER_URL=${CELERY_BROKER_URL:-redis://email-verification-redis:6379/2}
+      - EMAIL_VERIFICATION_SECRET=${EMAIL_VERIFICATION_SECRET}
+      - EMAIL_VERIFICATION_DEBUG=${EMAIL_VERIFICATION_DEBUG:-false}
+    command: >
+      celery -A backend.tasks.email_verification_tasks beat
+      --loglevel=info
+      --scheduler=celery.beat.PersistentScheduler
+      --schedule=/app/celerybeat-schedule
+    depends_on:
+      email-verification-redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    networks:
+      - mingus-network
+    healthcheck:
+      test: ["CMD", "celery", "-A", "backend.tasks.email_verification_tasks", "inspect", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # ============================================================================
+  # EMAIL VERIFICATION MONITORING
+  # ============================================================================
+  # 
+  # Monitoring service for email verification system
+  # Provides metrics, health checks, and alerting
+  # 
+  email-verification-monitor:
+    image: prom/prometheus:latest
+    container_name: mingus-email-verification-monitor
+    restart: unless-stopped
+    ports:
+      - "9091:9090"  # Different port to avoid conflicts
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - email_verification_prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=30d'
+      - '--web.enable-lifecycle'
+    depends_on:
+      - email-verification-redis
+    networks:
+      - mingus-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:9090/-/healthy"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  # ============================================================================
+  # EMAIL VERIFICATION LOG AGGREGATOR
+  # ============================================================================
+  # 
+  # Log aggregation service for email verification system
+  # Collects logs from all email verification services
+  # 
+  email-verification-logs:
+    image: grafana/loki:latest
+    container_name: mingus-email-verification-logs
+    restart: unless-stopped
+    ports:
+      - "3101:3100"  # Different port to avoid conflicts
+    volumes:
+      - email_verification_loki_data:/loki
+      - ./monitoring/loki-config.yml:/etc/loki/local-config.yaml:ro
+    command: -config.file=/etc/loki/local-config.yaml
+    depends_on:
+      - email-verification-redis
+    networks:
+      - mingus-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3100/ready"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  # ============================================================================
+  # EMAIL VERIFICATION LOG VISUALIZATION
+  # ============================================================================
+  # 
+  # Grafana for visualizing email verification logs and metrics
+  # 
+  email-verification-grafana:
+    image: grafana/grafana:latest
+    container_name: mingus-email-verification-grafana
+    restart: unless-stopped
+    ports:
+      - "3001:3000"  # Different port to avoid conflicts
+    volumes:
+      - email_verification_grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources:ro
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin}
+      - GF_USERS_ALLOW_SIGN_UP=false
+    depends_on:
+      - email-verification-monitor
+      - email-verification-logs
+    networks:
+      - mingus-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+volumes:
+  # ============================================================================
+  # PERSISTENT VOLUMES
+  # ============================================================================
+  # 
+  # Persistent storage for email verification system data
+  # 
+  email_verification_redis_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./data/redis
+
+  email_verification_prometheus_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./data/prometheus
+
+  email_verification_loki_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./data/loki
+
+  email_verification_grafana_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./data/grafana
+
+networks:
+  # ============================================================================
+  # NETWORK CONFIGURATION
+  # ============================================================================
+  # 
+  # Network for email verification system services
+  # 
+  mingus-network:
+    external: true
+    name: mingus_default
+
+# ============================================================================
+# ENVIRONMENT VARIABLES REFERENCE
+# ============================================================================
+# 
+# Required environment variables for this Docker Compose setup:
+# 
+# FLASK_ENV: Environment (development, staging, production)
+# DATABASE_URL: PostgreSQL connection string
+# REDIS_URL: Redis connection string (optional, defaults to local instance)
+# CELERY_BROKER_URL: Celery broker URL (optional, defaults to local Redis)
+# EMAIL_VERIFICATION_SECRET: Cryptographically secure secret for tokens
+# EMAIL_VERIFICATION_DEBUG: Enable debug mode (development only)
+# EMAIL_VERIFICATION_MOCK_EMAIL_SERVICE: Use mock email service (development only)
+# REDIS_PASSWORD: Redis password (optional)
+# GRAFANA_ADMIN_PASSWORD: Grafana admin password (defaults to 'admin')
+# 
+# ============================================================================
+# 
+# DEPLOYMENT NOTES:
+# 
+# 1. Ensure the 'mingus_default' network exists or create it:
+#    docker network create mingus_default
+# 
+# 2. Create required data directories:
+#    mkdir -p ./data/{redis,prometheus,loki,grafana}
+# 
+# 3. Set appropriate permissions:
+#    chmod 755 ./data
+# 
+# 4. For production, consider using Docker secrets for sensitive data
+# 
+# 5. Monitor resource usage and adjust container limits as needed
+# 
+# ============================================================================

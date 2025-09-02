@@ -259,13 +259,13 @@ export const DashboardTour: React.FC<DashboardTourProps> = ({
                 />
               ))}
             </div>
-            <span className="text-sm text-gray-500">
+            <span className="text-base leading-relaxed text-gray-500">
               {currentStep + 1} of {tourSteps.length}
             </span>
           </div>
 
           {/* Content */}
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+          <h3 className="text-lg font-semibold text-gray-900 mb-2" className="text-xl font-semibold text-gray-800 mb-3">
             {currentTourStep.title}
           </h3>
           <p className="text-gray-600 mb-4">

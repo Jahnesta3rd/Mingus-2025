@@ -371,7 +371,7 @@ class BillingHistory(Base):
     
     # Additional information
     description = Column(Text)
-    metadata = Column(JSONB)
+    extra_metadata = Column('metadata', JSONB)
     
     # Timestamps
     created_at = Column(DateTime(timezone=True), server_default=func.now())
@@ -448,7 +448,7 @@ class BillingHistory(Base):
             'due_date': self.due_date.isoformat() if self.due_date else None,
             'paid_at': self.paid_at.isoformat() if self.paid_at else None,
             'description': self.description,
-            'metadata': self.metadata,
+            'metadata': self.extra_metadata,
             'is_paid': self.is_paid,
             'is_overdue': self.is_overdue,
             'days_overdue': self.days_overdue,

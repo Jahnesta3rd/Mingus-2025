@@ -97,16 +97,16 @@ const SalaryBenchmarkWidget: React.FC<SalaryBenchmarkWidgetProps> = ({
       {/* Header */}
       <div className="flex justify-between items-start mb-6">
         <div>
-          <h3 className="text-xl font-bold text-gray-900 mb-2">
+          <h3 className="text-xl font-bold text-gray-900 mb-2" className="text-xl font-semibold text-gray-800 mb-3">
             Salary Benchmark
           </h3>
-          <p className="text-sm text-gray-600">
+          <p className="text-base leading-relaxed text-gray-600">
             {filters.msa} • {filters.industry} • {filters.experienceLevel}
           </p>
         </div>
         <button
           onClick={() => setShowDrillDown(!showDrillDown)}
-          className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+          className="text-blue-600 hover:text-blue-800 text-base leading-relaxed font-medium"
         >
           {showDrillDown ? 'Hide Details' : 'Drill Down'}
         </button>
@@ -172,7 +172,7 @@ const SalaryBenchmarkWidget: React.FC<SalaryBenchmarkWidgetProps> = ({
         </div>
 
         {/* Percentile labels */}
-        <div className="flex justify-between text-xs text-gray-500 mb-4">
+        <div className="flex justify-between text-base leading-relaxed text-gray-500 mb-4">
           <span>25th: ${salaryData?.peer25thPercentile.toLocaleString()}</span>
           <span>Median: ${salaryData?.peerMedian.toLocaleString()}</span>
           <span>75th: ${salaryData?.peer75thPercentile.toLocaleString()}</span>
@@ -181,7 +181,7 @@ const SalaryBenchmarkWidget: React.FC<SalaryBenchmarkWidgetProps> = ({
 
       {/* Confidence and Sample Info */}
       <div className="bg-blue-50 rounded-lg p-4 mb-6">
-        <div className="flex justify-between items-center text-sm">
+        <div className="flex justify-between items-center text-base leading-relaxed">
           <span className="text-gray-600">
             Confidence: {salaryData?.confidenceInterval.lower.toLocaleString()} - {salaryData?.confidenceInterval.upper.toLocaleString()}
           </span>
@@ -198,7 +198,7 @@ const SalaryBenchmarkWidget: React.FC<SalaryBenchmarkWidgetProps> = ({
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-base leading-relaxed font-medium text-gray-700 mb-2">
                 Metropolitan Area
               </label>
               <select
@@ -215,7 +215,7 @@ const SalaryBenchmarkWidget: React.FC<SalaryBenchmarkWidgetProps> = ({
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-base leading-relaxed font-medium text-gray-700 mb-2">
                 Industry
               </label>
               <select
@@ -233,7 +233,7 @@ const SalaryBenchmarkWidget: React.FC<SalaryBenchmarkWidgetProps> = ({
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-base leading-relaxed font-medium text-gray-700 mb-2">
                 Experience Level
               </label>
               <select
@@ -249,7 +249,7 @@ const SalaryBenchmarkWidget: React.FC<SalaryBenchmarkWidgetProps> = ({
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-base leading-relaxed font-medium text-gray-700 mb-2">
                 Company Size
               </label>
               <select
@@ -267,7 +267,7 @@ const SalaryBenchmarkWidget: React.FC<SalaryBenchmarkWidgetProps> = ({
           </div>
 
           <div className="mt-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-base leading-relaxed font-medium text-gray-700 mb-2">
               Your Current Salary
             </label>
             <div className="relative">

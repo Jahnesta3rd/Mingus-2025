@@ -4,6 +4,8 @@ Provides endpoints for income comparison analysis form and processing
 """
 
 from flask import Blueprint, request, jsonify, render_template, current_app
+from backend.middleware.auth import require_auth
+
 from flask_cors import cross_origin
 from loguru import logger
 from typing import Dict, Any, Optional
@@ -17,6 +19,7 @@ income_analysis_bp = Blueprint('income_analysis', __name__)
 
 @income_analysis_bp.route('/form', methods=['GET'])
 @cross_origin()
+@require_auth
 def income_analysis_form():
     """
     Display the income analysis form
@@ -35,6 +38,7 @@ def income_analysis_form():
 
 @income_analysis_bp.route('/results', methods=['GET'])
 @cross_origin()
+@require_auth
 def income_analysis_results():
     """
     Display the income analysis results
@@ -53,6 +57,7 @@ def income_analysis_results():
 
 @income_analysis_bp.route('/dashboard', methods=['GET'])
 @cross_origin()
+@require_auth
 def comprehensive_dashboard():
     """
     Display the comprehensive career advancement dashboard
@@ -71,6 +76,8 @@ def comprehensive_dashboard():
 
 @income_analysis_bp.route('/analyze', methods=['POST'])
 @cross_origin()
+@require_auth
+@require_auth
 def analyze_income():
     """
     Perform income comparison analysis
@@ -221,6 +228,7 @@ def analyze_income():
 
 @income_analysis_bp.route('/demo', methods=['GET'])
 @cross_origin()
+@require_auth
 def demo_analysis():
     """
     Provide demo income analysis results
@@ -291,6 +299,7 @@ def demo_analysis():
 
 @income_analysis_bp.route('/health', methods=['GET'])
 @cross_origin()
+@require_auth
 def health_check():
     """
     Health check endpoint for income analysis service

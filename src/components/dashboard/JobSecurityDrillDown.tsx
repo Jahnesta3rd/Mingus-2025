@@ -95,8 +95,8 @@ const JobSecurityDrillDown: React.FC<JobSecurityDrillDownProps> = ({
               {getComponentIcon()}
             </div>
             <div>
-              <h3 className="text-xl font-semibold text-gray-900">{getComponentTitle()}</h3>
-              <p className="text-sm text-gray-500">
+              <h3 className="text-xl font-semibold text-gray-900" className="text-xl font-semibold text-gray-800 mb-3">{getComponentTitle()}</h3>
+              <p className="text-base leading-relaxed text-gray-500">
                 Detailed breakdown of {data.component === 'user_perception' ? 'your workplace perceptions' : 'external market factors'}
               </p>
             </div>
@@ -123,13 +123,13 @@ const JobSecurityDrillDown: React.FC<JobSecurityDrillDownProps> = ({
                     <span className="font-medium text-gray-900">{factor.name}</span>
                     <div className="flex items-center space-x-2">
                       {getTrendIcon(factor.trend)}
-                      <span className="text-sm font-semibold text-gray-700">
+                      <span className="text-base leading-relaxed font-semibold text-gray-700">
                         {factor.value}
                       </span>
                     </div>
                   </div>
                   <div className="mb-2">
-                    <div className="flex items-center justify-between text-sm text-gray-600 mb-1">
+                    <div className="flex items-center justify-between text-base leading-relaxed text-gray-600 mb-1">
                       <span>Weight: {factor.weight}%</span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2">
@@ -139,7 +139,7 @@ const JobSecurityDrillDown: React.FC<JobSecurityDrillDownProps> = ({
                       />
                     </div>
                   </div>
-                  <p className="text-sm text-gray-600">{factor.description}</p>
+                  <p className="text-base leading-relaxed text-gray-600">{factor.description}</p>
                 </div>
               ))}
             </div>
@@ -156,16 +156,16 @@ const JobSecurityDrillDown: React.FC<JobSecurityDrillDownProps> = ({
                 <table className="w-full">
                   <thead className="bg-gray-50">
                     <tr>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-4 py-3 text-left text-base leading-relaxed font-medium text-gray-500 uppercase tracking-wider">
                         Period
                       </th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-4 py-3 text-left text-base leading-relaxed font-medium text-gray-500 uppercase tracking-wider">
                         Value
                       </th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-4 py-3 text-left text-base leading-relaxed font-medium text-gray-500 uppercase tracking-wider">
                         Change
                       </th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-4 py-3 text-left text-base leading-relaxed font-medium text-gray-500 uppercase tracking-wider">
                         Significance
                       </th>
                     </tr>
@@ -173,21 +173,21 @@ const JobSecurityDrillDown: React.FC<JobSecurityDrillDownProps> = ({
                   <tbody className="bg-white divide-y divide-gray-200">
                     {data.details.trends.map((trend, index) => (
                       <tr key={index} className="hover:bg-gray-50">
-                        <td className="px-4 py-3 text-sm text-gray-900">
+                        <td className="px-4 py-3 text-base leading-relaxed text-gray-900">
                           {trend.period}
                         </td>
-                        <td className="px-4 py-3 text-sm font-medium text-gray-900">
+                        <td className="px-4 py-3 text-base leading-relaxed font-medium text-gray-900">
                           {trend.value}
                         </td>
-                        <td className="px-4 py-3 text-sm">
+                        <td className="px-4 py-3 text-base leading-relaxed">
                           <span className={`font-medium ${
                             trend.change > 0 ? 'text-green-600' : 'text-red-600'
                           }`}>
                             {trend.change > 0 ? '+' : ''}{trend.change}
                           </span>
                         </td>
-                        <td className="px-4 py-3 text-sm">
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${getSignificanceColor(trend.significance)}`}>
+                        <td className="px-4 py-3 text-base leading-relaxed">
+                          <span className={`px-2 py-1 rounded-full text-base leading-relaxed font-medium ${getSignificanceColor(trend.significance)}`}>
                             {trend.significance.toUpperCase()}
                           </span>
                         </td>
@@ -210,7 +210,7 @@ const JobSecurityDrillDown: React.FC<JobSecurityDrillDownProps> = ({
                 <div key={index} className="bg-green-50 rounded-lg p-4 border border-green-200">
                   <div className="flex items-start space-x-3">
                     <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
-                    <p className="text-sm text-green-800">{insight}</p>
+                    <p className="text-base leading-relaxed text-green-800">{insight}</p>
                   </div>
                 </div>
               ))}
@@ -228,7 +228,7 @@ const JobSecurityDrillDown: React.FC<JobSecurityDrillDownProps> = ({
                 <div key={index} className="bg-yellow-50 rounded-lg p-4 border border-yellow-200">
                   <div className="flex items-start space-x-3">
                     <AlertTriangle className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
-                    <p className="text-sm text-yellow-800">{rec}</p>
+                    <p className="text-base leading-relaxed text-yellow-800">{rec}</p>
                   </div>
                 </div>
               ))}

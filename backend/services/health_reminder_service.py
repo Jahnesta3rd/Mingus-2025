@@ -8,7 +8,7 @@ import json
 from backend.models.user import User
 from backend.models.user_health_checkin import UserHealthCheckin
 from backend.models.health_spending_correlation import HealthSpendingCorrelation
-from backend.models import db_session
+from backend.database import get_db_session
 
 logger = logging.getLogger(__name__)
 
@@ -62,6 +62,7 @@ class HealthReminderService:
             List of user data with reminder information
         """
         try:
+            db_session = get_db_session()
             cutoff_date = datetime.utcnow() - timedelta(days=days_threshold)
             
             # Get users who haven't checked in recently
@@ -173,6 +174,7 @@ class HealthReminderService:
             Optimal datetime for sending reminder
         """
         try:
+            db_session = get_db_session()
             # Get user's check-in history
             checkins = db_session.query(UserHealthCheckin)\
                 .filter(UserHealthCheckin.user_id == user_id)\
@@ -264,6 +266,7 @@ class HealthReminderService:
             Current reminder status and information
         """
         try:
+            db_session = get_db_session()
             # Get latest check-in
             latest_checkin = db_session.query(UserHealthCheckin)\
                 .filter(UserHealthCheckin.user_id == user_id)\
@@ -313,6 +316,7 @@ class HealthReminderService:
     def _get_checkin_streak(self, user_id: int) -> int:
         """Calculate user's current check-in streak."""
         try:
+            db_session = get_db_session()
             checkins = db_session.query(UserHealthCheckin)\
                 .filter(UserHealthCheckin.user_id == user_id)\
                 .order_by(UserHealthCheckin.created_at.desc())\

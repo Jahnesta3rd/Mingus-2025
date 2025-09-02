@@ -6,6 +6,7 @@ from datetime import datetime, date, timedelta
 from sqlalchemy.orm import Session
 from backend.models import UserHealthCheckin, User
 from backend.middleware.auth import require_auth, get_current_user_id
+from backend.security.financial_csrf_protection import require_financial_csrf
 from functools import wraps
 import traceback
 import logging
@@ -116,6 +117,7 @@ def checkin_form():
 
 @health_bp.route('/checkin', methods=['POST'])
 @require_auth
+@require_financial_csrf
 def submit_health_checkin():
     """Submit health check-in data"""
     try:

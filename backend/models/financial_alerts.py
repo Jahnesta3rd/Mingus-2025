@@ -1,12 +1,13 @@
-from sqlalchemy import Column, Integer, String, DateTime, Boolean, Float, Text, JSON, ForeignKey, Index, UniqueConstraint
-from sqlalchemy.dialects.postgresql import UUID, JSONB
-from sqlalchemy.ext.declarative import declarative_base
+"""
+Financial Alerts Model
+Handles financial alerts and notifications for users
+"""
+
+from sqlalchemy import Column, String, Integer, DateTime, Boolean, ForeignKey, Text, DECIMAL, Index
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
-from datetime import datetime, timedelta
-import uuid
-
-Base = declarative_base()
+from datetime import datetime
+from .base import Base
 
 class FinancialAlert(Base):
     """Financial alert tracking and management"""

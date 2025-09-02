@@ -20,7 +20,7 @@ def app():
         SQLALCHEMY_DATABASE_URI=sqlite_uri,
         SQLALCHEMY_TRACK_MODIFICATIONS=False,
         CREATE_TABLES=True,
-        BYPASS_AUTH=True,
+        BYPASS_AUTH=False  # SECURITY: Authentication bypass disabled,
     )
 
     with flask_app.app_context():

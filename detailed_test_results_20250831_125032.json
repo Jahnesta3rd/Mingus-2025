@@ -1,0 +1,29 @@
+{
+  "responsiveness": {
+    "status": "failed",
+    "output": "",
+    "error": "Traceback (most recent call last):\n  File \"/Users/johnniewatsoniii/Desktop/Mingus Application - Cursor/mobile_responsiveness_testing_suite.py\", line 19, in <module>\n    import cssutils\nModuleNotFoundError: No module named 'cssutils'\n"
+  },
+  "css_validation": {
+    "frontend/src/css/": {
+      "status": "failed",
+      "output": "",
+      "error": "Traceback (most recent call last):\n  File \"/Users/johnniewatsoniii/Desktop/Mingus Application - Cursor/css_media_query_validator.py\", line 56, in <module>\n    class CSSMediaQueryValidator:\n  File \"/Users/johnniewatsoniii/Desktop/Mingus Application - Cursor/css_media_query_validator.py\", line 353, in CSSMediaQueryValidator\n    issue_counts: Counter, \n                  ^^^^^^^\nNameError: name 'Counter' is not defined\n"
+    },
+    "mobile_responsive_fixes.css": {
+      "status": "failed",
+      "output": "",
+      "error": "Traceback (most recent call last):\n  File \"/Users/johnniewatsoniii/Desktop/Mingus Application - Cursor/css_media_query_validator.py\", line 56, in <module>\n    class CSSMediaQueryValidator:\n  File \"/Users/johnniewatsoniii/Desktop/Mingus Application - Cursor/css_media_query_validator.py\", line 353, in CSSMediaQueryValidator\n    issue_counts: Counter, \n                  ^^^^^^^\nNameError: name 'Counter' is not defined\n"
+    },
+    "enhanced_accessibility_styles.css": {
+      "status": "failed",
+      "output": "",
+      "error": "Traceback (most recent call last):\n  File \"/Users/johnniewatsoniii/Desktop/Mingus Application - Cursor/css_media_query_validator.py\", line 56, in <module>\n    class CSSMediaQueryValidator:\n  File \"/Users/johnniewatsoniii/Desktop/Mingus Application - Cursor/css_media_query_validator.py\", line 353, in CSSMediaQueryValidator\n    issue_counts: Counter, \n                  ^^^^^^^\nNameError: name 'Counter' is not defined\n"
+    }
+  },
+  "touch_interactions": {
+    "status": "failed",
+    "output": "",
+    "error": "Traceback (most recent call last):\n  File \"/Users/johnniewatsoniii/Desktop/Mingus Application - Cursor/touch_interaction_tester.py\", line 22, in <module>\n    from selenium.webdriver.common.touch_actions import TouchActions\nModuleNotFoundError: No module named 'selenium.webdriver.common.touch_actions'\n"
+  }
+}

@@ -191,8 +191,8 @@ const ProfileStep: React.FC = () => {
         {/* Progress Header */}
         <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
           <div className="flex items-center justify-between mb-4">
-            <h1 className="text-2xl font-bold text-gray-900">Profile Setup</h1>
-            <span className="text-sm text-gray-500">Step 2 of 7</span>
+            <h1 className="text-2xl font-bold text-gray-900" className="text-4xl font-bold text-gray-900 mb-6">Profile Setup</h1>
+            <span className="text-base leading-relaxed text-gray-500">Step 2 of 7</span>
           </div>
           <div className="w-full bg-gray-200 rounded-full h-2">
             <div className="bg-gradient-to-r from-blue-500 to-indigo-600 h-2 rounded-full" style={{ width: '28%' }}></div>
@@ -201,7 +201,7 @@ const ProfileStep: React.FC = () => {
 
         <div className="bg-white rounded-xl shadow-sm p-8">
           <div className="mb-8">
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">Tell us about yourself</h2>
+            <h2 className="text-xl font-semibold text-gray-900 mb-2" className="text-2xl font-semibold text-gray-800 mb-4">Tell us about yourself</h2>
             <p className="text-gray-600">This helps us provide personalized financial insights and recommendations.</p>
           </div>
 
@@ -214,12 +214,12 @@ const ProfileStep: React.FC = () => {
 
             {/* Basic Information Section */}
             <div className="border-b border-gray-200 pb-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">Basic Information</h3>
+              <h3 className="text-lg font-medium text-gray-900 mb-4" className="text-xl font-semibold text-gray-800 mb-3">Basic Information</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    First Name *
-                  </label>
+                          <label className="block text-base leading-relaxed font-medium text-gray-700 mb-2">
+          First Name *
+        </label>
                   <input
                     type="text"
                     name="first_name"
@@ -231,14 +231,14 @@ const ProfileStep: React.FC = () => {
                     placeholder="Enter your first name"
                   />
                   {validationErrors.first_name && (
-                    <p className="text-red-500 text-sm mt-1">{validationErrors.first_name}</p>
+                    <p className="text-red-500 text-base leading-relaxed mt-1">{validationErrors.first_name}</p>
                   )}
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Last Name *
-                  </label>
+                          <label className="block text-base leading-relaxed font-medium text-gray-700 mb-2">
+          Last Name *
+        </label>
                   <input
                     type="text"
                     name="last_name"
@@ -250,12 +250,12 @@ const ProfileStep: React.FC = () => {
                     placeholder="Enter your last name"
                   />
                   {validationErrors.last_name && (
-                    <p className="text-red-500 text-sm mt-1">{validationErrors.last_name}</p>
+                    <p className="text-red-500 text-base leading-relaxed mt-1">{validationErrors.last_name}</p>
                   )}
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-base leading-relaxed font-medium text-gray-700 mb-2">
                     Gender
                   </label>
                   <select
@@ -274,9 +274,9 @@ const ProfileStep: React.FC = () => {
               </div>
 
               <div className="mt-6">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Age Range *
-                </label>
+                        <label className="block text-base leading-relaxed font-medium text-gray-700 mb-2">
+          Age Range *
+        </label>
                 <select
                   name="age_range"
                   value={formData.age_range}
@@ -294,19 +294,19 @@ const ProfileStep: React.FC = () => {
                   <option value="65+">65+</option>
                 </select>
                 {validationErrors.age_range && (
-                  <p className="text-red-500 text-sm mt-1">{validationErrors.age_range}</p>
+                  <p className="text-red-500 text-base leading-relaxed mt-1">{validationErrors.age_range}</p>
                 )}
               </div>
             </div>
 
             {/* Location & Household Section */}
             <div className="border-b border-gray-200 pb-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">Location & Household</h3>
+              <h3 className="text-lg font-medium text-gray-900 mb-4" className="text-xl font-semibold text-gray-800 mb-3">Location & Household</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Zip Code *
-                  </label>
+                          <label className="block text-base leading-relaxed font-medium text-gray-700 mb-2">
+          Zip Code *
+        </label>
                   <input
                     type="text"
                     name="zip_code"
@@ -319,14 +319,14 @@ const ProfileStep: React.FC = () => {
                     maxLength={10}
                   />
                   {validationErrors.zip_code && (
-                    <p className="text-red-500 text-sm mt-1">{validationErrors.zip_code}</p>
+                    <p className="text-red-500 text-base leading-relaxed mt-1">{validationErrors.zip_code}</p>
                   )}
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    State *
-                  </label>
+                          <label className="block text-base leading-relaxed font-medium text-gray-700 mb-2">
+          State *
+        </label>
                   <input
                     type="text"
                     name="location_state"
@@ -338,14 +338,14 @@ const ProfileStep: React.FC = () => {
                     placeholder="Enter your state"
                   />
                   {validationErrors.location_state && (
-                    <p className="text-red-500 text-sm mt-1">{validationErrors.location_state}</p>
+                    <p className="text-red-500 text-base leading-relaxed mt-1">{validationErrors.location_state}</p>
                   )}
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    City *
-                  </label>
+                          <label className="block text-base leading-relaxed font-medium text-gray-700 mb-2">
+          City *
+        </label>
                   <input
                     type="text"
                     name="location_city"
@@ -357,14 +357,14 @@ const ProfileStep: React.FC = () => {
                     placeholder="Enter your city"
                   />
                   {validationErrors.location_city && (
-                    <p className="text-red-500 text-sm mt-1">{validationErrors.location_city}</p>
+                    <p className="text-red-500 text-base leading-relaxed mt-1">{validationErrors.location_city}</p>
                   )}
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-base leading-relaxed font-medium text-gray-700 mb-2">
                     Household Size *
                   </label>
                   <select
@@ -383,12 +383,12 @@ const ProfileStep: React.FC = () => {
                     <option value="5+">5+ people</option>
                   </select>
                   {validationErrors.household_size && (
-                    <p className="text-red-500 text-sm mt-1">{validationErrors.household_size}</p>
+                    <p className="text-red-500 text-base leading-relaxed mt-1">{validationErrors.household_size}</p>
                   )}
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-base leading-relaxed font-medium text-gray-700 mb-2">
                     Dependents
                   </label>
                   <select
@@ -407,7 +407,7 @@ const ProfileStep: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-base leading-relaxed font-medium text-gray-700 mb-2">
                     Relationship Status *
                   </label>
                   <select
@@ -427,7 +427,7 @@ const ProfileStep: React.FC = () => {
                     <option value="separated">Separated</option>
                   </select>
                   {validationErrors.relationship_status && (
-                    <p className="text-red-500 text-sm mt-1">{validationErrors.relationship_status}</p>
+                    <p className="text-red-500 text-base leading-relaxed mt-1">{validationErrors.relationship_status}</p>
                   )}
                 </div>
               </div>
@@ -435,10 +435,10 @@ const ProfileStep: React.FC = () => {
 
             {/* Income & Employment Section */}
             <div className="border-b border-gray-200 pb-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">Income & Employment</h3>
+              <h3 className="text-lg font-medium text-gray-900 mb-4" className="text-xl font-semibold text-gray-800 mb-3">Income & Employment</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-base leading-relaxed font-medium text-gray-700 mb-2">
                     Monthly Income *
                   </label>
                   <input
@@ -452,12 +452,12 @@ const ProfileStep: React.FC = () => {
                     placeholder="Enter your monthly income"
                   />
                   {validationErrors.monthly_income && (
-                    <p className="text-red-500 text-sm mt-1">{validationErrors.monthly_income}</p>
+                    <p className="text-red-500 text-base leading-relaxed mt-1">{validationErrors.monthly_income}</p>
                   )}
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-base leading-relaxed font-medium text-gray-700 mb-2">
                     Income Frequency
                   </label>
                   <select
@@ -476,7 +476,7 @@ const ProfileStep: React.FC = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-base leading-relaxed font-medium text-gray-700 mb-2">
                     Employment Status *
                   </label>
                   <select
@@ -497,12 +497,12 @@ const ProfileStep: React.FC = () => {
                     <option value="other">Other</option>
                   </select>
                   {validationErrors.employment_status && (
-                    <p className="text-red-500 text-sm mt-1">{validationErrors.employment_status}</p>
+                    <p className="text-red-500 text-base leading-relaxed mt-1">{validationErrors.employment_status}</p>
                   )}
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-base leading-relaxed font-medium text-gray-700 mb-2">
                     Primary Income Source *
                   </label>
                   <select
@@ -522,14 +522,14 @@ const ProfileStep: React.FC = () => {
                     <option value="other">Other</option>
                   </select>
                   {validationErrors.primary_income_source && (
-                    <p className="text-red-500 text-sm mt-1">{validationErrors.primary_income_source}</p>
+                    <p className="text-red-500 text-base leading-relaxed mt-1">{validationErrors.primary_income_source}</p>
                   )}
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-base leading-relaxed font-medium text-gray-700 mb-2">
                     Industry *
                   </label>
                   <select
@@ -548,12 +548,12 @@ const ProfileStep: React.FC = () => {
                     ))}
                   </select>
                   {validationErrors.industry && (
-                    <p className="text-red-500 text-sm mt-1">{validationErrors.industry}</p>
+                    <p className="text-red-500 text-base leading-relaxed mt-1">{validationErrors.industry}</p>
                   )}
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-base leading-relaxed font-medium text-gray-700 mb-2">
                     Job Title *
                   </label>
                   <input
@@ -567,14 +567,14 @@ const ProfileStep: React.FC = () => {
                     placeholder="Enter your job title"
                   />
                   {validationErrors.job_title && (
-                    <p className="text-red-500 text-sm mt-1">{validationErrors.job_title}</p>
+                    <p className="text-red-500 text-base leading-relaxed mt-1">{validationErrors.job_title}</p>
                   )}
                 </div>
               </div>
 
               {formData.naics_code && (
                 <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                  <p className="text-sm text-blue-700">
+                  <p className="text-base leading-relaxed text-blue-700">
                     <strong>NAICS Code:</strong> {formData.naics_code} - {industries.find(ind => ind.value === formData.industry)?.label}
                   </p>
                 </div>
@@ -583,10 +583,10 @@ const ProfileStep: React.FC = () => {
 
             {/* Financial Status Section */}
             <div className="border-b border-gray-200 pb-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">Financial Status</h3>
+              <h3 className="text-lg font-medium text-gray-900 mb-4" className="text-xl font-semibold text-gray-800 mb-3">Financial Status</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-base leading-relaxed font-medium text-gray-700 mb-2">
                     Current Savings *
                   </label>
                   <input
@@ -600,12 +600,12 @@ const ProfileStep: React.FC = () => {
                     placeholder="Enter your current savings"
                   />
                   {validationErrors.current_savings && (
-                    <p className="text-red-500 text-sm mt-1">{validationErrors.current_savings}</p>
+                    <p className="text-red-500 text-base leading-relaxed mt-1">{validationErrors.current_savings}</p>
                   )}
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-base leading-relaxed font-medium text-gray-700 mb-2">
                     Current Debt *
                   </label>
                   <input
@@ -619,13 +619,13 @@ const ProfileStep: React.FC = () => {
                     placeholder="Enter your current debt"
                   />
                   {validationErrors.current_debt && (
-                    <p className="text-red-500 text-sm mt-1">{validationErrors.current_debt}</p>
+                    <p className="text-red-500 text-base leading-relaxed mt-1">{validationErrors.current_debt}</p>
                   )}
                 </div>
               </div>
 
               <div className="mt-6">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-base leading-relaxed font-medium text-gray-700 mb-2">
                   Credit Score Range *
                 </label>
                 <select
@@ -645,7 +645,7 @@ const ProfileStep: React.FC = () => {
                   <option value="unknown">I don't know</option>
                 </select>
                 {validationErrors.credit_score_range && (
-                  <p className="text-red-500 text-sm mt-1">{validationErrors.credit_score_range}</p>
+                  <p className="text-red-500 text-base leading-relaxed mt-1">{validationErrors.credit_score_range}</p>
                 )}
               </div>
             </div>

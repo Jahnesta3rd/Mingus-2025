@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from typing import List, Dict, Any
 import uuid
-from backend.src.config.supabase_client import get_supabase_client
+from src.config.supabase_client import get_supabase_client
 
 def calculate_daily_cashflow(user_id: str, initial_balance: float, start_date: str = None) -> List[Dict[str, Any]]:
     """

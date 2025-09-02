@@ -14,6 +14,7 @@ from ..middleware.validation import validate_request, get_common_schema
 from ..services.financial_service import FinancialService
 from ..utils.response_utils import api_response, error_response
 from ..utils.security_utils import require_financial_access
+from ..security.financial_csrf_protection import require_financial_csrf
 
 logger = logging.getLogger(__name__)
 
@@ -169,6 +170,7 @@ def get_transactions():
 @financial_bp.route('/transactions', methods=['POST'])
 @jwt_required()
 @require_financial_access
+@require_financial_csrf
 @rate_limit('financial', max_requests=20, window=3600)
 @validate_request(TRANSACTION_SCHEMA)
 def create_transaction():
@@ -257,6 +259,7 @@ def get_transaction(transaction_id: int):
 @financial_bp.route('/transactions/<int:transaction_id>', methods=['PUT'])
 @jwt_required()
 @require_financial_access
+@require_financial_csrf
 @rate_limit('financial', max_requests=20, window=3600)
 @validate_request(TRANSACTION_SCHEMA)
 def update_transaction(transaction_id: int):
@@ -307,6 +310,7 @@ def update_transaction(transaction_id: int):
 @financial_bp.route('/transactions/<int:transaction_id>', methods=['DELETE'])
 @jwt_required()
 @require_financial_access
+@require_financial_csrf
 @rate_limit('financial', max_requests=10, window=3600)
 def delete_transaction(transaction_id: int):
     """
@@ -358,6 +362,7 @@ def get_budgets():
 @financial_bp.route('/budgets', methods=['POST'])
 @jwt_required()
 @require_financial_access
+@require_financial_csrf
 @rate_limit('financial', max_requests=10, window=3600)
 @validate_request(BUDGET_SCHEMA)
 def create_budget():
@@ -426,6 +431,7 @@ def get_accounts():
 @financial_bp.route('/accounts', methods=['POST'])
 @jwt_required()
 @require_financial_access
+@require_financial_csrf
 @rate_limit('financial', max_requests=10, window=3600)
 @validate_request(ACCOUNT_SCHEMA)
 def create_account():

@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="stylesheet" href="touch_target_optimization.css">
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mingus Financial - Component Library</title>
@@ -88,12 +90,12 @@
             <form>
                 <div class="form-group">
                     <label class="form-label">Date Title</label>
-                    <input type="text" class="form-input" placeholder="Enter date title">
+                    <input type="text" class="form-input" placeholder="Enter date title" class="form-input">
                 </div>
 
                 <div class="form-group">
                     <label class="form-label">Date Type</label>
-                    <select class="form-input form-select">
+                    <select class="form-input form-select" class="form-input">
                         <option>Income</option>
                         <option>Expense</option>
                         <option>Investment</option>
@@ -128,8 +130,8 @@
                 </div>
 
                 <div class="btn-group">
-                    <button type="submit" class="btn btn--primary">Save Changes</button>
-                    <button type="button" class="btn btn--secondary">Cancel</button>
+                    <button type="submit" class="btn btn--primary btn-cta btn-primary">Save Changes</button>
+                    <button type="button" class="btn btn--secondary btn-cta btn-primary">Cancel</button>
                 </div>
             </form>
         </div>
@@ -156,12 +158,12 @@
                         </td>
                         <td class="table__cell">
                             <div class="btn-group">
-                                <button class="btn btn--icon btn--secondary">
+                                <button class="btn btn--icon btn--secondary btn-cta btn-primary">
                                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                                         <path d="M2 12L10 4M2 4L10 12" stroke="currentColor" stroke-width="2"/>
                                     </svg>
                                 </button>
-                                <button class="btn btn--icon btn--danger">
+                                <button class="btn btn--icon btn--danger btn-cta btn-primary">
                                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                                         <path d="M4 4L12 12M4 12L12 4" stroke="currentColor" stroke-width="2"/>
                                     </svg>
@@ -203,8 +205,8 @@
             Are you sure you want to delete this item?
         </div>
         <div class="popover__footer">
-            <button class="btn btn--secondary">Cancel</button>
-            <button class="btn btn--danger">Delete</button>
+            <button class="btn btn--secondary btn-cta btn-primary">Cancel</button>
+            <button class="btn btn--danger btn-cta btn-primary">Delete</button>
         </div>
     </div>
 </body>

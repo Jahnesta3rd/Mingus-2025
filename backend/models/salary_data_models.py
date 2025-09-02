@@ -1,16 +1,15 @@
 """
-SQLAlchemy Models for Salary Data Tables
-Integrates with existing database infrastructure
+Salary Data Models for MINGUS
+Handles salary information and compensation data
 """
 
-from sqlalchemy import Column, Integer, String, Numeric, DateTime, Text, BigInteger, Index
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import Column, String, Integer, DateTime, Boolean, ForeignKey, Text, DECIMAL, Index
+from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from datetime import datetime
+from .base import Base
 from typing import Optional, List
 from decimal import Decimal
-
-Base = declarative_base()
 
 class SalaryBenchmark(Base):
     """Model for salary benchmark data"""
@@ -20,14 +19,14 @@ class SalaryBenchmark(Base):
     location = Column(String(100), nullable=False, index=True)
     occupation = Column(String(200), nullable=True, index=True)
     source = Column(String(50), nullable=False, index=True)  # BLS, Census, FRED, Indeed, Fallback
-    median_salary = Column(Numeric(10, 2), nullable=False)
-    mean_salary = Column(Numeric(10, 2), nullable=False)
-    percentile_25 = Column(Numeric(10, 2), nullable=False)
-    percentile_75 = Column(Numeric(10, 2), nullable=False)
+    median_salary = Column(DECIMAL(10, 2), nullable=False)
+    mean_salary = Column(DECIMAL(10, 2), nullable=False)
+    percentile_25 = Column(DECIMAL(10, 2), nullable=False)
+    percentile_75 = Column(DECIMAL(10, 2), nullable=False)
     sample_size = Column(Integer, nullable=False)
     year = Column(Integer, nullable=False, index=True)
-    confidence_score = Column(Numeric(3, 2), nullable=False, index=True)
-    data_quality_score = Column(Numeric(3, 2), nullable=True)
+    confidence_score = Column(DECIMAL(3, 2), nullable=False, index=True)
+    data_quality_score = Column(DECIMAL(3, 2), nullable=True)
     validation_level = Column(String(20), nullable=True)  # HIGH, MEDIUM, LOW, INVALID
     outliers_detected = Column(Integer, nullable=True)
     cache_key = Column(String(255), nullable=True, index=True)
@@ -67,20 +66,20 @@ class MarketData(Base):
     location = Column(String(100), nullable=False, index=True)
     occupation = Column(String(200), nullable=True, index=True)
     data_type = Column(String(50), nullable=False, index=True)  # cost_of_living, job_market
-    overall_cost_index = Column(Numeric(5, 2), nullable=True)
-    housing_cost_index = Column(Numeric(5, 2), nullable=True)
-    transportation_cost_index = Column(Numeric(5, 2), nullable=True)
-    food_cost_index = Column(Numeric(5, 2), nullable=True)
-    healthcare_cost_index = Column(Numeric(5, 2), nullable=True)
-    utilities_cost_index = Column(Numeric(5, 2), nullable=True)
+    overall_cost_index = Column(DECIMAL(5, 2), nullable=True)
+    housing_cost_index = Column(DECIMAL(5, 2), nullable=True)
+    transportation_cost_index = Column(DECIMAL(5, 2), nullable=True)
+    food_cost_index = Column(DECIMAL(5, 2), nullable=True)
+    healthcare_cost_index = Column(DECIMAL(5, 2), nullable=True)
+    utilities_cost_index = Column(DECIMAL(5, 2), nullable=True)
     job_count = Column(Integer, nullable=True)
-    average_salary = Column(Numeric(10, 2), nullable=True)
-    salary_range_min = Column(Numeric(10, 2), nullable=True)
-    salary_range_max = Column(Numeric(10, 2), nullable=True)
-    demand_score = Column(Numeric(5, 2), nullable=True)
+    average_salary = Column(DECIMAL(10, 2), nullable=True)
+    salary_range_min = Column(DECIMAL(10, 2), nullable=True)
+    salary_range_max = Column(DECIMAL(10, 2), nullable=True)
+    demand_score = Column(DECIMAL(5, 2), nullable=True)
     year = Column(Integer, nullable=False, index=True)
-    confidence_score = Column(Numeric(3, 2), nullable=False)
-    data_quality_score = Column(Numeric(3, 2), nullable=True)
+    confidence_score = Column(DECIMAL(3, 2), nullable=False)
+    data_quality_score = Column(DECIMAL(3, 2), nullable=True)
     validation_level = Column(String(20), nullable=True)
     cache_key = Column(String(255), nullable=True, index=True)
     created_at = Column(DateTime, nullable=False, default=func.now())
@@ -123,11 +122,11 @@ class ConfidenceScore(Base):
     id = Column(Integer, primary_key=True)
     location = Column(String(100), nullable=False, index=True)
     occupation = Column(String(200), nullable=True, index=True)
-    overall_confidence_score = Column(Numeric(3, 2), nullable=False, index=True)
-    data_quality_score = Column(Numeric(3, 2), nullable=False, index=True)
-    salary_data_confidence = Column(Numeric(3, 2), nullable=True)
-    cost_of_living_confidence = Column(Numeric(3, 2), nullable=True)
-    job_market_confidence = Column(Numeric(3, 2), nullable=True)
+    overall_confidence_score = Column(DECIMAL(3, 2), nullable=False, index=True)
+    data_quality_score = Column(DECIMAL(3, 2), nullable=False, index=True)
+    salary_data_confidence = Column(DECIMAL(3, 2), nullable=True)
+    cost_of_living_confidence = Column(DECIMAL(3, 2), nullable=True)
+    job_market_confidence = Column(DECIMAL(3, 2), nullable=True)
     validation_issues_count = Column(Integer, nullable=True)
     validation_warnings_count = Column(Integer, nullable=True)
     outliers_count = Column(Integer, nullable=True)
@@ -206,11 +205,11 @@ class CacheMetric(Base):
     
     id = Column(Integer, primary_key=True)
     cache_key_pattern = Column(String(255), nullable=False, index=True)
-    hits = Column(BigInteger, nullable=False, default=0)
-    misses = Column(BigInteger, nullable=False, default=0)
-    hit_rate = Column(Numeric(5, 4), nullable=True, index=True)
-    avg_response_time_ms = Column(Numeric(8, 2), nullable=True)
-    total_size_bytes = Column(BigInteger, nullable=True)
+    hits = Column(Integer, nullable=False, default=0)
+    misses = Column(Integer, nullable=False, default=0)
+    hit_rate = Column(DECIMAL(5, 4), nullable=True, index=True)
+    avg_response_time_ms = Column(DECIMAL(8, 2), nullable=True)
+    total_size_bytes = Column(Integer, nullable=True)
     entries_count = Column(Integer, nullable=True)
     last_accessed_at = Column(DateTime, nullable=True, index=True)
     created_at = Column(DateTime, nullable=False, default=func.now())

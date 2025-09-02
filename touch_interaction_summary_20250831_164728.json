@@ -1,0 +1,70 @@
+{
+  "test_timestamp": "2025-08-31T16:47:28.077660",
+  "total_tests": 3,
+  "devices_tested": [
+    "Samsung Galaxy S21",
+    "iPhone 14",
+    "iPhone SE"
+  ],
+  "pages_tested": [
+    "/"
+  ],
+  "overall_average_score": 48.46,
+  "device_performance": {
+    "Samsung Galaxy S21": {
+      "average_score": 48.46,
+      "tests_run": 1
+    },
+    "iPhone 14": {
+      "average_score": 48.46,
+      "tests_run": 1
+    },
+    "iPhone SE": {
+      "average_score": 48.46,
+      "tests_run": 1
+    }
+  },
+  "page_performance": {
+    "/": {
+      "average_score": 48.46,
+      "tests_run": 3
+    }
+  },
+  "accessibility_compliance": {
+    "wcag_2_1_aa_compliant": 0,
+    "touch_target_compliant": 0,
+    "spacing_compliant": 3
+  },
+  "common_issues": [
+    {
+      "issue": "Touch target too small: 45x22px",
+      "count": 3
+    },
+    {
+      "issue": "Touch target too small: 0x0px",
+      "count": 3
+    },
+    {
+      "issue": "Touch target too small: 33x22px",
+      "count": 3
+    },
+    {
+      "issue": "Touch target too small: 164x22px",
+      "count": 3
+    },
+    {
+      "issue": "Touch target too small: 123x22px",
+      "count": 3
+    },
+    {
+      "issue": "Touch target too small: 100x22px",
+      "count": 3
+    }
+  ],
+  "recommendations": [
+    {
+      "recommendation": "Increase size to at least 44x44px",
+      "count": 3
+    }
+  ]
+}

@@ -1,0 +1,214 @@
+{% extends "base.html" %}
+
+{% block title %}Security Settings - Secure Financial Portal{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">Security Settings</h2>
+        <p style="margin: 0; color: #666;">Configure your account security preferences</p>
+    </div>
+    
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 2rem;">
+        <!-- Session Management -->
+        <div class="card">
+            <h3 style="margin-bottom: 1rem; color: var(--primary-color);">Session Management</h3>
+            
+            <div style="margin-bottom: 1rem;">
+                <strong>Current Security Level:</strong>
+                <span class="security-badge {{ current_user.security_level }}">
+                    {{ current_user.security_level.title() }}
+                </span>
+            </div>
+            
+            <div style="margin-bottom: 1rem;">
+                <strong>Session Timeout:</strong> 20 minutes
+            </div>
+            
+            <div style="margin-bottom: 1rem;">
+                <strong>Max Concurrent Sessions:</strong> 3 devices
+            </div>
+            
+            <div style="margin-bottom: 1rem;">
+                <strong>Failed Login Attempts:</strong> {{ current_user.failed_login_attempts }}/5
+            </div>
+            
+            {% if current_user.locked_until and current_user.locked_until > now %}
+            <div style="margin-bottom: 1rem;">
+                <strong>Account Locked Until:</strong>
+                <span style="color: var(--danger-color);">
+                    {{ current_user.locked_until.strftime('%Y-%m-%d %H:%M:%S') }}
+                </span>
+            </div>
+            {% endif %}
+            
+            <div style="margin-top: 1.5rem;">
+                <a href="{{ url_for('view_sessions') }}" class="btn btn-primary">Manage Sessions</a>
+                <a href="{{ url_for('logout_all_devices') }}" class="btn btn-danger" 
+                   onclick="return confirm('Are you sure you want to log out from all devices?')">
+                    Logout All Devices
+                </a>
+            </div>
+        </div>
+
+        <!-- Security Features -->
+        <div class="card">
+            <h3 style="margin-bottom: 1rem; color: var(--primary-color);">Security Features</h3>
+            
+            <div style="margin-bottom: 1rem;">
+                <div style="display: flex; align-items: center; margin-bottom: 0.5rem;">
+                    <span style="color: var(--success-color); margin-right: 0.5rem;">✓</span>
+                    <strong>Rate Limiting</strong>
+                </div>
+                <p style="margin: 0; color: #666; font-size: 0.9rem;">
+                    Protection against brute force attacks with automatic rate limiting
+                </p>
+            </div>
+            
+            <div style="margin-bottom: 1rem;">
+                <div style="display: flex; align-items: center; margin-bottom: 0.5rem;">
+                    <span style="color: var(--success-color); margin-right: 0.5rem;">✓</span>
+                    <strong>Session Fixation Protection</strong>
+                </div>
+                <p style="margin: 0; color: #666; font-size: 0.9rem;">
+                    New session ID generated on each login to prevent session hijacking
+                </p>
+            </div>
+            
+            <div style="margin-bottom: 1rem;">
+                <div style="display: flex; align-items: center; margin-bottom: 0.5rem;">
+                    <span style="color: var(--success-color); margin-right: 0.5rem;">✓</span>
+                    <strong>Location Tracking</strong>
+                </div>
+                <p style="margin: 0; color: #666; font-size: 0.9rem;">
+                    Monitor login locations and detect suspicious activity
+                </p>
+            </div>
+            
+            <div style="margin-bottom: 1rem;">
+                <div style="display: flex; align-items: center; margin-bottom: 0.5rem;">
+                    <span style="color: var(--success-color); margin-right: 0.5rem;">✓</span>
+                    <strong>Device Recognition</strong>
+                </div>
+                <p style="margin: 0; color: #666; font-size: 0.9rem;">
+                    Track and manage sessions across different devices
+                </p>
+            </div>
+            
+            <div style="margin-bottom: 1rem;">
+                <div style="display: flex; align-items: center; margin-bottom: 0.5rem;">
+                    <span style="color: var(--success-color); margin-right: 0.5rem;">✓</span>
+                    <strong>Automatic Session Cleanup</strong>
+                </div>
+                <p style="margin: 0; color: #666; font-size: 0.9rem;">
+                    Expired sessions are automatically removed for security
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Login Activity -->
+    <div class="card" style="margin-top: 2rem;">
+        <h3 style="margin-bottom: 1rem; color: var(--primary-color);">Recent Login Activity</h3>
+        
+        <div id="loginActivity">
+            <div style="text-align: center; padding: 2rem; color: #666;">
+                Loading login activity...
+            </div>
+        </div>
+    </div>
+
+    <!-- Security Recommendations -->
+    <div class="card" style="margin-top: 2rem;">
+        <h3 style="margin-bottom: 1rem; color: var(--primary-color);">Security Recommendations</h3>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem;">
+            <div style="padding: 1rem; border: 1px solid var(--border-color); border-radius: 4px;">
+                <h4 style="margin-bottom: 0.5rem; color: var(--primary-color);">Strong Password</h4>
+                <p style="margin: 0; color: #666; font-size: 0.9rem;">
+                    Use a unique, complex password with at least 12 characters including uppercase, lowercase, numbers, and symbols.
+                </p>
+            </div>
+            
+            <div style="padding: 1rem; border: 1px solid var(--border-color); border-radius: 4px;">
+                <h4 style="margin-bottom: 0.5rem; color: var(--primary-color);">Two-Factor Authentication</h4>
+                <p style="margin: 0; color: #666; font-size: 0.9rem;">
+                    Enable 2FA for additional security layer. Currently not available in this demo.
+                </p>
+            </div>
+            
+            <div style="padding: 1rem; border: 1px solid var(--border-color); border-radius: 4px;">
+                <h4 style="margin-bottom: 0.5rem; color: var(--primary-color);">Regular Session Review</h4>
+                <p style="margin: 0; color: #666; font-size: 0.9rem;">
+                    Regularly review and terminate suspicious sessions from unknown devices or locations.
+                </p>
+            </div>
+            
+            <div style="padding: 1rem; border: 1px solid var(--border-color); border-radius: 4px;">
+                <h4 style="margin-bottom: 0.5rem; color: var(--primary-color);">Secure Network</h4>
+                <p style="margin: 0; color: #666; font-size: 0.9rem;">
+                    Always use secure, private networks when accessing financial information.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Load recent login activity
+async function loadLoginActivity() {
+    try {
+        const response = await fetch('/api/login_attempts');
+        const attempts = await response.json();
+        
+        const container = document.getElementById('loginActivity');
+        
+        if (attempts.length === 0) {
+            container.innerHTML = '<p style="text-align: center; color: #666;">No recent login activity found.</p>';
+            return;
+        }
+        
+        const activityHtml = attempts.slice(0, 10).map(attempt => {
+            const timestamp = new Date(attempt.timestamp);
+            const success = attempt.success;
+            
+            return `
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; border-bottom: 1px solid var(--border-color);">
+                    <div>
+                        <div style="display: flex; align-items: center; margin-bottom: 0.25rem;">
+                            <span style="color: ${success ? 'var(--success-color)' : 'var(--danger-color)'}; margin-right: 0.5rem;">
+                                ${success ? '✓' : '✗'}
+                            </span>
+                            <strong>${attempt.username}</strong>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            ${attempt.ip_address} • ${attempt.location || 'Unknown Location'}
+                        </div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-size: 0.9rem; color: #666;">
+                            ${timestamp.toLocaleDateString()}
+                        </div>
+                        <div style="font-size: 0.8rem; color: #999;">
+                            ${timestamp.toLocaleTimeString()}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+        
+        container.innerHTML = activityHtml;
+    } catch (error) {
+        console.error('Failed to load login activity:', error);
+        document.getElementById('loginActivity').innerHTML = 
+            '<p style="text-align: center; color: var(--danger-color);">Failed to load login activity.</p>';
+    }
+}
+
+// Load activity on page load
+loadLoginActivity();
+
+// Refresh activity every 60 seconds
+setInterval(loadLoginActivity, 60000);
+</script>
+{% endblock %}

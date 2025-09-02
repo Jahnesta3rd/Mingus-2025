@@ -1,45 +1,44 @@
 {
-  "name": "mingus-financial-wellness",
+  "name": "readability-performance-tests",
   "version": "1.0.0",
-  "description": "MINGUS Financial Wellness App - Goals Setting Screen",
-  "main": "index.js",
+  "description": "Comprehensive performance testing framework for readability improvements",
+  "main": "performance_test_runner.js",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
-    "preview": "vite preview",
-    "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
-  },
-  "dependencies": {
-    "@types/react-router-dom": "^5.3.3",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-phone-number-input": "^3.4.12",
-    "react-router-dom": "^6.30.1"
-  },
-  "devDependencies": {
-    "@types/react": "^18.0.28",
-    "@types/react-dom": "^18.0.11",
-    "@types/react-phone-number-input": "^3.1.37",
-    "@typescript-eslint/eslint-plugin": "^5.54.1",
-    "@typescript-eslint/parser": "^5.54.1",
-    "@vitejs/plugin-react": "^3.1.0",
-    "autoprefixer": "^10.4.13",
-    "eslint": "^8.35.0",
-    "eslint-plugin-react-hooks": "^4.6.0",
-    "eslint-plugin-react-refresh": "^0.3.4",
-    "postcss": "^8.4.21",
-    "tailwindcss": "^3.2.7",
-    "typescript": "^4.9.3",
-    "vite": "^4.1.0"
+    "test": "node performance_test_runner.js",
+    "test:headless": "node -e \"process.env.HEADLESS=true; require('./performance_test_runner.js')\"",
+    "serve": "python3 -m http.server 8000",
+    "serve:node": "npx http-server -p 8000",
+    "lint": "eslint *.js",
+    "format": "prettier --write *.js *.html *.md"
   },
   "keywords": [
-    "financial",
-    "wellness",
-    "goals",
-    "react",
-    "typescript",
-    "tailwind"
+    "performance",
+    "readability",
+    "typography",
+    "web-vitals",
+    "testing",
+    "mobile",
+    "accessibility"
   ],
-  "author": "MINGUS Team",
-  "license": "MIT"
+  "author": "Performance Testing Team",
+  "license": "MIT",
+  "dependencies": {
+    "puppeteer": "^21.0.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.0.0",
+    "prettier": "^3.0.0",
+    "http-server": "^14.0.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-org/readability-performance-tests"
+  },
+  "bugs": {
+    "url": "https://github.com/your-org/readability-performance-tests/issues"
+  },
+  "homepage": "https://github.com/your-org/readability-performance-tests#readme"
 }

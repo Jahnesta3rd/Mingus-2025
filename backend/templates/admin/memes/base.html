@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/touch_target_optimization.css') }}">
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Meme Admin{% endblock %} - Mingus Finance</title>
@@ -60,12 +62,12 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('meme_admin.index') }}">
+                        <a class="nav-link btn-primary" href="{{ url_for('meme_admin.index') }}">
                             <i class="fas fa-list me-1"></i>All Memes
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('meme_admin.create') }}">
+                        <a class="nav-link btn-primary" href="{{ url_for('meme_admin.create') }}">
                             <i class="fas fa-plus me-1"></i>Add New Meme
                         </a>
                     </li>
@@ -91,7 +93,7 @@
                     {% for category, message in messages %}
                         <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
                             {{ message }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            <button type="button" class="btn-close btn-cta btn-primary" data-bs-dismiss="alert"></button>
                         </div>
                     {% endfor %}
                 </div>

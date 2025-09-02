@@ -91,7 +91,7 @@ const OnboardingCompletion: React.FC<OnboardingCompletionProps> = ({
       <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-purple-600 mx-auto mb-4"></div>
-          <h2 className="text-xl font-semibold text-gray-800 mb-2">Preparing your celebration...</h2>
+          <h2 className="text-xl font-semibold text-gray-800 mb-2" className="text-2xl font-semibold text-gray-800 mb-4">Preparing your celebration...</h2>
           <p className="text-gray-600">Setting up your personalized experience</p>
         </div>
       </div>
@@ -107,7 +107,7 @@ const OnboardingCompletion: React.FC<OnboardingCompletionProps> = ({
             <div className="absolute inset-0 bg-black opacity-10"></div>
             <div className="relative z-10">
               <div className="text-8xl mb-6 animate-bounce">🎉</div>
-              <h1 className="text-4xl font-bold mb-4">
+              <h1 className="text-4xl font-bold mb-4" className="text-4xl font-bold text-gray-900 mb-6">
                 Welcome to the Mingus Community!
               </h1>
               <p className="text-xl opacity-90">
@@ -125,7 +125,7 @@ const OnboardingCompletion: React.FC<OnboardingCompletionProps> = ({
           <div className="p-8">
             {/* Empowerment Message */}
             <div className="text-center mb-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">
+              <h2 className="text-2xl font-bold text-gray-900 mb-4" className="text-2xl font-semibold text-gray-800 mb-4">
                 You're Now Empowered to Transform Your Financial Future
               </h2>
               <p className="text-lg text-gray-600 max-w-2xl mx-auto">
@@ -138,24 +138,24 @@ const OnboardingCompletion: React.FC<OnboardingCompletionProps> = ({
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
               <div className="bg-green-50 border border-green-200 rounded-xl p-6 text-center">
                 <div className="text-3xl mb-2">✅</div>
-                <h3 className="font-semibold text-green-800 mb-1">Profile Complete</h3>
-                <p className="text-sm text-green-700">
+                <h3 className="font-semibold text-green-800 mb-1" className="text-xl font-semibold text-gray-800 mb-3">Profile Complete</h3>
+                <p className="text-base leading-relaxed text-green-700">
                   {completionData?.profile_completion || 100}% of your profile is set up
                 </p>
               </div>
               
               <div className="bg-blue-50 border border-blue-200 rounded-xl p-6 text-center">
                 <div className="text-3xl mb-2">🎯</div>
-                <h3 className="font-semibold text-blue-800 mb-1">Goals Set</h3>
-                <p className="text-sm text-blue-700">
+                <h3 className="font-semibold text-blue-800 mb-1" className="text-xl font-semibold text-gray-800 mb-3">Goals Set</h3>
+                <p className="text-base leading-relaxed text-blue-700">
                   {completionData?.goals_count || 0} financial goals configured
                 </p>
               </div>
               
               <div className="bg-purple-50 border border-purple-200 rounded-xl p-6 text-center">
                 <div className="text-3xl mb-2">💡</div>
-                <h3 className="font-semibold text-purple-800 mb-1">Insights Active</h3>
-                <p className="text-sm text-purple-700">
+                <h3 className="font-semibold text-purple-800 mb-1" className="text-xl font-semibold text-gray-800 mb-3">Insights Active</h3>
+                <p className="text-base leading-relaxed text-purple-700">
                   Personalized recommendations ready
                 </p>
               </div>
@@ -165,14 +165,14 @@ const OnboardingCompletion: React.FC<OnboardingCompletionProps> = ({
             <div className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-xl p-6 mb-8">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">
+                  <h3 className="text-xl font-bold text-gray-900 mb-2" className="text-xl font-semibold text-gray-800 mb-3">
                     Join {completionData?.community_stats.total_members.toLocaleString()}+ Members
                   </h3>
                   <p className="text-gray-600 mb-4">
                     You're now part of a community of {completionData?.community_stats.active_this_week.toLocaleString()} 
                     active members this week, with an average savings of ${completionData?.community_stats.average_savings}.
                   </p>
-                  <div className="flex items-center space-x-4 text-sm text-gray-500">
+                  <div className="flex items-center space-x-4 text-base leading-relaxed text-gray-500">
                     <span>👥 {completionData?.community_stats.total_members.toLocaleString()} total members</span>
                     <span>🔥 {completionData?.community_stats.active_this_week.toLocaleString()} active this week</span>
                     <span>💰 ${completionData?.community_stats.average_savings} average savings</span>
@@ -186,14 +186,14 @@ const OnboardingCompletion: React.FC<OnboardingCompletionProps> = ({
             <div className="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-xl p-6 mb-8">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">
+                  <h3 className="text-xl font-bold text-gray-900 mb-2" className="text-xl font-semibold text-gray-800 mb-3">
                     Ready for Your First Weekly Check-in?
                   </h3>
                   <p className="text-gray-600 mb-4">
                     Set up your first wellness check-in reminder to start building healthy financial habits.
                     It only takes 2 minutes and helps you track your progress.
                   </p>
-                  <div className="flex items-center space-x-2 text-sm text-gray-500">
+                  <div className="flex items-center space-x-2 text-base leading-relaxed text-gray-500">
                     <span>⏰ Takes 2 minutes</span>
                     <span>📊 Track your progress</span>
                     <span>🎯 Build healthy habits</span>
@@ -240,9 +240,9 @@ const OnboardingCompletion: React.FC<OnboardingCompletionProps> = ({
         {/* Header */}
         <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-8 text-center">
           <div className="text-6xl mb-4">🚀</div>
-          <h1 className="text-3xl font-bold mb-2">
+          <h2 className="text-3xl font-bold mb-2" className="text-2xl font-semibold text-gray-800 mb-4">
             Set Up Your Ongoing Engagement
-          </h1>
+          </h2>
           <p className="text-xl opacity-90">
             Customize your experience and stay connected
           </p>
@@ -251,14 +251,14 @@ const OnboardingCompletion: React.FC<OnboardingCompletionProps> = ({
         <div className="p-8">
           {/* Check-in Reminder Setup */}
           <div className="mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">
+            <h2 className="text-2xl font-bold text-gray-900 mb-6" className="text-2xl font-semibold text-gray-800 mb-4">
               Weekly Check-in Reminders
             </h2>
             
             <div className="bg-gray-50 rounded-xl p-6 mb-6">
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900">Enable Weekly Reminders</h3>
+                  <h3 className="text-lg font-semibold text-gray-900" className="text-xl font-semibold text-gray-800 mb-3">Enable Weekly Reminders</h3>
                   <p className="text-gray-600">Get gentle nudges to complete your wellness check-ins</p>
                 </div>
                 <label className="relative inline-flex items-center cursor-pointer">
@@ -278,7 +278,7 @@ const OnboardingCompletion: React.FC<OnboardingCompletionProps> = ({
               {reminderPreferences.enabled && (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Frequency</label>
+                    <label className="block text-base leading-relaxed font-medium text-gray-700 mb-2">Frequency</label>
                     <select
                       value={reminderPreferences.frequency}
                       onChange={(e) => setReminderPreferences(prev => ({
@@ -294,7 +294,7 @@ const OnboardingCompletion: React.FC<OnboardingCompletionProps> = ({
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Day</label>
+                    <label className="block text-base leading-relaxed font-medium text-gray-700 mb-2">Day</label>
                     <select
                       value={reminderPreferences.day}
                       onChange={(e) => setReminderPreferences(prev => ({
@@ -314,7 +314,7 @@ const OnboardingCompletion: React.FC<OnboardingCompletionProps> = ({
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Time</label>
+                    <label className="block text-base leading-relaxed font-medium text-gray-700 mb-2">Time</label>
                     <select
                       value={reminderPreferences.time}
                       onChange={(e) => setReminderPreferences(prev => ({
@@ -341,7 +341,7 @@ const OnboardingCompletion: React.FC<OnboardingCompletionProps> = ({
 
             {/* Notification Preferences */}
             <div className="bg-gray-50 rounded-xl p-6 mb-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Notification Preferences</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4" className="text-xl font-semibold text-gray-800 mb-3">Notification Preferences</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <label className="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-100 cursor-pointer">
                   <input
@@ -353,7 +353,7 @@ const OnboardingCompletion: React.FC<OnboardingCompletionProps> = ({
                     }))}
                     className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                   />
-                  <span className="text-sm font-medium text-gray-900">Email Notifications</span>
+                  <span className="text-base leading-relaxed font-medium text-gray-900">Email Notifications</span>
                 </label>
                 
                 <label className="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-100 cursor-pointer">
@@ -366,7 +366,7 @@ const OnboardingCompletion: React.FC<OnboardingCompletionProps> = ({
                     }))}
                     className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                   />
-                  <span className="text-sm font-medium text-gray-900">Push Notifications</span>
+                  <span className="text-base leading-relaxed font-medium text-gray-900">Push Notifications</span>
                 </label>
               </div>
             </div>
@@ -375,21 +375,21 @@ const OnboardingCompletion: React.FC<OnboardingCompletionProps> = ({
           {/* Mobile App Download */}
           {completionData?.mobile_app_available && (
             <div className="mb-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">
+              <h2 className="text-2xl font-bold text-gray-900 mb-6" className="text-2xl font-semibold text-gray-800 mb-4">
                 Get the Mobile App
               </h2>
               
               <div className="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-xl p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">
+                    <h3 className="text-xl font-bold text-gray-900 mb-2" className="text-xl font-semibold text-gray-800 mb-3">
                       Take Mingus With You
                     </h3>
                     <p className="text-gray-600 mb-4">
                       Download our mobile app for quick check-ins, real-time insights, and 
                       notifications on the go. Available for iOS and Android.
                     </p>
-                    <div className="flex items-center space-x-4 text-sm text-gray-500">
+                    <div className="flex items-center space-x-4 text-base leading-relaxed text-gray-500">
                       <span>📱 Quick check-ins</span>
                       <span>🔔 Real-time notifications</span>
                       <span>📊 Mobile insights</span>

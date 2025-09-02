@@ -1,0 +1,239 @@
+version: '3.8'
+
+services:
+  backup-system:
+    build:
+      context: ../..
+      dockerfile: docker/backup/Dockerfile
+    container_name: mingus-backup-system
+    restart: unless-stopped
+    environment:
+      # PostgreSQL Configuration
+      - POSTGRES_HOST=${POSTGRES_HOST:-postgres}
+      - POSTGRES_PORT=${POSTGRES_PORT:-5432}
+      - POSTGRES_DB=${POSTGRES_DB:-mingus}
+      - POSTGRES_USER=${POSTGRES_USER:-mingus}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      
+      # Redis Configuration
+      - REDIS_HOST=${REDIS_HOST:-redis}
+      - REDIS_PORT=${REDIS_PORT:-6379}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      
+      # Backup Configuration
+      - BACKUP_DIR=/var/backups
+      - BACKUP_RETENTION_DAYS=${BACKUP_RETENTION_DAYS:-30}
+      - BACKUP_COMPRESSION=${BACKUP_COMPRESSION:-gzip}
+      - BACKUP_ENCRYPTION=${BACKUP_ENCRYPTION:-true}
+      - BACKUP_ENCRYPTION_KEY=${BACKUP_ENCRYPTION_KEY}
+      - BACKUP_CROSS_REGION=${BACKUP_CROSS_REGION:-false}
+      - BACKUP_VERIFICATION=${BACKUP_VERIFICATION:-true}
+      - BACKUP_PITR=${BACKUP_PITR:-true}
+      - BACKUP_WAL_ARCHIVING=${BACKUP_WAL_ARCHIVING:-true}
+      
+      # Redis Backup Configuration
+      - REDIS_BACKUP_DIR=/var/backups/redis
+      - REDIS_BACKUP_RETENTION_DAYS=${REDIS_BACKUP_RETENTION_DAYS:-30}
+      - REDIS_RDB_BACKUP=${REDIS_RDB_BACKUP:-true}
+      - REDIS_AOF_BACKUP=${REDIS_AOF_BACKUP:-true}
+      - REDIS_SESSION_BACKUP=${REDIS_SESSION_BACKUP:-true}
+      - REDIS_BACKUP_COMPRESSION=${REDIS_BACKUP_COMPRESSION:-true}
+      - REDIS_MAX_MEMORY_POLICY=${REDIS_MAX_MEMORY_POLICY:-allkeys-lru}
+      
+      # File Backup Configuration
+      - FILE_BACKUP_DIR=/var/backups/files
+      - FILE_BACKUP_RETENTION_DAYS=${FILE_BACKUP_RETENTION_DAYS:-30}
+      - FILE_BACKUP_COMPRESSION=${FILE_BACKUP_COMPRESSION:-true}
+      - FILE_BACKUP_COMPRESSION_TYPE=${FILE_BACKUP_COMPRESSION_TYPE:-tar}
+      - FILE_BACKUP_ENCRYPTION=${FILE_BACKUP_ENCRYPTION:-true}
+      - FILE_BACKUP_MAX_FILE_SIZE=${FILE_BACKUP_MAX_FILE_SIZE:-1073741824}
+      
+      # Recovery Configuration
+      - RECOVERY_DIR=/var/recovery/postgresql
+      - RECOVERY_TIMEOUT=${RECOVERY_TIMEOUT:-3600}
+      - RECOVERY_VERIFICATION=${RECOVERY_VERIFICATION:-true}
+      - RECOVERY_TESTING=${RECOVERY_TESTING:-true}
+      - RECOVERY_WAL_ARCHIVE_DIR=/var/lib/postgresql/wal_archive
+      
+      # Monitoring Configuration
+      - PROMETHEUS_ENABLED=${PROMETHEUS_ENABLED:-true}
+      - PROMETHEUS_PORT=${PROMETHEUS_PORT:-9090}
+      - EMAIL_ALERTS_ENABLED=${EMAIL_ALERTS_ENABLED:-false}
+      - EMAIL_SMTP_SERVER=${EMAIL_SMTP_SERVER:-smtp.gmail.com}
+      - EMAIL_SMTP_PORT=${EMAIL_SMTP_PORT:-465}
+      - EMAIL_USERNAME=${EMAIL_USERNAME}
+      - EMAIL_PASSWORD=${EMAIL_PASSWORD}
+      - EMAIL_FROM=${EMAIL_FROM}
+      - EMAIL_TO=${EMAIL_TO}
+      - SLACK_WEBHOOK_URL=${SLACK_WEBHOOK_URL}
+      - COMPLIANCE_REPORTING=${COMPLIANCE_REPORTING:-true}
+      - HEALTH_CHECK_INTERVAL=${HEALTH_CHECK_INTERVAL:-300}
+      
+      # AWS Configuration (for S3 cross-region replication)
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - BACKUP_S3_BUCKET=${BACKUP_S3_BUCKET}
+      - BACKUP_S3_REGION=${BACKUP_S3_REGION:-us-east-1}
+      - REDIS_BACKUP_S3_BUCKET=${REDIS_BACKUP_S3_BUCKET}
+      - REDIS_BACKUP_S3_REGION=${REDIS_BACKUP_S3_REGION:-us-east-1}
+      - FILE_BACKUP_S3_BUCKET=${FILE_BACKUP_S3_BUCKET}
+      - FILE_BACKUP_S3_REGION=${FILE_BACKUP_S3_REGION:-us-east-1}
+      
+      # Alert Thresholds
+      - ALERT_CPU_THRESHOLD=${ALERT_CPU_THRESHOLD:-80}
+      - ALERT_MEMORY_THRESHOLD=${ALERT_MEMORY_THRESHOLD:-85}
+      - ALERT_DISK_THRESHOLD=${ALERT_DISK_THRESHOLD:-90}
+      - ALERT_STORAGE_THRESHOLD=${ALERT_STORAGE_THRESHOLD:-10}
+      
+    volumes:
+      # Backup storage
+      - backup-storage:/var/backups
+      - recovery-storage:/var/recovery
+      - wal-archive:/var/lib/postgresql/wal_archive
+      
+      # Application code (for file backups)
+      - ../../backend:/app/backend:ro
+      - ../../config:/app/config:ro
+      - ../../documents:/app/documents:ro
+      
+      # Logs
+      - backup-logs:/app/logs
+      
+      # Configuration
+      - backup-config:/app/config
+      
+    ports:
+      - "9090:9090"  # Prometheus metrics
+      - "5000:5000"  # Health check endpoint
+      
+    networks:
+      - backup-network
+      
+    depends_on:
+      - postgres
+      - redis
+      
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+      
+  # PostgreSQL for backup testing and recovery
+  postgres:
+    image: postgres:15-alpine
+    container_name: mingus-backup-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB:-mingus}
+      - POSTGRES_USER=${POSTGRES_USER:-mingus}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_INITDB_ARGS=--wal-level=replica
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - wal-archive:/var/lib/postgresql/wal_archive
+    ports:
+      - "5432:5432"
+    networks:
+      - backup-network
+    command: >
+      postgres
+      -c wal_level=replica
+      -c archive_mode=on
+      -c archive_command='cp %p /var/lib/postgresql/wal_archive/%f'
+      -c max_wal_senders=3
+      -c wal_keep_size=1GB
+      
+  # Redis for backup testing
+  redis:
+    image: redis:7-alpine
+    container_name: mingus-backup-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --save "900 1 300 10 60 10000"
+    volumes:
+      - redis-data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - backup-network
+      
+  # MinIO for S3-compatible storage (alternative to AWS S3)
+  minio:
+    image: minio/minio:latest
+    container_name: mingus-backup-minio
+    restart: unless-stopped
+    environment:
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER:-minioadmin}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD:-minioadmin}
+    volumes:
+      - minio-data:/data
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    networks:
+      - backup-network
+    command: server /data --console-address ":9001"
+    
+  # Prometheus for metrics collection
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: mingus-backup-prometheus
+    restart: unless-stopped
+    volumes:
+      - prometheus-data:/prometheus
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "9091:9090"
+    networks:
+      - backup-network
+    command: >
+      --config.file=/etc/prometheus/prometheus.yml
+      --storage.tsdb.path=/prometheus
+      --web.console.libraries=/etc/prometheus/console_libraries
+      --web.console.templates=/etc/prometheus/consoles
+      --storage.tsdb.retention.time=200h
+      --web.enable-lifecycle
+      
+  # Grafana for metrics visualization
+  grafana:
+    image: grafana/grafana:latest
+    container_name: mingus-backup-grafana
+    restart: unless-stopped
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+    ports:
+      - "3000:3000"
+    networks:
+      - backup-network
+    depends_on:
+      - prometheus
+
+volumes:
+  backup-storage:
+    driver: local
+  recovery-storage:
+    driver: local
+  wal-archive:
+    driver: local
+  postgres-data:
+    driver: local
+  redis-data:
+    driver: local
+  minio-data:
+    driver: local
+  prometheus-data:
+    driver: local
+  grafana-data:
+    driver: local
+  backup-logs:
+    driver: local
+  backup-config:
+    driver: local
+
+networks:
+  backup-network:
+    driver: bridge

@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="stylesheet" href="touch_target_optimization.css">
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Welcome to Mingus Financial</title>
@@ -11,8 +13,8 @@
         <header class="splash-header">
             <img src="{{ url_for('static', filename='mingus-logo-small.png') }}" alt="Mingus Logo" class="logo">
             <nav class="main-nav">
-                <a href="/login" class="nav-link">Login</a>
-                <a href="/signup" class="nav-link">Sign Up</a>
+                <a href="/login" class="nav-link btn-primary">Login</a>
+                <a href="/signup" class="nav-link btn-primary">Sign Up</a>
             </nav>
         </header>
 
@@ -23,8 +25,8 @@
                     Mingus helps you understand your finances, set meaningful goals, and build a secure future.
                 </p>
                 <div class="cta-buttons">
-                    <a href="/onboarding" class="cta-button primary">Get Started</a>
-                    <a href="/learn-more" class="cta-button secondary">Learn More</a>
+                    <a href="/onboarding" class="cta-button primary btn-cta btn-primary">Get Started</a>
+                    <a href="/learn-more" class="cta-button secondary btn-cta btn-primary">Learn More</a>
                 </div>
             </div>
 

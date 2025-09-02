@@ -1,6 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Add this line FIRST (before other CSS) -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/touch_target_optimization.css') }}">
+    
+    <!-- Your existing CSS files -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/mobile_responsive_fixes.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/enhanced_accessibility_styles.css') }}">
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Welcome to MINGUS - Financial Wellness Platform</title>
@@ -74,7 +81,7 @@
 
             <section class="cta-section" aria-label="Get started">
                 <button class="cta-primary" data-action="start-forecast">Start My Forecast</button>
-                <a href="#learn-more" class="cta-secondary">Learn More</a>
+                <a href="#learn-more" class="cta-secondary btn-cta btn-primary">Learn More</a>
             </section>
         </main>
     </div>

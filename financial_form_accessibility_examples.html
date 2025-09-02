@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial Form Accessibility Examples - MINGUS</title>
+    
+    <!-- Screen Reader Accessibility CSS -->
+    <link rel="stylesheet" href="backend/static/css/screen_reader_accessibility.css">
+    <link rel="stylesheet" href="backend/static/css/wcag_accessibility.css">
+    
+    <!-- Screen Reader Accessibility JavaScript -->
+    <script src="backend/static/js/screen_reader_accessibility.js" defer></script>
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .form-section {
+            margin-bottom: 40px;
+            padding: 20px;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+        }
+        
+        .form-section h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #3498db;
+        }
+        
+        .example-description {
+            background: #e8f4fd;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            border-left: 4px solid #3498db;
+        }
+        
+        .code-example {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+            margin: 15px 0;
+            border: 1px solid #dee2e6;
+        }
+        
+        .live-demo {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 6px;
+            margin: 20px 0;
+        }
+        
+        .financial-summary {
+            background: #e8f5e8;
+            padding: 20px;
+            border-radius: 6px;
+            margin: 20px 0;
+            border-left: 4px solid #27ae60;
+        }
+        
+        .financial-summary h3 {
+            margin-top: 0;
+            color: #27ae60;
+        }
+        
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            padding: 10px;
+            background: white;
+            border-radius: 4px;
+        }
+        
+        .summary-label {
+            font-weight: 600;
+        }
+        
+        .summary-value {
+            font-weight: 700;
+            color: #27ae60;
+        }
+        
+        .summary-value.negative {
+            color: #e74c3c;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Financial Form Accessibility Examples</h1>
+            <p>Comprehensive examples of accessible financial forms with proper ARIA labels and screen reader support for NVDA, JAWS, VoiceOver, and TalkBack.</p>
+        </header>
+
+        <!-- Skip Links -->
+        <nav aria-label="Skip navigation">
+            <a href="#income-form" class="skip-link">Skip to Income Form</a>
+            <a href="#expense-form" class="skip-link">Skip to Expense Form</a>
+            <a href="#budget-calculator" class="skip-link">Skip to Budget Calculator</a>
+        </nav>
+
+        <!-- Live Regions for Screen Readers -->
+        <div id="status-live" aria-live="polite" aria-atomic="true" class="sr-only"></div>
+        <div id="alert-live" aria-live="assertive" aria-atomic="true" class="sr-only"></div>
+        <div id="financial-live" aria-live="polite" aria-atomic="true" class="sr-only"></div>
+
+        <!-- Income Form Section -->
+        <section id="income-form" class="form-section">
+            <h2>Income Information Form</h2>
+            
+            <div class="example-description">
+                <h3>Screen Reader Features:</h3>
+                <ul>
+                    <li>Proper form labels with financial context</li>
+                    <li>Currency input with dollar symbol</li>
+                    <li>Required field indicators</li>
+                    <li>Help text for complex fields</li>
+                    <li>Error announcements for validation</li>
+                </ul>
+            </div>
+
+            <div class="code-example">
+&lt;!-- Proper form structure with labels --&gt;
+&lt;form role="form" aria-labelledby="income-form-title"&gt;
+  &lt;fieldset&gt;
+    &lt;legend&gt;Primary Income Sources&lt;/legend&gt;
+    
+    &lt;div class="form-group"&gt;
+      &lt;label for="annual-salary" class="form-label required"&gt;Annual Salary&lt;/label&gt;
+      &lt;div class="currency-input"&gt;
+        &lt;input type="number" id="annual-salary" name="annual-salary" 
+               class="form-input" required 
+               aria-describedby="salary-help"
+               aria-label="Annual salary in dollars before taxes"&gt;
+      &lt;/div&gt;
+      &lt;div id="salary-help" class="form-help"&gt;Enter your gross annual salary before any deductions&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/fieldset&gt;
+&lt;/form&gt;
+            </div>
+
+            <div class="live-demo">
+                <form role="form" aria-labelledby="income-form-title">
+                    <fieldset>
+                        <legend>Primary Income Sources</legend>
+                        
+                        <div class="form-group">
+                            <label for="annual-salary" class="form-label required">Annual Salary</label>
+                            <div class="currency-input">
+                                <input type="number" id="annual-salary" name="annual-salary" 
+                                       class="form-input" required 
+                                       aria-describedby="salary-help"
+                                       aria-label="Annual salary in dollars before taxes"
+                                       placeholder="50000">
+                            </div>
+                            <div id="salary-help" class="form-help">Enter your gross annual salary before any deductions</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="bonus-amount" class="form-label">Annual Bonus</label>
+                            <div class="currency-input">
+                                <input type="number" id="bonus-amount" name="bonus-amount" 
+                                       class="form-input"
+                                       aria-describedby="bonus-help"
+                                       aria-label="Annual bonus amount in dollars"
+                                       placeholder="5000">
+                            </div>
+                            <div id="bonus-help" class="form-help">Include performance bonuses, commissions, or other variable income</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="other-income" class="form-label">Other Income</label>
+                            <div class="currency-input">
+                                <input type="number" id="other-income" name="other-income" 
+                                       class="form-input"
+                                       aria-describedby="other-income-help"
+                                       aria-label="Other income sources in dollars"
+                                       placeholder="2000">
+                            </div>
+                            <div id="other-income-help" class="form-help">Include rental income, investment dividends, or side business income</div>
+                        </div>
+                    </fieldset>
+                </form>
+            </div>
+        </section>
+
+        <!-- Expense Form Section -->
+        <section id="expense-form" class="form-section">
+            <h2>Monthly Expense Form</h2>
+            
+            <div class="example-description">
+                <h3>Screen Reader Features:</h3>
+                <ul>
+                    <li>Grouped form fields with fieldsets</li>
+                    <li>Percentage inputs for budget allocations</li>
+                    <li>Checkbox groups for expense categories</li>
+                    <li>Dynamic form validation</li>
+                    <li>Real-time calculations with announcements</li>
+                </ul>
+            </div>
+
+            <div class="code-example">
+&lt;!-- Expense form with proper grouping --&gt;
+&lt;form role="form" aria-labelledby="expense-form-title"&gt;
+  &lt;fieldset&gt;
+    &lt;legend&gt;Housing Expenses&lt;/legend&gt;
+    
+    &lt;div class="form-group"&gt;
+      &lt;label for="rent-mortgage" class="form-label required"&gt;Rent or Mortgage&lt;/label&gt;
+      &lt;div class="currency-input"&gt;
+        &lt;input type="number" id="rent-mortgage" name="rent-mortgage" 
+               class="form-input" required 
+               aria-describedby="housing-help"
+               aria-label="Monthly rent or mortgage payment in dollars"&gt;
+      &lt;/div&gt;
+      &lt;div id="housing-help" class="form-help"&gt;Your monthly housing payment including principal, interest, taxes, and insurance&lt;/div&gt;
+    &lt;/div&gt;
+    
+    &lt;div class="form-group"&gt;
+      &lt;label for="housing-percentage" class="form-label"&gt;Housing Budget Percentage&lt;/label&gt;
+      &lt;div class="percentage-input"&gt;
+        &lt;input type="number" id="housing-percentage" name="housing-percentage" 
+               class="form-input" min="0" max="100" step="0.1"
+               aria-describedby="percentage-help"
+               aria-label="Housing expenses as percentage of total income"&gt;
+      &lt;/div&gt;
+      &lt;div id="percentage-help" class="form-help"&gt;Recommended: 30% or less of your total monthly income&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/fieldset&gt;
+&lt;/form&gt;
+            </div>
+
+            <div class="live-demo">
+                <form role="form" aria-labelledby="expense-form-title">
+                    <fieldset>
+                        <legend>Housing Expenses</legend>
+                        
+                        <div class="form-group">
+                            <label for="rent-mortgage" class="form-label required">Rent or Mortgage</label>
+                            <div class="currency-input">
+                                <input type="number" id="rent-mortgage" name="rent-mortgage" 
+                                       class="form-input" required 
+                                       aria-describedby="housing-help"
+                                       aria-label="Monthly rent or mortgage payment in dollars"
+                                       placeholder="1500">
+                            </div>
+                            <div id="housing-help" class="form-help">Your monthly housing payment including principal, interest, taxes, and insurance</div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="housing-percentage" class="form-label">Housing Budget Percentage</label>
+                            <div class="percentage-input">
+                                <input type="number" id="housing-percentage" name="housing-percentage" 
+                                       class="form-input" min="0" max="100" step="0.1"
+                                       aria-describedby="percentage-help"
+                                       aria-label="Housing expenses as percentage of total income"
+                                       placeholder="25.0">
+                            </div>
+                            <div id="percentage-help" class="form-help">Recommended: 30% or less of your total monthly income</div>
+                        </div>
+                    </fieldset>
+
+                    <fieldset>
+                        <legend>Transportation Expenses</legend>
+                        
+                        <div class="form-group">
+                            <label for="car-payment" class="form-label">Car Payment</label>
+                            <div class="currency-input">
+                                <input type="number" id="car-payment" name="car-payment" 
+                                       class="form-input"
+                                       aria-label="Monthly car payment in dollars"
+                                       placeholder="300">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="gas-insurance" class="form-label">Gas & Insurance</label>
+                            <div class="currency-input">
+                                <input type="number" id="gas-insurance" name="gas-insurance" 
+                                       class="form-input"
+                                       aria-label="Monthly gas and insurance costs in dollars"
+                                       placeholder="200">
+                            </div>
+                        </div>
+                    </fieldset>
+
+                    <fieldset>
+                        <legend>Expense Categories</legend>
+                        
+                        <div class="form-group">
+                            <div class="form-checkbox">
+                                <input type="checkbox" id="utilities" name="expense-categories" value="utilities">
+                                <label for="utilities">Utilities (electric, water, gas)</label>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <div class="form-checkbox">
+                                <input type="checkbox" id="groceries" name="expense-categories" value="groceries">
+                                <label for="groceries">Groceries and household items</label>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <div class="form-checkbox">
+                                <input type="checkbox" id="entertainment" name="expense-categories" value="entertainment">
+                                <label for="entertainment">Entertainment and dining out</label>
+                            </div>
+                        </div>
+                    </fieldset>
+                </form>
+            </div>
+        </section>
+
+        <!-- Budget Calculator Section -->
+        <section id="budget-calculator" class="form-section">
+            <h2>Budget Calculator</h2>
+            
+            <div class="example-description">
+                <h3>Screen Reader Features:</h3>
+                <ul>
+                    <li>Real-time calculations with live announcements</li>
+                    <li>Progress bars with accessible labels</li>
+                    <li>Financial summary tables</li>
+                    <li>Dynamic content updates</li>
+                    <li>Keyboard navigation for tables</li>
+                </ul>
+            </div>
+
+            <div class="live-demo">
+                <form role="form" aria-labelledby="budget-calculator-title">
+                    <fieldset>
+                        <legend>Budget Calculator</legend>
+                        
+                        <div class="form-group">
+                            <label for="monthly-income" class="form-label required">Monthly Income</label>
+                            <div class="currency-input">
+                                <input type="number" id="monthly-income" name="monthly-income" 
+                                       class="form-input" required 
+                                       aria-describedby="income-calc-help"
+                                       aria-label="Total monthly income in dollars"
+                                       placeholder="5000">
+                            </div>
+                            <div id="income-calc-help" class="form-help">Enter your total monthly income from all sources</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="savings-goal" class="form-label">Monthly Savings Goal</label>
+                            <div class="currency-input">
+                                <input type="number" id="savings-goal" name="savings-goal" 
+                                       class="form-input"
+                                       aria-describedby="savings-help"
+                                       aria-label="Monthly savings goal in dollars"
+                                       placeholder="500">
+                            </div>
+                            <div id="savings-help" class="form-help">Recommended: 20% of your monthly income</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="emergency-fund" class="form-label">Emergency Fund Target</label>
+                            <div class="currency-input">
+                                <input type="number" id="emergency-fund" name="emergency-fund" 
+                                       class="form-input"
+                                       aria-describedby="emergency-help"
+                                       aria-label="Emergency fund target in dollars"
+                                       placeholder="15000">
+                            </div>
+                            <div id="emergency-help" class="form-help">Recommended: 3-6 months of expenses</div>
+                        </div>
+                    </fieldset>
+
+                    <button type="button" class="btn-screen-reader-friendly" 
+                            onclick="calculateBudget()"
+                            aria-describedby="calculate-help">
+                        Calculate Budget
+                    </button>
+                    <div id="calculate-help" class="form-help">Click to calculate your monthly budget breakdown</div>
+                </form>
+
+                <!-- Budget Summary -->
+                <div class="financial-summary" id="budget-summary" aria-live="polite" aria-atomic="true">
+                    <h3>Budget Summary</h3>
+                    <div class="summary-item">
+                        <span class="summary-label">Total Monthly Income:</span>
+                        <span class="summary-value" id="summary-income">$0</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Housing (30%):</span>
+                        <span class="summary-value" id="summary-housing">$0</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Transportation (15%):</span>
+                        <span class="summary-value" id="summary-transportation">$0</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Food & Utilities (20%):</span>
+                        <span class="summary-value" id="summary-food-utilities">$0</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Savings (20%):</span>
+                        <span class="summary-value" id="summary-savings">$0</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Discretionary (15%):</span>
+                        <span class="summary-value" id="summary-discretionary">$0</span>
+                    </div>
+                </div>
+
+                <!-- Progress Bar -->
+                <div class="form-group">
+                    <label for="budget-progress" class="form-label">Budget Progress</label>
+                    <div class="progress-bar-screen-reader" 
+                         role="progressbar" 
+                         aria-valuenow="0" 
+                         aria-valuemin="0" 
+                         aria-valuemax="100"
+                         aria-describedby="progress-description">
+                        <div class="progress-fill-screen-reader" style="width: 0%"></div>
+                        <div class="progress-label-screen-reader">0%</div>
+                    </div>
+                    <div id="progress-description" class="form-help">Shows your progress toward meeting your savings goal</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Financial Data Table Example -->
+        <section class="form-section">
+            <h2>Financial Data Table</h2>
+            
+            <div class="example-description">
+                <h3>Screen Reader Features:</h3>
+                <ul>
+                    <li>Proper table structure with headers</li>
+                    <li>Financial context for currency and percentage columns</li>
+                    <li>Keyboard navigation support</li>
+                    <li>Accessible cell descriptions</li>
+                </ul>
+            </div>
+
+            <div class="live-demo">
+                <table class="financial-data-table" data-type="financial" 
+                       summary="Monthly budget breakdown showing income, expenses, and savings">
+                    <caption>Monthly Budget Breakdown</caption>
+                    <thead>
+                        <tr>
+                            <th scope="col">Category</th>
+                            <th scope="col">Amount</th>
+                            <th scope="col">Percentage</th>
+                            <th scope="col">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Income</td>
+                            <td>$5,000</td>
+                            <td>100%</td>
+                            <td>On Track</td>
+                        </tr>
+                        <tr>
+                            <td>Housing</td>
+                            <td>$1,500</td>
+                            <td>30%</td>
+                            <td>Within Budget</td>
+                        </tr>
+                        <tr>
+                            <td>Transportation</td>
+                            <td>$750</td>
+                            <td>15%</td>
+                            <td>Within Budget</td>
+                        </tr>
+                        <tr>
+                            <td>Food & Utilities</td>
+                            <td>$1,000</td>
+                            <td>20%</td>
+                            <td>Within Budget</td>
+                        </tr>
+                        <tr>
+                            <td>Savings</td>
+                            <td>$1,000</td>
+                            <td>20%</td>
+                            <td>On Track</td>
+                        </tr>
+                        <tr>
+                            <td>Discretionary</td>
+                            <td>$750</td>
+                            <td>15%</td>
+                            <td>Within Budget</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // Budget calculation function
+        function calculateBudget() {
+            const monthlyIncome = parseFloat(document.getElementById('monthly-income').value) || 0;
+            const savingsGoal = parseFloat(document.getElementById('savings-goal').value) || 0;
+            const emergencyFund = parseFloat(document.getElementById('emergency-fund').value) || 0;
+
+            if (monthlyIncome === 0) {
+                // Announce error to screen readers
+                if (window.ScreenReaderAccessibility) {
+                    window.ScreenReaderAccessibility.announce('Please enter your monthly income to calculate budget', 'assertive', 'alert-live');
+                }
+                return;
+            }
+
+            // Calculate budget breakdown
+            const housing = monthlyIncome * 0.30;
+            const transportation = monthlyIncome * 0.15;
+            const foodUtilities = monthlyIncome * 0.20;
+            const savings = monthlyIncome * 0.20;
+            const discretionary = monthlyIncome * 0.15;
+
+            // Update summary
+            document.getElementById('summary-income').textContent = formatCurrency(monthlyIncome);
+            document.getElementById('summary-housing').textContent = formatCurrency(housing);
+            document.getElementById('summary-transportation').textContent = formatCurrency(transportation);
+            document.getElementById('summary-food-utilities').textContent = formatCurrency(foodUtilities);
+            document.getElementById('summary-savings').textContent = formatCurrency(savings);
+            document.getElementById('summary-discretionary').textContent = formatCurrency(discretionary);
+
+            // Update progress bar
+            const progressPercentage = Math.min((savings / savingsGoal) * 100, 100);
+            const progressBar = document.querySelector('[role="progressbar"]');
+            const progressFill = document.querySelector('.progress-fill-screen-reader');
+            const progressLabel = document.querySelector('.progress-label-screen-reader');
+
+            progressBar.setAttribute('aria-valuenow', Math.round(progressPercentage));
+            progressFill.style.width = `${progressPercentage}%`;
+            progressLabel.textContent = `${Math.round(progressPercentage)}%`;
+
+            // Announce results to screen readers
+            if (window.ScreenReaderAccessibility) {
+                window.ScreenReaderAccessibility.announceFinancialChange('calculation', monthlyIncome, 'Monthly budget calculated');
+                window.ScreenReaderAccessibility.announce(`Budget calculation complete. Your monthly budget breakdown is ready.`, 'polite', 'status-live');
+            }
+        }
+
+        // Currency formatting function
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+                minimumFractionDigits: 2
+            }).format(amount);
+        }
+
+        // Form validation
+        document.addEventListener('DOMContentLoaded', function() {
+            const requiredInputs = document.querySelectorAll('input[required]');
+            
+            requiredInputs.forEach(input => {
+                input.addEventListener('blur', function() {
+                    if (!this.value) {
+                        this.classList.add('error');
+                        if (window.ScreenReaderAccessibility) {
+                            window.ScreenReaderAccessibility.announce(`Validation error: ${this.getAttribute('aria-label') || this.name} is required`, 'assertive', 'alert-live');
+                        }
+                    } else {
+                        this.classList.remove('error');
+                    }
+                });
+            });
+
+            // Real-time calculations
+            const incomeInput = document.getElementById('monthly-income');
+            if (incomeInput) {
+                incomeInput.addEventListener('input', function() {
+                    const value = parseFloat(this.value) || 0;
+                    if (value > 0) {
+                        // Announce income change to screen readers
+                        if (window.ScreenReaderAccessibility) {
+                            window.ScreenReaderAccessibility.announceFinancialChange('currency', value, 'Monthly income');
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

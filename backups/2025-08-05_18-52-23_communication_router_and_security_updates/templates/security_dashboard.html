@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="stylesheet" href="touch_target_optimization.css">
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🔒 MINGUS Security Dashboard</title>
@@ -230,22 +232,22 @@
                 <i class="fas fa-shield-alt"></i> MINGUS Security Dashboard
             </a>
             <div class="navbar-nav ms-auto">
-                <a class="nav-link active" href="#" onclick="showTab('overview')">
+                <a class="nav-link active btn-primary" href="#" onclick="showTab('overview')">
                     <i class="fas fa-tachometer-alt"></i> Overview
                 </a>
-                <a class="nav-link" href="#" onclick="showTab('events')">
+                <a class="nav-link btn-primary" href="#" onclick="showTab('events')">
                     <i class="fas fa-list"></i> Events
                 </a>
-                <a class="nav-link" href="#" onclick="showTab('threats')">
+                <a class="nav-link btn-primary" href="#" onclick="showTab('threats')">
                     <i class="fas fa-exclamation-triangle"></i> Threats
                 </a>
-                <a class="nav-link" href="#" onclick="showTab('compliance')">
+                <a class="nav-link btn-primary" href="#" onclick="showTab('compliance')">
                     <i class="fas fa-check-circle"></i> Compliance
                 </a>
-                <a class="nav-link" href="#" onclick="showTab('users')">
+                <a class="nav-link btn-primary" href="#" onclick="showTab('users')">
                     <i class="fas fa-users"></i> Users
                 </a>
-                <a class="nav-link" href="#" onclick="showTab('system')">
+                <a class="nav-link btn-primary" href="#" onclick="showTab('system')">
                     <i class="fas fa-server"></i> System
                 </a>
             </div>
@@ -261,7 +263,7 @@
                     <p class="mb-0">Real-time security monitoring and threat intelligence</p>
                 </div>
                 <div class="col-md-4 text-end">
-                    <button class="btn refresh-btn" onclick="refreshDashboard()">
+                    <button class="btn refresh-btn btn-cta btn-primary" onclick="refreshDashboard()">
                         <i class="fas fa-sync-alt"></i> Refresh
                     </button>
                     <span class="ms-3 text-white">

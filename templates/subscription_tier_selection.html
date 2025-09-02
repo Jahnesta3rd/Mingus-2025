@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="touch_target_optimization.css">
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Choose Your Subscription Plan - Mingus</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            font-weight: 300;
+        }
+        .header p {
+            margin: 10px 0 0 0;
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+        .form-content {
+            padding: 40px;
+        }
+        .tier-selection-form {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .tier-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        .tier-option {
+            border: 3px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            background: #ffffff;
+            min-height: 44px;
+            min-width: 44px;
+        }
+        .tier-option:hover {
+            border-color: #667eea;
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.2);
+        }
+        .tier-option.selected {
+            border-color: #667eea;
+            background: #f0f4ff;
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.15);
+        }
+        .tier-option.popular {
+            border-color: #f59e0b;
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+        }
+        .tier-option.popular::before {
+            content: "MOST POPULAR";
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #f59e0b;
+            color: white;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .tier-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+        .tier-price {
+            font-size: 3rem;
+            font-weight: 800;
+            color: #667eea;
+            margin-bottom: 0.5rem;
+        }
+        .tier-price .currency {
+            font-size: 1.5rem;
+            vertical-align: top;
+        }
+        .tier-price .period {
+            font-size: 1rem;
+            color: #6b7280;
+            font-weight: 400;
+        }
+        .tier-description {
+            color: #6b7280;
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+        }
+        .tier-features {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 1.5rem 0;
+            text-align: left;
+        }
+        .tier-features li {
+            padding: 0.5rem 0;
+            color: #374151;
+            position: relative;
+            padding-left: 1.5rem;
+        }
+        .tier-features li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #10b981;
+            font-weight: bold;
+        }
+        .tier-features li.unavailable {
+            color: #9ca3af;
+        }
+        .tier-features li.unavailable::before {
+            content: "✗";
+            color: #ef4444;
+        }
+        .radio-input {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+        .radio-input:checked + .tier-option {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+        .billing-cycle-section {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: #f8fafc;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+        .billing-cycle-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 1rem;
+        }
+        .billing-options {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .billing-option {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: white;
+        }
+        .billing-option:hover {
+            border-color: #667eea;
+        }
+        .billing-option.selected {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+        .billing-option input[type="radio"] {
+            margin: 0;
+        }
+        .billing-option label {
+            cursor: pointer;
+            font-weight: 500;
+            color: #374151;
+        }
+        .billing-option .savings {
+            background: #10b981;
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .payment-section {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: #f8fafc;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+        .payment-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 1rem;
+        }
+        .payment-methods {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        .payment-method {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 16px 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: white;
+            min-height: 44px;
+            min-width: 44px;
+        }
+        .payment-method:hover {
+            border-color: #667eea;
+        }
+        .payment-method.selected {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+        .payment-method input[type="radio"] {
+            margin: 0;
+        }
+        .payment-method label {
+            cursor: pointer;
+            font-weight: 500;
+            color: #374151;
+        }
+        .payment-method .icon {
+            font-size: 1.5rem;
+        }
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #374151;
+            font-size: 1rem;
+        }
+        .form-label .required-indicator {
+            color: #dc2626;
+            margin-left: 0.25rem;
+        }
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #d1d5db;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            min-height: 44px;
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        .form-input.error {
+            border-color: #dc2626;
+        }
+        .form-input.error:focus {
+            border-color: #dc2626;
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+        }
+        .error-message {
+            display: none;
+            color: #dc2626;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+            padding: 0.5rem;
+            background-color: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 0.375rem;
+        }
+        .error-message.show {
+            display: block;
+        }
+        .form-help-text {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-top: 0.25rem;
+            margin-bottom: 0.5rem;
+        }
+        .validation-feedback {
+            margin-top: 0.5rem;
+            font-size: 0.875rem;
+            color: #2563eb;
+        }
+        .submit-container {
+            text-align: center;
+            margin-top: 2rem;
+        }
+        .submit-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 0.5rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            min-width: 200px;
+            min-height: 48px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+        .submit-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .loading {
+            display: inline-block;
+            width: 1rem;
+            height: 1rem;
+            border: 2px solid #ffffff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 0.5rem;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .success-message {
+            display: none;
+            background: #ecfdf5;
+            border: 1px solid #a7f3d0;
+            color: #065f46;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .total-price {
+            background: #f0f4ff;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .total-price .label {
+            font-size: 0.9rem;
+            color: #6b7280;
+            margin-bottom: 0.5rem;
+        }
+        .total-price .amount {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #667eea;
+        }
+        .total-price .period {
+            font-size: 1rem;
+            color: #6b7280;
+        }
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+        .fieldset {
+            border: none;
+            padding: 0;
+            margin: 0;
+        }
+        .legend {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        /* Focus indicators for keyboard navigation */
+        .tier-option:focus-visible,
+        .billing-option:focus-visible,
+        .payment-method:focus-visible,
+        .form-input:focus-visible,
+        .submit-btn:focus-visible {
+            outline: 2px solid #667eea;
+            outline-offset: 2px;
+        }
+        /* High contrast mode support */
+        @media (prefers-contrast: high) {
+            .form-input {
+                border-width: 3px;
+            }
+            .submit-btn {
+                border: 3px solid #ffffff;
+            }
+        }
+        /* Reduced motion support */
+        @media (prefers-reduced-motion: reduce) {
+            .tier-option:hover,
+            .submit-btn:hover:not(:disabled) {
+                transform: none;
+            }
+        }
+        @media (max-width: 768px) {
+            .tier-options {
+                grid-template-columns: 1fr;
+            }
+            .billing-options {
+                flex-direction: column;
+            }
+            .payment-methods {
+                grid-template-columns: 1fr;
+            }
+            .form-content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Choose Your Subscription Plan</h1>
+            <p>Select the plan that best fits your financial wellness goals and unlock personalized insights</p>
+        </div>
+        
+        <div class="form-content">
+            <!-- Success message -->
+            <div class="success-message" id="successMessage" role="alert" aria-live="polite">
+                <strong>✅ Subscription activated successfully!</strong><br>
+                Welcome to Mingus! Your personalized financial wellness journey begins now.
+            </div>
+            
+            <form class="tier-selection-form" id="subscriptionForm" novalidate aria-label="Subscription Plan Selection Form">
+                <!-- Tier Selection Section -->
+                <fieldset class="fieldset">
+                    <legend class="legend">
+                        <div class="section-icon" aria-hidden="true">💎</div>
+                        Choose Your Plan
+                    </legend>
+                    
+                    <div class="tier-options">
+                        <!-- Budget Tier -->
+                        <div class="tier-option" id="budget-tier">
+                            <input type="radio" name="subscription_tier" value="budget" id="budget" class="radio-input" required aria-describedby="budgetDescription">
+                            <label for="budget" class="sr-only">Select Budget Tier</label>
+                            
+                            <div class="tier-name">Budget Plan</div>
+                            <div class="tier-price">
+                                <span class="currency">$</span>10
+                                <span class="period">/month</span>
+                            </div>
+                            <div class="tier-description" id="budgetDescription">
+                                Perfect for getting started with financial wellness
+                            </div>
+                            <ul class="tier-features" role="list">
+                                <li>Basic financial assessment</li>
+                                <li>Income comparison tools</li>
+                                <li>Email support</li>
+                                <li>Monthly check-ins</li>
+                                <li>Basic goal setting</li>
+                                <li>Standard reports</li>
+                            </ul>
+                        </div>
+                        
+                        <!-- Mid-Tier -->
+                        <div class="tier-option popular" id="mid-tier">
+                            <input type="radio" name="subscription_tier" value="mid_tier" id="mid_tier" class="radio-input" required aria-describedby="midTierDescription">
+                            <label for="mid_tier" class="sr-only">Select Mid-Tier Plan</label>
+                            
+                            <div class="tier-name">Mid-Tier Plan</div>
+                            <div class="tier-price">
+                                <span class="currency">$</span>20
+                                <span class="period">/month</span>
+                            </div>
+                            <div class="tier-description" id="midTierDescription">
+                                Enhanced features for serious financial wellness
+                            </div>
+                            <ul class="tier-features" role="list">
+                                <li>Everything in Budget</li>
+                                <li>Advanced financial assessment</li>
+                                <li>Tax optimization tools</li>
+                                <li>Career advancement insights</li>
+                                <li>Priority support</li>
+                                <li>Weekly check-ins</li>
+                                <li>Custom action plans</li>
+                                <li>Advanced analytics</li>
+                            </ul>
+                        </div>
+                        
+                        <!-- Professional Tier -->
+                        <div class="tier-option" id="professional-tier">
+                            <input type="radio" name="subscription_tier" value="professional" id="professional" class="radio-input" required aria-describedby="professionalDescription">
+                            <label for="professional" class="sr-only">Select Professional Plan</label>
+                            
+                            <div class="tier-name">Professional Plan</div>
+                            <div class="tier-price">
+                                <span class="currency">$</span>50
+                                <span class="period">/month</span>
+                            </div>
+                            <div class="tier-description" id="professionalDescription">
+                                Comprehensive tools for financial professionals
+                            </div>
+                            <ul class="tier-features" role="list">
+                                <li>Everything in Mid-Tier</li>
+                                <li>1-on-1 coaching sessions</li>
+                                <li>Custom integrations</li>
+                                <li>Dedicated account manager</li>
+                                <li>Advanced reporting</li>
+                                <li>API access</li>
+                                <li>White-label solutions</li>
+                                <li>Team management</li>
+                            </ul>
+                        </div>
+                    </div>
+                </fieldset>
+                
+                <!-- Billing Cycle Section -->
+                <fieldset class="fieldset">
+                    <legend class="legend">
+                        <div class="section-icon" aria-hidden="true">📅</div>
+                        Billing Cycle
+                    </legend>
+                    
+                    <div class="billing-cycle-section">
+                        <div class="billing-cycle-title">Choose your billing frequency</div>
+                        <div class="form-help-text">Select how often you'd like to be billed</div>
+                        <div class="billing-options">
+                            <div class="billing-option" id="monthly-billing">
+                                <input type="radio" name="billing_cycle" value="monthly" id="monthly" class="radio-input" required checked>
+                                <label for="monthly">Monthly Billing</label>
+                            </div>
+                            <div class="billing-option" id="annual-billing">
+                                <input type="radio" name="billing_cycle" value="annual" id="annual" class="radio-input" required>
+                                <label for="annual">Annual Billing</label>
+                                <span class="savings">Save 20%</span>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+                
+                <!-- Payment Method Section -->
+                <fieldset class="fieldset">
+                    <legend class="legend">
+                        <div class="section-icon" aria-hidden="true">💳</div>
+                        Payment Method
+                    </legend>
+                    
+                    <div class="payment-section">
+                        <div class="payment-title">Select your preferred payment method</div>
+                        <div class="form-help-text">Choose how you'd like to pay for your subscription</div>
+                        <div class="payment-methods">
+                            <div class="payment-method" id="credit-card">
+                                <input type="radio" name="payment_method" value="credit_card" id="credit_card" class="radio-input" required checked>
+                                <label for="credit_card">
+                                    <span class="icon">💳</span>
+                                    Credit/Debit Card
+                                </label>
+                            </div>
+                            <div class="payment-method" id="paypal">
+                                <input type="radio" name="payment_method" value="paypal" id="paypal" class="radio-input" required>
+                                <label for="paypal">
+                                    <span class="icon">📱</span>
+                                    PayPal
+                                </label>
+                            </div>
+                            <div class="payment-method" id="bank-transfer">
+                                <input type="radio" name="payment_method" value="bank_transfer" id="bank_transfer" class="radio-input" required>
+                                <label for="bank_transfer">
+                                    <span class="icon">🏦</span>
+                                    Bank Transfer
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+                
+                <!-- Total Price Display -->
+                <div class="total-price" id="totalPrice" role="status" aria-live="polite">
+                    <div class="label">Total Price</div>
+                    <div class="amount">$10</div>
+                    <div class="period">per month</div>
+                </div>
+                
+                <!-- Submit Button -->
+                <div class="submit-container">
+                    <button type="submit" class="submit-btn btn-cta btn-primary" id="submitBtn" aria-describedby="submitHelp">
+                        <span class="loading" id="loadingSpinner" style="display: none;" aria-hidden="true"></span>
+                        Activate Subscription
+                    </button>
+                    <div class="validation-feedback" id="submitHelp">Click to activate your selected subscription plan</div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        class SubscriptionForm {
+            constructor() {
+                this.form = document.getElementById('subscriptionForm');
+                this.submitBtn = document.getElementById('submitBtn');
+                this.loadingSpinner = document.getElementById('loadingSpinner');
+                this.successMessage = document.getElementById('successMessage');
+                this.totalPrice = document.getElementById('totalPrice');
+                
+                this.prices = {
+                    budget: { monthly: 10, annual: 96 }, // 20% discount
+                    mid_tier: { monthly: 20, annual: 192 },
+                    professional: { monthly: 50, annual: 480 }
+                };
+                
+                this.initializeEventListeners();
+                this.announceToScreenReader('Subscription plan selection form loaded. Please choose your plan and billing cycle.');
+            }
+
+            initializeEventListeners() {
+                // Form submission
+                this.form.addEventListener('submit', (e) => this.handleSubmit(e));
+
+                // Tier selection
+                const tierOptions = this.form.querySelectorAll('.tier-option');
+                tierOptions.forEach(option => {
+                    option.addEventListener('click', (e) => this.selectTier(e));
+                    option.addEventListener('keydown', (e) => this.handleTierKeyboard(e));
+                });
+
+                // Billing cycle changes
+                const billingOptions = this.form.querySelectorAll('input[name="billing_cycle"]');
+                billingOptions.forEach(option => {
+                    option.addEventListener('change', () => this.updateTotalPrice());
+                });
+
+                // Payment method changes
+                const paymentMethods = this.form.querySelectorAll('input[name="payment_method"]');
+                paymentMethods.forEach(method => {
+                    method.addEventListener('change', () => this.updatePaymentMethod());
+                });
+
+                // Real-time validation
+                const formFields = this.form.querySelectorAll('input[required]');
+                formFields.forEach(field => {
+                    field.addEventListener('change', () => this.validateField(field));
+                });
+            }
+
+            selectTier(event) {
+                const tierOption = event.currentTarget;
+                const radioInput = tierOption.querySelector('input[type="radio"]');
+                
+                // Remove selection from all tiers
+                document.querySelectorAll('.tier-option').forEach(option => {
+                    option.classList.remove('selected');
+                });
+                
+                // Select clicked tier
+                tierOption.classList.add('selected');
+                radioInput.checked = true;
+                
+                // Update total price
+                this.updateTotalPrice();
+                
+                // Announce selection to screen reader
+                const tierName = tierOption.querySelector('.tier-name').textContent;
+                this.announceToScreenReader(`${tierName} selected`);
+                
+                // Validate form
+                this.validateField(radioInput);
+            }
+
+            handleTierKeyboard(event) {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    this.selectTier(event);
+                }
+            }
+
+            updateTotalPrice() {
+                const selectedTier = this.form.querySelector('input[name="subscription_tier"]:checked');
+                const selectedBilling = this.form.querySelector('input[name="billing_cycle"]:checked');
+                
+                if (!selectedTier || !selectedBilling) return;
+                
+                const tier = selectedTier.value;
+                const billing = selectedBilling.value;
+                const price = this.prices[tier][billing];
+                const period = billing === 'annual' ? 'per year' : 'per month';
+                
+                this.totalPrice.querySelector('.amount').textContent = `$${price}`;
+                this.totalPrice.querySelector('.period').textContent = period;
+                
+                // Announce price update to screen reader
+                this.announceToScreenReader(`Total price updated to $${price} ${period}`);
+            }
+
+            updatePaymentMethod() {
+                const selectedMethod = this.form.querySelector('input[name="payment_method"]:checked');
+                if (selectedMethod) {
+                    const methodLabel = selectedMethod.nextElementSibling.textContent.trim();
+                    this.announceToScreenReader(`Payment method changed to ${methodLabel}`);
+                }
+            }
+
+            validateField(field) {
+                const errorElement = document.getElementById(field.id + 'Error');
+                let isValid = true;
+                let errorMessage = '';
+
+                // Remove existing error styling
+                field.classList.remove('error');
+                field.setAttribute('aria-invalid', 'false');
+                if (errorElement) {
+                    errorElement.style.display = 'none';
+                    errorElement.classList.remove('show');
+                }
+
+                // Validation rules
+                if (field.hasAttribute('required') && !field.checked && field.type === 'radio') {
+                    isValid = false;
+                    errorMessage = 'Please select an option';
+                }
+
+                // Apply error styling and message
+                if (!isValid) {
+                    field.classList.add('error');
+                    field.setAttribute('aria-invalid', 'true');
+                    if (errorElement) {
+                        errorElement.textContent = errorMessage;
+                        errorElement.style.display = 'block';
+                        errorElement.classList.add('show');
+                    }
+                    
+                    this.announceToScreenReader(`Error: ${errorMessage}`);
+                }
+
+                return isValid;
+            }
+
+            validateForm() {
+                const formFields = this.form.querySelectorAll('input[required]');
+                let isValid = true;
+
+                formFields.forEach(field => {
+                    if (!this.validateField(field)) {
+                        isValid = false;
+                    }
+                });
+
+                return isValid;
+            }
+
+            async handleSubmit(event) {
+                event.preventDefault();
+
+                if (!this.validateForm()) {
+                    this.announceToScreenReader('Form has validation errors. Please complete all required fields.');
+                    // Focus first error field
+                    const firstError = this.form.querySelector('.error');
+                    if (firstError) {
+                        firstError.focus();
+                    }
+                    return;
+                }
+
+                // Show loading state
+                this.setLoadingState(true);
+                this.announceToScreenReader('Processing subscription, please wait...');
+
+                try {
+                    const formData = new FormData(this.form);
+                    const data = Object.fromEntries(formData.entries());
+
+                    // Calculate final price
+                    const tier = data.subscription_tier;
+                    const billing = data.billing_cycle;
+                    const price = this.prices[tier][billing];
+
+                    const subscriptionData = {
+                        ...data,
+                        price: price,
+                        currency: 'USD'
+                    };
+
+                    const response = await fetch('/api/subscription/create', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(subscriptionData)
+                    });
+
+                    if (response.ok) {
+                        this.showSuccess();
+                        this.announceToScreenReader('Subscription activated successfully! Welcome to Mingus.');
+                    } else {
+                        const errorData = await response.json();
+                        throw new Error(errorData.error || 'Failed to create subscription');
+                    }
+                } catch (error) {
+                    console.error('Subscription error:', error);
+                    this.announceToScreenReader(`Error creating subscription: ${error.message}`);
+                    alert('Failed to create subscription. Please try again.');
+                } finally {
+                    this.setLoadingState(false);
+                }
+            }
+
+            setLoadingState(loading) {
+                this.submitBtn.disabled = loading;
+                this.loadingSpinner.style.display = loading ? 'inline-block' : 'none';
+                this.submitBtn.innerHTML = loading 
+                    ? '<span class="loading" id="loadingSpinner"></span>Processing...'
+                    : 'Activate Subscription';
+                
+                if (loading) {
+                    this.submitBtn.setAttribute('aria-busy', 'true');
+                } else {
+                    this.submitBtn.removeAttribute('aria-busy');
+                }
+            }
+
+            showSuccess() {
+                this.successMessage.style.display = 'block';
+                this.form.style.display = 'none';
+            }
+
+            announceToScreenReader(message) {
+                // Create a live region for screen reader announcements
+                let liveRegion = document.getElementById('screen-reader-announcements');
+                if (!liveRegion) {
+                    liveRegion = document.createElement('div');
+                    liveRegion.id = 'screen-reader-announcements';
+                    liveRegion.setAttribute('aria-live', 'polite');
+                    liveRegion.setAttribute('aria-atomic', 'true');
+                    liveRegion.className = 'sr-only';
+                    document.body.appendChild(liveRegion);
+                }
+                
+                liveRegion.textContent = message;
+                
+                // Clear the message after a short delay
+                setTimeout(() => {
+                    liveRegion.textContent = '';
+                }, 1000);
+            }
+        }
+
+        // Initialize the form when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            new SubscriptionForm();
+        });
+    </script>
+</body>
+</html>

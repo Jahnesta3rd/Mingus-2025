@@ -33,7 +33,7 @@ const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({
           {steps.map((step, index) => (
             <div key={step.id} className="flex flex-col items-center">
               <div
-                className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-300 ${
+                className={`w-8 h-8 rounded-full flex items-center justify-center text-base leading-relaxed font-semibold transition-all duration-300 ${
                   step.id <= currentStep
                     ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white'
                     : 'bg-gray-200 text-gray-500'
@@ -42,12 +42,12 @@ const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({
                 {step.id < currentStep ? '✓' : step.id}
               </div>
               <div className="mt-2 text-center">
-                <div className={`text-xs font-medium ${
+                <div className={`text-base leading-relaxed font-medium ${
                   step.id <= currentStep ? 'text-gray-900' : 'text-gray-500'
                 }`}>
                   {step.name}
                 </div>
-                <div className="text-xs text-gray-400 hidden sm:block">
+                <div className="text-base leading-relaxed text-gray-400 hidden sm:block">
                   {step.description}
                 </div>
               </div>
@@ -60,10 +60,10 @@ const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-lg font-semibold text-blue-900">
+            <h3 className="text-lg font-semibold text-blue-900" className="text-xl font-semibold text-gray-800 mb-3">
               Step {currentStep} of {totalSteps}: {steps[currentStep - 1]?.name}
             </h3>
-            <p className="text-sm text-blue-700">
+            <p className="text-base leading-relaxed text-blue-700">
               {steps[currentStep - 1]?.description}
             </p>
           </div>
@@ -71,7 +71,7 @@ const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({
             <div className="text-2xl font-bold text-blue-600">
               {Math.round(progressPercentage)}%
             </div>
-            <div className="text-sm text-blue-600">Complete</div>
+            <div className="text-base leading-relaxed text-blue-600">Complete</div>
           </div>
         </div>
       </div>

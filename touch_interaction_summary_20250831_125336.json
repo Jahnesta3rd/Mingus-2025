@@ -1,0 +1,126 @@
+{
+  "test_timestamp": "2025-08-31T12:53:36.682106",
+  "total_tests": 27,
+  "devices_tested": [
+    "iPhone SE",
+    "iPhone 14",
+    "Samsung Galaxy S21"
+  ],
+  "pages_tested": [
+    "/health",
+    "/budget",
+    "/payment",
+    "/assessments",
+    "/",
+    "/articles",
+    "/subscription",
+    "/landing",
+    "/profile"
+  ],
+  "overall_average_score": 9.333333333333334,
+  "device_performance": {
+    "iPhone SE": {
+      "average_score": 9.33,
+      "tests_run": 9
+    },
+    "iPhone 14": {
+      "average_score": 9.33,
+      "tests_run": 9
+    },
+    "Samsung Galaxy S21": {
+      "average_score": 9.33,
+      "tests_run": 9
+    }
+  },
+  "page_performance": {
+    "/health": {
+      "average_score": 0.0,
+      "tests_run": 3
+    },
+    "/budget": {
+      "average_score": 0.0,
+      "tests_run": 3
+    },
+    "/payment": {
+      "average_score": 0.0,
+      "tests_run": 3
+    },
+    "/assessments": {
+      "average_score": 0.0,
+      "tests_run": 3
+    },
+    "/": {
+      "average_score": 42.0,
+      "tests_run": 3
+    },
+    "/articles": {
+      "average_score": 0.0,
+      "tests_run": 3
+    },
+    "/subscription": {
+      "average_score": 0.0,
+      "tests_run": 3
+    },
+    "/landing": {
+      "average_score": 42.0,
+      "tests_run": 3
+    },
+    "/profile": {
+      "average_score": 0.0,
+      "tests_run": 3
+    }
+  },
+  "accessibility_compliance": {
+    "wcag_2_1_aa_compliant": 0,
+    "touch_target_compliant": 0,
+    "spacing_compliant": 6
+  },
+  "common_issues": [
+    {
+      "issue": "Swipe gesture failed: Message: move target out of bounds\n  (Session info: chrome=139.0.7258.155)\nStacktrace:\n0   chromedriver                        0x000000010e272668 chromedriver + 5928552\n1   chromedriver                        0x000000010e269c0a chromedriver + 5893130\n2   chromedriver                        0x000000010dd33c43 chromedriver + 429123\n3   chromedriver                        0x000000010dddbd26 chromedriver + 1117478\n4   chromedriver                        0x000000010ddac062 chromedriver + 921698\n5   chromedriver                        0x000000010ddd31d4 chromedriver + 1081812\n6   chromedriver                        0x000000010ddabe33 chromedriver + 921139\n7   chromedriver                        0x000000010dd7837b chromedriver + 709499\n8   chromedriver                        0x000000010dd79061 chromedriver + 712801\n9   chromedriver                        0x000000010e2300e0 chromedriver + 5656800\n10  chromedriver                        0x000000010e233fa4 chromedriver + 5672868\n11  chromedriver                        0x000000010e20b052 chromedriver + 5505106\n12  chromedriver                        0x000000010e234a4f chromedriver + 5675599\n13  chromedriver                        0x000000010e1fa004 chromedriver + 5435396\n14  chromedriver                        0x000000010e256d88 chromedriver + 5815688\n15  chromedriver                        0x000000010e256f50 chromedriver + 5816144\n16  chromedriver                        0x000000010e2697e1 chromedriver + 5892065\n17  libsystem_pthread.dylib             0x00007ff80d9ebe59 _pthread_start + 115\n18  libsystem_pthread.dylib             0x00007ff80d9e7857 thread_start + 15\n",
+      "count": 21
+    },
+    {
+      "issue": "Touch target too small: 45x22px",
+      "count": 6
+    },
+    {
+      "issue": "Touch target too small: 33x22px",
+      "count": 6
+    },
+    {
+      "issue": "Touch target too small: 100x22px",
+      "count": 6
+    },
+    {
+      "issue": "Touch target too small: 0x0px",
+      "count": 6
+    },
+    {
+      "issue": "Touch target too small: 337x26px",
+      "count": 6
+    },
+    {
+      "issue": "Touch target too small: 339x26px",
+      "count": 6
+    },
+    {
+      "issue": "Touch target too small: 164x22px",
+      "count": 6
+    },
+    {
+      "issue": "Touch target too small: 123x22px",
+      "count": 6
+    }
+  ],
+  "recommendations": [
+    {
+      "recommendation": "Ensure page supports touch gestures",
+      "count": 21
+    },
+    {
+      "recommendation": "Increase size to at least 44x44px",
+      "count": 6
+    }
+  ]
+}

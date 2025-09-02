@@ -46,7 +46,7 @@ export default function EducationFlowDemo() {
             <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
               <Play className="w-8 h-8 text-white" />
             </div>
-            <h2 className="text-2xl font-bold text-white mb-4">Welcome to Mingus!</h2>
+            <h2 className="text-2xl font-bold text-white mb-4" className="text-2xl font-semibold text-gray-800 mb-4">Welcome to Mingus!</h2>
             <p className="text-gray-300 mb-6">
               You're all set to start your financial wellness journey. 
               Ready to take control of your money and your life?
@@ -73,7 +73,7 @@ export default function EducationFlowDemo() {
         className="text-center"
       >
         <div className="bg-gray-900 rounded-xl p-8 shadow-lg text-white max-w-md mx-auto">
-          <h1 className="text-3xl font-bold text-white mb-4">Welcome to Mingus</h1>
+          <h1 className="text-3xl font-bold text-white mb-4" className="text-4xl font-bold text-gray-900 mb-6">Welcome to Mingus</h1>
           <p className="text-gray-300 mb-6">
             Let's take a quick tour to see how Mingus can help you achieve financial wellness 
             that fits your real life.
@@ -87,7 +87,7 @@ export default function EducationFlowDemo() {
           </button>
           <button
             onClick={handleSkipEducation}
-            className="mt-4 text-gray-400 hover:text-gray-300 underline text-sm"
+            className="mt-4 text-gray-400 hover:text-gray-300 underline text-base leading-relaxed"
           >
             Skip for now
           </button>

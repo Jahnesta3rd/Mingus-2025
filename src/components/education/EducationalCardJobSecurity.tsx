@@ -66,7 +66,7 @@ export default function EducationalCardJobSecurity({ onSeeScore, testimonialInde
       aria-labelledby="career-confidence-title"
     >
       <div className="flex items-center justify-between mb-4">
-        <h2 id="career-confidence-title" className="text-2xl font-bold text-blue-400">
+        <h2 id="career-confidence-title" className="text-2xl font-bold text-blue-400" className="text-2xl font-semibold text-gray-800 mb-4">
           Your Career Confidence Score
         </h2>
         <motion.div
@@ -107,7 +107,7 @@ export default function EducationalCardJobSecurity({ onSeeScore, testimonialInde
       </ul>
 
       <button
-        className="text-blue-400 underline mb-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-gray-900 rounded"
+        className="text-blue-400 underline mb-2 text-base leading-relaxed focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-gray-900 rounded"
         onClick={() => setExpanded((e) => !e)}
         onKeyDown={handleKeyDown}
         aria-expanded={expanded}
@@ -132,7 +132,7 @@ export default function EducationalCardJobSecurity({ onSeeScore, testimonialInde
             {/* Animated Progress Bar */}
             <div className="mb-4">
               <div className="flex items-center mb-1">
-                <span className="text-sm text-gray-400 mr-2">Demo Score</span>
+                <span className="text-base leading-relaxed text-gray-400 mr-2">Demo Score</span>
                 <TrendingUp className="w-4 h-4 text-blue-400" aria-hidden="true" />
               </div>
               <div 
@@ -156,7 +156,7 @@ export default function EducationalCardJobSecurity({ onSeeScore, testimonialInde
             {/* Data Visualization Preview */}
             <div className="mb-4 p-3 bg-gray-800 rounded-lg">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm text-gray-400">Industry Analysis Preview</span>
+                <span className="text-base leading-relaxed text-gray-400">Industry Analysis Preview</span>
                 <div className="flex space-x-1" aria-hidden="true">
                   <Building className="w-4 h-4 text-blue-400" />
                   <Users className="w-4 h-4 text-green-400" />
@@ -187,7 +187,7 @@ export default function EducationalCardJobSecurity({ onSeeScore, testimonialInde
                 <circle cx="80" cy="15" r="3" fill="#60a5fa" />
                 <circle cx="100" cy="10" r="3" fill="#60a5fa" />
               </svg>
-              <div className="text-xs text-gray-400">
+              <div className="text-base leading-relaxed text-gray-400">
                 Growth trend: +12% YoY • Local demand: High • Skills gap: Low
               </div>
             </div>
@@ -236,7 +236,7 @@ export default function EducationalCardJobSecurity({ onSeeScore, testimonialInde
       </AnimatePresence>
 
       {/* Testimonial */}
-      <div className="mt-4 text-sm text-gray-400 italic border-t border-gray-800 pt-2">
+      <div className="mt-4 text-base leading-relaxed text-gray-400 italic border-t border-gray-800 pt-2">
         <blockquote>
           <span>"{testimonials[testimonialIndex % testimonials.length].quote}"</span>
           <footer className="block text-right text-gray-500 mt-1">

@@ -58,8 +58,8 @@ A comprehensive Stripe integration has been successfully implemented for the MIN
   - 5 investment accounts
   - 20 custom categories
 
-#### 🔴 Professional Tier ($75/month)
-- **Price**: $75/month or $720/year (20% discount)
+#### 🔴 Professional Tier ($100/month)
+- **Price**: $100/month or $960/year (20% discount)
 - **Features**: All Mid-Tier features plus:
   - Unlimited access to all features
   - Dedicated account manager

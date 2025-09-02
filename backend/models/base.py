@@ -2,7 +2,11 @@
 Shared SQLAlchemy Base for all models
 This ensures all models use the same metadata registry
 """
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import DeclarativeBase
 
-# Single shared Base for all models
-Base = declarative_base() 
+class Base(DeclarativeBase):
+    """Base class for all SQLAlchemy models"""
+    pass
+
+# Export the Base class
+__all__ = ['Base'] 

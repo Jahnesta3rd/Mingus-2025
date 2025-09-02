@@ -170,7 +170,7 @@ const GoalsSetup: React.FC = () => {
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
         <div className="text-center">
           <div className="text-red-500 text-6xl mb-4">⚠️</div>
-          <h2 className="text-xl font-semibold text-gray-800 mb-2">Something went wrong</h2>
+          <h2 className="text-xl font-semibold text-gray-800 mb-2" className="text-2xl font-semibold text-gray-800 mb-4">Something went wrong</h2>
           <p className="text-gray-600 mb-4">{error}</p>
           <button 
             onClick={() => window.location.reload()}
@@ -189,8 +189,8 @@ const GoalsSetup: React.FC = () => {
       <div className="bg-white shadow-sm">
         <div className="max-w-4xl mx-auto px-4 py-3">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-blue-600">Step 4 of 8</span>
-            <span className="text-sm text-gray-500">Goals Setting</span>
+            <span className="text-base leading-relaxed font-medium text-blue-600">Step 4 of 8</span>
+            <span className="text-base leading-relaxed text-gray-500">Goals Setting</span>
           </div>
           <div className="w-full bg-gray-200 rounded-full h-2">
             <div className="bg-gradient-to-r from-blue-500 to-indigo-600 h-2 rounded-full" style={{ width: '50%' }}></div>
@@ -201,7 +201,7 @@ const GoalsSetup: React.FC = () => {
       <div className="max-w-4xl mx-auto px-4 py-8">
         {/* Welcome/Intro Section */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4" className="text-4xl font-bold text-gray-900 mb-6">
             Let's Set Your Financial Goals 🎯
           </h1>
           <p className="text-xl text-gray-600 mb-6 max-w-2xl mx-auto">
@@ -216,7 +216,7 @@ const GoalsSetup: React.FC = () => {
 
         {/* Goal Type Selector */}
         <div className="mb-12">
-          <h2 className="text-2xl font-semibold text-gray-900 mb-6 text-center">
+          <h2 className="text-2xl font-semibold text-gray-900 mb-6 text-center" className="text-2xl font-semibold text-gray-800 mb-4">
             Choose Your Financial Goals
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -238,7 +238,7 @@ const GoalsSetup: React.FC = () => {
         {selectedGoals.length > 0 && (
           <div className="bg-white rounded-2xl shadow-xl p-8 mb-8">
             <div className="text-center mb-8">
-              <h2 className="text-2xl font-semibold text-gray-900 mb-2">
+              <h2 className="text-2xl font-semibold text-gray-900 mb-2" className="text-2xl font-semibold text-gray-800 mb-4">
                 {currentGoal.name} Details
               </h2>
               <p className="text-gray-600">
@@ -305,13 +305,13 @@ const GoalsSetup: React.FC = () => {
             {/* Contribution Analysis */}
             <div className="mb-8">
               <div className="bg-gradient-to-r from-green-50 to-blue-50 p-6 rounded-xl border border-green-200">
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                <h3 className="text-lg font-semibold text-gray-900 mb-2" className="text-xl font-semibold text-gray-800 mb-3">
                   Monthly Contribution Needed
                 </h3>
                 <div className="text-3xl font-bold text-green-600 mb-2">
                   ${calculateMonthlyContribution().toLocaleString()}
                 </div>
-                <div className="text-sm text-gray-600">
+                <div className="text-base leading-relaxed text-gray-600">
                   {calculateMonthlyContribution() <= (userFinances?.monthlyIncome || 0) * 0.3
                     ? "✅ Achievable with your current income"
                     : "⚠️ This is a stretch goal - consider adjusting timeline or amount"}
@@ -390,7 +390,7 @@ const GoalsSetup: React.FC = () => {
           </button>
           
           {selectedGoals.length > 0 && (
-            <div className="text-sm text-gray-500">
+            <div className="text-base leading-relaxed text-gray-500">
               {goals.length} goal{goals.length !== 1 ? 's' : ''} saved
             </div>
           )}

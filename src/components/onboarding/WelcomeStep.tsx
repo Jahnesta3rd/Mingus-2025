@@ -33,7 +33,7 @@ const WelcomeStep: React.FC = () => {
       <div className="container mx-auto px-4 py-12">
         <div className="max-w-2xl mx-auto text-center">
           <div className="mb-8">
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">
+            <h1 className="text-4xl font-bold text-gray-900 mb-4" className="text-4xl font-bold text-gray-900 mb-6">
               Welcome to Mingus! 👋
             </h1>
             <p className="text-xl text-gray-600 mb-6">
@@ -42,36 +42,36 @@ const WelcomeStep: React.FC = () => {
           </div>
 
           <div className="bg-white rounded-lg shadow-lg p-8 mb-8">
-            <h2 className="text-2xl font-semibold mb-6">What makes Mingus different?</h2>
+            <h2 className="text-2xl font-semibold mb-6" className="text-2xl font-semibold text-gray-800 mb-4">What makes Mingus different?</h2>
             
             <div className="grid md:grid-cols-3 gap-6 mb-8">
               <div className="text-center">
                 <div className="text-3xl mb-2">🏃‍♀️</div>
-                <h3 className="font-medium mb-2">Health Connection</h3>
-                <p className="text-sm text-gray-600">
+                <h3 className="font-medium mb-2" className="text-xl font-semibold text-gray-800 mb-3">Health Connection</h3>
+                <p className="text-base leading-relaxed text-gray-600">
                   See how stress and wellness impact your spending
                 </p>
               </div>
               
               <div className="text-center">
                 <div className="text-3xl mb-2">📊</div>
-                <h3 className="font-medium mb-2">Job Security</h3>
-                <p className="text-sm text-gray-600">
+                <h3 className="font-medium mb-2" className="text-xl font-semibold text-gray-800 mb-3">Job Security</h3>
+                <p className="text-base leading-relaxed text-gray-600">
                   Early warning system for employment risks
                 </p>
               </div>
               
               <div className="text-center">
                 <div className="text-3xl mb-2">🎯</div>
-                <h3 className="font-medium mb-2">Life Planning</h3>
-                <p className="text-sm text-gray-600">
+                <h3 className="font-medium mb-2" className="text-xl font-semibold text-gray-800 mb-3">Life Planning</h3>
+                <p className="text-base leading-relaxed text-gray-600">
                   Plan for what matters: birthdays, trips, goals
                 </p>
               </div>
             </div>
 
             <div className="bg-blue-50 rounded-lg p-4 mb-6">
-              <p className="text-sm text-blue-800">
+              <p className="text-base leading-relaxed text-blue-800">
                 ⏱️ This setup takes about 25 minutes. You can save your progress and return anytime.
               </p>
             </div>

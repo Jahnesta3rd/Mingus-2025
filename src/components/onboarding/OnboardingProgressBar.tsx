@@ -76,10 +76,10 @@ export const OnboardingProgressBar: React.FC<OnboardingProgressBarProps> = ({
       {/* Progress Bar */}
       <div className="mb-4">
         <div className="flex justify-between items-center mb-2">
-          <span className="text-sm font-medium text-gray-700">
+          <span className="text-base leading-relaxed font-medium text-gray-700">
             Step {summary.completedSteps + 1} of {summary.totalSteps}
           </span>
-          <span className="text-sm font-medium text-gray-700">
+          <span className="text-base leading-relaxed font-medium text-gray-700">
             {progress.progressPercentage}% Complete
           </span>
         </div>
@@ -102,7 +102,7 @@ export const OnboardingProgressBar: React.FC<OnboardingProgressBarProps> = ({
             return (
               <div key={step.id} className="flex flex-col items-center">
                 <div className={`
-                  w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium
+                  w-8 h-8 rounded-full flex items-center justify-center text-base leading-relaxed font-medium
                   ${isCompleted ? 'bg-green-500 text-white' : 
                     isCurrent ? 'bg-blue-600 text-white' : 
                     isAccessible ? 'bg-gray-300 text-gray-600' : 'bg-gray-200 text-gray-400'}
@@ -110,7 +110,7 @@ export const OnboardingProgressBar: React.FC<OnboardingProgressBarProps> = ({
                   {isCompleted ? '✓' : index + 1}
                 </div>
                 <span className={`
-                  text-xs mt-1 text-center max-w-16
+                  text-base leading-relaxed mt-1 text-center max-w-16
                   ${isCurrent ? 'text-blue-600 font-medium' : 'text-gray-500'}
                 `}>
                   {step.title.split(' ')[0]}
@@ -124,7 +124,7 @@ export const OnboardingProgressBar: React.FC<OnboardingProgressBarProps> = ({
       {/* Time Estimate */}
       {showTimeEstimate && summary.estimatedTimeRemaining > 0 && (
         <div className="text-center">
-          <span className="text-sm text-gray-600">
+          <span className="text-base leading-relaxed text-gray-600">
             About {summary.estimatedTimeRemaining} minutes remaining
           </span>
         </div>

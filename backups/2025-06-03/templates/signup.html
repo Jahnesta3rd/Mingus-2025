@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="stylesheet" href="touch_target_optimization.css">
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Complete Your Profile - Mingus</title>
@@ -38,7 +40,7 @@
                         required
                         minlength="2"
                         maxlength="100"
-                    >
+                     class="form-input">
                     <span v-if="validationErrors.full_name" class="error-text">
                         [[ validationErrors.full_name ]]
                     </span>
@@ -52,7 +54,7 @@
                         v-model="formData.email"
                         :class="{'error': validationErrors.email}"
                         required
-                    >
+                     class="form-input">
                     <span v-if="validationErrors.email" class="error-text">
                         [[ validationErrors.email ]]
                     </span>
@@ -65,7 +67,7 @@
                         v-model="formData.income_range"
                         :class="{'error': validationErrors.income_range}"
                         required
-                    >
+                     class="form-input">
                         <option value="">Select Income Range</option>
                         <option value="under_25k">Under $25,000</option>
                         <option value="25k_50k">$25,000 - $50,000</option>
@@ -80,7 +82,7 @@
                     </span>
                 </div>
 
-                <button type="submit" class="btn btn-primary" :disabled="loading">
+                <button type="submit" class="btn btn-primary btn-cta btn-primary" :disabled="loading">
                     <span v-if="loading">Creating Account...</span>
                     <span v-else>Complete Signup</span>
                 </button>

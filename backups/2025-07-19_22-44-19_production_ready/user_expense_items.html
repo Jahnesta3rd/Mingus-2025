@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="stylesheet" href="touch_target_optimization.css">
+
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>User Expense Items</title>
@@ -82,7 +84,7 @@
         // Frequency
         const freqLabel = document.createElement('label');
         freqLabel.innerHTML = `Frequency
-          <select name="${cat.name}_frequency">
+          <select name="${cat.name}_frequency" class="form-input">
             <option value="monthly">Monthly</option>
             <option value="bi-weekly">Bi-weekly</option>
             <option value="weekly">Weekly</option>

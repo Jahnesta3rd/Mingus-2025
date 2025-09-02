@@ -190,9 +190,9 @@ const JobSecurityExample: React.FC = () => {
   };
 
   return (
-    <div className="max-w-6xl mx-auto p-6">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">Job Security Analysis</h1>
+    <div className="max-w-6xl mx-auto p-6 mb-6">
+      <div className="mb-6 mb-6">
+        <h1 className="text-2xl font-bold text-gray-900 mb-2" className="text-4xl font-bold text-gray-900 mb-6">Job Security Analysis</h1>
         <p className="text-gray-600">
           Comprehensive analysis of your job security based on personal perceptions and external market data.
         </p>
@@ -212,9 +212,9 @@ const JobSecurityExample: React.FC = () => {
       )}
 
       {/* Integration Notes */}
-      <div className="bg-blue-50 rounded-lg p-6 border border-blue-200">
-        <h3 className="text-lg font-semibold text-blue-900 mb-3">Integration Notes</h3>
-        <div className="space-y-2 text-sm text-blue-800">
+      <div className="bg-blue-50 rounded-lg p-6 border border-blue-200 mb-6">
+        <h3 className="text-lg font-semibold text-blue-900 mb-3" className="text-xl font-semibold text-gray-800 mb-3">Integration Notes</h3>
+        <div className="space-y-2 text-base leading-relaxed text-blue-800 mb-6">
           <p>• This component integrates seamlessly with your existing health dashboard</p>
           <p>• Uses the same design patterns and color schemes as other Mingus components</p>
           <p>• Mobile-responsive and accessible</p>

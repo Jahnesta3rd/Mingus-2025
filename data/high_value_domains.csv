@@ -1,0 +1,48 @@
+domain,url_count,quality_score,cultural_relevance_score,confidence,reasoning,sample_urls
+schema.org,88,0.8,0.0,0.95,High-quality educational/financial content,http://schema.org/Organization; http://schema.org/HttpRequestMethod/GET; http://schema.org/Even=
+www.facebook.com,36,0.8,0.0,0.95,High-quality educational/financial content,https://www.facebook.com/groups/2454945414555490/permalink/3198742610175763/; https://www.facebook.com/groups/2454945414555490/permalink/3201410599908964/; https://www.facebook.com/groups/2454945414555490/
+link.mail.bloombergbusiness.com,32,0.8,0.0,0.95,High-quality educational/financial content,https://link.mail.bloombergbusiness.com/oc/5ecd2290a944fe40b4160bd25ecd22917a72d6731de2bc4a/dce44b73; https://link.mail.bloombergbusiness.com/click/5ecd22917a72d6731de2bc4a/aHR0cDovL3d3dy5ibG9vbWJlcmcuY29tL3dvcmt3aXNlP3V0bV9tZWRpdW09ZW1haWwmdXRtX3NvdXJjZT1uZXdzbGV0dGVyJnV0bV9jYW1wYWlnbj13b3Jrd2lzZQ/5ecd2290a944fe40b4160bd2Bf16733a8; https://link.mail.bloombergbusiness.com/img/5ecd2290a944fe40b4160bd25ecd22917a72d6731de2bc4a/b15c7098.gif
+www.gorick.com,23,0.7000000000000001,0.0,0.95,High-quality educational/financial content,https://www.gorick.com/early-career-success-mas=; https://www.gorick.com/unspokenrules)**_; https://www.gorick.com/blog/goricks-newsletter-edition-94)
+newsletter.epsilontheory.com,11,0.8,0.0,0.95,High-quality educational/financial content,http://newsletter.epsilontheory.com/wf/open?upn=3DYSbL-2Fjzpwbt%3D; http://newsletter.epsilontheory.com/ls/click?upn=3DWT5pCxP-2B%3D; http://newsletter.epsilontheory.com/wf/unsubscribe?upn=3DYSbL-2FjzpwbtZ%3D
+slidebean.com,10,0.8,0.0,0.95,High-quality educational/financial content,https://slidebean.com/financial-ecommerce-email; http://slidebean.com/financial-model-template-free-download; https://slidebean.com/financial-saas-email
+www.safalniveshak.com,6,0.8,0.0,0.95,High-quality educational/financial content,http://www.safalniveshak.com/analyze-busi=; https://www.safalniveshak.com/analyze-business-sherlock-holmes-way/; https://www.safalniveshak.com/analyze-busi=
+www.rmahq.org,6,0.8,0.0,0.95,High-quality educational/financial content,https://www.rmahq.org/small-business-banking-conference-in-nashville-talks-a=; https://www.rmahq.org/small-busine=; http://www.rmahq.org/small-business-banki=
+www.businessinsider.com,6,0.8,0.0,0.95,High-quality educational/financial content,https://www.businessinsider.com/best-pitch-decks-startups-funding-ven=; https://www.businessinsider.com/fabric-pitch-deck-secured-nine-mi=; https://www.businessinsider.com/best-pitc=
+sailthru-media.s3.amazonaws.com,5,0.8,0.0,0.95,High-quality educational/financial content,https://sailthru-media.s3.amazonaws.com/composer/images/sailthru-prod-4wm/email-header.jpg; https://sailthru-media.s3.amazonaws.com/composer/images=; https://sailthru-media.s3.amazonaws.com/composer/im=
+www.GraphiteFinancial.com,5,0.8,0.0,0.95,High-quality educational/financial content,https://www.GraphiteFinancial.com; https://www.GraphiteFinancial.com; https://www.GraphiteFinancial.com
+www.graphitefinancial.com,5,0.8,0.0,0.95,High-quality educational/financial content,https://www.graphitefinancial.com/); https://www.graphitefinancial.com/); https://www.graphitefinancial.com/)
+futurism.com,5,0.8,0.0,0.95,High-quality educational/financial content,https://futurism.com/ai-industry-nervous-money); https://futurism.com/ai-impossible-find-job); https://futurism.com/ai-impossible-find-job)=20
+www.masterworks.io,4,0.8,0.0,0.95,High-quality educational/financial content,https://www.masterworks.io/; https://www.masterworks.io/; https://www.masterworks.io/research/post/O0p5MYsza0Y6YcC2Pu6=
+media.beehiiv.com,4,0.8,0.0,0.95,High-quality educational/financial content,"https://media.beehiiv.com/cdn-cgi/image/fit=3Dscale-down,forma=; https://media.beehiiv.com/cdn-cgi/image/fit=3Dscale-down,forma=; https://media.beehiiv.com/cdn-cgi/image/fit=3Dscale-down,forma="
+sailthru-media=,3,0.8,0.0,0.95,High-quality educational/financial content,https://sailthru-media=; https://sailthru-media=; https://sailthru-media=
+sailthru-media.s3.amazonaw=,3,0.8,0.0,0.95,High-quality educational/financial content,https://sailthru-media.s3.amazonaw=; https://sailthru-media.s3.amazonaw=; https://sailthru-media.s3.amazonaw=
+sailthru-media.s=,3,0.8,0.0,0.95,High-quality educational/financial content,https://sailthru-media.s=; https://sailthru-media.s=; https://sailthru-media.s=
+graphitefinancial.us19.list-manag=,3,0.8,0.0,0.95,High-quality educational/financial content,https://graphitefinancial.us19.list-manag=; https://graphitefinancial.us19.list-manag=; https://graphitefinancial.us19.list-manag=
+www.bbc.com,3,0.8,0.0,0.95,High-quality educational/financial content,https://www.bbc.com/news/world-middle-east-57340973; https://www.bbc.com/future/artic=; https://www.bbc.com/news/world-us-canada-57342967
+www.msn.com,3,0.8000000000000002,0.0,0.95,High-quality educational/financial content,https://www.msn.com/en-us/news/politics/doj-investigating-trump-appointed-postma=; https://www.msn.com/en-us/money/smallbusi=; https://www.msn.com/en-us/money/smallbusiness/elon-musk-thinks-eve=
+go.businessbldrs.com,3,0.8,0.0,0.95,High-quality educational/financial content,https://go.businessbldrs.com/e3t/Btc/DH+113/c34q904/MVKLDT2S2-NW=; https://go.businessbldrs.com/hs/manage-preferences/unsu=; https://go.businessbldrs.com/hs/manage-preferences/unsubscribe=
+www.pcmag.com,3,0.8,0.0,0.95,High-quality educational/financial content,https://www.pcmag.com/reviews/learnvest; https://www.pcmag.com/reviews/clarity-mon=; https://www.pcmag.com/reviews/clarity-money
+fitsmallbusiness.com,2,0.65,0.0,0.95,High-quality educational/financial content,http://fitsmallbusiness.com/small-business-blogs/; http://fitsmallbusiness.com/small-busines=
+cdn.financebuzz.=,2,0.8,0.0,0.95,High-quality educational/financial content,https://cdn.financebuzz.=; https://cdn.financebuzz.=
+cdn.finance=,2,0.8,0.0,0.95,High-quality educational/financial content,https://cdn.finance=; https://cdn.finance=
+www.financialsamurai.com,2,0.8,0.0,0.95,High-quality educational/financial content,https://www.financialsamurai.com/minimum-income-necessary-to=; https://www.financialsamurai.com/minimum-=
+www.sfgate.com,2,0.65,0.0,0.95,High-quality educational/financial content,https://www.sfgate.com/news/article/influ=; https://www.sfgate.com/news/article/influencers-lead-Gen-Z-into-debt-171=
+profgmedia.com,2,0.8,0.0,0.95,High-quality educational/financial content,https://profgmedia.com/no-mercy-=; https://profgmedia.com/chart-of-the-week/
+newsletter.gorick.com,2,0.8,0.0,0.95,High-quality educational/financial content,https://newsletter.gorick.com/p/career-change-at-37; https://newsletter.gorick.com/p/ask-gorick-from-corporate-to-solopreneur
+www.jhmediagroup.com,1,0.8,0.0,0.95,High-quality educational/financial content,https://www.jhmediagroup.com
+newsletter.epsilo=,1,0.8,0.0,0.95,High-quality educational/financial content,http://newsletter.epsilo=
+fs.blog,1,0.65,0.0,0.95,High-quality educational/financial content,https://fs.blog/newsletter/?rh_ref=3D5e684429
+newsletter.epsilontheory.co=,1,0.8,0.0,0.95,High-quality educational/financial content,http://newsletter.epsilontheory.co=
+www.restaurantbusinessonline.com,1,0.8,0.0,0.95,High-quality educational/financial content,https://www.restaurantbusinessonline.com/operations/farewell-let=
+wwd.com,1,0.8,0.0,0.95,High-quality educational/financial content,https://wwd.com/beauty-industry-news/beauty-features/ceremoni=
+apnews.com,1,0.65,0.0,0.95,High-quality educational/financial content,https://apnews.com/article/middle-east-062e6baf13e774f30c4e697cb9f2=
+www.yahoo.com,1,0.8,0.0,0.95,High-quality educational/financial content,https://www.yahoo.com/news/20-foot-sea-wall-miami-120248771=
+www.morningstar.com,1,0.6,0.0,0.8999999999999999,High-quality educational/financial content,https://www.morningstar.com/articles/868718/get-financial-advice-first-inve=
+tracewealthadvisors.c=,1,0.8,0.0,0.95,High-quality educational/financial content,https://tracewealthadvisors.c=
+sailthru-media.s3.amazo=,1,0.8,0.0,0.95,High-quality educational/financial content,https://sailthru-media.s3.amazo=
+sailthru-media.s3.amazon=,1,0.8,0.0,0.95,High-quality educational/financial content,https://sailthru-media.s3.amazon=
+sailthru-media.s3.amazonaws=,1,0.8,0.0,0.95,High-quality educational/financial content,https://sailthru-media.s3.amazonaws=
+tt.loopnews.=,1,0.8,0.0,0.95,High-quality educational/financial content,https://tt.loopnews.=
+www.creativebloq.com,1,0.8,0.0,0.95,High-quality educational/financial content,https://www.creativebloq.com/news/m=
+www.theguardian.com,1,0.8,0.0,0.95,High-quality educational/financial content,https://www.theguardian.com/news/2022/may/26/mea=
+www.bleepingcomputer.com,1,0.8,0.0,0.95,High-quality educational/financial content,https://www.bleepingcomputer.com/news/artificial-intelligence/h=

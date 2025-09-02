@@ -85,7 +85,7 @@ class StripeService:
             name="Mid-Tier",
             price_monthly=3500,  # $35.00
             price_yearly=33600,  # $336.00 (20% discount)
-            description="Advanced features for serious personal finance management",
+            description="Ideal for serious users who want advanced financial insights and career protection",
             features={
                 "basic_analytics": True,
                 "goal_setting": True,
@@ -106,7 +106,7 @@ class StripeService:
             limits={
                 "analytics_reports_per_month": 20,
                 "goals_per_account": 10,
-                "data_export_per_month": 10,
+                "data_export_per_month": 5,
                 "support_requests_per_month": 10,
                 "transaction_history_months": 36,
                 "ai_insights_per_month": 50,
@@ -116,9 +116,9 @@ class StripeService:
         ),
         SubscriptionTier.PROFESSIONAL: TierFeatures(
             name="Professional Tier",
-            price_monthly=9900,  # $99.00
-            price_yearly=95040,  # $950.40 (20% discount)
-            description="Unlimited access with dedicated support for professionals",
+            price_monthly=10000,  # $100.00
+            price_yearly=96000,   # $960.00 (20% discount)
+            description="Comprehensive solution for professionals, teams, and businesses",
             features={
                 "basic_analytics": True,
                 "goal_setting": True,

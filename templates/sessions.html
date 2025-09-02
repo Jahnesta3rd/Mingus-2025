@@ -1,0 +1,191 @@
+{% extends "base.html" %}
+
+{% block title %}Active Sessions - Secure Financial Portal{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">Active Sessions</h2>
+        <p style="margin: 0; color: #666;">Manage your active sessions across all devices</p>
+    </div>
+    
+    <div style="margin-bottom: 1.5rem;">
+        <button class="btn btn-danger btn-cta btn-primary" onclick="logoutAllDevices()">
+            Logout All Devices
+        </button>
+        <button class="btn btn-primary btn-cta btn-primary" onclick="refreshSessions()">
+            Refresh Sessions
+        </button>
+    </div>
+
+    <div id="sessionsContainer">
+        <div style="text-align: center; padding: 2rem;">
+            <div style="color: #666;">Loading sessions...</div>
+        </div>
+    </div>
+</div>
+
+<script>
+let sessions = [];
+
+async function loadSessions() {
+    try {
+        const response = await fetch('/api/sessions');
+        sessions = await response.json();
+        displaySessions();
+    } catch (error) {
+        console.error('Failed to load sessions:', error);
+        document.getElementById('sessionsContainer').innerHTML = 
+            '<div class="alert alert-error">Failed to load sessions. Please try again.</div>';
+    }
+}
+
+function displaySessions() {
+    const container = document.getElementById('sessionsContainer');
+    
+    if (sessions.length === 0) {
+        container.innerHTML = `
+            <div style="text-align: center; padding: 2rem; color: #666;">
+                <p>No active sessions found.</p>
+            </div>
+        `;
+        return;
+    }
+    
+    const sessionsHtml = sessions.map(session => {
+        const isCurrent = session.is_current;
+        const lastActivity = new Date(session.last_activity);
+        const timeAgo = getTimeAgo(lastActivity);
+        
+        return `
+            <div class="card" style="margin-bottom: 1rem; border-left: 4px solid ${isCurrent ? 'var(--primary-color)' : 'var(--success-color)'}">
+                <div style="display: flex; justify-content: between; align-items: flex-start;">
+                    <div style="flex: 1;">
+                        <div style="display: flex; align-items: center; margin-bottom: 0.5rem;">
+                            <span class="session-status ${isCurrent ? 'current' : 'active'}"></span>
+                            <strong>${session.device_info}</strong>
+                            ${isCurrent ? '<span style="margin-left: 0.5rem; background: var(--primary-color); color: white; padding: 0.2rem 0.5rem; border-radius: 12px; font-size: 0.75rem;">Current Session</span>' : ''}
+                        </div>
+                        
+                        <div style="margin-bottom: 0.5rem;">
+                            <strong>IP Address:</strong> ${session.ip_address}
+                        </div>
+                        
+                        <div style="margin-bottom: 0.5rem;">
+                            <strong>Location:</strong> ${session.location || 'Unknown Location'}
+                        </div>
+                        
+                        <div style="margin-bottom: 0.5rem;">
+                            <strong>Created:</strong> ${new Date(session.created_at).toLocaleString()}
+                        </div>
+                        
+                        <div style="margin-bottom: 0.5rem;">
+                            <strong>Last Activity:</strong> ${lastActivity.toLocaleString()} (${timeAgo})
+                        </div>
+                    </div>
+                    
+                    <div style="margin-left: 1rem;">
+                        ${!isCurrent ? `<button class="btn btn-danger btn-cta btn-primary" onclick="terminateSession(${session.id})">Terminate</button>` : ''}
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+    
+    container.innerHTML = sessionsHtml;
+}
+
+function getTimeAgo(date) {
+    const now = new Date();
+    const diffMs = now - date;
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMins / 60);
+    const diffDays = Math.floor(diffHours / 24);
+    
+    if (diffDays > 0) {
+        return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+    } else if (diffHours > 0) {
+        return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+    } else if (diffMins > 0) {
+        return `${diffMins} minute${diffMins > 1 ? 's' : ''} ago`;
+    } else {
+        return 'Just now';
+    }
+}
+
+async function terminateSession(sessionId) {
+    if (!confirm('Are you sure you want to terminate this session?')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/api/terminate_session/${sessionId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (response.ok) {
+            // Remove session from local array
+            sessions = sessions.filter(s => s.id !== sessionId);
+            displaySessions();
+            
+            // Show success message
+            const alert = document.createElement('div');
+            alert.className = 'alert alert-success';
+            alert.textContent = 'Session terminated successfully.';
+            document.getElementById('sessionsContainer').insertBefore(alert, document.getElementById('sessionsContainer').firstChild);
+            
+            setTimeout(() => alert.remove(), 3000);
+        } else {
+            throw new Error('Failed to terminate session');
+        }
+    } catch (error) {
+        console.error('Failed to terminate session:', error);
+        const alert = document.createElement('div');
+        alert.className = 'alert alert-error';
+        alert.textContent = 'Failed to terminate session. Please try again.';
+        document.getElementById('sessionsContainer').insertBefore(alert, document.getElementById('sessionsContainer').firstChild);
+        
+        setTimeout(() => alert.remove(), 3000);
+    }
+}
+
+async function logoutAllDevices() {
+    if (!confirm('Are you sure you want to log out from all devices? This will terminate all active sessions.')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch('/logout_all_devices', {
+            method: 'GET'
+        });
+        
+        if (response.ok) {
+            window.location.href = '/login';
+        } else {
+            throw new Error('Failed to logout all devices');
+        }
+    } catch (error) {
+        console.error('Failed to logout all devices:', error);
+        const alert = document.createElement('div');
+        alert.className = 'alert alert-error';
+        alert.textContent = 'Failed to logout all devices. Please try again.';
+        document.getElementById('sessionsContainer').insertBefore(alert, document.getElementById('sessionsContainer').firstChild);
+        
+        setTimeout(() => alert.remove(), 3000);
+    }
+}
+
+function refreshSessions() {
+    loadSessions();
+}
+
+// Load sessions on page load
+loadSessions();
+
+// Auto-refresh sessions every 30 seconds
+setInterval(loadSessions, 30000);
+</script>
+{% endblock %}

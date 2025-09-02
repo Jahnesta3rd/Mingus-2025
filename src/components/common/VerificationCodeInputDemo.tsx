@@ -54,7 +54,7 @@ export const VerificationCodeInputDemo: React.FC = () => {
       <div className="max-w-2xl mx-auto space-y-8">
         {/* Header */}
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-white mb-2">
+          <h1 className="text-3xl font-bold text-white mb-2" className="text-4xl font-bold text-gray-900 mb-6">
             Verification Code Input Component
           </h1>
           <p className="text-gray-400">
@@ -64,7 +64,7 @@ export const VerificationCodeInputDemo: React.FC = () => {
 
         {/* Demo Mode Selector */}
         <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
-          <h2 className="text-xl font-semibold text-white mb-4">Demo Modes</h2>
+          <h2 className="text-xl font-semibold text-white mb-4" className="text-2xl font-semibold text-gray-800 mb-4">Demo Modes</h2>
           <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
             {[
               { key: 'basic', label: 'Basic', description: 'Standard input' },
@@ -76,7 +76,7 @@ export const VerificationCodeInputDemo: React.FC = () => {
               <button
                 key={mode.key}
                 onClick={() => setDemoMode(mode.key as any)}
-                className={`p-3 rounded-lg text-sm font-medium transition-colors ${
+                className={`p-3 rounded-lg text-base leading-relaxed font-medium transition-colors ${
                   demoMode === mode.key
                     ? 'bg-green-600 text-white'
                     : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
@@ -91,7 +91,7 @@ export const VerificationCodeInputDemo: React.FC = () => {
 
         {/* Main Demo */}
         <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
-          <h2 className="text-xl font-semibold text-white mb-4">
+          <h2 className="text-xl font-semibold text-white mb-4" className="text-2xl font-semibold text-gray-800 mb-4">
             {demoMode.charAt(0).toUpperCase() + demoMode.slice(1)} Mode
           </h2>
           
@@ -110,11 +110,11 @@ export const VerificationCodeInputDemo: React.FC = () => {
 
             {/* Current State Display */}
             <div className="w-full max-w-md space-y-2">
-              <div className="p-3 bg-gray-700 rounded text-sm text-gray-300">
+              <div className="p-3 bg-gray-700 rounded text-base leading-relaxed text-gray-300">
                 <strong>Current code:</strong> {code || 'None'}
               </div>
               
-              <div className="p-3 bg-gray-700 rounded text-sm text-gray-300">
+              <div className="p-3 bg-gray-700 rounded text-base leading-relaxed text-gray-300">
                 <strong>Status:</strong> {
                   loading ? 'Verifying...' :
                   error ? 'Error' :
@@ -125,9 +125,9 @@ export const VerificationCodeInputDemo: React.FC = () => {
               </div>
 
               {/* Instructions */}
-              <div className="p-3 bg-blue-900/20 border border-blue-500/30 rounded text-sm text-blue-300">
+              <div className="p-3 bg-blue-900/20 border border-blue-500/30 rounded text-base leading-relaxed text-blue-300">
                 <strong>Instructions:</strong>
-                <ul className="mt-1 space-y-1 text-xs">
+                <ul className="mt-1 space-y-1 text-base leading-relaxed">
                   <li>• Type digits to auto-advance</li>
                   <li>• Use backspace to go back</li>
                   <li>• Paste a 6-digit code</li>
@@ -138,7 +138,7 @@ export const VerificationCodeInputDemo: React.FC = () => {
 
               {/* Demo-specific instructions */}
               {demoMode === 'loading' && (
-                <div className="p-3 bg-yellow-900/20 border border-yellow-500/30 rounded text-sm text-yellow-300">
+                <div className="p-3 bg-yellow-900/20 border border-yellow-500/30 rounded text-base leading-relaxed text-yellow-300">
                   <strong>Demo:</strong> Enter "123456" for success, any other code for error
                 </div>
               )}
@@ -148,7 +148,7 @@ export const VerificationCodeInputDemo: React.FC = () => {
 
         {/* Features Showcase */}
         <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
-          <h2 className="text-xl font-semibold text-white mb-4">Features</h2>
+          <h2 className="text-xl font-semibold text-white mb-4" className="text-2xl font-semibold text-gray-800 mb-4">Features</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <div className="flex items-center text-green-400">
@@ -207,12 +207,12 @@ export const VerificationCodeInputDemo: React.FC = () => {
 
         {/* Usage Examples */}
         <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
-          <h2 className="text-xl font-semibold text-white mb-4">Usage Examples</h2>
+          <h2 className="text-xl font-semibold text-white mb-4" className="text-2xl font-semibold text-gray-800 mb-4">Usage Examples</h2>
           
           <div className="space-y-4">
             <div>
-              <h3 className="text-lg font-medium text-white mb-2">Basic Usage</h3>
-              <pre className="bg-gray-900 p-4 rounded text-sm text-green-400 overflow-x-auto">
+              <h3 className="text-lg font-medium text-white mb-2" className="text-xl font-semibold text-gray-800 mb-3">Basic Usage</h3>
+              <pre className="bg-gray-900 p-4 rounded text-base leading-relaxed text-green-400 overflow-x-auto">
 {`const [code, setCode] = useState('');
 
 <VerificationCodeInput
@@ -223,8 +223,8 @@ export const VerificationCodeInputDemo: React.FC = () => {
             </div>
 
             <div>
-              <h3 className="text-lg font-medium text-white mb-2">With Loading State</h3>
-              <pre className="bg-gray-900 p-4 rounded text-sm text-green-400 overflow-x-auto">
+              <h3 className="text-lg font-medium text-white mb-2" className="text-xl font-semibold text-gray-800 mb-3">With Loading State</h3>
+              <pre className="bg-gray-900 p-4 rounded text-base leading-relaxed text-green-400 overflow-x-auto">
 {`const [loading, setLoading] = useState(false);
 
 const handleComplete = async (code) => {
@@ -247,8 +247,8 @@ const handleComplete = async (code) => {
             </div>
 
             <div>
-              <h3 className="text-lg font-medium text-white mb-2">With Error Handling</h3>
-              <pre className="bg-gray-900 p-4 rounded text-sm text-green-400 overflow-x-auto">
+              <h3 className="text-lg font-medium text-white mb-2" className="text-xl font-semibold text-gray-800 mb-3">With Error Handling</h3>
+              <pre className="bg-gray-900 p-4 rounded text-base leading-relaxed text-green-400 overflow-x-auto">
 {`const [error, setError] = useState('');
 
 <VerificationCodeInput
@@ -260,8 +260,8 @@ const handleComplete = async (code) => {
             </div>
 
             <div>
-              <h3 className="text-lg font-medium text-white mb-2">Custom Length</h3>
-              <pre className="bg-gray-900 p-4 rounded text-sm text-green-400 overflow-x-auto">
+              <h3 className="text-lg font-medium text-white mb-2" className="text-xl font-semibold text-gray-800 mb-3">Custom Length</h3>
+              <pre className="bg-gray-900 p-4 rounded text-base leading-relaxed text-green-400 overflow-x-auto">
 {`<VerificationCodeInput
   length={4}
   onComplete={handleComplete}
@@ -273,7 +273,7 @@ const handleComplete = async (code) => {
 
         {/* Accessibility Features */}
         <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
-          <h2 className="text-xl font-semibold text-white mb-4">Accessibility Features</h2>
+          <h2 className="text-xl font-semibold text-white mb-4" className="text-2xl font-semibold text-gray-800 mb-4">Accessibility Features</h2>
           <div className="space-y-2">
             <div className="flex items-center text-green-400">
               <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">

@@ -88,7 +88,7 @@ const OnboardingProgressTracker: React.FC = () => {
 
   return (
     <div className="w-full max-w-2xl mx-auto p-4 bg-white rounded-xl shadow border border-gray-200">
-      <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+      <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center" className="text-xl font-semibold text-gray-800 mb-3">
         <span className="text-2xl mr-2">🚦</span> Onboarding Progress
       </h3>
       <div className="flex items-center justify-between mb-4">
@@ -98,7 +98,7 @@ const OnboardingProgressTracker: React.FC = () => {
             style={{ width: `${percent}%` }}
           ></div>
         </div>
-        <span className="ml-4 text-sm font-bold text-purple-700">{percent}%</span>
+        <span className="ml-4 text-base leading-relaxed font-bold text-purple-700">{percent}%</span>
       </div>
       <ol className="flex flex-col md:flex-row md:space-x-6 space-y-4 md:space-y-0">
         {steps.map((step, idx) => {
@@ -124,7 +124,7 @@ const OnboardingProgressTracker: React.FC = () => {
               >
                 {isCompleted ? '✓' : idx + 1}
               </button>
-              <span className={`mt-2 text-xs font-medium text-center ${
+              <span className={`mt-2 text-base leading-relaxed font-medium text-center ${
                 isCompleted 
                   ? 'text-green-700' 
                   : isCurrent 

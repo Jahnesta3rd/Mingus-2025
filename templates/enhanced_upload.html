@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="stylesheet" href="touch_target_optimization.css">
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Enhanced Job Recommendations - Mingus</title>
@@ -143,7 +145,7 @@
                             <div class="mb-3">
                                 <label for="resumeText" class="form-label">Resume Content *</label>
                                 <textarea class="form-control" id="resumeText" name="resume_text" rows="10" 
-                                          placeholder="Paste your resume content here..." required></textarea>
+                                          placeholder="Paste your resume content here..." required class="form-input"></textarea>
                                 <div class="form-text">
                                     <span id="wordCount">0</span> words (minimum 100 words recommended)
                                 </div>
@@ -172,7 +174,7 @@
                                 <div class="col-md-6">
                                     <div class="mb-3">
                                         <label for="ageRange" class="form-label">Age Range *</label>
-                                        <select class="form-select" id="ageRange" name="age_range" required>
+                                        <select class="form-select" id="ageRange" name="age_range" required class="form-input">
                                             <option value="">Select age range</option>
                                             <option value="25-27">25-27</option>
                                             <option value="28-30">28-30</option>
@@ -186,7 +188,7 @@
                                 <div class="col-md-6">
                                     <div class="mb-3">
                                         <label for="race" class="form-label">Race/Ethnicity *</label>
-                                        <select class="form-select" id="race" name="race" required>
+                                        <select class="form-select" id="race" name="race" required class="form-input">
                                             <option value="">Select race/ethnicity</option>
                                             <option value="African American">African American</option>
                                             <option value="White">White</option>
@@ -203,7 +205,7 @@
                                 <div class="col-md-6">
                                     <div class="mb-3">
                                         <label for="educationLevel" class="form-label">Education Level *</label>
-                                        <select class="form-select" id="educationLevel" name="education_level" required>
+                                        <select class="form-select" id="educationLevel" name="education_level" required class="form-input">
                                             <option value="">Select education level</option>
                                             <option value="high_school">High School</option>
                                             <option value="some_college">Some College</option>
@@ -217,7 +219,7 @@
                                 <div class="col-md-6">
                                     <div class="mb-3">
                                         <label for="location" class="form-label">Location *</label>
-                                        <select class="form-select" id="location" name="location" required>
+                                        <select class="form-select" id="location" name="location" required class="form-input">
                                             <option value="">Select your location</option>
                                             <option value="Atlanta">Atlanta</option>
                                             <option value="Houston">Houston</option>
@@ -239,7 +241,7 @@
                                 <div class="col-md-6">
                                     <div class="mb-3">
                                         <label for="yearsExperience" class="form-label">Years of Experience</label>
-                                        <select class="form-select" id="yearsExperience" name="years_experience">
+                                        <select class="form-select" id="yearsExperience" name="years_experience" class="form-input">
                                             <option value="">Select experience level</option>
                                             <option value="0-1">0-1 years</option>
                                             <option value="2-5">2-5 years</option>
@@ -253,7 +255,7 @@
                                 <div class="col-md-6">
                                     <div class="mb-3">
                                         <label for="industry" class="form-label">Industry</label>
-                                        <select class="form-select" id="industry" name="industry">
+                                        <select class="form-select" id="industry" name="industry" class="form-input">
                                             <option value="">Select industry</option>
                                             <option value="technology">Technology</option>
                                             <option value="healthcare">Healthcare</option>
@@ -274,7 +276,7 @@
                                 <div class="col-md-6">
                                     <div class="mb-3">
                                         <label for="companySize" class="form-label">Preferred Company Size</label>
-                                        <select class="form-select" id="companySize" name="company_size">
+                                        <select class="form-select" id="companySize" name="company_size" class="form-input">
                                             <option value="">Select company size</option>
                                             <option value="startup">Startup (1-50 employees)</option>
                                             <option value="small">Small (51-200 employees)</option>
@@ -287,7 +289,7 @@
                                 <div class="col-md-6">
                                     <div class="mb-3">
                                         <label for="remotePreference" class="form-label">Remote Work Preference</label>
-                                        <select class="form-select" id="remotePreference" name="remote_preference">
+                                        <select class="form-select" id="remotePreference" name="remote_preference" class="form-input">
                                             <option value="true">Yes, prefer remote work</option>
                                             <option value="false">No, prefer office work</option>
                                             <option value="hybrid">Hybrid (mix of remote and office)</option>
@@ -304,14 +306,14 @@
                             <div class="mb-3">
                                 <label for="careerGoals" class="form-label">Career Goals</label>
                                 <textarea class="form-control" id="careerGoals" name="career_goals" rows="3" 
-                                          placeholder="Describe your short-term and long-term career goals..."></textarea>
+                                          placeholder="Describe your short-term and long-term career goals..." class="form-input"></textarea>
                             </div>
 
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="mb-3">
                                         <label for="salaryExpectations" class="form-label">Salary Expectations</label>
-                                        <select class="form-select" id="salaryExpectations" name="salary_expectations">
+                                        <select class="form-select" id="salaryExpectations" name="salary_expectations" class="form-input">
                                             <option value="">Select salary expectation</option>
                                             <option value="10-15">10-15% increase</option>
                                             <option value="15-25">15-25% increase</option>
@@ -324,7 +326,7 @@
                                 <div class="col-md-6">
                                     <div class="mb-3">
                                         <label for="relocationWillingness" class="form-label">Relocation Willingness</label>
-                                        <select class="form-select" id="relocationWillingness" name="relocation_willingness">
+                                        <select class="form-select" id="relocationWillingness" name="relocation_willingness" class="form-input">
                                             <option value="">Select relocation preference</option>
                                             <option value="not_willing">Not willing to relocate</option>
                                             <option value="same_state">Willing to relocate within same state</option>
@@ -394,7 +396,7 @@
 
                             <div class="mb-3">
                                 <label for="riskPreference" class="form-label">Risk Preference</label>
-                                <select class="form-select" id="riskPreference" name="risk_preference">
+                                <select class="form-select" id="riskPreference" name="risk_preference" class="form-input">
                                     <option value="conservative">Conservative - Stable opportunities with moderate growth</option>
                                     <option value="balanced" selected>Balanced - Mix of stable and growth opportunities</option>
                                     <option value="aggressive">Aggressive - High-growth opportunities with higher risk</option>
@@ -478,7 +480,7 @@
 
                         <!-- Submit Button -->
                         <div class="text-center mb-4">
-                            <button type="submit" class="btn btn-primary btn-lg" id="submitBtn">
+                            <button type="submit" class="btn btn-primary btn-lg btn-cta btn-primary" id="submitBtn">
                                 <i class="fas fa-rocket"></i>
                                 Generate Job Recommendations
                             </button>
@@ -710,7 +712,7 @@
             alertDiv.innerHTML = `
                 <i class="fas fa-exclamation-triangle"></i>
                 ${message}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                <button type="button" class="btn-close btn-cta btn-primary" data-bs-dismiss="alert"></button>
             `;
 
             // Insert at top of form

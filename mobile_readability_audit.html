@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="touch_target_optimization.css">
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mingus Mobile Readability Audit Tool</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .audit-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .audit-header {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .audit-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #8A31FF;
+            margin-bottom: 10px;
+        }
+
+        .audit-subtitle {
+            font-size: 1.2rem;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-bottom: 30px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .control-group label {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .control-group select, .control-group input {
+            padding: 8px 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+
+        .test-button {
+            background: #10b981;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .test-button:hover {
+            background: #059669;
+            transform: translateY(-1px);
+        }
+
+        .device-frame {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .device-header {
+            background: #333;
+            color: white;
+            padding: 10px 20px;
+            font-size: 0.8rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .device-screen {
+            position: relative;
+            background: white;
+            overflow: hidden;
+        }
+
+        .device-screen iframe {
+            border: none;
+            width: 100%;
+            height: 100%;
+        }
+
+        .readability-panel {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .readability-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .issue-list {
+            list-style: none;
+        }
+
+        .issue-item {
+            background: #f8f9fa;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 0 6px 6px 0;
+        }
+
+        .issue-item.warning {
+            border-left-color: #ffc107;
+        }
+
+        .issue-item.success {
+            border-left-color: #28a745;
+        }
+
+        .issue-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .issue-description {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .issue-recommendation {
+            font-size: 0.85rem;
+            color: #8A31FF;
+            font-weight: 500;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .metric-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .metric-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #8A31FF;
+        }
+
+        .metric-label {
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .screenshot-section {
+            margin-top: 30px;
+        }
+
+        .screenshot-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .screenshot-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .screenshot-header {
+            padding: 15px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #eee;
+            font-weight: 600;
+        }
+
+        .screenshot-image {
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
+            background: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+        }
+
+        @media (max-width: 768px) {
+            .audit-container {
+                padding: 10px;
+            }
+            
+            .controls {
+                flex-direction: column;
+            }
+            
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="audit-container">
+        <div class="audit-header">
+            <h1 class="audit-title">Mingus Mobile Readability Audit</h1>
+            <p class="audit-subtitle">Comprehensive mobile readability testing across devices from 320px to 768px</p>
+            
+            <div class="controls">
+                <div class="control-group">
+                    <label for="screen-width">Screen Width (px)</label>
+                    <select id="screen-width" class="form-input">
+                        <option value="320">320px (iPhone SE)</option>
+                        <option value="375">375px (iPhone 12/13/14)</option>
+                        <option value="390">390px (iPhone 12/13/14 Pro)</option>
+                        <option value="414">414px (iPhone 12/13/14 Pro Max)</option>
+                        <option value="428">428px (iPhone 14 Plus)</option>
+                        <option value="768">768px (iPad Mini)</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label for="orientation">Orientation</label>
+                    <select id="orientation" class="form-input">
+                        <option value="portrait">Portrait</option>
+                        <option value="landscape">Landscape</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label for="page-select">Page to Test</label>
+                    <select id="page-select" class="form-input">
+                        <option value="landing">Landing Page</option>
+                        <option value="calculator">AI Calculator</option>
+                        <option value="onboarding">Onboarding Flow</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <button class="test-button" onclick="runReadabilityTest()">Run Readability Test</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="device-frame">
+            <div class="device-header">
+                <span id="device-info">iPhone SE - 320px Portrait</span>
+                <span id="page-info">Landing Page</span>
+            </div>
+            <div class="device-screen">
+                <iframe id="test-frame" src="landing.html" width="320" height="568"></iframe>
+            </div>
+        </div>
+
+        <div class="readability-panel">
+            <h2 class="readability-title">Readability Analysis Results</h2>
+            
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-value" id="font-size-score">--</div>
+                    <div class="metric-label">Font Size Score</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="line-height-score">--</div>
+                    <div class="metric-label">Line Height Score</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="contrast-score">--</div>
+                    <div class="metric-label">Contrast Score</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="spacing-score">--</div>
+                    <div class="metric-label">Spacing Score</div>
+                </div>
+            </div>
+
+            <ul class="issue-list" id="issues-list">
+                <li class="issue-item">
+                    <div class="issue-title">No issues detected yet</div>
+                    <div class="issue-description">Run a readability test to analyze the current page</div>
+                </li>
+            </ul>
+        </div>
+
+        <div class="screenshot-section">
+            <h2 class="readability-title">Before/After Screenshots</h2>
+            <div class="screenshot-grid" id="screenshot-grid">
+                <div class="screenshot-card">
+                    <div class="screenshot-header">Current State</div>
+                    <div class="screenshot-image">Screenshot will appear here after test</div>
+                </div>
+                <div class="screenshot-card">
+                    <div class="screenshot-header">Recommended Changes</div>
+                    <div class="screenshot-image">Optimized version will appear here</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Readability testing configuration
+        const readabilityConfig = {
+            minFontSize: 16,
+            minLineHeight: 1.4,
+            minContrastRatio: 4.5,
+            minTouchTarget: 44,
+            recommendedSpacing: 16
+        };
+
+        // Test pages configuration
+        const testPages = {
+            landing: {
+                url: 'landing.html',
+                name: 'Landing Page',
+                criticalElements: [
+                    '.hero-headline',
+                    '.hero-subtext',
+                    '.section-title',
+                    '.calculator-title',
+                    '.calculator-subtitle',
+                    '.value-prop-title',
+                    '.value-prop-text',
+                    '.testimonial-text',
+                    '.final-headline',
+                    '.final-subtext'
+                ]
+            },
+            calculator: {
+                url: 'ai-job-impact-calculator.html',
+                name: 'AI Calculator',
+                criticalElements: [
+                    '.hero-headline',
+                    '.hero-subtext',
+                    '.form-group label',
+                    '.form-group input',
+                    '.form-group select',
+                    '.btn-primary',
+                    '.result-text'
+                ]
+            },
+            onboarding: {
+                url: 'src/App.tsx',
+                name: 'Onboarding Flow',
+                criticalElements: [
+                    'h1', 'h2', 'h3',
+                    '.text-xl', '.text-lg', '.text-base',
+                    'input', 'select', 'button',
+                    '.form-label', '.form-text'
+                ]
+            }
+        };
+
+        let currentTestResults = {};
+
+        function updateDeviceInfo() {
+            const width = document.getElementById('screen-width').value;
+            const orientation = document.getElementById('orientation').value;
+            const page = document.getElementById('page-select').value;
+            
+            const deviceNames = {
+                '320': 'iPhone SE',
+                '375': 'iPhone 12/13/14',
+                '390': 'iPhone 12/13/14 Pro',
+                '414': 'iPhone 12/13/14 Pro Max',
+                '428': 'iPhone 14 Plus',
+                '768': 'iPad Mini'
+            };
+
+            document.getElementById('device-info').textContent = 
+                `${deviceNames[width]} - ${width}px ${orientation}`;
+            document.getElementById('page-info').textContent = testPages[page].name;
+
+            // Update iframe dimensions
+            const iframe = document.getElementById('test-frame');
+            if (orientation === 'landscape') {
+                iframe.style.width = `${width}px`;
+                iframe.style.height = `${Math.round(width * 0.5625)}px`; // 16:9 aspect ratio
+            } else {
+                iframe.style.width = `${width}px`;
+                iframe.style.height = `${Math.round(width * 1.775)}px`; // iPhone aspect ratio
+            }
+
+            // Update iframe source
+            iframe.src = testPages[page].url;
+        }
+
+        function analyzeTextReadability() {
+            const iframe = document.getElementById('test-frame');
+            const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+            
+            if (!iframeDoc) {
+                console.log('Cannot access iframe content - CORS restriction');
+                return {};
+            }
+
+            const page = document.getElementById('page-select').value;
+            const criticalElements = testPages[page].criticalElements;
+            
+            let issues = [];
+            let scores = {
+                fontSize: 0,
+                lineHeight: 0,
+                contrast: 0,
+                spacing: 0
+            };
+
+            criticalElements.forEach(selector => {
+                const elements = iframeDoc.querySelectorAll(selector);
+                elements.forEach(element => {
+                    const computedStyle = window.getComputedStyle(element);
+                    const fontSize = parseFloat(computedStyle.fontSize);
+                    const lineHeight = parseFloat(computedStyle.lineHeight);
+                    const color = computedStyle.color;
+                    const backgroundColor = computedStyle.backgroundColor;
+                    
+                    // Check font size
+                    if (fontSize < readabilityConfig.minFontSize) {
+                        issues.push({
+                            type: 'error',
+                            element: selector,
+                            issue: `Font size too small: ${fontSize}px`,
+                            recommendation: `Increase font size to at least ${readabilityConfig.minFontSize}px`
+                        });
+                        scores.fontSize -= 10;
+                    } else {
+                        scores.fontSize += 10;
+                    }
+
+                    // Check line height
+                    if (lineHeight < readabilityConfig.minLineHeight) {
+                        issues.push({
+                            type: 'warning',
+                            element: selector,
+                            issue: `Line height too tight: ${lineHeight}`,
+                            recommendation: `Increase line-height to at least ${readabilityConfig.minLineHeight}`
+                        });
+                        scores.lineHeight -= 5;
+                    } else {
+                        scores.lineHeight += 10;
+                    }
+
+                    // Check spacing
+                    const margin = parseFloat(computedStyle.marginBottom) + parseFloat(computedStyle.marginTop);
+                    const padding = parseFloat(computedStyle.paddingBottom) + parseFloat(computedStyle.paddingTop);
+                    const totalSpacing = margin + padding;
+                    
+                    if (totalSpacing < readabilityConfig.recommendedSpacing) {
+                        issues.push({
+                            type: 'warning',
+                            element: selector,
+                            issue: `Insufficient spacing: ${totalSpacing}px`,
+                            recommendation: `Add more spacing (at least ${readabilityConfig.recommendedSpacing}px)`
+                        });
+                        scores.spacing -= 5;
+                    } else {
+                        scores.spacing += 10;
+                    }
+                });
+            });
+
+            return { issues, scores };
+        }
+
+        function runReadabilityTest() {
+            updateDeviceInfo();
+            
+            // Wait for iframe to load
+            setTimeout(() => {
+                const results = analyzeTextReadability();
+                displayResults(results);
+            }, 2000);
+        }
+
+        function displayResults(results) {
+            const { issues, scores } = results;
+            currentTestResults = results;
+
+            // Update scores
+            document.getElementById('font-size-score').textContent = 
+                Math.max(0, Math.min(100, scores.fontSize));
+            document.getElementById('line-height-score').textContent = 
+                Math.max(0, Math.min(100, scores.lineHeight));
+            document.getElementById('contrast-score').textContent = 
+                Math.max(0, Math.min(100, scores.contrast));
+            document.getElementById('spacing-score').textContent = 
+                Math.max(0, Math.min(100, scores.spacing));
+
+            // Update issues list
+            const issuesList = document.getElementById('issues-list');
+            issuesList.innerHTML = '';
+
+            if (issues.length === 0) {
+                issuesList.innerHTML = `
+                    <li class="issue-item success">
+                        <div class="issue-title">✅ No readability issues detected</div>
+                        <div class="issue-description">All text elements meet mobile readability standards</div>
+                    </li>
+                `;
+            } else {
+                issues.forEach(issue => {
+                    const issueElement = document.createElement('li');
+                    issueElement.className = `issue-item ${issue.type}`;
+                    issueElement.innerHTML = `
+                        <div class="issue-title">${issue.issue}</div>
+                        <div class="issue-description">Element: ${issue.element}</div>
+                        <div class="issue-recommendation">💡 ${issue.recommendation}</div>
+                    `;
+                    issuesList.appendChild(issueElement);
+                });
+            }
+
+            // Generate recommendations
+            generateRecommendations();
+        }
+
+        function generateRecommendations() {
+            const page = document.getElementById('page-select').value;
+            const width = document.getElementById('screen-width').value;
+            
+            let recommendations = [];
+            
+            if (width <= '375') {
+                recommendations.push({
+                    title: 'Small Screen Optimization',
+                    description: 'For screens 375px and below, consider:',
+                    items: [
+                        'Increase base font size to 18px',
+                        'Use larger touch targets (48px minimum)',
+                        'Reduce content density',
+                        'Increase line spacing to 1.6'
+                    ]
+                });
+            }
+
+            if (currentTestResults.scores && currentTestResults.scores.fontSize < 50) {
+                recommendations.push({
+                    title: 'Font Size Issues',
+                    description: 'Critical font size problems detected:',
+                    items: [
+                        'Increase heading font sizes by 20-30%',
+                        'Ensure body text is at least 16px',
+                        'Make buttons and CTAs larger',
+                        'Test with users who have vision impairments'
+                    ]
+                });
+            }
+
+            // Display recommendations
+            const recommendationsSection = document.createElement('div');
+            recommendationsSection.className = 'readability-panel';
+            recommendationsSection.innerHTML = `
+                <h2 class="readability-title">Recommendations</h2>
+                ${recommendations.map(rec => `
+                    <div style="margin-bottom: 20px;">
+                        <h3 style="color: #8A31FF; margin-bottom: 10px;">${rec.title}</h3>
+                        <p style="margin-bottom: 10px;">${rec.description}</p>
+                        <ul style="margin-left: 20px;">
+                            ${rec.items.map(item => `<li style="margin-bottom: 5px;">${item}</li>`).join('')}
+                        </ul>
+                    </div>
+                `).join('')}
+            `;
+
+            // Insert after the main readability panel
+            const mainPanel = document.querySelector('.readability-panel');
+            mainPanel.parentNode.insertBefore(recommendationsSection, mainPanel.nextSibling);
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            updateDeviceInfo();
+            
+            // Add event listeners
+            document.getElementById('screen-width').addEventListener('change', updateDeviceInfo);
+            document.getElementById('orientation').addEventListener('change', updateDeviceInfo);
+            document.getElementById('page-select').addEventListener('change', updateDeviceInfo);
+        });
+    </script>
+</body>
+</html>

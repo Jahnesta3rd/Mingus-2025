@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="touch_target_optimization.css">
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mingus Mobile-First Spacing System Demo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="responsive_typography_system.css">
+    <link rel="stylesheet" href="mobile_spacing_system.css">
+    <style>
+        :root {
+            --primary-color: #8A31FF;
+            --secondary-color: #667eea;
+            --accent-color: #ff6b6b;
+            --text-primary: #333;
+            --text-secondary: #666;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8f9fa;
+            --border-color: #e9ecef;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .demo-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .demo-header {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .demo-title {
+            font-size: var(--text-4xl);
+            font-weight: var(--font-weight-bold);
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .demo-subtitle {
+            font-size: var(--text-lg);
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+        }
+
+        .spacing-info {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .spacing-title {
+            font-weight: var(--font-weight-semibold);
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .spacing-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .spacing-item {
+            background: white;
+            padding: 10px;
+            border-radius: 6px;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .spacing-label {
+            font-weight: var(--font-weight-medium);
+            color: var(--text-primary);
+            margin-bottom: 5px;
+        }
+
+        .spacing-value {
+            font-size: var(--text-sm);
+            color: var(--text-secondary);
+        }
+
+        .spacing-showcase {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .showcase-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+        }
+
+        .showcase-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 20px;
+            font-size: var(--text-xl);
+            font-weight: var(--font-weight-semibold);
+        }
+
+        .showcase-content {
+            padding: 25px;
+        }
+
+        .spacing-example {
+            margin-bottom: 25px;
+        }
+
+        .example-label {
+            font-size: var(--text-sm);
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            font-weight: var(--font-weight-medium);
+        }
+
+        .example-content {
+            margin-bottom: 15px;
+        }
+
+        .comparison-section {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .comparison-title {
+            font-size: var(--text-2xl);
+            font-weight: var(--font-weight-bold);
+            color: var(--text-primary);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .comparison-card {
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .comparison-card.before {
+            border-color: #dc3545;
+        }
+
+        .comparison-card.after {
+            border-color: var(--primary-color);
+        }
+
+        .comparison-header {
+            font-weight: var(--font-weight-semibold);
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .comparison-header.before {
+            color: #dc3545;
+        }
+
+        .comparison-header.after {
+            color: var(--primary-color);
+        }
+
+        .device-simulator {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .simulator-title {
+            font-size: var(--text-2xl);
+            font-weight: var(--font-weight-bold);
+            color: var(--text-primary);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .device-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .device-btn {
+            padding: 12px 24px;
+            border: 2px solid var(--primary-color);
+            border-radius: 8px;
+            background: white;
+            color: var(--primary-color);
+            font-weight: var(--font-weight-medium);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .device-btn:hover,
+        .device-btn.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .device-frame {
+            background: #333;
+            border-radius: 20px;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            margin: 0 auto;
+            max-width: 400px;
+        }
+
+        .device-screen {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            width: 100%;
+            max-width: 320px;
+            transition: all 0.3s ease;
+        }
+
+        .device-screen.iphone-se {
+            max-width: 320px;
+        }
+
+        .device-screen.iphone-14 {
+            max-width: 375px;
+        }
+
+        .device-screen.samsung-s21 {
+            max-width: 360px;
+        }
+
+        .device-screen.ipad-mini {
+            max-width: 768px;
+        }
+
+        .screen-content {
+            padding: 20px;
+            min-height: 500px;
+        }
+
+        .metrics-panel {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+
+        .metrics-title {
+            font-size: var(--text-2xl);
+            font-weight: var(--font-weight-bold);
+            color: var(--text-primary);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .metric-card {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .metric-number {
+            font-size: var(--text-3xl);
+            font-weight: var(--font-weight-bold);
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+
+        .metric-label {
+            font-size: var(--text-base);
+            color: var(--text-secondary);
+            font-weight: var(--font-weight-medium);
+        }
+
+        .metric-description {
+            font-size: var(--text-sm);
+            color: var(--text-secondary);
+            margin-top: 8px;
+        }
+
+        @media (max-width: 768px) {
+            .demo-container {
+                padding: 10px;
+            }
+            
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .device-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .device-btn {
+                width: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <div class="demo-header">
+            <h1 class="demo-title">📱 Mobile-First Spacing System</h1>
+            <p class="demo-subtitle">Optimal spacing, padding, and margins for improved readability and reduced cognitive load</p>
+            
+            <div class="spacing-info">
+                <div class="spacing-title">🎯 Spacing Design Principles</div>
+                <div class="spacing-details">
+                    <div class="spacing-item">
+                        <div class="spacing-label">Mobile-First</div>
+                        <div class="spacing-value">Progressive enhancement from mobile to desktop</div>
+                    </div>
+                    <div class="spacing-item">
+                        <div class="spacing-label">White Space</div>
+                        <div class="spacing-value">Adequate breathing room for content</div>
+                    </div>
+                    <div class="spacing-item">
+                        <div class="spacing-label">Touch-Friendly</div>
+                        <div class="spacing-value">44px minimum touch targets</div>
+                    </div>
+                    <div class="spacing-item">
+                        <div class="spacing-label">Consistent Scale</div>
+                        <div class="spacing-value">4px grid system for harmony</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="spacing-showcase">
+            <div class="showcase-card">
+                <div class="showcase-header">Container & Layout Spacing</div>
+                <div class="showcase-content">
+                    <div class="spacing-example">
+                        <div class="example-label">Container Spacing</div>
+                        <div class="example-content">
+                            <div class="container">
+                                <div class="card">
+                                    <h3>Container with proper spacing</h3>
+                                    <p>This container uses optimal padding and margins for mobile devices.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="spacing-example">
+                        <div class="example-label">Section Spacing</div>
+                        <div class="example-content">
+                            <div class="section">
+                                <h2>Section Title</h2>
+                                <p>Section content with proper vertical spacing.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="spacing-example">
+                        <div class="example-label">Grid Layout</div>
+                        <div class="example-content">
+                            <div class="grid grid-2">
+                                <div class="card">Grid Item 1</div>
+                                <div class="card">Grid Item 2</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="showcase-card">
+                <div class="showcase-header">Typography & Content Spacing</div>
+                <div class="showcase-content">
+                    <div class="spacing-example">
+                        <div class="example-label">Heading Hierarchy</div>
+                        <div class="example-content">
+                            <h1>Main Heading</h1>
+                            <h2>Section Heading</h2>
+                            <h3>Subsection Heading</h3>
+                            <p>Body text with proper line spacing and margins.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="spacing-example">
+                        <div class="example-label">Content Stack</div>
+                        <div class="example-content">
+                            <div class="stack">
+                                <div class="card">Stack Item 1</div>
+                                <div class="card">Stack Item 2</div>
+                                <div class="card">Stack Item 3</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="spacing-example">
+                        <div class="example-label">List Spacing</div>
+                        <div class="example-content">
+                            <ul>
+                                <li>List item with proper spacing</li>
+                                <li>Another list item</li>
+                                <li>Third list item</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="showcase-card">
+                <div class="showcase-header">Interactive Elements</div>
+                <div class="showcase-content">
+                    <div class="spacing-example">
+                        <div class="example-label">Button Spacing</div>
+                        <div class="example-content">
+                            <div class="btn-group">
+                                <button class="btn btn-cta btn-primary">Primary Button</button>
+                                <button class="btn btn-cta btn-primary">Secondary Button</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="spacing-example">
+                        <div class="example-label">Form Spacing</div>
+                        <div class="example-content">
+                            <div class="form-group">
+                                <label class="form-label">Email Address</label>
+                                <input type="email" class="form-input" placeholder="Enter your email" class="form-input">
+                                <div class="form-helper">We'll never share your email</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="spacing-example">
+                        <div class="example-label">Navigation Spacing</div>
+                        <div class="example-content">
+                            <nav class="nav">
+                                <ul class="nav-list">
+                                    <li class="nav-item"><a href="#" class="nav-link btn-primary">Home</a></li>
+                                    <li class="nav-item"><a href="#" class="nav-link btn-primary">About</a></li>
+                                    <li class="nav-item"><a href="#" class="nav-link btn-primary">Contact</a></li>
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="showcase-card">
+                <div class="showcase-header">Utility Classes</div>
+                <div class="showcase-content">
+                    <div class="spacing-example">
+                        <div class="example-label">Margin Utilities</div>
+                        <div class="example-content">
+                            <div class="card mb-4">Margin Bottom 4</div>
+                            <div class="card mb-6">Margin Bottom 6</div>
+                            <div class="card mb-8">Margin Bottom 8</div>
+                        </div>
+                    </div>
+                    
+                    <div class="spacing-example">
+                        <div class="example-label">Padding Utilities</div>
+                        <div class="example-content">
+                            <div class="card p-4">Padding 4</div>
+                            <div class="card p-6">Padding 6</div>
+                            <div class="card p-8">Padding 8</div>
+                        </div>
+                    </div>
+                    
+                    <div class="spacing-example">
+                        <div class="example-label">Gap Utilities</div>
+                        <div class="example-content">
+                            <div class="flex gap-4">
+                                <div class="card">Gap 4</div>
+                                <div class="card">Gap 4</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="comparison-section">
+            <h2 class="comparison-title">📊 Before vs After Spacing Comparison</h2>
+            
+            <div class="comparison-grid">
+                <div class="comparison-card before">
+                    <div class="comparison-header before">❌ Before: Poor Spacing</div>
+                    <div class="content">
+                        <h3 style="margin: 8px 0;">Tight Heading</h3>
+                        <p style="margin: 8px 0; line-height: 1.4;">This text has minimal spacing, making it hard to read and causing cognitive overload. The content feels cramped and overwhelming.</p>
+                        <div style="margin: 8px 0; padding: 12px; border: 1px solid #ccc;">
+                            <h4 style="margin: 4px 0;">Card Title</h4>
+                            <p style="margin: 4px 0;">Card content with insufficient spacing.</p>
+                        </div>
+                        <button style="margin: 8px 0; padding: 8px 16px;">Button</button>
+                    </div>
+                </div>
+                
+                <div class="comparison-card after">
+                    <div class="comparison-header after">✅ After: Optimal Spacing</div>
+                    <div class="content">
+                        <h3 class="hero-headline">Proper Heading</h3>
+                        <p class="hero-subtext">This text has optimal spacing with adequate white space, making it easy to read and reducing cognitive load. The content feels comfortable and accessible.</p>
+                        <div class="card">
+                            <h4 class="card-title">Card Title</h4>
+                            <p class="card-subtitle">Card content with proper spacing and breathing room.</p>
+                        </div>
+                        <button class="btn btn-cta btn-primary">Button</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="device-simulator">
+            <h2 class="simulator-title">📱 Device Spacing Simulator</h2>
+            
+            <div class="device-buttons">
+                <button class="device-btn active btn-cta btn-primary" onclick="switchDevice('iphone-se')">iPhone SE (320px)</button>
+                <button class="device-btn btn-cta btn-primary" onclick="switchDevice('iphone-14')">iPhone 14 (375px)</button>
+                <button class="device-btn btn-cta btn-primary" onclick="switchDevice('samsung-s21')">Samsung S21 (360px)</button>
+                <button class="device-btn btn-cta btn-primary" onclick="switchDevice('ipad-mini')">iPad Mini (768px)</button>
+            </div>
+
+            <div class="device-frame">
+                <div class="device-screen iphone-se" id="device-screen">
+                    <div class="screen-content">
+                        <h1 class="hero-headline">Mobile Spacing</h1>
+                        <p class="hero-subtext">Optimal spacing for mobile devices</p>
+                        
+                        <div class="section">
+                            <h2 class="section-title">Content Section</h2>
+                            <div class="card">
+                                <h3 class="card-title">Card Title</h3>
+                                <p class="card-subtitle">Card content with proper spacing</p>
+                            </div>
+                        </div>
+                        
+                        <div class="btn-stack">
+                            <button class="btn btn-cta btn-primary">Primary Action</button>
+                            <button class="btn btn-cta btn-primary">Secondary Action</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="metrics-panel">
+            <h2 class="metrics-title">📈 Spacing System Metrics</h2>
+            
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-number">4px</div>
+                    <div class="metric-label">Base Grid Unit</div>
+                    <div class="metric-description">Consistent spacing scale foundation</div>
+                </div>
+                
+                <div class="metric-card">
+                    <div class="metric-number">44px</div>
+                    <div class="metric-label">Touch Target Minimum</div>
+                    <div class="metric-description">Accessible interactive elements</div>
+                </div>
+                
+                <div class="metric-card">
+                    <div class="metric-number">16px</div>
+                    <div class="metric-label">Content Margin</div>
+                    <div class="metric-description">Optimal content breathing room</div>
+                </div>
+                
+                <div class="metric-card">
+                    <div class="metric-number">24px</div>
+                    <div class="metric-label">Section Spacing</div>
+                    <div class="metric-description">Clear content separation</div>
+                </div>
+                
+                <div class="metric-card">
+                    <div class="metric-number">3</div>
+                    <div class="metric-label">Breakpoints</div>
+                    <div class="metric-description">Mobile Small, Medium, Large</div>
+                </div>
+                
+                <div class="metric-card">
+                    <div class="metric-number">13</div>
+                    <div class="metric-label">Spacing Scale</div>
+                    <div class="metric-description">From 0px to 96px</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function switchDevice(device) {
+            // Remove active class from all buttons
+            document.querySelectorAll('.device-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Add active class to clicked button
+            event.target.classList.add('active');
+            
+            // Update device screen
+            const deviceScreen = document.getElementById('device-screen');
+            deviceScreen.className = `device-screen ${device}`;
+            
+            // Update content based on device
+            const content = deviceScreen.querySelector('.screen-content');
+            
+            // Simulate different content for different devices
+            const deviceContent = {
+                'iphone-se': {
+                    title: 'iPhone SE (320px)',
+                    subtitle: 'Compact mobile spacing'
+                },
+                'iphone-14': {
+                    title: 'iPhone 14 (375px)',
+                    subtitle: 'Standard mobile spacing'
+                },
+                'samsung-s21': {
+                    title: 'Samsung S21 (360px)',
+                    subtitle: 'Android mobile spacing'
+                },
+                'ipad-mini': {
+                    title: 'iPad Mini (768px)',
+                    subtitle: 'Tablet spacing'
+                }
+            };
+            
+            const deviceInfo = deviceContent[device];
+            content.querySelector('.hero-headline').textContent = deviceInfo.title;
+            content.querySelector('.hero-subtext').textContent = deviceInfo.subtitle;
+            
+            console.log(`Switched to ${device} device simulation`);
+        }
+
+        // Add some interactive features
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('Mobile spacing demo loaded');
+            
+            // Add hover effects to showcase cards
+            const showcaseCards = document.querySelectorAll('.showcase-card');
+            showcaseCards.forEach(card => {
+                card.addEventListener('mouseenter', () => {
+                    card.style.transform = 'translateY(-5px)';
+                    card.style.boxShadow = '0 12px 40px rgba(0,0,0,0.2)';
+                });
+                
+                card.addEventListener('mouseleave', () => {
+                    card.style.transform = 'translateY(0)';
+                    card.style.boxShadow = '0 8px 32px rgba(0,0,0,0.15)';
+                });
+            });
+        });
+    </script>
+</body>
+</html>
