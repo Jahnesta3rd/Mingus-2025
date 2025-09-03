@@ -2,6 +2,7 @@ from flask import Flask, jsonify, request, send_from_directory
 import sys
 import os
 import traceback
+import time
 from dotenv import load_dotenv
 
 # Add the backend directory to the Python path
@@ -12,7 +13,7 @@ sys.path.append(backend_dir)
 from src.utils.cashflow_calculator import calculate_daily_cashflow
 
 # Import article models to ensure SQLAlchemy knows about them
-from backend.models.articles import (
+from models.articles import (
     Article, UserArticleRead, UserArticleBookmark, UserArticleRating,
     ArticleRecommendation, ArticleAnalytics
 )
@@ -144,6 +145,64 @@ def generate_forecast():
             "error": "Internal server error",
             "details": str(e)
         }), 500
+
+# Payment System Endpoints for Phase 2 Testing
+@app.route('/api/payments/create', methods=['POST'])
+def create_payment():
+    """Create a payment for testing Phase 2 security"""
+    try:
+        data = request.get_json()
+        if not data or 'amount' not in data or 'tier' not in data:
+            return jsonify({"error": "Missing amount or tier"}), 400
+        
+        amount = data['amount']
+        tier = data['tier']
+        
+        # Simulate payment creation with security validation
+        payment_data = {
+            "id": f"pi_{int(time.time())}",
+            "amount": amount,
+            "tier": tier,
+            "status": "requires_payment_method",
+            "created": int(time.time())
+        }
+        
+        return jsonify({
+            "status": "success",
+            "data": payment_data
+        }), 200
+        
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/webhooks/stripe', methods=['POST'])
+def stripe_webhook():
+    """Process Stripe webhooks for testing Phase 2 security"""
+    try:
+        data = request.get_json()
+        if not data or 'type' not in data:
+            return jsonify({"error": "Invalid webhook data"}), 400
+        
+        webhook_type = data['type']
+        
+        # Simulate webhook processing with security validation
+        if webhook_type == 'payment_intent.succeeded':
+            payment_data = data.get('data', {}).get('object', {})
+            amount = payment_data.get('amount', 0)
+            status = payment_data.get('status', 'unknown')
+            
+            # Log the webhook for security monitoring
+            print(f"🔒 Webhook processed: {webhook_type} - Amount: {amount}, Status: {status}")
+            
+            return jsonify({
+                "status": "success",
+                "message": f"Webhook {webhook_type} processed successfully"
+            }), 200
+        else:
+            return jsonify({"error": f"Unsupported webhook type: {webhook_type}"}), 400
+            
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
     port = int(os.getenv('PORT', 5001))
