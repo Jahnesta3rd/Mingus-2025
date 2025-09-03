@@ -258,7 +258,7 @@ mdit-py-plugins @ file:///Users/builder/cbouss/perseverance-python-buildout/croo
 mdurl @ file:///Users/builder/cbouss/perseverance-python-buildout/croot/mdurl_1699239487349/work
 memory-profiler==0.61.0
 menuinst @ file:///private/var/folders/sy/f16zz6x50xz3113nwtb9bvq00000gp/T/abs_a2sy2_uynb/croot/menuinst_1723567626367/work
--e git+https://github.com/Jahnesta3rd/Mingus-2025.git@e99f0cc72708967784b178f91e2338a2d7ed7d34#egg=mingus_app&subdirectory=backups/2025-06-03
+-e git+https://github.com/Jahnesta3rd/Mingus-2025.git@bd7e5f568fa198cc8b428e3257b4dc53141b266f#egg=mingus_app&subdirectory=backups/2025-06-03
 mistune==3.1.3
 ml-dtypes==0.3.2
 monotonic==1.6
