@@ -1,8 +1,0 @@
-{
-  "total_emails_processed": 305,
-  "total_urls_extracted": 2754,
-  "unique_domains_found": 672,
-  "processing_time_seconds": 150.4733099937439,
-  "success_rate": 100.0,
-  "error_count": 0
-}

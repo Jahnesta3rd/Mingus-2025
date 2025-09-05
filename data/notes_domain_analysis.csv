@@ -1,7 +1,0 @@
-domain,url_count,note_count,avg_note_quality_score,category_suggestion,confidence,recommendation,reasoning,priority,sample_urls,note_titles
-investopedia.com,1,1,0.8,general,1.0,AUTO_APPROVE,High-quality financial/career/lifestyle content,NORMAL,https://www.investopedia.com/retirement-planning,Retirement Planning Resources
-linkedin.com,1,1,0.7,career,1.0,MANUAL_REVIEW,Medium quality content requiring review,NORMAL,https://www.linkedin.com/learning/financial-literacy,Financial Literacy Course
-blackenterprise.com,1,1,0.9,general,1.0,AUTO_APPROVE,High-quality financial/career/lifestyle content,NORMAL,https://www.blackenterprise.com/wealth-building,Wealth Building for Black Professionals
-healthline.com,1,1,0.75,general,1.0,AUTO_APPROVE,High-quality financial/career/lifestyle content,NORMAL,https://www.healthline.com/mental-health/work-life-balance,Work-Life Balance for Professionals
-faithandfinance.org,1,1,0.85,financial,1.0,AUTO_APPROVE,High-quality financial/career/lifestyle content,NORMAL,https://www.faithandfinance.org/investing-with-purpose,Faith-Based Investment Strategies
-parenting.com,1,1,0.8,general,1.0,AUTO_APPROVE,High-quality financial/career/lifestyle content,NORMAL,https://www.parenting.com/financial-planning-for-families,Financial Planning for Families with Kids

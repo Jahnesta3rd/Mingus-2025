@@ -1,1 +1,0 @@
-# Tests package for income comparison feature 

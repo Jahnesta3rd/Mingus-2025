@@ -1,9 +1,0 @@
-# Simple Flask Configuration
-FLASK_DEBUG=true
-SECRET_KEY=your-secret-key-change-in-production
-
-# Database Configuration
-DATABASE_URL=postgresql://mingus_user:mingus_password@localhost/mingus_dev
-
-# Server Configuration
-PORT=5002 
