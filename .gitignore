@@ -1,0 +1,131 @@
+# Environment variables
+.env
+.env.local
+.env.production
+.env.staging
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Database
+*.db
+*.sqlite3
+
+# Temporary files
+*.tmp
+*.temp
+.env.generated
+
+# Backup files
+*.backup
+*_backup_*
+*backup*
+$BACKUP_DIR/
+
+# Coverage files
+.coverage*
+coverage/
+
+# Cursor IDE
+.cursor/
+
+# Environment backup files
+.env.*.backup
+.env.*.development
+.env.*.generated
+
+# Test results and reports
+*_results_*.json
+*_report_*.json
+*_summary_*.json
+*_test_report_*.json
+*_validation_report_*.md
+*_test_results_*.json
+
+# Temporary directories
+phase*_backup_*/
+typography_backup_*/
+*_backup_*/
+
+# Microsoft Office temp files
+~$*
+
+# Performance and testing files
+performance_metrics.db
+*.performance
+*_performance_*
+
+# Security and audit files
+security_audit.json
+security_checklist.json
+*_security_*.json
+
+# Mobile testing results
+touch_interaction_*
+touch_target_*
+
+# Typography and theme files
+typography_*
+theme_*
+*_typography_*
+*_theme_*
+
+# Accessibility testing
+*_accessibility_*
+
+# SEO and validation
+seo_validation_*
+*_seo_*
+
+# Migration and setup files
+*_migration_*
+*_setup_*
+setup_*
+
+# Requirements backup files
+requirements-*.txt
+requirements_*.txt
+
+# Documentation backup files
+*_IMPLEMENTATION_SUMMARY.md
+*_VALIDATION_REPORT.md
+*_VALIDATION_SUMMARY.md
+*_TESTING_SUMMARY.md
