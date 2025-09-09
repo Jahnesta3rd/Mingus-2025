@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mingus - Financial Wellness Check</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .splash-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .meme-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            max-width: 500px;
+            width: 100%;
+            overflow: hidden;
+            animation: slideUp 0.6s ease-out;
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .meme-header {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .meme-image {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            background: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            color: #6c757d;
+        }
+        
+        .meme-content {
+            padding: 30px;
+        }
+        
+        .meme-caption {
+            font-size: 1.2rem;
+            font-weight: 500;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            line-height: 1.4;
+        }
+        
+        .meme-category {
+            display: inline-block;
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-bottom: 20px;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        
+        .btn-continue {
+            background: linear-gradient(135deg, #27ae60, #229954);
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            color: white;
+            font-weight: 600;
+            flex: 1;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-continue:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(39, 174, 96, 0.4);
+            color: white;
+        }
+        
+        .btn-skip {
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            padding: 12px 30px;
+            border-radius: 25px;
+            color: #6c757d;
+            font-weight: 600;
+            flex: 1;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-skip:hover {
+            background: #e9ecef;
+            border-color: #adb5bd;
+            color: #495057;
+        }
+        
+        .mood-selector {
+            margin: 20px 0;
+        }
+        
+        .mood-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .mood-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 2px solid #dee2e6;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .mood-btn:hover {
+            transform: scale(1.1);
+        }
+        
+        .mood-btn.selected {
+            border-color: #3498db;
+            background: #e3f2fd;
+        }
+        
+        .progress-bar {
+            background: rgba(255,255,255,0.2);
+            height: 4px;
+            border-radius: 2px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            background: white;
+            height: 100%;
+            width: 33%;
+            border-radius: 2px;
+            transition: width 0.3s ease;
+        }
+        
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3498db;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="splash-container">
+        <div class="meme-card">
+            <!-- Header -->
+            <div class="meme-header">
+                <h2 class="mb-0">
+                    <i class="bi bi-heart-pulse me-2"></i>
+                    Financial Wellness Check
+                </h2>
+                <p class="mb-0 mt-2 opacity-75">Let's start with a quick mood check</p>
+                
+                <!-- Progress Bar -->
+                <div class="progress-bar">
+                    <div class="progress-fill"></div>
+                </div>
+            </div>
+            
+            <!-- Meme Image Placeholder -->
+            <div class="meme-image">
+                <i class="bi bi-emoji-laughing"></i>
+            </div>
+            
+            <!-- Meme Content -->
+            <div class="meme-content">
+                <!-- Category Badge -->
+                <div class="meme-category">
+                    <i class="bi bi-briefcase me-1"></i>
+                    Work Life
+                </div>
+                
+                <!-- Meme Caption -->
+                <div class="meme-caption">
+                    "My paycheck: *exists for 0.2 seconds* *disappears into bills* 💸👻"
+                </div>
+                
+                <!-- Mood Selector -->
+                <div class="mood-selector">
+                    <p class="text-center text-muted mb-3">How does this make you feel?</p>
+                    <div class="mood-buttons">
+                        <div class="mood-btn" data-mood="angry" title="Angry">😠</div>
+                        <div class="mood-btn" data-mood="sad" title="Sad">😢</div>
+                        <div class="mood-btn" data-mood="neutral" title="Neutral">😐</div>
+                        <div class="mood-btn selected" data-mood="happy" title="Happy">😊</div>
+                        <div class="mood-btn" data-mood="excited" title="Excited">🤩</div>
+                    </div>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    <button class="btn btn-skip" onclick="skipMeme()">
+                        <i class="bi bi-skip-forward me-1"></i>
+                        Skip
+                    </button>
+                    <button class="btn btn-continue" onclick="continueToWellness()">
+                        <i class="bi bi-arrow-right me-1"></i>
+                        Continue
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Loading Spinner -->
+            <div class="loading-spinner" id="loadingSpinner">
+                <div class="spinner"></div>
+                <p class="text-muted mb-0">Loading your wellness check...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Mood selection functionality
+        document.querySelectorAll('.mood-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Remove selected class from all buttons
+                document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
+                // Add selected class to clicked button
+                this.classList.add('selected');
+            });
+        });
+        
+        // Skip meme function
+        function skipMeme() {
+            showLoading();
+            // Simulate API call
+            setTimeout(() => {
+                // In real app, this would load the next meme or redirect
+                alert('Meme skipped! Loading next meme...');
+                hideLoading();
+            }, 1500);
+        }
+        
+        // Continue to wellness check
+        function continueToWellness() {
+            const selectedMood = document.querySelector('.mood-btn.selected').dataset.mood;
+            showLoading();
+            
+            // Simulate API call to track mood
+            setTimeout(() => {
+                // In real app, this would redirect to the main wellness check
+                alert(`Mood "${selectedMood}" recorded! Redirecting to wellness check...`);
+                hideLoading();
+            }, 1500);
+        }
+        
+        // Show loading spinner
+        function showLoading() {
+            document.querySelector('.meme-content').style.display = 'none';
+            document.getElementById('loadingSpinner').style.display = 'block';
+        }
+        
+        // Hide loading spinner
+        function hideLoading() {
+            document.querySelector('.meme-content').style.display = 'block';
+            document.getElementById('loadingSpinner').style.display = 'none';
+        }
+        
+        // Auto-advance after 10 seconds (optional)
+        let autoAdvanceTimer;
+        function startAutoAdvance() {
+            autoAdvanceTimer = setTimeout(() => {
+                if (confirm('Would you like to continue to your wellness check?')) {
+                    continueToWellness();
+                } else {
+                    skipMeme();
+                }
+            }, 10000);
+        }
+        
+        // Start auto-advance when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            startAutoAdvance();
+        });
+        
+        // Clear timer when user interacts
+        document.querySelectorAll('.mood-btn, .btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                clearTimeout(autoAdvanceTimer);
+            });
+        });
+    </script>
+</body>
+</html>

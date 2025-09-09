@@ -1,0 +1,48 @@
+# =====================================================
+# Mingus Meme Splash Page - Development Dockerfile
+# Optimized for development with hot reload and debugging
+# =====================================================
+
+FROM python:3.11-slim
+
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    FLASK_ENV=development \
+    FLASK_DEBUG=1 \
+    FLASK_APP=meme_admin_app.py
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    libpq-dev \
+    curl \
+    vim \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create application directory
+WORKDIR /app
+
+# Copy requirements and install dependencies
+COPY requirements_meme_admin.txt requirements.txt
+RUN pip install --upgrade pip && \
+    pip install -r requirements.txt && \
+    pip install debugpy watchdog
+
+# Create non-root user
+RUN groupadd -r mingus && useradd -r -g mingus mingus
+
+# Create necessary directories
+RUN mkdir -p /app/static/uploads \
+    /app/logs \
+    /app/database_backups \
+    && chown -R mingus:mingus /app
+
+# Switch to non-root user
+USER mingus
+
+# Expose ports
+EXPOSE 5000 5678
+
+# Default command for development
+CMD ["flask", "run", "--host=0.0.0.0", "--port=5000", "--reload"]

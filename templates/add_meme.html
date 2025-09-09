@@ -1,0 +1,342 @@
+{% extends "base.html" %}
+
+{% block title %}Add New Meme - Mingus Meme Admin{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="h3 mb-0">
+                <i class="bi bi-plus-circle me-2"></i>
+                Add New Meme
+            </h1>
+            <a href="{{ url_for('list_memes') }}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-1"></i>
+                Back to List
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-upload me-2"></i>
+                    Meme Information
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" enctype="multipart/form-data" id="memeForm">
+                    <!-- Image Upload -->
+                    <div class="mb-4">
+                        <label for="image" class="form-label">
+                            <i class="bi bi-image me-1"></i>
+                            Image File <span class="text-danger">*</span>
+                        </label>
+                        <input type="file" 
+                               class="form-control" 
+                               id="image" 
+                               name="image" 
+                               accept="image/*" 
+                               required
+                               onchange="previewImage(this)">
+                        <div class="form-text">
+                            <i class="bi bi-info-circle me-1"></i>
+                            Supported formats: PNG, JPG, JPEG, GIF, WEBP. Maximum size: 5MB.
+                        </div>
+                        
+                        <!-- Image Preview -->
+                        <div class="mt-3" id="preview-container" style="display: none;">
+                            <label class="form-label">Preview:</label>
+                            <div class="border rounded p-3 text-center">
+                                <img id="image-preview" 
+                                     class="img-fluid" 
+                                     style="max-height: 300px; max-width: 100%;"
+                                     alt="Image preview">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Category Selection -->
+                    <div class="mb-4">
+                        <label for="category" class="form-label">
+                            <i class="bi bi-tags me-1"></i>
+                            Category <span class="text-danger">*</span>
+                        </label>
+                        <select class="form-select" id="category" name="category" required>
+                            <option value="">Select a category...</option>
+                            {% for category in categories %}
+                            <option value="{{ category }}">
+                                {{ category.replace('_', ' ').title() }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        <div class="form-text">
+                            <i class="bi bi-info-circle me-1"></i>
+                            Choose the appropriate category for this meme.
+                        </div>
+                    </div>
+
+                    <!-- Caption -->
+                    <div class="mb-4">
+                        <label for="caption" class="form-label">
+                            <i class="bi bi-chat-text me-1"></i>
+                            Caption <span class="text-danger">*</span>
+                        </label>
+                        <textarea class="form-control" 
+                                  id="caption" 
+                                  name="caption" 
+                                  rows="3" 
+                                  placeholder="Enter the meme caption..."
+                                  required
+                                  maxlength="500"></textarea>
+                        <div class="form-text">
+                            <i class="bi bi-info-circle me-1"></i>
+                            The main text that appears with the meme. Maximum 500 characters.
+                        </div>
+                        <div class="text-end">
+                            <small class="text-muted">
+                                <span id="caption-count">0</span>/500 characters
+                            </small>
+                        </div>
+                    </div>
+
+                    <!-- Alt Text -->
+                    <div class="mb-4">
+                        <label for="alt_text" class="form-label">
+                            <i class="bi bi-eye me-1"></i>
+                            Alt Text <span class="text-danger">*</span>
+                        </label>
+                        <textarea class="form-control" 
+                                  id="alt_text" 
+                                  name="alt_text" 
+                                  rows="2" 
+                                  placeholder="Describe the image for accessibility..."
+                                  required
+                                  maxlength="200"></textarea>
+                        <div class="form-text">
+                            <i class="bi bi-info-circle me-1"></i>
+                            Description of the image for screen readers and accessibility. Maximum 200 characters.
+                        </div>
+                        <div class="text-end">
+                            <small class="text-muted">
+                                <span id="alt-text-count">0</span>/200 characters
+                            </small>
+                        </div>
+                    </div>
+
+                    <!-- Active Status -->
+                    <div class="mb-4">
+                        <div class="form-check">
+                            <input class="form-check-input" 
+                                   type="checkbox" 
+                                   id="is_active" 
+                                   name="is_active" 
+                                   checked>
+                            <label class="form-check-label" for="is_active">
+                                <i class="bi bi-check-circle me-1"></i>
+                                Active (meme will be shown to users)
+                            </label>
+                        </div>
+                        <div class="form-text">
+                            <i class="bi bi-info-circle me-1"></i>
+                            Uncheck to temporarily hide this meme from users.
+                        </div>
+                    </div>
+
+                    <!-- Submit Buttons -->
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-circle me-1"></i>
+                            Add Meme
+                        </button>
+                        <button type="reset" class="btn btn-outline-secondary" onclick="resetForm()">
+                            <i class="bi bi-arrow-clockwise me-1"></i>
+                            Reset Form
+                        </button>
+                        <a href="{{ url_for('list_memes') }}" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-circle me-1"></i>
+                            Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Help Panel -->
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-question-circle me-2"></i>
+                    Help & Guidelines
+                </h5>
+            </div>
+            <div class="card-body">
+                <h6 class="text-primary">
+                    <i class="bi bi-lightbulb me-1"></i>
+                    Category Guidelines
+                </h6>
+                <ul class="list-unstyled small">
+                    <li><strong>Faith:</strong> Religious/spiritual financial struggles</li>
+                    <li><strong>Work Life:</strong> Work-related financial challenges</li>
+                    <li><strong>Friendships:</strong> Social spending and friend expenses</li>
+                    <li><strong>Children:</strong> Parenting and child-related costs</li>
+                    <li><strong>Relationships:</strong> Dating, marriage, relationship expenses</li>
+                    <li><strong>Going Out:</strong> Entertainment and social activities</li>
+                </ul>
+
+                <h6 class="text-primary mt-3">
+                    <i class="bi bi-shield-check me-1"></i>
+                    Best Practices
+                </h6>
+                <ul class="list-unstyled small">
+                    <li>• Use high-quality images (800x600 or larger)</li>
+                    <li>• Keep captions relatable and humorous</li>
+                    <li>• Write descriptive alt text for accessibility</li>
+                    <li>• Test memes before making them active</li>
+                    <li>• Use appropriate file formats (PNG, JPG preferred)</li>
+                </ul>
+
+                <h6 class="text-primary mt-3">
+                    <i class="bi bi-exclamation-triangle me-1"></i>
+                    Important Notes
+                </h6>
+                <ul class="list-unstyled small">
+                    <li>• All fields are required</li>
+                    <li>• Maximum file size: 5MB</li>
+                    <li>• Images are automatically optimized</li>
+                    <li>• Changes are saved immediately</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Category Icons Reference -->
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-emoji-smile me-2"></i>
+                    Category Icons
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-2">
+                    {% set category_icons = {
+                        'faith': 'bi-heart',
+                        'work_life': 'bi-briefcase',
+                        'friendships': 'bi-people',
+                        'children': 'bi-emoji-smile',
+                        'relationships': 'bi-heart-fill',
+                        'going_out': 'bi-cup-hot'
+                    } %}
+                    {% for category in categories %}
+                    <div class="col-6 text-center">
+                        <i class="bi {{ category_icons.get(category, 'bi-tag') }} text-primary" style="font-size: 1.5rem;"></i>
+                        <div class="small text-muted">{{ category.replace('_', ' ').title() }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Character counters
+document.getElementById('caption').addEventListener('input', function() {
+    const count = this.value.length;
+    document.getElementById('caption-count').textContent = count;
+    
+    if (count > 450) {
+        document.getElementById('caption-count').className = 'text-warning';
+    } else if (count > 480) {
+        document.getElementById('caption-count').className = 'text-danger';
+    } else {
+        document.getElementById('caption-count').className = 'text-muted';
+    }
+});
+
+document.getElementById('alt_text').addEventListener('input', function() {
+    const count = this.value.length;
+    document.getElementById('alt-text-count').textContent = count;
+    
+    if (count > 180) {
+        document.getElementById('alt-text-count').className = 'text-warning';
+    } else if (count > 190) {
+        document.getElementById('alt-text-count').className = 'text-danger';
+    } else {
+        document.getElementById('alt-text-count').className = 'text-muted';
+    }
+});
+
+// Form validation
+document.getElementById('memeForm').addEventListener('submit', function(e) {
+    const fileInput = document.getElementById('image');
+    const file = fileInput.files[0];
+    
+    if (file) {
+        // Check file size (5MB = 5 * 1024 * 1024 bytes)
+        if (file.size > 5 * 1024 * 1024) {
+            e.preventDefault();
+            alert('File size must be less than 5MB');
+            return false;
+        }
+        
+        // Check file type
+        const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/webp'];
+        if (!allowedTypes.includes(file.type)) {
+            e.preventDefault();
+            alert('Please select a valid image file (PNG, JPG, JPEG, GIF, or WEBP)');
+            return false;
+        }
+    }
+});
+
+// Reset form function
+function resetForm() {
+    document.getElementById('memeForm').reset();
+    document.getElementById('preview-container').style.display = 'none';
+    document.getElementById('caption-count').textContent = '0';
+    document.getElementById('alt-text-count').textContent = '0';
+    document.getElementById('caption-count').className = 'text-muted';
+    document.getElementById('alt-text-count').className = 'text-muted';
+}
+
+// Enhanced image preview
+function previewImage(input) {
+    if (input.files && input.files[0]) {
+        const file = input.files[0];
+        
+        // Check file size
+        if (file.size > 5 * 1024 * 1024) {
+            alert('File size must be less than 5MB');
+            input.value = '';
+            return;
+        }
+        
+        // Check file type
+        const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/webp'];
+        if (!allowedTypes.includes(file.type)) {
+            alert('Please select a valid image file (PNG, JPG, JPEG, GIF, or WEBP)');
+            input.value = '';
+            return;
+        }
+        
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const preview = document.getElementById('image-preview');
+            const container = document.getElementById('preview-container');
+            
+            preview.src = e.target.result;
+            container.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}Page Not Found - Mingus Meme Admin{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 text-center">
+        <div class="card">
+            <div class="card-body py-5">
+                <i class="bi bi-exclamation-triangle text-warning" style="font-size: 4rem;"></i>
+                <h1 class="display-4 text-muted mt-3">404</h1>
+                <h2 class="h4 mb-3">Page Not Found</h2>
+                <p class="text-muted mb-4">
+                    The page you're looking for doesn't exist or has been moved.
+                </p>
+                <div class="d-flex gap-2 justify-content-center">
+                    <a href="{{ url_for('index') }}" class="btn btn-primary">
+                        <i class="bi bi-house me-1"></i>
+                        Go to Dashboard
+                    </a>
+                    <a href="{{ url_for('list_memes') }}" class="btn btn-outline-secondary">
+                        <i class="bi bi-images me-1"></i>
+                        View Memes
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

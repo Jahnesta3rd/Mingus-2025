@@ -1,0 +1,273 @@
+{% extends "base.html" %}
+
+{% block title %}All Memes - Mingus Meme Admin{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="h3 mb-0">
+                <i class="bi bi-images me-2"></i>
+                All Memes
+            </h1>
+            <a href="{{ url_for('add_meme') }}" class="btn btn-primary">
+                <i class="bi bi-plus-circle me-1"></i>
+                Add New Meme
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-md-3">
+                        <label for="categoryFilter" class="form-label">Filter by Category:</label>
+                        <select class="form-select" id="categoryFilter" onchange="filterByCategory()">
+                            <option value="">All Categories</option>
+                            {% for category in categories %}
+                            <option value="{{ category }}">{{ category.replace('_', ' ').title() }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="statusFilter" class="form-label">Filter by Status:</label>
+                        <select class="form-select" id="statusFilter" onchange="filterByStatus()">
+                            <option value="">All Status</option>
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="searchInput" class="form-label">Search:</label>
+                        <input type="text" class="form-control" id="searchInput" placeholder="Search by caption or alt text..." onkeyup="searchMemes()">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Memes Table -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-table me-2"></i>
+                    Memes List ({{ total }} total)
+                </h5>
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="clearFilters()">
+                        <i class="bi bi-x-circle me-1"></i>
+                        Clear Filters
+                    </button>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                {% if memes %}
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0" id="memesTable">
+                        <thead>
+                            <tr>
+                                <th>Image</th>
+                                <th>Category</th>
+                                <th>Caption</th>
+                                <th>Alt Text</th>
+                                <th>Status</th>
+                                <th>Created</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for meme in memes %}
+                            <tr data-category="{{ meme.category }}" data-status="{{ 'active' if meme.is_active else 'inactive' }}" data-search="{{ (meme.caption + ' ' + meme.alt_text).lower() }}">
+                                <td>
+                                    <img src="{{ url_for('uploaded_file', filename=meme.image_url) }}" 
+                                         alt="{{ meme.alt_text }}" 
+                                         class="meme-thumbnail"
+                                         onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHZpZXdCb3g9IjAgMCA4MCA4MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjgwIiBoZWlnaHQ9IjgwIiBmaWxsPSIjRjVGNUY1Ii8+CjxwYXRoIGQ9Ik0yMCAyMEg2MFY2MEgyMFYyMFoiIHN0cm9rZT0iI0NDQyIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIi8+CjxwYXRoIGQ9Ik0zMCAzMEg1MFY1MEgzMFYzMFoiIHN0cm9rZT0iI0NDQyIgc3Ryb2tlLXdpZHRoPSIxLjUiIGZpbGw9Im5vbmUiLz4KPC9zdmc+Cg=='">
+                                </td>
+                                <td>
+                                    <span class="badge bg-primary category-badge">
+                                        {{ meme.category.replace('_', ' ').title() }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="text-truncate-custom" title="{{ meme.caption }}">
+                                        {{ meme.caption }}
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="text-truncate-custom" title="{{ meme.alt_text }}">
+                                        {{ meme.alt_text }}
+                                    </div>
+                                </td>
+                                <td>
+                                    {% if meme.is_active %}
+                                        <span class="badge bg-success status-badge">
+                                            <i class="bi bi-check-circle me-1"></i>
+                                            Active
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-secondary status-badge">
+                                            <i class="bi bi-pause-circle me-1"></i>
+                                            Inactive
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <small class="text-muted">
+                                        {{ meme.created_at[:10] }}
+                                    </small>
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a href="{{ url_for('edit_meme', meme_id=meme.id) }}" 
+                                           class="btn btn-outline-primary btn-sm" 
+                                           title="Edit meme">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <form method="POST" action="{{ url_for('delete_meme', meme_id=meme.id) }}" 
+                                              style="display: inline;" 
+                                              onsubmit="return confirm('Are you sure you want to delete this meme? This action cannot be undone.');">
+                                            <button type="submit" 
+                                                    class="btn btn-outline-danger btn-sm btn-delete" 
+                                                    title="Delete meme">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Pagination -->
+                {% if total > per_page %}
+                <div class="card-footer">
+                    <nav aria-label="Meme pagination">
+                        <ul class="pagination justify-content-center mb-0">
+                            {% if page > 1 %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('list_memes', page=page-1) }}">Previous</a>
+                            </li>
+                            {% endif %}
+                            
+                            {% for p in range(1, (total // per_page) + 2) %}
+                                {% if p == page %}
+                                <li class="page-item active">
+                                    <span class="page-link">{{ p }}</span>
+                                </li>
+                                {% elif p <= (total // per_page) + 1 %}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ url_for('list_memes', page=p) }}">{{ p }}</a>
+                                </li>
+                                {% endif %}
+                            {% endfor %}
+                            
+                            {% if page < (total // per_page) + 1 %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('list_memes', page=page+1) }}">Next</a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                </div>
+                {% endif %}
+                
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="bi bi-images text-muted" style="font-size: 3rem;"></i>
+                    <h5 class="text-muted mt-3">No memes found</h5>
+                    <p class="text-muted">Get started by adding your first meme!</p>
+                    <a href="{{ url_for('add_meme') }}" class="btn btn-primary">
+                        <i class="bi bi-plus-circle me-1"></i>
+                        Add First Meme
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function filterByCategory() {
+    const filter = document.getElementById('categoryFilter').value.toLowerCase();
+    const rows = document.querySelectorAll('#memesTable tbody tr');
+    
+    rows.forEach(row => {
+        const category = row.dataset.category;
+        if (!filter || category === filter) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+}
+
+function filterByStatus() {
+    const filter = document.getElementById('statusFilter').value.toLowerCase();
+    const rows = document.querySelectorAll('#memesTable tbody tr');
+    
+    rows.forEach(row => {
+        const status = row.dataset.status;
+        if (!filter || status === filter) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+}
+
+function searchMemes() {
+    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+    const rows = document.querySelectorAll('#memesTable tbody tr');
+    
+    rows.forEach(row => {
+        const searchText = row.dataset.search;
+        if (!searchTerm || searchText.includes(searchTerm)) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+}
+
+function clearFilters() {
+    document.getElementById('categoryFilter').value = '';
+    document.getElementById('statusFilter').value = '';
+    document.getElementById('searchInput').value = '';
+    
+    const rows = document.querySelectorAll('#memesTable tbody tr');
+    rows.forEach(row => {
+        row.style.display = '';
+    });
+}
+
+// Apply filters on page load if URL parameters exist
+document.addEventListener('DOMContentLoaded', function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const category = urlParams.get('category');
+    const status = urlParams.get('status');
+    
+    if (category) {
+        document.getElementById('categoryFilter').value = category;
+        filterByCategory();
+    }
+    
+    if (status) {
+        document.getElementById('statusFilter').value = status;
+        filterByStatus();
+    }
+});
+</script>
+{% endblock %}

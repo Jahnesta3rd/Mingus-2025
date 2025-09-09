@@ -1,0 +1,188 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Mingus Meme Admin{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="h3 mb-0">
+                <i class="bi bi-speedometer2 me-2"></i>
+                Meme Admin Dashboard
+            </h1>
+            <a href="{{ url_for('add_meme') }}" class="btn btn-primary">
+                <i class="bi bi-plus-circle me-1"></i>
+                Add New Meme
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card text-center">
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-center mb-2">
+                    <i class="bi bi-images text-primary" style="font-size: 2rem;"></i>
+                </div>
+                <h3 class="card-title text-primary">{{ total_memes }}</h3>
+                <p class="card-text text-muted">Total Memes</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card text-center">
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-center mb-2">
+                    <i class="bi bi-check-circle text-success" style="font-size: 2rem;"></i>
+                </div>
+                <h3 class="card-title text-success">{{ active_memes }}</h3>
+                <p class="card-text text-muted">Active Memes</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card text-center">
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-center mb-2">
+                    <i class="bi bi-pause-circle text-warning" style="font-size: 2rem;"></i>
+                </div>
+                <h3 class="card-title text-warning">{{ total_memes - active_memes }}</h3>
+                <p class="card-text text-muted">Inactive Memes</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Category Statistics -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-bar-chart me-2"></i>
+                    Memes by Category
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for category in categories %}
+                    <div class="col-md-4 col-lg-2 mb-3">
+                        <div class="text-center">
+                            <div class="mb-2">
+                                {% set category_icons = {
+                                    'faith': 'bi-heart',
+                                    'work_life': 'bi-briefcase',
+                                    'friendships': 'bi-people',
+                                    'children': 'bi-emoji-smile',
+                                    'relationships': 'bi-heart-fill',
+                                    'going_out': 'bi-cup-hot'
+                                } %}
+                                <i class="bi {{ category_icons.get(category, 'bi-tag') }} text-primary" style="font-size: 1.5rem;"></i>
+                            </div>
+                            <h6 class="mb-1">{{ category.replace('_', ' ').title() }}</h6>
+                            <span class="badge bg-primary category-badge">
+                                {{ category_stats.get(category, 0) }} memes
+                            </span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-lightning me-2"></i>
+                    Quick Actions
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <a href="{{ url_for('add_meme') }}" class="btn btn-outline-primary w-100">
+                            <i class="bi bi-plus-circle me-2"></i>
+                            Add New Meme
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <a href="{{ url_for('list_memes') }}" class="btn btn-outline-secondary w-100">
+                            <i class="bi bi-list-ul me-2"></i>
+                            View All Memes
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <a href="{{ url_for('api_memes') }}" class="btn btn-outline-info w-100" target="_blank">
+                            <i class="bi bi-code-slash me-2"></i>
+                            API Endpoint
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <button class="btn btn-outline-success w-100" onclick="location.reload()">
+                            <i class="bi bi-arrow-clockwise me-2"></i>
+                            Refresh Data
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Activity (if we had activity logs) -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-clock-history me-2"></i>
+                    System Information
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Database Status</h6>
+                        <p class="text-muted">
+                            <i class="bi bi-check-circle text-success me-1"></i>
+                            Connected to SQLite database
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>File Storage</h6>
+                        <p class="text-muted">
+                            <i class="bi bi-folder me-1"></i>
+                            Images stored in static/uploads/
+                        </p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Supported Formats</h6>
+                        <p class="text-muted">
+                            <i class="bi bi-file-image me-1"></i>
+                            PNG, JPG, JPEG, GIF, WEBP
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Max File Size</h6>
+                        <p class="text-muted">
+                            <i class="bi bi-hdd me-1"></i>
+                            5MB per image
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,58 @@
+# =====================================================
+# Mingus Meme Splash Page - Development Docker Compose
+# Local development with hot reload and debugging
+# =====================================================
+
+version: '3.8'
+
+services:
+  # Development Flask application
+  mingus-meme-app-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: mingus-meme-app-dev
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+      - "5678:5678"  # Debug port
+    environment:
+      - FLASK_ENV=development
+      - FLASK_DEBUG=1
+      - SECRET_KEY=dev-secret-key-change-in-production
+      - DATABASE_URL=sqlite:///app/mingus_memes.db
+      - UPLOAD_FOLDER=/app/static/uploads
+      - MAX_FILE_SIZE=5242880
+      - LOG_LEVEL=DEBUG
+    volumes:
+      - .:/app
+      - /app/__pycache__
+      - /app/.pytest_cache
+    depends_on:
+      - redis-dev
+    networks:
+      - mingus-dev-network
+    command: ["flask", "run", "--host=0.0.0.0", "--port=5000", "--reload"]
+
+  # Development Redis
+  redis-dev:
+    image: redis:7-alpine
+    container_name: mingus-redis-dev
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_dev_data:/data
+    networks:
+      - mingus-dev-network
+
+  # Development database (SQLite - no separate container needed)
+  # The SQLite database will be created in the app volume
+
+networks:
+  mingus-dev-network:
+    driver: bridge
+
+volumes:
+  redis_dev_data:
+    driver: local
