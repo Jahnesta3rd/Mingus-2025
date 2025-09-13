@@ -1,0 +1,213 @@
+{
+  "content_manifest": {
+    "last_updated": "2025-09-13T12:25:05.051896",
+    "total_items": 10,
+    "categories": {
+      "uncategorized": 10
+    },
+    "api_version": "1.0",
+    "generated_by": "mingus-instagram-extractor"
+  },
+  "items": [
+    {
+      "id": "content_702",
+      "title": "therionseye",
+      "description": "Content: therionseye",
+      "category": "uncategorized",
+      "confidence": "high",
+      "keywords": [
+        "content",
+        "media",
+        "social"
+      ],
+      "media_type": "video",
+      "file_path": "output/videos/uncategorized/Video by therionseye.mp4",
+      "thumbnail_path": "output/videos/uncategorized/Video by therionseye.mp4",
+      "file_size": 621966,
+      "file_size_mb": 0.59,
+      "extracted_at": "2025-09-13T08:39:45.722108",
+      "display_priority": 7,
+      "instagram_url": ""
+    },
+    {
+      "id": "content_983",
+      "title": "_humbled_by_life",
+      "description": "Content: _humbled_by_life",
+      "category": "uncategorized",
+      "confidence": "high",
+      "keywords": [
+        "content",
+        "media",
+        "social"
+      ],
+      "media_type": "video",
+      "file_path": "output/videos/uncategorized/Video by _humbled_by_life.mp4",
+      "thumbnail_path": "output/videos/uncategorized/Video by _humbled_by_life.mp4",
+      "file_size": 1119486,
+      "file_size_mb": 1.07,
+      "extracted_at": "2025-09-13T08:39:38.111979",
+      "display_priority": 7,
+      "instagram_url": ""
+    },
+    {
+      "id": "content_820",
+      "title": "success_in_jesus",
+      "description": "Content: success_in_jesus",
+      "category": "uncategorized",
+      "confidence": "high",
+      "keywords": [
+        "content",
+        "media",
+        "social"
+      ],
+      "media_type": "video",
+      "file_path": "output/videos/uncategorized/Video by success_in_jesus.mp4",
+      "thumbnail_path": "output/videos/uncategorized/Video by success_in_jesus.mp4",
+      "file_size": 3784752,
+      "file_size_mb": 3.61,
+      "extracted_at": "2025-09-13T08:39:32.391810",
+      "display_priority": 7,
+      "instagram_url": ""
+    },
+    {
+      "id": "content_340",
+      "title": "disciplinedhabits",
+      "description": "Content: disciplinedhabits",
+      "category": "uncategorized",
+      "confidence": "high",
+      "keywords": [
+        "content",
+        "media",
+        "social"
+      ],
+      "media_type": "video",
+      "file_path": "output/videos/uncategorized/Video by disciplinedhabits.jpg",
+      "thumbnail_path": "output/videos/uncategorized/Video by disciplinedhabits.jpg",
+      "file_size": 92811,
+      "file_size_mb": 0.09,
+      "extracted_at": "2025-09-13T08:39:35.739989",
+      "display_priority": 7,
+      "instagram_url": ""
+    },
+    {
+      "id": "content_008",
+      "title": "disciplinedhabits",
+      "description": "Content: disciplinedhabits",
+      "category": "uncategorized",
+      "confidence": "high",
+      "keywords": [
+        "content",
+        "media",
+        "social"
+      ],
+      "media_type": "video",
+      "file_path": "output/videos/uncategorized/Video by disciplinedhabits.mp4",
+      "thumbnail_path": "output/videos/uncategorized/Video by disciplinedhabits.mp4",
+      "file_size": 5249758,
+      "file_size_mb": 5.01,
+      "extracted_at": "2025-09-13T08:39:36.030258",
+      "display_priority": 7,
+      "instagram_url": ""
+    },
+    {
+      "id": "content_152",
+      "title": "success_in_jesus",
+      "description": "Content: success_in_jesus",
+      "category": "uncategorized",
+      "confidence": "high",
+      "keywords": [
+        "content",
+        "media",
+        "social"
+      ],
+      "media_type": "video",
+      "file_path": "output/videos/uncategorized/Video by success_in_jesus.jpg",
+      "thumbnail_path": "output/videos/uncategorized/Video by success_in_jesus.jpg",
+      "file_size": 116417,
+      "file_size_mb": 0.11,
+      "extracted_at": "2025-09-13T08:39:32.140735",
+      "display_priority": 7,
+      "instagram_url": ""
+    },
+    {
+      "id": "content_215",
+      "title": "therionseye",
+      "description": "Content: therionseye",
+      "category": "uncategorized",
+      "confidence": "high",
+      "keywords": [
+        "content",
+        "media",
+        "social"
+      ],
+      "media_type": "video",
+      "file_path": "output/videos/uncategorized/Video by therionseye.jpg",
+      "thumbnail_path": "output/videos/uncategorized/Video by therionseye.jpg",
+      "file_size": 31480,
+      "file_size_mb": 0.03,
+      "extracted_at": "2025-09-13T08:39:45.451714",
+      "display_priority": 7,
+      "instagram_url": ""
+    },
+    {
+      "id": "content_386",
+      "title": "_humbled_by_life",
+      "description": "Content: _humbled_by_life",
+      "category": "uncategorized",
+      "confidence": "high",
+      "keywords": [
+        "content",
+        "media",
+        "social"
+      ],
+      "media_type": "video",
+      "file_path": "output/videos/uncategorized/Video by _humbled_by_life.jpg",
+      "thumbnail_path": "output/videos/uncategorized/Video by _humbled_by_life.jpg",
+      "file_size": 31816,
+      "file_size_mb": 0.03,
+      "extracted_at": "2025-09-13T08:39:37.722600",
+      "display_priority": 7,
+      "instagram_url": ""
+    },
+    {
+      "id": "content_223",
+      "title": "Video 2",
+      "description": "Content: Video 2",
+      "category": "uncategorized",
+      "confidence": "high",
+      "keywords": [
+        "content",
+        "media",
+        "social"
+      ],
+      "media_type": "image",
+      "file_path": "output/images/uncategorized/Video 2.jpg",
+      "thumbnail_path": "output/images/uncategorized/Video 2.jpg",
+      "file_size": 60107,
+      "file_size_mb": 0.06,
+      "extracted_at": "2025-09-13T08:39:43.167107",
+      "display_priority": 7,
+      "instagram_url": ""
+    },
+    {
+      "id": "content_862",
+      "title": "Video 2",
+      "description": "Content: Video 2",
+      "category": "uncategorized",
+      "confidence": "high",
+      "keywords": [
+        "content",
+        "media",
+        "social"
+      ],
+      "media_type": "image",
+      "file_path": "output/images/uncategorized/Video 2.mp4",
+      "thumbnail_path": "output/images/uncategorized/Video 2.mp4",
+      "file_size": 2077066,
+      "file_size_mb": 1.98,
+      "extracted_at": "2025-09-13T08:39:43.403171",
+      "display_priority": 7,
+      "instagram_url": ""
+    }
+  ]
+}

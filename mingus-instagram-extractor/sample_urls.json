@@ -1,0 +1,80 @@
+[
+  {
+    "url": "https://www.instagram.com/p/ABC123DEF456/",
+    "category": "faith",
+    "caption": "Beautiful sunset from my morning walk #grateful #blessed",
+    "alt_text": "Instagram post showing a beautiful sunset during a morning walk",
+    "creator_credit": "@nature_lover",
+    "creator_link": "https://www.instagram.com/nature_lover/",
+    "permission_status": "granted",
+    "notes": "Personal photo from morning meditation walk",
+    "original_note_id": "note_001",
+    "content_type": "image",
+    "post_id": "ABC123DEF456"
+  },
+  {
+    "url": "https://www.instagram.com/reel/XYZ789GHI012/",
+    "category": "work_life",
+    "caption": "Behind the scenes of our latest project launch! So excited to share this with everyone 🚀",
+    "alt_text": "Instagram reel showing behind the scenes of a project launch",
+    "creator_credit": "@work_enthusiast",
+    "creator_link": "https://www.instagram.com/work_enthusiast/",
+    "permission_status": "granted",
+    "notes": "Work celebration video from team meeting",
+    "original_note_id": "note_002",
+    "content_type": "video",
+    "post_id": "XYZ789GHI012"
+  },
+  {
+    "url": "https://www.instagram.com/p/MNO345PQR678/",
+    "category": "friendships",
+    "caption": "Coffee date with the bestie! ☕️ #friendship #coffee #goodtimes",
+    "alt_text": "Instagram post showing friends having coffee together",
+    "creator_credit": "@coffee_friends",
+    "creator_link": "https://www.instagram.com/coffee_friends/",
+    "permission_status": "granted",
+    "notes": "Fun memory from coffee shop meetup",
+    "original_note_id": "note_003",
+    "content_type": "image",
+    "post_id": "MNO345PQR678"
+  },
+  {
+    "url": "https://www.instagram.com/tv/STU901VWX234/",
+    "category": "children",
+    "caption": "Little one's first steps! 🥰 Can't believe how fast they're growing up",
+    "alt_text": "Instagram TV video showing a child's first steps",
+    "creator_credit": "@proud_parent",
+    "creator_link": "https://www.instagram.com/proud_parent/",
+    "permission_status": "granted",
+    "notes": "Milestone moment captured on video",
+    "original_note_id": "note_004",
+    "content_type": "video",
+    "post_id": "STU901VWX234"
+  },
+  {
+    "url": "https://www.instagram.com/p/YZA567BCD890/",
+    "category": "relationships",
+    "caption": "Anniversary dinner with my amazing partner ❤️ #love #anniversary #grateful",
+    "alt_text": "Instagram post showing an anniversary dinner celebration",
+    "creator_credit": "@love_birds",
+    "creator_link": "https://www.instagram.com/love_birds/",
+    "permission_status": "granted",
+    "notes": "Special moment from our anniversary",
+    "original_note_id": "note_005",
+    "content_type": "image",
+    "post_id": "YZA567BCD890"
+  },
+  {
+    "url": "https://www.instagram.com/reel/EFG123HIJ456/",
+    "category": "going_out",
+    "caption": "Amazing concert last night! The energy was incredible 🎵 #concert #music #nightout",
+    "alt_text": "Instagram reel from a concert showing the crowd and stage",
+    "creator_credit": "@music_lover",
+    "creator_link": "https://www.instagram.com/music_lover/",
+    "permission_status": "granted",
+    "notes": "Concert memory from weekend night out",
+    "original_note_id": "note_006",
+    "content_type": "video",
+    "post_id": "EFG123HIJ456"
+  }
+]

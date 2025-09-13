@@ -1,0 +1,46 @@
+{
+  "download_timestamp": "2025-09-13T08:31:34.895398",
+  "statistics": {
+    "total_items": 6,
+    "successful_downloads": 0,
+    "failed_downloads": 6,
+    "skipped_downloads": 0,
+    "total_size_bytes": 0,
+    "categories": {},
+    "content_types": {}
+  },
+  "successful_downloads": [],
+  "failed_downloads": [
+    {
+      "url": "https://www.instagram.com/p/DOJjLIxDRZr/",
+      "category": "instagram",
+      "error": "No file downloaded"
+    },
+    {
+      "url": "https://www.instagram.com/reel/Cl_cEsaJOQL/",
+      "category": "instagram",
+      "error": "yt-dlp error: ERROR: [Instagram] Cl_cEsaJOQL: Requested format is not available. Use --list-formats for a list of available formats\n"
+    },
+    {
+      "url": "https://www.instagram.com/reel/CtZoAKULul7/",
+      "category": "instagram",
+      "error": "yt-dlp error: ERROR: [Instagram] CtZoAKULul7: Requested format is not available. Use --list-formats for a list of available formats\n"
+    },
+    {
+      "url": "https://www.instagram.com/reel/DDGY-p8NgxC/",
+      "category": "instagram",
+      "error": "yt-dlp error: ERROR: [Instagram] DDGY-p8NgxC: Requested format is not available. Use --list-formats for a list of available formats\n"
+    },
+    {
+      "url": "https://www.instagram.com/p/CCuiYwJnT_Y/",
+      "category": "instagram",
+      "error": "No file downloaded"
+    },
+    {
+      "url": "https://www.instagram.com/reel/DJSltCvvCRq/",
+      "category": "instagram",
+      "error": "yt-dlp error: ERROR: [Instagram] DJSltCvvCRq: Requested format is not available. Use --list-formats for a list of available formats\n"
+    }
+  ],
+  "skipped_downloads": []
+}

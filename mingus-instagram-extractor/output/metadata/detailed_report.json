@@ -1,0 +1,23 @@
+{
+  "session_info": {
+    "start_time": "2025-09-13T08:31:19.655300",
+    "end_time": "2025-09-13T08:31:34.896433",
+    "total_duration_seconds": 15.241134881973267,
+    "total_items": 6
+  },
+  "statistics": {
+    "completed_items": 6,
+    "successful_downloads": 0,
+    "failed_downloads": 6,
+    "skipped_downloads": 0,
+    "success_rate": 0.0,
+    "total_size_bytes": 0,
+    "total_size_mb": 0.0,
+    "categories": {},
+    "content_types": {}
+  },
+  "download_results": {
+    "successful": [],
+    "failed": [
+      {
+        "item": 

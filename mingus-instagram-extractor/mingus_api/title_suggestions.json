@@ -1,0 +1,43 @@
+{
+  "title_suggestions": {
+    "generated_at": "2025-09-13T12:39:53.201860",
+    "total_notes_analyzed": 4457,
+    "categories_analyzed": 7,
+    "suggestions": [
+      "Be Focused This Afternoon",
+      "Be Productive Today",
+      "Be Present Now",
+      "Be Mindful This Moment",
+      "Be Present",
+      "Be Authentic",
+      "Be Grateful",
+      "Be Mindful",
+      "Be Intentional",
+      "Be Courageous",
+      "Be Kind",
+      "Be Patient",
+      "Do What Matters",
+      "Do Your Best",
+      "Do the Work",
+      "Do Something New",
+      "Do It Daily",
+      "Do It Now",
+      "Have Purpose",
+      "Have Clarity"
+    ],
+    "category_breakdown": {
+      "friendships": 498,
+      "going_out": 741,
+      "work_life": 553,
+      "children": 651,
+      "uncategorized": 1580,
+      "relationships": 182,
+      "faith": 252
+    },
+    "top_categories": [
+      "uncategorized",
+      "going_out",
+      "children"
+    ]
+  }
+}

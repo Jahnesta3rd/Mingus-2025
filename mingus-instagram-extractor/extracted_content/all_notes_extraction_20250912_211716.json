@@ -1,0 +1,704 @@
+[
+  {
+    "note_id": 2735,
+    "title": "Error",
+    "body": "",
+    "error": "unsupported operand type(s) for +: 'NoneType' and 'int'",
+    "extracted_at": "2025-09-12T21:17:16.761868",
+    "binary_decoding": {
+      "success": false,
+      "error": "unsupported operand type(s) for +: 'NoneType' and 'int'"
+    },
+    "content_analysis": {
+      "word_count": 0,
+      "char_count": 0,
+      "has_content": false
+    },
+    "categorization": {
+      "primary_category": "error",
+      "confidence_level": "very_low"
+    },
+    "instagram_content": {},
+    "processing_stats": {
+      "binary_decoded": false,
+      "error": true
+    },
+    "url_analysis": {
+      "has_urls": false,
+      "urls": [],
+      "instagram_urls": [],
+      "instagram_posts": [],
+      "instagram_reels": [],
+      "instagram_tv": [],
+      "instagram_stories": [],
+      "is_rich_text": false,
+      "has_formatting": false,
+      "word_count": 0,
+      "char_count": 0,
+      "line_count": 0
+    }
+  },
+  {
+    "note_id": 3558,
+    "title": "Error",
+    "body": "",
+    "error": "unsupported operand type(s) for +: 'NoneType' and 'int'",
+    "extracted_at": "2025-09-12T21:17:16.762080",
+    "binary_decoding": {
+      "success": false,
+      "error": "unsupported operand type(s) for +: 'NoneType' and 'int'"
+    },
+    "content_analysis": {
+      "word_count": 0,
+      "char_count": 0,
+      "has_content": false
+    },
+    "categorization": {
+      "primary_category": "error",
+      "confidence_level": "very_low"
+    },
+    "instagram_content": {},
+    "processing_stats": {
+      "binary_decoded": false,
+      "error": true
+    },
+    "url_analysis": {
+      "has_urls": false,
+      "urls": [],
+      "instagram_urls": [],
+      "instagram_posts": [],
+      "instagram_reels": [],
+      "instagram_tv": [],
+      "instagram_stories": [],
+      "is_rich_text": false,
+      "has_formatting": false,
+      "word_count": 0,
+      "char_count": 0,
+      "line_count": 0
+    }
+  },
+  {
+    "note_id": 4479,
+    "title": "Error",
+    "body": "",
+    "error": "unsupported operand type(s) for +: 'NoneType' and 'int'",
+    "extracted_at": "2025-09-12T21:17:16.762259",
+    "binary_decoding": {
+      "success": false,
+      "error": "unsupported operand type(s) for +: 'NoneType' and 'int'"
+    },
+    "content_analysis": {
+      "word_count": 0,
+      "char_count": 0,
+      "has_content": false
+    },
+    "categorization": {
+      "primary_category": "error",
+      "confidence_level": "very_low"
+    },
+    "instagram_content": {},
+    "processing_stats": {
+      "binary_decoded": false,
+      "error": true
+    },
+    "url_analysis": {
+      "has_urls": false,
+      "urls": [],
+      "instagram_urls": [],
+      "instagram_posts": [],
+      "instagram_reels": [],
+      "instagram_tv": [],
+      "instagram_stories": [],
+      "is_rich_text": false,
+      "has_formatting": false,
+      "word_count": 0,
+      "char_count": 0,
+      "line_count": 0
+    }
+  },
+  {
+    "note_id": 4483,
+    "title": "Error",
+    "body": "",
+    "error": "unsupported operand type(s) for +: 'NoneType' and 'int'",
+    "extracted_at": "2025-09-12T21:17:16.762435",
+    "binary_decoding": {
+      "success": false,
+      "error": "unsupported operand type(s) for +: 'NoneType' and 'int'"
+    },
+    "content_analysis": {
+      "word_count": 0,
+      "char_count": 0,
+      "has_content": false
+    },
+    "categorization": {
+      "primary_category": "error",
+      "confidence_level": "very_low"
+    },
+    "instagram_content": {},
+    "processing_stats": {
+      "binary_decoded": false,
+      "error": true
+    },
+    "url_analysis": {
+      "has_urls": false,
+      "urls": [],
+      "instagram_urls": [],
+      "instagram_posts": [],
+      "instagram_reels": [],
+      "instagram_tv": [],
+      "instagram_stories": [],
+      "is_rich_text": false,
+      "has_formatting": false,
+      "word_count": 0,
+      "char_count": 0,
+      "line_count": 0
+    }
+  },
+  {
+    "note_id": 4487,
+    "title": "Error",
+    "body": "",
+    "error": "unsupported operand type(s) for +: 'NoneType' and 'int'",
+    "extracted_at": "2025-09-12T21:17:16.762630",
+    "binary_decoding": {
+      "success": false,
+      "error": "unsupported operand type(s) for +: 'NoneType' and 'int'"
+    },
+    "content_analysis": {
+      "word_count": 0,
+      "char_count": 0,
+      "has_content": false
+    },
+    "categorization": {
+      "primary_category": "error",
+      "confidence_level": "very_low"
+    },
+    "instagram_content": {},
+    "processing_stats": {
+      "binary_decoded": false,
+      "error": true
+    },
+    "url_analysis": {
+      "has_urls": false,
+      "urls": [],
+      "instagram_urls": [],
+      "instagram_posts": [],
+      "instagram_reels": [],
+      "instagram_tv": [],
+      "instagram_stories": [],
+      "is_rich_text": false,
+      "has_formatting": false,
+      "word_count": 0,
+      "char_count": 0,
+      "line_count": 0
+    }
+  },
+  {
+    "note_id": 4513,
+    "title": "Error",
+    "body": "",
+    "error": "unsupported operand type(s) for +: 'NoneType' and 'int'",
+    "extracted_at": "2025-09-12T21:17:16.762802",
+    "binary_decoding": {
+      "success": false,
+      "error": "unsupported operand type(s) for +: 'NoneType' and 'int'"
+    },
+    "content_analysis": {
+      "word_count": 0,
+      "char_count": 0,
+      "has_content": false
+    },
+    "categorization": {
+      "primary_category": "error",
+      "confidence_level": "very_low"
+    },
+    "instagram_content": {},
+    "processing_stats": {
+      "binary_decoded": false,
+      "error": true
+    },
+    "url_analysis": {
+      "has_urls": false,
+      "urls": [],
+      "instagram_urls": [],
+      "instagram_posts": [],
+      "instagram_reels": [],
+      "instagram_tv": [],
+      "instagram_stories": [],
+      "is_rich_text": false,
+      "has_formatting": false,
+      "word_count": 0,
+      "char_count": 0,
+      "line_count": 0
+    }
+  },
+  {
+    "note_id": 6067,
+    "title": "Error",
+    "body": "",
+    "error": "unsupported operand type(s) for +: 'NoneType' and 'int'",
+    "extracted_at": "2025-09-12T21:17:16.762979",
+    "binary_decoding": {
+      "success": false,
+      "error": "unsupported operand type(s) for +: 'NoneType' and 'int'"
+    },
+    "content_analysis": {
+      "word_count": 0,
+      "char_count": 0,
+      "has_content": false
+    },
+    "categorization": {
+      "primary_category": "error",
+      "confidence_level": "very_low"
+    },
+    "instagram_content": {},
+    "processing_stats": {
+      "binary_decoded": false,
+      "error": true
+    },
+    "url_analysis": {
+      "has_urls": false,
+      "urls": [],
+      "instagram_urls": [],
+      "instagram_posts": [],
+      "instagram_reels": [],
+      "instagram_tv": [],
+      "instagram_stories": [],
+      "is_rich_text": false,
+      "has_formatting": false,
+      "word_count": 0,
+      "char_count": 0,
+      "line_count": 0
+    }
+  },
+  {
+    "note_id": 6190,
+    "title": "Error",
+    "body": "",
+    "error": "unsupported operand type(s) for +: 'NoneType' and 'int'",
+    "extracted_at": "2025-09-12T21:17:16.763179",
+    "binary_decoding": {
+      "success": false,
+      "error": "unsupported operand type(s) for +: 'NoneType' and 'int'"
+    },
+    "content_analysis": {
+      "word_count": 0,
+      "char_count": 0,
+      "has_content": false
+    },
+    "categorization": {
+      "primary_category": "error",
+      "confidence_level": "very_low"
+    },
+    "instagram_content": {},
+    "processing_stats": {
+      "binary_decoded": false,
+      "error": true
+    },
+    "url_analysis": {
+      "has_urls": false,
+      "urls": [],
+      "instagram_urls": [],
+      "instagram_posts": [],
+      "instagram_reels": [],
+      "instagram_tv": [],
+      "instagram_stories": [],
+      "is_rich_text": false,
+      "has_formatting": false,
+      "word_count": 0,
+      "char_count": 0,
+      "line_count": 0
+    }
+  },
+  {
+    "note_id": 6200,
+    "title": "Error",
+    "body": "",
+    "error": "unsupported operand type(s) for +: 'NoneType' and 'int'",
+    "extracted_at": "2025-09-12T21:17:16.763357",
+    "binary_decoding": {
+      "success": false,
+      "error": "unsupported operand type(s) for +: 'NoneType' and 'int'"
+    },
+    "content_analysis": {
+      "word_count": 0,
+      "char_count": 0,
+      "has_content": false
+    },
+    "categorization": {
+      "primary_category": "error",
+      "confidence_level": "very_low"
+    },
+    "instagram_content": {},
+    "processing_stats": {
+      "binary_decoded": false,
+      "error": true
+    },
+    "url_analysis": {
+      "has_urls": false,
+      "urls": [],
+      "instagram_urls": [],
+      "instagram_posts": [],
+      "instagram_reels": [],
+      "instagram_tv": [],
+      "instagram_stories": [],
+      "is_rich_text": false,
+      "has_formatting": false,
+      "word_count": 0,
+      "char_count": 0,
+      "line_count": 0
+    }
+  },
+  {
+    "note_id": 6294,
+    "title": "Error",
+    "body": "",
+    "error": "unsupported operand type(s) for +: 'NoneType' and 'int'",
+    "extracted_at": "2025-09-12T21:17:16.763667",
+    "binary_decoding": {
+      "success": false,
+      "error": "unsupported operand type(s) for +: 'NoneType' and 'int'"
+    },
+    "content_analysis": {
+      "word_count": 0,
+      "char_count": 0,
+      "has_content": false
+    },
+    "categorization": {
+      "primary_category": "error",
+      "confidence_level": "very_low"
+    },
+    "instagram_content": {},
+    "processing_stats": {
+      "binary_decoded": false,
+      "error": true
+    },
+    "url_analysis": {
+      "has_urls": false,
+      "urls": [],
+      "instagram_urls": [],
+      "instagram_posts": [],
+      "instagram_reels": [],
+      "instagram_tv": [],
+      "instagram_stories": [],
+      "is_rich_text": false,
+      "has_formatting": false,
+      "word_count": 0,
+      "char_count": 0,
+      "line_count": 0
+    }
+  },
+  {
+    "note_id": 6310,
+    "title": "Error",
+    "body": "",
+    "error": "unsupported operand type(s) for +: 'NoneType' and 'int'",
+    "extracted_at": "2025-09-12T21:17:16.763937",
+    "binary_decoding": {
+      "success": false,
+      "error": "unsupported operand type(s) for +: 'NoneType' and 'int'"
+    },
+    "content_analysis": {
+      "word_count": 0,
+      "char_count": 0,
+      "has_content": false
+    },
+    "categorization": {
+      "primary_category": "error",
+      "confidence_level": "very_low"
+    },
+    "instagram_content": {},
+    "processing_stats": {
+      "binary_decoded": false,
+      "error": true
+    },
+    "url_analysis": {
+      "has_urls": false,
+      "urls": [],
+      "instagram_urls": [],
+      "instagram_posts": [],
+      "instagram_reels": [],
+      "instagram_tv": [],
+      "instagram_stories": [],
+      "is_rich_text": false,
+      "has_formatting": false,
+      "word_count": 0,
+      "char_count": 0,
+      "line_count": 0
+    }
+  },
+  {
+    "note_id": 6367,
+    "title": "Error",
+    "body": "",
+    "error": "unsupported operand type(s) for +: 'NoneType' and 'int'",
+    "extracted_at": "2025-09-12T21:17:16.764129",
+    "binary_decoding": {
+      "success": false,
+      "error": "unsupported operand type(s) for +: 'NoneType' and 'int'"
+    },
+    "content_analysis": {
+      "word_count": 0,
+      "char_count": 0,
+      "has_content": false
+    },
+    "categorization": {
+      "primary_category": "error",
+      "confidence_level": "very_low"
+    },
+    "instagram_content": {},
+    "processing_stats": {
+      "binary_decoded": false,
+      "error": true
+    },
+    "url_analysis": {
+      "has_urls": false,
+      "urls": [],
+      "instagram_urls": [],
+      "instagram_posts": [],
+      "instagram_reels": [],
+      "instagram_tv": [],
+      "instagram_stories": [],
+      "is_rich_text": false,
+      "has_formatting": false,
+      "word_count": 0,
+      "char_count": 0,
+      "line_count": 0
+    }
+  },
+  {
+    "note_id": 7851,
+    "title": "Error",
+    "body": "",
+    "error": "unsupported operand type(s) for +: 'NoneType' and 'int'",
+    "extracted_at": "2025-09-12T21:17:16.764303",
+    "binary_decoding": {
+      "success": false,
+      "error": "unsupported operand type(s) for +: 'NoneType' and 'int'"
+    },
+    "content_analysis": {
+      "word_count": 0,
+      "char_count": 0,
+      "has_content": false
+    },
+    "categorization": {
+      "primary_category": "error",
+      "confidence_level": "very_low"
+    },
+    "instagram_content": {},
+    "processing_stats": {
+      "binary_decoded": false,
+      "error": true
+    },
+    "url_analysis": {
+      "has_urls": false,
+      "urls": [],
+      "instagram_urls": [],
+      "instagram_posts": [],
+      "instagram_reels": [],
+      "instagram_tv": [],
+      "instagram_stories": [],
+      "is_rich_text": false,
+      "has_formatting": false,
+      "word_count": 0,
+      "char_count": 0,
+      "line_count": 0
+    }
+  },
+  {
+    "note_id": 8747,
+    "title": "Error",
+    "body": "",
+    "error": "unsupported operand type(s) for +: 'NoneType' and 'int'",
+    "extracted_at": "2025-09-12T21:17:16.764473",
+    "binary_decoding": {
+      "success": false,
+      "error": "unsupported operand type(s) for +: 'NoneType' and 'int'"
+    },
+    "content_analysis": {
+      "word_count": 0,
+      "char_count": 0,
+      "has_content": false
+    },
+    "categorization": {
+      "primary_category": "error",
+      "confidence_level": "very_low"
+    },
+    "instagram_content": {},
+    "processing_stats": {
+      "binary_decoded": false,
+      "error": true
+    },
+    "url_analysis": {
+      "has_urls": false,
+      "urls": [],
+      "instagram_urls": [],
+      "instagram_posts": [],
+      "instagram_reels": [],
+      "instagram_tv": [],
+      "instagram_stories": [],
+      "is_rich_text": false,
+      "has_formatting": false,
+      "word_count": 0,
+      "char_count": 0,
+      "line_count": 0
+    }
+  },
+  {
+    "note_id": 10324,
+    "title": "Error",
+    "body": "",
+    "error": "unsupported operand type(s) for +: 'NoneType' and 'int'",
+    "extracted_at": "2025-09-12T21:17:16.764643",
+    "binary_decoding": {
+      "success": false,
+      "error": "unsupported operand type(s) for +: 'NoneType' and 'int'"
+    },
+    "content_analysis": {
+      "word_count": 0,
+      "char_count": 0,
+      "has_content": false
+    },
+    "categorization": {
+      "primary_category": "error",
+      "confidence_level": "very_low"
+    },
+    "instagram_content": {},
+    "processing_stats": {
+      "binary_decoded": false,
+      "error": true
+    },
+    "url_analysis": {
+      "has_urls": false,
+      "urls": [],
+      "instagram_urls": [],
+      "instagram_posts": [],
+      "instagram_reels": [],
+      "instagram_tv": [],
+      "instagram_stories": [],
+      "is_rich_text": false,
+      "has_formatting": false,
+      "word_count": 0,
+      "char_count": 0,
+      "line_count": 0
+    }
+  },
+  {
+    "note_id": 12207,
+    "title": "Error",
+    "body": "",
+    "error": "unsupported operand type(s) for +: 'NoneType' and 'int'",
+    "extracted_at": "2025-09-12T21:17:16.764809",
+    "binary_decoding": {
+      "success": false,
+      "error": "unsupported operand type(s) for +: 'NoneType' and 'int'"
+    },
+    "content_analysis": {
+      "word_count": 0,
+      "char_count": 0,
+      "has_content": false
+    },
+    "categorization": {
+      "primary_category": "error",
+      "confidence_level": "very_low"
+    },
+    "instagram_content": {},
+    "processing_stats": {
+      "binary_decoded": false,
+      "error": true
+    },
+    "url_analysis": {
+      "has_urls": false,
+      "urls": [],
+      "instagram_urls": [],
+      "instagram_posts": [],
+      "instagram_reels": [],
+      "instagram_tv": [],
+      "instagram_stories": [],
+      "is_rich_text": false,
+      "has_formatting": false,
+      "word_count": 0,
+      "char_count": 0,
+      "line_count": 0
+    }
+  },
+  {
+    "note_id": 14448,
+    "title": "Error",
+    "body": "",
+    "error": "unsupported operand type(s) for +: 'NoneType' and 'int'",
+    "extracted_at": "2025-09-12T21:17:16.764985",
+    "binary_decoding": {
+      "success": false,
+      "error": "unsupported operand type(s) for +: 'NoneType' and 'int'"
+    },
+    "content_analysis": {
+      "word_count": 0,
+      "char_count": 0,
+      "has_content": false
+    },
+    "categorization": {
+      "primary_category": "error",
+      "confidence_level": "very_low"
+    },
+    "instagram_content": {},
+    "processing_stats": {
+      "binary_decoded": false,
+      "error": true
+    },
+    "url_analysis": {
+      "has_urls": false,
+      "urls": [],
+      "instagram_urls": [],
+      "instagram_posts": [],
+      "instagram_reels": [],
+      "instagram_tv": [],
+      "instagram_stories": [],
+      "is_rich_text": false,
+      "has_formatting": false,
+      "word_count": 0,
+      "char_count": 0,
+      "line_count": 0
+    }
+  },
+  {
+    "note_id": 15881,
+    "title": "Error",
+    "body": "",
+    "error": "unsupported operand type(s) for +: 'NoneType' and 'int'",
+    "extracted_at": "2025-09-12T21:17:16.765498",
+    "binary_decoding": {
+      "success": false,
+      "error": "unsupported operand type(s) for +: 'NoneType' and 'int'"
+    },
+    "content_analysis": {
+      "word_count": 0,
+      "char_count": 0,
+      "has_content": false
+    },
+    "categorization": {
+      "primary_category": "error",
+      "confidence_level": "very_low"
+    },
+    "instagram_content": {},
+    "processing_stats": {
+      "binary_decoded": false,
+      "error": true
+    },
+    "url_analysis": {
+      "has_urls": false,
+      "urls": [],
+      "instagram_urls": [],
+      "instagram_posts": [],
+      "instagram_reels": [],
+      "instagram_tv": [],
+      "instagram_stories": [],
+      "is_rich_text": false,
+      "has_formatting": false,
+      "word_count": 0,
+      "char_count": 0,
+      "line_count": 0
+    }
+  }
+]
