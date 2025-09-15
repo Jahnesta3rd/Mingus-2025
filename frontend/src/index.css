@@ -1,0 +1,239 @@
+/* src/index.css */
+@import './focus-management.css';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Enhanced focus styles for accessibility - Fallback */
+button,
+input,
+select,
+textarea,
+a,
+[role="button"],
+[tabindex="0"] {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Comprehensive focus management - High priority */
+*:focus {
+  outline: 2px solid #8b5cf6 !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.2) !important;
+}
+
+button:focus,
+[role="button"]:focus,
+.btn:focus {
+  outline: 3px solid #8b5cf6 !important;
+  outline-offset: 3px !important;
+  box-shadow: 0 0 0 6px rgba(139, 92, 246, 0.3) !important;
+  transform: scale(1.02);
+  transition: all 0.2s ease-in-out;
+}
+
+input:focus,
+select:focus,
+textarea:focus,
+[role="textbox"]:focus {
+  outline: 2px solid #8b5cf6 !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.2) !important;
+  border-color: #8b5cf6 !important;
+}
+
+a:focus {
+  outline: 2px solid #8b5cf6 !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.2) !important;
+  text-decoration: underline;
+}
+
+nav:focus,
+[role="navigation"]:focus {
+  outline: 2px solid #8b5cf6 !important;
+  outline-offset: 2px !important;
+}
+
+[tabindex]:focus,
+[tabindex="0"]:focus,
+[tabindex="-1"]:focus {
+  outline: 2px solid #8b5cf6 !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.2) !important;
+}
+
+/* Focus visible for modern browsers */
+*:focus-visible {
+  outline: 2px solid #8b5cf6 !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.2) !important;
+}
+
+/* Remove focus outline for mouse users */
+*:focus:not(:focus-visible) {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* For elements that shouldn't have visible focus but need it for accessibility */
+.sr-only:focus {
+  position: absolute;
+  width: auto;
+  height: auto;
+  padding: 6px 8px;
+  margin: 0;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+  background-color: #1f2937;
+  color: white;
+  text-decoration: none;
+  border-radius: 4px;
+  z-index: 100000;
+}
+
+/* Tailwind utility classes for focus styles */
+.focus-style {
+  @apply focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2;
+}
+
+.focus-ring {
+  @apply focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2;
+}
+
+.focus-ring-inset {
+  @apply focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-inset;
+}
+
+.focus-ring-thick {
+  @apply focus:outline-none focus:ring-4 focus:ring-violet-500 focus:ring-offset-2;
+}
+
+/* Enhanced focus for all interactive elements */
+button, a, input, select, textarea, [role="button"], [tabindex], [role="menuitem"], [role="menuitemradio"], [role="menuitemcheckbox"] {
+  @apply focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 focus:ring-offset-slate-900;
+}
+
+/* High contrast focus for better visibility */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[role="button"]:focus-visible,
+[role="menuitem"]:focus-visible,
+[role="menuitemradio"]:focus-visible,
+[role="menuitemcheckbox"]:focus-visible,
+[tabindex]:focus-visible {
+  @apply focus:outline-none focus:ring-4 focus:ring-violet-400 focus:ring-offset-4 focus:ring-offset-slate-900;
+  transform: scale(1.02);
+  transition: all 0.2s ease-in-out;
+}
+
+/* Enhanced focus for specific interactive elements */
+button:focus,
+a:focus,
+input:focus,
+select:focus,
+textarea:focus,
+[role="button"]:focus,
+[role="menuitem"]:focus,
+[role="menuitemradio"]:focus,
+[role="menuitemcheckbox"]:focus,
+[tabindex]:focus {
+  @apply focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 focus:ring-offset-slate-900;
+  transition: all 0.2s ease-in-out;
+}
+
+/* Focus for navigation elements */
+nav:focus,
+[role="navigation"]:focus,
+[role="menu"]:focus {
+  @apply focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 focus:ring-offset-slate-900;
+}
+
+/* Focus for landmark elements */
+header:focus,
+main:focus,
+footer:focus,
+section:focus,
+aside:focus,
+[role="banner"]:focus,
+[role="main"]:focus,
+[role="contentinfo"]:focus,
+[role="complementary"]:focus {
+  @apply focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 focus:ring-offset-slate-900;
+}
+
+/* Skip links focus enhancement */
+.sr-only:focus {
+  @apply focus:outline-none focus:ring-4 focus:ring-white focus:ring-offset-4 focus:ring-offset-slate-900;
+  position: absolute;
+  width: auto;
+  height: auto;
+  padding: 6px 8px;
+  margin: 0;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+  background-color: #8b5cf6;
+  color: white;
+  text-decoration: none;
+  border-radius: 4px;
+  z-index: 100000;
+  transform: scale(1.05);
+  transition: all 0.2s ease-in-out;
+}
+
+/* Enhanced focus for all interactive elements - comprehensive coverage */
+*:focus {
+  outline: 2px solid #8b5cf6 !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.2) !important;
+}
+
+/* Remove focus outline for mouse users but keep for keyboard users */
+*:focus:not(:focus-visible) {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Ensure all interactive elements have proper focus indicators */
+button:focus,
+a:focus,
+input:focus,
+select:focus,
+textarea:focus,
+[role="button"]:focus,
+[role="menuitem"]:focus,
+[role="menuitemradio"]:focus,
+[role="menuitemcheckbox"]:focus,
+[tabindex]:focus,
+[tabindex="0"]:focus,
+[tabindex="-1"]:focus {
+  outline: 2px solid #8b5cf6 !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.2) !important;
+  transition: all 0.2s ease-in-out;
+}
+
+/* High contrast focus for better visibility */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[role="button"]:focus-visible,
+[role="menuitem"]:focus-visible,
+[role="menuitemradio"]:focus-visible,
+[role="menuitemcheckbox"]:focus-visible,
+[tabindex]:focus-visible,
+[tabindex="0"]:focus-visible,
+[tabindex="-1"]:focus-visible {
+  outline: 3px solid #8b5cf6 !important;
+  outline-offset: 3px !important;
+  box-shadow: 0 0 0 6px rgba(139, 92, 246, 0.3) !important;
+  transform: scale(1.02);
+  transition: all 0.2s ease-in-out;
+}

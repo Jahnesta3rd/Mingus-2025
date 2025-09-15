@@ -1,0 +1,270 @@
+/* focus-management.css - Comprehensive Focus Management for Accessibility */
+
+/* ==========================================================================
+   FOCUS INDICATORS - High Contrast and Visible
+   ========================================================================== */
+
+/* Base focus styles for all interactive elements */
+*:focus {
+  outline: 2px solid #8b5cf6 !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.2) !important;
+}
+
+/* Enhanced focus for buttons */
+button:focus,
+[role="button"]:focus,
+.btn:focus {
+  outline: 3px solid #8b5cf6 !important;
+  outline-offset: 3px !important;
+  box-shadow: 0 0 0 6px rgba(139, 92, 246, 0.3) !important;
+  transform: scale(1.02);
+  transition: all 0.2s ease-in-out;
+}
+
+/* Focus for form inputs */
+input:focus,
+select:focus,
+textarea:focus,
+[role="textbox"]:focus {
+  outline: 2px solid #8b5cf6 !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.2) !important;
+  border-color: #8b5cf6 !important;
+}
+
+/* Focus for links */
+a:focus {
+  outline: 2px solid #8b5cf6 !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.2) !important;
+  text-decoration: underline;
+}
+
+/* Focus for navigation elements */
+nav:focus,
+[role="navigation"]:focus {
+  outline: 2px solid #8b5cf6 !important;
+  outline-offset: 2px !important;
+}
+
+/* Focus for custom interactive elements */
+[tabindex]:focus,
+[tabindex="0"]:focus,
+[tabindex="-1"]:focus {
+  outline: 2px solid #8b5cf6 !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.2) !important;
+}
+
+/* ==========================================================================
+   FOCUS TRAPS - Modal and Dialog Focus Management
+   ========================================================================== */
+
+/* Focus trap container */
+.focus-trap {
+  position: relative;
+}
+
+/* Focus trap - first focusable element */
+.focus-trap:focus-within .focus-trap-start {
+  outline: 3px solid #8b5cf6 !important;
+  outline-offset: 3px !important;
+}
+
+/* Focus trap - last focusable element */
+.focus-trap:focus-within .focus-trap-end {
+  outline: 3px solid #8b5cf6 !important;
+  outline-offset: 3px !important;
+}
+
+/* Modal focus management */
+.modal:focus-within {
+  outline: none;
+}
+
+.modal:focus-within .modal-content {
+  outline: 2px solid #8b5cf6 !important;
+  outline-offset: 2px !important;
+}
+
+/* ==========================================================================
+   SKIP LINKS - Screen Reader Navigation
+   ========================================================================== */
+
+/* Skip link base styles */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 6px;
+  background: #8b5cf6;
+  color: white;
+  padding: 8px 16px;
+  text-decoration: none;
+  border-radius: 4px;
+  font-weight: 600;
+  z-index: 100000;
+  transition: top 0.3s ease-in-out;
+}
+
+/* Skip link when focused */
+.skip-link:focus {
+  top: 6px;
+  outline: 3px solid white !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 6px rgba(139, 92, 246, 0.3) !important;
+}
+
+/* Multiple skip links */
+.skip-link + .skip-link {
+  top: -40px;
+}
+
+.skip-link:focus + .skip-link {
+  top: 50px;
+}
+
+/* ==========================================================================
+   FOCUS VISIBLE - Modern Focus Management
+   ========================================================================== */
+
+/* Focus visible for modern browsers */
+*:focus-visible {
+  outline: 2px solid #8b5cf6 !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.2) !important;
+}
+
+/* Remove focus outline for mouse users */
+*:focus:not(:focus-visible) {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* ==========================================================================
+   FOCUS MANAGEMENT UTILITIES
+   ========================================================================== */
+
+/* Focus ring utility classes */
+.focus-ring {
+  @apply focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2;
+}
+
+.focus-ring-inset {
+  @apply focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-inset;
+}
+
+.focus-ring-thick {
+  @apply focus:outline-none focus:ring-4 focus:ring-violet-500 focus:ring-offset-2;
+}
+
+/* Focus trap utilities */
+.focus-trap-start {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.focus-trap-end {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+/* ==========================================================================
+   HIGH CONTRAST MODE SUPPORT
+   ========================================================================== */
+
+@media (prefers-contrast: high) {
+  *:focus {
+    outline: 3px solid #000000 !important;
+    outline-offset: 3px !important;
+    box-shadow: 0 0 0 6px rgba(0, 0, 0, 0.3) !important;
+  }
+  
+  button:focus,
+  [role="button"]:focus {
+    outline: 4px solid #000000 !important;
+    outline-offset: 4px !important;
+    box-shadow: 0 0 0 8px rgba(0, 0, 0, 0.4) !important;
+  }
+}
+
+/* ==========================================================================
+   REDUCED MOTION SUPPORT
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  *:focus {
+    transition: none !important;
+    transform: none !important;
+  }
+  
+  button:focus,
+  [role="button"]:focus {
+    transform: none !important;
+  }
+}
+
+/* ==========================================================================
+   DARK MODE FOCUS STYLES
+   ========================================================================== */
+
+@media (prefers-color-scheme: dark) {
+  *:focus {
+    outline-color: #a78bfa !important;
+    box-shadow: 0 0 0 4px rgba(167, 139, 250, 0.2) !important;
+  }
+  
+  button:focus,
+  [role="button"]:focus {
+    outline-color: #a78bfa !important;
+    box-shadow: 0 0 0 6px rgba(167, 139, 250, 0.3) !important;
+  }
+}
+
+/* ==========================================================================
+   FOCUS INDICATOR OVERRIDES
+   ========================================================================== */
+
+/* Override any existing focus styles */
+*:focus {
+  outline: 2px solid #8b5cf6 !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.2) !important;
+}
+
+/* Ensure focus is always visible */
+*:focus-visible {
+  outline: 2px solid #8b5cf6 !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.2) !important;
+}
+
+/* ==========================================================================
+   ACCESSIBILITY TESTING HELPERS
+   ========================================================================== */
+
+/* Debug focus indicators (remove in production) */
+.debug-focus *:focus {
+  outline: 5px solid red !important;
+  outline-offset: 5px !important;
+  box-shadow: 0 0 0 10px rgba(255, 0, 0, 0.3) !important;
+}
+
+/* Focus testing utilities */
+.focus-test-element {
+  position: relative;
+  border: 2px dashed #8b5cf6;
+  padding: 8px;
+  margin: 4px;
+}
+
+.focus-test-element:focus {
+  border-color: #8b5cf6;
+  background-color: rgba(139, 92, 246, 0.1);
+}
