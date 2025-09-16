@@ -408,10 +408,8 @@ const LandingPage: React.FC = () => {
                   className="group bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 disabled:from-violet-500 disabled:to-purple-500 text-white px-4 sm:px-6 py-3 sm:py-4 rounded-lg text-base sm:text-lg font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-xl hover:shadow-violet-500/25 flex items-center justify-center hover:-translate-y-1 disabled:scale-100 disabled:translate-y-0 disabled:cursor-not-allowed focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-gray-900"
                   type="button"
                 >
-                  {isLoading ? (
+                  {isLoading && (
                     <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-b-2 border-white mr-2"></div>
-                  ) : (
-                    <Heart className="mr-2 w-4 h-4 sm:w-5 sm:h-5 group-hover:scale-110 transition-transform duration-300" />
                   )}
                   <span className="text-sm sm:text-base">
                     {isLoading ? 'Loading...' : 'Determine Your Replacement Risk Due To AI'}
@@ -426,10 +424,8 @@ const LandingPage: React.FC = () => {
                   className="group bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 disabled:from-purple-500 disabled:to-pink-500 text-white px-4 sm:px-6 py-3 sm:py-4 rounded-lg text-base sm:text-lg font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-xl hover:shadow-purple-500/25 flex items-center justify-center hover:-translate-y-1 disabled:scale-100 disabled:translate-y-0 disabled:cursor-not-allowed focus-ring focus-visible:ring-4 focus-visible:ring-purple-400 focus-visible:ring-offset-4 focus-visible:ring-offset-gray-900"
                   type="button"
                 >
-                  {isLoading ? (
+                  {isLoading && (
                     <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-b-2 border-white mr-2"></div>
-                  ) : (
-                    <TrendingUp className="mr-2 w-4 h-4 sm:w-5 sm:h-5 group-hover:scale-110 transition-transform duration-300" />
                   )}
                   <span className="text-sm sm:text-base">
                     {isLoading ? 'Loading...' : 'Determine How Your Income Compares'}
@@ -444,10 +440,8 @@ const LandingPage: React.FC = () => {
                   className="group bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-700 hover:to-rose-700 disabled:from-pink-500 disabled:to-rose-500 text-white px-4 sm:px-6 py-3 sm:py-4 rounded-lg text-base sm:text-lg font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-xl hover:shadow-pink-500/25 flex items-center justify-center hover:-translate-y-1 disabled:scale-100 disabled:translate-y-0 disabled:cursor-not-allowed focus-ring focus-visible:ring-4 focus-visible:ring-pink-400 focus-visible:ring-offset-4 focus-visible:ring-offset-gray-900"
                   type="button"
                 >
-                  {isLoading ? (
+                  {isLoading && (
                     <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-b-2 border-white mr-2"></div>
-                  ) : (
-                    <Calendar className="mr-2 w-4 h-4 sm:w-5 sm:h-5 group-hover:scale-110 transition-transform duration-300" />
                   )}
                   <span className="text-sm sm:text-base">
                     {isLoading ? 'Loading...' : 'Determine Your "Cuffing Season" Score'}
@@ -462,10 +456,8 @@ const LandingPage: React.FC = () => {
                   className="group bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-700 hover:to-red-700 disabled:from-rose-500 disabled:to-red-500 text-white px-4 sm:px-6 py-3 sm:py-4 rounded-lg text-base sm:text-lg font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-xl hover:shadow-rose-500/25 flex items-center justify-center hover:-translate-y-1 disabled:scale-100 disabled:translate-y-0 disabled:cursor-not-allowed focus-ring focus-visible:ring-4 focus-visible:ring-rose-400 focus-visible:ring-offset-4 focus-visible:ring-offset-gray-900"
                   type="button"
                 >
-                  {isLoading ? (
+                  {isLoading && (
                     <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-b-2 border-white mr-2"></div>
-                  ) : (
-                    <Target className="mr-2 w-4 h-4 sm:w-5 sm:h-5 group-hover:scale-110 transition-transform duration-300" />
                   )}
                   <span className="text-sm sm:text-base">
                     {isLoading ? 'Loading...' : 'Determine Your Layoff Risk'}
@@ -673,32 +665,6 @@ const LandingPage: React.FC = () => {
         </div>
       </section>
 
-      {/* Meme Section */}
-      <aside aria-labelledby="meme-section" className="py-20 px-4 sm:px-6 lg:px-8 bg-gray-800/50" role="complementary">
-        <div className="max-w-7xl mx-auto">
-          <h2 id="meme-section" className="text-3xl md:text-4xl font-bold mb-4 text-center">
-            Daily Mood Check
-          </h2>
-          <p className="text-xl text-gray-300 max-w-3xl mx-auto text-center mb-12">
-            Start your day with a smile! Our daily memes help you stay positive while building wealth.
-          </p>
-          
-          {/* Meme Content Placeholder */}
-          <div className="bg-gradient-to-br from-violet-900 to-purple-900 rounded-2xl p-8 text-center">
-            <div className="w-24 h-24 bg-violet-500 rounded-full flex items-center justify-center mx-auto mb-6">
-              <Heart className="w-12 h-12 text-white" />
-            </div>
-            <h2 className="text-2xl font-bold text-white mb-4">Daily Dose of Joy</h2>
-            <p className="text-violet-200 mb-6 max-w-2xl mx-auto">
-              Financial wellness isn't just about numbers—it's about maintaining a positive mindset while building your future. 
-              Our daily memes keep you motivated and remind you that wealth building can be fun!
-            </p>
-            <button className="bg-gradient-to-r from-violet-500 to-purple-500 hover:from-violet-600 hover:to-purple-600 text-white px-8 py-3 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-xl hover:shadow-violet-500/25 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:ring-offset-2 focus:ring-offset-gray-800">
-              Get Today's Meme
-            </button>
-          </div>
-        </div>
-      </aside>
 
       {/* Financial Wellness Features Section */}
       <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gray-900" role="region" aria-label="Financial wellness features">
@@ -790,101 +756,8 @@ const LandingPage: React.FC = () => {
                 community's unique journey and break generational financial barriers.
               </p>
               
-              {/* 2x2 Stats Grid */}
-              <div className="grid grid-cols-2 gap-6 max-w-md mx-auto lg:mx-0">
-                <div className="text-center">
-                  <div className="text-4xl md:text-5xl font-bold text-violet-300 mb-2">$2.4M</div>
-                  <div className="text-sm text-gray-300">Average Wealth Built</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-4xl md:text-5xl font-bold text-violet-300 mb-2">94%</div>
-                  <div className="text-sm text-gray-300">Success Rate</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-4xl md:text-5xl font-bold text-violet-300 mb-2">18mo</div>
-                  <div className="text-sm text-gray-300">Avg. Goal Achievement</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-4xl md:text-5xl font-bold text-violet-300 mb-2">10K+</div>
-                  <div className="text-sm text-gray-300">Lives Transformed</div>
-                </div>
-              </div>
             </div>
             
-            {/* Right Column - Success Stories */}
-            <div className="space-y-6">
-              <h2 className="text-2xl md:text-3xl font-bold text-center lg:text-left mb-8">
-                Our Community's Success
-              </h2>
-              
-              {/* Success Story 1 */}
-              <div className="flex items-start space-x-4 bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-violet-400/20">
-                <div className="flex-shrink-0">
-                  <div className="w-12 h-12 bg-gradient-to-br from-violet-500 to-purple-500 rounded-full flex items-center justify-center">
-                    <TrendingUp className="w-6 h-6 text-white" />
-                  </div>
-                </div>
-                <div className="flex-1">
-                  <h3 className="text-lg font-semibold text-white mb-2">Emergency Fund Mastery</h3>
-                  <p className="text-gray-200 text-sm leading-relaxed">
-                    "Built my emergency fund from $0 to $15,000 in just 8 months using Mingus's 
-                    automated savings strategies and wellness-integrated budgeting. Finally broke the cycle of living paycheck to paycheck."
-                  </p>
-                  <p className="text-violet-300 text-xs mt-2 font-medium">- Marcus T., Software Engineer</p>
-                </div>
-              </div>
-              
-              {/* Success Story 2 */}
-              <div className="flex items-start space-x-4 bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-violet-400/20">
-                <div className="flex-shrink-0">
-                  <div className="w-12 h-12 bg-gradient-to-br from-violet-500 to-purple-500 rounded-full flex items-center justify-center">
-                    <Target className="w-6 h-6 text-white" />
-                  </div>
-                </div>
-                <div className="flex-1">
-                  <h3 className="text-lg font-semibold text-white mb-2">Homeownership Achievement</h3>
-                  <p className="text-gray-200 text-sm leading-relaxed">
-                    "Achieved my dream of homeownership 3 years ahead of schedule by connecting 
-                    my wellness goals with financial planning through Mingus. Now building generational wealth for my family."
-                  </p>
-                  <p className="text-violet-300 text-xs mt-2 font-medium">- Dr. Keisha R., Physician</p>
-                </div>
-              </div>
-              
-              {/* Success Story 3 */}
-              <div className="flex items-start space-x-4 bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-violet-400/20">
-                <div className="flex-shrink-0">
-                  <div className="w-12 h-12 bg-gradient-to-br from-violet-500 to-purple-500 rounded-full flex items-center justify-center">
-                    <DollarSign className="w-6 h-6 text-white" />
-                  </div>
-                </div>
-                <div className="flex-1">
-                  <h3 className="text-lg font-semibold text-white mb-2">Investment Portfolio Growth</h3>
-                  <p className="text-gray-200 text-sm leading-relaxed">
-                    "Grew my investment portfolio by 340% in 2 years using Mingus's career risk 
-                    analysis and smart investment recommendations. Now teaching my children about wealth building."
-                  </p>
-                  <p className="text-violet-300 text-xs mt-2 font-medium">- James W., Marketing Director</p>
-                </div>
-              </div>
-              
-              {/* Success Story 4 */}
-              <div className="flex items-start space-x-4 bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-violet-400/20">
-                <div className="flex-shrink-0">
-                  <div className="w-12 h-12 bg-gradient-to-br from-violet-500 to-purple-500 rounded-full flex items-center justify-center">
-                    <Heart className="w-6 h-6 text-white" />
-                  </div>
-                </div>
-                <div className="flex-1">
-                  <h3 className="text-lg font-semibold text-white mb-2">Wellness-Finance Balance</h3>
-                  <p className="text-gray-200 text-sm leading-relaxed">
-                    "Finally found the perfect balance between my health goals and financial 
-                    wellness, saving $500/month while improving my overall well-being. Prioritizing self-care while building wealth."
-                  </p>
-                  <p className="text-violet-300 text-xs mt-2 font-medium">- Angela M., Teacher</p>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </section>
@@ -1021,10 +894,8 @@ const LandingPage: React.FC = () => {
               aria-label="Start your wealth building journey with Mingus"
               className="group bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 disabled:from-violet-400 disabled:to-purple-500 text-white px-8 py-4 rounded-lg text-lg font-semibold transition-all duration-300 transform hover:scale-105 flex items-center shadow-lg hover:shadow-xl hover:shadow-violet-500/25 hover:-translate-y-1 disabled:scale-100 disabled:translate-y-0 disabled:cursor-not-allowed focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-violet-800"
             >
-              {isLoading ? (
+              {isLoading && (
                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-              ) : (
-                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
               )}
               {isLoading ? 'Loading...' : 'Start Your Wealth Journey'}
             </button>
