@@ -1,0 +1,1159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Application Tracker - Mingus</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../static/css/mingus-referral-system.css">
+    <style>
+        /* Application tracker specific styles */
+        .tracker-header {
+            background: linear-gradient(135deg, #1f2937, #374151);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: 20px;
+            padding: 32px;
+            margin: 32px 0;
+        }
+        
+        .tracker-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 24px;
+            margin: 24px 0;
+        }
+        
+        .stat-card {
+            background: #374151;
+            border: 1px solid #4b5563;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            border-color: #8b5cf6;
+            transform: translateY(-2px);
+        }
+        
+        .stat-number {
+            color: #8b5cf6;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        
+        .stat-label {
+            color: #9ca3af;
+            font-size: 14px;
+        }
+        
+        .stat-card.applied .stat-number {
+            color: #f59e0b;
+        }
+        
+        .stat-card.interviewing .stat-number {
+            color: #8b5cf6;
+        }
+        
+        .stat-card.offers .stat-number {
+            color: #10b981;
+        }
+        
+        .stat-card.rejected .stat-number {
+            color: #ef4444;
+        }
+        
+        .filter-tabs {
+            display: flex;
+            gap: 8px;
+            margin: 24px 0;
+            flex-wrap: wrap;
+        }
+        
+        .filter-tab {
+            background: #374151;
+            border: 1px solid #4b5563;
+            border-radius: 8px;
+            padding: 12px 20px;
+            color: #d1d5db;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+        
+        .filter-tab:hover {
+            border-color: #8b5cf6;
+            background: #4b5563;
+        }
+        
+        .filter-tab.active {
+            background: #8b5cf6;
+            border-color: #8b5cf6;
+            color: white;
+        }
+        
+        .application-card {
+            background: linear-gradient(135deg, #1f2937, #374151);
+            border: 1px solid #4b5563;
+            border-radius: 16px;
+            padding: 24px;
+            margin: 16px 0;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .application-card:hover {
+            border-color: #8b5cf6;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.1);
+        }
+        
+        .application-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(180deg, #8b5cf6, #a855f7);
+        }
+        
+        .application-card.applied::before {
+            background: linear-gradient(180deg, #f59e0b, #d97706);
+        }
+        
+        .application-card.interviewing::before {
+            background: linear-gradient(180deg, #8b5cf6, #a855f7);
+        }
+        
+        .application-card.offers::before {
+            background: linear-gradient(180deg, #10b981, #059669);
+        }
+        
+        .application-card.rejected::before {
+            background: linear-gradient(180deg, #ef4444, #dc2626);
+        }
+        
+        .application-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+        
+        .application-title {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        
+        .application-company {
+            color: #8b5cf6;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .application-location {
+            color: #9ca3af;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .application-status {
+            background: rgba(139, 92, 246, 0.2);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 20px;
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #8b5cf6;
+        }
+        
+        .application-status.applied {
+            background: rgba(245, 158, 11, 0.2);
+            border-color: rgba(245, 158, 11, 0.3);
+            color: #f59e0b;
+        }
+        
+        .application-status.interviewing {
+            background: rgba(139, 92, 246, 0.2);
+            border-color: rgba(139, 92, 246, 0.3);
+            color: #8b5cf6;
+        }
+        
+        .application-status.offers {
+            background: rgba(16, 185, 129, 0.2);
+            border-color: rgba(16, 185, 129, 0.3);
+            color: #10b981;
+        }
+        
+        .application-status.rejected {
+            background: rgba(239, 68, 68, 0.2);
+            border-color: rgba(239, 68, 68, 0.3);
+            color: #ef4444;
+        }
+        
+        .application-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin: 16px 0;
+        }
+        
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        
+        .detail-label {
+            color: #9ca3af;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .detail-value {
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
+        .detail-value.highlight {
+            color: #8b5cf6;
+        }
+        
+        .timeline {
+            background: #1f2937;
+            border: 1px solid #374151;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 16px 0;
+        }
+        
+        .timeline-title {
+            color: white;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+        
+        .timeline-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 12px 0;
+            padding: 12px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .timeline-item:hover {
+            background: #374151;
+        }
+        
+        .timeline-item.completed {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+        
+        .timeline-item.current {
+            background: rgba(139, 92, 246, 0.1);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+        }
+        
+        .timeline-item.upcoming {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+        }
+        
+        .timeline-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        .timeline-icon.completed {
+            background: #10b981;
+            color: white;
+        }
+        
+        .timeline-icon.current {
+            background: #8b5cf6;
+            color: white;
+        }
+        
+        .timeline-icon.upcoming {
+            background: #f59e0b;
+            color: white;
+        }
+        
+        .timeline-icon.pending {
+            background: #4b5563;
+            color: #9ca3af;
+        }
+        
+        .timeline-content {
+            flex: 1;
+        }
+        
+        .timeline-title-text {
+            color: white;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .timeline-description {
+            color: #9ca3af;
+            font-size: 14px;
+        }
+        
+        .timeline-date {
+            color: #6b7280;
+            font-size: 12px;
+        }
+        
+        .application-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .action-button {
+            background: #8b5cf6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .action-button:hover {
+            background: #7c3aed;
+            transform: translateY(-2px);
+        }
+        
+        .action-button.secondary {
+            background: transparent;
+            border: 1px solid #4b5563;
+            color: #d1d5db;
+        }
+        
+        .action-button.secondary:hover {
+            border-color: #8b5cf6;
+            color: #8b5cf6;
+        }
+        
+        .action-button.success {
+            background: #10b981;
+        }
+        
+        .action-button.success:hover {
+            background: #059669;
+        }
+        
+        .action-button.danger {
+            background: #ef4444;
+        }
+        
+        .action-button.danger:hover {
+            background: #dc2626;
+        }
+        
+        .progress-chart {
+            background: #374151;
+            border: 1px solid #4b5563;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 24px 0;
+        }
+        
+        .chart-title {
+            color: white;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+        
+        .chart-bars {
+            display: flex;
+            align-items: end;
+            gap: 8px;
+            height: 120px;
+            margin: 16px 0;
+        }
+        
+        .chart-bar {
+            background: linear-gradient(180deg, #8b5cf6, #a855f7);
+            border-radius: 4px 4px 0 0;
+            min-width: 40px;
+            transition: all 0.3s ease;
+        }
+        
+        .chart-bar:hover {
+            background: linear-gradient(180deg, #7c3aed, #9333ea);
+        }
+        
+        .chart-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+        }
+        
+        .chart-label {
+            color: #9ca3af;
+            font-size: 12px;
+            text-align: center;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 64px 32px;
+            color: #9ca3af;
+        }
+        
+        .empty-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+        }
+        
+        .empty-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 8px;
+        }
+        
+        .empty-description {
+            font-size: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .add-application-button {
+            background: linear-gradient(135deg, #8b5cf6, #a855f7);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 16px 32px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 0 auto;
+        }
+        
+        .add-application-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.3);
+        }
+        
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .modal.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal-content {
+            background: #1f2937;
+            border-radius: 16px;
+            padding: 32px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        
+        .modal-title {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            color: #9ca3af;
+            font-size: 24px;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+        
+        .modal-close:hover {
+            color: white;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            color: #d1d5db;
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: block;
+        }
+        
+        .form-input {
+            background: #374151;
+            border: 1px solid #4b5563;
+            border-radius: 8px;
+            padding: 12px 16px;
+            color: white;
+            font-size: 16px;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #8b5cf6;
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+        }
+        
+        .form-select {
+            background: #374151;
+            border: 1px solid #4b5563;
+            border-radius: 8px;
+            padding: 12px 16px;
+            color: white;
+            font-size: 16px;
+            width: 100%;
+            cursor: pointer;
+        }
+        
+        .form-select:focus {
+            outline: none;
+            border-color: #8b5cf6;
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+        }
+        
+        .form-textarea {
+            background: #374151;
+            border: 1px solid #4b5563;
+            border-radius: 8px;
+            padding: 12px 16px;
+            color: white;
+            font-size: 16px;
+            width: 100%;
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .form-textarea:focus {
+            outline: none;
+            border-color: #8b5cf6;
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+        }
+        
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 24px;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+        }
+        
+        .btn-primary {
+            background: #8b5cf6;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #7c3aed;
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            color: #d1d5db;
+            border: 1px solid #4b5563;
+        }
+        
+        .btn-secondary:hover {
+            border-color: #8b5cf6;
+            color: #8b5cf6;
+        }
+    </style>
+</head>
+<body>
+    <!-- Skip Links for Accessibility -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    <a href="#applications-list" class="skip-link">Skip to applications list</a>
+    
+    <!-- Header -->
+    <header class="header" role="banner">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <div class="logo-icon">M</div>
+                    <span class="logo-text">Mingus</span>
+                </div>
+                <nav class="nav" role="navigation" aria-label="Main navigation">
+                    <a href="#" class="nav-link">Dashboard</a>
+                    <a href="#" class="nav-link">Features</a>
+                    <a href="#" class="nav-link">Pricing</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main id="main-content" role="main">
+        <!-- Tracker Header -->
+        <section class="tracker-header" aria-label="Application tracker overview">
+            <div class="container">
+                <h1 class="hero-title">
+                    Application
+                    <span class="gradient-text">Tracker</span>
+                </h1>
+                <p class="hero-description">
+                    Track your job applications, interview progress, and career advancement journey.
+                </p>
+                
+                <div class="tracker-stats">
+                    <div class="stat-card applied">
+                        <div class="stat-number" id="total-applications">12</div>
+                        <div class="stat-label">Total Applications</div>
+                    </div>
+                    <div class="stat-card interviewing">
+                        <div class="stat-number" id="in-progress">4</div>
+                        <div class="stat-label">In Progress</div>
+                    </div>
+                    <div class="stat-card offers">
+                        <div class="stat-number" id="offers">2</div>
+                        <div class="stat-label">Offers</div>
+                    </div>
+                    <div class="stat-card rejected">
+                        <div class="stat-number" id="rejected">6</div>
+                        <div class="stat-label">Rejected</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Progress Chart -->
+        <section class="progress-chart" aria-label="Application progress chart">
+            <div class="container">
+                <h2 class="chart-title">Application Progress (Last 30 Days)</h2>
+                <div class="chart-bars">
+                    <div class="chart-bar" style="height: 60%"></div>
+                    <div class="chart-bar" style="height: 80%"></div>
+                    <div class="chart-bar" style="height: 45%"></div>
+                    <div class="chart-bar" style="height: 90%"></div>
+                    <div class="chart-bar" style="height: 70%"></div>
+                    <div class="chart-bar" style="height: 85%"></div>
+                    <div class="chart-bar" style="height: 55%"></div>
+                </div>
+                <div class="chart-labels">
+                    <div class="chart-label">Week 1</div>
+                    <div class="chart-label">Week 2</div>
+                    <div class="chart-label">Week 3</div>
+                    <div class="chart-label">Week 4</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Filter Tabs -->
+        <section class="filter-section" aria-label="Application filters">
+            <div class="container">
+                <div class="filter-tabs">
+                    <div class="filter-tab active" data-filter="all">All Applications</div>
+                    <div class="filter-tab" data-filter="applied">Applied</div>
+                    <div class="filter-tab" data-filter="interviewing">Interviewing</div>
+                    <div class="filter-tab" data-filter="offers">Offers</div>
+                    <div class="filter-tab" data-filter="rejected">Rejected</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Applications List -->
+        <section id="applications-list" class="applications-list" aria-label="Applications list">
+            <div class="container">
+                <div id="applications-container">
+                    <!-- Application 1 - Interviewing -->
+                    <div class="application-card interviewing" data-status="interviewing">
+                        <div class="application-header">
+                            <div>
+                                <h3 class="application-title">Senior Software Engineer</h3>
+                                <div class="application-company">TechCorp Solutions</div>
+                                <div class="application-location">📍 San Francisco, CA</div>
+                            </div>
+                            <div class="application-status interviewing">Interviewing</div>
+                        </div>
+                        
+                        <div class="application-details">
+                            <div class="detail-item">
+                                <div class="detail-label">Applied Date</div>
+                                <div class="detail-value">Dec 15, 2024</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Salary Range</div>
+                                <div class="detail-value highlight">$120k - $150k</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Match Score</div>
+                                <div class="detail-value">92%</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Days Since Applied</div>
+                                <div class="detail-value">5 days</div>
+                            </div>
+                        </div>
+                        
+                        <div class="timeline">
+                            <div class="timeline-title">Application Timeline</div>
+                            <div class="timeline-item completed">
+                                <div class="timeline-icon completed">✓</div>
+                                <div class="timeline-content">
+                                    <div class="timeline-title-text">Application Submitted</div>
+                                    <div class="timeline-description">Your application has been received</div>
+                                    <div class="timeline-date">Dec 15, 2024</div>
+                                </div>
+                            </div>
+                            <div class="timeline-item completed">
+                                <div class="timeline-icon completed">✓</div>
+                                <div class="timeline-content">
+                                    <div class="timeline-title-text">Initial Review</div>
+                                    <div class="timeline-description">HR team reviewed your application</div>
+                                    <div class="timeline-date">Dec 17, 2024</div>
+                                </div>
+                            </div>
+                            <div class="timeline-item current">
+                                <div class="timeline-icon current">3</div>
+                                <div class="timeline-content">
+                                    <div class="timeline-title-text">Technical Interview</div>
+                                    <div class="timeline-description">Scheduled for Dec 22, 2024 at 2:00 PM</div>
+                                    <div class="timeline-date">Upcoming</div>
+                                </div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-icon pending">4</div>
+                                <div class="timeline-content">
+                                    <div class="timeline-title-text">Team Interview</div>
+                                    <div class="timeline-description">TBD</div>
+                                    <div class="timeline-date">TBD</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="application-actions">
+                            <button class="action-button" onclick="viewApplication('app1')">
+                                <span>👁️</span>
+                                <span>View Details</span>
+                            </button>
+                            <button class="action-button secondary" onclick="updateStatus('app1')">
+                                <span>📝</span>
+                                <span>Update Status</span>
+                            </button>
+                            <button class="action-button secondary" onclick="addNote('app1')">
+                                <span>📝</span>
+                                <span>Add Note</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Application 2 - Offers -->
+                    <div class="application-card offers" data-status="offers">
+                        <div class="application-header">
+                            <div>
+                                <h3 class="application-title">Product Manager</h3>
+                                <div class="application-company">InnovateLab</div>
+                                <div class="application-location">📍 Austin, TX</div>
+                            </div>
+                            <div class="application-status offers">Offer Received</div>
+                        </div>
+                        
+                        <div class="application-details">
+                            <div class="detail-item">
+                                <div class="detail-label">Applied Date</div>
+                                <div class="detail-value">Nov 28, 2024</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Offer Amount</div>
+                                <div class="detail-value highlight">$110k + Equity</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Match Score</div>
+                                <div class="detail-value">88%</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Response Deadline</div>
+                                <div class="detail-value">Dec 25, 2024</div>
+                            </div>
+                        </div>
+                        
+                        <div class="timeline">
+                            <div class="timeline-title">Application Timeline</div>
+                            <div class="timeline-item completed">
+                                <div class="timeline-icon completed">✓</div>
+                                <div class="timeline-content">
+                                    <div class="timeline-title-text">Application Submitted</div>
+                                    <div class="timeline-description">Your application has been received</div>
+                                    <div class="timeline-date">Nov 28, 2024</div>
+                                </div>
+                            </div>
+                            <div class="timeline-item completed">
+                                <div class="timeline-icon completed">✓</div>
+                                <div class="timeline-content">
+                                    <div class="timeline-title-text">Technical Interview</div>
+                                    <div class="timeline-description">Completed successfully</div>
+                                    <div class="timeline-date">Dec 5, 2024</div>
+                                </div>
+                            </div>
+                            <div class="timeline-item completed">
+                                <div class="timeline-icon completed">✓</div>
+                                <div class="timeline-content">
+                                    <div class="timeline-title-text">Team Interview</div>
+                                    <div class="timeline-description">Great cultural fit</div>
+                                    <div class="timeline-date">Dec 12, 2024</div>
+                                </div>
+                            </div>
+                            <div class="timeline-item current">
+                                <div class="timeline-icon current">🎉</div>
+                                <div class="timeline-content">
+                                    <div class="timeline-title-text">Offer Extended</div>
+                                    <div class="timeline-description">Congratulations! You have an offer</div>
+                                    <div class="timeline-date">Dec 18, 2024</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="application-actions">
+                            <button class="action-button success" onclick="acceptOffer('app2')">
+                                <span>✅</span>
+                                <span>Accept Offer</span>
+                            </button>
+                            <button class="action-button" onclick="negotiateOffer('app2')">
+                                <span>💰</span>
+                                <span>Negotiate</span>
+                            </button>
+                            <button class="action-button secondary" onclick="viewOffer('app2')">
+                                <span>📄</span>
+                                <span>View Offer</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Application 3 - Applied -->
+                    <div class="application-card applied" data-status="applied">
+                        <div class="application-header">
+                            <div>
+                                <h3 class="application-title">Frontend Developer</h3>
+                                <div class="application-company">StartupXYZ</div>
+                                <div class="application-location">📍 Remote</div>
+                            </div>
+                            <div class="application-status applied">Applied</div>
+                        </div>
+                        
+                        <div class="application-details">
+                            <div class="detail-item">
+                                <div class="detail-label">Applied Date</div>
+                                <div class="detail-value">Dec 20, 2024</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Salary Range</div>
+                                <div class="detail-value highlight">$80k - $100k</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Match Score</div>
+                                <div class="detail-value">85%</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Days Since Applied</div>
+                                <div class="detail-value">0 days</div>
+                            </div>
+                        </div>
+                        
+                        <div class="timeline">
+                            <div class="timeline-title">Application Timeline</div>
+                            <div class="timeline-item current">
+                                <div class="timeline-icon current">1</div>
+                                <div class="timeline-content">
+                                    <div class="timeline-title-text">Application Submitted</div>
+                                    <div class="timeline-description">Your application has been received</div>
+                                    <div class="timeline-date">Dec 20, 2024</div>
+                                </div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-icon pending">2</div>
+                                <div class="timeline-content">
+                                    <div class="timeline-title-text">Initial Review</div>
+                                    <div class="timeline-description">HR team will review your application</div>
+                                    <div class="timeline-date">Expected: 2-3 days</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="application-actions">
+                            <button class="action-button" onclick="viewApplication('app3')">
+                                <span>👁️</span>
+                                <span>View Details</span>
+                            </button>
+                            <button class="action-button secondary" onclick="withdrawApplication('app3')">
+                                <span>❌</span>
+                                <span>Withdraw</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Add Application Button -->
+                <div class="empty-state" id="empty-state" style="display: none;">
+                    <div class="empty-icon">📝</div>
+                    <div class="empty-title">No Applications Found</div>
+                    <div class="empty-description">Start tracking your job applications to see them here.</div>
+                    <button class="add-application-button" onclick="openAddApplicationModal()">
+                        <span>➕</span>
+                        <span>Add Application</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Add Application Modal -->
+    <div class="modal" id="add-application-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Add New Application</h2>
+                <button class="modal-close" onclick="closeAddApplicationModal()">×</button>
+            </div>
+            <form id="add-application-form">
+                <div class="form-group">
+                    <label for="job-title" class="form-label">Job Title</label>
+                    <input type="text" id="job-title" class="form-input" placeholder="e.g., Senior Software Engineer" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="company-name" class="form-label">Company Name</label>
+                    <input type="text" id="company-name" class="form-input" placeholder="e.g., TechCorp Solutions" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="location" class="form-label">Location</label>
+                    <input type="text" id="location" class="form-input" placeholder="e.g., San Francisco, CA" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="salary-range" class="form-label">Salary Range</label>
+                    <input type="text" id="salary-range" class="form-input" placeholder="e.g., $120k - $150k">
+                </div>
+                
+                <div class="form-group">
+                    <label for="application-status" class="form-label">Status</label>
+                    <select id="application-status" class="form-select" required>
+                        <option value="applied">Applied</option>
+                        <option value="interviewing">Interviewing</option>
+                        <option value="offers">Offers</option>
+                        <option value="rejected">Rejected</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="applied-date" class="form-label">Applied Date</label>
+                    <input type="date" id="applied-date" class="form-input" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="notes" class="form-label">Notes (Optional)</label>
+                    <textarea id="notes" class="form-textarea" placeholder="Add any notes about this application..."></textarea>
+                </div>
+                
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeAddApplicationModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Application</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer" role="contentinfo">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <div class="logo-icon">M</div>
+                    <span class="logo-text">Mingus</span>
+                </div>
+                <p class="footer-text">Empowering Black professionals to build generational wealth</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="../static/js/mingus-referral-system.js"></script>
+    <script>
+        // Initialize application tracker page
+        document.addEventListener('DOMContentLoaded', function() {
+            const referralSystem = new MingusReferralSystem();
+            referralSystem.initApplicationTracker();
+            
+            // Initialize filters
+            initializeFilters();
+            
+            // Set today's date as default
+            document.getElementById('applied-date').value = new Date().toISOString().split('T')[0];
+        });
+        
+        function initializeFilters() {
+            const filterTabs = document.querySelectorAll('.filter-tab');
+            const applicationCards = document.querySelectorAll('.application-card');
+            
+            filterTabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const filter = this.dataset.filter;
+                    
+                    // Update active tab
+                    filterTabs.forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Filter applications
+                    filterApplications(filter, applicationCards);
+                });
+            });
+        }
+        
+        function filterApplications(filter, cards) {
+            let visibleCount = 0;
+            
+            cards.forEach(card => {
+                if (filter === 'all' || card.dataset.status === filter) {
+                    card.style.display = 'block';
+                    visibleCount++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+            
+            // Show/hide empty state
+            const emptyState = document.getElementById('empty-state');
+            if (visibleCount === 0) {
+                emptyState.style.display = 'block';
+            } else {
+                emptyState.style.display = 'none';
+            }
+        }
+        
+        function viewApplication(appId) {
+            // In a real implementation, this would open a detailed view
+            console.log('Viewing application:', appId);
+            window.location.href = `recommendation_detail.html?id=${appId}`;
+        }
+        
+        function updateStatus(appId) {
+            // In a real implementation, this would open a status update modal
+            console.log('Updating status for application:', appId);
+            alert('Status update feature coming soon!');
+        }
+        
+        function addNote(appId) {
+            // In a real implementation, this would open a note modal
+            console.log('Adding note for application:', appId);
+            alert('Add note feature coming soon!');
+        }
+        
+        function acceptOffer(appId) {
+            if (confirm('Are you sure you want to accept this offer?')) {
+                console.log('Accepting offer for application:', appId);
+                alert('Congratulations! You have accepted the offer.');
+            }
+        }
+        
+        function negotiateOffer(appId) {
+            console.log('Negotiating offer for application:', appId);
+            alert('Negotiation feature coming soon!');
+        }
+        
+        function viewOffer(appId) {
+            console.log('Viewing offer for application:', appId);
+            alert('View offer feature coming soon!');
+        }
+        
+        function withdrawApplication(appId) {
+            if (confirm('Are you sure you want to withdraw this application?')) {
+                console.log('Withdrawing application:', appId);
+                alert('Application withdrawn successfully.');
+            }
+        }
+        
+        function openAddApplicationModal() {
+            document.getElementById('add-application-modal').classList.add('show');
+        }
+        
+        function closeAddApplicationModal() {
+            document.getElementById('add-application-modal').classList.remove('show');
+            document.getElementById('add-application-form').reset();
+        }
+        
+        // Handle form submission
+        document.getElementById('add-application-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const applicationData = Object.fromEntries(formData);
+            
+            console.log('Adding new application:', applicationData);
+            
+            // In a real implementation, this would save to a database
+            alert('Application added successfully!');
+            closeAddApplicationModal();
+        });
+        
+        // Close modal when clicking outside
+        document.getElementById('add-application-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeAddApplicationModal();
+            }
+        });
+    </script>
+</body>
+</html>

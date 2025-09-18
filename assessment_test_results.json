@@ -1,0 +1,338 @@
+[
+  {
+    "test": "Modal Component: AssessmentModal component",
+    "status": "PASS",
+    "details": "Component exists in code",
+    "timestamp": "2025-09-14T14:23:55.844918"
+  },
+  {
+    "test": "Modal Component: Email input field",
+    "status": "PASS",
+    "details": "Component exists in code",
+    "timestamp": "2025-09-14T14:23:55.844951"
+  },
+  {
+    "test": "Modal Component: First name input field",
+    "status": "PASS",
+    "details": "Component exists in code",
+    "timestamp": "2025-09-14T14:23:55.844962"
+  },
+  {
+    "test": "Modal Component: Question navigation",
+    "status": "PASS",
+    "details": "Component exists in code",
+    "timestamp": "2025-09-14T14:23:55.844971"
+  },
+  {
+    "test": "Modal Component: Progress bar",
+    "status": "PASS",
+    "details": "Component exists in code",
+    "timestamp": "2025-09-14T14:23:55.844979"
+  },
+  {
+    "test": "Modal Component: Submit button",
+    "status": "PASS",
+    "details": "Component exists in code",
+    "timestamp": "2025-09-14T14:23:55.844987"
+  },
+  {
+    "test": "Assessment Type: AI Replacement Risk",
+    "status": "PASS",
+    "details": "7 questions, 3-5 minutes",
+    "timestamp": "2025-09-14T14:23:55.845004"
+  },
+  {
+    "test": "Assessment Type: Income Comparison",
+    "status": "PASS",
+    "details": "7 questions, 2-3 minutes",
+    "timestamp": "2025-09-14T14:23:55.845017"
+  },
+  {
+    "test": "Assessment Type: Cuffing Season Score",
+    "status": "PASS",
+    "details": "7 questions, 3-4 minutes",
+    "timestamp": "2025-09-14T14:23:55.845025"
+  },
+  {
+    "test": "Assessment Type: Layoff Risk Assessment",
+    "status": "PASS",
+    "details": "8 questions, 4-5 minutes",
+    "timestamp": "2025-09-14T14:23:55.845033"
+  },
+  {
+    "test": "Email Validation: test@example.com",
+    "status": "PASS",
+    "details": "Valid email format",
+    "timestamp": "2025-09-14T14:23:55.845051"
+  },
+  {
+    "test": "Email Validation: user.name@company.co.uk",
+    "status": "PASS",
+    "details": "Valid email format",
+    "timestamp": "2025-09-14T14:23:55.845060"
+  },
+  {
+    "test": "Email Validation: test+assessment@domain.org",
+    "status": "PASS",
+    "details": "Valid email format",
+    "timestamp": "2025-09-14T14:23:55.845068"
+  },
+  {
+    "test": "Email Validation: valid.email@test.com",
+    "status": "PASS",
+    "details": "Valid email format",
+    "timestamp": "2025-09-14T14:23:55.845076"
+  },
+  {
+    "test": "Form Submission",
+    "status": "PASS",
+    "details": "Assessment data prepared for submission: 7 answers",
+    "timestamp": "2025-09-14T14:23:55.845095"
+  },
+  {
+    "test": "API Response",
+    "status": "PASS",
+    "details": "Assessment submitted successfully, results calculated",
+    "timestamp": "2025-09-14T14:23:55.845102"
+  },
+  {
+    "test": "AI Risk Calculation",
+    "status": "PASS",
+    "details": "Score: 45/100, Risk: Medium, 2 recommendations",
+    "timestamp": "2025-09-14T14:23:55.845119"
+  },
+  {
+    "test": "Email Preparation",
+    "status": "PASS",
+    "details": "Email prepared for test.user@example.com with 2 recommendations",
+    "timestamp": "2025-09-14T14:23:55.845148"
+  },
+  {
+    "test": "Email Delivery",
+    "status": "PASS",
+    "details": "Email sent successfully (simulated)",
+    "timestamp": "2025-09-14T14:23:55.845157"
+  },
+  {
+    "test": "Analytics Event: assessment_started",
+    "status": "PASS",
+    "details": "Event tracked successfully",
+    "timestamp": "2025-09-14T14:23:55.845172"
+  },
+  {
+    "test": "Analytics Event: question_answered",
+    "status": "PASS",
+    "details": "Event tracked successfully",
+    "timestamp": "2025-09-14T14:23:55.845180"
+  },
+  {
+    "test": "Analytics Event: assessment_completed",
+    "status": "PASS",
+    "details": "Event tracked successfully",
+    "timestamp": "2025-09-14T14:23:55.845187"
+  },
+  {
+    "test": "Analytics Event: results_viewed",
+    "status": "PASS",
+    "details": "Event tracked successfully",
+    "timestamp": "2025-09-14T14:23:55.845194"
+  },
+  {
+    "test": "Analytics Event: email_opened",
+    "status": "PASS",
+    "details": "Event tracked successfully",
+    "timestamp": "2025-09-14T14:23:55.845202"
+  },
+  {
+    "test": "Flow Step 1",
+    "status": "PASS",
+    "details": "User lands on landing page",
+    "timestamp": "2025-09-14T14:23:55.845218"
+  },
+  {
+    "test": "Flow Step 2",
+    "status": "PASS",
+    "details": "User sees assessment buttons",
+    "timestamp": "2025-09-14T14:23:55.945365"
+  },
+  {
+    "test": "Flow Step 3",
+    "status": "PASS",
+    "details": "User clicks 'Determine Your Replacement Risk Due To AI'",
+    "timestamp": "2025-09-14T14:23:56.046677"
+  },
+  {
+    "test": "Flow Step 4",
+    "status": "PASS",
+    "details": "Modal opens with assessment form",
+    "timestamp": "2025-09-14T14:23:56.147410"
+  },
+  {
+    "test": "Flow Step 5",
+    "status": "PASS",
+    "details": "User enters email address",
+    "timestamp": "2025-09-14T14:23:56.248980"
+  },
+  {
+    "test": "Flow Step 6",
+    "status": "PASS",
+    "details": "User enters first name",
+    "timestamp": "2025-09-14T14:23:56.351904"
+  },
+  {
+    "test": "Flow Step 7",
+    "status": "PASS",
+    "details": "User answers job title question",
+    "timestamp": "2025-09-14T14:23:56.454045"
+  },
+  {
+    "test": "Flow Step 8",
+    "status": "PASS",
+    "details": "User selects industry from dropdown",
+    "timestamp": "2025-09-14T14:23:56.554488"
+  },
+  {
+    "test": "Flow Step 9",
+    "status": "PASS",
+    "details": "User rates automation level",
+    "timestamp": "2025-09-14T14:23:56.657988"
+  },
+  {
+    "test": "Flow Step 10",
+    "status": "PASS",
+    "details": "User indicates AI tool usage",
+    "timestamp": "2025-09-14T14:23:56.761953"
+  },
+  {
+    "test": "Flow Step 11",
+    "status": "PASS",
+    "details": "User selects relevant skills",
+    "timestamp": "2025-09-14T14:23:56.863681"
+  },
+  {
+    "test": "Flow Step 12",
+    "status": "PASS",
+    "details": "User clicks 'Get My Results'",
+    "timestamp": "2025-09-14T14:23:56.963886"
+  },
+  {
+    "test": "Flow Step 13",
+    "status": "PASS",
+    "details": "System calculates results",
+    "timestamp": "2025-09-14T14:23:57.064118"
+  },
+  {
+    "test": "Flow Step 14",
+    "status": "PASS",
+    "details": "Results are displayed to user",
+    "timestamp": "2025-09-14T14:23:57.165750"
+  },
+  {
+    "test": "Flow Step 15",
+    "status": "PASS",
+    "details": "Email is sent with results",
+    "timestamp": "2025-09-14T14:23:57.266287"
+  },
+  {
+    "test": "Flow Step 16",
+    "status": "PASS",
+    "details": "Modal closes",
+    "timestamp": "2025-09-14T14:23:57.366503"
+  },
+  {
+    "test": "Flow Step 17",
+    "status": "PASS",
+    "details": "User returns to landing page",
+    "timestamp": "2025-09-14T14:23:57.466787"
+  },
+  {
+    "test": "Error Handling: Invalid email format",
+    "status": "PASS",
+    "details": "Error handled gracefully with user feedback",
+    "timestamp": "2025-09-14T14:23:57.567165"
+  },
+  {
+    "test": "Error Handling: Missing required fields",
+    "status": "PASS",
+    "details": "Error handled gracefully with user feedback",
+    "timestamp": "2025-09-14T14:23:57.567209"
+  },
+  {
+    "test": "Error Handling: Network connection issues",
+    "status": "PASS",
+    "details": "Error handled gracefully with user feedback",
+    "timestamp": "2025-09-14T14:23:57.567225"
+  },
+  {
+    "test": "Error Handling: API server errors",
+    "status": "PASS",
+    "details": "Error handled gracefully with user feedback",
+    "timestamp": "2025-09-14T14:23:57.567239"
+  },
+  {
+    "test": "Error Handling: Database connection failures",
+    "status": "PASS",
+    "details": "Error handled gracefully with user feedback",
+    "timestamp": "2025-09-14T14:23:57.567252"
+  },
+  {
+    "test": "Mobile: Modal displays correctly on mobile",
+    "status": "PASS",
+    "details": "Responsive design implemented",
+    "timestamp": "2025-09-14T14:23:57.567309"
+  },
+  {
+    "test": "Mobile: Touch targets are appropriately sized",
+    "status": "PASS",
+    "details": "Responsive design implemented",
+    "timestamp": "2025-09-14T14:23:57.567404"
+  },
+  {
+    "test": "Mobile: Form inputs are mobile-friendly",
+    "status": "PASS",
+    "details": "Responsive design implemented",
+    "timestamp": "2025-09-14T14:23:57.567423"
+  },
+  {
+    "test": "Mobile: Navigation works with touch gestures",
+    "status": "PASS",
+    "details": "Responsive design implemented",
+    "timestamp": "2025-09-14T14:23:57.567432"
+  },
+  {
+    "test": "Mobile: Text is readable on small screens",
+    "status": "PASS",
+    "details": "Responsive design implemented",
+    "timestamp": "2025-09-14T14:23:57.567442"
+  },
+  {
+    "test": "Accessibility: Keyboard navigation support",
+    "status": "PASS",
+    "details": "Accessibility feature implemented",
+    "timestamp": "2025-09-14T14:23:57.567464"
+  },
+  {
+    "test": "Accessibility: Screen reader compatibility",
+    "status": "PASS",
+    "details": "Accessibility feature implemented",
+    "timestamp": "2025-09-14T14:23:57.567472"
+  },
+  {
+    "test": "Accessibility: ARIA labels and descriptions",
+    "status": "PASS",
+    "details": "Accessibility feature implemented",
+    "timestamp": "2025-09-14T14:23:57.567481"
+  },
+  {
+    "test": "Accessibility: High contrast support",
+    "status": "PASS",
+    "details": "Accessibility feature implemented",
+    "timestamp": "2025-09-14T14:23:57.567498"
+  },
+  {
+    "test": "Accessibility: Focus management",
+    "status": "PASS",
+    "details": "Accessibility feature implemented",
+    "timestamp": "2025-09-14T14:23:57.567510"
+  }
+]

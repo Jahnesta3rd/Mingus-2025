@@ -1,0 +1,811 @@
+{
+  "analysis_time": "2025-09-16T13:14:43.181594",
+  "device": "iPhone 12 (375x812px)",
+  "total_buttons": 32,
+  "critical_issues": 13,
+  "medium_issues": 0,
+  "passed_buttons": 19,
+  "button_details": [
+    {
+      "index": 0,
+      "tag_name": "a",
+      "text": "Skip to main content",
+      "dimensions": "32x16",
+      "is_visible": true,
+      "width_pass": false,
+      "height_pass": false,
+      "overall_pass": false,
+      "issue_type": "TOO_SMALL",
+      "computed_styles": {
+        "display": "block",
+        "minHeight": "0px",
+        "minWidth": "0px",
+        "opacity": "1",
+        "padding": "8px 16px",
+        "visibility": "visible"
+      },
+      "class_name": "sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-violet-600 text-white px-4 py-2 rounded-lg z-50",
+      "element_id": "",
+      "position": {
+        "top": -1,
+        "left": -1
+      }
+    },
+    {
+      "index": 1,
+      "tag_name": "a",
+      "text": "Skip to navigation",
+      "dimensions": "32x16",
+      "is_visible": true,
+      "width_pass": false,
+      "height_pass": false,
+      "overall_pass": false,
+      "issue_type": "TOO_SMALL",
+      "computed_styles": {
+        "display": "block",
+        "minHeight": "0px",
+        "minWidth": "0px",
+        "opacity": "1",
+        "padding": "8px 16px",
+        "visibility": "visible"
+      },
+      "class_name": "sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-32 bg-violet-600 text-white px-4 py-2 rounded-lg z-50",
+      "element_id": "",
+      "position": {
+        "top": -1,
+        "left": -1
+      }
+    },
+    {
+      "index": 2,
+      "tag_name": "a",
+      "text": "Skip to footer",
+      "dimensions": "32x16",
+      "is_visible": true,
+      "width_pass": false,
+      "height_pass": false,
+      "overall_pass": false,
+      "issue_type": "TOO_SMALL",
+      "computed_styles": {
+        "display": "block",
+        "minHeight": "0px",
+        "minWidth": "0px",
+        "opacity": "1",
+        "padding": "8px 16px",
+        "visibility": "visible"
+      },
+      "class_name": "sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-64 bg-violet-600 text-white px-4 py-2 rounded-lg z-50",
+      "element_id": "",
+      "position": {
+        "top": -1,
+        "left": -1
+      }
+    },
+    {
+      "index": 3,
+      "tag_name": "button",
+      "text": "",
+      "dimensions": "0x0",
+      "is_visible": false,
+      "width_pass": false,
+      "height_pass": false,
+      "overall_pass": false,
+      "issue_type": "INVISIBLE",
+      "computed_styles": {
+        "display": "block",
+        "minHeight": "0px",
+        "minWidth": "0px",
+        "opacity": "1",
+        "padding": "8px 12px",
+        "visibility": "visible"
+      },
+      "class_name": "text-gray-300 hover:text-violet-400 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-900",
+      "element_id": "",
+      "position": {
+        "top": 0,
+        "left": 0
+      }
+    },
+    {
+      "index": 4,
+      "tag_name": "button",
+      "text": "",
+      "dimensions": "0x0",
+      "is_visible": false,
+      "width_pass": false,
+      "height_pass": false,
+      "overall_pass": false,
+      "issue_type": "INVISIBLE",
+      "computed_styles": {
+        "display": "block",
+        "minHeight": "0px",
+        "minWidth": "0px",
+        "opacity": "1",
+        "padding": "8px 12px",
+        "visibility": "visible"
+      },
+      "class_name": "text-gray-300 hover:text-violet-400 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-900",
+      "element_id": "",
+      "position": {
+        "top": 0,
+        "left": 0
+      }
+    },
+    {
+      "index": 5,
+      "tag_name": "button",
+      "text": "",
+      "dimensions": "0x0",
+      "is_visible": false,
+      "width_pass": false,
+      "height_pass": false,
+      "overall_pass": false,
+      "issue_type": "INVISIBLE",
+      "computed_styles": {
+        "display": "block",
+        "minHeight": "0px",
+        "minWidth": "0px",
+        "opacity": "1",
+        "padding": "8px 12px",
+        "visibility": "visible"
+      },
+      "class_name": "text-gray-300 hover:text-violet-400 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-900",
+      "element_id": "",
+      "position": {
+        "top": 0,
+        "left": 0
+      }
+    },
+    {
+      "index": 6,
+      "tag_name": "button",
+      "text": "",
+      "dimensions": "0x0",
+      "is_visible": false,
+      "width_pass": false,
+      "height_pass": false,
+      "overall_pass": false,
+      "issue_type": "INVISIBLE",
+      "computed_styles": {
+        "display": "inline-block",
+        "minHeight": "0px",
+        "minWidth": "0px",
+        "opacity": "1",
+        "padding": "10px 24px",
+        "visibility": "visible"
+      },
+      "class_name": "bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white px-6 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-violet-500/25 hover:-translate-y-0.5 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-900",
+      "element_id": "",
+      "position": {
+        "top": 0,
+        "left": 0
+      }
+    },
+    {
+      "index": 7,
+      "tag_name": "button",
+      "text": "",
+      "dimensions": "40x40",
+      "is_visible": true,
+      "width_pass": false,
+      "height_pass": false,
+      "overall_pass": false,
+      "issue_type": "TOO_SMALL",
+      "computed_styles": {
+        "display": "inline-block",
+        "minHeight": "0px",
+        "minWidth": "0px",
+        "opacity": "1",
+        "padding": "8px",
+        "visibility": "visible"
+      },
+      "class_name": "text-gray-300 hover:text-white p-2 rounded-md transition-colors duration-200 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-900",
+      "element_id": "",
+      "position": {
+        "top": 12,
+        "left": 319
+      }
+    },
+    {
+      "index": 8,
+      "tag_name": "button",
+      "text": "",
+      "dimensions": "325x40",
+      "is_visible": true,
+      "width_pass": true,
+      "height_pass": false,
+      "overall_pass": false,
+      "issue_type": "TOO_SMALL",
+      "computed_styles": {
+        "display": "block",
+        "minHeight": "0px",
+        "minWidth": "0px",
+        "opacity": "1",
+        "padding": "8px 12px",
+        "visibility": "visible"
+      },
+      "class_name": "block w-full text-left text-gray-300 hover:text-violet-400 hover:bg-slate-700/50 px-3 py-2 rounded-md text-base font-medium transition-colors duration-200 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-800",
+      "element_id": "",
+      "position": {
+        "top": 81,
+        "left": 25
+      }
+    },
+    {
+      "index": 9,
+      "tag_name": "button",
+      "text": "",
+      "dimensions": "325x40",
+      "is_visible": true,
+      "width_pass": true,
+      "height_pass": false,
+      "overall_pass": false,
+      "issue_type": "TOO_SMALL",
+      "computed_styles": {
+        "display": "block",
+        "minHeight": "0px",
+        "minWidth": "0px",
+        "opacity": "1",
+        "padding": "8px 12px",
+        "visibility": "visible"
+      },
+      "class_name": "block w-full text-left text-gray-300 hover:text-violet-400 hover:bg-slate-700/50 px-3 py-2 rounded-md text-base font-medium transition-colors duration-200 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-800",
+      "element_id": "",
+      "position": {
+        "top": 125,
+        "left": 25
+      }
+    },
+    {
+      "index": 10,
+      "tag_name": "button",
+      "text": "",
+      "dimensions": "325x40",
+      "is_visible": true,
+      "width_pass": true,
+      "height_pass": false,
+      "overall_pass": false,
+      "issue_type": "TOO_SMALL",
+      "computed_styles": {
+        "display": "block",
+        "minHeight": "0px",
+        "minWidth": "0px",
+        "opacity": "1",
+        "padding": "8px 12px",
+        "visibility": "visible"
+      },
+      "class_name": "block w-full text-left text-gray-300 hover:text-violet-400 hover:bg-slate-700/50 px-3 py-2 rounded-md text-base font-medium transition-colors duration-200 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-800",
+      "element_id": "",
+      "position": {
+        "top": 169,
+        "left": 25
+      }
+    },
+    {
+      "index": 11,
+      "tag_name": "button",
+      "text": "",
+      "dimensions": "325x40",
+      "is_visible": true,
+      "width_pass": true,
+      "height_pass": false,
+      "overall_pass": false,
+      "issue_type": "TOO_SMALL",
+      "computed_styles": {
+        "display": "inline-block",
+        "minHeight": "0px",
+        "minWidth": "0px",
+        "opacity": "1",
+        "padding": "10px 16px",
+        "visibility": "visible"
+      },
+      "class_name": "w-full bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 transform hover:scale-105 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-800",
+      "element_id": "",
+      "position": {
+        "top": 222,
+        "left": 25
+      }
+    },
+    {
+      "index": 12,
+      "tag_name": "button",
+      "text": "Determine Your Replacement Risk Due To A...",
+      "dimensions": "343x44",
+      "is_visible": true,
+      "width_pass": true,
+      "height_pass": true,
+      "overall_pass": true,
+      "issue_type": "PASS",
+      "computed_styles": {
+        "display": "flex",
+        "minHeight": "auto",
+        "minWidth": "auto",
+        "opacity": "1",
+        "padding": "12px 16px",
+        "visibility": "visible"
+      },
+      "class_name": "group bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 disabled:from-violet-500 disabled:to-purple-500 text-white px-4 sm:px-6 py-3 sm:py-4 rounded-lg text-base sm:text-lg font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-xl hover:shadow-violet-500/25 flex items-center justify-center hover:-translate-y-1 disabled:scale-100 disabled:translate-y-0 disabled:cursor-not-allowed focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-gray-900",
+      "element_id": "",
+      "position": {
+        "top": 354.5,
+        "left": 16
+      }
+    },
+    {
+      "index": 13,
+      "tag_name": "button",
+      "text": "Determine How Your Income Compares",
+      "dimensions": "343x44",
+      "is_visible": true,
+      "width_pass": true,
+      "height_pass": true,
+      "overall_pass": true,
+      "issue_type": "PASS",
+      "computed_styles": {
+        "display": "flex",
+        "minHeight": "auto",
+        "minWidth": "auto",
+        "opacity": "1",
+        "padding": "12px 16px",
+        "visibility": "visible"
+      },
+      "class_name": "group bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 disabled:from-purple-500 disabled:to-pink-500 text-white px-4 sm:px-6 py-3 sm:py-4 rounded-lg text-base sm:text-lg font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-xl hover:shadow-purple-500/25 flex items-center justify-center hover:-translate-y-1 disabled:scale-100 disabled:translate-y-0 disabled:cursor-not-allowed focus-ring focus-visible:ring-4 focus-visible:ring-purple-400 focus-visible:ring-offset-4 focus-visible:ring-offset-gray-900",
+      "element_id": "",
+      "position": {
+        "top": 410.5,
+        "left": 16
+      }
+    },
+    {
+      "index": 14,
+      "tag_name": "button",
+      "text": "Determine Your \"Cuffing Season\" Score",
+      "dimensions": "343x44",
+      "is_visible": true,
+      "width_pass": true,
+      "height_pass": true,
+      "overall_pass": true,
+      "issue_type": "PASS",
+      "computed_styles": {
+        "display": "flex",
+        "minHeight": "auto",
+        "minWidth": "auto",
+        "opacity": "1",
+        "padding": "12px 16px",
+        "visibility": "visible"
+      },
+      "class_name": "group bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-700 hover:to-rose-700 disabled:from-pink-500 disabled:to-rose-500 text-white px-4 sm:px-6 py-3 sm:py-4 rounded-lg text-base sm:text-lg font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-xl hover:shadow-pink-500/25 flex items-center justify-center hover:-translate-y-1 disabled:scale-100 disabled:translate-y-0 disabled:cursor-not-allowed focus-ring focus-visible:ring-4 focus-visible:ring-pink-400 focus-visible:ring-offset-4 focus-visible:ring-offset-gray-900",
+      "element_id": "",
+      "position": {
+        "top": 466.5,
+        "left": 16
+      }
+    },
+    {
+      "index": 15,
+      "tag_name": "button",
+      "text": "Determine Your Layoff Risk",
+      "dimensions": "343x44",
+      "is_visible": true,
+      "width_pass": true,
+      "height_pass": true,
+      "overall_pass": true,
+      "issue_type": "PASS",
+      "computed_styles": {
+        "display": "flex",
+        "minHeight": "auto",
+        "minWidth": "auto",
+        "opacity": "1",
+        "padding": "12px 16px",
+        "visibility": "visible"
+      },
+      "class_name": "group bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-700 hover:to-red-700 disabled:from-rose-500 disabled:to-red-500 text-white px-4 sm:px-6 py-3 sm:py-4 rounded-lg text-base sm:text-lg font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-xl hover:shadow-rose-500/25 flex items-center justify-center hover:-translate-y-1 disabled:scale-100 disabled:translate-y-0 disabled:cursor-not-allowed focus-ring focus-visible:ring-4 focus-visible:ring-rose-400 focus-visible:ring-offset-4 focus-visible:ring-offset-gray-900",
+      "element_id": "",
+      "position": {
+        "top": 522.5,
+        "left": 16
+      }
+    },
+    {
+      "index": 16,
+      "tag_name": "button",
+      "text": "View Full Dashboard",
+      "dimensions": "232x32",
+      "is_visible": true,
+      "width_pass": true,
+      "height_pass": false,
+      "overall_pass": false,
+      "issue_type": "TOO_SMALL",
+      "computed_styles": {
+        "display": "block",
+        "minHeight": "auto",
+        "minWidth": "auto",
+        "opacity": "1",
+        "padding": "8px 0px",
+        "visibility": "visible"
+      },
+      "class_name": "w-full bg-gradient-to-r from-violet-500 to-purple-500 text-white py-2 sm:py-3 rounded-xl font-semibold text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-violet-400 focus:ring-offset-2 focus:ring-offset-gray-800",
+      "element_id": "",
+      "position": {
+        "top": 946.5,
+        "left": 71.5
+      }
+    },
+    {
+      "index": 17,
+      "tag_name": "button",
+      "text": "Take Assessment",
+      "dimensions": "293x48",
+      "is_visible": true,
+      "width_pass": true,
+      "height_pass": true,
+      "overall_pass": true,
+      "issue_type": "PASS",
+      "computed_styles": {
+        "display": "flex",
+        "minHeight": "0px",
+        "minWidth": "0px",
+        "opacity": "1",
+        "padding": "12px 16px",
+        "visibility": "visible"
+      },
+      "class_name": "w-full bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white px-4 py-3 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-xl hover:shadow-violet-500/25 flex items-center justify-center hover:-translate-y-1 disabled:scale-100 disabled:translate-y-0 disabled:cursor-not-allowed focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-gray-900",
+      "element_id": "",
+      "position": {
+        "top": 1561.5,
+        "left": 41
+      }
+    },
+    {
+      "index": 18,
+      "tag_name": "button",
+      "text": "Take Assessment",
+      "dimensions": "293x48",
+      "is_visible": true,
+      "width_pass": true,
+      "height_pass": true,
+      "overall_pass": true,
+      "issue_type": "PASS",
+      "computed_styles": {
+        "display": "flex",
+        "minHeight": "0px",
+        "minWidth": "0px",
+        "opacity": "1",
+        "padding": "12px 16px",
+        "visibility": "visible"
+      },
+      "class_name": "w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-4 py-3 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-xl hover:shadow-purple-500/25 flex items-center justify-center hover:-translate-y-1 disabled:scale-100 disabled:translate-y-0 disabled:cursor-not-allowed focus-ring focus-visible:ring-4 focus-visible:ring-purple-400 focus-visible:ring-offset-4 focus-visible:ring-offset-gray-900",
+      "element_id": "",
+      "position": {
+        "top": 1839.5,
+        "left": 41
+      }
+    },
+    {
+      "index": 19,
+      "tag_name": "button",
+      "text": "Take Assessment",
+      "dimensions": "293x48",
+      "is_visible": true,
+      "width_pass": true,
+      "height_pass": true,
+      "overall_pass": true,
+      "issue_type": "PASS",
+      "computed_styles": {
+        "display": "flex",
+        "minHeight": "0px",
+        "minWidth": "0px",
+        "opacity": "1",
+        "padding": "12px 16px",
+        "visibility": "visible"
+      },
+      "class_name": "w-full bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-700 hover:to-rose-700 text-white px-4 py-3 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-xl hover:shadow-pink-500/25 flex items-center justify-center hover:-translate-y-1 disabled:scale-100 disabled:translate-y-0 disabled:cursor-not-allowed focus-ring focus-visible:ring-4 focus-visible:ring-pink-400 focus-visible:ring-offset-4 focus-visible:ring-offset-gray-900",
+      "element_id": "",
+      "position": {
+        "top": 2117.5,
+        "left": 41
+      }
+    },
+    {
+      "index": 20,
+      "tag_name": "button",
+      "text": "Take Assessment",
+      "dimensions": "293x48",
+      "is_visible": true,
+      "width_pass": true,
+      "height_pass": true,
+      "overall_pass": true,
+      "issue_type": "PASS",
+      "computed_styles": {
+        "display": "flex",
+        "minHeight": "0px",
+        "minWidth": "0px",
+        "opacity": "1",
+        "padding": "12px 16px",
+        "visibility": "visible"
+      },
+      "class_name": "w-full bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-700 hover:to-red-700 text-white px-4 py-3 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-xl hover:shadow-rose-500/25 flex items-center justify-center hover:-translate-y-1 disabled:scale-100 disabled:translate-y-0 disabled:cursor-not-allowed focus-ring focus-visible:ring-4 focus-visible:ring-rose-400 focus-visible:ring-offset-4 focus-visible:ring-offset-gray-900",
+      "element_id": "",
+      "position": {
+        "top": 2395.5,
+        "left": 41
+      }
+    },
+    {
+      "index": 21,
+      "tag_name": "button",
+      "text": "Get Started",
+      "dimensions": "279x52",
+      "is_visible": true,
+      "width_pass": true,
+      "height_pass": true,
+      "overall_pass": true,
+      "issue_type": "PASS",
+      "computed_styles": {
+        "display": "inline-block",
+        "minHeight": "0px",
+        "minWidth": "0px",
+        "opacity": "1",
+        "padding": "12px 24px",
+        "visibility": "visible"
+      },
+      "class_name": "w-full py-3 px-6 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:ring-offset-2 focus:ring-offset-gray-800 border-2 border-violet-500 text-violet-400 hover:bg-violet-500 hover:text-white hover:shadow-lg hover:shadow-violet-500/25",
+      "element_id": "",
+      "position": {
+        "top": 7981,
+        "left": 48
+      }
+    },
+    {
+      "index": 22,
+      "tag_name": "button",
+      "text": "Start Free Trial",
+      "dimensions": "279x48",
+      "is_visible": true,
+      "width_pass": true,
+      "height_pass": true,
+      "overall_pass": true,
+      "issue_type": "PASS",
+      "computed_styles": {
+        "display": "inline-block",
+        "minHeight": "0px",
+        "minWidth": "0px",
+        "opacity": "1",
+        "padding": "12px 24px",
+        "visibility": "visible"
+      },
+      "class_name": "w-full py-3 px-6 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:ring-offset-2 focus:ring-offset-gray-800 bg-gradient-to-r from-violet-500 to-purple-500 hover:from-violet-600 hover:to-purple-600 text-white shadow-lg hover:shadow-violet-500/25",
+      "element_id": "",
+      "position": {
+        "top": 8561,
+        "left": 48
+      }
+    },
+    {
+      "index": 23,
+      "tag_name": "button",
+      "text": "Go Professional",
+      "dimensions": "279x52",
+      "is_visible": true,
+      "width_pass": true,
+      "height_pass": true,
+      "overall_pass": true,
+      "issue_type": "PASS",
+      "computed_styles": {
+        "display": "inline-block",
+        "minHeight": "0px",
+        "minWidth": "0px",
+        "opacity": "1",
+        "padding": "12px 24px",
+        "visibility": "visible"
+      },
+      "class_name": "w-full py-3 px-6 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:ring-offset-2 focus:ring-offset-gray-800 border-2 border-violet-500 text-violet-400 hover:bg-violet-500 hover:text-white hover:shadow-lg hover:shadow-violet-500/25",
+      "element_id": "",
+      "position": {
+        "top": 9113,
+        "left": 48
+      }
+    },
+    {
+      "index": 24,
+      "tag_name": "button",
+      "text": "How does Mingus address the unique finan...",
+      "dimensions": "341x92",
+      "is_visible": true,
+      "width_pass": true,
+      "height_pass": true,
+      "overall_pass": true,
+      "issue_type": "PASS",
+      "computed_styles": {
+        "display": "flex",
+        "minHeight": "0px",
+        "minWidth": "0px",
+        "opacity": "1",
+        "padding": "16px",
+        "visibility": "visible"
+      },
+      "class_name": "w-full px-4 sm:px-6 py-4 sm:py-5 text-left flex justify-between items-center hover:bg-slate-700/30 transition-all duration-300 rounded-xl group focus-ring focus-visible:ring-4 focus-visible:ring-violet-500 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-800",
+      "element_id": "faq-question-0",
+      "position": {
+        "top": 9566,
+        "left": 17
+      }
+    },
+    {
+      "index": 25,
+      "tag_name": "button",
+      "text": "What makes Mingus different from other f...",
+      "dimensions": "341x72",
+      "is_visible": true,
+      "width_pass": true,
+      "height_pass": true,
+      "overall_pass": true,
+      "issue_type": "PASS",
+      "computed_styles": {
+        "display": "flex",
+        "minHeight": "0px",
+        "minWidth": "0px",
+        "opacity": "1",
+        "padding": "16px",
+        "visibility": "visible"
+      },
+      "class_name": "w-full px-4 sm:px-6 py-4 sm:py-5 text-left flex justify-between items-center hover:bg-slate-700/30 transition-all duration-300 rounded-xl group focus-ring focus-visible:ring-4 focus-visible:ring-violet-500 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-800",
+      "element_id": "faq-question-1",
+      "position": {
+        "top": 9676,
+        "left": 17
+      }
+    },
+    {
+      "index": 26,
+      "tag_name": "button",
+      "text": "How does Mingus help with career advance...",
+      "dimensions": "341x72",
+      "is_visible": true,
+      "width_pass": true,
+      "height_pass": true,
+      "overall_pass": true,
+      "issue_type": "PASS",
+      "computed_styles": {
+        "display": "flex",
+        "minHeight": "0px",
+        "minWidth": "0px",
+        "opacity": "1",
+        "padding": "16px",
+        "visibility": "visible"
+      },
+      "class_name": "w-full px-4 sm:px-6 py-4 sm:py-5 text-left flex justify-between items-center hover:bg-slate-700/30 transition-all duration-300 rounded-xl group focus-ring focus-visible:ring-4 focus-visible:ring-violet-500 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-800",
+      "element_id": "faq-question-2",
+      "position": {
+        "top": 9766,
+        "left": 17
+      }
+    },
+    {
+      "index": 27,
+      "tag_name": "button",
+      "text": "Can Mingus help me build generational we...",
+      "dimensions": "341x72",
+      "is_visible": true,
+      "width_pass": true,
+      "height_pass": true,
+      "overall_pass": true,
+      "issue_type": "PASS",
+      "computed_styles": {
+        "display": "flex",
+        "minHeight": "0px",
+        "minWidth": "0px",
+        "opacity": "1",
+        "padding": "16px",
+        "visibility": "visible"
+      },
+      "class_name": "w-full px-4 sm:px-6 py-4 sm:py-5 text-left flex justify-between items-center hover:bg-slate-700/30 transition-all duration-300 rounded-xl group focus-ring focus-visible:ring-4 focus-visible:ring-violet-500 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-800",
+      "element_id": "faq-question-3",
+      "position": {
+        "top": 9856,
+        "left": 17
+      }
+    },
+    {
+      "index": 28,
+      "tag_name": "button",
+      "text": "How does Mingus address health dispariti...",
+      "dimensions": "341x92",
+      "is_visible": true,
+      "width_pass": true,
+      "height_pass": true,
+      "overall_pass": true,
+      "issue_type": "PASS",
+      "computed_styles": {
+        "display": "flex",
+        "minHeight": "0px",
+        "minWidth": "0px",
+        "opacity": "1",
+        "padding": "16px",
+        "visibility": "visible"
+      },
+      "class_name": "w-full px-4 sm:px-6 py-4 sm:py-5 text-left flex justify-between items-center hover:bg-slate-700/30 transition-all duration-300 rounded-xl group focus-ring focus-visible:ring-4 focus-visible:ring-violet-500 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-800",
+      "element_id": "faq-question-4",
+      "position": {
+        "top": 9946,
+        "left": 17
+      }
+    },
+    {
+      "index": 29,
+      "tag_name": "button",
+      "text": "Is my financial data secure and private ...",
+      "dimensions": "341x72",
+      "is_visible": true,
+      "width_pass": true,
+      "height_pass": true,
+      "overall_pass": true,
+      "issue_type": "PASS",
+      "computed_styles": {
+        "display": "flex",
+        "minHeight": "0px",
+        "minWidth": "0px",
+        "opacity": "1",
+        "padding": "16px",
+        "visibility": "visible"
+      },
+      "class_name": "w-full px-4 sm:px-6 py-4 sm:py-5 text-left flex justify-between items-center hover:bg-slate-700/30 transition-all duration-300 rounded-xl group focus-ring focus-visible:ring-4 focus-visible:ring-violet-500 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-800",
+      "element_id": "faq-question-5",
+      "position": {
+        "top": 10056,
+        "left": 17
+      }
+    },
+    {
+      "index": 30,
+      "tag_name": "button",
+      "text": "Start Your Wealth Journey",
+      "dimensions": "284x60",
+      "is_visible": true,
+      "width_pass": true,
+      "height_pass": true,
+      "overall_pass": true,
+      "issue_type": "PASS",
+      "computed_styles": {
+        "display": "flex",
+        "minHeight": "auto",
+        "minWidth": "auto",
+        "opacity": "1",
+        "padding": "16px 32px",
+        "visibility": "visible"
+      },
+      "class_name": "group bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 disabled:from-violet-400 disabled:to-purple-500 text-white px-8 py-4 rounded-lg text-lg font-semibold transition-all duration-300 transform hover:scale-105 flex items-center shadow-lg hover:shadow-xl hover:shadow-violet-500/25 hover:-translate-y-1 disabled:scale-100 disabled:translate-y-0 disabled:cursor-not-allowed focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-violet-800",
+      "element_id": "",
+      "position": {
+        "top": 10509,
+        "left": 45.5703125
+      }
+    },
+    {
+      "index": 31,
+      "tag_name": "button",
+      "text": "Join Our Community",
+      "dimensions": "240x64",
+      "is_visible": true,
+      "width_pass": true,
+      "height_pass": true,
+      "overall_pass": true,
+      "issue_type": "PASS",
+      "computed_styles": {
+        "display": "block",
+        "minHeight": "auto",
+        "minWidth": "auto",
+        "opacity": "1",
+        "padding": "16px 32px",
+        "visibility": "visible"
+      },
+      "class_name": "group border-2 border-white text-white hover:bg-white hover:text-violet-600 disabled:border-gray-400 disabled:text-gray-400 px-8 py-4 rounded-lg text-lg font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-white/25 hover:-translate-y-1 disabled:scale-100 disabled:translate-y-0 disabled:cursor-not-allowed focus-ring focus-visible:ring-4 focus-visible:ring-white focus-visible:ring-offset-4 focus-visible:ring-offset-violet-800",
+      "element_id": "",
+      "position": {
+        "top": 10585,
+        "left": 67.375
+      }
+    }
+  ],
+  "issues_breakdown": []
+}

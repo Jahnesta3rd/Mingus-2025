@@ -242,7 +242,7 @@
                         <div className="relative mb-6">
                             <img
                                 src={meme?.image_url}
-                                alt={meme?.alt_text || 'Meme image'}
+                                alt={meme?.alt_text ? `Meme showing ${meme.alt_text} for ${selectedMood || 'current'} mood` : `Meme image for ${selectedMood || 'current'} mood`}
                                 className="w-full h-64 object-cover rounded-lg shadow-lg"
                                 onError={() => setError('Failed to load meme image')}
                             />

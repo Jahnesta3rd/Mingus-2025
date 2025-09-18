@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Career Protection Dashboard - Preview</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .mingus-card {
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid rgba(71, 85, 105, 0.3);
+            backdrop-filter: blur(8px);
+        }
+        .mingus-button {
+            background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+            transition: all 0.3s ease;
+        }
+        .mingus-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(124, 58, 237, 0.25);
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white">
+    <!-- Header -->
+    <div class="bg-slate-900/90 backdrop-blur-sm border-b border-slate-800/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center gap-4">
+                    <div class="flex items-center space-x-3">
+                        <div class="flex-shrink-0">
+                            <div class="w-10 h-10 bg-gradient-to-br from-violet-600 to-violet-700 rounded-lg flex items-center justify-center shadow-lg hover:shadow-violet-500/25 transition-all duration-300">
+                                <span class="text-white font-bold text-xl">M</span>
+                            </div>
+                        </div>
+                        <div>
+                            <h1 class="text-xl font-bold text-white">Career Protection Dashboard</h1>
+                            <div class="bg-violet-100 text-violet-800 text-xs px-2 py-1 rounded-full font-medium">
+                                PREVIEW WITH SAMPLE DATA
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex items-center gap-4">
+                    <div class="px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wide bg-orange-100 text-orange-800">
+                        Action Needed
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="space-y-8">
+            
+            <!-- Risk Status Hero -->
+            <div class="relative overflow-hidden rounded-2xl gradient-bg p-8 shadow-xl">
+                <div class="absolute inset-0 bg-black/10 backdrop-blur-sm"></div>
+                
+                <div class="relative z-10 flex items-center justify-between">
+                    <div class="flex-1">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="p-2 bg-white/20 rounded-lg">
+                                <i data-lucide="target" class="h-5 w-5 text-white"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-2xl font-bold text-white">Action Needed</h2>
+                                <p class="text-orange-100">Your career requires immediate attention</p>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-6">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-white font-medium">Risk Score: 68/100</span>
+                                <span class="text-orange-200 text-sm">High Risk</span>
+                            </div>
+                            <div class="w-full bg-white/20 rounded-full h-3">
+                                <div class="bg-white h-3 rounded-full" style="width: 68%"></div>
+                            </div>
+                        </div>
+                        
+                        <p class="text-white/90 mb-4">
+                            Market volatility and industry changes indicate your current position may be at risk. 
+                            Consider exploring new opportunities and upskilling.
+                        </p>
+                        
+                        <button class="bg-white text-orange-600 px-6 py-3 rounded-lg font-semibold hover:bg-orange-50 transition-colors">
+                            View Protection Plan
+                        </button>
+                    </div>
+                    
+                    <div class="flex-shrink-0 ml-6">
+                        <div class="w-24 h-24 bg-white/20 rounded-full flex items-center justify-center">
+                            <i data-lucide="alert-triangle" class="h-12 w-12 text-white"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tab Navigation -->
+            <div class="border-b border-slate-800/50">
+                <nav class="-mb-px flex space-x-8">
+                    <button onclick="showTab('overview')" class="tab-button py-2 px-1 border-b-2 font-medium text-sm flex items-center gap-2 border-violet-500 text-violet-400">
+                        <span>📊</span>
+                        Overview
+                    </button>
+                    <button onclick="showTab('recommendations')" class="tab-button py-2 px-1 border-b-2 font-medium text-sm flex items-center gap-2 border-transparent text-gray-300 hover:text-violet-400 hover:border-violet-400">
+                        <span>🎯</span>
+                        Job Recommendations
+                    </button>
+                    <button onclick="showTab('location')" class="tab-button py-2 px-1 border-b-2 font-medium text-sm flex items-center gap-2 border-transparent text-gray-300 hover:text-violet-400 hover:border-violet-400">
+                        <span>🗺️</span>
+                        Location Intelligence
+                    </button>
+                    <button onclick="showTab('analytics')" class="tab-button py-2 px-1 border-b-2 font-medium text-sm flex items-center gap-2 border-transparent text-gray-300 hover:text-violet-400 hover:border-violet-400">
+                        <span>📈</span>
+                        Career Analytics
+                    </button>
+                </nav>
+            </div>
+            
+            <!-- Tab Content -->
+            <div class="min-h-[600px]">
+                
+                <!-- Overview Tab -->
+                <div id="overview" class="tab-content active">
+                    <div class="grid gap-8 lg:grid-cols-2">
+                        <!-- Quick Actions -->
+                        <div>
+                            <h3 class="text-lg font-semibold text-white mb-4">Quick Actions</h3>
+                            <div class="space-y-4">
+                                <div class="mingus-card rounded-lg p-4">
+                                    <div class="flex items-start gap-3">
+                                        <i data-lucide="target" class="h-5 w-5 text-violet-400 flex-shrink-0 mt-0.5"></i>
+                                        <div>
+                                            <h4 class="font-semibold text-white">Protection Plan</h4>
+                                            <p class="text-violet-200 text-sm mt-1">
+                                                Immediate action recommended for your career security
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="space-y-3">
+                                    <button onclick="showTab('recommendations')" class="w-full flex items-center gap-3 p-4 mingus-card text-violet-300 hover:bg-slate-700/50 rounded-lg transition-all duration-300 hover:shadow-lg hover:shadow-violet-500/10 cursor-pointer">
+                                        <div class="p-2 bg-violet-600/20 rounded-lg">
+                                            <i data-lucide="target" class="h-5 w-5 text-violet-400"></i>
+                                        </div>
+                                        <div class="flex-1 text-left">
+                                            <h5 class="font-medium text-white">View Job Recommendations</h5>
+                                            <p class="text-sm text-violet-200">Explore personalized job opportunities</p>
+                                        </div>
+                                        <i data-lucide="arrow-right" class="h-4 w-4 text-violet-400"></i>
+                                    </button>
+                                    
+                                    <button onclick="showTab('location')" class="w-full flex items-center gap-3 p-4 mingus-card text-purple-300 hover:bg-slate-700/50 rounded-lg transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/10 cursor-pointer">
+                                        <div class="p-2 bg-purple-600/20 rounded-lg">
+                                            <i data-lucide="map-pin" class="h-5 w-5 text-purple-400"></i>
+                                        </div>
+                                        <div class="flex-1 text-left">
+                                            <h5 class="font-medium text-white">Location Intelligence</h5>
+                                            <p class="text-sm text-purple-200">Analyze job markets by location</p>
+                                        </div>
+                                        <i data-lucide="arrow-right" class="h-4 w-4 text-purple-400"></i>
+                                    </button>
+                                    
+                                    <button onclick="showTab('analytics')" class="w-full flex items-center gap-3 p-4 mingus-card text-green-300 hover:bg-slate-700/50 rounded-lg transition-all duration-300 hover:shadow-lg hover:shadow-green-500/10 cursor-pointer">
+                                        <div class="p-2 bg-green-600/20 rounded-lg">
+                                            <i data-lucide="trending-up" class="h-5 w-5 text-green-400"></i>
+                                        </div>
+                                        <div class="flex-1 text-left">
+                                            <h5 class="font-medium text-white">Career Analytics</h5>
+                                            <p class="text-sm text-green-200">View detailed career insights</p>
+                                        </div>
+                                        <i data-lucide="arrow-right" class="h-4 w-4 text-green-400"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Recent Activity -->
+                        <div>
+                            <h3 class="text-lg font-semibold text-white mb-4">Recent Activity</h3>
+                            <div class="space-y-3">
+                                <div class="flex items-start gap-3 p-3 mingus-card rounded-lg hover:bg-slate-700/50 transition-colors">
+                                    <div class="p-2 rounded-lg bg-green-600/20 text-green-400">
+                                        <i data-lucide="target" class="h-4 w-4"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <h4 class="font-medium text-white text-sm">Career Risk Assessment Completed</h4>
+                                        <div class="flex items-center gap-2 text-xs text-gray-400 mt-1">
+                                            <i data-lucide="clock" class="h-3 w-3"></i>
+                                            <span>2 hours ago</span>
+                                            <span class="px-2 py-1 rounded-full text-xs font-medium bg-green-600/20 text-green-400">completed</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-start gap-3 p-3 mingus-card rounded-lg hover:bg-slate-700/50 transition-colors">
+                                    <div class="p-2 rounded-lg bg-green-600/20 text-green-400">
+                                        <i data-lucide="trending-up" class="h-4 w-4"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <h4 class="font-medium text-white text-sm">New Job Recommendations Available</h4>
+                                        <div class="flex items-center gap-2 text-xs text-gray-400 mt-1">
+                                            <i data-lucide="clock" class="h-3 w-3"></i>
+                                            <span>4 hours ago</span>
+                                            <span class="px-2 py-1 rounded-full text-xs font-medium bg-green-600/20 text-green-400">completed</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-start gap-3 p-3 mingus-card rounded-lg hover:bg-slate-700/50 transition-colors">
+                                    <div class="p-2 rounded-lg bg-green-600/20 text-green-400">
+                                        <i data-lucide="users" class="h-4 w-4"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <h4 class="font-medium text-white text-sm">Profile Updated</h4>
+                                        <div class="flex items-center gap-2 text-xs text-gray-400 mt-1">
+                                            <i data-lucide="clock" class="h-3 w-3"></i>
+                                            <span>1 day ago</span>
+                                            <span class="px-2 py-1 rounded-full text-xs font-medium bg-green-600/20 text-green-400">completed</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-start gap-3 p-3 mingus-card rounded-lg hover:bg-slate-700/50 transition-colors">
+                                    <div class="p-2 rounded-lg bg-yellow-600/20 text-yellow-400">
+                                        <i data-lucide="briefcase" class="h-4 w-4"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <h4 class="font-medium text-white text-sm">Job Application Submitted</h4>
+                                        <div class="flex items-center gap-2 text-xs text-gray-400 mt-1">
+                                            <i data-lucide="clock" class="h-3 w-3"></i>
+                                            <span>2 days ago</span>
+                                            <span class="px-2 py-1 rounded-full text-xs font-medium bg-yellow-600/20 text-yellow-400">pending</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Recommendations Tab -->
+                <div id="recommendations" class="tab-content">
+                    <div class="space-y-8">
+                        <!-- Safe Growth Tier -->
+                        <div>
+                            <div class="flex items-center gap-3 mb-6">
+                                <div class="w-8 h-8 bg-green-600/20 rounded-lg flex items-center justify-center">
+                                    <i data-lucide="shield" class="h-5 w-5 text-green-400"></i>
+                                </div>
+                                <h3 class="text-xl font-semibold text-white">Safe Growth</h3>
+                                <span class="bg-green-600/20 text-green-400 text-xs px-2 py-1 rounded-full font-medium">
+                                    Low Risk
+                                </span>
+                            </div>
+                            
+                            <div class="grid gap-4 md:grid-cols-2">
+                                <div class="mingus-card rounded-lg p-6 hover:shadow-lg hover:shadow-violet-500/10 transition-all duration-300">
+                                    <div class="flex items-start justify-between mb-4">
+                                        <div>
+                                            <h4 class="font-semibold text-white">Senior Software Engineer</h4>
+                                            <p class="text-gray-300">TechCorp Inc.</p>
+                                            <p class="text-sm text-gray-400 flex items-center gap-1 mt-1">
+                                                <i data-lucide="map-pin" class="h-3 w-3"></i>
+                                                San Francisco, CA
+                                            </p>
+                                        </div>
+                                        <div class="text-right">
+                                            <div class="text-lg font-semibold text-white">$120,000 - $150,000</div>
+                                            <div class="text-sm text-green-400 font-medium">92% match</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <p class="text-gray-300 text-sm mb-4">Stable role with growth opportunities in established company</p>
+                                    
+                                    <div class="flex flex-wrap gap-2 mb-4">
+                                        <span class="bg-slate-700/50 text-gray-300 text-xs px-2 py-1 rounded">Health Insurance</span>
+                                        <span class="bg-slate-700/50 text-gray-300 text-xs px-2 py-1 rounded">401k Match</span>
+                                        <span class="bg-slate-700/50 text-gray-300 text-xs px-2 py-1 rounded">Flexible Hours</span>
+                                    </div>
+                                    
+                                    <button class="w-full mingus-button text-white py-2 px-4 rounded-lg font-medium">
+                                        Apply Now
+                                    </button>
+                                </div>
+                                
+                                <div class="mingus-card rounded-lg p-6 hover:shadow-lg hover:shadow-violet-500/10 transition-all duration-300">
+                                    <div class="flex items-start justify-between mb-4">
+                                        <div>
+                                            <h4 class="font-semibold text-white">Product Manager</h4>
+                                            <p class="text-gray-300">InnovateLabs</p>
+                                            <p class="text-sm text-gray-400 flex items-center gap-1 mt-1">
+                                                <i data-lucide="map-pin" class="h-3 w-3"></i>
+                                                Austin, TX
+                                            </p>
+                                        </div>
+                                        <div class="text-right">
+                                            <div class="text-lg font-semibold text-white">$110,000 - $135,000</div>
+                                            <div class="text-sm text-green-400 font-medium">88% match</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <p class="text-gray-300 text-sm mb-4">Product management role with clear career progression</p>
+                                    
+                                    <div class="flex flex-wrap gap-2 mb-4">
+                                        <span class="bg-slate-700/50 text-gray-300 text-xs px-2 py-1 rounded">Stock Options</span>
+                                        <span class="bg-slate-700/50 text-gray-300 text-xs px-2 py-1 rounded">Learning Budget</span>
+                                        <span class="bg-slate-700/50 text-gray-300 text-xs px-2 py-1 rounded">Remote Work</span>
+                                    </div>
+                                    
+                                    <button class="w-full mingus-button text-white py-2 px-4 rounded-lg font-medium">
+                                        Apply Now
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Strategic Advance Tier -->
+                        <div>
+                            <div class="flex items-center gap-3 mb-6">
+                                <div class="w-8 h-8 bg-yellow-600/20 rounded-lg flex items-center justify-center">
+                                    <i data-lucide="target" class="h-5 w-5 text-yellow-400"></i>
+                                </div>
+                                <h3 class="text-xl font-semibold text-white">Strategic Advance</h3>
+                                <span class="bg-yellow-600/20 text-yellow-400 text-xs px-2 py-1 rounded-full font-medium">
+                                    Medium Risk
+                                </span>
+                            </div>
+                            
+                            <div class="grid gap-4 md:grid-cols-2">
+                                <div class="mingus-card rounded-lg p-6 hover:shadow-lg hover:shadow-violet-500/10 transition-all duration-300">
+                                    <div class="flex items-start justify-between mb-4">
+                                        <div>
+                                            <h4 class="font-semibold text-white">AI Solutions Architect</h4>
+                                            <p class="text-gray-300">FutureTech Systems</p>
+                                            <p class="text-sm text-gray-400 flex items-center gap-1 mt-1">
+                                                <i data-lucide="map-pin" class="h-3 w-3"></i>
+                                                Seattle, WA
+                                            </p>
+                                        </div>
+                                        <div class="text-right">
+                                            <div class="text-lg font-semibold text-white">$140,000 - $180,000</div>
+                                            <div class="text-sm text-yellow-600 font-medium">85% match</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <p class="text-gray-300 text-sm mb-4">High-growth role in AI/ML space with excellent prospects</p>
+                                    
+                                    <div class="flex flex-wrap gap-2 mb-4">
+                                        <span class="bg-slate-700/50 text-gray-300 text-xs px-2 py-1 rounded">Equity</span>
+                                        <span class="bg-slate-700/50 text-gray-300 text-xs px-2 py-1 rounded">Conference Budget</span>
+                                        <span class="bg-slate-700/50 text-gray-300 text-xs px-2 py-1 rounded">Mentorship Program</span>
+                                    </div>
+                                    
+                                    <button class="w-full bg-yellow-600 hover:bg-yellow-700 text-white py-2 px-4 rounded-lg font-medium transition-colors">
+                                        Apply Now
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Ambitious Leap Tier -->
+                        <div>
+                            <div class="flex items-center gap-3 mb-6">
+                                <div class="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center">
+                                    <i data-lucide="alert-triangle" class="h-5 w-5 text-red-600"></i>
+                                </div>
+                                <h3 class="text-xl font-semibold text-gray-900">Ambitious Leap</h3>
+                                <span class="bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full font-medium">
+                                    High Risk
+                                </span>
+                            </div>
+                            
+                            <div class="grid gap-4 md:grid-cols-2">
+                                <div class="mingus-card rounded-lg p-6 hover:shadow-lg hover:shadow-violet-500/10 transition-all duration-300">
+                                    <div class="flex items-start justify-between mb-4">
+                                        <div>
+                                            <h4 class="font-semibold text-white">VP of Engineering</h4>
+                                            <p class="text-gray-300">StartupX</p>
+                                            <p class="text-sm text-gray-400 flex items-center gap-1 mt-1">
+                                                <i data-lucide="map-pin" class="h-3 w-3"></i>
+                                                San Francisco, CA
+                                            </p>
+                                        </div>
+                                        <div class="text-right">
+                                            <div class="text-lg font-semibold text-white">$180,000 - $250,000</div>
+                                            <div class="text-sm text-red-600 font-medium">75% match</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <p class="text-gray-300 text-sm mb-4">Executive role with significant equity and growth potential</p>
+                                    
+                                    <div class="flex flex-wrap gap-2 mb-4">
+                                        <span class="bg-slate-700/50 text-gray-300 text-xs px-2 py-1 rounded">Significant Equity</span>
+                                        <span class="bg-slate-700/50 text-gray-300 text-xs px-2 py-1 rounded">Executive Benefits</span>
+                                        <span class="bg-slate-700/50 text-gray-300 text-xs px-2 py-1 rounded">Board Access</span>
+                                    </div>
+                                    
+                                    <button class="w-full bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg font-medium transition-colors">
+                                        Apply Now
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Location Tab -->
+                <div id="location" class="tab-content">
+                    <div class="space-y-6">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-lg font-semibold text-gray-900">Location Intelligence</h3>
+                            <div class="flex items-center gap-2">
+                                <span class="text-sm text-gray-500">Radius:</span>
+                                <select class="border border-gray-300 rounded px-2 py-1 text-sm">
+                                    <option>25 miles</option>
+                                    <option>50 miles</option>
+                                    <option>100 miles</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                            <div class="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
+                                <div class="flex items-start justify-between mb-4">
+                                    <h4 class="font-semibold text-white">San Francisco, CA</h4>
+                                    <div class="text-right">
+                                        <div class="text-lg font-semibold text-gray-900">$145k</div>
+                                        <div class="text-sm text-gray-500">avg salary</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="space-y-2 text-sm">
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Job Openings:</span>
+                                        <span class="font-medium">2,847</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Growth Rate:</span>
+                                        <span class="font-medium text-green-600">+8.2%</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Cost of Living:</span>
+                                        <span class="font-medium">165.2</span>
+                                    </div>
+                                </div>
+                                
+                                <button class="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg font-medium transition-colors">
+                                    View Details
+                                </button>
+                            </div>
+                            
+                            <div class="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
+                                <div class="flex items-start justify-between mb-4">
+                                    <h4 class="font-semibold text-white">Seattle, WA</h4>
+                                    <div class="text-right">
+                                        <div class="text-lg font-semibold text-gray-900">$132k</div>
+                                        <div class="text-sm text-gray-500">avg salary</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="space-y-2 text-sm">
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Job Openings:</span>
+                                        <span class="font-medium">1,923</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Growth Rate:</span>
+                                        <span class="font-medium text-green-600">+6.8%</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Cost of Living:</span>
+                                        <span class="font-medium">142.1</span>
+                                    </div>
+                                </div>
+                                
+                                <button class="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg font-medium transition-colors">
+                                    View Details
+                                </button>
+                            </div>
+                            
+                            <div class="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
+                                <div class="flex items-start justify-between mb-4">
+                                    <h4 class="font-semibold text-white">Austin, TX</h4>
+                                    <div class="text-right">
+                                        <div class="text-lg font-semibold text-gray-900">$118k</div>
+                                        <div class="text-sm text-gray-500">avg salary</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="space-y-2 text-sm">
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Job Openings:</span>
+                                        <span class="font-medium">1,654</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Growth Rate:</span>
+                                        <span class="font-medium text-green-600">+12.4%</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Cost of Living:</span>
+                                        <span class="font-medium">98.7</span>
+                                    </div>
+                                </div>
+                                
+                                <button class="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg font-medium transition-colors">
+                                    View Details
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Analytics Tab -->
+                <div id="analytics" class="tab-content">
+                    <div class="space-y-8">
+                        <h3 class="text-lg font-semibold text-gray-900">Career Analytics</h3>
+                        
+                        <!-- Career Trajectory Chart -->
+                        <div class="bg-white border border-gray-200 rounded-lg p-6">
+                            <h4 class="font-semibold text-gray-900 mb-4">Career Trajectory</h4>
+                            <div class="h-64 bg-gray-50 rounded-lg flex items-center justify-center">
+                                <div class="text-center">
+                                    <i data-lucide="trending-up" class="h-12 w-12 text-gray-400 mx-auto mb-2"></i>
+                                    <p class="text-gray-500">Career trajectory chart would be displayed here</p>
+                                    <p class="text-sm text-gray-400">Showing 6-month trend with risk score progression</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Skill Demand Analysis -->
+                        <div class="bg-white border border-gray-200 rounded-lg p-6">
+                            <h4 class="font-semibold text-gray-900 mb-4">Skill Demand Analysis</h4>
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex-1">
+                                        <div class="flex items-center justify-between mb-1">
+                                            <span class="font-medium text-gray-900">JavaScript</span>
+                                            <span class="text-sm text-gray-500">95% demand</span>
+                                        </div>
+                                        <div class="w-full bg-gray-200 rounded-full h-2">
+                                            <div class="bg-blue-600 h-2 rounded-full" style="width: 95%"></div>
+                                        </div>
+                                        <div class="text-xs text-green-600 mt-1">+12% growth</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-center justify-between">
+                                    <div class="flex-1">
+                                        <div class="flex items-center justify-between mb-1">
+                                            <span class="font-medium text-gray-900">Python</span>
+                                            <span class="text-sm text-gray-500">88% demand</span>
+                                        </div>
+                                        <div class="w-full bg-gray-200 rounded-full h-2">
+                                            <div class="bg-blue-600 h-2 rounded-full" style="width: 88%"></div>
+                                        </div>
+                                        <div class="text-xs text-green-600 mt-1">+18% growth</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-center justify-between">
+                                    <div class="flex-1">
+                                        <div class="flex items-center justify-between mb-1">
+                                            <span class="font-medium text-gray-900">React</span>
+                                            <span class="text-sm text-gray-500">82% demand</span>
+                                        </div>
+                                        <div class="w-full bg-gray-200 rounded-full h-2">
+                                            <div class="bg-blue-600 h-2 rounded-full" style="width: 82%"></div>
+                                        </div>
+                                        <div class="text-xs text-green-600 mt-1">+15% growth</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-center justify-between">
+                                    <div class="flex-1">
+                                        <div class="flex items-center justify-between mb-1">
+                                            <span class="font-medium text-gray-900">AWS</span>
+                                            <span class="text-sm text-gray-500">85% demand</span>
+                                        </div>
+                                        <div class="w-full bg-gray-200 rounded-full h-2">
+                                            <div class="bg-blue-600 h-2 rounded-full" style="width: 85%"></div>
+                                        </div>
+                                        <div class="text-xs text-green-600 mt-1">+22% growth</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Market Trends -->
+                        <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                            <div class="bg-white border border-gray-200 rounded-lg p-4 text-center">
+                                <div class="text-2xl font-bold text-blue-600 mb-1">78%</div>
+                                <div class="text-sm text-gray-600">Remote Work</div>
+                            </div>
+                            <div class="bg-white border border-gray-200 rounded-lg p-4 text-center">
+                                <div class="text-2xl font-bold text-green-600 mb-1">6.2%</div>
+                                <div class="text-sm text-gray-600">Salary Growth</div>
+                            </div>
+                            <div class="bg-white border border-gray-200 rounded-lg p-4 text-center">
+                                <div class="text-2xl font-bold text-purple-600 mb-1">12.4k</div>
+                                <div class="text-sm text-gray-600">Job Openings</div>
+                            </div>
+                            <div class="bg-white border border-gray-200 rounded-lg p-4 text-center">
+                                <div class="text-2xl font-bold text-orange-600 mb-1">72%</div>
+                                <div class="text-sm text-gray-600">Competition</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+        
+        // Tab switching functionality
+        function showTab(tabName) {
+            // Hide all tab contents
+            const tabContents = document.querySelectorAll('.tab-content');
+            tabContents.forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Remove active class from all tab buttons
+            const tabButtons = document.querySelectorAll('.tab-button');
+            tabButtons.forEach(button => {
+                button.classList.remove('border-violet-500', 'text-violet-400');
+                button.classList.add('border-transparent', 'text-gray-300');
+            });
+            
+            // Show selected tab content
+            document.getElementById(tabName).classList.add('active');
+            
+            // Find and activate the corresponding tab button
+            const tabButtonMap = {
+                'overview': 0,
+                'recommendations': 1,
+                'location': 2,
+                'analytics': 3
+            };
+            
+            const activeButtonIndex = tabButtonMap[tabName];
+            if (activeButtonIndex !== undefined && tabButtons[activeButtonIndex]) {
+                tabButtons[activeButtonIndex].classList.remove('border-transparent', 'text-gray-300');
+                tabButtons[activeButtonIndex].classList.add('border-violet-500', 'text-violet-400');
+            }
+            
+            // Smooth scroll to top of tab content
+            const tabContent = document.getElementById(tabName);
+            if (tabContent) {
+                tabContent.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'start' 
+                });
+            }
+        }
+    </script>
+</body>
+</html>
+

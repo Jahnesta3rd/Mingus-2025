@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Refer Friends - Mingus</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../static/css/mingus-referral-system.css">
+    <style>
+        /* Refer friends specific styles */
+        .referral-form {
+            background: linear-gradient(135deg, #1f2937, #374151);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: 20px;
+            padding: 32px;
+            margin: 32px 0;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+        
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .input-label {
+            color: #d1d5db;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        .input-field {
+            background: #374151;
+            border: 1px solid #4b5563;
+            border-radius: 8px;
+            padding: 12px 16px;
+            color: white;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .input-field:focus {
+            outline: none;
+            border-color: #8b5cf6;
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+        }
+        
+        .input-field::placeholder {
+            color: #9ca3af;
+        }
+        
+        .textarea-field {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .template-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+            margin: 24px 0;
+        }
+        
+        .template-option {
+            background: #374151;
+            border: 1px solid #4b5563;
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+        }
+        
+        .template-option:hover {
+            border-color: #8b5cf6;
+            background: #4b5563;
+        }
+        
+        .template-option.selected {
+            border-color: #8b5cf6;
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(168, 85, 247, 0.1));
+        }
+        
+        .template-title {
+            font-weight: 600;
+            color: white;
+            margin-bottom: 8px;
+        }
+        
+        .template-preview {
+            color: #9ca3af;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+        
+        .referral-methods {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin: 32px 0;
+        }
+        
+        .method-card {
+            background: linear-gradient(135deg, #1f2937, #374151);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .method-card:hover {
+            border-color: rgba(139, 92, 246, 0.4);
+            transform: translateY(-4px);
+        }
+        
+        .method-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            display: block;
+        }
+        
+        .method-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 8px;
+        }
+        
+        .method-description {
+            color: #9ca3af;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+        
+        .referral-link {
+            background: #374151;
+            border: 1px solid #4b5563;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 24px 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .link-text {
+            flex: 1;
+            color: #8b5cf6;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            word-break: break-all;
+        }
+        
+        .copy-button {
+            background: #8b5cf6;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .copy-button:hover {
+            background: #7c3aed;
+        }
+        
+        .copy-button.copied {
+            background: #10b981;
+        }
+        
+        .preview-section {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(168, 85, 247, 0.1));
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: 16px;
+            padding: 24px;
+            margin: 24px 0;
+        }
+        
+        .preview-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 16px;
+        }
+        
+        .preview-content {
+            background: #1f2937;
+            border: 1px solid #374151;
+            border-radius: 8px;
+            padding: 20px;
+            color: #d1d5db;
+            line-height: 1.6;
+        }
+        
+        .social-share {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin: 24px 0;
+        }
+        
+        .social-button {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .social-button.linkedin {
+            background: #0077b5;
+            color: white;
+        }
+        
+        .social-button.linkedin:hover {
+            background: #005885;
+        }
+        
+        .social-button.twitter {
+            background: #1da1f2;
+            color: white;
+        }
+        
+        .social-button.twitter:hover {
+            background: #0d8bd9;
+        }
+        
+        .social-button.email {
+            background: #dc2626;
+            color: white;
+        }
+        
+        .social-button.email:hover {
+            background: #b91c1c;
+        }
+        
+        .social-button.whatsapp {
+            background: #25d366;
+            color: white;
+        }
+        
+        .social-button.whatsapp:hover {
+            background: #1ea952;
+        }
+        
+        .progress-indicator {
+            background: #374151;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 24px 0;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .progress-step {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #9ca3af;
+        }
+        
+        .progress-step.active {
+            color: #8b5cf6;
+        }
+        
+        .progress-step.completed {
+            color: #10b981;
+        }
+        
+        .step-number {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #4b5563;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .step-number.active {
+            background: #8b5cf6;
+        }
+        
+        .step-number.completed {
+            background: #10b981;
+        }
+    </style>
+</head>
+<body>
+    <!-- Skip Links for Accessibility -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    <a href="#referral-form" class="skip-link">Skip to referral form</a>
+    
+    <!-- Header -->
+    <header class="header" role="banner">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <div class="logo-icon">M</div>
+                    <span class="logo-text">Mingus</span>
+                </div>
+                <nav class="nav" role="navigation" aria-label="Main navigation">
+                    <a href="#" class="nav-link">Dashboard</a>
+                    <a href="#" class="nav-link">Features</a>
+                    <a href="#" class="nav-link">Pricing</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main id="main-content" role="main">
+        <!-- Hero Section -->
+        <section class="hero-section" aria-label="Refer friends hero">
+            <div class="container">
+                <div class="hero-content">
+                    <div class="hero-text">
+                        <h1 class="hero-title">
+                            Refer Friends & 
+                            <span class="gradient-text">Unlock Features</span>
+                        </h1>
+                        <p class="hero-description">
+                            Invite your network to join Mingus and unlock premium career features. 
+                            Help other Black professionals build generational wealth while advancing your own career.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Progress Indicator -->
+        <section class="progress-section" aria-label="Referral progress">
+            <div class="container">
+                <div class="progress-indicator">
+                    <div class="progress-step completed">
+                        <div class="step-number completed">✓</div>
+                        <span>Choose Method</span>
+                    </div>
+                    <div class="progress-step active">
+                        <div class="step-number active">2</div>
+                        <span>Customize Message</span>
+                    </div>
+                    <div class="progress-step">
+                        <div class="step-number">3</div>
+                        <span>Send Invitations</span>
+                    </div>
+                    <div class="progress-step">
+                        <div class="step-number">4</div>
+                        <span>Track Progress</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Referral Form -->
+        <section id="referral-form" class="referral-form-section" aria-label="Referral form">
+            <div class="container">
+                <h2 class="section-title">Invite Your Friends</h2>
+                <p class="section-description">
+                    Personalize your invitation message and choose how to share it with your network.
+                </p>
+                
+                <form class="referral-form" id="referral-form-element">
+                    <div class="form-grid">
+                        <div class="input-group">
+                            <label for="your-name" class="input-label">Your Name</label>
+                            <input type="text" id="your-name" class="input-field" placeholder="Enter your name" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="friend-name" class="input-label">Friend's Name</label>
+                            <input type="text" id="friend-name" class="input-field" placeholder="Enter their name" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="friend-email" class="input-label">Friend's Email</label>
+                            <input type="email" id="friend-email" class="input-field" placeholder="Enter their email" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="friend-phone" class="input-label">Phone Number (Optional)</label>
+                            <input type="tel" id="friend-phone" class="input-field" placeholder="Enter their phone">
+                        </div>
+                    </div>
+                    
+                    <!-- Message Templates -->
+                    <div class="template-section">
+                        <h3 class="template-title">Choose a Message Template</h3>
+                        <div class="template-selector">
+                            <div class="template-option" data-template="professional">
+                                <div class="template-title">Professional</div>
+                                <div class="template-preview">
+                                    Hi [Friend's Name], I've been using Mingus for financial planning and career development. I think you'd find it valuable for your professional growth...
+                                </div>
+                            </div>
+                            <div class="template-option selected" data-template="casual">
+                                <div class="template-title">Casual</div>
+                                <div class="template-preview">
+                                    Hey [Friend's Name]! I found this amazing app called Mingus that's specifically designed for Black professionals. It's been helping me with my career and finances...
+                                </div>
+                            </div>
+                            <div class="template-option" data-template="personal">
+                                <div class="template-title">Personal</div>
+                                <div class="template-preview">
+                                    [Friend's Name], I know we've talked about building wealth and advancing our careers. I found this platform that's really helping me, and I thought you'd love it too...
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Custom Message -->
+                    <div class="input-group">
+                        <label for="custom-message" class="input-label">Customize Your Message</label>
+                        <textarea id="custom-message" class="input-field textarea-field" rows="4" 
+                                  placeholder="Write your personalized message here..."></textarea>
+                    </div>
+                    
+                    <!-- Message Preview -->
+                    <div class="preview-section">
+                        <h3 class="preview-title">Message Preview</h3>
+                        <div class="preview-content" id="message-preview">
+                            Hey [Friend's Name]! I found this amazing app called Mingus that's specifically designed for Black professionals. It's been helping me with my career and finances, and I think you'd love it too!
+
+Mingus offers:
+• Personalized financial planning
+• Career advancement strategies  
+• Generational wealth building
+• Health and wellness integration
+
+Use my referral code: MINGUS2024
+Sign up here: [Referral Link]
+
+Let's build wealth together!
+
+Best regards,
+[Your Name]
+                        </div>
+                    </div>
+                    
+                    <!-- Referral Link -->
+                    <div class="referral-link">
+                        <span class="link-text" id="referral-link-text">https://mingus.app/referral?code=MINGUS2024</span>
+                        <button type="button" class="copy-button" onclick="copyReferralLink()">Copy Link</button>
+                    </div>
+                    
+                    <!-- Social Sharing -->
+                    <div class="social-share">
+                        <button type="button" class="social-button linkedin" onclick="shareViaLinkedIn()">
+                            <span>💼</span>
+                            <span>LinkedIn</span>
+                        </button>
+                        <button type="button" class="social-button twitter" onclick="shareViaTwitter()">
+                            <span>🐦</span>
+                            <span>Twitter</span>
+                        </button>
+                        <button type="button" class="social-button email" onclick="shareViaEmail()">
+                            <span>📧</span>
+                            <span>Email</span>
+                        </button>
+                        <button type="button" class="social-button whatsapp" onclick="shareViaWhatsApp()">
+                            <span>💬</span>
+                            <span>WhatsApp</span>
+                        </button>
+                    </div>
+                    
+                    <!-- Submit Button -->
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary btn-large">
+                            Send Invitation
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="saveDraft()">
+                            Save as Draft
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <!-- Referral Methods -->
+        <section class="referral-methods-section" aria-label="Referral methods">
+            <div class="container">
+                <h2 class="section-title">Other Ways to Refer</h2>
+                <p class="section-description">
+                    Choose the method that works best for you and your network.
+                </p>
+                
+                <div class="referral-methods">
+                    <div class="method-card" onclick="openQRCode()">
+                        <div class="method-icon">📱</div>
+                        <h3 class="method-title">QR Code</h3>
+                        <p class="method-description">Generate a QR code that friends can scan to join instantly</p>
+                    </div>
+                    
+                    <div class="method-card" onclick="openBulkInvite()">
+                        <div class="method-icon">📋</div>
+                        <h3 class="method-title">Bulk Invite</h3>
+                        <p class="method-description">Upload a contact list to send multiple invitations at once</p>
+                    </div>
+                    
+                    <div class="method-card" onclick="openSocialMedia()">
+                        <div class="method-icon">📱</div>
+                        <h3 class="method-title">Social Media</h3>
+                        <p class="method-description">Share on Instagram, Facebook, and other social platforms</p>
+                    </div>
+                    
+                    <div class="method-card" onclick="openInPerson()">
+                        <div class="method-icon">🤝</div>
+                        <h3 class="method-title">In Person</h3>
+                        <p class="method-description">Share your referral code during conversations and events</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Benefits Section -->
+        <section class="benefits-section" aria-label="Referral benefits">
+            <div class="container">
+                <h2 class="section-title">Why Refer Friends?</h2>
+                
+                <div class="benefits-grid">
+                    <div class="benefit-card">
+                        <div class="benefit-icon">🎯</div>
+                        <h3 class="benefit-title">Unlock Premium Features</h3>
+                        <p class="benefit-description">
+                            Get access to location-based job recommendations, salary analysis, and application strategies.
+                        </p>
+                    </div>
+                    
+                    <div class="benefit-card">
+                        <div class="benefit-icon">🤝</div>
+                        <h3 class="benefit-title">Help Your Network</h3>
+                        <p class="benefit-description">
+                            Share valuable tools that help other Black professionals advance their careers and build wealth.
+                        </p>
+                    </div>
+                    
+                    <div class="benefit-card">
+                        <div class="benefit-icon">💎</div>
+                        <h3 class="benefit-title">Build Community</h3>
+                        <p class="benefit-description">
+                            Create a network of like-minded professionals working toward generational wealth.
+                        </p>
+                    </div>
+                    
+                    <div class="benefit-card">
+                        <div class="benefit-icon">🚀</div>
+                        <h3 class="benefit-title">Accelerate Growth</h3>
+                        <p class="benefit-description">
+                            Access advanced features that help you find better opportunities and negotiate higher salaries.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- QR Code Modal -->
+    <div class="modal" id="qr-modal" role="dialog" aria-labelledby="qr-modal-title" aria-hidden="true">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="qr-modal-title" class="modal-title">QR Code</h2>
+                <button class="modal-close" onclick="closeQRModal()" aria-label="Close modal">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="qr-container">
+                    <div class="qr-code" id="qr-code">
+                        <!-- QR code will be generated here -->
+                    </div>
+                    <p class="qr-description">Scan this code to join Mingus with your referral</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer" role="contentinfo">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <div class="logo-icon">M</div>
+                    <span class="logo-text">Mingus</span>
+                </div>
+                <p class="footer-text">Empowering Black professionals to build generational wealth</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="../static/js/mingus-referral-system.js"></script>
+    <script>
+        // Initialize refer friends page
+        document.addEventListener('DOMContentLoaded', function() {
+            const referralSystem = new MingusReferralSystem();
+            referralSystem.initReferFriends();
+            
+            // Initialize form
+            initializeForm();
+        });
+        
+        function initializeForm() {
+            const form = document.getElementById('referral-form-element');
+            const templateOptions = document.querySelectorAll('.template-option');
+            const customMessage = document.getElementById('custom-message');
+            const messagePreview = document.getElementById('message-preview');
+            
+            // Template selection
+            templateOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    templateOptions.forEach(opt => opt.classList.remove('selected'));
+                    this.classList.add('selected');
+                    updateMessagePreview();
+                });
+            });
+            
+            // Update preview when message changes
+            customMessage.addEventListener('input', updateMessagePreview);
+            
+            // Form submission
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                sendReferral();
+            });
+        }
+        
+        function updateMessagePreview() {
+            const selectedTemplate = document.querySelector('.template-option.selected');
+            const customMessage = document.getElementById('custom-message').value;
+            const friendName = document.getElementById('friend-name').value || '[Friend\'s Name]';
+            const yourName = document.getElementById('your-name').value || '[Your Name]';
+            
+            let message = '';
+            
+            if (customMessage.trim()) {
+                message = customMessage;
+            } else {
+                const template = selectedTemplate.dataset.template;
+                message = getTemplateMessage(template);
+            }
+            
+            // Replace placeholders
+            message = message.replace(/\[Friend's Name\]/g, friendName);
+            message = message.replace(/\[Your Name\]/g, yourName);
+            message = message.replace(/\[Referral Link\]/g, 'https://mingus.app/referral?code=MINGUS2024');
+            
+            messagePreview.textContent = message;
+        }
+        
+        function getTemplateMessage(template) {
+            const templates = {
+                professional: `Hi [Friend's Name],
+
+I've been using Mingus for financial planning and career development, and I think you'd find it valuable for your professional growth.
+
+Mingus offers:
+• Personalized financial planning
+• Career advancement strategies
+• Generational wealth building
+• Health and wellness integration
+
+Use my referral code: MINGUS2024
+Sign up here: [Referral Link]
+
+Best regards,
+[Your Name]`,
+                
+                casual: `Hey [Friend's Name]!
+
+I found this amazing app called Mingus that's specifically designed for Black professionals. It's been helping me with my career and finances, and I think you'd love it too!
+
+Mingus offers:
+• Personalized financial planning
+• Career advancement strategies
+• Generational wealth building
+• Health and wellness integration
+
+Use my referral code: MINGUS2024
+Sign up here: [Referral Link]
+
+Let's build wealth together!
+
+Best regards,
+[Your Name]`,
+                
+                personal: `[Friend's Name],
+
+I know we've talked about building wealth and advancing our careers. I found this platform that's really helping me, and I thought you'd love it too.
+
+Mingus is designed specifically for Black professionals and offers:
+• Personalized financial planning
+• Career advancement strategies
+• Generational wealth building
+• Health and wellness integration
+
+Use my referral code: MINGUS2024
+Sign up here: [Referral Link]
+
+Let's support each other's success!
+
+[Your Name]`
+            };
+            
+            return templates[template] || templates.casual;
+        }
+        
+        function sendReferral() {
+            const formData = new FormData(document.getElementById('referral-form-element'));
+            const data = Object.fromEntries(formData);
+            
+            console.log('Sending referral:', data);
+            
+            // Simulate API call
+            setTimeout(() => {
+                alert('Invitation sent successfully!');
+                // Reset form
+                document.getElementById('referral-form-element').reset();
+                updateMessagePreview();
+            }, 1000);
+        }
+        
+        function copyReferralLink() {
+            const linkText = document.getElementById('referral-link-text').textContent;
+            navigator.clipboard.writeText(linkText).then(() => {
+                const button = event.target;
+                const originalText = button.textContent;
+                button.textContent = 'Copied!';
+                button.classList.add('copied');
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.classList.remove('copied');
+                }, 2000);
+            });
+        }
+        
+        function shareViaLinkedIn() {
+            const message = document.getElementById('message-preview').textContent;
+            const url = encodeURIComponent('https://mingus.app/referral?code=MINGUS2024');
+            window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}&title=${encodeURIComponent(message)}`, '_blank');
+        }
+        
+        function shareViaTwitter() {
+            const message = document.getElementById('message-preview').textContent;
+            const url = encodeURIComponent('https://mingus.app/referral?code=MINGUS2024');
+            window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(message)}&url=${url}`, '_blank');
+        }
+        
+        function shareViaEmail() {
+            const message = document.getElementById('message-preview').textContent;
+            const subject = encodeURIComponent('Join me on Mingus - Financial Wellness for Black Professionals');
+            window.location.href = `mailto:?subject=${subject}&body=${encodeURIComponent(message)}`;
+        }
+        
+        function shareViaWhatsApp() {
+            const message = document.getElementById('message-preview').textContent;
+            const url = encodeURIComponent('https://mingus.app/referral?code=MINGUS2024');
+            window.open(`https://wa.me/?text=${encodeURIComponent(message + '\n\n' + url)}`, '_blank');
+        }
+        
+        function saveDraft() {
+            const formData = new FormData(document.getElementById('referral-form-element'));
+            const data = Object.fromEntries(formData);
+            localStorage.setItem('mingus_referral_draft', JSON.stringify(data));
+            alert('Draft saved successfully!');
+        }
+        
+        function openQRCode() {
+            document.getElementById('qr-modal').setAttribute('aria-hidden', 'false');
+            document.getElementById('qr-modal').style.display = 'flex';
+            generateQRCode();
+        }
+        
+        function closeQRModal() {
+            document.getElementById('qr-modal').setAttribute('aria-hidden', 'true');
+            document.getElementById('qr-modal').style.display = 'none';
+        }
+        
+        function generateQRCode() {
+            const qrContainer = document.getElementById('qr-code');
+            const url = 'https://mingus.app/referral?code=MINGUS2024';
+            
+            // Simple QR code placeholder - in production, use a QR code library
+            qrContainer.innerHTML = `
+                <div style="width: 200px; height: 200px; background: #f3f4f6; border: 2px solid #d1d5db; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin: 0 auto;">
+                    <div style="text-align: center; color: #6b7280;">
+                        <div style="font-size: 48px; margin-bottom: 8px;">📱</div>
+                        <div style="font-size: 12px;">QR Code</div>
+                        <div style="font-size: 10px; margin-top: 4px;">${url}</div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function openBulkInvite() {
+            alert('Bulk invite feature coming soon!');
+        }
+        
+        function openSocialMedia() {
+            alert('Social media sharing options coming soon!');
+        }
+        
+        function openInPerson() {
+            alert('In-person sharing tips coming soon!');
+        }
+    </script>
+</body>
+</html>

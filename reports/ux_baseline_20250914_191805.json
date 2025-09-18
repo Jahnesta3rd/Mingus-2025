@@ -1,0 +1,299 @@
+{
+  "timestamp": "2025-09-14T19:18:05.436264",
+  "summary": {
+    "timestamp": "2025-09-14T19:18:05.436447",
+    "task_completion": {
+      "total_tasks": 6,
+      "successful_tasks": 2,
+      "success_rate": 33.33333333333333,
+      "average_times": {
+        "view_dashboard": {
+          "average": 0.23012149333953857,
+          "median": 0.23012149333953857,
+          "min": 0.21653413772583008,
+          "max": 0.24370884895324707,
+          "count": 2
+        },
+        "update_preferences": {
+          "average": 0.8595370054244995,
+          "median": 0.8595370054244995,
+          "min": 0.7853660583496094,
+          "max": 0.9337079524993896,
+          "count": 2
+        },
+        "complete_assessment": {
+          "average": 12.8661630153656,
+          "median": 12.8661630153656,
+          "min": 11.516660928726196,
+          "max": 14.215665102005005,
+          "count": 2
+        }
+      }
+    },
+    "interaction_efficiency": {
+      "average_clicks": 1.0,
+      "target_clicks": 3.0,
+      "efficiency_score": 80.0
+    },
+    "accessibility": {
+      "total_issues": 7,
+      "critical_issues": 0,
+      "serious_issues": 0,
+      "moderate_issues": 7,
+      "minor_issues": 0,
+      "compliance_score": 65
+    },
+    "device_performance": {
+      "mobile": {
+        "performance_score": 96.20382070541382,
+        "status": "PASS",
+        "metadata": {
+          "load_time": 379.61792945861816,
+          "viewport": {
+            "devicePixelRatio": 2,
+            "height": 667,
+            "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X) AppleWebKit/605.1.15",
+            "width": 375
+          },
+          "resolution": "375x667"
+        }
+      },
+      "tablet": {
+        "performance_score": 95.50089836120605,
+        "status": "PASS",
+        "metadata": {
+          "load_time": 449.91016387939453,
+          "viewport": {
+            "devicePixelRatio": 1,
+            "height": 885,
+            "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/140.0.0.0 Safari/537.36",
+            "width": 768
+          },
+          "resolution": "768x1024"
+        }
+      },
+      "desktop": {
+        "performance_score": 95.13858079910278,
+        "status": "PASS",
+        "metadata": {
+          "load_time": 486.1419200897217,
+          "viewport": {
+            "devicePixelRatio": 1,
+            "height": 941,
+            "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/140.0.0.0 Safari/537.36",
+            "width": 1920
+          },
+          "resolution": "1920x1080"
+        }
+      }
+    },
+    "overall_ux_score": 56.83333333333333
+  },
+  "recent_metrics": [
+    {
+      "timestamp": "2025-09-14T19:18:05.303473",
+      "metric_type": "device_performance",
+      "metric_name": "mobile_performance_score",
+      "value": 96.20382070541382,
+      "unit": "score",
+      "target": 85.0,
+      "status": "PASS",
+      "device_type": "mobile",
+      "browser": "chrome",
+      "metadata": {
+        "load_time": 379.61792945861816,
+        "viewport": {
+          "devicePixelRatio": 2,
+          "height": 667,
+          "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X) AppleWebKit/605.1.15",
+          "width": 375
+        },
+        "resolution": "375x667"
+      }
+    },
+    {
+      "timestamp": "2025-09-14T19:18:02.719034",
+      "metric_type": "device_performance",
+      "metric_name": "tablet_performance_score",
+      "value": 95.50089836120605,
+      "unit": "score",
+      "target": 85.0,
+      "status": "PASS",
+      "device_type": "tablet",
+      "browser": "chrome",
+      "metadata": {
+        "load_time": 449.91016387939453,
+        "viewport": {
+          "devicePixelRatio": 1,
+          "height": 885,
+          "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/140.0.0.0 Safari/537.36",
+          "width": 768
+        },
+        "resolution": "768x1024"
+      }
+    },
+    {
+      "timestamp": "2025-09-14T19:18:00.356654",
+      "metric_type": "device_performance",
+      "metric_name": "desktop_performance_score",
+      "value": 95.13858079910278,
+      "unit": "score",
+      "target": 85.0,
+      "status": "PASS",
+      "device_type": "desktop",
+      "browser": "chrome",
+      "metadata": {
+        "load_time": 486.1419200897217,
+        "viewport": {
+          "devicePixelRatio": 1,
+          "height": 941,
+          "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/140.0.0.0 Safari/537.36",
+          "width": 1920
+        },
+        "resolution": "1920x1080"
+      }
+    },
+    {
+      "timestamp": "2025-09-14T19:17:37.238373",
+      "metric_type": "interaction_efficiency",
+      "metric_name": "start_assessment_clicks",
+      "value": 1.0,
+      "unit": "clicks",
+      "target": 3.0,
+      "status": "PASS",
+      "device_type": "desktop",
+      "browser": "chrome",
+      "metadata": {
+        "selector": "[aria-label*='Determine Your Replacement Risk Due To AI']"
+      }
+    }
+  ],
+  "recent_tasks": [
+    {
+      "task_name": "view_dashboard",
+      "completion_time": 0.24370884895324707,
+      "success": 1,
+      "steps_taken": 3,
+      "errors_encountered": 0,
+      "device_type": "mobile",
+      "browser": "chrome",
+      "timestamp": "2025-09-14T19:17:34.425029"
+    },
+    {
+      "task_name": "update_preferences",
+      "completion_time": 0.9337079524993896,
+      "success": 0,
+      "steps_taken": 4,
+      "errors_encountered": 1,
+      "device_type": "mobile",
+      "browser": "chrome",
+      "timestamp": "2025-09-14T19:17:33.922023"
+    },
+    {
+      "task_name": "complete_assessment",
+      "completion_time": 11.516660928726196,
+      "success": 0,
+      "steps_taken": 2,
+      "errors_encountered": 1,
+      "device_type": "mobile",
+      "browser": "chrome",
+      "timestamp": "2025-09-14T19:17:32.987543"
+    },
+    {
+      "task_name": "view_dashboard",
+      "completion_time": 0.21653413772583008,
+      "success": 1,
+      "steps_taken": 3,
+      "errors_encountered": 0,
+      "device_type": "desktop",
+      "browser": "chrome",
+      "timestamp": "2025-09-14T19:17:19.406630"
+    },
+    {
+      "task_name": "update_preferences",
+      "completion_time": 0.7853660583496094,
+      "success": 0,
+      "steps_taken": 4,
+      "errors_encountered": 1,
+      "device_type": "desktop",
+      "browser": "chrome",
+      "timestamp": "2025-09-14T19:17:18.976792"
+    },
+    {
+      "task_name": "complete_assessment",
+      "completion_time": 14.215665102005005,
+      "success": 0,
+      "steps_taken": 2,
+      "errors_encountered": 1,
+      "device_type": "desktop",
+      "browser": "chrome",
+      "timestamp": "2025-09-14T19:17:18.191382"
+    }
+  ],
+  "recent_accessibility": [
+    {
+      "test_type": "axe_core",
+      "element": "#main-content",
+      "issue_type": "landmark-unique",
+      "severity": "moderate",
+      "description": "Landmarks should have a unique role or role/label/title (i.e. accessible name) combination",
+      "page_url": "http://localhost:3000",
+      "timestamp": "2025-09-14T19:17:53.209263"
+    },
+    {
+      "test_type": "axe_core",
+      "element": ".min-h-screen.via-violet-900.from-slate-900 > header > nav",
+      "issue_type": "landmark-unique",
+      "severity": "moderate",
+      "description": "Landmarks should have a unique role or role/label/title (i.e. accessible name) combination",
+      "page_url": "http://localhost:3000",
+      "timestamp": "2025-09-14T19:17:53.209259"
+    },
+    {
+      "test_type": "axe_core",
+      "element": "#main-content",
+      "issue_type": "landmark-no-duplicate-main",
+      "severity": "moderate",
+      "description": "Ensures the document has at most one main landmark",
+      "page_url": "http://localhost:3000",
+      "timestamp": "2025-09-14T19:17:53.209255"
+    },
+    {
+      "test_type": "axe_core",
+      "element": ".min-h-screen.via-violet-900.from-slate-900 > header",
+      "issue_type": "landmark-no-duplicate-banner",
+      "severity": "moderate",
+      "description": "Ensures the document has at most one banner landmark",
+      "page_url": "http://localhost:3000",
+      "timestamp": "2025-09-14T19:17:53.209250"
+    },
+    {
+      "test_type": "axe_core",
+      "element": ".min-h-screen.bg-gray-900.text-white > main",
+      "issue_type": "landmark-main-is-top-level",
+      "severity": "moderate",
+      "description": "Ensures the main landmark is at top level",
+      "page_url": "http://localhost:3000",
+      "timestamp": "2025-09-14T19:17:53.209245"
+    },
+    {
+      "test_type": "axe_core",
+      "element": "footer",
+      "issue_type": "landmark-contentinfo-is-top-level",
+      "severity": "moderate",
+      "description": "Ensures the contentinfo landmark is at top level",
+      "page_url": "http://localhost:3000",
+      "timestamp": "2025-09-14T19:17:53.209221"
+    },
+    {
+      "test_type": "axe_core",
+      "element": ".min-h-screen.bg-gray-900.text-white > header",
+      "issue_type": "landmark-banner-is-top-level",
+      "severity": "moderate",
+      "description": "Ensures the banner landmark is at top level",
+      "page_url": "http://localhost:3000",
+      "timestamp": "2025-09-14T19:17:53.209009"
+    }
+  ],
+  "baselines": {}
+}

@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Recommendation Details - Mingus</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../static/css/mingus-referral-system.css">
+    <style>
+        /* Recommendation detail specific styles */
+        .job-detail-header {
+            background: linear-gradient(135deg, #1f2937, #374151);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: 20px;
+            padding: 32px;
+            margin: 32px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .job-detail-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #8b5cf6, #a855f7, #ec4899);
+        }
+        
+        .job-title-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 24px;
+        }
+        
+        .job-title {
+            color: white;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        
+        .job-company {
+            color: #8b5cf6;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+        
+        .job-location {
+            color: #9ca3af;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .job-badges {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin: 16px 0;
+        }
+        
+        .job-badge {
+            background: rgba(139, 92, 246, 0.2);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 20px;
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #8b5cf6;
+        }
+        
+        .job-badge.conservative {
+            background: rgba(16, 185, 129, 0.2);
+            border-color: rgba(16, 185, 129, 0.3);
+            color: #10b981;
+        }
+        
+        .job-badge.optimal {
+            background: rgba(245, 158, 11, 0.2);
+            border-color: rgba(245, 158, 11, 0.3);
+            color: #f59e0b;
+        }
+        
+        .job-badge.stretch {
+            background: rgba(239, 68, 68, 0.2);
+            border-color: rgba(239, 68, 68, 0.3);
+            color: #ef4444;
+        }
+        
+        .match-score-large {
+            background: linear-gradient(135deg, #8b5cf6, #a855f7);
+            color: white;
+            padding: 16px 24px;
+            border-radius: 12px;
+            text-align: center;
+            min-width: 120px;
+        }
+        
+        .match-percentage {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        
+        .match-label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .job-actions {
+            display: flex;
+            gap: 16px;
+            margin: 24px 0;
+            flex-wrap: wrap;
+        }
+        
+        .action-button {
+            background: #8b5cf6;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 16px 32px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .action-button:hover {
+            background: #7c3aed;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.3);
+        }
+        
+        .action-button.secondary {
+            background: transparent;
+            border: 2px solid #4b5563;
+            color: #d1d5db;
+        }
+        
+        .action-button.secondary:hover {
+            border-color: #8b5cf6;
+            color: #8b5cf6;
+        }
+        
+        .action-button.success {
+            background: #10b981;
+        }
+        
+        .action-button.success:hover {
+            background: #059669;
+        }
+        
+        .detail-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 32px;
+            margin: 32px 0;
+        }
+        
+        .detail-main {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+        
+        .detail-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+        
+        .detail-section {
+            background: #374151;
+            border: 1px solid #4b5563;
+            border-radius: 16px;
+            padding: 24px;
+        }
+        
+        .section-title {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .section-content {
+            color: #d1d5db;
+            line-height: 1.6;
+        }
+        
+        .section-content ul {
+            padding-left: 20px;
+            margin: 16px 0;
+        }
+        
+        .section-content li {
+            margin: 8px 0;
+        }
+        
+        .salary-breakdown {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(168, 85, 247, 0.1));
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 16px 0;
+        }
+        
+        .salary-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 12px 0;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(139, 92, 246, 0.1);
+        }
+        
+        .salary-item:last-child {
+            border-bottom: none;
+            font-weight: 700;
+            color: #8b5cf6;
+        }
+        
+        .salary-label {
+            color: #9ca3af;
+        }
+        
+        .salary-value {
+            color: white;
+            font-weight: 600;
+        }
+        
+        .skills-analysis {
+            background: #1f2937;
+            border: 1px solid #374151;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 16px 0;
+        }
+        
+        .skill-category {
+            margin: 20px 0;
+        }
+        
+        .skill-category-title {
+            color: white;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+        
+        .skill-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 12px 0;
+        }
+        
+        .skill-name {
+            color: #d1d5db;
+            font-size: 14px;
+        }
+        
+        .skill-bar {
+            background: #374151;
+            border-radius: 4px;
+            height: 8px;
+            width: 120px;
+            overflow: hidden;
+        }
+        
+        .skill-progress {
+            background: linear-gradient(90deg, #8b5cf6, #a855f7);
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+        
+        .skill-progress.missing {
+            background: linear-gradient(90deg, #ef4444, #dc2626);
+        }
+        
+        .skill-progress.partial {
+            background: linear-gradient(90deg, #f59e0b, #d97706);
+        }
+        
+        .skill-level {
+            color: #9ca3af;
+            font-size: 12px;
+            margin-left: 8px;
+        }
+        
+        .commute-analysis {
+            background: linear-gradient(135deg, #1f2937, #374151);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 16px 0;
+        }
+        
+        .commute-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            margin: 16px 0;
+        }
+        
+        .commute-option {
+            background: #374151;
+            border: 1px solid #4b5563;
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .commute-option:hover {
+            border-color: #8b5cf6;
+        }
+        
+        .commute-option.recommended {
+            border-color: #10b981;
+            background: rgba(16, 185, 129, 0.1);
+        }
+        
+        .commute-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+            display: block;
+        }
+        
+        .commute-method {
+            color: white;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .commute-time {
+            color: #8b5cf6;
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        
+        .commute-cost {
+            color: #9ca3af;
+            font-size: 12px;
+        }
+        
+        .company-info {
+            background: #374151;
+            border: 1px solid #4b5563;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 16px 0;
+        }
+        
+        .company-logo {
+            width: 60px;
+            height: 60px;
+            background: #8b5cf6;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+            margin-bottom: 16px;
+        }
+        
+        .company-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin: 16px 0;
+        }
+        
+        .company-detail {
+            text-align: center;
+        }
+        
+        .company-detail-label {
+            color: #9ca3af;
+            font-size: 12px;
+            margin-bottom: 4px;
+        }
+        
+        .company-detail-value {
+            color: white;
+            font-weight: 600;
+        }
+        
+        .diversity-score {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05));
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            border-radius: 8px;
+            padding: 12px;
+            margin: 12px 0;
+        }
+        
+        .diversity-score-value {
+            color: #10b981;
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        
+        .diversity-score-label {
+            color: #9ca3af;
+            font-size: 12px;
+        }
+        
+        .application-timeline {
+            background: #1f2937;
+            border: 1px solid #374151;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 16px 0;
+        }
+        
+        .timeline-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 16px 0;
+            padding: 12px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .timeline-item:hover {
+            background: #374151;
+        }
+        
+        .timeline-item.completed {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+        
+        .timeline-item.current {
+            background: rgba(139, 92, 246, 0.1);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+        }
+        
+        .timeline-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        .timeline-icon.completed {
+            background: #10b981;
+            color: white;
+        }
+        
+        .timeline-icon.current {
+            background: #8b5cf6;
+            color: white;
+        }
+        
+        .timeline-icon.pending {
+            background: #4b5563;
+            color: #9ca3af;
+        }
+        
+        .timeline-content {
+            flex: 1;
+        }
+        
+        .timeline-title {
+            color: white;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .timeline-description {
+            color: #9ca3af;
+            font-size: 14px;
+        }
+        
+        .timeline-date {
+            color: #6b7280;
+            font-size: 12px;
+        }
+        
+        .back-button {
+            background: transparent;
+            border: 1px solid #4b5563;
+            border-radius: 8px;
+            padding: 12px 20px;
+            color: #d1d5db;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+        
+        .back-button:hover {
+            border-color: #8b5cf6;
+            color: #8b5cf6;
+        }
+        
+        @media (max-width: 768px) {
+            .detail-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .job-title-section {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .job-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Skip Links for Accessibility -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    <a href="#job-details" class="skip-link">Skip to job details</a>
+    
+    <!-- Header -->
+    <header class="header" role="banner">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <div class="logo-icon">M</div>
+                    <span class="logo-text">Mingus</span>
+                </div>
+                <nav class="nav" role="navigation" aria-label="Main navigation">
+                    <a href="#" class="nav-link">Dashboard</a>
+                    <a href="#" class="nav-link">Features</a>
+                    <a href="#" class="nav-link">Pricing</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main id="main-content" role="main">
+        <!-- Back Button -->
+        <div class="container">
+            <button class="back-button" onclick="goBack()">
+                <span>←</span>
+                <span>Back to Results</span>
+            </button>
+        </div>
+
+        <!-- Job Detail Header -->
+        <section class="job-detail-header" aria-label="Job details header">
+            <div class="container">
+                <div class="job-title-section">
+                    <div>
+                        <h1 class="job-title">Senior Software Engineer</h1>
+                        <div class="job-company">InnovateCorp</div>
+                        <div class="job-location">📍 Midtown, 5.7 miles away</div>
+                        
+                        <div class="job-badges">
+                            <div class="job-badge optimal">Optimal</div>
+                            <div class="job-badge">Full-time</div>
+                            <div class="job-badge">Remote</div>
+                            <div class="job-badge">Benefits</div>
+                        </div>
+                    </div>
+                    
+                    <div class="match-score-large">
+                        <div class="match-percentage">88%</div>
+                        <div class="match-label">Match Score</div>
+                    </div>
+                </div>
+                
+                <div class="job-actions">
+                    <button class="action-button" onclick="applyToJob()">
+                        <span>📝</span>
+                        <span>Apply Now</span>
+                    </button>
+                    <button class="action-button secondary" onclick="saveJob()">
+                        <span>💾</span>
+                        <span>Save Job</span>
+                    </button>
+                    <button class="action-button secondary" onclick="shareJob()">
+                        <span>📤</span>
+                        <span>Share</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Job Details -->
+        <section id="job-details" class="job-details" aria-label="Job details">
+            <div class="container">
+                <div class="detail-grid">
+                    <!-- Main Content -->
+                    <div class="detail-main">
+                        <!-- Job Description -->
+                        <div class="detail-section">
+                            <h2 class="section-title">
+                                <span>📋</span>
+                                Job Description
+                            </h2>
+                            <div class="section-content">
+                                <p>We're looking for a Senior Software Engineer to join our growing team. You'll be responsible for building scalable web applications and leading technical initiatives that impact millions of users.</p>
+                                
+                                <h3>Key Responsibilities:</h3>
+                                <ul>
+                                    <li>Design and develop high-performance web applications using modern JavaScript frameworks</li>
+                                    <li>Lead technical architecture decisions and mentor junior developers</li>
+                                    <li>Collaborate with product managers and designers to deliver exceptional user experiences</li>
+                                    <li>Write clean, maintainable code and participate in code reviews</li>
+                                    <li>Optimize application performance and implement best practices</li>
+                                    <li>Work in an agile environment with cross-functional teams</li>
+                                </ul>
+                                
+                                <h3>What We're Looking For:</h3>
+                                <ul>
+                                    <li>5+ years of experience in software development</li>
+                                    <li>Strong proficiency in JavaScript, React, and Node.js</li>
+                                    <li>Experience with cloud platforms (AWS, Azure, or GCP)</li>
+                                    <li>Excellent communication and leadership skills</li>
+                                    <li>Passion for building inclusive and diverse teams</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <!-- Skills Analysis -->
+                        <div class="detail-section">
+                            <h2 class="section-title">
+                                <span>📊</span>
+                                Skills Analysis
+                            </h2>
+                            <div class="skills-analysis">
+                                <div class="skill-category">
+                                    <div class="skill-category-title">Required Skills</div>
+                                    <div class="skill-item">
+                                        <span class="skill-name">JavaScript</span>
+                                        <div class="skill-bar">
+                                            <div class="skill-progress" style="width: 95%"></div>
+                                        </div>
+                                        <span class="skill-level">Expert</span>
+                                    </div>
+                                    <div class="skill-item">
+                                        <span class="skill-name">React</span>
+                                        <div class="skill-bar">
+                                            <div class="skill-progress" style="width: 90%"></div>
+                                        </div>
+                                        <span class="skill-level">Advanced</span>
+                                    </div>
+                                    <div class="skill-item">
+                                        <span class="skill-name">Node.js</span>
+                                        <div class="skill-bar">
+                                            <div class="skill-progress" style="width: 85%"></div>
+                                        </div>
+                                        <span class="skill-level">Advanced</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="skill-category">
+                                    <div class="skill-category-title">Nice to Have</div>
+                                    <div class="skill-item">
+                                        <span class="skill-name">AWS</span>
+                                        <div class="skill-bar">
+                                            <div class="skill-progress partial" style="width: 60%"></div>
+                                        </div>
+                                        <span class="skill-level">Intermediate</span>
+                                    </div>
+                                    <div class="skill-item">
+                                        <span class="skill-name">TypeScript</span>
+                                        <div class="skill-bar">
+                                            <div class="skill-progress partial" style="width: 70%"></div>
+                                        </div>
+                                        <span class="skill-level">Intermediate</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="skill-category">
+                                    <div class="skill-category-title">Missing Skills</div>
+                                    <div class="skill-item">
+                                        <span class="skill-name">Docker</span>
+                                        <div class="skill-bar">
+                                            <div class="skill-progress missing" style="width: 30%"></div>
+                                        </div>
+                                        <span class="skill-level">Beginner</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Commute Analysis -->
+                        <div class="detail-section">
+                            <h2 class="section-title">
+                                <span>🚗</span>
+                                Commute Analysis
+                            </h2>
+                            <div class="commute-analysis">
+                                <p>Based on your location preferences, here are your commute options:</p>
+                                
+                                <div class="commute-options">
+                                    <div class="commute-option recommended">
+                                        <div class="commute-icon">🏠</div>
+                                        <div class="commute-method">Remote Work</div>
+                                        <div class="commute-time">0 min</div>
+                                        <div class="commute-cost">$0/month</div>
+                                    </div>
+                                    
+                                    <div class="commute-option">
+                                        <div class="commute-icon">🚗</div>
+                                        <div class="commute-method">Driving</div>
+                                        <div class="commute-time">25 min</div>
+                                        <div class="commute-cost">$120/month</div>
+                                    </div>
+                                    
+                                    <div class="commute-option">
+                                        <div class="commute-icon">🚌</div>
+                                        <div class="commute-method">Public Transit</div>
+                                        <div class="commute-time">35 min</div>
+                                        <div class="commute-cost">$80/month</div>
+                                    </div>
+                                    
+                                    <div class="commute-option">
+                                        <div class="commute-icon">🚴</div>
+                                        <div class="commute-method">Cycling</div>
+                                        <div class="commute-time">45 min</div>
+                                        <div class="commute-cost">$20/month</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Sidebar -->
+                    <div class="detail-sidebar">
+                        <!-- Salary Breakdown -->
+                        <div class="detail-section">
+                            <h2 class="section-title">
+                                <span>💰</span>
+                                Salary Breakdown
+                            </h2>
+                            <div class="salary-breakdown">
+                                <div class="salary-item">
+                                    <span class="salary-label">Base Salary</span>
+                                    <span class="salary-value">$95,000</span>
+                                </div>
+                                <div class="salary-item">
+                                    <span class="salary-label">Bonus (10%)</span>
+                                    <span class="salary-value">$9,500</span>
+                                </div>
+                                <div class="salary-item">
+                                    <span class="salary-label">Equity (0.1%)</span>
+                                    <span class="salary-value">$15,000</span>
+                                </div>
+                                <div class="salary-item">
+                                    <span class="salary-label">Benefits Value</span>
+                                    <span class="salary-value">$12,000</span>
+                                </div>
+                                <div class="salary-item">
+                                    <span class="salary-label">Total Compensation</span>
+                                    <span class="salary-value">$131,500</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Company Information -->
+                        <div class="detail-section">
+                            <h2 class="section-title">
+                                <span>🏢</span>
+                                Company Info
+                            </h2>
+                            <div class="company-info">
+                                <div class="company-logo">IC</div>
+                                
+                                <div class="company-details">
+                                    <div class="company-detail">
+                                        <div class="company-detail-label">Company Size</div>
+                                        <div class="company-detail-value">201-500</div>
+                                    </div>
+                                    <div class="company-detail">
+                                        <div class="company-detail-label">Founded</div>
+                                        <div class="company-detail-value">2018</div>
+                                    </div>
+                                    <div class="company-detail">
+                                        <div class="company-detail-label">Industry</div>
+                                        <div class="company-detail-value">Technology</div>
+                                    </div>
+                                    <div class="company-detail">
+                                        <div class="company-detail-label">Funding</div>
+                                        <div class="company-detail-value">Series B</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="diversity-score">
+                                    <div class="diversity-score-value">8.5/10</div>
+                                    <div class="diversity-score-label">Diversity & Inclusion Score</div>
+                                </div>
+                                
+                                <p style="color: #9ca3af; font-size: 14px; margin-top: 16px;">
+                                    InnovateCorp is committed to building a diverse and inclusive workplace. 
+                                    We have strong representation of Black professionals in leadership roles 
+                                    and offer comprehensive diversity and inclusion programs.
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <!-- Application Timeline -->
+                        <div class="detail-section">
+                            <h2 class="section-title">
+                                <span>⏰</span>
+                                Application Timeline
+                            </h2>
+                            <div class="application-timeline">
+                                <div class="timeline-item completed">
+                                    <div class="timeline-icon completed">✓</div>
+                                    <div class="timeline-content">
+                                        <div class="timeline-title">Application Submitted</div>
+                                        <div class="timeline-description">Your application has been received</div>
+                                        <div class="timeline-date">Today</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="timeline-item current">
+                                    <div class="timeline-icon current">2</div>
+                                    <div class="timeline-content">
+                                        <div class="timeline-title">Initial Review</div>
+                                        <div class="timeline-description">HR team reviews your application</div>
+                                        <div class="timeline-date">1-2 business days</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="timeline-item">
+                                    <div class="timeline-icon pending">3</div>
+                                    <div class="timeline-content">
+                                        <div class="timeline-title">Technical Interview</div>
+                                        <div class="timeline-description">1-hour coding challenge and discussion</div>
+                                        <div class="timeline-date">3-5 business days</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="timeline-item">
+                                    <div class="timeline-icon pending">4</div>
+                                    <div class="timeline-content">
+                                        <div class="timeline-title">Team Interview</div>
+                                        <div class="timeline-description">Meet the team and culture fit assessment</div>
+                                        <div class="timeline-date">1 week</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="timeline-item">
+                                    <div class="timeline-icon pending">5</div>
+                                    <div class="timeline-content">
+                                        <div class="timeline-title">Final Decision</div>
+                                        <div class="timeline-description">Offer extended or feedback provided</div>
+                                        <div class="timeline-date">1-2 weeks</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer" role="contentinfo">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <div class="logo-icon">M</div>
+                    <span class="logo-text">Mingus</span>
+                </div>
+                <p class="footer-text">Empowering Black professionals to build generational wealth</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="../static/js/mingus-referral-system.js"></script>
+    <script>
+        // Initialize recommendation detail page
+        document.addEventListener('DOMContentLoaded', function() {
+            const referralSystem = new MingusReferralSystem();
+            referralSystem.initRecommendationDetail();
+            
+            // Load job details based on URL parameter
+            loadJobDetails();
+        });
+        
+        function loadJobDetails() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const jobId = urlParams.get('id');
+            
+            if (jobId) {
+                // In a real implementation, this would fetch job details from an API
+                console.log('Loading job details for:', jobId);
+            }
+        }
+        
+        function goBack() {
+            window.history.back();
+        }
+        
+        function applyToJob() {
+            // Show loading state
+            const button = event.target;
+            const originalText = button.innerHTML;
+            
+            button.innerHTML = '<span>⏳</span><span>Applying...</span>';
+            button.disabled = true;
+            
+            // Simulate application process
+            setTimeout(() => {
+                button.innerHTML = '<span>✓</span><span>Applied!</span>';
+                button.classList.add('success');
+                button.disabled = false;
+                
+                // Show success message
+                alert('Application submitted successfully! You will receive a confirmation email shortly.');
+                
+                // Reset button after 3 seconds
+                setTimeout(() => {
+                    button.innerHTML = originalText;
+                    button.classList.remove('success');
+                }, 3000);
+            }, 2000);
+        }
+        
+        function saveJob() {
+            const button = event.target;
+            const originalText = button.innerHTML;
+            
+            button.innerHTML = '<span>💾</span><span>Saved!</span>';
+            button.classList.add('success');
+            
+            setTimeout(() => {
+                button.innerHTML = originalText;
+                button.classList.remove('success');
+            }, 2000);
+        }
+        
+        function shareJob() {
+            const jobTitle = document.querySelector('.job-title').textContent;
+            const company = document.querySelector('.job-company').textContent;
+            const url = window.location.href;
+            
+            const shareText = `Check out this job opportunity: ${jobTitle} at ${company}`;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: jobTitle,
+                    text: shareText,
+                    url: url
+                });
+            } else {
+                // Fallback to copying to clipboard
+                navigator.clipboard.writeText(`${shareText}\n\n${url}`).then(() => {
+                    alert('Job link copied to clipboard!');
+                });
+            }
+        }
+        
+        // Update timeline based on application status
+        function updateTimeline() {
+            // In a real implementation, this would check the actual application status
+            const timelineItems = document.querySelectorAll('.timeline-item');
+            
+            // Simulate progress
+            timelineItems.forEach((item, index) => {
+                if (index === 0) {
+                    item.classList.add('completed');
+                } else if (index === 1) {
+                    item.classList.add('current');
+                }
+            });
+        }
+        
+        // Initialize timeline
+        updateTimeline();
+    </script>
+</body>
+</html>

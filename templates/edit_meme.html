@@ -37,7 +37,7 @@
                         </label>
                         <div class="border rounded p-3 text-center bg-light">
                             <img src="{{ url_for('uploaded_file', filename=meme.image_url) }}" 
-                                 alt="{{ meme.alt_text }}" 
+                                 alt="{{ meme.alt_text or 'Current meme image' }}" 
                                  class="img-fluid" 
                                  style="max-height: 300px; max-width: 100%;"
                                  onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDMwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjVGNUY1Ii8+CjxwYXRoIGQ9Ik0xMDAgMTAwSDEwMFYxMDBIMTAwWiIgc3Ryb2tlPSIjQ0NDIiBzdHJva2Utd2lkdGg9IjIiIGZpbGw9Im5vbmUiLz4KPHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDMwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjVGNUY1Ii8+CjxwYXRoIGQ9Ik0xMDAgMTAwSDEwMFYxMDBIMTAwWiIgc3Ryb2tlPSIjQ0NDIiBzdHJva2Utd2lkdGg9IjIiIGZpbGw9Im5vbmUiLz4KPC9zdmc+Cg=='">
@@ -72,7 +72,7 @@
                                 <img id="new-image-preview" 
                                      class="img-fluid" 
                                      style="max-height: 300px; max-width: 100%;"
-                                     alt="New image preview">
+                                     alt="New meme image preview">
                             </div>
                         </div>
                     </div>

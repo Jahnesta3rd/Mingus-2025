@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Recommendations - Mingus</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .job-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .job-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .salary-highlight {
+            background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+        }
+        .loading-spinner {
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="gradient-bg text-white py-6">
+        <div class="container mx-auto px-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <i class="fas fa-briefcase text-3xl"></i>
+                    <h1 class="text-2xl font-bold">Job Recommendations</h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="bg-white bg-opacity-20 px-3 py-1 rounded-full text-sm">
+                        <i class="fas fa-unlock mr-1"></i>
+                        Unlocked
+                    </span>
+                    <button onclick="showSettings()" class="bg-white bg-opacity-20 hover:bg-opacity-30 px-4 py-2 rounded-lg transition-colors">
+                        <i class="fas fa-cog mr-2"></i>
+                        Settings
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <!-- Quick Stats -->
+        <div class="grid md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-xl p-6 shadow-sm">
+                <div class="flex items-center">
+                    <div class="bg-blue-100 p-3 rounded-lg mr-4">
+                        <i class="fas fa-search text-blue-600 text-xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">Jobs Found</p>
+                        <p class="text-2xl font-bold text-gray-900" id="jobs-count">0</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl p-6 shadow-sm">
+                <div class="flex items-center">
+                    <div class="bg-green-100 p-3 rounded-lg mr-4">
+                        <i class="fas fa-dollar-sign text-green-600 text-xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">Avg. Salary Increase</p>
+                        <p class="text-2xl font-bold text-gray-900" id="avg-increase">0%</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl p-6 shadow-sm">
+                <div class="flex items-center">
+                    <div class="bg-purple-100 p-3 rounded-lg mr-4">
+                        <i class="fas fa-map-marker-alt text-purple-600 text-xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">Locations</p>
+                        <p class="text-2xl font-bold text-gray-900" id="locations-count">0</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl p-6 shadow-sm">
+                <div class="flex items-center">
+                    <div class="bg-orange-100 p-3 rounded-lg mr-4">
+                        <i class="fas fa-star text-orange-600 text-xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">Avg. Rating</p>
+                        <p class="text-2xl font-bold text-gray-900" id="avg-rating">0.0</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters and Search -->
+        <div class="bg-white rounded-xl shadow-sm p-6 mb-8">
+            <div class="flex flex-col lg:flex-row gap-4">
+                <div class="flex-1">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Job Title or Keywords</label>
+                    <input type="text" id="job-keywords" placeholder="e.g., Software Engineer, Marketing Manager"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+                
+                <div class="lg:w-48">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Location</label>
+                    <input type="text" id="location-filter" placeholder="City, State or ZIP"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+                
+                <div class="lg:w-48">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Salary Range</label>
+                    <select id="salary-filter" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="">Any Salary</option>
+                        <option value="50000-75000">$50k - $75k</option>
+                        <option value="75000-100000">$75k - $100k</option>
+                        <option value="100000-150000">$100k - $150k</option>
+                        <option value="150000+">$150k+</option>
+                    </select>
+                </div>
+                
+                <div class="lg:w-32">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Remote</label>
+                    <select id="remote-filter" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="">Any</option>
+                        <option value="remote">Remote Only</option>
+                        <option value="hybrid">Hybrid</option>
+                        <option value="onsite">On-site</option>
+                    </select>
+                </div>
+                
+                <div class="flex items-end">
+                    <button onclick="searchJobs()" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                        <i class="fas fa-search mr-2"></i>
+                        Search
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loading-state" class="hidden text-center py-12">
+            <div class="loading-spinner w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full mx-auto mb-4"></div>
+            <p class="text-gray-600">Finding the best job matches for you...</p>
+        </div>
+
+        <!-- Job Results -->
+        <div id="job-results" class="space-y-6">
+            <!-- Job cards will be dynamically inserted here -->
+        </div>
+
+        <!-- No Results State -->
+        <div id="no-results" class="hidden text-center py-12">
+            <div class="text-gray-400 text-6xl mb-4">
+                <i class="fas fa-search"></i>
+            </div>
+            <h3 class="text-xl font-semibold text-gray-900 mb-2">No jobs found</h3>
+            <p class="text-gray-600 mb-6">Try adjusting your search criteria or filters</p>
+            <button onclick="clearFilters()" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                Clear Filters
+            </button>
+        </div>
+    </main>
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-2xl p-8 max-w-2xl w-full max-h-screen overflow-y-auto">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-xl font-bold text-gray-900">Job Recommendation Settings</h3>
+                    <button onclick="hideSettings()" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                
+                <div class="space-y-6">
+                    <!-- Location Preferences -->
+                    <div>
+                        <h4 class="text-lg font-semibold text-gray-900 mb-4">Location Preferences</h4>
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">ZIP Code</label>
+                                <input type="text" id="settings-zipcode" placeholder="12345"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Search Radius</label>
+                                <select id="settings-radius" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                    <option value="10">10 miles</option>
+                                    <option value="25" selected>25 miles</option>
+                                    <option value="50">50 miles</option>
+                                    <option value="100">100 miles</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Career Preferences -->
+                    <div>
+                        <h4 class="text-lg font-semibold text-gray-900 mb-4">Career Preferences</h4>
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Current Salary</label>
+                                <input type="number" id="settings-salary" placeholder="75000"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Target Increase</label>
+                                <select id="settings-increase" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                    <option value="0.10">10%</option>
+                                    <option value="0.20">20%</option>
+                                    <option value="0.25" selected>25%</option>
+                                    <option value="0.30">30%</option>
+                                    <option value="0.50">50%</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Job Preferences -->
+                    <div>
+                        <h4 class="text-lg font-semibold text-gray-900 mb-4">Job Preferences</h4>
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Career Field</label>
+                                <select id="settings-field" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                    <option value="technology">Technology</option>
+                                    <option value="finance">Finance</option>
+                                    <option value="healthcare">Healthcare</option>
+                                    <option value="marketing">Marketing</option>
+                                    <option value="sales">Sales</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Experience Level</label>
+                                <select id="settings-experience" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                    <option value="entry">Entry Level</option>
+                                    <option value="mid" selected>Mid Level</option>
+                                    <option value="senior">Senior Level</option>
+                                    <option value="executive">Executive Level</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex gap-3 mt-8">
+                    <button onclick="hideSettings()" 
+                            class="flex-1 bg-gray-200 text-gray-700 py-2 rounded-lg font-semibold hover:bg-gray-300 transition-colors">
+                        Cancel
+                    </button>
+                    <button onclick="saveSettings()" 
+                            class="flex-1 bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                        Save Settings
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentJobs = [];
+        let currentFilters = {};
+        
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            loadInitialRecommendations();
+        });
+        
+        async function loadInitialRecommendations() {
+            showLoading();
+            
+            try {
+                const response = await fetch('/process-recommendations', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-Token': 'test-token',
+                        'X-User-ID': '{{ user_id }}'
+                    },
+                    body: JSON.stringify({
+                        current_salary: 75000,
+                        target_salary_increase: 0.25,
+                        career_field: 'technology',
+                        experience_level: 'mid'
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    currentJobs = result.recommendations || [];
+                    displayJobs(currentJobs);
+                    updateStats(currentJobs);
+                } else {
+                    showNoResults();
+                }
+            } catch (error) {
+                console.error('Error loading recommendations:', error);
+                showNoResults();
+            }
+            
+            hideLoading();
+        }
+        
+        function displayJobs(jobs) {
+            const container = document.getElementById('job-results');
+            const noResults = document.getElementById('no-results');
+            
+            if (jobs.length === 0) {
+                container.innerHTML = '';
+                noResults.classList.remove('hidden');
+                return;
+            }
+            
+            noResults.classList.add('hidden');
+            container.innerHTML = jobs.map(job => createJobCard(job)).join('');
+        }
+        
+        function createJobCard(job) {
+            const salaryIncrease = job.salary_increase_potential ? (job.salary_increase_potential * 100).toFixed(0) : 0;
+            const isRemote = job.remote_friendly ? 'Remote' : 'On-site';
+            const rating = job.overall_score ? job.overall_score.toFixed(1) : 'N/A';
+            
+            return `
+                <div class="job-card bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+                    <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between mb-4">
+                        <div class="flex-1">
+                            <div class="flex items-start justify-between mb-2">
+                                <h3 class="text-xl font-semibold text-gray-900">${job.title || 'Job Title'}</h3>
+                                <div class="flex items-center space-x-2">
+                                    <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
+                                        ${isRemote}
+                                    </span>
+                                    <div class="flex items-center text-yellow-500">
+                                        <i class="fas fa-star text-sm"></i>
+                                        <span class="ml-1 text-sm font-medium">${rating}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center text-gray-600 mb-3">
+                                <i class="fas fa-building mr-2"></i>
+                                <span class="font-medium">${job.company || 'Company Name'}</span>
+                                <span class="mx-2">•</span>
+                                <i class="fas fa-map-marker-alt mr-1"></i>
+                                <span>${job.location || 'Location'}</span>
+                            </div>
+                            
+                            <div class="flex items-center space-x-6 text-sm text-gray-600">
+                                <div class="flex items-center">
+                                    <i class="fas fa-dollar-sign mr-1"></i>
+                                    <span>$${job.salary_min ? job.salary_min.toLocaleString() : 'N/A'} - $${job.salary_max ? job.salary_max.toLocaleString() : 'N/A'}</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chart-line mr-1"></i>
+                                    <span class="text-green-600 font-medium">+${salaryIncrease}% increase potential</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4 lg:mt-0 lg:ml-6">
+                            <div class="salary-highlight text-white px-4 py-2 rounded-lg text-center mb-3">
+                                <div class="text-sm">Potential Salary</div>
+                                <div class="text-lg font-bold">$${job.salary_median ? job.salary_median.toLocaleString() : 'N/A'}</div>
+                            </div>
+                            
+                            <div class="flex space-x-2">
+                                <button onclick="viewJobDetails('${job.job_id}')" 
+                                        class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
+                                    <i class="fas fa-eye mr-1"></i>
+                                    View Details
+                                </button>
+                                <button onclick="applyToJob('${job.job_id}')" 
+                                        class="bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-700 transition-colors">
+                                    <i class="fas fa-paper-plane mr-1"></i>
+                                    Apply
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="border-t border-gray-200 pt-4">
+                        <div class="flex items-center justify-between text-sm text-gray-600">
+                            <div class="flex items-center space-x-4">
+                                <span><i class="fas fa-calendar mr-1"></i>Posted ${job.posted_date ? new Date(job.posted_date).toLocaleDateString() : 'Recently'}</span>
+                                <span><i class="fas fa-users mr-1"></i>${job.company_size || 'Unknown'} employees</span>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <span class="bg-gray-100 px-2 py-1 rounded text-xs">${job.field || 'Technology'}</span>
+                                <span class="bg-gray-100 px-2 py-1 rounded text-xs">${job.experience_level || 'Mid Level'}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function updateStats(jobs) {
+            document.getElementById('jobs-count').textContent = jobs.length;
+            
+            if (jobs.length > 0) {
+                const avgIncrease = jobs.reduce((sum, job) => sum + (job.salary_increase_potential || 0), 0) / jobs.length;
+                document.getElementById('avg-increase').textContent = `${(avgIncrease * 100).toFixed(0)}%`;
+                
+                const locations = new Set(jobs.map(job => job.location).filter(Boolean));
+                document.getElementById('locations-count').textContent = locations.size;
+                
+                const avgRating = jobs.reduce((sum, job) => sum + (job.overall_score || 0), 0) / jobs.length;
+                document.getElementById('avg-rating').textContent = avgRating.toFixed(1);
+            }
+        }
+        
+        function showLoading() {
+            document.getElementById('loading-state').classList.remove('hidden');
+            document.getElementById('job-results').innerHTML = '';
+            document.getElementById('no-results').classList.add('hidden');
+        }
+        
+        function hideLoading() {
+            document.getElementById('loading-state').classList.add('hidden');
+        }
+        
+        function showNoResults() {
+            document.getElementById('no-results').classList.remove('hidden');
+            document.getElementById('job-results').innerHTML = '';
+        }
+        
+        function searchJobs() {
+            const keywords = document.getElementById('job-keywords').value;
+            const location = document.getElementById('location-filter').value;
+            const salary = document.getElementById('salary-filter').value;
+            const remote = document.getElementById('remote-filter').value;
+            
+            currentFilters = { keywords, location, salary, remote };
+            
+            let filteredJobs = [...currentJobs];
+            
+            if (keywords) {
+                filteredJobs = filteredJobs.filter(job => 
+                    job.title.toLowerCase().includes(keywords.toLowerCase()) ||
+                    job.company.toLowerCase().includes(keywords.toLowerCase())
+                );
+            }
+            
+            if (location) {
+                filteredJobs = filteredJobs.filter(job => 
+                    job.location.toLowerCase().includes(location.toLowerCase())
+                );
+            }
+            
+            if (salary) {
+                const [min, max] = salary.split('-');
+                filteredJobs = filteredJobs.filter(job => {
+                    const jobSalary = job.salary_median || job.salary_min || 0;
+                    if (max) {
+                        return jobSalary >= parseInt(min) && jobSalary <= parseInt(max);
+                    } else {
+                        return jobSalary >= parseInt(min);
+                    }
+                });
+            }
+            
+            if (remote) {
+                if (remote === 'remote') {
+                    filteredJobs = filteredJobs.filter(job => job.remote_friendly);
+                } else if (remote === 'onsite') {
+                    filteredJobs = filteredJobs.filter(job => !job.remote_friendly);
+                }
+            }
+            
+            displayJobs(filteredJobs);
+            updateStats(filteredJobs);
+        }
+        
+        function clearFilters() {
+            document.getElementById('job-keywords').value = '';
+            document.getElementById('location-filter').value = '';
+            document.getElementById('salary-filter').value = '';
+            document.getElementById('remote-filter').value = '';
+            
+            displayJobs(currentJobs);
+            updateStats(currentJobs);
+        }
+        
+        function showSettings() {
+            document.getElementById('settingsModal').classList.remove('hidden');
+        }
+        
+        function hideSettings() {
+            document.getElementById('settingsModal').classList.add('hidden');
+        }
+        
+        function saveSettings() {
+            // Save settings logic here
+            hideSettings();
+            // Reload recommendations with new settings
+            loadInitialRecommendations();
+        }
+        
+        function viewJobDetails(jobId) {
+            // Navigate to job details page
+            console.log('View job details:', jobId);
+        }
+        
+        function applyToJob(jobId) {
+            // Handle job application
+            console.log('Apply to job:', jobId);
+            alert('Application feature coming soon!');
+        }
+    </script>
+</body>
+</html>

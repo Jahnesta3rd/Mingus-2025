@@ -1,0 +1,48 @@
+{
+  "performance": {
+    "enabled": true,
+    "database_path": "performance_metrics.db",
+    "api_base_url": "http://localhost:5000",
+    "frontend_url": "http://localhost:3000",
+    "alert_thresholds": {
+      "page_load": 1.5,
+      "api_response": 1.5,
+      "system": 1.2,
+      "database": 1.5
+    }
+  },
+  "ux": {
+    "enabled": true,
+    "database_path": "ux_metrics.db",
+    "frontend_url": "http://localhost:3000",
+    "api_base_url": "http://localhost:5000",
+    "selenium": {
+      "headless": true,
+      "timeout": 10
+    },
+    "accessibility": {
+      "axe_core_url": "https://cdn.jsdelivr.net/npm/axe-core@4.7.0/axe.min.js"
+    }
+  },
+  "e2e": {
+    "enabled": true,
+    "base_url": "http://localhost:3000",
+    "api_url": "http://localhost:5000",
+    "timeout": 30,
+    "retry_count": 2
+  },
+  "visual": {
+    "enabled": true,
+    "base_url": "http://localhost:3000",
+    "threshold": 0.95,
+    "screenshots_dir": "visual_test_screenshots",
+    "baseline_dir": "visual_baselines"
+  },
+  "accessibility": {
+    "enabled": true,
+    "base_url": "http://localhost:3000",
+    "api_url": "http://localhost:5000",
+    "axe_script_url": "https://cdn.jsdelivr.net/npm/axe-core@4.7.0/axe.min.js",
+    "wcag_level": "AA"
+  }
+}

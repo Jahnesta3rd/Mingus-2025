@@ -1,0 +1,1043 @@
+{
+  "timestamp": "2025-09-14T18:12:26.831558",
+  "pages": {
+    "landing_page": {
+      "axe_tests": {
+        "page": "landing_page",
+        "url": "http://localhost:3000",
+        "status": "COMPLETED",
+        "total_checks": 35,
+        "passes": 31,
+        "violations": 3,
+        "incomplete": 1,
+        "pass_rate": 88.57142857142857,
+        "violations_by_severity": {
+          "critical": 0,
+          "serious": 0,
+          "moderate": 3,
+          "minor": 0
+        },
+        "critical_violations": [],
+        "serious_violations": [],
+        "moderate_violations": [
+          {
+            "description": "Ensures the order of headings is semantically correct",
+            "help": "Heading levels should only increase by one",
+            "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/heading-order?application=axeAPI",
+            "id": "heading-order",
+            "impact": "moderate",
+            "nodes": [
+              {
+                "all": [],
+                "any": [
+                  {
+                    "data": null,
+                    "id": "heading-order",
+                    "impact": "moderate",
+                    "message": "Heading order invalid",
+                    "relatedNodes": []
+                  }
+                ],
+                "failureSummary": "Fix any of the following:\n  Heading order invalid",
+                "html": "<h3 class=\"text-white font-bold text-base sm:text-lg\">Mingus</h3>",
+                "impact": "moderate",
+                "none": [],
+                "target": [
+                  ".justify-between.items-center.flex > .sm\\:text-lg.text-base"
+                ]
+              }
+            ],
+            "tags": [
+              "cat.semantics",
+              "best-practice"
+            ]
+          },
+          {
+            "description": "Ensures the document has a main landmark",
+            "help": "Document should have one main landmark",
+            "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/landmark-one-main?application=axeAPI",
+            "id": "landmark-one-main",
+            "impact": "moderate",
+            "nodes": [
+              {
+                "all": [
+                  {
+                    "data": null,
+                    "id": "page-has-main",
+                    "impact": "moderate",
+                    "message": "Document does not have a main landmark",
+                    "relatedNodes": []
+                  }
+                ],
+                "any": [],
+                "failureSummary": "Fix all of the following:\n  Document does not have a main landmark",
+                "html": "<html lang=\"en\">",
+                "impact": "moderate",
+                "none": [],
+                "target": [
+                  "html"
+                ]
+              }
+            ],
+            "tags": [
+              "cat.semantics",
+              "best-practice"
+            ]
+          },
+          {
+            "description": "Ensures all page content is contained by landmarks",
+            "help": "All page content should be contained by landmarks",
+            "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/region?application=axeAPI",
+            "id": "region",
+            "impact": "moderate",
+            "nodes": [
+              {
+                "all": [],
+                "any": [
+                  {
+                    "data": {
+                      "isIframe": false
+                    },
+                    "id": "region",
+                    "impact": "moderate",
+                    "message": "Some page content is not contained by landmarks",
+                    "relatedNodes": []
+                  }
+                ],
+                "failureSummary": "Fix any of the following:\n  Some page content is not contained by landmarks",
+                "html": "<div class=\"fixed top-4 right-4 bg-black/80 text-white p-4 rounded-lg z-50 text-sm\"><div class=\"font-bold mb-2\">Responsive Test</div><div>Breakpoint: Desktop (\u22651025px)</div><div>Size: 1920 \u00d7 941</div></div>",
+                "impact": "moderate",
+                "none": [],
+                "target": [
+                  ".top-4"
+                ]
+              },
+              {
+                "all": [],
+                "any": [
+                  {
+                    "data": {
+                      "isIframe": false
+                    },
+                    "id": "region",
+                    "impact": "moderate",
+                    "message": "Some page content is not contained by landmarks",
+                    "relatedNodes": []
+                  }
+                ],
+                "failureSummary": "Fix any of the following:\n  Some page content is not contained by landmarks",
+                "html": "<a href=\"#navigation\" class=\"sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-32 bg-violet-600 text-white px-4 py-2 rounded-lg z-50\">Skip to navigation</a>",
+                "impact": "moderate",
+                "none": [],
+                "target": [
+                  ".focus\\:left-32"
+                ]
+              }
+            ],
+            "tags": [
+              "cat.keyboard",
+              "best-practice"
+            ]
+          }
+        ],
+        "minor_violations": [],
+        "all_violations": [
+          {
+            "description": "Ensures the order of headings is semantically correct",
+            "help": "Heading levels should only increase by one",
+            "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/heading-order?application=axeAPI",
+            "id": "heading-order",
+            "impact": "moderate",
+            "nodes": [
+              {
+                "all": [],
+                "any": [
+                  {
+                    "data": null,
+                    "id": "heading-order",
+                    "impact": "moderate",
+                    "message": "Heading order invalid",
+                    "relatedNodes": []
+                  }
+                ],
+                "failureSummary": "Fix any of the following:\n  Heading order invalid",
+                "html": "<h3 class=\"text-white font-bold text-base sm:text-lg\">Mingus</h3>",
+                "impact": "moderate",
+                "none": [],
+                "target": [
+                  ".justify-between.items-center.flex > .sm\\:text-lg.text-base"
+                ]
+              }
+            ],
+            "tags": [
+              "cat.semantics",
+              "best-practice"
+            ]
+          },
+          {
+            "description": "Ensures the document has a main landmark",
+            "help": "Document should have one main landmark",
+            "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/landmark-one-main?application=axeAPI",
+            "id": "landmark-one-main",
+            "impact": "moderate",
+            "nodes": [
+              {
+                "all": [
+                  {
+                    "data": null,
+                    "id": "page-has-main",
+                    "impact": "moderate",
+                    "message": "Document does not have a main landmark",
+                    "relatedNodes": []
+                  }
+                ],
+                "any": [],
+                "failureSummary": "Fix all of the following:\n  Document does not have a main landmark",
+                "html": "<html lang=\"en\">",
+                "impact": "moderate",
+                "none": [],
+                "target": [
+                  "html"
+                ]
+              }
+            ],
+            "tags": [
+              "cat.semantics",
+              "best-practice"
+            ]
+          },
+          {
+            "description": "Ensures all page content is contained by landmarks",
+            "help": "All page content should be contained by landmarks",
+            "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/region?application=axeAPI",
+            "id": "region",
+            "impact": "moderate",
+            "nodes": [
+              {
+                "all": [],
+                "any": [
+                  {
+                    "data": {
+                      "isIframe": false
+                    },
+                    "id": "region",
+                    "impact": "moderate",
+                    "message": "Some page content is not contained by landmarks",
+                    "relatedNodes": []
+                  }
+                ],
+                "failureSummary": "Fix any of the following:\n  Some page content is not contained by landmarks",
+                "html": "<div class=\"fixed top-4 right-4 bg-black/80 text-white p-4 rounded-lg z-50 text-sm\"><div class=\"font-bold mb-2\">Responsive Test</div><div>Breakpoint: Desktop (\u22651025px)</div><div>Size: 1920 \u00d7 941</div></div>",
+                "impact": "moderate",
+                "none": [],
+                "target": [
+                  ".top-4"
+                ]
+              },
+              {
+                "all": [],
+                "any": [
+                  {
+                    "data": {
+                      "isIframe": false
+                    },
+                    "id": "region",
+                    "impact": "moderate",
+                    "message": "Some page content is not contained by landmarks",
+                    "relatedNodes": []
+                  }
+                ],
+                "failureSummary": "Fix any of the following:\n  Some page content is not contained by landmarks",
+                "html": "<a href=\"#navigation\" class=\"sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-32 bg-violet-600 text-white px-4 py-2 rounded-lg z-50\">Skip to navigation</a>",
+                "impact": "moderate",
+                "none": [],
+                "target": [
+                  ".focus\\:left-32"
+                ]
+              }
+            ],
+            "tags": [
+              "cat.keyboard",
+              "best-practice"
+            ]
+          }
+        ]
+      },
+      "keyboard_navigation": {
+        "page": "landing_page",
+        "url": "http://localhost:3000",
+        "status": "COMPLETED",
+        "total_focusable_elements": 27,
+        "tab_order_tested": 5,
+        "tab_order": [
+          {
+            "index": 1,
+            "tag": "a",
+            "text": "Skip to navigation",
+            "accessible_name": "Skip to navigation"
+          },
+          {
+            "index": 2,
+            "tag": "button",
+            "text": "Features",
+            "accessible_name": "Features"
+          },
+          {
+            "index": 3,
+            "tag": "button",
+            "text": "Pricing",
+            "accessible_name": "Pricing"
+          },
+          {
+            "index": 4,
+            "tag": "button",
+            "text": "FAQ",
+            "accessible_name": "FAQ"
+          },
+          {
+            "index": 5,
+            "tag": "button",
+            "text": "Get Started",
+            "accessible_name": "Get Started"
+          }
+        ],
+        "enter_activations": 5,
+        "escape_works": true,
+        "keyboard_score": 18.51851851851852
+      },
+      "color_contrast": {
+        "page": "landing_page",
+        "url": "http://localhost:3000",
+        "status": "COMPLETED",
+        "total_text_elements": 20,
+        "contrast_issues": 0,
+        "issues": [],
+        "contrast_score": 100
+      },
+      "screen_reader_support": {
+        "page": "landing_page",
+        "url": "http://localhost:3000",
+        "status": "COMPLETED",
+        "aria_elements": 21,
+        "semantic_elements": 39,
+        "total_images": 0,
+        "images_with_alt": 0,
+        "alt_text_coverage": 0.0,
+        "total_form_inputs": 0,
+        "labeled_inputs": 0,
+        "label_coverage": 0.0,
+        "skip_links": 1,
+        "heading_hierarchy_issues": 1,
+        "hierarchy_issues": [
+          "Jump from h1 to h3"
+        ],
+        "screen_reader_score": 58
+      },
+      "focus_management": {
+        "page": "landing_page",
+        "url": "http://localhost:3000",
+        "status": "COMPLETED",
+        "total_focusable_elements": 27,
+        "elements_with_focus_indicators": 4,
+        "focus_indicator_coverage": 40.0,
+        "modal_focus_trap": false,
+        "focus_management_score": 40.0
+      },
+      "overall_score": 61.01798941798942
+    },
+    "settings_page": {
+      "axe_tests": {
+        "page": "settings_page",
+        "url": "http://localhost:3000/settings",
+        "status": "COMPLETED",
+        "total_checks": 35,
+        "passes": 31,
+        "violations": 3,
+        "incomplete": 1,
+        "pass_rate": 88.57142857142857,
+        "violations_by_severity": {
+          "critical": 0,
+          "serious": 0,
+          "moderate": 3,
+          "minor": 0
+        },
+        "critical_violations": [],
+        "serious_violations": [],
+        "moderate_violations": [
+          {
+            "description": "Ensures the order of headings is semantically correct",
+            "help": "Heading levels should only increase by one",
+            "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/heading-order?application=axeAPI",
+            "id": "heading-order",
+            "impact": "moderate",
+            "nodes": [
+              {
+                "all": [],
+                "any": [
+                  {
+                    "data": null,
+                    "id": "heading-order",
+                    "impact": "moderate",
+                    "message": "Heading order invalid",
+                    "relatedNodes": []
+                  }
+                ],
+                "failureSummary": "Fix any of the following:\n  Heading order invalid",
+                "html": "<h3 class=\"text-white font-bold text-base sm:text-lg\">Mingus</h3>",
+                "impact": "moderate",
+                "none": [],
+                "target": [
+                  ".justify-between.items-center.flex > .sm\\:text-lg.text-base"
+                ]
+              }
+            ],
+            "tags": [
+              "cat.semantics",
+              "best-practice"
+            ]
+          },
+          {
+            "description": "Ensures the document has a main landmark",
+            "help": "Document should have one main landmark",
+            "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/landmark-one-main?application=axeAPI",
+            "id": "landmark-one-main",
+            "impact": "moderate",
+            "nodes": [
+              {
+                "all": [
+                  {
+                    "data": null,
+                    "id": "page-has-main",
+                    "impact": "moderate",
+                    "message": "Document does not have a main landmark",
+                    "relatedNodes": []
+                  }
+                ],
+                "any": [],
+                "failureSummary": "Fix all of the following:\n  Document does not have a main landmark",
+                "html": "<html lang=\"en\">",
+                "impact": "moderate",
+                "none": [],
+                "target": [
+                  "html"
+                ]
+              }
+            ],
+            "tags": [
+              "cat.semantics",
+              "best-practice"
+            ]
+          },
+          {
+            "description": "Ensures all page content is contained by landmarks",
+            "help": "All page content should be contained by landmarks",
+            "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/region?application=axeAPI",
+            "id": "region",
+            "impact": "moderate",
+            "nodes": [
+              {
+                "all": [],
+                "any": [
+                  {
+                    "data": {
+                      "isIframe": false
+                    },
+                    "id": "region",
+                    "impact": "moderate",
+                    "message": "Some page content is not contained by landmarks",
+                    "relatedNodes": []
+                  }
+                ],
+                "failureSummary": "Fix any of the following:\n  Some page content is not contained by landmarks",
+                "html": "<div class=\"fixed top-4 right-4 bg-black/80 text-white p-4 rounded-lg z-50 text-sm\"><div class=\"font-bold mb-2\">Responsive Test</div><div>Breakpoint: Desktop (\u22651025px)</div><div>Size: 1920 \u00d7 941</div></div>",
+                "impact": "moderate",
+                "none": [],
+                "target": [
+                  ".top-4"
+                ]
+              },
+              {
+                "all": [],
+                "any": [
+                  {
+                    "data": {
+                      "isIframe": false
+                    },
+                    "id": "region",
+                    "impact": "moderate",
+                    "message": "Some page content is not contained by landmarks",
+                    "relatedNodes": []
+                  }
+                ],
+                "failureSummary": "Fix any of the following:\n  Some page content is not contained by landmarks",
+                "html": "<a href=\"#navigation\" class=\"sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-32 bg-violet-600 text-white px-4 py-2 rounded-lg z-50\">Skip to navigation</a>",
+                "impact": "moderate",
+                "none": [],
+                "target": [
+                  ".focus\\:left-32"
+                ]
+              }
+            ],
+            "tags": [
+              "cat.keyboard",
+              "best-practice"
+            ]
+          }
+        ],
+        "minor_violations": [],
+        "all_violations": [
+          {
+            "description": "Ensures the order of headings is semantically correct",
+            "help": "Heading levels should only increase by one",
+            "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/heading-order?application=axeAPI",
+            "id": "heading-order",
+            "impact": "moderate",
+            "nodes": [
+              {
+                "all": [],
+                "any": [
+                  {
+                    "data": null,
+                    "id": "heading-order",
+                    "impact": "moderate",
+                    "message": "Heading order invalid",
+                    "relatedNodes": []
+                  }
+                ],
+                "failureSummary": "Fix any of the following:\n  Heading order invalid",
+                "html": "<h3 class=\"text-white font-bold text-base sm:text-lg\">Mingus</h3>",
+                "impact": "moderate",
+                "none": [],
+                "target": [
+                  ".justify-between.items-center.flex > .sm\\:text-lg.text-base"
+                ]
+              }
+            ],
+            "tags": [
+              "cat.semantics",
+              "best-practice"
+            ]
+          },
+          {
+            "description": "Ensures the document has a main landmark",
+            "help": "Document should have one main landmark",
+            "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/landmark-one-main?application=axeAPI",
+            "id": "landmark-one-main",
+            "impact": "moderate",
+            "nodes": [
+              {
+                "all": [
+                  {
+                    "data": null,
+                    "id": "page-has-main",
+                    "impact": "moderate",
+                    "message": "Document does not have a main landmark",
+                    "relatedNodes": []
+                  }
+                ],
+                "any": [],
+                "failureSummary": "Fix all of the following:\n  Document does not have a main landmark",
+                "html": "<html lang=\"en\">",
+                "impact": "moderate",
+                "none": [],
+                "target": [
+                  "html"
+                ]
+              }
+            ],
+            "tags": [
+              "cat.semantics",
+              "best-practice"
+            ]
+          },
+          {
+            "description": "Ensures all page content is contained by landmarks",
+            "help": "All page content should be contained by landmarks",
+            "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/region?application=axeAPI",
+            "id": "region",
+            "impact": "moderate",
+            "nodes": [
+              {
+                "all": [],
+                "any": [
+                  {
+                    "data": {
+                      "isIframe": false
+                    },
+                    "id": "region",
+                    "impact": "moderate",
+                    "message": "Some page content is not contained by landmarks",
+                    "relatedNodes": []
+                  }
+                ],
+                "failureSummary": "Fix any of the following:\n  Some page content is not contained by landmarks",
+                "html": "<div class=\"fixed top-4 right-4 bg-black/80 text-white p-4 rounded-lg z-50 text-sm\"><div class=\"font-bold mb-2\">Responsive Test</div><div>Breakpoint: Desktop (\u22651025px)</div><div>Size: 1920 \u00d7 941</div></div>",
+                "impact": "moderate",
+                "none": [],
+                "target": [
+                  ".top-4"
+                ]
+              },
+              {
+                "all": [],
+                "any": [
+                  {
+                    "data": {
+                      "isIframe": false
+                    },
+                    "id": "region",
+                    "impact": "moderate",
+                    "message": "Some page content is not contained by landmarks",
+                    "relatedNodes": []
+                  }
+                ],
+                "failureSummary": "Fix any of the following:\n  Some page content is not contained by landmarks",
+                "html": "<a href=\"#navigation\" class=\"sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-32 bg-violet-600 text-white px-4 py-2 rounded-lg z-50\">Skip to navigation</a>",
+                "impact": "moderate",
+                "none": [],
+                "target": [
+                  ".focus\\:left-32"
+                ]
+              }
+            ],
+            "tags": [
+              "cat.keyboard",
+              "best-practice"
+            ]
+          }
+        ]
+      },
+      "keyboard_navigation": {
+        "page": "settings_page",
+        "url": "http://localhost:3000/settings",
+        "status": "COMPLETED",
+        "total_focusable_elements": 27,
+        "tab_order_tested": 5,
+        "tab_order": [
+          {
+            "index": 1,
+            "tag": "a",
+            "text": "Skip to navigation",
+            "accessible_name": "Skip to navigation"
+          },
+          {
+            "index": 2,
+            "tag": "button",
+            "text": "Features",
+            "accessible_name": "Features"
+          },
+          {
+            "index": 3,
+            "tag": "button",
+            "text": "Pricing",
+            "accessible_name": "Pricing"
+          },
+          {
+            "index": 4,
+            "tag": "button",
+            "text": "FAQ",
+            "accessible_name": "FAQ"
+          },
+          {
+            "index": 5,
+            "tag": "button",
+            "text": "Get Started",
+            "accessible_name": "Get Started"
+          }
+        ],
+        "enter_activations": 5,
+        "escape_works": true,
+        "keyboard_score": 18.51851851851852
+      },
+      "color_contrast": {
+        "page": "settings_page",
+        "url": "http://localhost:3000/settings",
+        "status": "COMPLETED",
+        "total_text_elements": 20,
+        "contrast_issues": 0,
+        "issues": [],
+        "contrast_score": 100
+      },
+      "screen_reader_support": {
+        "page": "settings_page",
+        "url": "http://localhost:3000/settings",
+        "status": "COMPLETED",
+        "aria_elements": 21,
+        "semantic_elements": 39,
+        "total_images": 0,
+        "images_with_alt": 0,
+        "alt_text_coverage": 0.0,
+        "total_form_inputs": 0,
+        "labeled_inputs": 0,
+        "label_coverage": 0.0,
+        "skip_links": 1,
+        "heading_hierarchy_issues": 1,
+        "hierarchy_issues": [
+          "Jump from h1 to h3"
+        ],
+        "screen_reader_score": 58
+      },
+      "focus_management": {
+        "page": "settings_page",
+        "url": "http://localhost:3000/settings",
+        "status": "COMPLETED",
+        "total_focusable_elements": 27,
+        "elements_with_focus_indicators": 4,
+        "focus_indicator_coverage": 40.0,
+        "modal_focus_trap": false,
+        "focus_management_score": 40.0
+      },
+      "overall_score": 61.01798941798942
+    },
+    "dashboard": {
+      "axe_tests": {
+        "page": "dashboard",
+        "url": "http://localhost:3000/dashboard",
+        "status": "COMPLETED",
+        "total_checks": 35,
+        "passes": 31,
+        "violations": 3,
+        "incomplete": 1,
+        "pass_rate": 88.57142857142857,
+        "violations_by_severity": {
+          "critical": 0,
+          "serious": 0,
+          "moderate": 3,
+          "minor": 0
+        },
+        "critical_violations": [],
+        "serious_violations": [],
+        "moderate_violations": [
+          {
+            "description": "Ensures the order of headings is semantically correct",
+            "help": "Heading levels should only increase by one",
+            "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/heading-order?application=axeAPI",
+            "id": "heading-order",
+            "impact": "moderate",
+            "nodes": [
+              {
+                "all": [],
+                "any": [
+                  {
+                    "data": null,
+                    "id": "heading-order",
+                    "impact": "moderate",
+                    "message": "Heading order invalid",
+                    "relatedNodes": []
+                  }
+                ],
+                "failureSummary": "Fix any of the following:\n  Heading order invalid",
+                "html": "<h3 class=\"text-white font-bold text-base sm:text-lg\">Mingus</h3>",
+                "impact": "moderate",
+                "none": [],
+                "target": [
+                  ".justify-between.items-center.flex > .sm\\:text-lg.text-base"
+                ]
+              }
+            ],
+            "tags": [
+              "cat.semantics",
+              "best-practice"
+            ]
+          },
+          {
+            "description": "Ensures the document has a main landmark",
+            "help": "Document should have one main landmark",
+            "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/landmark-one-main?application=axeAPI",
+            "id": "landmark-one-main",
+            "impact": "moderate",
+            "nodes": [
+              {
+                "all": [
+                  {
+                    "data": null,
+                    "id": "page-has-main",
+                    "impact": "moderate",
+                    "message": "Document does not have a main landmark",
+                    "relatedNodes": []
+                  }
+                ],
+                "any": [],
+                "failureSummary": "Fix all of the following:\n  Document does not have a main landmark",
+                "html": "<html lang=\"en\">",
+                "impact": "moderate",
+                "none": [],
+                "target": [
+                  "html"
+                ]
+              }
+            ],
+            "tags": [
+              "cat.semantics",
+              "best-practice"
+            ]
+          },
+          {
+            "description": "Ensures all page content is contained by landmarks",
+            "help": "All page content should be contained by landmarks",
+            "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/region?application=axeAPI",
+            "id": "region",
+            "impact": "moderate",
+            "nodes": [
+              {
+                "all": [],
+                "any": [
+                  {
+                    "data": {
+                      "isIframe": false
+                    },
+                    "id": "region",
+                    "impact": "moderate",
+                    "message": "Some page content is not contained by landmarks",
+                    "relatedNodes": []
+                  }
+                ],
+                "failureSummary": "Fix any of the following:\n  Some page content is not contained by landmarks",
+                "html": "<div class=\"fixed top-4 right-4 bg-black/80 text-white p-4 rounded-lg z-50 text-sm\"><div class=\"font-bold mb-2\">Responsive Test</div><div>Breakpoint: Desktop (\u22651025px)</div><div>Size: 1920 \u00d7 941</div></div>",
+                "impact": "moderate",
+                "none": [],
+                "target": [
+                  ".top-4"
+                ]
+              },
+              {
+                "all": [],
+                "any": [
+                  {
+                    "data": {
+                      "isIframe": false
+                    },
+                    "id": "region",
+                    "impact": "moderate",
+                    "message": "Some page content is not contained by landmarks",
+                    "relatedNodes": []
+                  }
+                ],
+                "failureSummary": "Fix any of the following:\n  Some page content is not contained by landmarks",
+                "html": "<a href=\"#navigation\" class=\"sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-32 bg-violet-600 text-white px-4 py-2 rounded-lg z-50\">Skip to navigation</a>",
+                "impact": "moderate",
+                "none": [],
+                "target": [
+                  ".focus\\:left-32"
+                ]
+              }
+            ],
+            "tags": [
+              "cat.keyboard",
+              "best-practice"
+            ]
+          }
+        ],
+        "minor_violations": [],
+        "all_violations": [
+          {
+            "description": "Ensures the order of headings is semantically correct",
+            "help": "Heading levels should only increase by one",
+            "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/heading-order?application=axeAPI",
+            "id": "heading-order",
+            "impact": "moderate",
+            "nodes": [
+              {
+                "all": [],
+                "any": [
+                  {
+                    "data": null,
+                    "id": "heading-order",
+                    "impact": "moderate",
+                    "message": "Heading order invalid",
+                    "relatedNodes": []
+                  }
+                ],
+                "failureSummary": "Fix any of the following:\n  Heading order invalid",
+                "html": "<h3 class=\"text-white font-bold text-base sm:text-lg\">Mingus</h3>",
+                "impact": "moderate",
+                "none": [],
+                "target": [
+                  ".justify-between.items-center.flex > .sm\\:text-lg.text-base"
+                ]
+              }
+            ],
+            "tags": [
+              "cat.semantics",
+              "best-practice"
+            ]
+          },
+          {
+            "description": "Ensures the document has a main landmark",
+            "help": "Document should have one main landmark",
+            "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/landmark-one-main?application=axeAPI",
+            "id": "landmark-one-main",
+            "impact": "moderate",
+            "nodes": [
+              {
+                "all": [
+                  {
+                    "data": null,
+                    "id": "page-has-main",
+                    "impact": "moderate",
+                    "message": "Document does not have a main landmark",
+                    "relatedNodes": []
+                  }
+                ],
+                "any": [],
+                "failureSummary": "Fix all of the following:\n  Document does not have a main landmark",
+                "html": "<html lang=\"en\">",
+                "impact": "moderate",
+                "none": [],
+                "target": [
+                  "html"
+                ]
+              }
+            ],
+            "tags": [
+              "cat.semantics",
+              "best-practice"
+            ]
+          },
+          {
+            "description": "Ensures all page content is contained by landmarks",
+            "help": "All page content should be contained by landmarks",
+            "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/region?application=axeAPI",
+            "id": "region",
+            "impact": "moderate",
+            "nodes": [
+              {
+                "all": [],
+                "any": [
+                  {
+                    "data": {
+                      "isIframe": false
+                    },
+                    "id": "region",
+                    "impact": "moderate",
+                    "message": "Some page content is not contained by landmarks",
+                    "relatedNodes": []
+                  }
+                ],
+                "failureSummary": "Fix any of the following:\n  Some page content is not contained by landmarks",
+                "html": "<div class=\"fixed top-4 right-4 bg-black/80 text-white p-4 rounded-lg z-50 text-sm\"><div class=\"font-bold mb-2\">Responsive Test</div><div>Breakpoint: Desktop (\u22651025px)</div><div>Size: 1920 \u00d7 941</div></div>",
+                "impact": "moderate",
+                "none": [],
+                "target": [
+                  ".top-4"
+                ]
+              },
+              {
+                "all": [],
+                "any": [
+                  {
+                    "data": {
+                      "isIframe": false
+                    },
+                    "id": "region",
+                    "impact": "moderate",
+                    "message": "Some page content is not contained by landmarks",
+                    "relatedNodes": []
+                  }
+                ],
+                "failureSummary": "Fix any of the following:\n  Some page content is not contained by landmarks",
+                "html": "<a href=\"#navigation\" class=\"sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-32 bg-violet-600 text-white px-4 py-2 rounded-lg z-50\">Skip to navigation</a>",
+                "impact": "moderate",
+                "none": [],
+                "target": [
+                  ".focus\\:left-32"
+                ]
+              }
+            ],
+            "tags": [
+              "cat.keyboard",
+              "best-practice"
+            ]
+          }
+        ]
+      },
+      "keyboard_navigation": {
+        "page": "dashboard",
+        "url": "http://localhost:3000/dashboard",
+        "status": "COMPLETED",
+        "total_focusable_elements": 27,
+        "tab_order_tested": 5,
+        "tab_order": [
+          {
+            "index": 1,
+            "tag": "a",
+            "text": "Skip to navigation",
+            "accessible_name": "Skip to navigation"
+          },
+          {
+            "index": 2,
+            "tag": "button",
+            "text": "Features",
+            "accessible_name": "Features"
+          },
+          {
+            "index": 3,
+            "tag": "button",
+            "text": "Pricing",
+            "accessible_name": "Pricing"
+          },
+          {
+            "index": 4,
+            "tag": "button",
+            "text": "FAQ",
+            "accessible_name": "FAQ"
+          },
+          {
+            "index": 5,
+            "tag": "button",
+            "text": "Get Started",
+            "accessible_name": "Get Started"
+          }
+        ],
+        "enter_activations": 5,
+        "escape_works": true,
+        "keyboard_score": 18.51851851851852
+      },
+      "color_contrast": {
+        "page": "dashboard",
+        "url": "http://localhost:3000/dashboard",
+        "status": "COMPLETED",
+        "total_text_elements": 20,
+        "contrast_issues": 0,
+        "issues": [],
+        "contrast_score": 100
+      },
+      "screen_reader_support": {
+        "page": "dashboard",
+        "url": "http://localhost:3000/dashboard",
+        "status": "COMPLETED",
+        "aria_elements": 21,
+        "semantic_elements": 39,
+        "total_images": 0,
+        "images_with_alt": 0,
+        "alt_text_coverage": 0.0,
+        "total_form_inputs": 0,
+        "labeled_inputs": 0,
+        "label_coverage": 0.0,
+        "skip_links": 1,
+        "heading_hierarchy_issues": 1,
+        "hierarchy_issues": [
+          "Jump from h1 to h3"
+        ],
+        "screen_reader_score": 58
+      },
+      "focus_management": {
+        "page": "dashboard",
+        "url": "http://localhost:3000/dashboard",
+        "status": "COMPLETED",
+        "total_focusable_elements": 27,
+        "elements_with_focus_indicators": 4,
+        "focus_indicator_coverage": 40.0,
+        "modal_focus_trap": false,
+        "focus_management_score": 40.0
+      },
+      "overall_score": 61.01798941798942
+    }
+  },
+  "summary": {
+    "total_pages": 3,
+    "pages_passed": 0,
+    "pages_failed": 3,
+    "overall_score": 61.01798941798942
+  }
+}

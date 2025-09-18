@@ -65,7 +65,7 @@ class MemeErrorBoundary extends React.Component<
             <p className="text-gray-300 mb-4">Unable to load meme content</p>
             <button
               onClick={() => this.setState({ hasError: false })}
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              className="px-6 py-2 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-lg hover:from-violet-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 focus:ring-offset-gray-900"
             >
               Try Again
             </button>
@@ -93,34 +93,36 @@ const MoodSelector: React.FC<{
   ];
 
   return (
-    <div className="mb-6">
-      <p className="text-center text-white text-sm mb-4">
+    <fieldset className="mb-6">
+      <legend className="text-center text-white text-sm mb-4 font-medium">
         How does this make you feel?
-      </p>
+      </legend>
       <div className="flex justify-center space-x-3">
         {moods.map((mood) => (
           <button
             key={mood.label}
             onClick={() => !disabled && onMoodSelect(mood.label)}
             disabled={disabled}
-            className={`w-12 h-12 rounded-full flex items-center justify-center text-2xl transition-all duration-200 ${
+            className={`w-12 h-12 rounded-full flex items-center justify-center text-2xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 focus:ring-offset-gray-900 ${
               selectedMood === mood.label 
                 ? `${mood.color} scale-110 shadow-lg ring-2 ring-white` 
                 : 'bg-gray-700 hover:bg-gray-600'
             } ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
             aria-label={`Select ${mood.label} mood: ${mood.description}`}
             title={`${mood.label}: ${mood.description}`}
+            aria-describedby="mood-help"
           >
             {mood.emoji}
           </button>
         ))}
       </div>
-      {selectedMood && (
-        <p className="text-center text-gray-300 text-xs mt-2">
-          {moods.find(m => m.label === selectedMood)?.description}
-        </p>
-      )}
-    </div>
+      <p id="mood-help" className="text-center text-gray-300 text-xs mt-2">
+        {selectedMood ? 
+          moods.find(m => m.label === selectedMood)?.description :
+          'Select the emoji that best represents how this meme makes you feel'
+        }
+      </p>
+    </fieldset>
   );
 };
 
@@ -401,13 +403,13 @@ const MemeSplashPage: React.FC<MemeSplashPageProps> = ({
           <div className="space-y-3">
             <button
               onClick={fetchMeme}
-              className="w-full px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900"
+              className="w-full px-6 py-3 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-lg hover:from-violet-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 focus:ring-offset-gray-900"
             >
               Try Again
             </button>
             <button
               onClick={onSkip}
-              className="w-full px-6 py-3 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-gray-900"
+              className="w-full px-6 py-3 bg-slate-700 text-white rounded-lg hover:bg-slate-600 transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 focus:ring-offset-gray-900"
             >
               Skip This Feature
             </button>
@@ -431,7 +433,7 @@ const MemeSplashPage: React.FC<MemeSplashPageProps> = ({
         <div className="relative mb-6">
           <img
             src={meme?.image_url}
-            alt={meme?.alt_text || 'Meme image'}
+            alt={meme?.alt_text ? `Meme showing ${meme.alt_text} for ${selectedMood || 'current'} mood` : `Meme image for ${selectedMood || 'current'} mood`}
             className="w-full h-64 object-cover rounded-lg shadow-lg"
             onError={(e) => {
               console.error('Image failed to load:', meme?.image_url);
@@ -467,7 +469,7 @@ const MemeSplashPage: React.FC<MemeSplashPageProps> = ({
         <div className="space-y-4">
           <button
             onClick={handleContinue}
-            className="w-full px-6 py-4 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900 transition-all duration-200 transform hover:scale-105 active:scale-95"
+            className="w-full px-6 py-4 bg-gradient-to-r from-violet-600 to-purple-600 text-white font-semibold rounded-lg hover:from-violet-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 focus:ring-offset-gray-900 transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-violet-500/25"
             aria-label="Continue to dashboard"
           >
             Continue to Dashboard

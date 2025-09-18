@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unlock Your Career Potential - Mingus</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../static/css/mingus-referral-system.css">
+    <style>
+        /* Additional styles specific to career preview */
+        .preview-card {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .locked-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(17, 24, 39, 0.85);
+            backdrop-filter: blur(8px);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+            transition: all 0.3s ease;
+        }
+        
+        .locked-overlay:hover {
+            background: rgba(17, 24, 39, 0.75);
+        }
+        
+        .unlock-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #8b5cf6, #a855f7);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .success-story {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(168, 85, 247, 0.1));
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 16px 0;
+        }
+        
+        .value-calculator {
+            background: linear-gradient(135deg, #1f2937, #374151);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 16px;
+            padding: 24px;
+            margin: 24px 0;
+        }
+        
+        .progress-ring {
+            transform: rotate(-90deg);
+        }
+        
+        .progress-ring-circle {
+            stroke-dasharray: 251.2;
+            stroke-dashoffset: 251.2;
+            transition: stroke-dashoffset 0.5s ease-in-out;
+        }
+    </style>
+</head>
+<body>
+    <!-- Skip Links for Accessibility -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    <a href="#referral-progress" class="skip-link">Skip to referral progress</a>
+    
+    <!-- Header -->
+    <header class="header" role="banner">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <div class="logo-icon">M</div>
+                    <span class="logo-text">Mingus</span>
+                </div>
+                <nav class="nav" role="navigation" aria-label="Main navigation">
+                    <a href="#" class="nav-link">Dashboard</a>
+                    <a href="#" class="nav-link">Features</a>
+                    <a href="#" class="nav-link">Pricing</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main id="main-content" role="main">
+        <!-- Hero Section -->
+        <section class="hero-section" aria-label="Career preview hero">
+            <div class="container">
+                <div class="hero-content">
+                    <div class="hero-text">
+                        <h1 class="hero-title">
+                            Unlock Your
+                            <span class="gradient-text">Career Potential</span>
+                        </h1>
+                        <p class="hero-description">
+                            Get personalized job recommendations with location-based insights, 
+                            salary analysis, and application strategies tailored for African American professionals.
+                        </p>
+                        
+                        <!-- Referral Progress -->
+                        <div id="referral-progress" class="referral-progress" role="region" aria-label="Referral progress">
+                            <div class="progress-header">
+                                <h2 class="progress-title">Unlock Premium Features</h2>
+                                <p class="progress-subtitle">Refer 3 friends to access location-based job recommendations</p>
+                            </div>
+                            
+                            <div class="progress-container">
+                                <div class="progress-ring">
+                                    <svg width="80" height="80" class="progress-svg">
+                                        <circle cx="40" cy="40" r="36" stroke="rgba(139, 92, 246, 0.2)" stroke-width="8" fill="none"/>
+                                        <circle cx="40" cy="40" r="36" stroke="url(#gradient)" stroke-width="8" fill="none" 
+                                                class="progress-ring-circle" stroke-linecap="round"/>
+                                        <defs>
+                                            <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                                <stop offset="0%" style="stop-color:#8b5cf6"/>
+                                                <stop offset="100%" style="stop-color:#a855f7"/>
+                                            </linearGradient>
+                                        </defs>
+                                    </svg>
+                                    <div class="progress-text">
+                                        <span class="progress-current" id="current-referrals">0</span>
+                                        <span class="progress-separator">/</span>
+                                        <span class="progress-total">3</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="progress-details">
+                                    <div class="progress-item">
+                                        <div class="progress-icon completed" id="referral-1">✓</div>
+                                        <span class="progress-label">First referral</span>
+                                    </div>
+                                    <div class="progress-item">
+                                        <div class="progress-icon" id="referral-2">2</div>
+                                        <span class="progress-label">Second referral</span>
+                                    </div>
+                                    <div class="progress-item">
+                                        <div class="progress-icon" id="referral-3">3</div>
+                                        <span class="progress-label">Third referral</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Preview Cards -->
+                    <div class="preview-cards">
+                        <!-- Job Recommendations Preview -->
+                        <div class="preview-card">
+                            <div class="card-header">
+                                <h3 class="card-title">Personalized Job Recommendations</h3>
+                                <div class="card-badge locked">Locked</div>
+                            </div>
+                            <div class="card-content">
+                                <div class="job-preview">
+                                    <div class="job-item">
+                                        <div class="job-company">TechCorp Solutions</div>
+                                        <div class="job-title">Senior Software Engineer</div>
+                                        <div class="job-location">📍 San Francisco, CA</div>
+                                        <div class="job-salary">$120k - $150k</div>
+                                        <div class="job-match">95% Match</div>
+                                    </div>
+                                    <div class="job-item">
+                                        <div class="job-company">InnovateLab</div>
+                                        <div class="job-title">Product Manager</div>
+                                        <div class="job-location">📍 Austin, TX</div>
+                                        <div class="job-salary">$110k - $140k</div>
+                                        <div class="job-match">88% Match</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="locked-overlay">
+                                <div class="unlock-icon">🔒</div>
+                                <h4 class="unlock-title">Unlock with 3 Referrals</h4>
+                                <p class="unlock-description">Get personalized job recommendations based on your skills and location preferences</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Location Analysis Preview -->
+                        <div class="preview-card">
+                            <div class="card-header">
+                                <h3 class="card-title">Location-Based Analysis</h3>
+                                <div class="card-badge locked">Locked</div>
+                            </div>
+                            <div class="card-content">
+                                <div class="location-preview">
+                                    <div class="location-map">
+                                        <div class="map-placeholder">🗺️ Interactive Map</div>
+                                    </div>
+                                    <div class="location-stats">
+                                        <div class="stat-item">
+                                            <span class="stat-label">Jobs in 10mi radius</span>
+                                            <span class="stat-value">47</span>
+                                        </div>
+                                        <div class="stat-item">
+                                            <span class="stat-label">Avg. commute time</span>
+                                            <span class="stat-value">25 min</span>
+                                        </div>
+                                        <div class="stat-item">
+                                            <span class="stat-label">Cost of living</span>
+                                            <span class="stat-value">+15%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="locked-overlay">
+                                <div class="unlock-icon">🔒</div>
+                                <h4 class="unlock-title">Location Intelligence</h4>
+                                <p class="unlock-description">See job opportunities within your preferred radius with commute analysis</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Salary Analysis Preview -->
+                        <div class="preview-card">
+                            <div class="card-header">
+                                <h3 class="card-title">Salary & Cost of Living</h3>
+                                <div class="card-badge locked">Locked</div>
+                            </div>
+                            <div class="card-content">
+                                <div class="salary-preview">
+                                    <div class="salary-chart">
+                                        <div class="chart-bar" style="height: 60%"></div>
+                                        <div class="chart-bar" style="height: 80%"></div>
+                                        <div class="chart-bar" style="height: 45%"></div>
+                                        <div class="chart-bar" style="height: 90%"></div>
+                                    </div>
+                                    <div class="salary-comparison">
+                                        <div class="comparison-item">
+                                            <span class="comparison-label">Your current</span>
+                                            <span class="comparison-value">$85k</span>
+                                        </div>
+                                        <div class="comparison-item">
+                                            <span class="comparison-label">Market average</span>
+                                            <span class="comparison-value">$95k</span>
+                                        </div>
+                                        <div class="comparison-item highlight">
+                                            <span class="comparison-label">Potential increase</span>
+                                            <span class="comparison-value">+$10k</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="locked-overlay">
+                                <div class="unlock-icon">🔒</div>
+                                <h4 class="unlock-title">Salary Intelligence</h4>
+                                <p class="unlock-description">Compare salaries adjusted for cost of living in your area</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Value Proposition Section -->
+        <section class="value-section" aria-label="Value proposition">
+            <div class="container">
+                <div class="value-content">
+                    <h2 class="section-title">Why Unlock Premium Features?</h2>
+                    
+                    <!-- Value Calculator -->
+                    <div class="value-calculator">
+                        <h3 class="calculator-title">Calculate Your Potential Value</h3>
+                        <div class="calculator-content">
+                            <div class="input-group">
+                                <label for="current-salary" class="input-label">Current Annual Salary</label>
+                                <input type="number" id="current-salary" class="input-field" placeholder="85000" value="85000">
+                            </div>
+                            <div class="input-group">
+                                <label for="location" class="input-label">Location</label>
+                                <select id="location" class="input-field">
+                                    <option value="sf">San Francisco, CA</option>
+                                    <option value="nyc">New York, NY</option>
+                                    <option value="austin">Austin, TX</option>
+                                    <option value="atlanta">Atlanta, GA</option>
+                                </select>
+                            </div>
+                            <div class="calculation-result">
+                                <div class="result-item">
+                                    <span class="result-label">Potential Salary Increase</span>
+                                    <span class="result-value" id="salary-increase">+$15,000</span>
+                                </div>
+                                <div class="result-item">
+                                    <span class="result-label">Cost of Living Adjustment</span>
+                                    <span class="result-value" id="col-adjustment">+$8,500</span>
+                                </div>
+                                <div class="result-item highlight">
+                                    <span class="result-label">Total Annual Value</span>
+                                    <span class="result-value" id="total-value">+$23,500</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Success Stories -->
+                    <div class="success-stories">
+                        <h3 class="stories-title">Success Stories</h3>
+                        <div class="stories-grid">
+                            <div class="success-story">
+                                <div class="story-header">
+                                    <div class="story-avatar">M</div>
+                                    <div class="story-info">
+                                        <div class="story-name">Marcus Johnson</div>
+                                        <div class="story-role">Software Engineer</div>
+                                    </div>
+                                </div>
+                                <p class="story-text">
+                                    "Mingus helped me find a job 15 minutes from home with a $20k salary increase. 
+                                    The location analysis was spot-on!"
+                                </p>
+                                <div class="story-metrics">
+                                    <span class="metric">+$20k salary</span>
+                                    <span class="metric">15min commute</span>
+                                </div>
+                            </div>
+                            
+                            <div class="success-story">
+                                <div class="story-header">
+                                    <div class="story-avatar">S</div>
+                                    <div class="story-info">
+                                        <div class="story-name">Sarah Williams</div>
+                                        <div class="story-role">Product Manager</div>
+                                    </div>
+                                </div>
+                                <p class="story-text">
+                                    "The cost of living adjustments helped me negotiate better. 
+                                    I'm now earning 30% more in a lower-cost area."
+                                </p>
+                                <div class="story-metrics">
+                                    <span class="metric">+30% salary</span>
+                                    <span class="metric">Lower COL</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Call to Action Section -->
+        <section class="cta-section" aria-label="Call to action">
+            <div class="container">
+                <div class="cta-content">
+                    <h2 class="cta-title">Ready to Unlock Your Career Potential?</h2>
+                    <p class="cta-description">
+                        Refer 3 friends to access personalized job recommendations, location analysis, 
+                        and salary insights tailored for Black professionals.
+                    </p>
+                    
+                    <div class="cta-buttons">
+                        <button class="btn btn-primary" id="start-referring-btn">
+                            Start Referring Friends
+                        </button>
+                        <button class="btn btn-secondary" id="learn-more-btn">
+                            Learn More
+                        </button>
+                    </div>
+                    
+                    <div class="cta-features">
+                        <div class="feature-item">
+                            <div class="feature-icon">✓</div>
+                            <span>Free to use</span>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">✓</div>
+                            <span>No credit card required</span>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">✓</div>
+                            <span>Instant unlock after 3 referrals</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer" role="contentinfo">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <div class="logo-icon">M</div>
+                    <span class="logo-text">Mingus</span>
+                </div>
+                <p class="footer-text">Empowering Black professionals to build generational wealth</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="../static/js/mingus-referral-system.js"></script>
+    <script>
+        // Initialize career preview page
+        document.addEventListener('DOMContentLoaded', function() {
+            const referralSystem = new MingusReferralSystem();
+            referralSystem.initCareerPreview();
+            
+            // Update progress based on current referrals
+            const currentReferrals = parseInt(localStorage.getItem('mingus_referrals') || '0');
+            referralSystem.updateProgress(currentReferrals);
+            
+            // Initialize value calculator
+            const calculator = new ValueCalculator();
+            calculator.init();
+        });
+    </script>
+</body>
+</html>

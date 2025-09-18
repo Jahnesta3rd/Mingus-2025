@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assessment Modal Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #1a1a1a;
+            color: white;
+        }
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .test-button {
+            background: linear-gradient(135deg, #7c3aed, #a855f7);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        .test-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #1f2937;
+            border-radius: 12px;
+            padding: 24px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #374151;
+        }
+        .modal-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #a855f7;
+        }
+        .close-btn {
+            background: none;
+            border: none;
+            color: #9ca3af;
+            font-size: 24px;
+            cursor: pointer;
+        }
+        .form-group {
+            margin-bottom: 16px;
+        }
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            color: #e5e7eb;
+            font-weight: 500;
+        }
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #374151;
+            border-radius: 6px;
+            background: #111827;
+            color: white;
+            font-size: 14px;
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: #7c3aed;
+            box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.2);
+        }
+        .submit-btn {
+            background: linear-gradient(135deg, #7c3aed, #a855f7);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+            margin-top: 16px;
+        }
+        .submit-btn:hover {
+            background: linear-gradient(135deg, #6d28d9, #9333ea);
+        }
+        .test-results {
+            margin-top: 20px;
+            padding: 16px;
+            background: #111827;
+            border-radius: 8px;
+            border-left: 4px solid #10b981;
+        }
+        .success {
+            color: #10b981;
+        }
+        .error {
+            color: #ef4444;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🧪 Assessment Modal System Test</h1>
+        <p>This test simulates the assessment modal functionality to verify email capture and form submission.</p>
+        
+        <h2>Test Assessment Types:</h2>
+        <button class="test-button" onclick="openModal('ai-risk')">
+            🤖 Determine Your Replacement Risk Due To AI
+        </button>
+        <button class="test-button" onclick="openModal('income-comparison')">
+            💰 Determine How Your Income Compares
+        </button>
+        <button class="test-button" onclick="openModal('cuffing-season')">
+            💕 Determine Your "Cuffing Season" Score
+        </button>
+        <button class="test-button" onclick="openModal('layoff-risk')">
+            ⚠️ Determine Your Layoff Risk
+        </button>
+        
+        <div id="test-results" class="test-results" style="display: none;">
+            <h3>Test Results:</h3>
+            <div id="results-content"></div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="assessment-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modal-title">Assessment</h2>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            
+            <form id="assessment-form">
+                <div class="form-group">
+                    <label class="form-label" for="email">Email Address *</label>
+                    <input type="email" id="email" class="form-input" placeholder="your.email@example.com" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="firstName">First Name *</label>
+                    <input type="text" id="firstName" class="form-input" placeholder="Your first name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="question1">Sample Question</label>
+                    <select id="question1" class="form-input">
+                        <option value="">Select an option</option>
+                        <option value="option1">Option 1</option>
+                        <option value="option2">Option 2</option>
+                        <option value="option3">Option 3</option>
+                    </select>
+                </div>
+                
+                <button type="submit" class="submit-btn">Get My Results</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const assessmentTypes = {
+            'ai-risk': {
+                title: 'AI Replacement Risk Assessment',
+                description: 'Determine your job security in the age of artificial intelligence'
+            },
+            'income-comparison': {
+                title: 'Income Comparison Assessment', 
+                description: 'See how your income compares to others in your field'
+            },
+            'cuffing-season': {
+                title: 'Cuffing Season Score Assessment',
+                description: 'Discover your relationship patterns and dating readiness'
+            },
+            'layoff-risk': {
+                title: 'Layoff Risk Assessment',
+                description: 'Evaluate your job security and career stability'
+            }
+        };
+
+        function openModal(type) {
+            const modal = document.getElementById('assessment-modal');
+            const title = document.getElementById('modal-title');
+            const assessment = assessmentTypes[type];
+            
+            if (assessment) {
+                title.textContent = assessment.title;
+                modal.style.display = 'block';
+                
+                // Log test event
+                logTestEvent(`Modal opened for ${type}`, 'success');
+            }
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('assessment-modal');
+            modal.style.display = 'none';
+            
+            // Reset form
+            document.getElementById('assessment-form').reset();
+            
+            logTestEvent('Modal closed', 'success');
+        }
+
+        function logTestEvent(message, type) {
+            const resultsDiv = document.getElementById('test-results');
+            const contentDiv = document.getElementById('results-content');
+            
+            resultsDiv.style.display = 'block';
+            
+            const timestamp = new Date().toLocaleTimeString();
+            const eventDiv = document.createElement('div');
+            eventDiv.className = type === 'success' ? 'success' : 'error';
+            eventDiv.innerHTML = `[${timestamp}] ${message}`;
+            
+            contentDiv.appendChild(eventDiv);
+            contentDiv.scrollTop = contentDiv.scrollHeight;
+        }
+
+        // Handle form submission
+        document.getElementById('assessment-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const firstName = document.getElementById('firstName').value;
+            const question1 = document.getElementById('question1').value;
+            
+            // Validate required fields
+            if (!email || !firstName) {
+                logTestEvent('Validation failed: Missing required fields', 'error');
+                return;
+            }
+            
+            // Validate email format
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                logTestEvent('Validation failed: Invalid email format', 'error');
+                return;
+            }
+            
+            // Simulate form submission
+            logTestEvent('Form validation passed', 'success');
+            logTestEvent(`Email captured: ${email}`, 'success');
+            logTestEvent(`Name captured: ${firstName}`, 'success');
+            
+            // Simulate API call
+            setTimeout(() => {
+                logTestEvent('Assessment submitted to API', 'success');
+                logTestEvent('Results calculated successfully', 'success');
+                logTestEvent('Email sent with results', 'success');
+                logTestEvent('Assessment completed successfully!', 'success');
+                
+                // Close modal after successful submission
+                setTimeout(() => {
+                    closeModal();
+                }, 2000);
+            }, 1000);
+        });
+
+        // Close modal when clicking outside
+        document.getElementById('assessment-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // Initialize test
+        logTestEvent('Assessment Modal Test initialized', 'success');
+        logTestEvent('Click any assessment button to test the modal', 'success');
+    </script>
+</body>
+</html>

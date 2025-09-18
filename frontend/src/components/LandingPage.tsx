@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  ArrowRight, 
   Check, 
   Star, 
   Shield, 
@@ -15,7 +14,6 @@ import {
   Activity,
   BarChart3,
   Briefcase,
-  DollarSign,
   TrendingDown,
   Zap
 } from 'lucide-react';
@@ -217,7 +215,7 @@ const LandingPage: React.FC = () => {
   };
 
   // Enhanced keyboard navigation for assessment buttons
-  const handleAssessmentKeyDown = (e: React.KeyboardEvent, assessmentType: string) => {
+  const handleAssessmentKeyDown = (e: React.KeyboardEvent, assessmentType: 'ai-risk' | 'income-comparison' | 'cuffing-season' | 'layoff-risk') => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
       handleAssessmentClick(assessmentType);
@@ -232,13 +230,6 @@ const LandingPage: React.FC = () => {
     }
   };
 
-  // Enhanced keyboard navigation for section navigation
-  const handleSectionKeyDown = (e: React.KeyboardEvent, sectionId: string) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      scrollToSection(sectionId);
-    }
-  };
 
   const handleButtonClick = (action: string) => {
     setIsLoading(true);
@@ -558,6 +549,43 @@ const LandingPage: React.FC = () => {
         </div>
       </section>
 
+      {/* Risk Assessment Preview Section - Only shows preview, not actual results */}
+      <section className="py-8 px-4 sm:px-6 lg:px-8 bg-gray-900" role="region" aria-label="Career risk assessment preview">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-white">
+              Understand Your Career Risk
+            </h2>
+            <p className="text-xl text-gray-300 max-w-3xl mx-auto mb-8">
+              Get personalized risk assessments and career protection recommendations based on your industry, role, and market conditions.
+            </p>
+            <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-8 text-white">
+              <div className="flex items-center justify-center gap-3 mb-4">
+                <Shield className="h-8 w-8" />
+                <h3 className="text-2xl font-semibold">Risk Assessment Preview</h3>
+              </div>
+              <p className="text-lg mb-6 text-blue-100">
+                Subscribe to unlock your personalized career risk analysis and get actionable recommendations to protect your career.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <button
+                  onClick={() => setActiveAssessment('ai-risk')}
+                  className="bg-white/20 hover:bg-white/30 backdrop-blur-sm border border-white/30 rounded-lg px-6 py-3 text-sm font-semibold transition-all duration-200 hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-white/50"
+                >
+                  Start Free Assessment
+                </button>
+                <button
+                  onClick={() => window.location.href = '/career-dashboard'}
+                  className="bg-white text-blue-600 hover:bg-gray-100 rounded-lg px-6 py-3 text-sm font-semibold transition-all duration-200 hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-white/50"
+                >
+                  View Dashboard
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Assessment Section */}
       <section aria-labelledby="assessments-heading" className="py-20 px-4 sm:px-6 lg:px-8 bg-gray-900" role="region">
         <div className="max-w-7xl mx-auto">
@@ -665,6 +693,65 @@ const LandingPage: React.FC = () => {
         </div>
       </section>
 
+      {/* Job Recommendations Preview Section */}
+      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-white" role="region" aria-label="Job recommendations preview">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-gray-900">
+              Personalized Job Recommendations
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Get three-tier job recommendations based on your risk assessment and career goals.
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {/* Conservative Tier Preview */}
+            <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-6 text-center">
+              <div className="text-blue-600 mb-4">
+                <Shield className="h-8 w-8 mx-auto" />
+              </div>
+              <h3 className="text-lg font-semibold text-blue-600 mb-2">Safe Growth</h3>
+              <p className="text-sm text-gray-600 mb-4">15-20% salary increase, high success probability</p>
+              <div className="text-xs text-gray-500">Subscribe to see your personalized recommendations</div>
+            </div>
+            
+            {/* Optimal Tier Preview */}
+            <div className="bg-purple-50 border-2 border-purple-200 rounded-xl p-6 text-center ring-2 ring-purple-300 shadow-lg">
+              <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                <div className="bg-purple-600 text-white text-xs font-semibold px-3 py-1 rounded-full">
+                  RECOMMENDED
+                </div>
+              </div>
+              <div className="text-purple-600 mb-4">
+                <Target className="h-8 w-8 mx-auto" />
+              </div>
+              <h3 className="text-lg font-semibold text-purple-600 mb-2">Strategic Advance</h3>
+              <p className="text-sm text-gray-600 mb-4">25-30% salary increase, moderate stretch</p>
+              <div className="text-xs text-gray-500">Subscribe to see your personalized recommendations</div>
+            </div>
+            
+            {/* Stretch Tier Preview */}
+            <div className="bg-orange-50 border-2 border-dashed border-orange-200 rounded-xl p-6 text-center">
+              <div className="text-orange-600 mb-4">
+                <Zap className="h-8 w-8 mx-auto" />
+              </div>
+              <h3 className="text-lg font-semibold text-orange-600 mb-2">Ambitious Leap</h3>
+              <p className="text-sm text-gray-600 mb-4">35%+ salary increase, significant growth</p>
+              <div className="text-xs text-gray-500">Subscribe to see your personalized recommendations</div>
+            </div>
+          </div>
+          
+          <div className="text-center mt-8">
+            <button
+              onClick={() => window.location.href = '/career-dashboard'}
+              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3 rounded-lg font-semibold transition-all duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            >
+              View Full Dashboard
+            </button>
+          </div>
+        </div>
+      </section>
 
       {/* Financial Wellness Features Section */}
       <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gray-900" role="region" aria-label="Financial wellness features">

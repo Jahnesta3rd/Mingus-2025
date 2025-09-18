@@ -1,0 +1,37 @@
+# Mingus Personal Finance App - Requirements
+# Core Flask dependencies
+Flask==2.3.3
+Werkzeug==2.3.7
+Jinja2==3.1.2
+MarkupSafe==3.0.2
+itsdangerous==2.2.0
+click==8.2.1
+blinker==1.9.0
+
+# Security dependencies
+flask-cors==4.0.0
+flask-limiter==3.5.0
+cryptography==41.0.7
+python-dotenv==1.0.0
+
+# Database dependencies
+sqlite3
+Flask-SQLAlchemy==3.0.5
+
+# Image processing
+Pillow==10.0.0
+
+# Utilities
+uuid
+datetime
+pathlib
+logging
+json
+os
+sys
+hashlib
+hmac
+secrets
+typing
+re
+time

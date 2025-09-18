@@ -266,13 +266,13 @@ const MemeSettings: React.FC<MemeSettingsProps> = ({
   }
 
   return (
-    <div className={`bg-white rounded-lg shadow-sm border border-gray-200 p-6 ${className}`}>
+    <div className={`bg-slate-800 rounded-lg shadow-lg border border-slate-700 p-6 ${className}`}>
       {/* Header */}
       <div className="mb-6">
-        <h2 className="text-xl font-semibold text-gray-900 mb-2">
+        <h2 className="text-xl font-semibold text-white mb-2">
           Meme Splash Page Settings
         </h2>
-        <p className="text-gray-600 text-sm">
+        <p className="text-slate-300 text-sm">
           Customize your daily meme experience. Choose which categories you'd like to see
           and how often memes should appear.
         </p>
@@ -280,14 +280,14 @@ const MemeSettings: React.FC<MemeSettingsProps> = ({
 
       {/* Success/Error Messages */}
       {success && (
-        <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-md">
-          <p className="text-green-800 text-sm">{success}</p>
+        <div className="mb-4 p-3 bg-emerald-900/20 border border-emerald-600/30 rounded-md">
+          <p className="text-emerald-200 text-sm">{success}</p>
         </div>
       )}
       
       {error && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
-          <p className="text-red-800 text-sm">{error}</p>
+        <div className="mb-4 p-3 bg-red-900/20 border border-red-600/30 rounded-md">
+          <p className="text-red-200 text-sm">{error}</p>
         </div>
       )}
 
@@ -295,22 +295,22 @@ const MemeSettings: React.FC<MemeSettingsProps> = ({
       <div className="mb-6">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-lg font-medium text-gray-900">Enable Daily Memes</h3>
-            <p className="text-gray-600 text-sm">
+            <h3 className="text-lg font-medium text-white">Enable Daily Memes</h3>
+            <p className="text-slate-300 text-sm">
               Turn on or off the meme splash page feature completely
             </p>
           </div>
           <button
             onClick={() => handlePreferenceChange('enabled', !preferences.enabled)}
-            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-              preferences.enabled ? 'bg-blue-600' : 'bg-gray-200'
+            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 focus:ring-offset-slate-800 ${
+              preferences.enabled ? 'bg-gradient-to-r from-violet-600 to-purple-600' : 'bg-slate-600'
             }`}
             role="switch"
             aria-checked={preferences.enabled}
             aria-label="Enable daily memes"
           >
             <span
-              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-all duration-300 ${
                 preferences.enabled ? 'translate-x-6' : 'translate-x-1'
               }`}
             />
@@ -322,9 +322,9 @@ const MemeSettings: React.FC<MemeSettingsProps> = ({
       {preferences.enabled && (
         <div className="space-y-6">
           {/* Category Selection */}
-          <div>
-            <h3 className="text-lg font-medium text-gray-900 mb-3">Meme Categories</h3>
-            <p className="text-gray-600 text-sm mb-4">
+          <fieldset>
+            <legend className="text-lg font-medium text-white mb-3">Meme Categories</legend>
+            <p className="text-slate-300 text-sm mb-4">
               Choose which types of memes you'd like to see. You can select multiple categories.
             </p>
             
@@ -332,32 +332,32 @@ const MemeSettings: React.FC<MemeSettingsProps> = ({
               {Object.entries(CATEGORY_INFO).map(([category, info]) => (
                 <label
                   key={category}
-                  className="flex items-start space-x-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
+                  className="flex items-start space-x-3 p-3 border border-slate-600 rounded-lg hover:bg-slate-700 hover:border-violet-500 cursor-pointer transition-all duration-300"
                 >
                   <input
                     type="checkbox"
                     checked={preferences.categories[category as keyof MemePreferences['categories']]}
                     onChange={() => handleCategoryToggle(category as keyof MemePreferences['categories'])}
-                    className="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                    className="mt-1 h-4 w-4 text-violet-600 focus:ring-violet-500 focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800 border-slate-500 rounded"
                     aria-describedby={`${category}-description`}
                   />
                   <div className="flex-1 min-w-0">
-                    <div className="text-sm font-medium text-gray-900">
+                    <div className="text-sm font-medium text-white">
                       {info.label}
                     </div>
-                    <div id={`${category}-description`} className="text-xs text-gray-500">
+                    <div id={`${category}-description`} className="text-xs text-slate-400">
                       {info.description}
                     </div>
                   </div>
                 </label>
               ))}
             </div>
-          </div>
+          </fieldset>
 
           {/* Frequency Selection */}
-          <div>
-            <h3 className="text-lg font-medium text-gray-900 mb-3">Frequency</h3>
-            <p className="text-gray-600 text-sm mb-4">
+          <fieldset>
+            <legend className="text-lg font-medium text-white mb-3">Frequency</legend>
+            <p className="text-slate-300 text-sm mb-4">
               How often would you like to see memes?
             </p>
             
@@ -365,7 +365,7 @@ const MemeSettings: React.FC<MemeSettingsProps> = ({
               {FREQUENCY_OPTIONS.map((option) => (
                 <label
                   key={option.value}
-                  className="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
+                  className="flex items-center space-x-3 p-3 border border-slate-600 rounded-lg hover:bg-slate-700 hover:border-violet-500 cursor-pointer transition-all duration-300"
                 >
                   <input
                     type="radio"
@@ -373,37 +373,37 @@ const MemeSettings: React.FC<MemeSettingsProps> = ({
                     value={option.value}
                     checked={preferences.frequency === option.value}
                     onChange={() => handlePreferenceChange('frequency', option.value)}
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                    className="h-4 w-4 text-violet-600 focus:ring-violet-500 focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800 border-slate-500"
                     aria-describedby={`${option.value}-description`}
                   />
                   <div className="flex-1 min-w-0">
-                    <div className="text-sm font-medium text-gray-900">
+                    <div className="text-sm font-medium text-white">
                       {option.label}
                     </div>
-                    <div id={`${option.value}-description`} className="text-xs text-gray-500">
+                    <div id={`${option.value}-description`} className="text-xs text-slate-400">
                       {option.description}
                     </div>
                   </div>
                 </label>
               ))}
             </div>
-          </div>
+          </fieldset>
 
           {/* Preview Section */}
           <div>
-            <h3 className="text-lg font-medium text-gray-900 mb-3">Preview</h3>
-            <p className="text-gray-600 text-sm mb-4">
+            <h3 className="text-lg font-medium text-white mb-3">Preview</h3>
+            <p className="text-slate-300 text-sm mb-4">
               See what a meme would look like with your current settings.
             </p>
             
             <button
               onClick={previewMemes}
               disabled={previewLoading || saving}
-              className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="inline-flex items-center px-4 py-2 border border-slate-600 rounded-md shadow-sm text-sm font-medium text-white bg-slate-700 hover:bg-slate-600 hover:border-violet-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-violet-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
             >
               {previewLoading ? (
                 <>
-                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-gray-500" fill="none" viewBox="0 0 24 24">
+                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
@@ -416,18 +416,18 @@ const MemeSettings: React.FC<MemeSettingsProps> = ({
 
             {/* Preview Meme Display */}
             {previewMeme && (
-              <div className="mt-4 p-4 border border-gray-200 rounded-lg bg-gray-50">
+              <div className="mt-4 p-4 border border-slate-600 rounded-lg bg-slate-700">
                 <div className="flex items-start space-x-3">
                   <div className="flex-shrink-0">
-                    <div className="w-16 h-16 bg-gray-300 rounded-lg flex items-center justify-center">
-                      <span className="text-gray-500 text-xs">Meme</span>
+                    <div className="w-16 h-16 bg-slate-600 rounded-lg flex items-center justify-center">
+                      <span className="text-slate-300 text-xs">Meme</span>
                     </div>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="text-sm font-medium text-gray-900 capitalize">
+                    <div className="text-sm font-medium text-white capitalize">
                       {previewMeme.category?.replace('_', ' ')}
                     </div>
-                    <div className="text-sm text-gray-600 mt-1">
+                    <div className="text-sm text-slate-300 mt-1">
                       {previewMeme.caption}
                     </div>
                   </div>
@@ -439,18 +439,18 @@ const MemeSettings: React.FC<MemeSettingsProps> = ({
       )}
 
       {/* Action Buttons */}
-      <div className="mt-6 pt-6 border-t border-gray-200 flex flex-col sm:flex-row gap-3">
+      <div className="mt-6 pt-6 border-t border-slate-700 flex flex-col sm:flex-row gap-3">
         <button
           onClick={resetPreferences}
           disabled={saving}
-          className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="inline-flex items-center px-4 py-2 border border-slate-600 rounded-md shadow-sm text-sm font-medium text-white bg-slate-700 hover:bg-slate-600 hover:border-violet-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-violet-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
         >
           Reset to Defaults
         </button>
         
         {saving && (
-          <div className="flex items-center text-sm text-gray-500">
-            <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-gray-500" fill="none" viewBox="0 0 24 24">
+          <div className="flex items-center text-sm text-slate-400">
+            <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>

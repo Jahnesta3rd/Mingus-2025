@@ -1,0 +1,335 @@
+{
+  "timestamp": "2025-09-14T21:01:28.493696",
+  "pages": {
+    "landing_page": {
+      "axe_tests": {
+        "page": "landing_page",
+        "url": "http://localhost:3000",
+        "status": "COMPLETED",
+        "total_checks": 40,
+        "passes": 39,
+        "violations": 0,
+        "incomplete": 1,
+        "pass_rate": 97.5,
+        "violations_by_severity": {
+          "critical": 0,
+          "serious": 0,
+          "moderate": 0,
+          "minor": 0
+        },
+        "critical_violations": [],
+        "serious_violations": [],
+        "moderate_violations": [],
+        "minor_violations": [],
+        "all_violations": []
+      },
+      "keyboard_navigation": {
+        "page": "landing_page",
+        "url": "http://localhost:3000",
+        "status": "COMPLETED",
+        "total_focusable_elements": 33,
+        "tab_order_tested": 6,
+        "tab_order": [
+          {
+            "index": 1,
+            "tag": "a",
+            "text": "Skip to navigation",
+            "accessible_name": "Skip to navigation menu"
+          },
+          {
+            "index": 2,
+            "tag": "a",
+            "text": "Skip to footer",
+            "accessible_name": "Skip to footer"
+          },
+          {
+            "index": 3,
+            "tag": "button",
+            "text": "Features",
+            "accessible_name": "Navigate to Features section"
+          },
+          {
+            "index": 4,
+            "tag": "button",
+            "text": "Pricing",
+            "accessible_name": "Navigate to Pricing section"
+          },
+          {
+            "index": 5,
+            "tag": "button",
+            "text": "FAQ",
+            "accessible_name": "Navigate to FAQ section"
+          },
+          {
+            "index": 6,
+            "tag": "button",
+            "text": "Get Started",
+            "accessible_name": "Get started with Mingus"
+          }
+        ],
+        "enter_activations": 5,
+        "escape_works": true,
+        "keyboard_score": 18.181818181818183
+      },
+      "color_contrast": {
+        "page": "landing_page",
+        "url": "http://localhost:3000",
+        "status": "COMPLETED",
+        "total_text_elements": 20,
+        "contrast_issues": 0,
+        "issues": [],
+        "contrast_score": 100
+      },
+      "screen_reader_support": {
+        "page": "landing_page",
+        "url": "http://localhost:3000",
+        "status": "COMPLETED",
+        "aria_elements": 44,
+        "semantic_elements": 49,
+        "total_images": 0,
+        "images_with_alt": 0,
+        "alt_text_coverage": 0.0,
+        "total_form_inputs": 0,
+        "labeled_inputs": 0,
+        "label_coverage": 0.0,
+        "skip_links": 1,
+        "heading_hierarchy_issues": 0,
+        "hierarchy_issues": [],
+        "screen_reader_score": 60
+      },
+      "focus_management": {
+        "page": "landing_page",
+        "url": "http://localhost:3000",
+        "status": "COMPLETED",
+        "total_focusable_elements": 33,
+        "elements_with_focus_indicators": 4,
+        "focus_indicator_coverage": 40.0,
+        "modal_focus_trap": false,
+        "focus_management_score": 40.0
+      },
+      "overall_score": 63.13636363636364
+    },
+    "settings_page": {
+      "axe_tests": {
+        "page": "settings_page",
+        "url": "http://localhost:3000/settings",
+        "status": "COMPLETED",
+        "total_checks": 36,
+        "passes": 35,
+        "violations": 0,
+        "incomplete": 1,
+        "pass_rate": 97.22222222222221,
+        "violations_by_severity": {
+          "critical": 0,
+          "serious": 0,
+          "moderate": 0,
+          "minor": 0
+        },
+        "critical_violations": [],
+        "serious_violations": [],
+        "moderate_violations": [],
+        "minor_violations": [],
+        "all_violations": []
+      },
+      "keyboard_navigation": {
+        "page": "settings_page",
+        "url": "http://localhost:3000/settings",
+        "status": "COMPLETED",
+        "total_focusable_elements": 24,
+        "tab_order_tested": 6,
+        "tab_order": [
+          {
+            "index": 1,
+            "tag": "a",
+            "text": "Skip to navigation",
+            "accessible_name": "Skip to navigation menu"
+          },
+          {
+            "index": 2,
+            "tag": "a",
+            "text": "Skip to footer",
+            "accessible_name": "Skip to footer"
+          },
+          {
+            "index": 3,
+            "tag": "button",
+            "text": "Features",
+            "accessible_name": "Navigate to Features section"
+          },
+          {
+            "index": 4,
+            "tag": "button",
+            "text": "Pricing",
+            "accessible_name": "Navigate to Pricing section"
+          },
+          {
+            "index": 5,
+            "tag": "button",
+            "text": "FAQ",
+            "accessible_name": "Navigate to FAQ section"
+          },
+          {
+            "index": 6,
+            "tag": "button",
+            "text": "Get Started",
+            "accessible_name": "Get started with Mingus"
+          }
+        ],
+        "enter_activations": 5,
+        "escape_works": true,
+        "keyboard_score": 25.0
+      },
+      "color_contrast": {
+        "page": "settings_page",
+        "url": "http://localhost:3000/settings",
+        "status": "COMPLETED",
+        "total_text_elements": 20,
+        "contrast_issues": 0,
+        "issues": [],
+        "contrast_score": 100
+      },
+      "screen_reader_support": {
+        "page": "settings_page",
+        "url": "http://localhost:3000/settings",
+        "status": "COMPLETED",
+        "aria_elements": 27,
+        "semantic_elements": 8,
+        "total_images": 0,
+        "images_with_alt": 0,
+        "alt_text_coverage": 0.0,
+        "total_form_inputs": 9,
+        "labeled_inputs": 9,
+        "label_coverage": 100.0,
+        "skip_links": 1,
+        "heading_hierarchy_issues": 0,
+        "hierarchy_issues": [],
+        "screen_reader_score": 76.0
+      },
+      "focus_management": {
+        "page": "settings_page",
+        "url": "http://localhost:3000/settings",
+        "status": "COMPLETED",
+        "total_focusable_elements": 24,
+        "elements_with_focus_indicators": 4,
+        "focus_indicator_coverage": 40.0,
+        "modal_focus_trap": false,
+        "focus_management_score": 40.0
+      },
+      "overall_score": 67.64444444444445
+    },
+    "dashboard": {
+      "axe_tests": {
+        "page": "dashboard",
+        "url": "http://localhost:3000/dashboard",
+        "status": "COMPLETED",
+        "total_checks": 33,
+        "passes": 32,
+        "violations": 0,
+        "incomplete": 1,
+        "pass_rate": 96.96969696969697,
+        "violations_by_severity": {
+          "critical": 0,
+          "serious": 0,
+          "moderate": 0,
+          "minor": 0
+        },
+        "critical_violations": [],
+        "serious_violations": [],
+        "moderate_violations": [],
+        "minor_violations": [],
+        "all_violations": []
+      },
+      "keyboard_navigation": {
+        "page": "dashboard",
+        "url": "http://localhost:3000/dashboard",
+        "status": "COMPLETED",
+        "total_focusable_elements": 13,
+        "tab_order_tested": 6,
+        "tab_order": [
+          {
+            "index": 1,
+            "tag": "a",
+            "text": "Skip to navigation",
+            "accessible_name": "Skip to navigation menu"
+          },
+          {
+            "index": 2,
+            "tag": "a",
+            "text": "Skip to footer",
+            "accessible_name": "Skip to footer"
+          },
+          {
+            "index": 3,
+            "tag": "button",
+            "text": "Features",
+            "accessible_name": "Navigate to Features section"
+          },
+          {
+            "index": 4,
+            "tag": "button",
+            "text": "Pricing",
+            "accessible_name": "Navigate to Pricing section"
+          },
+          {
+            "index": 5,
+            "tag": "button",
+            "text": "FAQ",
+            "accessible_name": "Navigate to FAQ section"
+          },
+          {
+            "index": 6,
+            "tag": "button",
+            "text": "Get Started",
+            "accessible_name": "Get started with Mingus"
+          }
+        ],
+        "enter_activations": 5,
+        "escape_works": true,
+        "keyboard_score": 46.15384615384615
+      },
+      "color_contrast": {
+        "page": "dashboard",
+        "url": "http://localhost:3000/dashboard",
+        "status": "COMPLETED",
+        "total_text_elements": 20,
+        "contrast_issues": 0,
+        "issues": [],
+        "contrast_score": 100
+      },
+      "screen_reader_support": {
+        "page": "dashboard",
+        "url": "http://localhost:3000/dashboard",
+        "status": "COMPLETED",
+        "aria_elements": 17,
+        "semantic_elements": 5,
+        "total_images": 0,
+        "images_with_alt": 0,
+        "alt_text_coverage": 0.0,
+        "total_form_inputs": 0,
+        "labeled_inputs": 0,
+        "label_coverage": 0.0,
+        "skip_links": 1,
+        "heading_hierarchy_issues": 0,
+        "hierarchy_issues": [],
+        "screen_reader_score": 50
+      },
+      "focus_management": {
+        "page": "dashboard",
+        "url": "http://localhost:3000/dashboard",
+        "status": "COMPLETED",
+        "total_focusable_elements": 13,
+        "elements_with_focus_indicators": 4,
+        "focus_indicator_coverage": 40.0,
+        "modal_focus_trap": false,
+        "focus_management_score": 40.0
+      },
+      "overall_score": 66.62470862470863
+    }
+  },
+  "summary": {
+    "total_pages": 3,
+    "pages_passed": 0,
+    "pages_failed": 3,
+    "overall_score": 65.8018389018389
+  }
+}

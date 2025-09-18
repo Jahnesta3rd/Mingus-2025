@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, User, LogOut, Shield } from 'lucide-react';
+import { useAuth } from '../hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
 
 interface NavigationBarProps {
   className?: string;
@@ -9,8 +11,12 @@ const NavigationBar: React.FC<NavigationBarProps> = ({ className = '' }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [focusedIndex, setFocusedIndex] = useState(-1);
-  const menuRef = useRef<HTMLDivElement>(null);
+  const [showUserMenu, setShowUserMenu] = useState(false);
+  // const menuRef = useRef<HTMLDivElement>(null);
   const menuItemsRef = useRef<(HTMLButtonElement | null)[]>([]);
+  const userMenuRef = useRef<HTMLDivElement>(null);
+  const { user, isAuthenticated, logout } = useAuth();
+  const navigate = useNavigate();
 
   // Handle scroll effect for navbar background
   useEffect(() => {
@@ -22,18 +28,21 @@ const NavigationBar: React.FC<NavigationBarProps> = ({ className = '' }) => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Close mobile menu when clicking outside
+  // Close mobile menu and user menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
       if (isMenuOpen && !target.closest('.mobile-menu-container')) {
         setIsMenuOpen(false);
       }
+      if (showUserMenu && !target.closest('.user-menu-container')) {
+        setShowUserMenu(false);
+      }
     };
 
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [isMenuOpen]);
+  }, [isMenuOpen, showUserMenu]);
 
   // Keyboard navigation for mobile menu
   useEffect(() => {
@@ -120,6 +129,21 @@ const NavigationBar: React.FC<NavigationBarProps> = ({ className = '' }) => {
     }
   };
 
+  const handleUserMenuToggle = () => {
+    setShowUserMenu(!showUserMenu);
+  };
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+    setShowUserMenu(false);
+  };
+
+  const handleNavigateToDashboard = () => {
+    navigate('/career-dashboard');
+    setShowUserMenu(false);
+  };
+
   return (
     <nav 
       role="navigation"
@@ -177,14 +201,55 @@ const NavigationBar: React.FC<NavigationBarProps> = ({ className = '' }) => {
             </div>
           </div>
 
-          {/* CTA Button */}
+          {/* CTA Button or User Menu */}
           <div className="hidden md:flex items-center">
-            <button 
-              className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white px-6 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-violet-500/25 hover:-translate-y-0.5 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-900"
-              aria-label="Get started with Mingus"
-            >
-              Get Started
-            </button>
+            {isAuthenticated ? (
+              <div className="relative user-menu-container">
+                <button
+                  onClick={handleUserMenuToggle}
+                  className="flex items-center gap-2 text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-900"
+                  aria-label="User menu"
+                  aria-expanded={showUserMenu}
+                >
+                  <User className="h-5 w-5" />
+                  <span>{user?.name || 'User'}</span>
+                </button>
+                
+                {showUserMenu && (
+                  <div 
+                    ref={userMenuRef}
+                    className="absolute right-0 mt-2 w-48 bg-slate-800 rounded-lg shadow-lg border border-slate-700 py-1 z-50"
+                    role="menu"
+                    aria-label="User menu"
+                  >
+                    <button
+                      onClick={handleNavigateToDashboard}
+                      className="flex items-center gap-2 w-full px-4 py-2 text-sm text-gray-300 hover:bg-slate-700 hover:text-white transition-colors"
+                      role="menuitem"
+                    >
+                      <Shield className="h-4 w-4" />
+                      Career Dashboard
+                    </button>
+                    <button
+                      onClick={handleLogout}
+                      className="flex items-center gap-2 w-full px-4 py-2 text-sm text-gray-300 hover:bg-slate-700 hover:text-white transition-colors"
+                      role="menuitem"
+                    >
+                      <LogOut className="h-4 w-4" />
+                      Sign Out
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <button 
+                onClick={() => navigate('/login')}
+                className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white px-6 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-violet-500/25 hover:-translate-y-0.5 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-900"
+                aria-label="Get started with Mingus"
+              >
+                Get Started
+              </button>
+            )}
           </div>
 
           {/* Mobile menu button */}
@@ -244,14 +309,40 @@ const NavigationBar: React.FC<NavigationBarProps> = ({ className = '' }) => {
               FAQ
             </button>
             <div className="pt-2 border-t border-slate-700/50">
-              <button 
-                ref={el => menuItemsRef.current[3] = el}
-                className="w-full bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 transform hover:scale-105 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-800"
-                role="menuitem"
-                aria-label="Get started with Mingus"
-              >
-                Get Started
-              </button>
+              {isAuthenticated ? (
+                <>
+                  <button 
+                    ref={el => menuItemsRef.current[3] = el}
+                    onClick={handleNavigateToDashboard}
+                    className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 transform hover:scale-105 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-800"
+                    role="menuitem"
+                    aria-label="Career Dashboard"
+                  >
+                    <Shield className="h-4 w-4" />
+                    Career Dashboard
+                  </button>
+                  <button 
+                    ref={el => menuItemsRef.current[4] = el}
+                    onClick={handleLogout}
+                    className="w-full flex items-center justify-center gap-2 bg-slate-700 hover:bg-slate-600 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-800 mt-2"
+                    role="menuitem"
+                    aria-label="Sign Out"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    Sign Out
+                  </button>
+                </>
+              ) : (
+                <button 
+                  ref={el => menuItemsRef.current[3] = el}
+                  onClick={() => navigate('/login')}
+                  className="w-full bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 transform hover:scale-105 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-800"
+                  role="menuitem"
+                  aria-label="Get started with Mingus"
+                >
+                  Get Started
+                </button>
+              )}
             </div>
           </div>
         </div>

@@ -1,0 +1,1171 @@
+{
+  "test_time": "2025-09-16T13:35:10.827087",
+  "before_final_fixes": {
+    "total_buttons": 32,
+    "critical_issues": 13,
+    "passed_buttons": 19,
+    "success_rate": 59.375,
+    "button_details": [
+      {
+        "index": 0,
+        "text": "Skip to main content",
+        "dimensions": "32x16",
+        "is_visible": true,
+        "overall_pass": false,
+        "class_name": "sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-violet-600 text-white px-4 py-2 rounded-lg z-50",
+        "computed_styles": {
+          "display": "block",
+          "minHeight": "0px",
+          "minWidth": "0px",
+          "opacity": "1",
+          "visibility": "visible"
+        }
+      },
+      {
+        "index": 1,
+        "text": "Skip to navigation",
+        "dimensions": "32x16",
+        "is_visible": true,
+        "overall_pass": false,
+        "class_name": "sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-32 bg-violet-600 text-white px-4 py-2 rounded-lg z-50",
+        "computed_styles": {
+          "display": "block",
+          "minHeight": "0px",
+          "minWidth": "0px",
+          "opacity": "1",
+          "visibility": "visible"
+        }
+      },
+      {
+        "index": 2,
+        "text": "Skip to footer",
+        "dimensions": "32x16",
+        "is_visible": true,
+        "overall_pass": false,
+        "class_name": "sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-64 bg-violet-600 text-white px-4 py-2 rounded-lg z-50",
+        "computed_styles": {
+          "display": "block",
+          "minHeight": "0px",
+          "minWidth": "0px",
+          "opacity": "1",
+          "visibility": "visible"
+        }
+      },
+      {
+        "index": 3,
+        "text": "",
+        "dimensions": "0x0",
+        "is_visible": false,
+        "overall_pass": false,
+        "class_name": "text-gray-300 hover:text-violet-400 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-900",
+        "computed_styles": {
+          "display": "block",
+          "minHeight": "0px",
+          "minWidth": "0px",
+          "opacity": "1",
+          "visibility": "visible"
+        }
+      },
+      {
+        "index": 4,
+        "text": "",
+        "dimensions": "0x0",
+        "is_visible": false,
+        "overall_pass": false,
+        "class_name": "text-gray-300 hover:text-violet-400 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-900",
+        "computed_styles": {
+          "display": "block",
+          "minHeight": "0px",
+          "minWidth": "0px",
+          "opacity": "1",
+          "visibility": "visible"
+        }
+      },
+      {
+        "index": 5,
+        "text": "",
+        "dimensions": "0x0",
+        "is_visible": false,
+        "overall_pass": false,
+        "class_name": "text-gray-300 hover:text-violet-400 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-900",
+        "computed_styles": {
+          "display": "block",
+          "minHeight": "0px",
+          "minWidth": "0px",
+          "opacity": "1",
+          "visibility": "visible"
+        }
+      },
+      {
+        "index": 6,
+        "text": "",
+        "dimensions": "0x0",
+        "is_visible": false,
+        "overall_pass": false,
+        "class_name": "bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white px-6 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-violet-500/25 hover:-translate-y-0.5 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-900",
+        "computed_styles": {
+          "display": "inline-block",
+          "minHeight": "0px",
+          "minWidth": "0px",
+          "opacity": "1",
+          "visibility": "visible"
+        }
+      },
+      {
+        "index": 7,
+        "text": "",
+        "dimensions": "40x40",
+        "is_visible": true,
+        "overall_pass": false,
+        "class_name": "text-gray-300 hover:text-white p-2 rounded-md transition-colors duration-200 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-900",
+        "computed_styles": {
+          "display": "inline-block",
+          "minHeight": "0px",
+          "minWidth": "0px",
+          "opacity": "1",
+          "visibility": "visible"
+        }
+      },
+      {
+        "index": 8,
+        "text": "",
+        "dimensions": "325x40",
+        "is_visible": true,
+        "overall_pass": false,
+        "class_name": "block w-full text-left text-gray-300 hover:text-violet-400 hover:bg-slate-700/50 px-3 py-2 rounded-md text-base font-medium transition-colors duration-200 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-800",
+        "computed_styles": {
+          "display": "block",
+          "minHeight": "0px",
+          "minWidth": "0px",
+          "opacity": "1",
+          "visibility": "visible"
+        }
+      },
+      {
+        "index": 9,
+        "text": "",
+        "dimensions": "325x40",
+        "is_visible": true,
+        "overall_pass": false,
+        "class_name": "block w-full text-left text-gray-300 hover:text-violet-400 hover:bg-slate-700/50 px-3 py-2 rounded-md text-base font-medium transition-colors duration-200 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-800",
+        "computed_styles": {
+          "display": "block",
+          "minHeight": "0px",
+          "minWidth": "0px",
+          "opacity": "1",
+          "visibility": "visible"
+        }
+      },
+      {
+        "index": 10,
+        "text": "",
+        "dimensions": "325x40",
+        "is_visible": true,
+        "overall_pass": false,
+        "class_name": "block w-full text-left text-gray-300 hover:text-violet-400 hover:bg-slate-700/50 px-3 py-2 rounded-md text-base font-medium transition-colors duration-200 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-800",
+        "computed_styles": {
+          "display": "block",
+          "minHeight": "0px",
+          "minWidth": "0px",
+          "opacity": "1",
+          "visibility": "visible"
+        }
+      },
+      {
+        "index": 11,
+        "text": "",
+        "dimensions": "325x40",
+        "is_visible": true,
+        "overall_pass": false,
+        "class_name": "w-full bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 transform hover:scale-105 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-800",
+        "computed_styles": {
+          "display": "inline-block",
+          "minHeight": "0px",
+          "minWidth": "0px",
+          "opacity": "1",
+          "visibility": "visible"
+        }
+      },
+      {
+        "index": 12,
+        "text": "Determine Your Replacement Ris...",
+        "dimensions": "343x44",
+        "is_visible": true,
+        "overall_pass": true,
+        "class_name": "group bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 disabled:from-violet-500 disabled:to-purple-500 text-white px-4 sm:px-6 py-3 sm:py-4 rounded-lg text-base sm:text-lg font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-xl hover:shadow-violet-500/25 flex items-center justify-center hover:-translate-y-1 disabled:scale-100 disabled:translate-y-0 disabled:cursor-not-allowed focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-gray-900",
+        "computed_styles": {
+          "display": "flex",
+          "minHeight": "auto",
+          "minWidth": "auto",
+          "opacity": "1",
+          "visibility": "visible"
+        }
+      },
+      {
+        "index": 13,
+        "text": "Determine How Your Income Comp...",
+        "dimensions": "343x44",
+        "is_visible": true,
+        "overall_pass": true,
+        "class_name": "group bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 disabled:from-purple-500 disabled:to-pink-500 text-white px-4 sm:px-6 py-3 sm:py-4 rounded-lg text-base sm:text-lg font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-xl hover:shadow-purple-500/25 flex items-center justify-center hover:-translate-y-1 disabled:scale-100 disabled:translate-y-0 disabled:cursor-not-allowed focus-ring focus-visible:ring-4 focus-visible:ring-purple-400 focus-visible:ring-offset-4 focus-visible:ring-offset-gray-900",
+        "computed_styles": {
+          "display": "flex",
+          "minHeight": "auto",
+          "minWidth": "auto",
+          "opacity": "1",
+          "visibility": "visible"
+        }
+      },
+      {
+        "index": 14,
+        "text": "Determine Your \"Cuffing Season...",
+        "dimensions": "343x44",
+        "is_visible": true,
+        "overall_pass": true,
+        "class_name": "group bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-700 hover:to-rose-700 disabled:from-pink-500 disabled:to-rose-500 text-white px-4 sm:px-6 py-3 sm:py-4 rounded-lg text-base sm:text-lg font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-xl hover:shadow-pink-500/25 flex items-center justify-center hover:-translate-y-1 disabled:scale-100 disabled:translate-y-0 disabled:cursor-not-allowed focus-ring focus-visible:ring-4 focus-visible:ring-pink-400 focus-visible:ring-offset-4 focus-visible:ring-offset-gray-900",
+        "computed_styles": {
+          "display": "flex",
+          "minHeight": "auto",
+          "minWidth": "auto",
+          "opacity": "1",
+          "visibility": "visible"
+        }
+      },
+      {
+        "index": 15,
+        "text": "Determine Your Layoff Risk",
+        "dimensions": "343x44",
+        "is_visible": true,
+        "overall_pass": true,
+        "class_name": "group bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-700 hover:to-red-700 disabled:from-rose-500 disabled:to-red-500 text-white px-4 sm:px-6 py-3 sm:py-4 rounded-lg text-base sm:text-lg font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-xl hover:shadow-rose-500/25 flex items-center justify-center hover:-translate-y-1 disabled:scale-100 disabled:translate-y-0 disabled:cursor-not-allowed focus-ring focus-visible:ring-4 focus-visible:ring-rose-400 focus-visible:ring-offset-4 focus-visible:ring-offset-gray-900",
+        "computed_styles": {
+          "display": "flex",
+          "minHeight": "auto",
+          "minWidth": "auto",
+          "opacity": "1",
+          "visibility": "visible"
+        }
+      },
+      {
+        "index": 16,
+        "text": "View Full Dashboard",
+        "dimensions": "232x32",
+        "is_visible": true,
+        "overall_pass": false,
+        "class_name": "w-full bg-gradient-to-r from-violet-500 to-purple-500 text-white py-2 sm:py-3 rounded-xl font-semibold text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-violet-400 focus:ring-offset-2 focus:ring-offset-gray-800",
+        "computed_styles": {
+          "display": "block",
+          "minHeight": "auto",
+          "minWidth": "auto",
+          "opacity": "1",
+          "visibility": "visible"
+        }
+      },
+      {
+        "index": 17,
+        "text": "Take Assessment",
+        "dimensions": "293x48",
+        "is_visible": true,
+        "overall_pass": true,
+        "class_name": "w-full bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white px-4 py-3 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-xl hover:shadow-violet-500/25 flex items-center justify-center hover:-translate-y-1 disabled:scale-100 disabled:translate-y-0 disabled:cursor-not-allowed focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-gray-900",
+        "computed_styles": {
+          "display": "flex",
+          "minHeight": "0px",
+          "minWidth": "0px",
+          "opacity": "1",
+          "visibility": "visible"
+        }
+      },
+      {
+        "index": 18,
+        "text": "Take Assessment",
+        "dimensions": "293x48",
+        "is_visible": true,
+        "overall_pass": true,
+        "class_name": "w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-4 py-3 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-xl hover:shadow-purple-500/25 flex items-center justify-center hover:-translate-y-1 disabled:scale-100 disabled:translate-y-0 disabled:cursor-not-allowed focus-ring focus-visible:ring-4 focus-visible:ring-purple-400 focus-visible:ring-offset-4 focus-visible:ring-offset-gray-900",
+        "computed_styles": {
+          "display": "flex",
+          "minHeight": "0px",
+          "minWidth": "0px",
+          "opacity": "1",
+          "visibility": "visible"
+        }
+      },
+      {
+        "index": 19,
+        "text": "Take Assessment",
+        "dimensions": "293x48",
+        "is_visible": true,
+        "overall_pass": true,
+        "class_name": "w-full bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-700 hover:to-rose-700 text-white px-4 py-3 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-xl hover:shadow-pink-500/25 flex items-center justify-center hover:-translate-y-1 disabled:scale-100 disabled:translate-y-0 disabled:cursor-not-allowed focus-ring focus-visible:ring-4 focus-visible:ring-pink-400 focus-visible:ring-offset-4 focus-visible:ring-offset-gray-900",
+        "computed_styles": {
+          "display": "flex",
+          "minHeight": "0px",
+          "minWidth": "0px",
+          "opacity": "1",
+          "visibility": "visible"
+        }
+      },
+      {
+        "index": 20,
+        "text": "Take Assessment",
+        "dimensions": "293x48",
+        "is_visible": true,
+        "overall_pass": true,
+        "class_name": "w-full bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-700 hover:to-red-700 text-white px-4 py-3 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-xl hover:shadow-rose-500/25 flex items-center justify-center hover:-translate-y-1 disabled:scale-100 disabled:translate-y-0 disabled:cursor-not-allowed focus-ring focus-visible:ring-4 focus-visible:ring-rose-400 focus-visible:ring-offset-4 focus-visible:ring-offset-gray-900",
+        "computed_styles": {
+          "display": "flex",
+          "minHeight": "0px",
+          "minWidth": "0px",
+          "opacity": "1",
+          "visibility": "visible"
+        }
+      },
+      {
+        "index": 21,
+        "text": "Get Started",
+        "dimensions": "279x52",
+        "is_visible": true,
+        "overall_pass": true,
+        "class_name": "w-full py-3 px-6 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:ring-offset-2 focus:ring-offset-gray-800 border-2 border-violet-500 text-violet-400 hover:bg-violet-500 hover:text-white hover:shadow-lg hover:shadow-violet-500/25",
+        "computed_styles": {
+          "display": "inline-block",
+          "minHeight": "0px",
+          "minWidth": "0px",
+          "opacity": "1",
+          "visibility": "visible"
+        }
+      },
+      {
+        "index": 22,
+        "text": "Start Free Trial",
+        "dimensions": "279x48",
+        "is_visible": true,
+        "overall_pass": true,
+        "class_name": "w-full py-3 px-6 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:ring-offset-2 focus:ring-offset-gray-800 bg-gradient-to-r from-violet-500 to-purple-500 hover:from-violet-600 hover:to-purple-600 text-white shadow-lg hover:shadow-violet-500/25",
+        "computed_styles": {
+          "display": "inline-block",
+          "minHeight": "0px",
+          "minWidth": "0px",
+          "opacity": "1",
+          "visibility": "visible"
+        }
+      },
+      {
+        "index": 23,
+        "text": "Go Professional",
+        "dimensions": "279x52",
+        "is_visible": true,
+        "overall_pass": true,
+        "class_name": "w-full py-3 px-6 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:ring-offset-2 focus:ring-offset-gray-800 border-2 border-violet-500 text-violet-400 hover:bg-violet-500 hover:text-white hover:shadow-lg hover:shadow-violet-500/25",
+        "computed_styles": {
+          "display": "inline-block",
+          "minHeight": "0px",
+          "minWidth": "0px",
+          "opacity": "1",
+          "visibility": "visible"
+        }
+      },
+      {
+        "index": 24,
+        "text": "How does Mingus address the un...",
+        "dimensions": "341x92",
+        "is_visible": true,
+        "overall_pass": true,
+        "class_name": "w-full px-4 sm:px-6 py-4 sm:py-5 text-left flex justify-between items-center hover:bg-slate-700/30 transition-all duration-300 rounded-xl group focus-ring focus-visible:ring-4 focus-visible:ring-violet-500 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-800",
+        "computed_styles": {
+          "display": "flex",
+          "minHeight": "0px",
+          "minWidth": "0px",
+          "opacity": "1",
+          "visibility": "visible"
+        }
+      },
+      {
+        "index": 25,
+        "text": "What makes Mingus different fr...",
+        "dimensions": "341x72",
+        "is_visible": true,
+        "overall_pass": true,
+        "class_name": "w-full px-4 sm:px-6 py-4 sm:py-5 text-left flex justify-between items-center hover:bg-slate-700/30 transition-all duration-300 rounded-xl group focus-ring focus-visible:ring-4 focus-visible:ring-violet-500 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-800",
+        "computed_styles": {
+          "display": "flex",
+          "minHeight": "0px",
+          "minWidth": "0px",
+          "opacity": "1",
+          "visibility": "visible"
+        }
+      },
+      {
+        "index": 26,
+        "text": "How does Mingus help with care...",
+        "dimensions": "341x72",
+        "is_visible": true,
+        "overall_pass": true,
+        "class_name": "w-full px-4 sm:px-6 py-4 sm:py-5 text-left flex justify-between items-center hover:bg-slate-700/30 transition-all duration-300 rounded-xl group focus-ring focus-visible:ring-4 focus-visible:ring-violet-500 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-800",
+        "computed_styles": {
+          "display": "flex",
+          "minHeight": "0px",
+          "minWidth": "0px",
+          "opacity": "1",
+          "visibility": "visible"
+        }
+      },
+      {
+        "index": 27,
+        "text": "Can Mingus help me build gener...",
+        "dimensions": "341x72",
+        "is_visible": true,
+        "overall_pass": true,
+        "class_name": "w-full px-4 sm:px-6 py-4 sm:py-5 text-left flex justify-between items-center hover:bg-slate-700/30 transition-all duration-300 rounded-xl group focus-ring focus-visible:ring-4 focus-visible:ring-violet-500 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-800",
+        "computed_styles": {
+          "display": "flex",
+          "minHeight": "0px",
+          "minWidth": "0px",
+          "opacity": "1",
+          "visibility": "visible"
+        }
+      },
+      {
+        "index": 28,
+        "text": "How does Mingus address health...",
+        "dimensions": "341x92",
+        "is_visible": true,
+        "overall_pass": true,
+        "class_name": "w-full px-4 sm:px-6 py-4 sm:py-5 text-left flex justify-between items-center hover:bg-slate-700/30 transition-all duration-300 rounded-xl group focus-ring focus-visible:ring-4 focus-visible:ring-violet-500 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-800",
+        "computed_styles": {
+          "display": "flex",
+          "minHeight": "0px",
+          "minWidth": "0px",
+          "opacity": "1",
+          "visibility": "visible"
+        }
+      },
+      {
+        "index": 29,
+        "text": "Is my financial data secure an...",
+        "dimensions": "341x72",
+        "is_visible": true,
+        "overall_pass": true,
+        "class_name": "w-full px-4 sm:px-6 py-4 sm:py-5 text-left flex justify-between items-center hover:bg-slate-700/30 transition-all duration-300 rounded-xl group focus-ring focus-visible:ring-4 focus-visible:ring-violet-500 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-800",
+        "computed_styles": {
+          "display": "flex",
+          "minHeight": "0px",
+          "minWidth": "0px",
+          "opacity": "1",
+          "visibility": "visible"
+        }
+      },
+      {
+        "index": 30,
+        "text": "Start Your Wealth Journey",
+        "dimensions": "284x60",
+        "is_visible": true,
+        "overall_pass": true,
+        "class_name": "group bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 disabled:from-violet-400 disabled:to-purple-500 text-white px-8 py-4 rounded-lg text-lg font-semibold transition-all duration-300 transform hover:scale-105 flex items-center shadow-lg hover:shadow-xl hover:shadow-violet-500/25 hover:-translate-y-1 disabled:scale-100 disabled:translate-y-0 disabled:cursor-not-allowed focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-violet-800",
+        "computed_styles": {
+          "display": "flex",
+          "minHeight": "auto",
+          "minWidth": "auto",
+          "opacity": "1",
+          "visibility": "visible"
+        }
+      },
+      {
+        "index": 31,
+        "text": "Join Our Community",
+        "dimensions": "240x64",
+        "is_visible": true,
+        "overall_pass": true,
+        "class_name": "group border-2 border-white text-white hover:bg-white hover:text-violet-600 disabled:border-gray-400 disabled:text-gray-400 px-8 py-4 rounded-lg text-lg font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-white/25 hover:-translate-y-1 disabled:scale-100 disabled:translate-y-0 disabled:cursor-not-allowed focus-ring focus-visible:ring-4 focus-visible:ring-white focus-visible:ring-offset-4 focus-visible:ring-offset-violet-800",
+        "computed_styles": {
+          "display": "block",
+          "minHeight": "auto",
+          "minWidth": "auto",
+          "opacity": "1",
+          "visibility": "visible"
+        }
+      }
+    ],
+    "remaining_issues": [
+      {
+        "index": 0,
+        "text": "Skip to main content",
+        "issue": "TOO_SMALL",
+        "dimensions": "32x16",
+        "class": "sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-violet-600 text-white px-4 py-2 rounded-lg z-50"
+      },
+      {
+        "index": 1,
+        "text": "Skip to navigation",
+        "issue": "TOO_SMALL",
+        "dimensions": "32x16",
+        "class": "sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-32 bg-violet-600 text-white px-4 py-2 rounded-lg z-50"
+      },
+      {
+        "index": 2,
+        "text": "Skip to footer",
+        "issue": "TOO_SMALL",
+        "dimensions": "32x16",
+        "class": "sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-64 bg-violet-600 text-white px-4 py-2 rounded-lg z-50"
+      },
+      {
+        "index": 3,
+        "text": "",
+        "issue": "INVISIBLE",
+        "dimensions": "0x0",
+        "class": "text-gray-300 hover:text-violet-400 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-900"
+      },
+      {
+        "index": 4,
+        "text": "",
+        "issue": "INVISIBLE",
+        "dimensions": "0x0",
+        "class": "text-gray-300 hover:text-violet-400 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-900"
+      },
+      {
+        "index": 5,
+        "text": "",
+        "issue": "INVISIBLE",
+        "dimensions": "0x0",
+        "class": "text-gray-300 hover:text-violet-400 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-900"
+      },
+      {
+        "index": 6,
+        "text": "",
+        "issue": "INVISIBLE",
+        "dimensions": "0x0",
+        "class": "bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white px-6 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-violet-500/25 hover:-translate-y-0.5 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-900"
+      },
+      {
+        "index": 7,
+        "text": "",
+        "issue": "TOO_SMALL",
+        "dimensions": "40x40",
+        "class": "text-gray-300 hover:text-white p-2 rounded-md transition-colors duration-200 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-900"
+      },
+      {
+        "index": 8,
+        "text": "",
+        "issue": "TOO_SMALL",
+        "dimensions": "325x40",
+        "class": "block w-full text-left text-gray-300 hover:text-violet-400 hover:bg-slate-700/50 px-3 py-2 rounded-md text-base font-medium transition-colors duration-200 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-800"
+      },
+      {
+        "index": 9,
+        "text": "",
+        "issue": "TOO_SMALL",
+        "dimensions": "325x40",
+        "class": "block w-full text-left text-gray-300 hover:text-violet-400 hover:bg-slate-700/50 px-3 py-2 rounded-md text-base font-medium transition-colors duration-200 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-800"
+      },
+      {
+        "index": 10,
+        "text": "",
+        "issue": "TOO_SMALL",
+        "dimensions": "325x40",
+        "class": "block w-full text-left text-gray-300 hover:text-violet-400 hover:bg-slate-700/50 px-3 py-2 rounded-md text-base font-medium transition-colors duration-200 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-800"
+      },
+      {
+        "index": 11,
+        "text": "",
+        "issue": "TOO_SMALL",
+        "dimensions": "325x40",
+        "class": "w-full bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 transform hover:scale-105 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-800"
+      },
+      {
+        "index": 16,
+        "text": "View Full Dashboard",
+        "issue": "TOO_SMALL",
+        "dimensions": "232x32",
+        "class": "w-full bg-gradient-to-r from-violet-500 to-purple-500 text-white py-2 sm:py-3 rounded-xl font-semibold text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-violet-400 focus:ring-offset-2 focus:ring-offset-gray-800"
+      }
+    ]
+  },
+  "after_final_fixes": {
+    "total_buttons": 32,
+    "critical_issues": 13,
+    "passed_buttons": 19,
+    "success_rate": 59.375,
+    "button_details": [
+      {
+        "index": 0,
+        "text": "Skip to main content",
+        "dimensions": "32x16",
+        "is_visible": true,
+        "overall_pass": false,
+        "class_name": "sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-violet-600 text-white px-4 py-2 rounded-lg z-50",
+        "computed_styles": {
+          "display": "block",
+          "minHeight": "0px",
+          "minWidth": "0px",
+          "opacity": "1",
+          "visibility": "visible"
+        }
+      },
+      {
+        "index": 1,
+        "text": "Skip to navigation",
+        "dimensions": "32x16",
+        "is_visible": true,
+        "overall_pass": false,
+        "class_name": "sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-32 bg-violet-600 text-white px-4 py-2 rounded-lg z-50",
+        "computed_styles": {
+          "display": "block",
+          "minHeight": "0px",
+          "minWidth": "0px",
+          "opacity": "1",
+          "visibility": "visible"
+        }
+      },
+      {
+        "index": 2,
+        "text": "Skip to footer",
+        "dimensions": "32x16",
+        "is_visible": true,
+        "overall_pass": false,
+        "class_name": "sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-64 bg-violet-600 text-white px-4 py-2 rounded-lg z-50",
+        "computed_styles": {
+          "display": "block",
+          "minHeight": "0px",
+          "minWidth": "0px",
+          "opacity": "1",
+          "visibility": "visible"
+        }
+      },
+      {
+        "index": 3,
+        "text": "",
+        "dimensions": "0x0",
+        "is_visible": false,
+        "overall_pass": false,
+        "class_name": "text-gray-300 hover:text-violet-400 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-900",
+        "computed_styles": {
+          "display": "block",
+          "minHeight": "0px",
+          "minWidth": "0px",
+          "opacity": "1",
+          "visibility": "visible"
+        }
+      },
+      {
+        "index": 4,
+        "text": "",
+        "dimensions": "0x0",
+        "is_visible": false,
+        "overall_pass": false,
+        "class_name": "text-gray-300 hover:text-violet-400 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-900",
+        "computed_styles": {
+          "display": "block",
+          "minHeight": "0px",
+          "minWidth": "0px",
+          "opacity": "1",
+          "visibility": "visible"
+        }
+      },
+      {
+        "index": 5,
+        "text": "",
+        "dimensions": "0x0",
+        "is_visible": false,
+        "overall_pass": false,
+        "class_name": "text-gray-300 hover:text-violet-400 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-900",
+        "computed_styles": {
+          "display": "block",
+          "minHeight": "0px",
+          "minWidth": "0px",
+          "opacity": "1",
+          "visibility": "visible"
+        }
+      },
+      {
+        "index": 6,
+        "text": "",
+        "dimensions": "0x0",
+        "is_visible": false,
+        "overall_pass": false,
+        "class_name": "bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white px-6 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-violet-500/25 hover:-translate-y-0.5 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-900",
+        "computed_styles": {
+          "display": "inline-block",
+          "minHeight": "0px",
+          "minWidth": "0px",
+          "opacity": "1",
+          "visibility": "visible"
+        }
+      },
+      {
+        "index": 7,
+        "text": "",
+        "dimensions": "40x40",
+        "is_visible": true,
+        "overall_pass": false,
+        "class_name": "text-gray-300 hover:text-white p-2 rounded-md transition-colors duration-200 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-900",
+        "computed_styles": {
+          "display": "inline-block",
+          "minHeight": "0px",
+          "minWidth": "0px",
+          "opacity": "1",
+          "visibility": "visible"
+        }
+      },
+      {
+        "index": 8,
+        "text": "",
+        "dimensions": "325x40",
+        "is_visible": true,
+        "overall_pass": false,
+        "class_name": "block w-full text-left text-gray-300 hover:text-violet-400 hover:bg-slate-700/50 px-3 py-2 rounded-md text-base font-medium transition-colors duration-200 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-800",
+        "computed_styles": {
+          "display": "block",
+          "minHeight": "0px",
+          "minWidth": "0px",
+          "opacity": "1",
+          "visibility": "visible"
+        }
+      },
+      {
+        "index": 9,
+        "text": "",
+        "dimensions": "325x40",
+        "is_visible": true,
+        "overall_pass": false,
+        "class_name": "block w-full text-left text-gray-300 hover:text-violet-400 hover:bg-slate-700/50 px-3 py-2 rounded-md text-base font-medium transition-colors duration-200 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-800",
+        "computed_styles": {
+          "display": "block",
+          "minHeight": "0px",
+          "minWidth": "0px",
+          "opacity": "1",
+          "visibility": "visible"
+        }
+      },
+      {
+        "index": 10,
+        "text": "",
+        "dimensions": "325x40",
+        "is_visible": true,
+        "overall_pass": false,
+        "class_name": "block w-full text-left text-gray-300 hover:text-violet-400 hover:bg-slate-700/50 px-3 py-2 rounded-md text-base font-medium transition-colors duration-200 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-800",
+        "computed_styles": {
+          "display": "block",
+          "minHeight": "0px",
+          "minWidth": "0px",
+          "opacity": "1",
+          "visibility": "visible"
+        }
+      },
+      {
+        "index": 11,
+        "text": "",
+        "dimensions": "325x40",
+        "is_visible": true,
+        "overall_pass": false,
+        "class_name": "w-full bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 transform hover:scale-105 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-800",
+        "computed_styles": {
+          "display": "inline-block",
+          "minHeight": "0px",
+          "minWidth": "0px",
+          "opacity": "1",
+          "visibility": "visible"
+        }
+      },
+      {
+        "index": 12,
+        "text": "Determine Your Replacement Ris...",
+        "dimensions": "343x44",
+        "is_visible": true,
+        "overall_pass": true,
+        "class_name": "group bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 disabled:from-violet-500 disabled:to-purple-500 text-white px-4 sm:px-6 py-3 sm:py-4 rounded-lg text-base sm:text-lg font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-xl hover:shadow-violet-500/25 flex items-center justify-center hover:-translate-y-1 disabled:scale-100 disabled:translate-y-0 disabled:cursor-not-allowed focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-gray-900",
+        "computed_styles": {
+          "display": "flex",
+          "minHeight": "auto",
+          "minWidth": "auto",
+          "opacity": "1",
+          "visibility": "visible"
+        }
+      },
+      {
+        "index": 13,
+        "text": "Determine How Your Income Comp...",
+        "dimensions": "343x44",
+        "is_visible": true,
+        "overall_pass": true,
+        "class_name": "group bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 disabled:from-purple-500 disabled:to-pink-500 text-white px-4 sm:px-6 py-3 sm:py-4 rounded-lg text-base sm:text-lg font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-xl hover:shadow-purple-500/25 flex items-center justify-center hover:-translate-y-1 disabled:scale-100 disabled:translate-y-0 disabled:cursor-not-allowed focus-ring focus-visible:ring-4 focus-visible:ring-purple-400 focus-visible:ring-offset-4 focus-visible:ring-offset-gray-900",
+        "computed_styles": {
+          "display": "flex",
+          "minHeight": "auto",
+          "minWidth": "auto",
+          "opacity": "1",
+          "visibility": "visible"
+        }
+      },
+      {
+        "index": 14,
+        "text": "Determine Your \"Cuffing Season...",
+        "dimensions": "343x44",
+        "is_visible": true,
+        "overall_pass": true,
+        "class_name": "group bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-700 hover:to-rose-700 disabled:from-pink-500 disabled:to-rose-500 text-white px-4 sm:px-6 py-3 sm:py-4 rounded-lg text-base sm:text-lg font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-xl hover:shadow-pink-500/25 flex items-center justify-center hover:-translate-y-1 disabled:scale-100 disabled:translate-y-0 disabled:cursor-not-allowed focus-ring focus-visible:ring-4 focus-visible:ring-pink-400 focus-visible:ring-offset-4 focus-visible:ring-offset-gray-900",
+        "computed_styles": {
+          "display": "flex",
+          "minHeight": "auto",
+          "minWidth": "auto",
+          "opacity": "1",
+          "visibility": "visible"
+        }
+      },
+      {
+        "index": 15,
+        "text": "Determine Your Layoff Risk",
+        "dimensions": "343x44",
+        "is_visible": true,
+        "overall_pass": true,
+        "class_name": "group bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-700 hover:to-red-700 disabled:from-rose-500 disabled:to-red-500 text-white px-4 sm:px-6 py-3 sm:py-4 rounded-lg text-base sm:text-lg font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-xl hover:shadow-rose-500/25 flex items-center justify-center hover:-translate-y-1 disabled:scale-100 disabled:translate-y-0 disabled:cursor-not-allowed focus-ring focus-visible:ring-4 focus-visible:ring-rose-400 focus-visible:ring-offset-4 focus-visible:ring-offset-gray-900",
+        "computed_styles": {
+          "display": "flex",
+          "minHeight": "auto",
+          "minWidth": "auto",
+          "opacity": "1",
+          "visibility": "visible"
+        }
+      },
+      {
+        "index": 16,
+        "text": "View Full Dashboard",
+        "dimensions": "232x32",
+        "is_visible": true,
+        "overall_pass": false,
+        "class_name": "w-full bg-gradient-to-r from-violet-500 to-purple-500 text-white py-2 sm:py-3 rounded-xl font-semibold text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-violet-400 focus:ring-offset-2 focus:ring-offset-gray-800",
+        "computed_styles": {
+          "display": "block",
+          "minHeight": "auto",
+          "minWidth": "auto",
+          "opacity": "1",
+          "visibility": "visible"
+        }
+      },
+      {
+        "index": 17,
+        "text": "Take Assessment",
+        "dimensions": "293x48",
+        "is_visible": true,
+        "overall_pass": true,
+        "class_name": "w-full bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white px-4 py-3 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-xl hover:shadow-violet-500/25 flex items-center justify-center hover:-translate-y-1 disabled:scale-100 disabled:translate-y-0 disabled:cursor-not-allowed focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-gray-900",
+        "computed_styles": {
+          "display": "flex",
+          "minHeight": "0px",
+          "minWidth": "0px",
+          "opacity": "1",
+          "visibility": "visible"
+        }
+      },
+      {
+        "index": 18,
+        "text": "Take Assessment",
+        "dimensions": "293x48",
+        "is_visible": true,
+        "overall_pass": true,
+        "class_name": "w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-4 py-3 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-xl hover:shadow-purple-500/25 flex items-center justify-center hover:-translate-y-1 disabled:scale-100 disabled:translate-y-0 disabled:cursor-not-allowed focus-ring focus-visible:ring-4 focus-visible:ring-purple-400 focus-visible:ring-offset-4 focus-visible:ring-offset-gray-900",
+        "computed_styles": {
+          "display": "flex",
+          "minHeight": "0px",
+          "minWidth": "0px",
+          "opacity": "1",
+          "visibility": "visible"
+        }
+      },
+      {
+        "index": 19,
+        "text": "Take Assessment",
+        "dimensions": "293x48",
+        "is_visible": true,
+        "overall_pass": true,
+        "class_name": "w-full bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-700 hover:to-rose-700 text-white px-4 py-3 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-xl hover:shadow-pink-500/25 flex items-center justify-center hover:-translate-y-1 disabled:scale-100 disabled:translate-y-0 disabled:cursor-not-allowed focus-ring focus-visible:ring-4 focus-visible:ring-pink-400 focus-visible:ring-offset-4 focus-visible:ring-offset-gray-900",
+        "computed_styles": {
+          "display": "flex",
+          "minHeight": "0px",
+          "minWidth": "0px",
+          "opacity": "1",
+          "visibility": "visible"
+        }
+      },
+      {
+        "index": 20,
+        "text": "Take Assessment",
+        "dimensions": "293x48",
+        "is_visible": true,
+        "overall_pass": true,
+        "class_name": "w-full bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-700 hover:to-red-700 text-white px-4 py-3 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-xl hover:shadow-rose-500/25 flex items-center justify-center hover:-translate-y-1 disabled:scale-100 disabled:translate-y-0 disabled:cursor-not-allowed focus-ring focus-visible:ring-4 focus-visible:ring-rose-400 focus-visible:ring-offset-4 focus-visible:ring-offset-gray-900",
+        "computed_styles": {
+          "display": "flex",
+          "minHeight": "0px",
+          "minWidth": "0px",
+          "opacity": "1",
+          "visibility": "visible"
+        }
+      },
+      {
+        "index": 21,
+        "text": "Get Started",
+        "dimensions": "279x52",
+        "is_visible": true,
+        "overall_pass": true,
+        "class_name": "w-full py-3 px-6 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:ring-offset-2 focus:ring-offset-gray-800 border-2 border-violet-500 text-violet-400 hover:bg-violet-500 hover:text-white hover:shadow-lg hover:shadow-violet-500/25",
+        "computed_styles": {
+          "display": "inline-block",
+          "minHeight": "0px",
+          "minWidth": "0px",
+          "opacity": "1",
+          "visibility": "visible"
+        }
+      },
+      {
+        "index": 22,
+        "text": "Start Free Trial",
+        "dimensions": "279x48",
+        "is_visible": true,
+        "overall_pass": true,
+        "class_name": "w-full py-3 px-6 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:ring-offset-2 focus:ring-offset-gray-800 bg-gradient-to-r from-violet-500 to-purple-500 hover:from-violet-600 hover:to-purple-600 text-white shadow-lg hover:shadow-violet-500/25",
+        "computed_styles": {
+          "display": "inline-block",
+          "minHeight": "0px",
+          "minWidth": "0px",
+          "opacity": "1",
+          "visibility": "visible"
+        }
+      },
+      {
+        "index": 23,
+        "text": "Go Professional",
+        "dimensions": "279x52",
+        "is_visible": true,
+        "overall_pass": true,
+        "class_name": "w-full py-3 px-6 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:ring-offset-2 focus:ring-offset-gray-800 border-2 border-violet-500 text-violet-400 hover:bg-violet-500 hover:text-white hover:shadow-lg hover:shadow-violet-500/25",
+        "computed_styles": {
+          "display": "inline-block",
+          "minHeight": "0px",
+          "minWidth": "0px",
+          "opacity": "1",
+          "visibility": "visible"
+        }
+      },
+      {
+        "index": 24,
+        "text": "How does Mingus address the un...",
+        "dimensions": "341x92",
+        "is_visible": true,
+        "overall_pass": true,
+        "class_name": "w-full px-4 sm:px-6 py-4 sm:py-5 text-left flex justify-between items-center hover:bg-slate-700/30 transition-all duration-300 rounded-xl group focus-ring focus-visible:ring-4 focus-visible:ring-violet-500 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-800",
+        "computed_styles": {
+          "display": "flex",
+          "minHeight": "0px",
+          "minWidth": "0px",
+          "opacity": "1",
+          "visibility": "visible"
+        }
+      },
+      {
+        "index": 25,
+        "text": "What makes Mingus different fr...",
+        "dimensions": "341x72",
+        "is_visible": true,
+        "overall_pass": true,
+        "class_name": "w-full px-4 sm:px-6 py-4 sm:py-5 text-left flex justify-between items-center hover:bg-slate-700/30 transition-all duration-300 rounded-xl group focus-ring focus-visible:ring-4 focus-visible:ring-violet-500 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-800",
+        "computed_styles": {
+          "display": "flex",
+          "minHeight": "0px",
+          "minWidth": "0px",
+          "opacity": "1",
+          "visibility": "visible"
+        }
+      },
+      {
+        "index": 26,
+        "text": "How does Mingus help with care...",
+        "dimensions": "341x72",
+        "is_visible": true,
+        "overall_pass": true,
+        "class_name": "w-full px-4 sm:px-6 py-4 sm:py-5 text-left flex justify-between items-center hover:bg-slate-700/30 transition-all duration-300 rounded-xl group focus-ring focus-visible:ring-4 focus-visible:ring-violet-500 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-800",
+        "computed_styles": {
+          "display": "flex",
+          "minHeight": "0px",
+          "minWidth": "0px",
+          "opacity": "1",
+          "visibility": "visible"
+        }
+      },
+      {
+        "index": 27,
+        "text": "Can Mingus help me build gener...",
+        "dimensions": "341x72",
+        "is_visible": true,
+        "overall_pass": true,
+        "class_name": "w-full px-4 sm:px-6 py-4 sm:py-5 text-left flex justify-between items-center hover:bg-slate-700/30 transition-all duration-300 rounded-xl group focus-ring focus-visible:ring-4 focus-visible:ring-violet-500 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-800",
+        "computed_styles": {
+          "display": "flex",
+          "minHeight": "0px",
+          "minWidth": "0px",
+          "opacity": "1",
+          "visibility": "visible"
+        }
+      },
+      {
+        "index": 28,
+        "text": "How does Mingus address health...",
+        "dimensions": "341x92",
+        "is_visible": true,
+        "overall_pass": true,
+        "class_name": "w-full px-4 sm:px-6 py-4 sm:py-5 text-left flex justify-between items-center hover:bg-slate-700/30 transition-all duration-300 rounded-xl group focus-ring focus-visible:ring-4 focus-visible:ring-violet-500 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-800",
+        "computed_styles": {
+          "display": "flex",
+          "minHeight": "0px",
+          "minWidth": "0px",
+          "opacity": "1",
+          "visibility": "visible"
+        }
+      },
+      {
+        "index": 29,
+        "text": "Is my financial data secure an...",
+        "dimensions": "341x72",
+        "is_visible": true,
+        "overall_pass": true,
+        "class_name": "w-full px-4 sm:px-6 py-4 sm:py-5 text-left flex justify-between items-center hover:bg-slate-700/30 transition-all duration-300 rounded-xl group focus-ring focus-visible:ring-4 focus-visible:ring-violet-500 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-800",
+        "computed_styles": {
+          "display": "flex",
+          "minHeight": "0px",
+          "minWidth": "0px",
+          "opacity": "1",
+          "visibility": "visible"
+        }
+      },
+      {
+        "index": 30,
+        "text": "Start Your Wealth Journey",
+        "dimensions": "284x60",
+        "is_visible": true,
+        "overall_pass": true,
+        "class_name": "group bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 disabled:from-violet-400 disabled:to-purple-500 text-white px-8 py-4 rounded-lg text-lg font-semibold transition-all duration-300 transform hover:scale-105 flex items-center shadow-lg hover:shadow-xl hover:shadow-violet-500/25 hover:-translate-y-1 disabled:scale-100 disabled:translate-y-0 disabled:cursor-not-allowed focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-violet-800",
+        "computed_styles": {
+          "display": "flex",
+          "minHeight": "auto",
+          "minWidth": "auto",
+          "opacity": "1",
+          "visibility": "visible"
+        }
+      },
+      {
+        "index": 31,
+        "text": "Join Our Community",
+        "dimensions": "240x64",
+        "is_visible": true,
+        "overall_pass": true,
+        "class_name": "group border-2 border-white text-white hover:bg-white hover:text-violet-600 disabled:border-gray-400 disabled:text-gray-400 px-8 py-4 rounded-lg text-lg font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-white/25 hover:-translate-y-1 disabled:scale-100 disabled:translate-y-0 disabled:cursor-not-allowed focus-ring focus-visible:ring-4 focus-visible:ring-white focus-visible:ring-offset-4 focus-visible:ring-offset-violet-800",
+        "computed_styles": {
+          "display": "block",
+          "minHeight": "auto",
+          "minWidth": "auto",
+          "opacity": "1",
+          "visibility": "visible"
+        }
+      }
+    ],
+    "remaining_issues": [
+      {
+        "index": 0,
+        "text": "Skip to main content",
+        "issue": "TOO_SMALL",
+        "dimensions": "32x16",
+        "class": "sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-violet-600 text-white px-4 py-2 rounded-lg z-50"
+      },
+      {
+        "index": 1,
+        "text": "Skip to navigation",
+        "issue": "TOO_SMALL",
+        "dimensions": "32x16",
+        "class": "sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-32 bg-violet-600 text-white px-4 py-2 rounded-lg z-50"
+      },
+      {
+        "index": 2,
+        "text": "Skip to footer",
+        "issue": "TOO_SMALL",
+        "dimensions": "32x16",
+        "class": "sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-64 bg-violet-600 text-white px-4 py-2 rounded-lg z-50"
+      },
+      {
+        "index": 3,
+        "text": "",
+        "issue": "INVISIBLE",
+        "dimensions": "0x0",
+        "class": "text-gray-300 hover:text-violet-400 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-900"
+      },
+      {
+        "index": 4,
+        "text": "",
+        "issue": "INVISIBLE",
+        "dimensions": "0x0",
+        "class": "text-gray-300 hover:text-violet-400 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-900"
+      },
+      {
+        "index": 5,
+        "text": "",
+        "issue": "INVISIBLE",
+        "dimensions": "0x0",
+        "class": "text-gray-300 hover:text-violet-400 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-900"
+      },
+      {
+        "index": 6,
+        "text": "",
+        "issue": "INVISIBLE",
+        "dimensions": "0x0",
+        "class": "bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white px-6 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-violet-500/25 hover:-translate-y-0.5 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-900"
+      },
+      {
+        "index": 7,
+        "text": "",
+        "issue": "TOO_SMALL",
+        "dimensions": "40x40",
+        "class": "text-gray-300 hover:text-white p-2 rounded-md transition-colors duration-200 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-900"
+      },
+      {
+        "index": 8,
+        "text": "",
+        "issue": "TOO_SMALL",
+        "dimensions": "325x40",
+        "class": "block w-full text-left text-gray-300 hover:text-violet-400 hover:bg-slate-700/50 px-3 py-2 rounded-md text-base font-medium transition-colors duration-200 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-800"
+      },
+      {
+        "index": 9,
+        "text": "",
+        "issue": "TOO_SMALL",
+        "dimensions": "325x40",
+        "class": "block w-full text-left text-gray-300 hover:text-violet-400 hover:bg-slate-700/50 px-3 py-2 rounded-md text-base font-medium transition-colors duration-200 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-800"
+      },
+      {
+        "index": 10,
+        "text": "",
+        "issue": "TOO_SMALL",
+        "dimensions": "325x40",
+        "class": "block w-full text-left text-gray-300 hover:text-violet-400 hover:bg-slate-700/50 px-3 py-2 rounded-md text-base font-medium transition-colors duration-200 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-800"
+      },
+      {
+        "index": 11,
+        "text": "",
+        "issue": "TOO_SMALL",
+        "dimensions": "325x40",
+        "class": "w-full bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 transform hover:scale-105 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-800"
+      },
+      {
+        "index": 16,
+        "text": "View Full Dashboard",
+        "issue": "TOO_SMALL",
+        "dimensions": "232x32",
+        "class": "w-full bg-gradient-to-r from-violet-500 to-purple-500 text-white py-2 sm:py-3 rounded-xl font-semibold text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-violet-400 focus:ring-offset-2 focus:ring-offset-gray-800"
+      }
+    ]
+  },
+  "improvements": {
+    "success_rate_improvement": 0.0,
+    "critical_issues_reduced": 0,
+    "passed_buttons_increased": 0
+  },
+  "remaining_issues": []
+}

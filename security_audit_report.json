@@ -1,0 +1,172 @@
+{
+  "summary": {
+    "total_vulnerabilities": 16,
+    "critical": 0,
+    "high": 6,
+    "medium": 10,
+    "low": 0,
+    "audit_date": "2025-09-14T14:31:12.806708"
+  },
+  "vulnerabilities": [
+    {
+      "category": "Input Validation",
+      "severity": "HIGH",
+      "file": "frontend/src/components/AssessmentModal.tsx",
+      "line": 0,
+      "issue": "Missing input validation in form handling",
+      "recommendation": "Implement proper input validation and sanitization for all user inputs.",
+      "cwe": "CWE-20",
+      "timestamp": "2025-09-14T14:31:12.797502"
+    },
+    {
+      "category": "XSS Prevention",
+      "severity": "MEDIUM",
+      "file": "frontend/src/components/LandingPage.tsx",
+      "line": 0,
+      "issue": "Missing Content Security Policy",
+      "recommendation": "Implement CSP headers to prevent XSS attacks.",
+      "cwe": "CWE-79",
+      "timestamp": "2025-09-14T14:31:12.804760"
+    },
+    {
+      "category": "Error Handling",
+      "severity": "MEDIUM",
+      "file": "frontend/src/components/",
+      "line": 0,
+      "issue": "Missing Error Boundary component",
+      "recommendation": "Implement Error Boundary to prevent sensitive information leakage.",
+      "cwe": "CWE-209",
+      "timestamp": "2025-09-14T14:31:12.804897"
+    },
+    {
+      "category": "Input Validation",
+      "severity": "HIGH",
+      "file": "frontend/src/utils/",
+      "line": 0,
+      "issue": "Missing input sanitization utilities",
+      "recommendation": "Create utility functions for input sanitization and validation.",
+      "cwe": "CWE-20",
+      "timestamp": "2025-09-14T14:31:12.804955"
+    },
+    {
+      "category": "Input Validation",
+      "severity": "HIGH",
+      "file": "backend/api/assessment_endpoints.py",
+      "line": 0,
+      "issue": "Missing input validation for JSON data",
+      "recommendation": "Implement comprehensive input validation for all API endpoints.",
+      "cwe": "CWE-20",
+      "timestamp": "2025-09-14T14:31:12.805740"
+    },
+    {
+      "category": "CORS",
+      "severity": "MEDIUM",
+      "file": "backend/api/assessment_endpoints.py",
+      "line": 0,
+      "issue": "Missing CORS configuration",
+      "recommendation": "Configure CORS properly to prevent unauthorized cross-origin requests.",
+      "cwe": "CWE-346",
+      "timestamp": "2025-09-14T14:31:12.805889"
+    },
+    {
+      "category": "Error Handling",
+      "severity": "MEDIUM",
+      "file": "backend/api/assessment_endpoints.py",
+      "line": 83,
+      "issue": "Insufficient error logging",
+      "recommendation": "Log all errors with appropriate detail for security monitoring.",
+      "cwe": "CWE-209",
+      "timestamp": "2025-09-14T14:31:12.805912"
+    },
+    {
+      "category": "Error Handling",
+      "severity": "MEDIUM",
+      "file": "backend/api/assessment_endpoints.py",
+      "line": 160,
+      "issue": "Insufficient error logging",
+      "recommendation": "Log all errors with appropriate detail for security monitoring.",
+      "cwe": "CWE-209",
+      "timestamp": "2025-09-14T14:31:12.805927"
+    },
+    {
+      "category": "Error Handling",
+      "severity": "MEDIUM",
+      "file": "backend/api/assessment_endpoints.py",
+      "line": 203,
+      "issue": "Insufficient error logging",
+      "recommendation": "Log all errors with appropriate detail for security monitoring.",
+      "cwe": "CWE-209",
+      "timestamp": "2025-09-14T14:31:12.805935"
+    },
+    {
+      "category": "Error Handling",
+      "severity": "MEDIUM",
+      "file": "backend/api/assessment_endpoints.py",
+      "line": 248,
+      "issue": "Insufficient error logging",
+      "recommendation": "Log all errors with appropriate detail for security monitoring.",
+      "cwe": "CWE-209",
+      "timestamp": "2025-09-14T14:31:12.805942"
+    },
+    {
+      "category": "Error Handling",
+      "severity": "MEDIUM",
+      "file": "backend/api/assessment_endpoints.py",
+      "line": 578,
+      "issue": "Insufficient error logging",
+      "recommendation": "Log all errors with appropriate detail for security monitoring.",
+      "cwe": "CWE-209",
+      "timestamp": "2025-09-14T14:31:12.805988"
+    },
+    {
+      "category": "CSRF",
+      "severity": "HIGH",
+      "file": "backend/api/assessment_endpoints.py",
+      "line": 0,
+      "issue": "Missing CSRF protection",
+      "recommendation": "Implement CSRF tokens for all state-changing operations.",
+      "cwe": "CWE-352",
+      "timestamp": "2025-09-14T14:31:12.806025"
+    },
+    {
+      "category": "Data Protection",
+      "severity": "HIGH",
+      "file": "backend/api/assessment_endpoints.py",
+      "line": 0,
+      "issue": "Sensitive data (email) stored without encryption",
+      "recommendation": "Encrypt sensitive data at rest and in transit.",
+      "cwe": "CWE-311",
+      "timestamp": "2025-09-14T14:31:12.806385"
+    },
+    {
+      "category": "Data Retention",
+      "severity": "MEDIUM",
+      "file": "backend/api/assessment_endpoints.py",
+      "line": 0,
+      "issue": "Missing data retention policies",
+      "recommendation": "Implement data retention and deletion policies for GDPR compliance.",
+      "cwe": "CWE-200",
+      "timestamp": "2025-09-14T14:31:12.806451"
+    },
+    {
+      "category": "Session Management",
+      "severity": "HIGH",
+      "file": "backend/auth/",
+      "line": 0,
+      "issue": "Missing session management",
+      "recommendation": "Implement secure session management with proper expiration.",
+      "cwe": "CWE-613",
+      "timestamp": "2025-09-14T14:31:12.806509"
+    },
+    {
+      "category": "Password Policy",
+      "severity": "MEDIUM",
+      "file": "backend/auth/",
+      "line": 0,
+      "issue": "Missing password policy enforcement",
+      "recommendation": "Implement strong password policies and validation.",
+      "cwe": "CWE-521",
+      "timestamp": "2025-09-14T14:31:12.806526"
+    }
+  ]
+}

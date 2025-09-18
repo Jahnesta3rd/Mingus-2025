@@ -1,0 +1,907 @@
+{
+  "timestamp": "2025-09-14T20:26:41.622557",
+  "pages": {
+    "landing_page": {
+      "axe_tests": {
+        "page": "landing_page",
+        "url": "http://localhost:3000",
+        "status": "COMPLETED",
+        "total_checks": 45,
+        "passes": 36,
+        "violations": 8,
+        "incomplete": 1,
+        "pass_rate": 80.0,
+        "violations_by_severity": {
+          "critical": 1,
+          "serious": 0,
+          "moderate": 6,
+          "minor": 1
+        },
+        "critical_violations": [
+          {
+            "description": "Ensures every id attribute value used in ARIA and in labels is unique",
+            "help": "IDs used in ARIA and labels must be unique",
+            "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/duplicate-id-aria?application=axeAPI",
+            "id": "duplicate-id-aria",
+            "impact": "critical",
+            "nodes": [
+              {
+                "all": [],
+                "any": [
+                  {
+                    "data": "mobile-menu",
+                    "id": "duplicate-id-aria",
+                    "impact": "critical",
+                    "message": "Document has multiple elements referenced with ARIA with the same id attribute: mobile-menu",
+                    "relatedNodes": [
+                      {
+                        "html": "<div id=\"mobile-menu\" class=\"md:hidden transition-all duration-300 ease-in-out max-h-0 opacity-0 overflow-hidden\" role=\"menu\" aria-label=\"Mobile navigation menu\">",
+                        "target": [
+                          "#navigation > nav > .max-w-7xl.lg\\:px-8.mx-auto > .md\\:hidden[role=\"menu\"][aria-label=\"Mobile navigation menu\"]"
+                        ]
+                      }
+                    ]
+                  }
+                ],
+                "failureSummary": "Fix any of the following:\n  Document has multiple elements referenced with ARIA with the same id attribute: mobile-menu",
+                "html": "<div id=\"mobile-menu\" class=\"md:hidden transition-all duration-300 ease-in-out max-h-0 opacity-0 overflow-hidden\" role=\"menu\" aria-label=\"Mobile navigation menu\">",
+                "impact": "critical",
+                "none": [],
+                "target": [
+                  ".min-h-screen.via-violet-900.from-slate-900 > header > nav > .max-w-7xl.lg\\:px-8.mx-auto > .md\\:hidden[role=\"menu\"][aria-label=\"Mobile navigation menu\"]"
+                ]
+              }
+            ],
+            "tags": [
+              "cat.parsing",
+              "wcag2a",
+              "wcag411"
+            ]
+          }
+        ],
+        "serious_violations": [],
+        "moderate_violations": [
+          {
+            "description": "Ensures the banner landmark is at top level",
+            "help": "Banner landmark should not be contained in another landmark",
+            "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/landmark-banner-is-top-level?application=axeAPI",
+            "id": "landmark-banner-is-top-level",
+            "impact": "moderate",
+            "nodes": [
+              {
+                "all": [],
+                "any": [
+                  {
+                    "data": {
+                      "role": "banner"
+                    },
+                    "id": "landmark-is-top-level",
+                    "impact": "moderate",
+                    "message": "The banner landmark is contained in another landmark.",
+                    "relatedNodes": []
+                  }
+                ],
+                "failureSummary": "Fix any of the following:\n  The banner landmark is contained in another landmark.",
+                "html": "<header id=\"navigation\" role=\"banner\" aria-label=\"Site header\">",
+                "impact": "moderate",
+                "none": [],
+                "target": [
+                  "#navigation"
+                ]
+              }
+            ],
+            "tags": [
+              "cat.semantics",
+              "best-practice"
+            ]
+          },
+          {
+            "description": "Ensures the contentinfo landmark is at top level",
+            "help": "Contentinfo landmark should not be contained in another landmark",
+            "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/landmark-contentinfo-is-top-level?application=axeAPI",
+            "id": "landmark-contentinfo-is-top-level",
+            "impact": "moderate",
+            "nodes": [
+              {
+                "all": [],
+                "any": [
+                  {
+                    "data": {
+                      "role": "contentinfo"
+                    },
+                    "id": "landmark-is-top-level",
+                    "impact": "moderate",
+                    "message": "The contentinfo landmark is contained in another landmark.",
+                    "relatedNodes": []
+                  }
+                ],
+                "failureSummary": "Fix any of the following:\n  The contentinfo landmark is contained in another landmark.",
+                "html": "<footer id=\"footer\" class=\"bg-gray-900 border-t border-gray-800 py-12 px-4 sm:px-6 lg:px-8\" role=\"contentinfo\" aria-label=\"Site footer\">",
+                "impact": "moderate",
+                "none": [],
+                "target": [
+                  "#footer"
+                ]
+              }
+            ],
+            "tags": [
+              "cat.semantics",
+              "best-practice"
+            ]
+          },
+          {
+            "description": "Ensures the main landmark is at top level",
+            "help": "Main landmark should not be contained in another landmark",
+            "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/landmark-main-is-top-level?application=axeAPI",
+            "id": "landmark-main-is-top-level",
+            "impact": "moderate",
+            "nodes": [
+              {
+                "all": [],
+                "any": [
+                  {
+                    "data": {
+                      "role": "main"
+                    },
+                    "id": "landmark-is-top-level",
+                    "impact": "moderate",
+                    "message": "The main landmark is contained in another landmark.",
+                    "relatedNodes": []
+                  }
+                ],
+                "failureSummary": "Fix any of the following:\n  The main landmark is contained in another landmark.",
+                "html": "<main id=\"main-content\" role=\"main\" aria-label=\"Main content\">",
+                "impact": "moderate",
+                "none": [],
+                "target": [
+                  "main[aria-label=\"Main content\"]"
+                ]
+              }
+            ],
+            "tags": [
+              "cat.semantics",
+              "best-practice"
+            ]
+          },
+          {
+            "description": "Ensures the document has at most one banner landmark",
+            "help": "Document should not have more than one banner landmark",
+            "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/landmark-no-duplicate-banner?application=axeAPI",
+            "id": "landmark-no-duplicate-banner",
+            "impact": "moderate",
+            "nodes": [
+              {
+                "all": [],
+                "any": [
+                  {
+                    "data": null,
+                    "id": "page-no-duplicate-banner",
+                    "impact": "moderate",
+                    "message": "Document has more than one banner landmark",
+                    "relatedNodes": [
+                      {
+                        "html": "<header id=\"navigation\" role=\"banner\" aria-label=\"Site header\">",
+                        "target": [
+                          "#navigation"
+                        ]
+                      }
+                    ]
+                  }
+                ],
+                "failureSummary": "Fix any of the following:\n  Document has more than one banner landmark",
+                "html": "<header role=\"banner\">",
+                "impact": "moderate",
+                "none": [],
+                "target": [
+                  ".min-h-screen.via-violet-900.from-slate-900 > header"
+                ]
+              }
+            ],
+            "tags": [
+              "cat.semantics",
+              "best-practice"
+            ]
+          },
+          {
+            "description": "Ensures the document has at most one main landmark",
+            "help": "Document should not have more than one main landmark",
+            "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/landmark-no-duplicate-main?application=axeAPI",
+            "id": "landmark-no-duplicate-main",
+            "impact": "moderate",
+            "nodes": [
+              {
+                "all": [],
+                "any": [
+                  {
+                    "data": null,
+                    "id": "page-no-duplicate-main",
+                    "impact": "moderate",
+                    "message": "Document has more than one main landmark",
+                    "relatedNodes": [
+                      {
+                        "html": "<main id=\"main-content\" role=\"main\" aria-label=\"Main content\">",
+                        "target": [
+                          "main[aria-label=\"Main content\"]"
+                        ]
+                      }
+                    ]
+                  }
+                ],
+                "failureSummary": "Fix any of the following:\n  Document has more than one main landmark",
+                "html": "<main id=\"main-content\" role=\"main\">",
+                "impact": "moderate",
+                "none": [],
+                "target": [
+                  ".min-h-screen.via-violet-900.from-slate-900 > main"
+                ]
+              }
+            ],
+            "tags": [
+              "cat.semantics",
+              "best-practice"
+            ]
+          },
+          {
+            "description": "Landmarks should have a unique role or role/label/title (i.e. accessible name) combination",
+            "help": "Ensures landmarks are unique",
+            "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/landmark-unique?application=axeAPI",
+            "id": "landmark-unique",
+            "impact": "moderate",
+            "nodes": [
+              {
+                "all": [],
+                "any": [
+                  {
+                    "data": {
+                      "accessibleText": "main navigation",
+                      "role": "navigation"
+                    },
+                    "id": "landmark-is-unique",
+                    "impact": "moderate",
+                    "message": "The landmark must have a unique aria-label, aria-labelledby, or title to make landmarks distinguishable",
+                    "relatedNodes": [
+                      {
+                        "html": "<nav role=\"navigation\" aria-label=\"Main navigation\" class=\"fixed top-0 w-full z-50 transition-all duration-300 bg-slate-900/90 backdrop-blur-sm \">",
+                        "target": [
+                          "#navigation > nav"
+                        ]
+                      }
+                    ]
+                  }
+                ],
+                "failureSummary": "Fix any of the following:\n  The landmark must have a unique aria-label, aria-labelledby, or title to make landmarks distinguishable",
+                "html": "<nav role=\"navigation\" aria-label=\"Main navigation\" class=\"fixed top-0 w-full z-50 transition-all duration-300 bg-slate-900/90 backdrop-blur-sm \">",
+                "impact": "moderate",
+                "none": [],
+                "target": [
+                  ".min-h-screen.via-violet-900.from-slate-900 > header > nav"
+                ]
+              }
+            ],
+            "tags": [
+              "cat.semantics",
+              "best-practice"
+            ]
+          }
+        ],
+        "minor_violations": [
+          {
+            "description": "Ensures every id attribute value is unique",
+            "help": "id attribute value must be unique",
+            "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/duplicate-id?application=axeAPI",
+            "id": "duplicate-id",
+            "impact": "minor",
+            "nodes": [
+              {
+                "all": [],
+                "any": [
+                  {
+                    "data": "main-content",
+                    "id": "duplicate-id",
+                    "impact": "minor",
+                    "message": "Document has multiple static elements with the same id attribute: main-content",
+                    "relatedNodes": [
+                      {
+                        "html": "<main id=\"main-content\" role=\"main\" aria-label=\"Main content\">",
+                        "target": [
+                          "main[aria-label=\"Main content\"]"
+                        ]
+                      }
+                    ]
+                  }
+                ],
+                "failureSummary": "Fix any of the following:\n  Document has multiple static elements with the same id attribute: main-content",
+                "html": "<main id=\"main-content\" role=\"main\">",
+                "impact": "minor",
+                "none": [],
+                "target": [
+                  ".min-h-screen.via-violet-900.from-slate-900 > main"
+                ]
+              }
+            ],
+            "tags": [
+              "cat.parsing",
+              "wcag2a",
+              "wcag411"
+            ]
+          }
+        ],
+        "all_violations": [
+          {
+            "description": "Ensures every id attribute value used in ARIA and in labels is unique",
+            "help": "IDs used in ARIA and labels must be unique",
+            "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/duplicate-id-aria?application=axeAPI",
+            "id": "duplicate-id-aria",
+            "impact": "critical",
+            "nodes": [
+              {
+                "all": [],
+                "any": [
+                  {
+                    "data": "mobile-menu",
+                    "id": "duplicate-id-aria",
+                    "impact": "critical",
+                    "message": "Document has multiple elements referenced with ARIA with the same id attribute: mobile-menu",
+                    "relatedNodes": [
+                      {
+                        "html": "<div id=\"mobile-menu\" class=\"md:hidden transition-all duration-300 ease-in-out max-h-0 opacity-0 overflow-hidden\" role=\"menu\" aria-label=\"Mobile navigation menu\">",
+                        "target": [
+                          "#navigation > nav > .max-w-7xl.lg\\:px-8.mx-auto > .md\\:hidden[role=\"menu\"][aria-label=\"Mobile navigation menu\"]"
+                        ]
+                      }
+                    ]
+                  }
+                ],
+                "failureSummary": "Fix any of the following:\n  Document has multiple elements referenced with ARIA with the same id attribute: mobile-menu",
+                "html": "<div id=\"mobile-menu\" class=\"md:hidden transition-all duration-300 ease-in-out max-h-0 opacity-0 overflow-hidden\" role=\"menu\" aria-label=\"Mobile navigation menu\">",
+                "impact": "critical",
+                "none": [],
+                "target": [
+                  ".min-h-screen.via-violet-900.from-slate-900 > header > nav > .max-w-7xl.lg\\:px-8.mx-auto > .md\\:hidden[role=\"menu\"][aria-label=\"Mobile navigation menu\"]"
+                ]
+              }
+            ],
+            "tags": [
+              "cat.parsing",
+              "wcag2a",
+              "wcag411"
+            ]
+          },
+          {
+            "description": "Ensures every id attribute value is unique",
+            "help": "id attribute value must be unique",
+            "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/duplicate-id?application=axeAPI",
+            "id": "duplicate-id",
+            "impact": "minor",
+            "nodes": [
+              {
+                "all": [],
+                "any": [
+                  {
+                    "data": "main-content",
+                    "id": "duplicate-id",
+                    "impact": "minor",
+                    "message": "Document has multiple static elements with the same id attribute: main-content",
+                    "relatedNodes": [
+                      {
+                        "html": "<main id=\"main-content\" role=\"main\" aria-label=\"Main content\">",
+                        "target": [
+                          "main[aria-label=\"Main content\"]"
+                        ]
+                      }
+                    ]
+                  }
+                ],
+                "failureSummary": "Fix any of the following:\n  Document has multiple static elements with the same id attribute: main-content",
+                "html": "<main id=\"main-content\" role=\"main\">",
+                "impact": "minor",
+                "none": [],
+                "target": [
+                  ".min-h-screen.via-violet-900.from-slate-900 > main"
+                ]
+              }
+            ],
+            "tags": [
+              "cat.parsing",
+              "wcag2a",
+              "wcag411"
+            ]
+          },
+          {
+            "description": "Ensures the banner landmark is at top level",
+            "help": "Banner landmark should not be contained in another landmark",
+            "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/landmark-banner-is-top-level?application=axeAPI",
+            "id": "landmark-banner-is-top-level",
+            "impact": "moderate",
+            "nodes": [
+              {
+                "all": [],
+                "any": [
+                  {
+                    "data": {
+                      "role": "banner"
+                    },
+                    "id": "landmark-is-top-level",
+                    "impact": "moderate",
+                    "message": "The banner landmark is contained in another landmark.",
+                    "relatedNodes": []
+                  }
+                ],
+                "failureSummary": "Fix any of the following:\n  The banner landmark is contained in another landmark.",
+                "html": "<header id=\"navigation\" role=\"banner\" aria-label=\"Site header\">",
+                "impact": "moderate",
+                "none": [],
+                "target": [
+                  "#navigation"
+                ]
+              }
+            ],
+            "tags": [
+              "cat.semantics",
+              "best-practice"
+            ]
+          },
+          {
+            "description": "Ensures the contentinfo landmark is at top level",
+            "help": "Contentinfo landmark should not be contained in another landmark",
+            "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/landmark-contentinfo-is-top-level?application=axeAPI",
+            "id": "landmark-contentinfo-is-top-level",
+            "impact": "moderate",
+            "nodes": [
+              {
+                "all": [],
+                "any": [
+                  {
+                    "data": {
+                      "role": "contentinfo"
+                    },
+                    "id": "landmark-is-top-level",
+                    "impact": "moderate",
+                    "message": "The contentinfo landmark is contained in another landmark.",
+                    "relatedNodes": []
+                  }
+                ],
+                "failureSummary": "Fix any of the following:\n  The contentinfo landmark is contained in another landmark.",
+                "html": "<footer id=\"footer\" class=\"bg-gray-900 border-t border-gray-800 py-12 px-4 sm:px-6 lg:px-8\" role=\"contentinfo\" aria-label=\"Site footer\">",
+                "impact": "moderate",
+                "none": [],
+                "target": [
+                  "#footer"
+                ]
+              }
+            ],
+            "tags": [
+              "cat.semantics",
+              "best-practice"
+            ]
+          },
+          {
+            "description": "Ensures the main landmark is at top level",
+            "help": "Main landmark should not be contained in another landmark",
+            "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/landmark-main-is-top-level?application=axeAPI",
+            "id": "landmark-main-is-top-level",
+            "impact": "moderate",
+            "nodes": [
+              {
+                "all": [],
+                "any": [
+                  {
+                    "data": {
+                      "role": "main"
+                    },
+                    "id": "landmark-is-top-level",
+                    "impact": "moderate",
+                    "message": "The main landmark is contained in another landmark.",
+                    "relatedNodes": []
+                  }
+                ],
+                "failureSummary": "Fix any of the following:\n  The main landmark is contained in another landmark.",
+                "html": "<main id=\"main-content\" role=\"main\" aria-label=\"Main content\">",
+                "impact": "moderate",
+                "none": [],
+                "target": [
+                  "main[aria-label=\"Main content\"]"
+                ]
+              }
+            ],
+            "tags": [
+              "cat.semantics",
+              "best-practice"
+            ]
+          },
+          {
+            "description": "Ensures the document has at most one banner landmark",
+            "help": "Document should not have more than one banner landmark",
+            "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/landmark-no-duplicate-banner?application=axeAPI",
+            "id": "landmark-no-duplicate-banner",
+            "impact": "moderate",
+            "nodes": [
+              {
+                "all": [],
+                "any": [
+                  {
+                    "data": null,
+                    "id": "page-no-duplicate-banner",
+                    "impact": "moderate",
+                    "message": "Document has more than one banner landmark",
+                    "relatedNodes": [
+                      {
+                        "html": "<header id=\"navigation\" role=\"banner\" aria-label=\"Site header\">",
+                        "target": [
+                          "#navigation"
+                        ]
+                      }
+                    ]
+                  }
+                ],
+                "failureSummary": "Fix any of the following:\n  Document has more than one banner landmark",
+                "html": "<header role=\"banner\">",
+                "impact": "moderate",
+                "none": [],
+                "target": [
+                  ".min-h-screen.via-violet-900.from-slate-900 > header"
+                ]
+              }
+            ],
+            "tags": [
+              "cat.semantics",
+              "best-practice"
+            ]
+          },
+          {
+            "description": "Ensures the document has at most one main landmark",
+            "help": "Document should not have more than one main landmark",
+            "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/landmark-no-duplicate-main?application=axeAPI",
+            "id": "landmark-no-duplicate-main",
+            "impact": "moderate",
+            "nodes": [
+              {
+                "all": [],
+                "any": [
+                  {
+                    "data": null,
+                    "id": "page-no-duplicate-main",
+                    "impact": "moderate",
+                    "message": "Document has more than one main landmark",
+                    "relatedNodes": [
+                      {
+                        "html": "<main id=\"main-content\" role=\"main\" aria-label=\"Main content\">",
+                        "target": [
+                          "main[aria-label=\"Main content\"]"
+                        ]
+                      }
+                    ]
+                  }
+                ],
+                "failureSummary": "Fix any of the following:\n  Document has more than one main landmark",
+                "html": "<main id=\"main-content\" role=\"main\">",
+                "impact": "moderate",
+                "none": [],
+                "target": [
+                  ".min-h-screen.via-violet-900.from-slate-900 > main"
+                ]
+              }
+            ],
+            "tags": [
+              "cat.semantics",
+              "best-practice"
+            ]
+          },
+          {
+            "description": "Landmarks should have a unique role or role/label/title (i.e. accessible name) combination",
+            "help": "Ensures landmarks are unique",
+            "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/landmark-unique?application=axeAPI",
+            "id": "landmark-unique",
+            "impact": "moderate",
+            "nodes": [
+              {
+                "all": [],
+                "any": [
+                  {
+                    "data": {
+                      "accessibleText": "main navigation",
+                      "role": "navigation"
+                    },
+                    "id": "landmark-is-unique",
+                    "impact": "moderate",
+                    "message": "The landmark must have a unique aria-label, aria-labelledby, or title to make landmarks distinguishable",
+                    "relatedNodes": [
+                      {
+                        "html": "<nav role=\"navigation\" aria-label=\"Main navigation\" class=\"fixed top-0 w-full z-50 transition-all duration-300 bg-slate-900/90 backdrop-blur-sm \">",
+                        "target": [
+                          "#navigation > nav"
+                        ]
+                      }
+                    ]
+                  }
+                ],
+                "failureSummary": "Fix any of the following:\n  The landmark must have a unique aria-label, aria-labelledby, or title to make landmarks distinguishable",
+                "html": "<nav role=\"navigation\" aria-label=\"Main navigation\" class=\"fixed top-0 w-full z-50 transition-all duration-300 bg-slate-900/90 backdrop-blur-sm \">",
+                "impact": "moderate",
+                "none": [],
+                "target": [
+                  ".min-h-screen.via-violet-900.from-slate-900 > header > nav"
+                ]
+              }
+            ],
+            "tags": [
+              "cat.semantics",
+              "best-practice"
+            ]
+          }
+        ]
+      },
+      "keyboard_navigation": {
+        "page": "landing_page",
+        "url": "http://localhost:3000",
+        "status": "COMPLETED",
+        "total_focusable_elements": 43,
+        "tab_order_tested": 4,
+        "tab_order": [
+          {
+            "index": 1,
+            "tag": "button",
+            "text": "Features",
+            "accessible_name": "Navigate to Features section"
+          },
+          {
+            "index": 2,
+            "tag": "button",
+            "text": "Pricing",
+            "accessible_name": "Navigate to Pricing section"
+          },
+          {
+            "index": 3,
+            "tag": "button",
+            "text": "FAQ",
+            "accessible_name": "Navigate to FAQ section"
+          },
+          {
+            "index": 4,
+            "tag": "button",
+            "text": "Get Started",
+            "accessible_name": "Get started with Mingus"
+          }
+        ],
+        "enter_activations": 5,
+        "escape_works": true,
+        "keyboard_score": 9.30232558139535
+      },
+      "color_contrast": {
+        "page": "landing_page",
+        "url": "http://localhost:3000",
+        "status": "COMPLETED",
+        "total_text_elements": 18,
+        "contrast_issues": 0,
+        "issues": [],
+        "contrast_score": 100
+      },
+      "screen_reader_support": {
+        "page": "landing_page",
+        "url": "http://localhost:3000",
+        "status": "COMPLETED",
+        "aria_elements": 55,
+        "semantic_elements": 54,
+        "total_images": 0,
+        "images_with_alt": 0,
+        "alt_text_coverage": 0.0,
+        "total_form_inputs": 0,
+        "labeled_inputs": 0,
+        "label_coverage": 0.0,
+        "skip_links": 2,
+        "heading_hierarchy_issues": 0,
+        "hierarchy_issues": [],
+        "screen_reader_score": 60
+      },
+      "focus_management": {
+        "page": "landing_page",
+        "url": "http://localhost:3000",
+        "status": "COMPLETED",
+        "total_focusable_elements": 43,
+        "elements_with_focus_indicators": 0,
+        "focus_indicator_coverage": 0.0,
+        "modal_focus_trap": false,
+        "focus_management_score": 0.0
+      },
+      "overall_score": 49.860465116279066
+    },
+    "settings_page": {
+      "axe_tests": {
+        "page": "settings_page",
+        "url": "http://localhost:3000/settings",
+        "status": "COMPLETED",
+        "total_checks": 35,
+        "passes": 34,
+        "violations": 0,
+        "incomplete": 1,
+        "pass_rate": 97.14285714285714,
+        "violations_by_severity": {
+          "critical": 0,
+          "serious": 0,
+          "moderate": 0,
+          "minor": 0
+        },
+        "critical_violations": [],
+        "serious_violations": [],
+        "moderate_violations": [],
+        "minor_violations": [],
+        "all_violations": []
+      },
+      "keyboard_navigation": {
+        "page": "settings_page",
+        "url": "http://localhost:3000/settings",
+        "status": "COMPLETED",
+        "total_focusable_elements": 22,
+        "tab_order_tested": 4,
+        "tab_order": [
+          {
+            "index": 1,
+            "tag": "button",
+            "text": "Features",
+            "accessible_name": "Navigate to Features section"
+          },
+          {
+            "index": 2,
+            "tag": "button",
+            "text": "Pricing",
+            "accessible_name": "Navigate to Pricing section"
+          },
+          {
+            "index": 3,
+            "tag": "button",
+            "text": "FAQ",
+            "accessible_name": "Navigate to FAQ section"
+          },
+          {
+            "index": 4,
+            "tag": "button",
+            "text": "Get Started",
+            "accessible_name": "Get started with Mingus"
+          }
+        ],
+        "enter_activations": 5,
+        "escape_works": true,
+        "keyboard_score": 18.181818181818183
+      },
+      "color_contrast": {
+        "page": "settings_page",
+        "url": "http://localhost:3000/settings",
+        "status": "COMPLETED",
+        "total_text_elements": 18,
+        "contrast_issues": 0,
+        "issues": [],
+        "contrast_score": 100
+      },
+      "screen_reader_support": {
+        "page": "settings_page",
+        "url": "http://localhost:3000/settings",
+        "status": "COMPLETED",
+        "aria_elements": 22,
+        "semantic_elements": 8,
+        "total_images": 0,
+        "images_with_alt": 0,
+        "alt_text_coverage": 0.0,
+        "total_form_inputs": 9,
+        "labeled_inputs": 9,
+        "label_coverage": 100.0,
+        "skip_links": 1,
+        "heading_hierarchy_issues": 0,
+        "hierarchy_issues": [],
+        "screen_reader_score": 76.0
+      },
+      "focus_management": {
+        "page": "settings_page",
+        "url": "http://localhost:3000/settings",
+        "status": "COMPLETED",
+        "total_focusable_elements": 22,
+        "elements_with_focus_indicators": 4,
+        "focus_indicator_coverage": 40.0,
+        "modal_focus_trap": false,
+        "focus_management_score": 40.0
+      },
+      "overall_score": 66.26493506493506
+    },
+    "dashboard": {
+      "axe_tests": {
+        "page": "dashboard",
+        "url": "http://localhost:3000/dashboard",
+        "status": "COMPLETED",
+        "total_checks": 32,
+        "passes": 31,
+        "violations": 0,
+        "incomplete": 1,
+        "pass_rate": 96.875,
+        "violations_by_severity": {
+          "critical": 0,
+          "serious": 0,
+          "moderate": 0,
+          "minor": 0
+        },
+        "critical_violations": [],
+        "serious_violations": [],
+        "moderate_violations": [],
+        "minor_violations": [],
+        "all_violations": []
+      },
+      "keyboard_navigation": {
+        "page": "dashboard",
+        "url": "http://localhost:3000/dashboard",
+        "status": "COMPLETED",
+        "total_focusable_elements": 11,
+        "tab_order_tested": 4,
+        "tab_order": [
+          {
+            "index": 1,
+            "tag": "button",
+            "text": "Features",
+            "accessible_name": "Navigate to Features section"
+          },
+          {
+            "index": 2,
+            "tag": "button",
+            "text": "Pricing",
+            "accessible_name": "Navigate to Pricing section"
+          },
+          {
+            "index": 3,
+            "tag": "button",
+            "text": "FAQ",
+            "accessible_name": "Navigate to FAQ section"
+          },
+          {
+            "index": 4,
+            "tag": "button",
+            "text": "Get Started",
+            "accessible_name": "Get started with Mingus"
+          }
+        ],
+        "enter_activations": 5,
+        "escape_works": true,
+        "keyboard_score": 36.36363636363637
+      },
+      "color_contrast": {
+        "page": "dashboard",
+        "url": "http://localhost:3000/dashboard",
+        "status": "COMPLETED",
+        "total_text_elements": 18,
+        "contrast_issues": 0,
+        "issues": [],
+        "contrast_score": 100
+      },
+      "screen_reader_support": {
+        "page": "dashboard",
+        "url": "http://localhost:3000/dashboard",
+        "status": "COMPLETED",
+        "aria_elements": 12,
+        "semantic_elements": 5,
+        "total_images": 0,
+        "images_with_alt": 0,
+        "alt_text_coverage": 0.0,
+        "total_form_inputs": 0,
+        "labeled_inputs": 0,
+        "label_coverage": 0.0,
+        "skip_links": 1,
+        "heading_hierarchy_issues": 0,
+        "hierarchy_issues": [],
+        "screen_reader_score": 50
+      },
+      "focus_management": {
+        "page": "dashboard",
+        "url": "http://localhost:3000/dashboard",
+        "status": "COMPLETED",
+        "total_focusable_elements": 11,
+        "elements_with_focus_indicators": 4,
+        "focus_indicator_coverage": 40.0,
+        "modal_focus_trap": false,
+        "focus_management_score": 40.0
+      },
+      "overall_score": 64.64772727272728
+    }
+  },
+  "summary": {
+    "total_pages": 3,
+    "pages_passed": 0,
+    "pages_failed": 3,
+    "overall_score": 60.257709151313804
+  }
+}

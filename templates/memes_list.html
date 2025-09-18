@@ -87,7 +87,7 @@
                             <tr data-category="{{ meme.category }}" data-status="{{ 'active' if meme.is_active else 'inactive' }}" data-search="{{ (meme.caption + ' ' + meme.alt_text).lower() }}">
                                 <td>
                                     <img src="{{ url_for('uploaded_file', filename=meme.image_url) }}" 
-                                         alt="{{ meme.alt_text }}" 
+                                         alt="{{ meme.alt_text or 'Meme thumbnail' }}" 
                                          class="meme-thumbnail"
                                          onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHZpZXdCb3g9IjAgMCA4MCA4MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjgwIiBoZWlnaHQ9IjgwIiBmaWxsPSIjRjVGNUY1Ii8+CjxwYXRoIGQ9Ik0yMCAyMEg2MFY2MEgyMFYyMFoiIHN0cm9rZT0iI0NDQyIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIi8+CjxwYXRoIGQ9Ik0zMCAzMEg1MFY1MEgzMFYzMFoiIHN0cm9rZT0iI0NDQyIgc3Ryb2tlLXdpZHRoPSIxLjUiIGZpbGw9Im5vbmUiLz4KPC9zdmc+Cg=='">
                                 </td>

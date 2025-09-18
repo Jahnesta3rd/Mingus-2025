@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mingus FAQ Accordion Demo</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide-react@latest/dist/umd/lucide-react.js"></script>
+    <style>
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1f2937;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #6b7280;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #9ca3af;
+        }
+        
+        /* Smooth scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        /* Focus styles for accessibility */
+        button:focus-visible,
+        a:focus-visible {
+            outline: 2px solid #8b5cf6;
+            outline-offset: 2px;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+        const { ChevronDown } = LucideReact;
+
+        // FAQ Data
+        const faqData = [
+            {
+                question: "How does Mingus connect to my health and wellness?",
+                answer: "Mingus integrates with your health data through secure APIs to understand how financial stress affects your well-being. We track patterns between your spending habits, income stability, and health metrics to provide personalized recommendations that improve both your financial and physical health."
+            },
+            {
+                question: "What makes Mingus different from other finance apps?",
+                answer: "Unlike traditional budgeting apps, Mingus uses advanced AI to understand your unique financial personality and life circumstances. We provide contextual advice based on your career stage, family situation, and personal goals, making financial planning feel personal and achievable rather than one-size-fits-all."
+            },
+            {
+                question: "How accurate are Mingus's financial forecasting predictions?",
+                answer: "Our AI-powered forecasting uses machine learning algorithms trained on millions of financial patterns to predict future cash flow with 85-90% accuracy. We continuously improve our models by learning from user outcomes and market trends, providing increasingly precise predictions over time."
+            },
+            {
+                question: "Can Mingus help me advance my career and increase my income?",
+                answer: "Absolutely! Mingus offers career-focused financial planning that includes salary negotiation guidance, skill investment recommendations, and side hustle profitability analysis. We help you understand which career moves will have the biggest financial impact and track your progress toward income goals."
+            },
+            {
+                question: "How secure is my personal and financial data with Mingus?",
+                answer: "Your data security is our top priority. We use bank-level 256-bit encryption, multi-factor authentication, and are SOC 2 Type II certified. Your data is never sold or shared without explicit consent, and we regularly undergo third-party security audits to ensure the highest protection standards."
+            },
+            {
+                question: "Is Mingus available in my country and what devices can I use?",
+                answer: "Mingus is currently available in the US, Canada, UK, and Australia, with plans to expand globally. You can access Mingus on any device through our web app, iOS and Android mobile apps, and we're working on desktop applications for Windows and Mac."
+            }
+        ];
+
+        const FAQAccordion = () => {
+            const [openFAQ, setOpenFAQ] = useState(null);
+
+            const toggleFAQ = (index) => {
+                setOpenFAQ(openFAQ === index ? null : index);
+            };
+
+            const handleKeyDown = (event, index) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    toggleFAQ(index);
+                }
+            };
+
+            return (
+                <div className="min-h-screen bg-gray-900 text-white py-20 px-4 sm:px-6 lg:px-8">
+                    <div className="max-w-4xl mx-auto">
+                        <div className="text-center mb-16">
+                            <h2 className="text-3xl md:text-4xl font-bold mb-4 bg-gradient-to-r from-violet-400 to-purple-400 bg-clip-text text-transparent">
+                                Frequently Asked Questions
+                            </h2>
+                            <p className="text-xl text-gray-300">
+                                Everything you need to know about Mingus
+                            </p>
+                        </div>
+                        
+                        <div className="space-y-4 sm:space-y-6">
+                            {faqData.map((faq, index) => (
+                                <div 
+                                    key={index} 
+                                    className="bg-slate-800/80 backdrop-blur-sm rounded-xl border border-slate-700/50 shadow-xl hover:shadow-2xl hover:shadow-violet-500/10 transition-all duration-300 hover:border-violet-500/30 hover:bg-slate-800/90"
+                                >
+                                    <button
+                                        className="w-full px-4 sm:px-6 py-4 sm:py-5 text-left flex justify-between items-center hover:bg-slate-700/30 transition-all duration-300 rounded-xl group focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 focus:ring-offset-slate-800"
+                                        onClick={() => toggleFAQ(index)}
+                                        onKeyDown={(e) => handleKeyDown(e, index)}
+                                        aria-expanded={openFAQ === index}
+                                        aria-controls={`faq-answer-${index}`}
+                                        id={`faq-question-${index}`}
+                                    >
+                                        <span className="font-semibold text-gray-100 group-hover:text-violet-300 transition-colors duration-300 pr-4 text-sm sm:text-base">
+                                            {faq.question}
+                                        </span>
+                                        <div className="flex-shrink-0">
+                                            <div className={`transform transition-transform duration-300 ease-in-out ${
+                                                openFAQ === index ? 'rotate-180' : 'rotate-0'
+                                            }`}>
+                                                <ChevronDown className="w-4 h-4 sm:w-5 sm:h-5 text-violet-400 group-hover:text-violet-300 transition-colors duration-300" />
+                                            </div>
+                                        </div>
+                                    </button>
+                                    <div 
+                                        id={`faq-answer-${index}`}
+                                        role="region"
+                                        aria-labelledby={`faq-question-${index}`}
+                                        className={`overflow-hidden transition-all duration-500 ease-in-out ${
+                                            openFAQ === index 
+                                                ? 'max-h-96 opacity-100' 
+                                                : 'max-h-0 opacity-0'
+                                        }`}
+                                    >
+                                        <div className="px-4 sm:px-6 pb-4 sm:pb-5 pt-2">
+                                            <div className="border-t border-slate-700/50 pt-4">
+                                                <p className="text-gray-300 leading-relaxed text-sm sm:text-base">
+                                                    {faq.answer}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        ReactDOM.render(<FAQAccordion />, document.getElementById('root'));
+    </script>
+</body>
+</html>

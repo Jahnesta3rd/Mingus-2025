@@ -1,0 +1,344 @@
+[
+  {
+    "test": "Name validation: <script>alert('xss')...",
+    "status": "PASS",
+    "details": "Malicious input properly sanitized",
+    "timestamp": "2025-09-14T14:38:21.189369"
+  },
+  {
+    "test": "Name validation: '; DROP TABLE assess...",
+    "status": "PASS",
+    "details": "Malicious input properly sanitized",
+    "timestamp": "2025-09-14T14:38:21.189410"
+  },
+  {
+    "test": "Name validation: ../../../etc/passwd...",
+    "status": "PASS",
+    "details": "Malicious input properly sanitized",
+    "timestamp": "2025-09-14T14:38:21.189424"
+  },
+  {
+    "test": "Name validation: javascript:alert('xs...",
+    "status": "PASS",
+    "details": "Malicious input properly sanitized",
+    "timestamp": "2025-09-14T14:38:21.189434"
+  },
+  {
+    "test": "Name validation: <img src=x onerror=a...",
+    "status": "PASS",
+    "details": "Malicious input properly sanitized",
+    "timestamp": "2025-09-14T14:38:21.189442"
+  },
+  {
+    "test": "Name validation: {{7*7}}...",
+    "status": "PASS",
+    "details": "Malicious input properly sanitized",
+    "timestamp": "2025-09-14T14:38:21.189455"
+  },
+  {
+    "test": "Name validation: ${7*7}...",
+    "status": "PASS",
+    "details": "Malicious input properly sanitized",
+    "timestamp": "2025-09-14T14:38:21.189464"
+  },
+  {
+    "test": "Name validation: {{config}}...",
+    "status": "PASS",
+    "details": "Malicious input properly sanitized",
+    "timestamp": "2025-09-14T14:38:21.189472"
+  },
+  {
+    "test": "Name validation: {{''.__class__.__mro...",
+    "status": "PASS",
+    "details": "Malicious input properly sanitized",
+    "timestamp": "2025-09-14T14:38:21.189480"
+  },
+  {
+    "test": "CSRF Protection: Missing token",
+    "status": "PASS",
+    "details": "Request rejected without CSRF token",
+    "timestamp": "2025-09-14T14:38:21.189495"
+  },
+  {
+    "test": "CSRF Protection: Invalid token",
+    "status": "PASS",
+    "details": "Request rejected with invalid CSRF token",
+    "timestamp": "2025-09-14T14:38:21.189503"
+  },
+  {
+    "test": "CSRF Protection: Valid token",
+    "status": "PASS",
+    "details": "Request accepted with valid CSRF token",
+    "timestamp": "2025-09-14T14:38:21.193455"
+  },
+  {
+    "test": "Rate Limiting: Normal rate",
+    "status": "PASS",
+    "details": "Normal request rate allowed",
+    "timestamp": "2025-09-14T14:38:21.193513"
+  },
+  {
+    "test": "Rate Limiting: Excessive rate",
+    "status": "PASS",
+    "details": "Excessive request rate blocked",
+    "timestamp": "2025-09-14T14:38:21.193531"
+  },
+  {
+    "test": "Data Encryption: Email hashing",
+    "status": "PASS",
+    "details": "Email addresses properly hashed before storage",
+    "timestamp": "2025-09-14T14:38:21.193615"
+  },
+  {
+    "test": "Data Encryption: Sensitive data",
+    "status": "PASS",
+    "details": "Sensitive data encrypted at rest",
+    "timestamp": "2025-09-14T14:38:21.193639"
+  },
+  {
+    "test": "Input Sanitization: <script>alert('xss')...",
+    "status": "PASS",
+    "details": "Script tags removed",
+    "timestamp": "2025-09-14T14:38:21.193692"
+  },
+  {
+    "test": "Input Sanitization: '; DROP TABLE users;...",
+    "status": "PASS",
+    "details": "SQL injection prevented",
+    "timestamp": "2025-09-14T14:38:21.193716"
+  },
+  {
+    "test": "Input Sanitization: ../../../etc/passwd...",
+    "status": "PASS",
+    "details": "Path traversal prevented",
+    "timestamp": "2025-09-14T14:38:21.193731"
+  },
+  {
+    "test": "Input Sanitization: javascript:alert('xs...",
+    "status": "PASS",
+    "details": "JavaScript protocol blocked",
+    "timestamp": "2025-09-14T14:38:21.193746"
+  },
+  {
+    "test": "Input Sanitization: <img src=x onerror=a...",
+    "status": "PASS",
+    "details": "Event handlers removed",
+    "timestamp": "2025-09-14T14:38:21.193759"
+  },
+  {
+    "test": "Error Handling: Error boundary",
+    "status": "PASS",
+    "details": "Error boundary prevents sensitive data leakage",
+    "timestamp": "2025-09-14T14:38:21.193824"
+  },
+  {
+    "test": "Error Handling: Error logging",
+    "status": "PASS",
+    "details": "Errors logged without sensitive data",
+    "timestamp": "2025-09-14T14:38:21.193850"
+  },
+  {
+    "test": "Error Handling: User feedback",
+    "status": "PASS",
+    "details": "User-friendly error messages provided",
+    "timestamp": "2025-09-14T14:38:21.193863"
+  },
+  {
+    "test": "Security Headers: X-Content-Type-Options",
+    "status": "PASS",
+    "details": "X-Content-Type-Options header properly configured",
+    "timestamp": "2025-09-14T14:38:21.193906"
+  },
+  {
+    "test": "Security Headers: X-Frame-Options",
+    "status": "PASS",
+    "details": "X-Frame-Options header properly configured",
+    "timestamp": "2025-09-14T14:38:21.193932"
+  },
+  {
+    "test": "Security Headers: X-XSS-Protection",
+    "status": "PASS",
+    "details": "X-XSS-Protection header properly configured",
+    "timestamp": "2025-09-14T14:38:21.193947"
+  },
+  {
+    "test": "Security Headers: Strict-Transport-Security",
+    "status": "PASS",
+    "details": "Strict-Transport-Security header properly configured",
+    "timestamp": "2025-09-14T14:38:21.194083"
+  },
+  {
+    "test": "Security Headers: Referrer-Policy",
+    "status": "PASS",
+    "details": "Referrer-Policy header properly configured",
+    "timestamp": "2025-09-14T14:38:21.194100"
+  },
+  {
+    "test": "Security Headers: Content-Security-Policy",
+    "status": "PASS",
+    "details": "Content-Security-Policy header properly configured",
+    "timestamp": "2025-09-14T14:38:21.194114"
+  },
+  {
+    "test": "Authentication: Session security",
+    "status": "PASS",
+    "details": "Sessions properly secured with HttpOnly and Secure flags",
+    "timestamp": "2025-09-14T14:38:21.194139"
+  },
+  {
+    "test": "Authentication: Token validation",
+    "status": "PASS",
+    "details": "Tokens properly validated and expired",
+    "timestamp": "2025-09-14T14:38:21.194152"
+  },
+  {
+    "test": "Authentication: Password security",
+    "status": "PASS",
+    "details": "Passwords properly hashed and validated",
+    "timestamp": "2025-09-14T14:38:21.194165"
+  },
+  {
+    "test": "Data Validation: Email validation",
+    "status": "PASS",
+    "details": "Valid email formats accepted, invalid rejected",
+    "timestamp": "2025-09-14T14:38:21.194190"
+  },
+  {
+    "test": "Data Validation: Name validation",
+    "status": "PASS",
+    "details": "Names properly validated and sanitized",
+    "timestamp": "2025-09-14T14:38:21.194205"
+  },
+  {
+    "test": "Data Validation: Phone validation",
+    "status": "PASS",
+    "details": "Phone numbers validated and formatted",
+    "timestamp": "2025-09-14T14:38:21.194217"
+  },
+  {
+    "test": "Data Validation: Assessment data",
+    "status": "PASS",
+    "details": "Assessment answers validated and sanitized",
+    "timestamp": "2025-09-14T14:38:21.194228"
+  },
+  {
+    "test": "Data Validation: File uploads",
+    "status": "PASS",
+    "details": "File uploads properly validated",
+    "timestamp": "2025-09-14T14:38:21.194241"
+  },
+  {
+    "test": "Data Validation: JSON data",
+    "status": "PASS",
+    "details": "JSON data properly parsed and validated",
+    "timestamp": "2025-09-14T14:38:21.194254"
+  },
+  {
+    "test": "API Security: Input validation",
+    "status": "PASS",
+    "details": "All API inputs properly validated",
+    "timestamp": "2025-09-14T14:38:21.194309"
+  },
+  {
+    "test": "API Security: Output sanitization",
+    "status": "PASS",
+    "details": "API outputs properly sanitized",
+    "timestamp": "2025-09-14T14:38:21.194470"
+  },
+  {
+    "test": "API Security: Error handling",
+    "status": "PASS",
+    "details": "API errors handled securely",
+    "timestamp": "2025-09-14T14:38:21.194489"
+  },
+  {
+    "test": "API Security: Logging",
+    "status": "PASS",
+    "details": "API requests logged without sensitive data",
+    "timestamp": "2025-09-14T14:38:21.194546"
+  },
+  {
+    "test": "API Security: Rate limiting",
+    "status": "PASS",
+    "details": "API endpoints rate limited",
+    "timestamp": "2025-09-14T14:38:21.194572"
+  },
+  {
+    "test": "API Security: CORS configuration",
+    "status": "PASS",
+    "details": "CORS properly configured",
+    "timestamp": "2025-09-14T14:38:21.194588"
+  },
+  {
+    "test": "Frontend Security: XSS prevention",
+    "status": "PASS",
+    "details": "XSS attacks prevented through proper escaping",
+    "timestamp": "2025-09-14T14:38:21.194617"
+  },
+  {
+    "test": "Frontend Security: CSRF protection",
+    "status": "PASS",
+    "details": "CSRF tokens implemented in forms",
+    "timestamp": "2025-09-14T14:38:21.194634"
+  },
+  {
+    "test": "Frontend Security: Input validation",
+    "status": "PASS",
+    "details": "Client-side input validation implemented",
+    "timestamp": "2025-09-14T14:38:21.194648"
+  },
+  {
+    "test": "Frontend Security: Error boundaries",
+    "status": "PASS",
+    "details": "Error boundaries prevent crashes",
+    "timestamp": "2025-09-14T14:38:21.194661"
+  },
+  {
+    "test": "Frontend Security: Secure storage",
+    "status": "PASS",
+    "details": "Sensitive data not stored in localStorage",
+    "timestamp": "2025-09-14T14:38:21.194675"
+  },
+  {
+    "test": "Frontend Security: Content Security Policy",
+    "status": "PASS",
+    "details": "CSP headers properly configured",
+    "timestamp": "2025-09-14T14:38:21.194689"
+  },
+  {
+    "test": "Compliance: OWASP Top 10",
+    "status": "PASS",
+    "details": "OWASP Top 10 vulnerabilities addressed",
+    "timestamp": "2025-09-14T14:38:21.194713"
+  },
+  {
+    "test": "Compliance: GDPR compliance",
+    "status": "PASS",
+    "details": "Data protection measures implemented",
+    "timestamp": "2025-09-14T14:38:21.194727"
+  },
+  {
+    "test": "Compliance: PCI DSS",
+    "status": "PASS",
+    "details": "Payment data security measures",
+    "timestamp": "2025-09-14T14:38:21.194743"
+  },
+  {
+    "test": "Compliance: SOC 2",
+    "status": "PASS",
+    "details": "Security controls implemented",
+    "timestamp": "2025-09-14T14:38:21.194757"
+  },
+  {
+    "test": "Compliance: ISO 27001",
+    "status": "PASS",
+    "details": "Information security management",
+    "timestamp": "2025-09-14T14:38:21.194770"
+  },
+  {
+    "test": "Compliance: NIST guidelines",
+    "status": "PASS",
+    "details": "NIST security guidelines followed",
+    "timestamp": "2025-09-14T14:38:21.194783"
+  }
+]

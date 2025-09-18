@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Referral Progress - Mingus</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../static/css/mingus-referral-system.css">
+    <style>
+        /* Progress-specific styles */
+        .progress-steps {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 32px 0;
+            position: relative;
+        }
+        
+        .progress-steps::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #8b5cf6, #a855f7);
+            z-index: 1;
+        }
+        
+        .progress-step {
+            background: #1f2937;
+            border: 3px solid #374151;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 2;
+            transition: all 0.3s ease;
+        }
+        
+        .progress-step.completed {
+            background: linear-gradient(135deg, #8b5cf6, #a855f7);
+            border-color: #8b5cf6;
+            color: white;
+        }
+        
+        .progress-step.current {
+            background: linear-gradient(135deg, #8b5cf6, #a855f7);
+            border-color: #8b5cf6;
+            color: white;
+            animation: pulse 2s infinite;
+        }
+        
+        .progress-step.locked {
+            background: #374151;
+            border-color: #4b5563;
+            color: #6b7280;
+        }
+        
+        .referral-card {
+            background: linear-gradient(135deg, #1f2937, #374151);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: 16px;
+            padding: 24px;
+            margin: 16px 0;
+            transition: all 0.3s ease;
+        }
+        
+        .referral-card:hover {
+            border-color: rgba(139, 92, 246, 0.4);
+            transform: translateY(-2px);
+        }
+        
+        .referral-card.completed {
+            border-color: #10b981;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05));
+        }
+        
+        .referral-status {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        
+        .status-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        
+        .status-icon.pending {
+            background: #f59e0b;
+            color: white;
+        }
+        
+        .status-icon.completed {
+            background: #10b981;
+            color: white;
+        }
+        
+        .status-icon.expired {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .sharing-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin: 24px 0;
+        }
+        
+        .share-button {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px;
+            background: linear-gradient(135deg, #1f2937, #374151);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: 12px;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .share-button:hover {
+            border-color: rgba(139, 92, 246, 0.4);
+            transform: translateY(-2px);
+        }
+        
+        .share-button.linkedin {
+            border-color: rgba(0, 119, 181, 0.3);
+        }
+        
+        .share-button.linkedin:hover {
+            border-color: rgba(0, 119, 181, 0.6);
+            background: linear-gradient(135deg, rgba(0, 119, 181, 0.1), rgba(0, 119, 181, 0.05));
+        }
+        
+        .share-button.twitter {
+            border-color: rgba(29, 161, 242, 0.3);
+        }
+        
+        .share-button.twitter:hover {
+            border-color: rgba(29, 161, 242, 0.6);
+            background: linear-gradient(135deg, rgba(29, 161, 242, 0.1), rgba(29, 161, 242, 0.05));
+        }
+        
+        .share-button.email {
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+        
+        .share-button.email:hover {
+            border-color: rgba(239, 68, 68, 0.6);
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(239, 68, 68, 0.05));
+        }
+        
+        .referral-code {
+            background: linear-gradient(135deg, #1f2937, #374151);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            margin: 24px 0;
+        }
+        
+        .code-display {
+            font-family: 'Courier New', monospace;
+            font-size: 24px;
+            font-weight: bold;
+            color: #8b5cf6;
+            margin: 12px 0;
+            padding: 12px;
+            background: rgba(139, 92, 246, 0.1);
+            border-radius: 8px;
+            border: 1px solid rgba(139, 92, 246, 0.2);
+        }
+        
+        .celebration-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .celebration-animation.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .celebration-content {
+            background: linear-gradient(135deg, #8b5cf6, #a855f7);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            color: white;
+            max-width: 400px;
+            margin: 20px;
+            animation: celebrationBounce 0.6s ease-out;
+        }
+        
+        @keyframes celebrationBounce {
+            0% { transform: scale(0.3) rotate(-10deg); }
+            50% { transform: scale(1.1) rotate(5deg); }
+            100% { transform: scale(1) rotate(0deg); }
+        }
+        
+        .celebration-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+            animation: celebrationSpin 1s ease-in-out;
+        }
+        
+        @keyframes celebrationSpin {
+            0% { transform: rotate(0deg) scale(0.5); }
+            50% { transform: rotate(180deg) scale(1.2); }
+            100% { transform: rotate(360deg) scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Skip Links for Accessibility -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    <a href="#referral-steps" class="skip-link">Skip to referral steps</a>
+    
+    <!-- Header -->
+    <header class="header" role="banner">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <div class="logo-icon">M</div>
+                    <span class="logo-text">Mingus</span>
+                </div>
+                <nav class="nav" role="navigation" aria-label="Main navigation">
+                    <a href="#" class="nav-link">Dashboard</a>
+                    <a href="#" class="nav-link">Features</a>
+                    <a href="#" class="nav-link">Pricing</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main id="main-content" role="main">
+        <!-- Progress Overview -->
+        <section class="hero-section" aria-label="Referral progress overview">
+            <div class="container">
+                <div class="hero-content">
+                    <div class="hero-text">
+                        <h1 class="hero-title">
+                            Your Referral
+                            <span class="gradient-text">Progress</span>
+                        </h1>
+                        <p class="hero-description">
+                            Track your referrals and unlock premium career features. 
+                            You're <span id="referrals-remaining">3</span> referrals away from accessing location-based job recommendations.
+                        </p>
+                    </div>
+                    
+                    <!-- Progress Steps -->
+                    <div id="referral-steps" class="progress-steps" role="region" aria-label="Referral progress steps">
+                        <div class="progress-step completed" id="step-1" aria-label="Step 1: First referral completed">
+                            <span>1</span>
+                        </div>
+                        <div class="progress-step current" id="step-2" aria-label="Step 2: Second referral in progress">
+                            <span>2</span>
+                        </div>
+                        <div class="progress-step locked" id="step-3" aria-label="Step 3: Third referral locked">
+                            <span>3</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Progress Ring -->
+                    <div class="progress-container">
+                        <div class="progress-ring">
+                            <svg width="120" height="120" class="progress-svg">
+                                <circle cx="60" cy="60" r="50" stroke="rgba(139, 92, 246, 0.2)" stroke-width="8" fill="none"/>
+                                <circle cx="60" cy="60" r="50" stroke="url(#gradient)" stroke-width="8" fill="none" 
+                                        class="progress-ring-circle" stroke-linecap="round"/>
+                                <defs>
+                                    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                        <stop offset="0%" style="stop-color:#8b5cf6"/>
+                                        <stop offset="100%" style="stop-color:#a855f7"/>
+                                    </linearGradient>
+                                </defs>
+                            </svg>
+                            <div class="progress-text">
+                                <span class="progress-current" id="current-referrals">1</span>
+                                <span class="progress-separator">/</span>
+                                <span class="progress-total">3</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Referral History -->
+        <section class="referral-history" aria-label="Referral history">
+            <div class="container">
+                <h2 class="section-title">Your Referrals</h2>
+                
+                <div class="referral-list" id="referral-list">
+                    <!-- Referral 1 - Completed -->
+                    <div class="referral-card completed">
+                        <div class="referral-status">
+                            <div class="status-icon completed">✓</div>
+                            <div class="status-info">
+                                <h3 class="referral-name">Marcus Johnson</h3>
+                                <p class="referral-email">marcus.j@email.com</p>
+                                <p class="referral-date">Joined 2 days ago</p>
+                            </div>
+                        </div>
+                        <div class="referral-actions">
+                            <span class="status-badge completed">Completed</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Referral 2 - Pending -->
+                    <div class="referral-card">
+                        <div class="referral-status">
+                            <div class="status-icon pending">⏳</div>
+                            <div class="status-info">
+                                <h3 class="referral-name">Sarah Williams</h3>
+                                <p class="referral-email">sarah.w@email.com</p>
+                                <p class="referral-date">Invited 1 day ago</p>
+                            </div>
+                        </div>
+                        <div class="referral-actions">
+                            <span class="status-badge pending">Pending</span>
+                            <button class="btn btn-small btn-secondary" onclick="resendInvitation('sarah.w@email.com')">
+                                Resend
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Referral 3 - Empty Slot -->
+                    <div class="referral-card empty">
+                        <div class="referral-status">
+                            <div class="status-icon pending">+</div>
+                            <div class="status-info">
+                                <h3 class="referral-name">Invite Your Third Friend</h3>
+                                <p class="referral-email">Send an invitation to unlock premium features</p>
+                            </div>
+                        </div>
+                        <div class="referral-actions">
+                            <button class="btn btn-primary" onclick="openReferralModal()">
+                                Send Invitation
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sharing Options -->
+        <section class="sharing-section" aria-label="Sharing options">
+            <div class="container">
+                <h2 class="section-title">Share with Friends</h2>
+                <p class="section-description">
+                    Choose how you'd like to invite your friends to join Mingus and unlock premium features.
+                </p>
+                
+                <div class="sharing-options">
+                    <button class="share-button linkedin" onclick="shareToLinkedIn()">
+                        <div class="share-icon">💼</div>
+                        <div class="share-text">
+                            <div class="share-title">LinkedIn</div>
+                            <div class="share-subtitle">Professional network</div>
+                        </div>
+                    </button>
+                    
+                    <button class="share-button twitter" onclick="shareToTwitter()">
+                        <div class="share-icon">🐦</div>
+                        <div class="share-text">
+                            <div class="share-title">Twitter</div>
+                            <div class="share-subtitle">Social media</div>
+                        </div>
+                    </button>
+                    
+                    <button class="share-button email" onclick="shareViaEmail()">
+                        <div class="share-icon">📧</div>
+                        <div class="share-text">
+                            <div class="share-title">Email</div>
+                            <div class="share-subtitle">Direct invitation</div>
+                        </div>
+                    </button>
+                </div>
+                
+                <!-- Referral Code -->
+                <div class="referral-code">
+                    <h3 class="code-title">Your Referral Code</h3>
+                    <p class="code-description">Share this code with friends or use it in your messages</p>
+                    <div class="code-display" id="referral-code">MINGUS2024</div>
+                    <button class="btn btn-secondary" onclick="copyReferralCode()">
+                        Copy Code
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Next Steps -->
+        <section class="next-steps" aria-label="Next steps">
+            <div class="container">
+                <h2 class="section-title">What Happens Next?</h2>
+                
+                <div class="steps-grid">
+                    <div class="step-item">
+                        <div class="step-number">1</div>
+                        <h3 class="step-title">Send Invitations</h3>
+                        <p class="step-description">Invite 3 friends to join Mingus using any of the sharing options above.</p>
+                    </div>
+                    
+                    <div class="step-item">
+                        <div class="step-number">2</div>
+                        <h3 class="step-title">Friends Sign Up</h3>
+                        <p class="step-description">Your friends create their Mingus accounts using your referral link or code.</p>
+                    </div>
+                    
+                    <div class="step-item">
+                        <div class="step-number">3</div>
+                        <h3 class="step-title">Unlock Features</h3>
+                        <p class="step-description">Once 3 friends join, you'll instantly unlock all premium career features.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Referral Modal -->
+    <div class="modal" id="referral-modal" role="dialog" aria-labelledby="modal-title" aria-hidden="true">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-title" class="modal-title">Invite a Friend</h2>
+                <button class="modal-close" onclick="closeReferralModal()" aria-label="Close modal">×</button>
+            </div>
+            <div class="modal-body">
+                <form id="referral-form">
+                    <div class="input-group">
+                        <label for="friend-name" class="input-label">Friend's Name</label>
+                        <input type="text" id="friend-name" class="input-field" placeholder="Enter their name" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="friend-email" class="input-label">Email Address</label>
+                        <input type="email" id="friend-email" class="input-field" placeholder="Enter their email" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="personal-message" class="input-label">Personal Message (Optional)</label>
+                        <textarea id="personal-message" class="input-field" rows="3" 
+                                  placeholder="Add a personal message to your invitation"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeReferralModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="sendReferral()">Send Invitation</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Celebration Animation -->
+    <div class="celebration-animation" id="celebration-animation">
+        <div class="celebration-content">
+            <div class="celebration-icon">🎉</div>
+            <h2 class="celebration-title">Congratulations!</h2>
+            <p class="celebration-description">
+                You've successfully referred a friend! Keep going to unlock premium features.
+            </p>
+            <button class="btn btn-primary" onclick="closeCelebration()">Continue</button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer" role="contentinfo">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <div class="logo-icon">M</div>
+                    <span class="logo-text">Mingus</span>
+                </div>
+                <p class="footer-text">Empowering Black professionals to build generational wealth</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="../static/js/mingus-referral-system.js"></script>
+    <script>
+        // Initialize referral progress page
+        document.addEventListener('DOMContentLoaded', function() {
+            const referralSystem = new MingusReferralSystem();
+            referralSystem.initReferralProgress();
+            
+            // Update progress based on current referrals
+            const currentReferrals = parseInt(localStorage.getItem('mingus_referrals') || '1');
+            referralSystem.updateProgress(currentReferrals);
+        });
+        
+        // Modal functions
+        function openReferralModal() {
+            document.getElementById('referral-modal').setAttribute('aria-hidden', 'false');
+            document.getElementById('referral-modal').style.display = 'flex';
+            document.getElementById('friend-name').focus();
+        }
+        
+        function closeReferralModal() {
+            document.getElementById('referral-modal').setAttribute('aria-hidden', 'true');
+            document.getElementById('referral-modal').style.display = 'none';
+            document.getElementById('referral-form').reset();
+        }
+        
+        function sendReferral() {
+            const name = document.getElementById('friend-name').value;
+            const email = document.getElementById('friend-email').value;
+            const message = document.getElementById('personal-message').value;
+            
+            if (!name || !email) {
+                alert('Please fill in all required fields.');
+                return;
+            }
+            
+            // Simulate sending referral
+            console.log('Sending referral:', { name, email, message });
+            
+            // Show success message
+            showCelebration();
+            closeReferralModal();
+        }
+        
+        function showCelebration() {
+            document.getElementById('celebration-animation').classList.add('show');
+        }
+        
+        function closeCelebration() {
+            document.getElementById('celebration-animation').classList.remove('show');
+        }
+        
+        function resendInvitation(email) {
+            console.log('Resending invitation to:', email);
+            // Implement resend logic
+        }
+        
+        function shareToLinkedIn() {
+            const url = encodeURIComponent(window.location.origin + '/referral?code=MINGUS2024');
+            const text = encodeURIComponent('Join me on Mingus - the financial wellness platform for Black professionals!');
+            window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}&title=${text}`, '_blank');
+        }
+        
+        function shareToTwitter() {
+            const url = encodeURIComponent(window.location.origin + '/referral?code=MINGUS2024');
+            const text = encodeURIComponent('Join me on Mingus - the financial wellness platform for Black professionals! #Mingus #FinancialWellness');
+            window.open(`https://twitter.com/intent/tweet?url=${url}&text=${text}`, '_blank');
+        }
+        
+        function shareViaEmail() {
+            const subject = encodeURIComponent('Join me on Mingus - Financial Wellness for Black Professionals');
+            const body = encodeURIComponent(`Hi there!
+
+I've been using Mingus, a financial wellness platform designed specifically for Black professionals, and I think you'd love it too!
+
+Mingus helps with:
+- Personalized financial planning
+- Career advancement strategies
+- Generational wealth building
+- Health and wellness integration
+
+Use my referral code: MINGUS2024
+Sign up here: ${window.location.origin}/referral?code=MINGUS2024
+
+Let's build wealth together!
+
+Best regards`);
+            
+            window.location.href = `mailto:?subject=${subject}&body=${body}`;
+        }
+        
+        function copyReferralCode() {
+            const code = document.getElementById('referral-code').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                // Show success feedback
+                const button = event.target;
+                const originalText = button.textContent;
+                button.textContent = 'Copied!';
+                button.style.background = '#10b981';
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.style.background = '';
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>

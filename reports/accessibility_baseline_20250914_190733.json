@@ -1,0 +1,556 @@
+{
+  "timestamp": "2025-09-14T19:05:13.918303",
+  "pages": {
+    "landing_page": {
+      "axe_tests": {
+        "page": "landing_page",
+        "url": "http://localhost:3000",
+        "status": "COMPLETED",
+        "total_checks": 37,
+        "passes": 35,
+        "violations": 1,
+        "incomplete": 1,
+        "pass_rate": 94.5945945945946,
+        "violations_by_severity": {
+          "critical": 0,
+          "serious": 0,
+          "moderate": 1,
+          "minor": 0
+        },
+        "critical_violations": [],
+        "serious_violations": [],
+        "moderate_violations": [
+          {
+            "description": "Ensures all page content is contained by landmarks",
+            "help": "All page content should be contained by landmarks",
+            "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/region?application=axeAPI",
+            "id": "region",
+            "impact": "moderate",
+            "nodes": [
+              {
+                "all": [],
+                "any": [
+                  {
+                    "data": {
+                      "isIframe": false
+                    },
+                    "id": "region",
+                    "impact": "moderate",
+                    "message": "Some page content is not contained by landmarks",
+                    "relatedNodes": []
+                  }
+                ],
+                "failureSummary": "Fix any of the following:\n  Some page content is not contained by landmarks",
+                "html": "<div class=\"fixed top-4 right-4 bg-black/80 text-white p-4 rounded-lg z-50 text-sm\"><div class=\"font-bold mb-2\">Responsive Test</div><div>Breakpoint: Desktop (\u22651025px)</div><div>Size: 1920 \u00d7 941</div></div>",
+                "impact": "moderate",
+                "none": [],
+                "target": [
+                  ".top-4"
+                ]
+              },
+              {
+                "all": [],
+                "any": [
+                  {
+                    "data": {
+                      "isIframe": false
+                    },
+                    "id": "region",
+                    "impact": "moderate",
+                    "message": "Some page content is not contained by landmarks",
+                    "relatedNodes": []
+                  }
+                ],
+                "failureSummary": "Fix any of the following:\n  Some page content is not contained by landmarks",
+                "html": "<a href=\"#main-content\" class=\"sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-violet-600 text-white px-4 py-2 rounded-lg z-50\">Skip to main content</a>",
+                "impact": "moderate",
+                "none": [],
+                "target": [
+                  ".focus\\:left-4"
+                ]
+              },
+              {
+                "all": [],
+                "any": [
+                  {
+                    "data": {
+                      "isIframe": false
+                    },
+                    "id": "region",
+                    "impact": "moderate",
+                    "message": "Some page content is not contained by landmarks",
+                    "relatedNodes": []
+                  }
+                ],
+                "failureSummary": "Fix any of the following:\n  Some page content is not contained by landmarks",
+                "html": "<a href=\"#navigation\" class=\"sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-32 bg-violet-600 text-white px-4 py-2 rounded-lg z-50\">Skip to navigation</a>",
+                "impact": "moderate",
+                "none": [],
+                "target": [
+                  ".focus\\:left-32"
+                ]
+              }
+            ],
+            "tags": [
+              "cat.keyboard",
+              "best-practice"
+            ]
+          }
+        ],
+        "minor_violations": [],
+        "all_violations": [
+          {
+            "description": "Ensures all page content is contained by landmarks",
+            "help": "All page content should be contained by landmarks",
+            "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/region?application=axeAPI",
+            "id": "region",
+            "impact": "moderate",
+            "nodes": [
+              {
+                "all": [],
+                "any": [
+                  {
+                    "data": {
+                      "isIframe": false
+                    },
+                    "id": "region",
+                    "impact": "moderate",
+                    "message": "Some page content is not contained by landmarks",
+                    "relatedNodes": []
+                  }
+                ],
+                "failureSummary": "Fix any of the following:\n  Some page content is not contained by landmarks",
+                "html": "<div class=\"fixed top-4 right-4 bg-black/80 text-white p-4 rounded-lg z-50 text-sm\"><div class=\"font-bold mb-2\">Responsive Test</div><div>Breakpoint: Desktop (\u22651025px)</div><div>Size: 1920 \u00d7 941</div></div>",
+                "impact": "moderate",
+                "none": [],
+                "target": [
+                  ".top-4"
+                ]
+              },
+              {
+                "all": [],
+                "any": [
+                  {
+                    "data": {
+                      "isIframe": false
+                    },
+                    "id": "region",
+                    "impact": "moderate",
+                    "message": "Some page content is not contained by landmarks",
+                    "relatedNodes": []
+                  }
+                ],
+                "failureSummary": "Fix any of the following:\n  Some page content is not contained by landmarks",
+                "html": "<a href=\"#main-content\" class=\"sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-violet-600 text-white px-4 py-2 rounded-lg z-50\">Skip to main content</a>",
+                "impact": "moderate",
+                "none": [],
+                "target": [
+                  ".focus\\:left-4"
+                ]
+              },
+              {
+                "all": [],
+                "any": [
+                  {
+                    "data": {
+                      "isIframe": false
+                    },
+                    "id": "region",
+                    "impact": "moderate",
+                    "message": "Some page content is not contained by landmarks",
+                    "relatedNodes": []
+                  }
+                ],
+                "failureSummary": "Fix any of the following:\n  Some page content is not contained by landmarks",
+                "html": "<a href=\"#navigation\" class=\"sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-32 bg-violet-600 text-white px-4 py-2 rounded-lg z-50\">Skip to navigation</a>",
+                "impact": "moderate",
+                "none": [],
+                "target": [
+                  ".focus\\:left-32"
+                ]
+              }
+            ],
+            "tags": [
+              "cat.keyboard",
+              "best-practice"
+            ]
+          }
+        ]
+      },
+      "keyboard_navigation": {
+        "page": "landing_page",
+        "url": "http://localhost:3000",
+        "status": "COMPLETED",
+        "total_focusable_elements": 32,
+        "tab_order_tested": 5,
+        "tab_order": [
+          {
+            "index": 1,
+            "tag": "a",
+            "text": "Skip to navigation",
+            "accessible_name": "Skip to navigation"
+          },
+          {
+            "index": 2,
+            "tag": "button",
+            "text": "Features",
+            "accessible_name": "Features"
+          },
+          {
+            "index": 3,
+            "tag": "button",
+            "text": "Pricing",
+            "accessible_name": "Pricing"
+          },
+          {
+            "index": 4,
+            "tag": "button",
+            "text": "FAQ",
+            "accessible_name": "FAQ"
+          },
+          {
+            "index": 5,
+            "tag": "button",
+            "text": "Get Started",
+            "accessible_name": "Get Started"
+          }
+        ],
+        "enter_activations": 5,
+        "escape_works": true,
+        "keyboard_score": 15.625
+      },
+      "color_contrast": {
+        "page": "landing_page",
+        "url": "http://localhost:3000",
+        "status": "COMPLETED",
+        "total_text_elements": 20,
+        "contrast_issues": 0,
+        "issues": [],
+        "contrast_score": 100
+      },
+      "screen_reader_support": {
+        "page": "landing_page",
+        "url": "http://localhost:3000",
+        "status": "COMPLETED",
+        "aria_elements": 23,
+        "semantic_elements": 50,
+        "total_images": 0,
+        "images_with_alt": 0,
+        "alt_text_coverage": 0.0,
+        "total_form_inputs": 0,
+        "labeled_inputs": 0,
+        "label_coverage": 0.0,
+        "skip_links": 1,
+        "heading_hierarchy_issues": 0,
+        "hierarchy_issues": [],
+        "screen_reader_score": 60
+      },
+      "focus_management": {
+        "page": "landing_page",
+        "url": "http://localhost:3000",
+        "status": "COMPLETED",
+        "total_focusable_elements": 32,
+        "elements_with_focus_indicators": 4,
+        "focus_indicator_coverage": 40.0,
+        "modal_focus_trap": false,
+        "focus_management_score": 40.0
+      },
+      "overall_score": 62.04391891891892
+    },
+    "settings_page": {
+      "axe_tests": {
+        "page": "settings_page",
+        "url": "http://localhost:3000/settings",
+        "status": "COMPLETED",
+        "total_checks": 37,
+        "passes": 35,
+        "violations": 1,
+        "incomplete": 1,
+        "pass_rate": 94.5945945945946,
+        "violations_by_severity": {
+          "critical": 0,
+          "serious": 0,
+          "moderate": 1,
+          "minor": 0
+        },
+        "critical_violations": [],
+        "serious_violations": [],
+        "moderate_violations": [
+          {
+            "description": "Ensures all page content is contained by landmarks",
+            "help": "All page content should be contained by landmarks",
+            "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/region?application=axeAPI",
+            "id": "region",
+            "impact": "moderate",
+            "nodes": [
+              {
+                "all": [],
+                "any": [
+                  {
+                    "data": {
+                      "isIframe": false
+                    },
+                    "id": "region",
+                    "impact": "moderate",
+                    "message": "Some page content is not contained by landmarks",
+                    "relatedNodes": []
+                  }
+                ],
+                "failureSummary": "Fix any of the following:\n  Some page content is not contained by landmarks",
+                "html": "<div class=\"fixed top-4 right-4 bg-black/80 text-white p-4 rounded-lg z-50 text-sm\"><div class=\"font-bold mb-2\">Responsive Test</div><div>Breakpoint: Desktop (\u22651025px)</div><div>Size: 1920 \u00d7 941</div></div>",
+                "impact": "moderate",
+                "none": [],
+                "target": [
+                  ".top-4"
+                ]
+              },
+              {
+                "all": [],
+                "any": [
+                  {
+                    "data": {
+                      "isIframe": false
+                    },
+                    "id": "region",
+                    "impact": "moderate",
+                    "message": "Some page content is not contained by landmarks",
+                    "relatedNodes": []
+                  }
+                ],
+                "failureSummary": "Fix any of the following:\n  Some page content is not contained by landmarks",
+                "html": "<a href=\"#main-content\" class=\"sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-violet-600 text-white px-4 py-2 rounded-lg z-50\">Skip to main content</a>",
+                "impact": "moderate",
+                "none": [],
+                "target": [
+                  ".focus\\:left-4"
+                ]
+              },
+              {
+                "all": [],
+                "any": [
+                  {
+                    "data": {
+                      "isIframe": false
+                    },
+                    "id": "region",
+                    "impact": "moderate",
+                    "message": "Some page content is not contained by landmarks",
+                    "relatedNodes": []
+                  }
+                ],
+                "failureSummary": "Fix any of the following:\n  Some page content is not contained by landmarks",
+                "html": "<a href=\"#navigation\" class=\"sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-32 bg-violet-600 text-white px-4 py-2 rounded-lg z-50\">Skip to navigation</a>",
+                "impact": "moderate",
+                "none": [],
+                "target": [
+                  ".focus\\:left-32"
+                ]
+              }
+            ],
+            "tags": [
+              "cat.keyboard",
+              "best-practice"
+            ]
+          }
+        ],
+        "minor_violations": [],
+        "all_violations": [
+          {
+            "description": "Ensures all page content is contained by landmarks",
+            "help": "All page content should be contained by landmarks",
+            "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/region?application=axeAPI",
+            "id": "region",
+            "impact": "moderate",
+            "nodes": [
+              {
+                "all": [],
+                "any": [
+                  {
+                    "data": {
+                      "isIframe": false
+                    },
+                    "id": "region",
+                    "impact": "moderate",
+                    "message": "Some page content is not contained by landmarks",
+                    "relatedNodes": []
+                  }
+                ],
+                "failureSummary": "Fix any of the following:\n  Some page content is not contained by landmarks",
+                "html": "<div class=\"fixed top-4 right-4 bg-black/80 text-white p-4 rounded-lg z-50 text-sm\"><div class=\"font-bold mb-2\">Responsive Test</div><div>Breakpoint: Desktop (\u22651025px)</div><div>Size: 1920 \u00d7 941</div></div>",
+                "impact": "moderate",
+                "none": [],
+                "target": [
+                  ".top-4"
+                ]
+              },
+              {
+                "all": [],
+                "any": [
+                  {
+                    "data": {
+                      "isIframe": false
+                    },
+                    "id": "region",
+                    "impact": "moderate",
+                    "message": "Some page content is not contained by landmarks",
+                    "relatedNodes": []
+                  }
+                ],
+                "failureSummary": "Fix any of the following:\n  Some page content is not contained by landmarks",
+                "html": "<a href=\"#main-content\" class=\"sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-violet-600 text-white px-4 py-2 rounded-lg z-50\">Skip to main content</a>",
+                "impact": "moderate",
+                "none": [],
+                "target": [
+                  ".focus\\:left-4"
+                ]
+              },
+              {
+                "all": [],
+                "any": [
+                  {
+                    "data": {
+                      "isIframe": false
+                    },
+                    "id": "region",
+                    "impact": "moderate",
+                    "message": "Some page content is not contained by landmarks",
+                    "relatedNodes": []
+                  }
+                ],
+                "failureSummary": "Fix any of the following:\n  Some page content is not contained by landmarks",
+                "html": "<a href=\"#navigation\" class=\"sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-32 bg-violet-600 text-white px-4 py-2 rounded-lg z-50\">Skip to navigation</a>",
+                "impact": "moderate",
+                "none": [],
+                "target": [
+                  ".focus\\:left-32"
+                ]
+              }
+            ],
+            "tags": [
+              "cat.keyboard",
+              "best-practice"
+            ]
+          }
+        ]
+      },
+      "keyboard_navigation": {
+        "page": "settings_page",
+        "url": "http://localhost:3000/settings",
+        "status": "COMPLETED",
+        "total_focusable_elements": 32,
+        "tab_order_tested": 5,
+        "tab_order": [
+          {
+            "index": 1,
+            "tag": "a",
+            "text": "Skip to navigation",
+            "accessible_name": "Skip to navigation"
+          },
+          {
+            "index": 2,
+            "tag": "button",
+            "text": "Features",
+            "accessible_name": "Features"
+          },
+          {
+            "index": 3,
+            "tag": "button",
+            "text": "Pricing",
+            "accessible_name": "Pricing"
+          },
+          {
+            "index": 4,
+            "tag": "button",
+            "text": "FAQ",
+            "accessible_name": "FAQ"
+          },
+          {
+            "index": 5,
+            "tag": "button",
+            "text": "Get Started",
+            "accessible_name": "Get Started"
+          }
+        ],
+        "enter_activations": 5,
+        "escape_works": true,
+        "keyboard_score": 15.625
+      },
+      "color_contrast": {
+        "page": "settings_page",
+        "url": "http://localhost:3000/settings",
+        "status": "COMPLETED",
+        "total_text_elements": 20,
+        "contrast_issues": 0,
+        "issues": [],
+        "contrast_score": 100
+      },
+      "screen_reader_support": {
+        "page": "settings_page",
+        "url": "http://localhost:3000/settings",
+        "status": "COMPLETED",
+        "aria_elements": 23,
+        "semantic_elements": 50,
+        "total_images": 0,
+        "images_with_alt": 0,
+        "alt_text_coverage": 0.0,
+        "total_form_inputs": 0,
+        "labeled_inputs": 0,
+        "label_coverage": 0.0,
+        "skip_links": 1,
+        "heading_hierarchy_issues": 0,
+        "hierarchy_issues": [],
+        "screen_reader_score": 60
+      },
+      "focus_management": {
+        "page": "settings_page",
+        "url": "http://localhost:3000/settings",
+        "status": "COMPLETED",
+        "total_focusable_elements": 32,
+        "elements_with_focus_indicators": 2,
+        "focus_indicator_coverage": 20.0,
+        "modal_focus_trap": false,
+        "focus_management_score": 20.0
+      },
+      "overall_score": 58.04391891891892
+    },
+    "dashboard": {
+      "axe_tests": {
+        "page": "dashboard",
+        "url": "http://localhost:3000/dashboard",
+        "status": "ERROR",
+        "error": "Message: invalid session id\nStacktrace:\n0   chromedriver                        0x0000000109758028 chromedriver + 6361128\n1   chromedriver                        0x000000010974f72a chromedriver + 6326058\n2   chromedriver                        0x00000001091afa63 chromedriver + 428643\n3   chromedriver                        0x00000001091f329f chromedriver + 705183\n4   chromedriver                        0x0000000109227d06 chromedriver + 920838\n5   chromedriver                        0x0000000109222889 chromedriver + 899209\n6   chromedriver                        0x0000000109221a37 chromedriver + 895543\n7   chromedriver                        0x000000010917811f chromedriver + 200991\n8   chromedriver                        0x0000000109715fc0 chromedriver + 6090688\n9   chromedriver                        0x0000000109719e55 chromedriver + 6106709\n10  chromedriver                        0x00000001096f1287 chromedriver + 5939847\n11  chromedriver                        0x000000010971a8cf chromedriver + 6109391\n12  chromedriver                        0x00000001096e05f4 chromedriver + 5871092\n13  chromedriver                        0x00000001091762d9 chromedriver + 193241\n14  dyld                                0x00007ff81ad79530 start + 3056\n"
+      },
+      "keyboard_navigation": {
+        "page": "dashboard",
+        "url": "http://localhost:3000/dashboard",
+        "status": "ERROR",
+        "error": "Message: invalid session id\nStacktrace:\n0   chromedriver                        0x0000000109758028 chromedriver + 6361128\n1   chromedriver                        0x000000010974f72a chromedriver + 6326058\n2   chromedriver                        0x00000001091afa63 chromedriver + 428643\n3   chromedriver                        0x00000001091f329f chromedriver + 705183\n4   chromedriver                        0x0000000109227d06 chromedriver + 920838\n5   chromedriver                        0x0000000109222889 chromedriver + 899209\n6   chromedriver                        0x0000000109221a37 chromedriver + 895543\n7   chromedriver                        0x000000010917811f chromedriver + 200991\n8   chromedriver                        0x0000000109715fc0 chromedriver + 6090688\n9   chromedriver                        0x0000000109719e55 chromedriver + 6106709\n10  chromedriver                        0x00000001096f1287 chromedriver + 5939847\n11  chromedriver                        0x000000010971a8cf chromedriver + 6109391\n12  chromedriver                        0x00000001096e05f4 chromedriver + 5871092\n13  chromedriver                        0x00000001091762d9 chromedriver + 193241\n14  dyld                                0x00007ff81ad79530 start + 3056\n"
+      },
+      "color_contrast": {
+        "page": "dashboard",
+        "url": "http://localhost:3000/dashboard",
+        "status": "ERROR",
+        "error": "Message: invalid session id\nStacktrace:\n0   chromedriver                        0x0000000109758028 chromedriver + 6361128\n1   chromedriver                        0x000000010974f72a chromedriver + 6326058\n2   chromedriver                        0x00000001091afa63 chromedriver + 428643\n3   chromedriver                        0x00000001091f329f chromedriver + 705183\n4   chromedriver                        0x0000000109227d06 chromedriver + 920838\n5   chromedriver                        0x0000000109222889 chromedriver + 899209\n6   chromedriver                        0x0000000109221a37 chromedriver + 895543\n7   chromedriver                        0x000000010917811f chromedriver + 200991\n8   chromedriver                        0x0000000109715fc0 chromedriver + 6090688\n9   chromedriver                        0x0000000109719e55 chromedriver + 6106709\n10  chromedriver                        0x00000001096f1287 chromedriver + 5939847\n11  chromedriver                        0x000000010971a8cf chromedriver + 6109391\n12  chromedriver                        0x00000001096e05f4 chromedriver + 5871092\n13  chromedriver                        0x00000001091762d9 chromedriver + 193241\n14  dyld                                0x00007ff81ad79530 start + 3056\n"
+      },
+      "screen_reader_support": {
+        "page": "dashboard",
+        "url": "http://localhost:3000/dashboard",
+        "status": "ERROR",
+        "error": "Message: invalid session id\nStacktrace:\n0   chromedriver                        0x0000000109758028 chromedriver + 6361128\n1   chromedriver                        0x000000010974f72a chromedriver + 6326058\n2   chromedriver                        0x00000001091afa63 chromedriver + 428643\n3   chromedriver                        0x00000001091f329f chromedriver + 705183\n4   chromedriver                        0x0000000109227d06 chromedriver + 920838\n5   chromedriver                        0x0000000109222889 chromedriver + 899209\n6   chromedriver                        0x0000000109221a37 chromedriver + 895543\n7   chromedriver                        0x000000010917811f chromedriver + 200991\n8   chromedriver                        0x0000000109715fc0 chromedriver + 6090688\n9   chromedriver                        0x0000000109719e55 chromedriver + 6106709\n10  chromedriver                        0x00000001096f1287 chromedriver + 5939847\n11  chromedriver                        0x000000010971a8cf chromedriver + 6109391\n12  chromedriver                        0x00000001096e05f4 chromedriver + 5871092\n13  chromedriver                        0x00000001091762d9 chromedriver + 193241\n14  dyld                                0x00007ff81ad79530 start + 3056\n"
+      },
+      "focus_management": {
+        "page": "dashboard",
+        "url": "http://localhost:3000/dashboard",
+        "status": "ERROR",
+        "error": "Message: invalid session id\nStacktrace:\n0   chromedriver                        0x0000000109758028 chromedriver + 6361128\n1   chromedriver                        0x000000010974f72a chromedriver + 6326058\n2   chromedriver                        0x00000001091afa63 chromedriver + 428643\n3   chromedriver                        0x00000001091f329f chromedriver + 705183\n4   chromedriver                        0x0000000109227d06 chromedriver + 920838\n5   chromedriver                        0x0000000109222889 chromedriver + 899209\n6   chromedriver                        0x0000000109221a37 chromedriver + 895543\n7   chromedriver                        0x000000010917811f chromedriver + 200991\n8   chromedriver                        0x0000000109715fc0 chromedriver + 6090688\n9   chromedriver                        0x0000000109719e55 chromedriver + 6106709\n10  chromedriver                        0x00000001096f1287 chromedriver + 5939847\n11  chromedriver                        0x000000010971a8cf chromedriver + 6109391\n12  chromedriver                        0x00000001096e05f4 chromedriver + 5871092\n13  chromedriver                        0x00000001091762d9 chromedriver + 193241\n14  dyld                                0x00007ff81ad79530 start + 3056\n"
+      },
+      "overall_score": 0
+    }
+  },
+  "summary": {
+    "total_pages": 3,
+    "pages_passed": 0,
+    "pages_failed": 3,
+    "overall_score": 40.02927927927928
+  }
+}
