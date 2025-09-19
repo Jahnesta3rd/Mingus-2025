@@ -7,6 +7,7 @@ import os
 import logging
 from typing import Optional, Dict, Any
 from pathlib import Path
+from .advanced_resume_parser import AdvancedResumeParser
 
 logger = logging.getLogger(__name__)
 

@@ -1,0 +1,248 @@
+[
+  {
+    "tier": "Budget",
+    "parser_results": {
+      "parsed_data": {
+        "contact_info": {
+          "email": "maya.johnson.test@gmail.com",
+          "phone": "(404) 555-0127",
+          "location": "Decatur",
+          "linkedin": "linkedin.com/in/mayajohnsonmarketing"
+        },
+        "current_role": "Marketing Coordinator",
+        "experience_years": 2.5,
+        "education": "Bachelor of Arts in Communications",
+        "skills": [],
+        "certifications": [],
+        "target_salary": "$55,000-$65,000",
+        "target_roles": [
+          "Results-driven Marketing Co",
+          "dinat",
+          "with 2.5+ years of experience in healthcare marketing. Proven track rec",
+          "d in social media management, email campaign development, and content creation. Strong analytical skills with experience in campaign perf",
+          "mance tracking and ROI analysis. Seeking to leverage marketing expertise and digital skills to advance into a Seni",
+          "Marketing role."
+        ],
+        "industries": [
+          "healthcare",
+          "technology"
+        ]
+      },
+      "accuracy_score": 8,
+      "total_fields": 10,
+      "accuracy_percentage": 80.0
+    },
+    "job_recommendations": {
+      "persona": "Maya Johnson",
+      "current_role": "Marketing Coordinator",
+      "target_salary": "$55,000-$65,000",
+      "recommended_jobs": [
+        {
+          "title": "Senior Marketing Coordinator",
+          "company": "Healthcare Technology Solutions",
+          "location": "Atlanta, GA",
+          "salary": "$58,000-$62,000",
+          "match_score": 92,
+          "reason": "Perfect progression from current role, healthcare industry match"
+        },
+        {
+          "title": "Digital Marketing Specialist",
+          "company": "TechStart Atlanta",
+          "location": "Atlanta, GA",
+          "salary": "$60,000-$65,000",
+          "match_score": 88,
+          "reason": "Leverages digital marketing skills, growth opportunity"
+        },
+        {
+          "title": "Marketing Manager",
+          "company": "Consumer Goods Corp",
+          "location": "Atlanta, GA",
+          "salary": "$65,000-$70,000",
+          "match_score": 85,
+          "reason": "Management opportunity, consumer goods industry"
+        }
+      ],
+      "career_progression": [
+        "Marketing Coordinator \u2192 Senior Marketing Coordinator \u2192 Marketing Manager \u2192 Director of Marketing",
+        "Focus on digital marketing specialization for higher earning potential",
+        "Consider healthcare technology sector for rapid growth"
+      ],
+      "skill_gaps": [
+        "Advanced analytics and data visualization",
+        "Marketing automation platforms (Marketo, Pardot)",
+        "Leadership and team management experience"
+      ],
+      "market_insights": [
+        "Atlanta marketing jobs up 15% YoY",
+        "Healthcare marketing roles in high demand",
+        "Digital marketing skills command 20% premium"
+      ]
+    },
+    "status": "PASS",
+    "persona": "Maya Johnson"
+  },
+  {
+    "tier": "Mid-tier",
+    "parser_results": {
+      "parsed_data": {
+        "contact_info": {
+          "email": "marcus.thompson.test@gmail.com",
+          "phone": "(281) 555-0298",
+          "location": "Spring",
+          "linkedin": "linkedin.com/in/marcusthomsondeveloper"
+        },
+        "current_role": "Software Developer",
+        "experience_years": 3.0,
+        "education": "Bachelor of Science in Computer Science",
+        "skills": [],
+        "certifications": [],
+        "target_salary": "$85,000-$100,000",
+        "target_roles": [
+          "Seeking Seni",
+          "Software Developer",
+          "Full-Stack Engineer role with salary range $85,000-$100,000. Interested in companies with strong engineering culture, modern tech stack, and opp",
+          "tunities f",
+          "technical leadership. Open to remote w",
+          "k",
+          "hybrid arrangements. Particularly interested in fintech, healthtech,",
+          "SaaS companies."
+        ],
+        "industries": []
+      },
+      "accuracy_score": 7,
+      "total_fields": 11,
+      "accuracy_percentage": 63.63636363636363
+    },
+    "job_recommendations": {
+      "persona": "Marcus Thompson",
+      "current_role": "Software Developer",
+      "target_salary": "$85,000-$100,000",
+      "recommended_jobs": [
+        {
+          "title": "Senior Software Developer",
+          "company": "FinTech Innovations",
+          "location": "Houston, TX",
+          "salary": "$95,000-$105,000",
+          "match_score": 94,
+          "reason": "Perfect technical match, fintech industry growth"
+        },
+        {
+          "title": "Full-Stack Engineer",
+          "company": "HealthTech Solutions",
+          "location": "Houston, TX",
+          "salary": "$90,000-$100,000",
+          "match_score": 91,
+          "reason": "Full-stack expertise, healthtech sector opportunity"
+        },
+        {
+          "title": "Lead Developer",
+          "company": "SaaS Platform Inc",
+          "location": "Remote",
+          "salary": "$100,000-$110,000",
+          "match_score": 89,
+          "reason": "Leadership opportunity, remote work flexibility"
+        }
+      ],
+      "career_progression": [
+        "Software Developer \u2192 Senior Developer \u2192 Lead Developer \u2192 Engineering Manager",
+        "Consider technical leadership track for higher compensation",
+        "AWS expertise opens doors to cloud architecture roles"
+      ],
+      "skill_gaps": [
+        "System design and architecture",
+        "Team leadership and mentoring",
+        "Advanced cloud services (Kubernetes, serverless)"
+      ],
+      "market_insights": [
+        "Houston tech jobs up 22% YoY",
+        "Fintech and healthtech sectors booming",
+        "Remote work options increasing 40%"
+      ]
+    },
+    "status": "PASS",
+    "persona": "Marcus Thompson"
+  },
+  {
+    "tier": "Professional",
+    "parser_results": {
+      "parsed_data": {
+        "contact_info": {
+          "email": "jasmine.williams.test@gmail.com",
+          "phone": "(703) 555-0333",
+          "location": "Alexandria",
+          "linkedin": "linkedin.com/in/drjasminewilliams"
+        },
+        "current_role": "Senior Program Manager",
+        "experience_years": 0,
+        "education": "Master of Public Administration",
+        "skills": [],
+        "certifications": [],
+        "target_salary": "",
+        "target_roles": [
+          "Seeking Seni",
+          "Executive Service (SES) position",
+          "equivalent private sect",
+          "executive role in policy, program management,",
+          "",
+          "ganizational leadership with compensation range $140,000-$180,000. Interested in roles that combine strategic leadership, policy development, and social impact. Open to positions in federal government, consulting, non-profit sect",
+          ",",
+          "mission-driven private companies."
+        ],
+        "industries": [
+          "government"
+        ]
+      },
+      "accuracy_score": 6,
+      "total_fields": 10,
+      "accuracy_percentage": 60.0
+    },
+    "job_recommendations": {
+      "persona": "Dr. Jasmine Williams",
+      "current_role": "Senior Program Manager",
+      "target_salary": "",
+      "recommended_jobs": [
+        {
+          "title": "Deputy Director, Policy & Programs",
+          "company": "U.S. Department of Health & Human Services",
+          "location": "Washington, DC",
+          "salary": "$145,000-$155,000",
+          "match_score": 96,
+          "reason": "Natural progression within HHS, SES track"
+        },
+        {
+          "title": "Senior Vice President, Policy",
+          "company": "Healthcare Consulting Group",
+          "location": "Washington, DC",
+          "salary": "$160,000-$175,000",
+          "match_score": 93,
+          "reason": "Private sector opportunity, policy expertise"
+        },
+        {
+          "title": "Executive Director",
+          "company": "National Health Policy Institute",
+          "location": "Washington, DC",
+          "salary": "$150,000-$165,000",
+          "match_score": 91,
+          "reason": "Non-profit leadership, mission-driven work"
+        }
+      ],
+      "career_progression": [
+        "Senior Program Manager \u2192 Deputy Director \u2192 Director \u2192 Senior Executive Service",
+        "Consider private sector consulting for higher compensation",
+        "Non-profit executive roles offer mission alignment"
+      ],
+      "skill_gaps": [
+        "Private sector business acumen",
+        "Advanced financial modeling",
+        "Board-level presentation skills"
+      ],
+      "market_insights": [
+        "Federal SES positions highly competitive",
+        "Healthcare consulting sector growing 18% YoY",
+        "Non-profit executive compensation increasing"
+      ]
+    },
+    "status": "PASS",
+    "persona": "Dr. Jasmine Williams"
+  }
+]

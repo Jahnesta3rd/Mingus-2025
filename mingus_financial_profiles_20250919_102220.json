@@ -1,0 +1,98 @@
+[
+  {
+    "persona": "Maya Johnson",
+    "tier": "Budget ($15/month)",
+    "analysis": {
+      "monthly_income": 2800,
+      "monthly_expenses": 2950,
+      "monthly_debt_payments": 380,
+      "debt_to_income_ratio": 13.571428571428571,
+      "emergency_fund_months": 0.2711864406779661,
+      "net_worth": -29720,
+      "savings_rate": -5.357142857142857,
+      "expense_analysis": {
+        "housing": 1100,
+        "transportation": 580,
+        "food": 500,
+        "debt": 380,
+        "utilities": 160,
+        "entertainment": 230,
+        "other": 0
+      }
+    },
+    "recommendations": [
+      "\ud83d\udea8 URGENT: Build emergency fund to at least 3 months of expenses (currently 0.3 months)",
+      "\u2705 Debt-to-income ratio is healthy (13.6%)",
+      "\ud83d\udcb3 Credit Score: Fair - Focus on paying bills on time and reducing debt",
+      "\ud83d\udcb0 Increase savings rate (currently -5.4%, target 20%+)",
+      "\ud83c\udfe0 Housing costs are 39.3% of income (target <30%)",
+      "\ud83d\ude97 Transportation costs are 20.7% of income (target <15%)"
+    ],
+    "health_score": 38,
+    "status": "SUCCESS"
+  },
+  {
+    "persona": "Marcus Thompson",
+    "tier": "Mid-tier ($35/month)",
+    "analysis": {
+      "monthly_income": 4200,
+      "monthly_expenses": 3475,
+      "monthly_debt_payments": 485,
+      "debt_to_income_ratio": 11.547619047619047,
+      "emergency_fund_months": 1.0071942446043165,
+      "net_worth": -24080,
+      "savings_rate": 24.166666666666668,
+      "expense_analysis": {
+        "housing": 700,
+        "transportation": 785,
+        "food": 700,
+        "debt": 485,
+        "utilities": 145,
+        "entertainment": 370,
+        "other": 290
+      }
+    },
+    "recommendations": [
+      "\ud83d\udea8 URGENT: Build emergency fund to at least 3 months of expenses (currently 1.0 months)",
+      "\u2705 Debt-to-income ratio is healthy (11.5%)",
+      "\ud83d\udcb3 Credit Score: Good - Minor improvements could help reach excellent range",
+      "\u2705 Excellent savings rate (24.2%)",
+      "\u2705 Housing costs are reasonable (16.7% of income)",
+      "\ud83d\ude97 Transportation costs are 18.7% of income (target <15%)"
+    ],
+    "health_score": 72,
+    "status": "SUCCESS"
+  },
+  {
+    "persona": "Dr. Jasmine Williams",
+    "tier": "Professional ($100/month)",
+    "analysis": {
+      "monthly_income": 5200,
+      "monthly_expenses": 7855,
+      "monthly_debt_payments": 3770,
+      "debt_to_income_ratio": 72.5,
+      "emergency_fund_months": 1.9096117122851686,
+      "net_worth": -343220,
+      "savings_rate": -42.5,
+      "expense_analysis": {
+        "housing": 2800,
+        "transportation": 860,
+        "food": 1000,
+        "debt": 485,
+        "utilities": 235,
+        "entertainment": 200,
+        "other": 2275
+      }
+    },
+    "recommendations": [
+      "\ud83d\udea8 URGENT: Build emergency fund to at least 3 months of expenses (currently 1.9 months)",
+      "\ud83d\udea8 URGENT: Debt-to-income ratio is 72.5% (should be <40%)",
+      "\ud83d\udcb3 Credit Score: Excellent - Continue maintaining good credit habits",
+      "\ud83d\udcb0 Increase savings rate (currently -42.5%, target 20%+)",
+      "\ud83c\udfe0 Housing costs are 53.8% of income (target <30%)",
+      "\ud83d\ude97 Transportation costs are 16.5% of income (target <15%)"
+    ],
+    "health_score": 25,
+    "status": "SUCCESS"
+  }
+]

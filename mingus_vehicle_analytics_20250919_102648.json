@@ -1,0 +1,155 @@
+[
+  {
+    "tier": "Budget",
+    "features": {
+      "basic_cost_trends": {
+        "available": true,
+        "status": "PASS"
+      },
+      "fuel_efficiency_monitoring": {
+        "available": true,
+        "status": "PASS"
+      },
+      "monthly_summary_cards": {
+        "available": true,
+        "status": "PASS"
+      },
+      "peer_comparison": {
+        "available": false,
+        "upgrade_prompt": true,
+        "status": "PASS"
+      },
+      "roi_analysis": {
+        "available": false,
+        "upgrade_prompt": true,
+        "status": "PASS"
+      }
+    },
+    "metrics": {
+      "monthly_mileage": 1000.0,
+      "monthly_fuel_cost": 109.375,
+      "monthly_depreciation": 145.83333333333334,
+      "total_monthly_cost": 581.5277777777778,
+      "cost_per_mile": 0.5815277777777779,
+      "roi_percentage": -31.818181818181817,
+      "fuel_efficiency": 32,
+      "annual_fuel_cost": 1312.5
+    },
+    "status": "PASS",
+    "persona": "Maya Johnson"
+  },
+  {
+    "tier": "Mid-tier",
+    "features": {
+      "basic_cost_trends": {
+        "available": true,
+        "status": "PASS"
+      },
+      "fuel_efficiency_monitoring": {
+        "available": true,
+        "status": "PASS"
+      },
+      "monthly_summary_cards": {
+        "available": true,
+        "status": "PASS"
+      },
+      "advanced_cost_analysis": {
+        "available": true,
+        "status": "PASS"
+      },
+      "maintenance_prediction": {
+        "available": true,
+        "status": "PASS"
+      },
+      "roi_analysis": {
+        "available": true,
+        "status": "PASS"
+      },
+      "cost_per_mile": {
+        "available": true,
+        "status": "PASS"
+      },
+      "peer_comparison": {
+        "available": true,
+        "status": "PASS"
+      },
+      "export_functionality": {
+        "available": false,
+        "upgrade_prompt": true,
+        "status": "PASS"
+      }
+    },
+    "metrics": {
+      "monthly_mileage": 1250.0,
+      "monthly_fuel_cost": 150.86206896551724,
+      "monthly_depreciation": 187.5,
+      "total_monthly_cost": 811.4870689655172,
+      "cost_per_mile": 0.6491896551724138,
+      "roi_percentage": -31.57894736842105,
+      "fuel_efficiency": 29,
+      "annual_fuel_cost": 1810.344827586207
+    },
+    "status": "PASS",
+    "persona": "Marcus Thompson"
+  },
+  {
+    "tier": "Professional",
+    "features": {
+      "basic_cost_trends": {
+        "available": true,
+        "status": "PASS"
+      },
+      "fuel_efficiency_monitoring": {
+        "available": true,
+        "status": "PASS"
+      },
+      "monthly_summary_cards": {
+        "available": true,
+        "status": "PASS"
+      },
+      "advanced_cost_analysis": {
+        "available": true,
+        "status": "PASS"
+      },
+      "maintenance_prediction": {
+        "available": true,
+        "status": "PASS"
+      },
+      "roi_analysis": {
+        "available": true,
+        "status": "PASS"
+      },
+      "cost_per_mile": {
+        "available": true,
+        "status": "PASS"
+      },
+      "peer_comparison": {
+        "available": true,
+        "status": "PASS"
+      },
+      "export_functionality": {
+        "available": true,
+        "status": "PASS"
+      },
+      "business_metrics": {
+        "available": true,
+        "status": "PASS"
+      },
+      "fleet_management": {
+        "available": true,
+        "status": "PASS"
+      },
+      "tax_optimization": {
+        "available": true,
+        "status": "PASS"
+      },
+      "executive_dashboard": {
+        "available": true,
+        "status": "PASS"
+      }
+    },
+    "vehicles": {},
+    "status": "PASS",
+    "persona": "Dr. Jasmine Williams"
+  }
+]

@@ -1,0 +1,95 @@
+[
+  {
+    "tier": "Budget",
+    "features": {
+      "stress_spending_patterns": {
+        "available": true,
+        "status": "PASS"
+      },
+      "wellness_investment_roi": {
+        "available": true,
+        "status": "PASS"
+      },
+      "activity_level_vs_energy_costs": {
+        "available": true,
+        "status": "PASS"
+      }
+    },
+    "status": "PASS",
+    "persona": "Maya Johnson"
+  },
+  {
+    "tier": "Mid-tier",
+    "features": {
+      "stress_spending_patterns": {
+        "available": true,
+        "status": "PASS"
+      },
+      "wellness_investment_roi": {
+        "available": true,
+        "status": "PASS"
+      },
+      "activity_level_vs_energy_costs": {
+        "available": true,
+        "status": "PASS"
+      },
+      "relationship_spending_patterns": {
+        "available": true,
+        "status": "PASS"
+      },
+      "couples_financial_planning": {
+        "available": true,
+        "status": "PASS"
+      },
+      "stress_vs_investment_behavior": {
+        "available": true,
+        "status": "PASS"
+      }
+    },
+    "status": "PASS",
+    "persona": "Marcus Thompson"
+  },
+  {
+    "tier": "Professional",
+    "features": {
+      "stress_spending_patterns": {
+        "available": true,
+        "status": "PASS"
+      },
+      "wellness_investment_roi": {
+        "available": true,
+        "status": "PASS"
+      },
+      "activity_level_vs_energy_costs": {
+        "available": true,
+        "status": "PASS"
+      },
+      "relationship_spending_patterns": {
+        "available": true,
+        "status": "PASS"
+      },
+      "couples_financial_planning": {
+        "available": true,
+        "status": "PASS"
+      },
+      "stress_vs_investment_behavior": {
+        "available": true,
+        "status": "PASS"
+      },
+      "parenting_cost_analysis": {
+        "available": true,
+        "status": "PASS"
+      },
+      "work_life_balance_impact": {
+        "available": true,
+        "status": "PASS"
+      },
+      "wellness_investment_families": {
+        "available": true,
+        "status": "PASS"
+      }
+    },
+    "status": "PASS",
+    "persona": "Dr. Jasmine Williams"
+  }
+]

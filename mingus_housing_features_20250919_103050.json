@@ -1,0 +1,111 @@
+[
+  {
+    "tier": "Budget",
+    "features": {
+      "rent_vs_buy_calculator": {
+        "available": true,
+        "status": "PASS"
+      },
+      "down_payment_planning": {
+        "available": true,
+        "status": "PASS"
+      },
+      "credit_score_tracking": {
+        "available": true,
+        "status": "PASS"
+      },
+      "mortgage_pre_qualification": {
+        "available": true,
+        "status": "PASS"
+      }
+    },
+    "status": "PASS",
+    "persona": "Maya Johnson"
+  },
+  {
+    "tier": "Mid-tier",
+    "features": {
+      "rent_vs_buy_calculator": {
+        "available": true,
+        "status": "PASS"
+      },
+      "down_payment_planning": {
+        "available": true,
+        "status": "PASS"
+      },
+      "credit_score_tracking": {
+        "available": true,
+        "status": "PASS"
+      },
+      "mortgage_pre_qualification": {
+        "available": true,
+        "status": "PASS"
+      },
+      "joint_financial_planning": {
+        "available": true,
+        "status": "PASS"
+      },
+      "market_analysis": {
+        "available": true,
+        "status": "PASS"
+      },
+      "mortgage_affordability": {
+        "available": true,
+        "status": "PASS"
+      }
+    },
+    "status": "PASS",
+    "persona": "Marcus Thompson"
+  },
+  {
+    "tier": "Professional",
+    "features": {
+      "rent_vs_buy_calculator": {
+        "available": true,
+        "status": "PASS"
+      },
+      "down_payment_planning": {
+        "available": true,
+        "status": "PASS"
+      },
+      "credit_score_tracking": {
+        "available": true,
+        "status": "PASS"
+      },
+      "mortgage_pre_qualification": {
+        "available": true,
+        "status": "PASS"
+      },
+      "joint_financial_planning": {
+        "available": true,
+        "status": "PASS"
+      },
+      "market_analysis": {
+        "available": true,
+        "status": "PASS"
+      },
+      "home_equity_analysis": {
+        "available": true,
+        "status": "PASS"
+      },
+      "refinancing_calculator": {
+        "available": true,
+        "status": "PASS"
+      },
+      "investment_property": {
+        "available": true,
+        "status": "PASS"
+      },
+      "property_tax_optimization": {
+        "available": true,
+        "status": "PASS"
+      },
+      "market_trend_analysis": {
+        "available": true,
+        "status": "PASS"
+      }
+    },
+    "status": "PASS",
+    "persona": "Dr. Jasmine Williams"
+  }
+]
