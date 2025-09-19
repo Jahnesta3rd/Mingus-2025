@@ -1,0 +1,6 @@
+﻿"Front,Back,Tags"
+"What backend architecture pattern does Mingus use?,""Application Factory Pattern with Blueprint architecture for modular app initialization"",""Mingus::Backend::Architecture"""
+"What technologies power Mingus backend?,""Python Flask, SQLAlchemy, Celery 5.5.3, Redis, JWT authentication"",""Mingus::Backend::Tech"""
+"How does Mingus handle background tasks?,""Celery 5.5.3 with Redis as message broker for email processing, data processing, report generation"",""Mingus::Backend::Tasks"""
+"What security implementations does Mingus have?,""CSRF protection, AES-256 encryption, JWT authentication, input validation, rate limiting with Redis"",""Mingus::Backend::Security"""
+"How does Mingus API design follow REST principles?,""RESTful endpoints, proper HTTP methods, standard status codes, resource-based URLs"",""Mingus::Backend::API"""

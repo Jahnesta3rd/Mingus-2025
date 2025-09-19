@@ -26,6 +26,7 @@ import {
   RefreshCw,
   Download
 } from 'lucide-react';
+import WeeklyCheckinAnalytics from './WeeklyCheckinAnalytics';
 
 interface AnalyticsData {
   risk_trends: Array<{
@@ -325,6 +326,14 @@ const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ className = '' 
             </LineChart>
           </ResponsiveContainer>
         </div>
+      </div>
+
+      {/* Weekly Check-in Analytics */}
+      <div className="mt-8">
+        <WeeklyCheckinAnalytics 
+          userId="user_123" 
+          className="w-full"
+        />
       </div>
     </div>
   );

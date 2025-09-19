@@ -12,6 +12,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from backend.models.database import db
 from backend.models.user_models import User
 from backend.models.vehicle_models import Vehicle, MaintenancePrediction, CommuteScenario, MSAGasPrice
+from backend.models.housing_models import HousingSearch, HousingScenario, UserHousingPreferences, CommuteRouteCache, HousingType
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

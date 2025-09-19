@@ -15,7 +15,8 @@ import {
   BarChart3,
   Briefcase,
   TrendingDown,
-  Zap
+  Zap,
+  Car
 } from 'lucide-react';
 import NavigationBar from './NavigationBar';
 import ResponsiveTestComponent from './ResponsiveTestComponent';
@@ -199,7 +200,7 @@ const LandingPage: React.FC = () => {
   const [openFAQ, setOpenFAQ] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [hoveredCard, setHoveredCard] = useState<number | null>(null);
-  const [activeAssessment, setActiveAssessment] = useState<'ai-risk' | 'income-comparison' | 'cuffing-season' | 'layoff-risk' | null>(null);
+  const [activeAssessment, setActiveAssessment] = useState<'ai-risk' | 'income-comparison' | 'cuffing-season' | 'layoff-risk' | 'vehicle-financial-health' | null>(null);
 
 
   const toggleFAQ = (index: number) => {
@@ -215,7 +216,7 @@ const LandingPage: React.FC = () => {
   };
 
   // Enhanced keyboard navigation for assessment buttons
-  const handleAssessmentKeyDown = (e: React.KeyboardEvent, assessmentType: 'ai-risk' | 'income-comparison' | 'cuffing-season' | 'layoff-risk') => {
+  const handleAssessmentKeyDown = (e: React.KeyboardEvent, assessmentType: 'ai-risk' | 'income-comparison' | 'cuffing-season' | 'layoff-risk' | 'vehicle-financial-health') => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
       handleAssessmentClick(assessmentType);
@@ -242,7 +243,7 @@ const LandingPage: React.FC = () => {
   };
 
   // Handle assessment button clicks
-  const handleAssessmentClick = (assessmentType: 'ai-risk' | 'income-comparison' | 'cuffing-season' | 'layoff-risk') => {
+  const handleAssessmentClick = (assessmentType: 'ai-risk' | 'income-comparison' | 'cuffing-season' | 'layoff-risk' | 'vehicle-financial-health') => {
     setActiveAssessment(assessmentType);
     setIsLoading(false); // Stop loading state
   };
@@ -597,7 +598,7 @@ const LandingPage: React.FC = () => {
           </p>
           
           {/* Assessment Cards Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" role="list" aria-label="Assessment options">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6" role="list" aria-label="Assessment options">
             {/* AI Risk Assessment Card */}
             <div className="group bg-gradient-to-br from-slate-800 to-slate-900 p-6 rounded-xl border border-slate-700 hover:border-violet-500 transition-all duration-300 transform hover:scale-105 hover:shadow-2xl hover:shadow-violet-500/20 hover:-translate-y-2" role="listitem">
               <div className="text-violet-400 mb-4 group-hover:text-violet-300 transition-all duration-300 transform group-hover:scale-110" aria-hidden="true">
@@ -684,6 +685,29 @@ const LandingPage: React.FC = () => {
                 disabled={isLoading}
                 aria-label="Take Layoff Risk Assessment"
                 className="w-full bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-700 hover:to-red-700 text-white px-4 py-3 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-xl hover:shadow-rose-500/25 flex items-center justify-center hover:-translate-y-1 disabled:scale-100 disabled:translate-y-0 disabled:cursor-not-allowed focus-ring focus-visible:ring-4 focus-visible:ring-rose-400 focus-visible:ring-offset-4 focus-visible:ring-offset-gray-900"
+                type="button"
+              >
+                {isLoading ? 'Loading...' : 'Take Assessment'}
+              </button>
+            </div>
+
+            {/* Vehicle Financial Health Card */}
+            <div className="group bg-gradient-to-br from-slate-800 to-slate-900 p-6 rounded-xl border border-slate-700 hover:border-emerald-500 transition-all duration-300 transform hover:scale-105 hover:shadow-2xl hover:shadow-emerald-500/20 hover:-translate-y-2" role="listitem">
+              <div className="text-emerald-400 mb-4 group-hover:text-emerald-300 transition-all duration-300 transform group-hover:scale-110" aria-hidden="true">
+                <Car className="w-8 h-8" />
+              </div>
+              <h3 className="text-xl font-semibold mb-3 text-white group-hover:text-emerald-100 transition-colors duration-300">
+                Vehicle Financial Health
+              </h3>
+              <p className="text-gray-300 group-hover:text-gray-200 transition-colors duration-300 leading-relaxed mb-4">
+                Evaluate your vehicle-related financial wellness and planning strategies.
+              </p>
+              <button 
+                onClick={() => handleAssessmentClick('vehicle-financial-health')}
+                onKeyDown={(e) => handleAssessmentKeyDown(e, 'vehicle-financial-health')}
+                disabled={isLoading}
+                aria-label="Take Vehicle Financial Health Assessment"
+                className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white px-4 py-3 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-xl hover:shadow-emerald-500/25 flex items-center justify-center hover:-translate-y-1 disabled:scale-100 disabled:translate-y-0 disabled:cursor-not-allowed focus-ring focus-visible:ring-4 focus-visible:ring-emerald-400 focus-visible:ring-offset-4 focus-visible:ring-offset-gray-900"
                 type="button"
               >
                 {isLoading ? 'Loading...' : 'Take Assessment'}

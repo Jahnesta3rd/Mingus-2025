@@ -173,3 +173,103 @@ def get_current_user_email() -> str:
     Get the current authenticated user email
     """
     return getattr(g, 'current_user_email', None)
+
+def require_housing_feature(feature_name: str):
+    """
+    Decorator to require specific housing feature access
+    Must be used after @require_auth
+    
+    Args:
+        feature_name: Name of the housing feature to check (e.g., 'career_integration')
+    """
+    def decorator(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            if not hasattr(g, 'current_user_id'):
+                return jsonify({
+                    'error': 'Authentication required',
+                    'message': 'Housing feature access requires authentication'
+                }), 401
+            
+            user_id = g.current_user_id
+            
+            # Import here to avoid circular imports
+            from backend.services.feature_flag_service import feature_flag_service
+            
+            # Check if user has access to optimal location features
+            if not feature_flag_service.has_feature_access(user_id, feature_flag_service.FeatureFlag.OPTIMAL_LOCATION):
+                return jsonify({
+                    'error': 'Feature not available',
+                    'message': 'Optimal Location features are available in Mid-tier and Professional tiers.',
+                    'upgrade_required': True,
+                    'required_tier': 'mid_tier'
+                }), 403
+            
+            # Check specific housing subfeature
+            if not feature_flag_service.has_optimal_location_feature(user_id, feature_name):
+                return jsonify({
+                    'error': 'Feature not available',
+                    'message': f'{feature_name.replace("_", " ").title()} feature is not available in your current tier.',
+                    'upgrade_required': True,
+                    'feature_name': feature_name
+                }), 403
+            
+            return f(*args, **kwargs)
+        
+        return decorated_function
+    return decorator
+
+def rate_limit_housing_searches():
+    """
+    Decorator to rate limit housing searches based on user tier
+    Must be used after @require_auth
+    """
+    def decorator(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            if not hasattr(g, 'current_user_id'):
+                return jsonify({
+                    'error': 'Authentication required',
+                    'message': 'Rate limiting requires authentication'
+                }), 401
+            
+            user_id = g.current_user_id
+            
+            # Import here to avoid circular imports
+            from backend.services.feature_flag_service import feature_flag_service
+            from backend.models.housing_models import HousingSearch
+            from datetime import datetime, timedelta
+            
+            # Check if user has access to optimal location features
+            if not feature_flag_service.has_feature_access(user_id, feature_flag_service.FeatureFlag.OPTIMAL_LOCATION):
+                return jsonify({
+                    'error': 'Feature not available',
+                    'message': 'Optimal Location features are available in Mid-tier and Professional tiers.',
+                    'upgrade_required': True,
+                    'required_tier': 'mid_tier'
+                }), 403
+            
+            # Count searches this month
+            current_month = datetime.now().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+            searches_this_month = HousingSearch.query.filter(
+                HousingSearch.user_id == user_id,
+                HousingSearch.created_at >= current_month
+            ).count()
+            
+            # Check search limit
+            if not feature_flag_service.check_housing_search_limit(user_id, searches_this_month):
+                features = feature_flag_service.get_optimal_location_features(user_id)
+                limit = features.get('housing_searches_per_month', 0)
+                
+                return jsonify({
+                    'error': 'Search limit exceeded',
+                    'message': f'You have reached your monthly limit of {limit} housing searches. Upgrade to Mid-tier for unlimited searches.',
+                    'upgrade_required': True,
+                    'current_limit': limit,
+                    'searches_used': searches_this_month
+                }), 429
+            
+            return f(*args, **kwargs)
+        
+        return decorated_function
+    return decorator

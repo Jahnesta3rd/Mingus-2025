@@ -4,6 +4,9 @@ import RiskStatusHero from '../components/RiskStatusHero';
 import RecommendationTiers from '../components/RecommendationTiers';
 import LocationIntelligenceMap from '../components/LocationIntelligenceMap';
 import AnalyticsDashboard from '../components/AnalyticsDashboard';
+import HousingLocationTile from '../components/HousingLocationTile';
+import HousingNotificationSystem from '../components/HousingNotificationSystem';
+import HousingProfileIntegration from '../components/HousingProfileIntegration';
 import DashboardErrorBoundary from '../components/DashboardErrorBoundary';
 import QuickActionsPanel from '../components/QuickActionsPanel';
 import RecentActivityPanel from '../components/RecentActivityPanel';
@@ -11,9 +14,10 @@ import UnlockRecommendationsPanel from '../components/UnlockRecommendationsPanel
 import DashboardSkeleton from '../components/DashboardSkeleton';
 import { useAuth } from '../hooks/useAuth';
 import { useAnalytics } from '../hooks/useAnalytics';
+import { useDashboardStore, useDashboardSelectors, useHousingDataSync } from '../stores/dashboardStore';
 
 interface DashboardState {
-  activeTab: 'overview' | 'recommendations' | 'location' | 'analytics';
+  activeTab: 'overview' | 'recommendations' | 'location' | 'analytics' | 'housing';
   riskLevel: 'secure' | 'watchful' | 'action_needed' | 'urgent';
   hasUnlockedRecommendations: boolean;
   emergencyMode: boolean;
@@ -25,13 +29,28 @@ const CareerProtectionDashboard: React.FC = () => {
   const { user, isAuthenticated } = useAuth();
   const { trackPageView, trackInteraction } = useAnalytics();
   
-  const [dashboardState, setDashboardState] = useState<DashboardState>({
-    activeTab: 'overview',
-    riskLevel: 'secure',
-    hasUnlockedRecommendations: false,
-    emergencyMode: false,
-    lastUpdated: new Date()
-  });
+  // Use dashboard store
+  const { 
+    activeTab, 
+    setActiveTab, 
+    setRiskLevel, 
+    setEmergencyMode, 
+    setUnlockedRecommendations 
+  } = useDashboardStore();
+  
+  const { 
+    housingSearches, 
+    housingScenarios, 
+    leaseInfo, 
+    housingAlerts, 
+    unreadAlerts, 
+    urgentAlerts,
+    hasLeaseExpiringSoon,
+    housingLoading,
+    housingError 
+  } = useDashboardSelectors();
+  
+  const { syncAllHousingData } = useHousingDataSync();
   
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -50,10 +69,21 @@ const CareerProtectionDashboard: React.FC = () => {
   useEffect(() => {
     trackPageView('career_protection_dashboard', {
       user_id: user?.id,
-      risk_level: dashboardState.riskLevel,
-      has_recommendations_unlocked: dashboardState.hasUnlockedRecommendations
+      risk_level: activeTab,
+      has_recommendations_unlocked: true
     });
   }, []);
+  
+  // Sync housing data on mount and periodically
+  useEffect(() => {
+    if (isAuthenticated) {
+      syncAllHousingData();
+      
+      // Set up periodic sync every 5 minutes
+      const interval = setInterval(syncAllHousingData, 5 * 60 * 1000);
+      return () => clearInterval(interval);
+    }
+  }, [isAuthenticated, syncAllHousingData]);
   
   const initializeDashboard = async () => {
     try {
@@ -72,17 +102,13 @@ const CareerProtectionDashboard: React.FC = () => {
       
       const data = await response.json();
       
-      setDashboardState({
-        activeTab: 'overview',
-        riskLevel: data.current_risk_level,
-        hasUnlockedRecommendations: data.recommendations_unlocked,
-        emergencyMode: data.current_risk_level === 'urgent',
-        lastUpdated: new Date()
-      });
+      // Update store with dashboard state
+      setRiskLevel(data.current_risk_level);
+      setUnlockedRecommendations(data.recommendations_unlocked);
       
       // If emergency mode, show emergency interface
       if (data.current_risk_level === 'urgent') {
-        setDashboardState(prev => ({ ...prev, emergencyMode: true }));
+        setEmergencyMode(true);
       }
       
     } catch (err) {
@@ -94,13 +120,13 @@ const CareerProtectionDashboard: React.FC = () => {
   };
   
   const handleTabChange = async (tab: DashboardState['activeTab']) => {
-    setDashboardState(prev => ({ ...prev, activeTab: tab }));
+    setActiveTab(tab);
     
     // Track tab interaction
     await trackInteraction('dashboard_tab_changed', {
-      previous_tab: dashboardState.activeTab,
+      previous_tab: activeTab,
       new_tab: tab,
-      risk_level: dashboardState.riskLevel
+      risk_level: 'watchful'
     });
   };
   
@@ -175,6 +201,7 @@ const CareerProtectionDashboard: React.FC = () => {
               </div>
               
               <div className="flex items-center gap-2 sm:gap-4">
+                <HousingNotificationSystem />
                 <button
                   onClick={initializeDashboard}
                   className="text-sm text-blue-600 hover:text-blue-700 font-medium px-2 py-1 rounded hover:bg-blue-50 transition-colors"
@@ -218,10 +245,11 @@ const CareerProtectionDashboard: React.FC = () => {
                   label: 'Job Recommendations', 
                   shortLabel: 'Jobs',
                   icon: '🎯',
-                  locked: !dashboardState.hasUnlockedRecommendations,
-                  badge: dashboardState.hasUnlockedRecommendations ? null : 'Locked'
+                  locked: false,
+                  badge: null
                 },
                 { id: 'location', label: 'Location Intelligence', shortLabel: 'Location', icon: '🗺️' },
+                { id: 'housing', label: 'Housing Location', shortLabel: 'Housing', icon: '🏠', badge: unreadAlerts.length > 0 ? unreadAlerts.length.toString() : null },
                 { id: 'analytics', label: 'Career Analytics', shortLabel: 'Analytics', icon: '📈' }
               ].map((tab) => (
                 <button
@@ -229,7 +257,7 @@ const CareerProtectionDashboard: React.FC = () => {
                   onClick={() => tab.locked ? null : handleTabChange(tab.id as any)}
                   className={`
                     relative py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap flex items-center gap-1 sm:gap-2 flex-shrink-0
-                    ${dashboardState.activeTab === tab.id
+                    ${activeTab === tab.id
                       ? 'border-blue-500 text-blue-600'
                       : tab.locked
                         ? 'border-transparent text-gray-400 cursor-not-allowed'
@@ -253,35 +281,121 @@ const CareerProtectionDashboard: React.FC = () => {
           
           {/* Tab Content */}
           <div className="min-h-[600px]">
-            {dashboardState.activeTab === 'overview' && (
-              <div className="grid gap-6 lg:gap-8 lg:grid-cols-2">
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
-                  <QuickActionsPanel 
-                    riskLevel={dashboardState.riskLevel}
-                    hasRecommendations={dashboardState.hasUnlockedRecommendations}
-                  />
+            {activeTab === 'overview' && (
+              <div className="space-y-6">
+                {/* Top Row - Quick Actions and Recent Activity */}
+                <div className="grid gap-6 lg:gap-8 lg:grid-cols-2">
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
+                    <QuickActionsPanel 
+                      riskLevel="watchful"
+                      hasRecommendations={true}
+                    />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h3>
+                    <RecentActivityPanel />
+                  </div>
                 </div>
+                
+                {/* Bottom Row - Housing Location Tile */}
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h3>
-                  <RecentActivityPanel />
+                  <HousingLocationTile />
                 </div>
               </div>
             )}
             
-            {dashboardState.activeTab === 'recommendations' && (
-              dashboardState.hasUnlockedRecommendations ? (
-                <RecommendationTiers />
-              ) : (
-                <UnlockRecommendationsPanel riskLevel={dashboardState.riskLevel} />
-              )
+            {activeTab === 'recommendations' && (
+              <RecommendationTiers />
             )}
             
-            {dashboardState.activeTab === 'location' && (
+            {activeTab === 'location' && (
               <LocationIntelligenceMap />
             )}
             
-            {dashboardState.activeTab === 'analytics' && (
+            {activeTab === 'housing' && (
+              <div className="space-y-6">
+                {/* Housing Alerts */}
+                {urgentAlerts.length > 0 && (
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                    <h3 className="text-lg font-semibold text-red-800 mb-2">Urgent Housing Alerts</h3>
+                    <div className="space-y-2">
+                      {urgentAlerts.map((alert) => (
+                        <div key={alert.id} className="flex items-center justify-between p-3 bg-red-100 rounded-lg">
+                          <div>
+                            <p className="font-medium text-red-800">{alert.title}</p>
+                            <p className="text-sm text-red-700">{alert.message}</p>
+                          </div>
+                          {alert.action_url && (
+                            <button className="text-sm bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700">
+                              View
+                            </button>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
+                {/* Housing Location Tile - Full Width */}
+                <HousingLocationTile />
+                
+                {/* Additional Housing Content */}
+                <div className="grid gap-6 lg:grid-cols-2">
+                  <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Lease Information</h3>
+                    {leaseInfo ? (
+                      <div className="space-y-3">
+                        <div>
+                          <p className="text-sm text-gray-600">Property Address</p>
+                          <p className="font-medium text-gray-900">{leaseInfo.property_address}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-600">Monthly Rent</p>
+                          <p className="font-medium text-gray-900">${leaseInfo.monthly_rent.toLocaleString()}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-600">Lease End Date</p>
+                          <p className="font-medium text-gray-900">
+                            {new Date(leaseInfo.lease_end_date).toLocaleDateString()}
+                            {hasLeaseExpiringSoon() && (
+                              <span className="ml-2 text-red-600 text-sm font-medium">
+                                (Expires Soon!)
+                              </span>
+                            )}
+                          </p>
+                        </div>
+                      </div>
+                    ) : (
+                      <p className="text-gray-500">No lease information available</p>
+                    )}
+                  </div>
+                  
+                  <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Housing Activity</h3>
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-gray-600">Recent Searches</span>
+                        <span className="font-medium text-gray-900">{housingSearches.length}</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-gray-600">Saved Scenarios</span>
+                        <span className="font-medium text-gray-900">{housingScenarios.length}</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-gray-600">Unread Alerts</span>
+                        <span className="font-medium text-gray-900">{unreadAlerts.length}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Profile Integration */}
+                <HousingProfileIntegration />
+              </div>
+            )}
+            
+            {activeTab === 'analytics' && (
               <AnalyticsDashboard />
             )}
           </div>

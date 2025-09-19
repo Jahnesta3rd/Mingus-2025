@@ -1,5 +1,5 @@
 import React from 'react';
-import { TrendingUp, AlertTriangle, Target, ArrowRight, Download, Share2, Mail, Calendar, BookOpen, Users, DollarSign, Shield, Zap, X } from 'lucide-react';
+import { TrendingUp, AlertTriangle, Target, ArrowRight, Download, Share2, Mail, Calendar, BookOpen, Users, DollarSign, Shield, Zap, X, Car, Calculator } from 'lucide-react';
 
 // Types
 export interface AssessmentResult {
@@ -295,6 +295,21 @@ const CTASection: React.FC<{
             description: 'Build in-demand skills to future-proof your career',
             action: 'Start Program',
             icon: BookOpen
+          }
+        };
+      case 'vehicle-financial-health':
+        return {
+          primary: {
+            title: 'Vehicle Financial Planning Guide',
+            description: 'Get expert strategies for vehicle cost management',
+            action: 'Get Planning Guide',
+            icon: Car
+          },
+          secondary: {
+            title: 'Vehicle Emergency Fund Calculator',
+            description: 'Calculate the right emergency fund for your vehicle',
+            action: 'Calculate Fund',
+            icon: Calculator
           }
         };
       default:

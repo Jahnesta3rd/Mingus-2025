@@ -4,6 +4,8 @@ import RiskStatusHero from '../components/RiskStatusHero';
 import RecommendationTiers from '../components/RecommendationTiers';
 import LocationIntelligenceMap from '../components/LocationIntelligenceMap';
 import AnalyticsDashboard from '../components/AnalyticsDashboard';
+import VehicleDashboard from '../components/VehicleDashboard';
+import HousingLocationTile from '../components/HousingLocationTile';
 import DashboardErrorBoundary from '../components/DashboardErrorBoundary';
 import QuickActionsPanel from '../components/QuickActionsPanel';
 import RecentActivityPanel from '../components/RecentActivityPanel';
@@ -11,7 +13,7 @@ import UnlockRecommendationsPanel from '../components/UnlockRecommendationsPanel
 import { useAnalytics } from '../hooks/useAnalytics';
 
 interface DashboardState {
-  activeTab: 'overview' | 'recommendations' | 'location' | 'analytics';
+  activeTab: 'overview' | 'recommendations' | 'vehicles' | 'location' | 'analytics';
   riskLevel: 'secure' | 'watchful' | 'action_needed' | 'urgent';
   hasUnlockedRecommendations: boolean;
   emergencyMode: boolean;
@@ -131,6 +133,7 @@ const DashboardPreview: React.FC = () => {
                     locked: !dashboardState.hasUnlockedRecommendations,
                     badge: dashboardState.hasUnlockedRecommendations ? null : 'Locked'
                   },
+                  { id: 'vehicles', label: 'Vehicle Dashboard', shortLabel: 'Vehicles', icon: '🚗' },
                   { id: 'location', label: 'Location Intelligence', shortLabel: 'Location', icon: '🗺️' },
                   { id: 'analytics', label: 'Career Analytics', shortLabel: 'Analytics', icon: '📈' }
                 ].map((tab) => (
@@ -164,17 +167,25 @@ const DashboardPreview: React.FC = () => {
             {/* Tab Content */}
             <div className="min-h-[600px]">
               {dashboardState.activeTab === 'overview' && (
-                <div className="grid gap-6 lg:gap-8 lg:grid-cols-2">
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
-                    <QuickActionsPanel 
-                      riskLevel={dashboardState.riskLevel}
-                      hasRecommendations={dashboardState.hasUnlockedRecommendations}
-                    />
+                <div className="space-y-6">
+                  {/* Top Row - Quick Actions and Recent Activity */}
+                  <div className="grid gap-6 lg:gap-8 lg:grid-cols-2">
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
+                      <QuickActionsPanel 
+                        riskLevel={dashboardState.riskLevel}
+                        hasRecommendations={dashboardState.hasUnlockedRecommendations}
+                      />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h3>
+                      <RecentActivityPanel />
+                    </div>
                   </div>
+                  
+                  {/* Bottom Row - Housing Location Tile */}
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h3>
-                    <RecentActivityPanel />
+                    <HousingLocationTile />
                   </div>
                 </div>
               )}
@@ -185,6 +196,10 @@ const DashboardPreview: React.FC = () => {
                 ) : (
                   <UnlockRecommendationsPanel riskLevel={dashboardState.riskLevel} />
                 )
+              )}
+              
+              {dashboardState.activeTab === 'vehicles' && (
+                <VehicleDashboard />
               )}
               
               {dashboardState.activeTab === 'location' && (

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { User, MapPin, GraduationCap, Briefcase, DollarSign, Calendar, Target, TrendingUp, AlertCircle, CheckCircle } from 'lucide-react';
+import { User, MapPin, GraduationCap, Briefcase, DollarSign, Calendar, Target, TrendingUp, AlertCircle, CheckCircle, Car } from 'lucide-react';
 
 // Types
 interface PersonalInfo {
@@ -41,6 +41,13 @@ interface HealthWellness {
   stressSpending: number; // dollars spent when stressed
 }
 
+interface VehicleWellness {
+  vehicleExpenses: number; // unexpected vehicle costs this week
+  transportationStress: number; // 1-5 scale
+  commuteSatisfaction: number; // 1-5 scale
+  vehicleDecisions: string; // financial decisions made this week
+}
+
 interface Goals {
   emergencyFund: number;
   debtPayoffDate: string;
@@ -53,6 +60,7 @@ interface UserProfileData {
   monthlyExpenses: MonthlyExpenses;
   importantDates: ImportantDates;
   healthWellness: HealthWellness;
+  vehicleWellness: VehicleWellness;
   goals: Goals;
 }
 
@@ -99,6 +107,12 @@ const UserProfile: React.FC<UserProfileProps> = ({ onSave, onComplete, className
       meditationMinutes: 0,
       stressSpending: 0
     },
+    vehicleWellness: {
+      vehicleExpenses: 0,
+      transportationStress: 0,
+      commuteSatisfaction: 0,
+      vehicleDecisions: ''
+    },
     goals: {
       emergencyFund: 0,
       debtPayoffDate: '',
@@ -112,6 +126,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ onSave, onComplete, className
     { title: 'Monthly Expenses', icon: TrendingUp },
     { title: 'Important Dates', icon: Calendar },
     { title: 'Health & Wellness', icon: Target },
+    { title: 'Vehicle & Transportation', icon: Car },
     { title: 'Goals', icon: CheckCircle }
   ];
 
@@ -138,12 +153,44 @@ const UserProfile: React.FC<UserProfileProps> = ({ onSave, onComplete, className
     }));
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (currentStep < steps.length - 1) {
+      // Submit weekly check-in data when moving from vehicle wellness step
+      if (currentStep === 5) { // Vehicle & Transportation step
+        await submitWeeklyCheckin();
+      }
       setCurrentStep(currentStep + 1);
     } else {
       onSave(profileData);
       onComplete();
+    }
+  };
+
+  const submitWeeklyCheckin = async () => {
+    try {
+      const checkinData = {
+        check_in_date: new Date().toISOString().split('T')[0], // Today's date
+        healthWellness: profileData.healthWellness,
+        vehicleWellness: profileData.vehicleWellness
+      };
+
+      const response = await fetch('/api/weekly-checkin', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-User-ID': 'user_123', // This should come from props or context
+        },
+        credentials: 'include',
+        body: JSON.stringify(checkinData)
+      });
+
+      if (!response.ok) {
+        console.error('Failed to submit weekly check-in:', response.statusText);
+      } else {
+        console.log('Weekly check-in submitted successfully');
+      }
+    } catch (error) {
+      console.error('Error submitting weekly check-in:', error);
     }
   };
 
@@ -536,6 +583,74 @@ const UserProfile: React.FC<UserProfileProps> = ({ onSave, onComplete, className
     </div>
   );
 
+  const renderVehicleWellness = () => (
+    <div className="space-y-6">
+      <div className="text-center mb-8">
+        <Car className="w-12 h-12 text-violet-500 mx-auto mb-4" />
+        <h2 className="text-2xl font-bold text-white mb-2">Vehicle & Transportation</h2>
+        <p className="text-gray-400">Track your vehicle-related expenses and satisfaction</p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label className="block text-sm font-medium text-white mb-2">Unexpected Vehicle Costs This Week ($)</label>
+          <input
+            type="number"
+            value={profileData.vehicleWellness.vehicleExpenses || ''}
+            onChange={(e) => handleInputChange('vehicleWellness', 'vehicleExpenses', parseInt(e.target.value) || 0)}
+            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+            placeholder="0"
+          />
+          <p className="text-sm text-gray-400 mt-1">Repairs, maintenance, tickets, etc.</p>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-white mb-2">Transportation Stress Level (1-5)</label>
+          <select
+            value={profileData.vehicleWellness.transportationStress || ''}
+            onChange={(e) => handleInputChange('vehicleWellness', 'transportationStress', parseInt(e.target.value) || 0)}
+            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+          >
+            <option value="">Select stress level</option>
+            <option value="1">1 - Very Low</option>
+            <option value="2">2 - Low</option>
+            <option value="3">3 - Moderate</option>
+            <option value="4">4 - High</option>
+            <option value="5">5 - Very High</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-white mb-2">Commute Satisfaction (1-5)</label>
+          <select
+            value={profileData.vehicleWellness.commuteSatisfaction || ''}
+            onChange={(e) => handleInputChange('vehicleWellness', 'commuteSatisfaction', parseInt(e.target.value) || 0)}
+            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+          >
+            <option value="">Select satisfaction level</option>
+            <option value="1">1 - Very Dissatisfied</option>
+            <option value="2">2 - Dissatisfied</option>
+            <option value="3">3 - Neutral</option>
+            <option value="4">4 - Satisfied</option>
+            <option value="5">5 - Very Satisfied</option>
+          </select>
+        </div>
+
+        <div className="md:col-span-2">
+          <label className="block text-sm font-medium text-white mb-2">Vehicle-Related Financial Decisions This Week</label>
+          <textarea
+            value={profileData.vehicleWellness.vehicleDecisions}
+            onChange={(e) => handleInputChange('vehicleWellness', 'vehicleDecisions', e.target.value)}
+            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+            rows={3}
+            placeholder="e.g., Decided to get new tires, researched car insurance options, planned maintenance schedule..."
+          />
+          <p className="text-sm text-gray-400 mt-1">Any financial decisions or planning related to your vehicle</p>
+        </div>
+      </div>
+    </div>
+  );
+
   const renderGoals = () => (
     <div className="space-y-6">
       <div className="text-center mb-8">
@@ -590,7 +705,8 @@ const UserProfile: React.FC<UserProfileProps> = ({ onSave, onComplete, className
       case 2: return renderMonthlyExpenses();
       case 3: return renderImportantDates();
       case 4: return renderHealthWellness();
-      case 5: return renderGoals();
+      case 5: return renderVehicleWellness();
+      case 6: return renderGoals();
       default: return null;
     }
   };

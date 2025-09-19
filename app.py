@@ -32,6 +32,11 @@ from backend.api.unified_risk_analytics_api import risk_analytics_api
 from backend.api.vehicle_endpoints import vehicle_api
 from backend.api.vehicle_management_api import vehicle_management_api
 from backend.api.vehicle_setup_endpoints import vehicle_setup_api
+from backend.api.vehicle_expense_endpoints import vehicle_expense_api
+from backend.api.enhanced_vehicle_expense_endpoints import enhanced_vehicle_api
+from backend.api.weekly_checkin_endpoints import weekly_checkin_api
+from backend.api.career_vehicle_optimization_api import career_vehicle_api
+from backend.api.housing_endpoints import housing_api
 
 # Import security middleware
 from backend.middleware.security import SecurityMiddleware
@@ -91,10 +96,33 @@ app.register_blueprint(risk_analytics_api)
 app.register_blueprint(vehicle_api)
 app.register_blueprint(vehicle_management_api)
 app.register_blueprint(vehicle_setup_api)
+app.register_blueprint(vehicle_expense_api)
+app.register_blueprint(enhanced_vehicle_api)
+app.register_blueprint(weekly_checkin_api)
+app.register_blueprint(career_vehicle_api)
+app.register_blueprint(housing_api)
 
 # Import and register gas price API
 from backend.api.gas_price_endpoints import gas_price_api
 app.register_blueprint(gas_price_api)
+
+# Import and register Professional tier APIs
+from backend.api.professional_tier_api import professional_tier_api
+from backend.api.business_integrations_api import business_integrations_api
+from backend.api.subscription_management_api import subscription_management_api
+from backend.api.tax_adjacent_api import tax_adjacent_api
+app.register_blueprint(professional_tier_api)
+app.register_blueprint(business_integrations_api)
+app.register_blueprint(subscription_management_api)
+app.register_blueprint(tax_adjacent_api)
+
+# Import and register External API for Optimal Living Location feature
+from backend.api.external_api_endpoints import external_api
+app.register_blueprint(external_api)
+
+# Import and register Optimal Location API for housing features
+from backend.api.optimal_location_api import optimal_location_api
+app.register_blueprint(optimal_location_api)
 
 # Initialize SQLAlchemy database
 init_database(app)
@@ -207,6 +235,65 @@ def api_status():
                 'forecast_impact': '/api/vehicle/{id}/forecast-impact',
                 'vin_lookup': '/api/vehicle/vin-lookup',
                 'health': '/api/vehicle/health'
+            },
+            'weekly_checkin': {
+                'submit': '/api/weekly-checkin',
+                'latest': '/api/weekly-checkin/latest',
+                'history': '/api/weekly-checkin/history',
+                'analytics': '/api/weekly-checkin/analytics'
+            },
+            'career_vehicle_optimization': {
+                'job_cost_analysis': '/api/career-vehicle/job-cost-analysis',
+                'commute_impact_analysis': '/api/career-vehicle/commute-impact-analysis',
+                'career_move_planning': '/api/career-vehicle/career-move-planning',
+                'budget_optimization': '/api/career-vehicle/budget-optimization',
+                'feature_access': '/api/career-vehicle/feature-access'
+            },
+        'professional_tier': {
+            'fleet_management': '/api/professional/fleet',
+            'mileage_tracking': '/api/professional/mileage',
+            'fleet_analytics': '/api/professional/analytics/fleet',
+            'roi_analysis': '/api/professional/roi-analysis',
+            'health': '/api/professional/health'
+        },
+        'tax_adjacent': {
+            'expense_tracking': '/api/professional/expenses',
+            'mileage_logging': '/api/professional/mileage',
+            'maintenance_records': '/api/professional/maintenance',
+            'educational_content': '/api/professional/education',
+            'expense_reports': '/api/professional/reports/expense',
+            'health': '/api/professional/tax-adjacent/health'
+        },
+            'business_integrations': {
+                'quickbooks_connect': '/api/professional/integrations/quickbooks/connect',
+                'quickbooks_sync': '/api/professional/integrations/quickbooks/sync',
+                'credit_card_connect': '/api/professional/integrations/credit-card/connect',
+                'credit_card_categorize': '/api/professional/integrations/credit-card/categorize',
+                'hr_connect': '/api/professional/integrations/hr/connect',
+                'hr_employee_vehicles': '/api/professional/integrations/hr/employee-vehicles',
+                'insurance_connect': '/api/professional/integrations/insurance/connect',
+                'insurance_policies': '/api/professional/integrations/insurance/policies',
+                'integration_status': '/api/professional/integrations/status',
+                'health': '/api/professional/integrations/health'
+            },
+            'subscription_management': {
+                'plans': '/api/subscription/plans',
+                'current': '/api/subscription/current',
+                'upgrade': '/api/subscription/upgrade',
+                'cancel': '/api/subscription/cancel',
+                'feature_access': '/api/subscription/feature-access',
+                'usage': '/api/subscription/usage',
+                'billing_history': '/api/subscription/billing-history',
+                'health': '/api/subscription/health'
+            },
+            'external_apis': {
+                'rental_listings': '/api/external/rentals/{zip_code}',
+                'home_listings': '/api/external/homes/{zip_code}',
+                'route_distance': '/api/external/route/distance',
+                'cached_route': '/api/external/route/cached',
+                'service_status': '/api/external/status',
+                'cache_clear': '/api/external/cache/clear',
+                'cache_stats': '/api/external/cache/stats'
             }
         },
         'security': {

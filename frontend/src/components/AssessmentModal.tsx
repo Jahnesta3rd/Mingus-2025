@@ -34,7 +34,7 @@ export interface AssessmentConfig {
 
 interface AssessmentModalProps {
   isOpen: boolean;
-  assessmentType: 'ai-risk' | 'income-comparison' | 'cuffing-season' | 'layoff-risk' | null;
+  assessmentType: 'ai-risk' | 'income-comparison' | 'cuffing-season' | 'layoff-risk' | 'vehicle-financial-health' | null;
   onClose: () => void;
   onSubmit: (data: AssessmentData) => void;
   className?: string;
@@ -404,6 +404,156 @@ const assessmentConfigs: Record<string, AssessmentConfig> = {
         ]
       }
     ]
+  },
+  'vehicle-financial-health': {
+    id: 'vehicle-financial-health',
+    title: 'Vehicle Financial Health Assessment',
+    description: 'Evaluate your vehicle-related financial wellness and planning',
+    estimatedTime: '4-5 minutes',
+    icon: <User className="w-8 h-8" />,
+    questions: [
+      {
+        id: 'email',
+        question: 'What\'s your email address?',
+        type: 'email',
+        required: true,
+        placeholder: 'your.email@example.com'
+      },
+      {
+        id: 'firstName',
+        question: 'What\'s your first name?',
+        type: 'text',
+        required: true,
+        placeholder: 'Your first name'
+      },
+      {
+        id: 'vehicleAge',
+        question: 'How old is your current vehicle?',
+        type: 'single',
+        required: true,
+        options: [
+          'Less than 2 years',
+          '2-5 years',
+          '6-10 years',
+          '11-15 years',
+          '16-20 years',
+          'Over 20 years',
+          'I don\'t own a vehicle'
+        ]
+      },
+      {
+        id: 'vehicleMileage',
+        question: 'What is your vehicle\'s current mileage?',
+        type: 'single',
+        required: true,
+        options: [
+          'Under 50,000 miles',
+          '50,000 - 75,000 miles',
+          '75,000 - 100,000 miles',
+          '100,000 - 150,000 miles',
+          '150,000 - 200,000 miles',
+          'Over 200,000 miles',
+          'I don\'t know'
+        ]
+      },
+      {
+        id: 'maintenanceHistory',
+        question: 'How would you describe your recent maintenance history?',
+        type: 'single',
+        required: true,
+        options: [
+          'Regular maintenance, no major issues',
+          'Some minor repairs, mostly routine maintenance',
+          'Several unexpected repairs in the past year',
+          'Major repairs needed recently',
+          'I don\'t keep track of maintenance',
+          'I don\'t own a vehicle'
+        ]
+      },
+      {
+        id: 'monthlyTransportationCosts',
+        question: 'How aware are you of your monthly transportation costs?',
+        type: 'single',
+        required: true,
+        options: [
+          'Very aware - I track every expense',
+          'Somewhat aware - I know the major costs',
+          'Generally aware - I have a rough idea',
+          'Not very aware - I don\'t track these costs',
+          'Not aware at all - I don\'t know my costs'
+        ]
+      },
+      {
+        id: 'emergencyFund',
+        question: 'Do you have an emergency fund specifically for vehicle repairs?',
+        type: 'single',
+        required: true,
+        options: [
+          'Yes, I have a dedicated vehicle emergency fund',
+          'Yes, I have a general emergency fund that could cover vehicle repairs',
+          'No, but I have some savings that could help',
+          'No, I don\'t have any emergency savings',
+          'I don\'t own a vehicle'
+        ]
+      },
+      {
+        id: 'vehicleFinancialStress',
+        question: 'How much financial stress do your vehicle costs cause you?',
+        type: 'single',
+        required: true,
+        options: [
+          'No stress at all',
+          'Minimal stress',
+          'Moderate stress',
+          'Significant stress',
+          'Extreme stress',
+          'I don\'t own a vehicle'
+        ]
+      },
+      {
+        id: 'commuteDistance',
+        question: 'What is your typical daily commute distance?',
+        type: 'single',
+        required: true,
+        options: [
+          'Less than 10 miles round trip',
+          '10-25 miles round trip',
+          '25-50 miles round trip',
+          '50-75 miles round trip',
+          'Over 75 miles round trip',
+          'I work from home',
+          'I don\'t have a regular commute'
+        ]
+      },
+      {
+        id: 'vehicleInsurance',
+        question: 'How would you describe your vehicle insurance and financing situation?',
+        type: 'single',
+        required: true,
+        options: [
+          'Fully paid off, comprehensive insurance',
+          'Making payments, comprehensive insurance',
+          'Fully paid off, basic insurance',
+          'Making payments, basic insurance',
+          'Leasing with insurance included',
+          'I don\'t own a vehicle'
+        ]
+      },
+      {
+        id: 'futureVehiclePlanning',
+        question: 'How are you planning for your next vehicle purchase?',
+        type: 'single',
+        required: true,
+        options: [
+          'I have a detailed savings plan and timeline',
+          'I have a general savings plan',
+          'I\'m saving some money but no specific plan',
+          'I\'ll figure it out when the time comes',
+          'I plan to finance it when needed',
+          'I don\'t plan to buy another vehicle'
+        ]
+      }
+    ]
   }
 };
 
@@ -617,6 +767,12 @@ const AssessmentModal: React.FC<AssessmentModalProps> = ({
         'Develop skills that are in high demand',
         'Create a personal brand and online presence',
         'Have a backup plan and emergency fund'
+      ],
+      'vehicle-financial-health': [
+        'Create a dedicated vehicle emergency fund',
+        'Track all vehicle-related expenses monthly',
+        'Research and compare insurance options regularly',
+        'Plan ahead for your next vehicle purchase'
       ]
     };
 

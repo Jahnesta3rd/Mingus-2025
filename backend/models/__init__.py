@@ -7,6 +7,7 @@ SQLAlchemy models for the Mingus financial application
 from .database import db
 from .user_models import User
 from .vehicle_models import Vehicle, MaintenancePrediction, CommuteScenario, MSAGasPrice
+from .housing_models import HousingSearch, HousingScenario, UserHousingPreferences, CommuteRouteCache, HousingType
 
 __all__ = [
     'db',
@@ -14,5 +15,10 @@ __all__ = [
     'Vehicle',
     'MaintenancePrediction', 
     'CommuteScenario',
-    'MSAGasPrice'
+    'MSAGasPrice',
+    'HousingSearch',
+    'HousingScenario',
+    'UserHousingPreferences',
+    'CommuteRouteCache',
+    'HousingType'
 ]

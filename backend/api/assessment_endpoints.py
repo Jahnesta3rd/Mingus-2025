@@ -310,6 +310,8 @@ def calculate_assessment_results(assessment_type, answers):
         return calculate_cuffing_season_results(answers)
     elif assessment_type == 'layoff-risk':
         return calculate_layoff_risk_results(answers)
+    elif assessment_type == 'vehicle-financial-health':
+        return calculate_vehicle_financial_health_results(answers)
     else:
         return {'score': 0, 'risk_level': 'unknown', 'recommendations': []}
 
@@ -633,6 +635,167 @@ def calculate_layoff_risk_results(answers):
     return {
         'score': min(100, max(0, score)),
         'risk_level': risk_level,
+        'recommendations': recommendations
+    }
+
+def calculate_vehicle_financial_health_results(answers):
+    """Calculate vehicle financial health score"""
+    score = 0
+    risk_factors = []
+    
+    # Vehicle age (newer is better for financial health)
+    age_scores = {
+        'Less than 2 years': 20,
+        '2-5 years': 15,
+        '6-10 years': 10,
+        '11-15 years': 5,
+        '16-20 years': 0,
+        'Over 20 years': -5,
+        'I don\'t own a vehicle': 0
+    }
+    score += age_scores.get(answers.get('vehicleAge', ''), 0)
+    
+    # Vehicle mileage (lower is better)
+    mileage_scores = {
+        'Under 50,000 miles': 15,
+        '50,000 - 75,000 miles': 12,
+        '75,000 - 100,000 miles': 8,
+        '100,000 - 150,000 miles': 4,
+        '150,000 - 200,000 miles': 0,
+        'Over 200,000 miles': -5,
+        'I don\'t know': 0
+    }
+    score += mileage_scores.get(answers.get('vehicleMileage', ''), 0)
+    
+    # Maintenance history (good maintenance is better)
+    maintenance_scores = {
+        'Regular maintenance, no major issues': 20,
+        'Some minor repairs, mostly routine maintenance': 15,
+        'Several unexpected repairs in the past year': 5,
+        'Major repairs needed recently': -10,
+        'I don\'t keep track of maintenance': -5,
+        'I don\'t own a vehicle': 0
+    }
+    score += maintenance_scores.get(answers.get('maintenanceHistory', ''), 0)
+    
+    # Cost awareness (more aware is better)
+    awareness_scores = {
+        'Very aware - I track every expense': 20,
+        'Somewhat aware - I know the major costs': 15,
+        'Generally aware - I have a rough idea': 10,
+        'Not very aware - I don\'t track these costs': 0,
+        'Not aware at all - I don\'t know my costs': -10
+    }
+    score += awareness_scores.get(answers.get('monthlyTransportationCosts', ''), 0)
+    
+    # Emergency fund (having one is better)
+    emergency_scores = {
+        'Yes, I have a dedicated vehicle emergency fund': 25,
+        'Yes, I have a general emergency fund that could cover vehicle repairs': 20,
+        'No, but I have some savings that could help': 10,
+        'No, I don\'t have any emergency savings': -15,
+        'I don\'t own a vehicle': 0
+    }
+    score += emergency_scores.get(answers.get('emergencyFund', ''), 0)
+    
+    # Financial stress (less stress is better)
+    stress_scores = {
+        'No stress at all': 20,
+        'Minimal stress': 15,
+        'Moderate stress': 5,
+        'Significant stress': -10,
+        'Extreme stress': -20,
+        'I don\'t own a vehicle': 0
+    }
+    score += stress_scores.get(answers.get('vehicleFinancialStress', ''), 0)
+    
+    # Commute distance (shorter is better for costs)
+    commute_scores = {
+        'Less than 10 miles round trip': 15,
+        '10-25 miles round trip': 10,
+        '25-50 miles round trip': 5,
+        '50-75 miles round trip': 0,
+        'Over 75 miles round trip': -10,
+        'I work from home': 20,
+        'I don\'t have a regular commute': 15
+    }
+    score += commute_scores.get(answers.get('commuteDistance', ''), 0)
+    
+    # Insurance and financing (paid off with good insurance is best)
+    insurance_scores = {
+        'Fully paid off, comprehensive insurance': 25,
+        'Making payments, comprehensive insurance': 15,
+        'Fully paid off, basic insurance': 10,
+        'Making payments, basic insurance': 5,
+        'Leasing with insurance included': 8,
+        'I don\'t own a vehicle': 0
+    }
+    score += insurance_scores.get(answers.get('vehicleInsurance', ''), 0)
+    
+    # Future planning (better planning is better)
+    planning_scores = {
+        'I have a detailed savings plan and timeline': 20,
+        'I have a general savings plan': 15,
+        'I\'m saving some money but no specific plan': 8,
+        'I\'ll figure it out when the time comes': 0,
+        'I plan to finance it when needed': -5,
+        'I don\'t plan to buy another vehicle': 0
+    }
+    score += planning_scores.get(answers.get('futureVehiclePlanning', ''), 0)
+    
+    # Determine financial health level
+    if score >= 80:
+        health_level = 'Excellent'
+    elif score >= 60:
+        health_level = 'Good'
+    elif score >= 40:
+        health_level = 'Fair'
+    elif score >= 20:
+        health_level = 'Poor'
+    else:
+        health_level = 'Critical'
+    
+    # Generate recommendations based on health level
+    recommendations = []
+    if health_level == 'Excellent':
+        recommendations.extend([
+            'Continue your excellent vehicle financial management',
+            'Consider upgrading to a more fuel-efficient vehicle',
+            'Review insurance coverage annually for best rates',
+            'Maintain your emergency fund for unexpected repairs'
+        ])
+    elif health_level == 'Good':
+        recommendations.extend([
+            'Track all vehicle expenses to improve cost awareness',
+            'Build a dedicated vehicle emergency fund',
+            'Research ways to reduce insurance and maintenance costs',
+            'Plan ahead for your next vehicle purchase'
+        ])
+    elif health_level == 'Fair':
+        recommendations.extend([
+            'Create a monthly vehicle budget and stick to it',
+            'Start building an emergency fund for vehicle repairs',
+            'Get quotes from multiple insurance providers',
+            'Consider if your current vehicle is cost-effective'
+        ])
+    elif health_level == 'Poor':
+        recommendations.extend([
+            'Immediately start tracking all vehicle-related expenses',
+            'Build an emergency fund for unexpected repairs',
+            'Consider downsizing to a more affordable vehicle',
+            'Look into public transportation or carpooling options'
+        ])
+    else:  # Critical
+        recommendations.extend([
+            'Urgently review your vehicle ownership costs',
+            'Consider selling your current vehicle if it\'s a financial burden',
+            'Explore alternative transportation options',
+            'Seek financial counseling for vehicle-related debt'
+        ])
+    
+    return {
+        'score': min(100, max(0, score)),
+        'health_level': health_level,
         'recommendations': recommendations
     }
 

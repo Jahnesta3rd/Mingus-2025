@@ -1,0 +1,6 @@
+﻿"Front,Back,Tags"
+"What was Mingus initial security status vs final?,""Initial: 16 vulnerabilities (6 High, 10 Medium) → Final: 0 vulnerabilities (100% resolution)"",""Mingus::Security::Achievement"""
+"What encryption does Mingus use for sensitive data?,""AES-256 encryption for sensitive data storage and transmission"",""Mingus::Security::Encryption"""
+"How does Mingus prevent CSRF attacks?,""Comprehensive CSRF protection implementation across all forms and API endpoints"",""Mingus::Security::CSRF"""
+"What authentication method does Mingus use?,""JWT-based secure authentication with multi-factor authentication (TOTP) support"",""Mingus::Security::Auth"""
+"How does Mingus handle rate limiting?,""Advanced rate limiting with Redis backend to prevent API abuse"",""Mingus::Security::RateLimit"""

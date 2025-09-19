@@ -1,0 +1,303 @@
+name: Optimal Location Feature Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'backend/services/optimal_location_service.py'
+      - 'backend/api/optimal_location_api.py'
+      - 'frontend/src/components/OptimalLocation/**'
+      - 'tests/test_optimal_location_*.py'
+      - 'tests/fixtures/optimal_location_test_data.py'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'backend/services/optimal_location_service.py'
+      - 'backend/api/optimal_location_api.py'
+      - 'frontend/src/components/OptimalLocation/**'
+      - 'tests/test_optimal_location_*.py'
+      - 'tests/fixtures/optimal_location_test_data.py'
+  schedule:
+    - cron: '0 2 * * *'  # Run daily at 2 AM
+
+jobs:
+  backend-tests:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.8, 3.9, 3.10, 3.11]
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+    
+    - name: Cache pip dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements*.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install -r requirements-testing.txt
+        pip install pytest pytest-cov pytest-html pytest-xdist
+    
+    - name: Run backend tests
+      run: |
+        cd tests
+        python run_optimal_location_tests.py --category backend
+    
+    - name: Run backend tests with coverage
+      run: |
+        cd tests
+        python -m pytest test_optimal_location_service.py test_optimal_location_api.py --cov=../backend/services/optimal_location_service --cov=../backend/api/optimal_location_api --cov-report=xml --cov-report=html
+    
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage.xml
+        flags: backend
+        name: backend-coverage
+
+  api-tests:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.10
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install -r requirements-testing.txt
+        pip install pytest pytest-cov pytest-html
+    
+    - name: Run API tests
+      run: |
+        cd tests
+        python run_optimal_location_tests.py --category api
+    
+    - name: Run API integration tests
+      run: |
+        cd tests
+        python -m pytest test_optimal_location_integration.py -v
+
+  integration-tests:
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: test_db
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.10
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install -r requirements-testing.txt
+        pip install pytest pytest-cov
+    
+    - name: Run integration tests
+      run: |
+        cd tests
+        python run_optimal_location_tests.py --category integration
+    
+    - name: Run end-to-end tests
+      run: |
+        cd tests
+        python -m pytest test_optimal_location_integration.py::TestOptimalLocationIntegration::test_end_to_end_user_flow -v
+
+  performance-tests:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.10
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install -r requirements-testing.txt
+        pip install pytest pytest-cov psutil
+    
+    - name: Run performance tests
+      run: |
+        cd tests
+        python run_optimal_location_tests.py --category performance
+    
+    - name: Run load tests
+      run: |
+        cd tests
+        python -m pytest test_optimal_location_performance.py::TestOptimalLocationPerformance::test_stress_testing -v -s
+    
+    - name: Run memory leak tests
+      run: |
+        cd tests
+        python -m pytest test_optimal_location_performance.py::TestOptimalLocationPerformance::test_memory_leak_detection -v -s
+
+  frontend-tests:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: frontend/package-lock.json
+    
+    - name: Install frontend dependencies
+      run: |
+        cd frontend
+        npm ci
+    
+    - name: Run frontend tests
+      run: |
+        cd frontend
+        npm test -- --coverage --watchAll=false
+    
+    - name: Run Optimal Location component tests
+      run: |
+        cd frontend
+        npm test -- --testPathPattern=OptimalLocation --coverage --watchAll=false
+    
+    - name: Upload frontend coverage
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./frontend/coverage/lcov.info
+        flags: frontend
+        name: frontend-coverage
+
+  security-tests:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.10
+    
+    - name: Install security testing tools
+      run: |
+        python -m pip install --upgrade pip
+        pip install bandit safety semgrep
+    
+    - name: Run security scan
+      run: |
+        bandit -r backend/services/optimal_location_service.py backend/api/optimal_location_api.py -f json -o security-report.json
+    
+    - name: Check for known vulnerabilities
+      run: |
+        safety check --json --output safety-report.json
+    
+    - name: Run Semgrep security scan
+      run: |
+        semgrep --config=auto backend/services/optimal_location_service.py backend/api/optimal_location_api.py --json --output=semgrep-report.json
+
+  test-report:
+    runs-on: ubuntu-latest
+    needs: [backend-tests, api-tests, integration-tests, performance-tests, frontend-tests]
+    if: always()
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.10
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install -r requirements-testing.txt
+    
+    - name: Generate comprehensive test report
+      run: |
+        cd tests
+        python run_optimal_location_tests.py --category all
+    
+    - name: Upload test reports
+      uses: actions/upload-artifact@v3
+      with:
+        name: test-reports
+        path: |
+          tests/reports/
+          coverage/
+          frontend/coverage/
+
+  deploy-staging:
+    runs-on: ubuntu-latest
+    needs: [backend-tests, api-tests, integration-tests, performance-tests, frontend-tests]
+    if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Deploy to staging
+      run: |
+        echo "Deploying Optimal Location feature to staging environment"
+        # Add actual deployment commands here
+    
+    - name: Run smoke tests
+      run: |
+        echo "Running smoke tests on staging environment"
+        # Add smoke test commands here
+
+  deploy-production:
+    runs-on: ubuntu-latest
+    needs: [backend-tests, api-tests, integration-tests, performance-tests, frontend-tests, security-tests]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Deploy to production
+      run: |
+        echo "Deploying Optimal Location feature to production environment"
+        # Add actual deployment commands here
+    
+    - name: Run production health checks
+      run: |
+        echo "Running production health checks"
+        # Add health check commands here

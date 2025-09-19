@@ -1,0 +1,6 @@
+﻿"Front,Back,Tags"
+"What frontend technologies does Mingus use?,""React 18.2.0, TypeScript 4.9.3, Vite 4.1.0, Tailwind CSS 3.2.7, Recharts"",""Mingus::Frontend::Tech"""
+"What state management solution does Mingus use?,""Zustand for dashboard state - lightweight, TypeScript-friendly alternative to Redux"",""Mingus::Frontend::State"""
+"How does Mingus handle form validation?,""Multi-step form handling with comprehensive input validation and sanitization in assessment modals"",""Mingus::Frontend::Validation"""
+"What accessibility standards does Mingus follow?,""WCAG 2.1 AA compliance with skip links, ARIA labels, keyboard navigation, and screen reader compatibility"",""Mingus::Frontend::Accessibility"""
+"How is Mingus designed for mobile?,""Mobile-first responsive design with comprehensive breakpoints and touch-friendly interactions"",""Mingus::Frontend::Mobile"""

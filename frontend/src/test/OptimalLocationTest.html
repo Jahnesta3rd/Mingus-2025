@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OptimalLocationRouter Component Test</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom animations for testing */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        
+        .skeleton {
+            background: linear-gradient(90deg, #374151 25%, #4b5563 50%, #374151 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+        }
+        
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        /* Test indicator styles */
+        .test-indicator {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 12px;
+            z-index: 9999;
+        }
+
+        .responsive-indicator {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 12px;
+            z-index: 9999;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div id="root"></div>
+
+    <!-- Test Controls -->
+    <div class="test-indicator">
+        <div><strong>OptimalLocationRouter Test</strong></div>
+        <div>Status: <span id="test-status">Loading...</span></div>
+        <div>User Tier: <span id="user-tier">mid_tier</span></div>
+        <div>View: <span id="current-view">search</span></div>
+    </div>
+
+    <!-- Responsive Test Indicator -->
+    <div class="responsive-indicator">
+        <div><strong>Responsive Test</strong></div>
+        <div>Breakpoint: <span id="breakpoint">Desktop</span></div>
+        <div>Size: <span id="window-size">1920x1080</span></div>
+    </div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useCallback } = React;
+
+        // Mock data
+        const mockUserTiers = [
+            { tier: 'budget', label: 'Budget', color: 'bg-gray-100 text-gray-800' },
+            { tier: 'budget_career_vehicle', label: 'Budget Career Vehicle', color: 'bg-green-100 text-green-800' },
+            { tier: 'mid_tier', label: 'Mid-tier', color: 'bg-blue-100 text-blue-800' },
+            { tier: 'professional', label: 'Professional', color: 'bg-purple-100 text-purple-800' }
+        ];
+
+        const mockScenarios = [
+            {
+                id: '1',
+                name: 'Downtown Living',
+                location: 'San Francisco, CA',
+                budget: 3500,
+                commuteTime: 15,
+                qualityOfLife: 8,
+                careerOpportunities: 9,
+                costOfLiving: 6,
+                createdAt: new Date('2024-01-15'),
+                isActive: true
+            },
+            {
+                id: '2',
+                name: 'Suburban Family',
+                location: 'Palo Alto, CA',
+                budget: 2800,
+                commuteTime: 45,
+                qualityOfLife: 9,
+                careerOpportunities: 8,
+                costOfLiving: 7,
+                createdAt: new Date('2024-01-10'),
+                isActive: false
+            }
+        ];
+
+        const mockSearchResults = [
+            {
+                id: '1',
+                title: 'Modern Apartment in SOMA',
+                location: 'San Francisco, CA',
+                price: 3200,
+                bedrooms: 1,
+                bathrooms: 1,
+                amenities: ['Gym', 'Pool', 'Parking'],
+                commuteTime: 20,
+                walkScore: 85
+            },
+            {
+                id: '2',
+                title: 'Charming Victorian House',
+                location: 'Mission District, San Francisco, CA',
+                price: 4500,
+                bedrooms: 2,
+                bathrooms: 1,
+                amenities: ['Garden', 'Parking', 'Fireplace'],
+                commuteTime: 25,
+                walkScore: 92
+            }
+        ];
+
+        // Mock OptimalLocationRouter Component
+        const OptimalLocationRouter = ({ className = '' }) => {
+            const [userTier, setUserTier] = useState('mid_tier');
+            const [activeView, setActiveView] = useState('search');
+            const [loading, setLoading] = useState(false);
+            const [error, setError] = useState(null);
+            const [searchResults, setSearchResults] = useState([]);
+            const [scenarios, setScenarios] = useState(mockScenarios);
+
+            // Update test indicators
+            useEffect(() => {
+                document.getElementById('user-tier').textContent = userTier;
+                document.getElementById('current-view').textContent = activeView;
+                document.getElementById('test-status').textContent = loading ? 'Loading...' : 'Ready';
+            }, [userTier, activeView, loading]);
+
+            const handleViewChange = (newView) => {
+                setActiveView(newView);
+                console.log('View changed to:', newView);
+            };
+
+            const handleSearch = async (searchData) => {
+                setLoading(true);
+                setError(null);
+                
+                // Simulate API call
+                setTimeout(() => {
+                    setSearchResults(mockSearchResults);
+                    setLoading(false);
+                    console.log('Search completed:', searchData);
+                }, 1000);
+            };
+
+            const handleTierChange = (newTier) => {
+                setUserTier(newTier);
+                console.log('Tier changed to:', newTier);
+            };
+
+            const getTierFeatures = (tier) => {
+                const features = {
+                    budget: {
+                        showBasicSearch: true,
+                        showScenarioPlanning: false,
+                        showCareerIntegration: false,
+                        showAdvancedAnalytics: false,
+                        showExportOptions: false,
+                        showBusinessFeatures: false
+                    },
+                    budget_career_vehicle: {
+                        showBasicSearch: true,
+                        showScenarioPlanning: false,
+                        showCareerIntegration: true,
+                        showAdvancedAnalytics: false,
+                        showExportOptions: false,
+                        showBusinessFeatures: false
+                    },
+                    mid_tier: {
+                        showBasicSearch: true,
+                        showScenarioPlanning: true,
+                        showCareerIntegration: true,
+                        showAdvancedAnalytics: true,
+                        showExportOptions: false,
+                        showBusinessFeatures: false
+                    },
+                    professional: {
+                        showBasicSearch: true,
+                        showScenarioPlanning: true,
+                        showCareerIntegration: true,
+                        showAdvancedAnalytics: true,
+                        showExportOptions: true,
+                        showBusinessFeatures: true
+                    }
+                };
+                return features[tier] || features.budget;
+            };
+
+            const features = getTierFeatures(userTier);
+
+            if (loading) {
+                return (
+                    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+                        <div className="text-center">
+                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-violet-600 mx-auto mb-4"></div>
+                            <p className="text-gray-600">Loading optimal location feature...</p>
+                        </div>
+                    </div>
+                );
+            }
+
+            return (
+                <div className={`min-h-screen bg-gray-50 ${className}`}>
+                    {/* Header */}
+                    <div className="bg-white border-b border-gray-200">
+                        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                            <div className="flex items-center justify-between h-16">
+                                <button className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors">
+                                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                                    </svg>
+                                    <span className="hidden sm:inline">Back to Dashboard</span>
+                                </button>
+
+                                <h1 className="text-xl font-semibold text-gray-900">
+                                    Optimal Living Location
+                                </h1>
+
+                                <div className="flex items-center gap-2">
+                                    <div className={`px-3 py-1 rounded-full text-xs font-medium ${
+                                        userTier === 'professional' ? 'bg-purple-100 text-purple-800' :
+                                        userTier === 'mid_tier' ? 'bg-blue-100 text-blue-800' :
+                                        userTier === 'budget_career_vehicle' ? 'bg-green-100 text-green-800' :
+                                        'bg-gray-100 text-gray-800'
+                                    }`}>
+                                        {userTier.replace('_', ' ').toUpperCase()}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Navigation Tabs */}
+                    <div className="bg-white border-b border-gray-200">
+                        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                            <nav className="flex space-x-8" role="tablist">
+                                {[
+                                    { id: 'search', label: 'Housing Search', icon: '🔍', enabled: features.showBasicSearch },
+                                    { id: 'scenarios', label: 'Scenarios', icon: '📊', enabled: features.showScenarioPlanning },
+                                    { id: 'results', label: 'Results', icon: '📈', enabled: true },
+                                    { id: 'preferences', label: 'Preferences', icon: '⚙️', enabled: true }
+                                ].map((tab) => {
+                                    const isActive = activeView === tab.id;
+                                    const isDisabled = !tab.enabled;
+
+                                    return (
+                                        <button
+                                            key={tab.id}
+                                            onClick={() => tab.enabled && handleViewChange(tab.id)}
+                                            disabled={isDisabled}
+                                            className={`
+                                                flex items-center gap-2 px-1 py-4 text-sm font-medium border-b-2 transition-colors
+                                                ${isActive 
+                                                    ? 'border-violet-500 text-violet-600' 
+                                                    : isDisabled
+                                                    ? 'border-transparent text-gray-400 cursor-not-allowed'
+                                                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                                                }
+                                            `}
+                                            role="tab"
+                                            aria-selected={isActive}
+                                            aria-disabled={isDisabled}
+                                        >
+                                            <span>{tab.icon}</span>
+                                            <span className="hidden sm:inline">{tab.label}</span>
+                                            {isDisabled && <span>🔒</span>}
+                                        </button>
+                                    );
+                                })}
+                            </nav>
+                        </div>
+                    </div>
+
+                    {/* Main Content */}
+                    <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                        {activeView === 'search' && (
+                            <HousingSearchView 
+                                features={features}
+                                onSearch={handleSearch}
+                                searchResults={searchResults}
+                                onViewChange={handleViewChange}
+                            />
+                        )}
+
+                        {activeView === 'scenarios' && (
+                            <ScenarioComparisonView 
+                                scenarios={scenarios}
+                                features={features}
+                            />
+                        )}
+
+                        {activeView === 'results' && (
+                            <ResultsDisplayView 
+                                searchResults={searchResults}
+                                scenarios={scenarios}
+                            />
+                        )}
+
+                        {activeView === 'preferences' && (
+                            <PreferencesManagementView 
+                                features={features}
+                                userTier={userTier}
+                                onTierChange={handleTierChange}
+                            />
+                        )}
+                    </main>
+                </div>
+            );
+        };
+
+        // Housing Search View Component
+        const HousingSearchView = ({ features, onSearch, searchResults, onViewChange }) => {
+            const [formData, setFormData] = useState({
+                location: '',
+                budget: { min: 1000, max: 3000 },
+                preferences: {
+                    propertyType: 'any',
+                    bedrooms: 1,
+                    bathrooms: 1,
+                    amenities: []
+                },
+                radius: 10
+            });
+
+            const handleSubmit = (e) => {
+                e.preventDefault();
+                onSearch(formData);
+            };
+
+            return (
+                <div className="space-y-6">
+                    {/* Feature Restriction Notice */}
+                    {!features.showBasicSearch && (
+                        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                            <div className="flex items-center gap-2">
+                                <span>🔒</span>
+                                <p className="text-yellow-800">
+                                    Housing search is available with Budget tier or higher. 
+                                    <button className="ml-1 text-yellow-600 hover:text-yellow-700 underline">
+                                        Upgrade your plan
+                                    </button>
+                                </p>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Search Form */}
+                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                        <h2 className="text-lg font-semibold text-gray-900 mb-4">Find Your Optimal Location</h2>
+                        
+                        <form onSubmit={handleSubmit} className="space-y-6">
+                            {/* Location Input */}
+                            <div>
+                                <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-2">
+                                    Location
+                                </label>
+                                <input
+                                    type="text"
+                                    id="location"
+                                    value={formData.location}
+                                    onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
+                                    placeholder="Enter city, state, or ZIP code"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+                                    disabled={!features.showBasicSearch}
+                                />
+                            </div>
+
+                            {/* Budget Range */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label htmlFor="minBudget" className="block text-sm font-medium text-gray-700 mb-2">
+                                        Minimum Budget ($)
+                                    </label>
+                                    <input
+                                        type="number"
+                                        id="minBudget"
+                                        value={formData.budget.min}
+                                        onChange={(e) => setFormData(prev => ({ 
+                                            ...prev, 
+                                            budget: { ...prev.budget, min: parseInt(e.target.value) || 0 }
+                                        }))}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+                                        disabled={!features.showBasicSearch}
+                                    />
+                                </div>
+                                <div>
+                                    <label htmlFor="maxBudget" className="block text-sm font-medium text-gray-700 mb-2">
+                                        Maximum Budget ($)
+                                    </label>
+                                    <input
+                                        type="number"
+                                        id="maxBudget"
+                                        value={formData.budget.max}
+                                        onChange={(e) => setFormData(prev => ({ 
+                                            ...prev, 
+                                            budget: { ...prev.budget, max: parseInt(e.target.value) || 0 }
+                                        }))}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+                                        disabled={!features.showBasicSearch}
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Property Preferences */}
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div>
+                                    <label htmlFor="propertyType" className="block text-sm font-medium text-gray-700 mb-2">
+                                        Property Type
+                                    </label>
+                                    <select
+                                        id="propertyType"
+                                        value={formData.preferences.propertyType}
+                                        onChange={(e) => setFormData(prev => ({ 
+                                            ...prev, 
+                                            preferences: { ...prev.preferences, propertyType: e.target.value }
+                                        }))}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+                                        disabled={!features.showBasicSearch}
+                                    >
+                                        <option value="any">Any</option>
+                                        <option value="apartment">Apartment</option>
+                                        <option value="house">House</option>
+                                        <option value="condo">Condo</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label htmlFor="bedrooms" className="block text-sm font-medium text-gray-700 mb-2">
+                                        Bedrooms
+                                    </label>
+                                    <select
+                                        id="bedrooms"
+                                        value={formData.preferences.bedrooms}
+                                        onChange={(e) => setFormData(prev => ({ 
+                                            ...prev, 
+                                            preferences: { ...prev.preferences, bedrooms: parseInt(e.target.value) }
+                                        }))}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+                                        disabled={!features.showBasicSearch}
+                                    >
+                                        <option value={1}>1+</option>
+                                        <option value={2}>2+</option>
+                                        <option value={3}>3+</option>
+                                        <option value={4}>4+</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label htmlFor="bathrooms" className="block text-sm font-medium text-gray-700 mb-2">
+                                        Bathrooms
+                                    </label>
+                                    <select
+                                        id="bathrooms"
+                                        value={formData.preferences.bathrooms}
+                                        onChange={(e) => setFormData(prev => ({ 
+                                            ...prev, 
+                                            preferences: { ...prev.preferences, bathrooms: parseInt(e.target.value) }
+                                        }))}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+                                        disabled={!features.showBasicSearch}
+                                    >
+                                        <option value={1}>1+</option>
+                                        <option value={2}>2+</option>
+                                        <option value={3}>3+</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            {/* Search Radius */}
+                            <div>
+                                <label htmlFor="radius" className="block text-sm font-medium text-gray-700 mb-2">
+                                    Search Radius: {formData.radius} miles
+                                </label>
+                                <input
+                                    type="range"
+                                    id="radius"
+                                    min="1"
+                                    max="50"
+                                    value={formData.radius}
+                                    onChange={(e) => setFormData(prev => ({ ...prev, radius: parseInt(e.target.value) }))}
+                                    className="w-full"
+                                    disabled={!features.showBasicSearch}
+                                />
+                            </div>
+
+                            {/* Submit Button */}
+                            <button
+                                type="submit"
+                                disabled={!features.showBasicSearch}
+                                className="w-full bg-violet-600 hover:bg-violet-700 disabled:bg-gray-400 text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
+                            >
+                                🔍 Search Locations
+                            </button>
+                        </form>
+                    </div>
+
+                    {/* Search Results Preview */}
+                    {searchResults.length > 0 && (
+                        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                                Found {searchResults.length} locations
+                            </h3>
+                            <button
+                                onClick={() => onViewChange('results')}
+                                className="text-violet-600 hover:text-violet-700 font-medium flex items-center gap-2"
+                            >
+                                View Results
+                                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                </svg>
+                            </button>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        // Scenario Comparison View Component
+        const ScenarioComparisonView = ({ scenarios, features }) => {
+            return (
+                <div className="space-y-6">
+                    {/* Feature Restriction Notice */}
+                    {!features.showScenarioPlanning && (
+                        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                            <div className="flex items-center gap-2">
+                                <span>🔒</span>
+                                <p className="text-yellow-800">
+                                    Scenario planning is available with Mid-tier or higher. 
+                                    <button className="ml-1 text-yellow-600 hover:text-yellow-700 underline">
+                                        Upgrade your plan
+                                    </button>
+                                </p>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Scenarios List */}
+                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                        <div className="flex items-center justify-between mb-6">
+                            <h2 className="text-lg font-semibold text-gray-900">Location Scenarios</h2>
+                            {features.showScenarioPlanning && (
+                                <button className="bg-violet-600 hover:bg-violet-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+                                    Create New Scenario
+                                </button>
+                            )}
+                        </div>
+
+                        {scenarios.length === 0 ? (
+                            <div className="text-center py-8">
+                                <span className="text-4xl mb-4 block">🏠</span>
+                                <p className="text-gray-500">No scenarios created yet</p>
+                                {features.showScenarioPlanning && (
+                                    <p className="text-sm text-gray-400 mt-2">
+                                        Create your first scenario to compare different locations
+                                    </p>
+                                )}
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                {scenarios.map((scenario) => (
+                                    <div
+                                        key={scenario.id}
+                                        className="p-4 border rounded-lg cursor-pointer transition-colors hover:border-gray-300"
+                                    >
+                                        <h3 className="font-medium text-gray-900">{scenario.name}</h3>
+                                        <p className="text-sm text-gray-600">{scenario.location}</p>
+                                        <div className="mt-2 flex items-center gap-4 text-xs text-gray-500">
+                                            <span>${scenario.budget.toLocaleString()}/mo</span>
+                                            <span>{scenario.commuteTime}min commute</span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        };
+
+        // Results Display View Component
+        const ResultsDisplayView = ({ searchResults, scenarios }) => {
+            return (
+                <div className="space-y-6">
+                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                        <h2 className="text-lg font-semibold text-gray-900 mb-4">Search Results</h2>
+                        
+                        {searchResults.length === 0 ? (
+                            <div className="text-center py-8">
+                                <span className="text-4xl mb-4 block">🔍</span>
+                                <p className="text-gray-500">No search results yet</p>
+                                <p className="text-sm text-gray-400 mt-2">
+                                    Use the Housing Search to find locations
+                                </p>
+                            </div>
+                        ) : (
+                            <div className="space-y-4">
+                                {searchResults.map((result, index) => (
+                                    <div key={index} className="p-4 border border-gray-200 rounded-lg">
+                                        <h3 className="font-medium text-gray-900">{result.title}</h3>
+                                        <p className="text-sm text-gray-600">{result.location}</p>
+                                        <div className="mt-2 flex items-center gap-4 text-sm text-gray-500">
+                                            <span>${result.price?.toLocaleString()}/mo</span>
+                                            <span>{result.bedrooms} bed</span>
+                                            <span>{result.bathrooms} bath</span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        };
+
+        // Preferences Management View Component
+        const PreferencesManagementView = ({ features, userTier, onTierChange }) => {
+            return (
+                <div className="space-y-6">
+                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                        <h2 className="text-lg font-semibold text-gray-900 mb-4">Location Preferences</h2>
+                        
+                        <div className="space-y-4">
+                            {[
+                                { key: 'prioritizeCommute', label: 'Prioritize Commute Time', description: 'Focus on locations with shorter commute times' },
+                                { key: 'prioritizeCost', label: 'Prioritize Cost of Living', description: 'Focus on more affordable locations' },
+                                { key: 'prioritizeCareer', label: 'Prioritize Career Opportunities', description: 'Focus on locations with better job markets' },
+                                { key: 'prioritizeLifestyle', label: 'Prioritize Lifestyle Quality', description: 'Focus on locations with better quality of life' }
+                            ].map((pref) => (
+                                <div key={pref.key} className="flex items-start gap-3">
+                                    <input
+                                        type="checkbox"
+                                        id={pref.key}
+                                        defaultChecked={true}
+                                        className="mt-1 h-4 w-4 text-violet-600 focus:ring-violet-500 border-gray-300 rounded"
+                                    />
+                                    <div>
+                                        <label htmlFor={pref.key} className="text-sm font-medium text-gray-900">
+                                            {pref.label}
+                                        </label>
+                                        <p className="text-sm text-gray-500">{pref.description}</p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Tier Information */}
+                    <div className="bg-gray-50 rounded-xl p-6">
+                        <h3 className="text-lg font-semibold text-gray-900 mb-4">Your Plan Features</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {[
+                                { feature: 'Basic Housing Search', enabled: features.showBasicSearch },
+                                { feature: 'Scenario Planning', enabled: features.showScenarioPlanning },
+                                { feature: 'Career Integration', enabled: features.showCareerIntegration },
+                                { feature: 'Advanced Analytics', enabled: features.showAdvancedAnalytics },
+                                { feature: 'Export Options', enabled: features.showExportOptions },
+                                { feature: 'Business Features', enabled: features.showBusinessFeatures }
+                            ].map((item) => (
+                                <div key={item.feature} className="flex items-center gap-2">
+                                    {item.enabled ? (
+                                        <span className="text-green-500">✅</span>
+                                    ) : (
+                                        <span className="text-gray-400">❌</span>
+                                    )}
+                                    <span className={`text-sm ${item.enabled ? 'text-gray-900' : 'text-gray-500'}`}>
+                                        {item.feature}
+                                    </span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Tier Selector for Testing */}
+                    <div className="bg-blue-50 rounded-xl p-6">
+                        <h3 className="text-lg font-semibold text-gray-900 mb-4">Test Different Tiers</h3>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                            {mockUserTiers.map((tier) => (
+                                <button
+                                    key={tier.tier}
+                                    onClick={() => onTierChange(tier.tier)}
+                                    className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                                        userTier === tier.tier
+                                            ? 'bg-violet-600 text-white'
+                                            : 'bg-white text-gray-700 hover:bg-gray-100'
+                                    }`}
+                                >
+                                    {tier.label}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // Responsive Test Component
+        const ResponsiveTest = () => {
+            const [breakpoint, setBreakpoint] = useState('Desktop');
+            const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
+
+            useEffect(() => {
+                const updateWindowSize = () => {
+                    const width = window.innerWidth;
+                    const height = window.innerHeight;
+                    setWindowSize({ width, height });
+
+                    if (width <= 375) {
+                        setBreakpoint('Mobile Small (≤375px)');
+                    } else if (width <= 414) {
+                        setBreakpoint('Mobile Medium (376px-414px)');
+                    } else if (width <= 768) {
+                        setBreakpoint('Mobile Large (415px-768px)');
+                    } else if (width <= 1024) {
+                        setBreakpoint('Tablet (769px-1024px)');
+                    } else {
+                        setBreakpoint('Desktop (≥1025px)');
+                    }
+                };
+
+                updateWindowSize();
+                window.addEventListener('resize', updateWindowSize);
+                return () => window.removeEventListener('resize', updateWindowSize);
+            }, []);
+
+            return (
+                <div className="responsive-indicator">
+                    <div><strong>Responsive Test</strong></div>
+                    <div>Breakpoint: {breakpoint}</div>
+                    <div>Size: {windowSize.width} × {windowSize.height}</div>
+                </div>
+            );
+        };
+
+        // Main App Component
+        const App = () => {
+            return (
+                <div>
+                    <OptimalLocationRouter />
+                    <ResponsiveTest />
+                </div>
+            );
+        };
+
+        // Render the app
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+</body>
+</html>
