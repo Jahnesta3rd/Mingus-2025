@@ -65,7 +65,7 @@ class MemeErrorBoundary extends React.Component<
             <p className="text-gray-300 mb-4">Unable to load meme content</p>
             <button
               onClick={() => this.setState({ hasError: false })}
-              className="px-6 py-2 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-lg hover:from-violet-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 focus:ring-offset-gray-900"
+              className="px-6 py-2 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-lg hover:from-violet-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:ring-offset-2 focus:ring-offset-gray-900"
             >
               Try Again
             </button>
@@ -103,7 +103,7 @@ const MoodSelector: React.FC<{
             key={mood.label}
             onClick={() => !disabled && onMoodSelect(mood.label)}
             disabled={disabled}
-            className={`w-12 h-12 rounded-full flex items-center justify-center text-2xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 focus:ring-offset-gray-900 ${
+            className={`w-12 h-12 rounded-full flex items-center justify-center text-2xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:ring-offset-2 focus:ring-offset-gray-900 ${
               selectedMood === mood.label 
                 ? `${mood.color} scale-110 shadow-lg ring-2 ring-white` 
                 : 'bg-gray-700 hover:bg-gray-600'
@@ -403,7 +403,7 @@ const MemeSplashPage: React.FC<MemeSplashPageProps> = ({
           <div className="space-y-3">
             <button
               onClick={fetchMeme}
-              className="w-full px-6 py-3 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-lg hover:from-violet-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 focus:ring-offset-gray-900"
+              className="w-full px-6 py-3 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-lg hover:from-violet-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:ring-offset-2 focus:ring-offset-gray-900"
             >
               Try Again
             </button>
@@ -469,7 +469,7 @@ const MemeSplashPage: React.FC<MemeSplashPageProps> = ({
         <div className="space-y-4">
           <button
             onClick={handleContinue}
-            className="w-full px-6 py-4 bg-gradient-to-r from-violet-600 to-purple-600 text-white font-semibold rounded-lg hover:from-violet-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 focus:ring-offset-gray-900 transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-violet-500/25"
+            className="w-full px-6 py-4 bg-gradient-to-r from-violet-600 to-purple-600 text-white font-semibold rounded-lg hover:from-violet-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:ring-offset-2 focus:ring-offset-gray-900 transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-violet-500/25"
             aria-label="Continue to dashboard"
           >
             Continue to Dashboard

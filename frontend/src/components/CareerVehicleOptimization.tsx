@@ -383,7 +383,7 @@ const CareerVehicleOptimization: React.FC<CareerVehicleOptimizationProps> = ({
                 value={homeAddress}
                 onChange={(e) => setHomeAddress(e.target.value)}
                 placeholder="Enter your home address"
-                className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500"
+                className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-400"
               />
             </div>
 
@@ -396,7 +396,7 @@ const CareerVehicleOptimization: React.FC<CareerVehicleOptimizationProps> = ({
               <select
                 value={selectedVehicleId}
                 onChange={(e) => setSelectedVehicleId(e.target.value)}
-                className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+                className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-400"
               >
                 <option value="">Select a vehicle</option>
                 {vehicles.map((vehicle) => (
@@ -433,7 +433,7 @@ const CareerVehicleOptimization: React.FC<CareerVehicleOptimizationProps> = ({
                           value={offer.title}
                           onChange={(e) => updateJobOffer(offer.id, 'title', e.target.value)}
                           placeholder="Software Engineer"
-                          className="w-full px-3 py-2 bg-gray-600 border border-gray-500 rounded text-white placeholder-gray-400 text-sm focus:outline-none focus:ring-1 focus:ring-violet-500"
+                          className="w-full px-3 py-2 bg-gray-600 border border-gray-500 rounded text-white placeholder-gray-400 text-sm focus:outline-none focus:ring-1 focus:ring-violet-400"
                         />
                       </div>
                       <div>
@@ -443,7 +443,7 @@ const CareerVehicleOptimization: React.FC<CareerVehicleOptimizationProps> = ({
                           value={offer.company}
                           onChange={(e) => updateJobOffer(offer.id, 'company', e.target.value)}
                           placeholder="Tech Corp"
-                          className="w-full px-3 py-2 bg-gray-600 border border-gray-500 rounded text-white placeholder-gray-400 text-sm focus:outline-none focus:ring-1 focus:ring-violet-500"
+                          className="w-full px-3 py-2 bg-gray-600 border border-gray-500 rounded text-white placeholder-gray-400 text-sm focus:outline-none focus:ring-1 focus:ring-violet-400"
                         />
                       </div>
                       <div>
@@ -453,7 +453,7 @@ const CareerVehicleOptimization: React.FC<CareerVehicleOptimizationProps> = ({
                           value={offer.location}
                           onChange={(e) => updateJobOffer(offer.id, 'location', e.target.value)}
                           placeholder="123 Main St, City, State"
-                          className="w-full px-3 py-2 bg-gray-600 border border-gray-500 rounded text-white placeholder-gray-400 text-sm focus:outline-none focus:ring-1 focus:ring-violet-500"
+                          className="w-full px-3 py-2 bg-gray-600 border border-gray-500 rounded text-white placeholder-gray-400 text-sm focus:outline-none focus:ring-1 focus:ring-violet-400"
                         />
                       </div>
                       <div>
@@ -463,7 +463,7 @@ const CareerVehicleOptimization: React.FC<CareerVehicleOptimizationProps> = ({
                           value={offer.salary}
                           onChange={(e) => updateJobOffer(offer.id, 'salary', parseInt(e.target.value) || 0)}
                           placeholder="75000"
-                          className="w-full px-3 py-2 bg-gray-600 border border-gray-500 rounded text-white placeholder-gray-400 text-sm focus:outline-none focus:ring-1 focus:ring-violet-500"
+                          className="w-full px-3 py-2 bg-gray-600 border border-gray-500 rounded text-white placeholder-gray-400 text-sm focus:outline-none focus:ring-1 focus:ring-violet-400"
                         />
                       </div>
                       <div className="flex items-center space-x-2">
@@ -472,7 +472,7 @@ const CareerVehicleOptimization: React.FC<CareerVehicleOptimizationProps> = ({
                             type="checkbox"
                             checked={offer.remoteFriendly}
                             onChange={(e) => updateJobOffer(offer.id, 'remoteFriendly', e.target.checked)}
-                            className="rounded border-gray-500 bg-gray-600 text-violet-600 focus:ring-violet-500"
+                            className="rounded border-gray-500 bg-gray-600 text-violet-600 focus:ring-violet-400"
                           />
                           <span>Remote Friendly</span>
                         </label>

@@ -323,7 +323,7 @@ const MobileCareerVehicleOptimization: React.FC<MobileCareerVehicleOptimizationP
                     value={homeAddress}
                     onChange={(e) => setHomeAddress(e.target.value)}
                     placeholder="Enter your home address"
-                    className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500 text-sm"
+                    className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-400 text-sm"
                   />
                 </div>
 
@@ -336,7 +336,7 @@ const MobileCareerVehicleOptimization: React.FC<MobileCareerVehicleOptimizationP
                   <select
                     value={selectedVehicleId}
                     onChange={(e) => setSelectedVehicleId(e.target.value)}
-                    className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-500 text-sm"
+                    className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-400 text-sm"
                   >
                     <option value="">Select a vehicle</option>
                     {vehicles.map((vehicle) => (
@@ -372,14 +372,14 @@ const MobileCareerVehicleOptimization: React.FC<MobileCareerVehicleOptimizationP
                               value={offer.title}
                               onChange={(e) => updateJobOffer(offer.id, 'title', e.target.value)}
                               placeholder="Job Title"
-                              className="w-full px-2 py-1 bg-gray-600 border border-gray-500 rounded text-white placeholder-gray-400 text-xs focus:outline-none focus:ring-1 focus:ring-violet-500"
+                              className="w-full px-2 py-1 bg-gray-600 border border-gray-500 rounded text-white placeholder-gray-400 text-xs focus:outline-none focus:ring-1 focus:ring-violet-400"
                             />
                             <input
                               type="text"
                               value={offer.company}
                               onChange={(e) => updateJobOffer(offer.id, 'company', e.target.value)}
                               placeholder="Company"
-                              className="w-full px-2 py-1 bg-gray-600 border border-gray-500 rounded text-white placeholder-gray-400 text-xs focus:outline-none focus:ring-1 focus:ring-violet-500"
+                              className="w-full px-2 py-1 bg-gray-600 border border-gray-500 rounded text-white placeholder-gray-400 text-xs focus:outline-none focus:ring-1 focus:ring-violet-400"
                             />
                           </div>
                           <input
@@ -387,7 +387,7 @@ const MobileCareerVehicleOptimization: React.FC<MobileCareerVehicleOptimizationP
                             value={offer.location}
                             onChange={(e) => updateJobOffer(offer.id, 'location', e.target.value)}
                             placeholder="Job Location"
-                            className="w-full px-2 py-1 bg-gray-600 border border-gray-500 rounded text-white placeholder-gray-400 text-xs focus:outline-none focus:ring-1 focus:ring-violet-500"
+                            className="w-full px-2 py-1 bg-gray-600 border border-gray-500 rounded text-white placeholder-gray-400 text-xs focus:outline-none focus:ring-1 focus:ring-violet-400"
                           />
                           <div className="flex items-center justify-between">
                             <input
@@ -395,14 +395,14 @@ const MobileCareerVehicleOptimization: React.FC<MobileCareerVehicleOptimizationP
                               value={offer.salary}
                               onChange={(e) => updateJobOffer(offer.id, 'salary', parseInt(e.target.value) || 0)}
                               placeholder="Salary"
-                              className="w-24 px-2 py-1 bg-gray-600 border border-gray-500 rounded text-white placeholder-gray-400 text-xs focus:outline-none focus:ring-1 focus:ring-violet-500"
+                              className="w-24 px-2 py-1 bg-gray-600 border border-gray-500 rounded text-white placeholder-gray-400 text-xs focus:outline-none focus:ring-1 focus:ring-violet-400"
                             />
                             <label className="flex items-center space-x-1 text-xs text-gray-300">
                               <input
                                 type="checkbox"
                                 checked={offer.remoteFriendly}
                                 onChange={(e) => updateJobOffer(offer.id, 'remoteFriendly', e.target.checked)}
-                                className="rounded border-gray-500 bg-gray-600 text-violet-600 focus:ring-violet-500"
+                                className="rounded border-gray-500 bg-gray-600 text-violet-600 focus:ring-violet-400"
                               />
                               <span>Remote</span>
                             </label>

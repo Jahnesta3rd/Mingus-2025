@@ -34,7 +34,7 @@ const VehicleSetupExample: React.FC = () => {
         <div className="text-center mb-8">
           <button
             onClick={() => setIsVehicleSetupOpen(true)}
-            className="inline-flex items-center space-x-2 bg-gradient-to-r from-violet-500 to-purple-500 hover:from-violet-600 hover:to-purple-600 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 focus:ring-offset-gray-900"
+            className="inline-flex items-center space-x-2 bg-gradient-to-r from-violet-500 to-purple-500 hover:from-violet-600 hover:to-purple-600 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:ring-offset-2 focus:ring-offset-gray-900"
           >
             <Plus className="w-6 h-6" />
             <span>Add Vehicle</span>
@@ -90,7 +90,7 @@ const VehicleSetupExample: React.FC = () => {
             </p>
             <button
               onClick={() => setIsVehicleSetupOpen(true)}
-              className="inline-flex items-center space-x-2 bg-gradient-to-r from-violet-500 to-purple-500 hover:from-violet-600 hover:to-purple-600 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 focus:ring-offset-gray-900"
+              className="inline-flex items-center space-x-2 bg-gradient-to-r from-violet-500 to-purple-500 hover:from-violet-600 hover:to-purple-600 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:ring-offset-2 focus:ring-offset-gray-900"
             >
               <Plus className="w-5 h-5" />
               <span>Add Your First Vehicle</span>

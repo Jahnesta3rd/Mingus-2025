@@ -95,24 +95,24 @@ nav:focus,
 
 /* Tailwind utility classes for focus styles */
 .focus-style {
-  @apply focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2;
+  @apply focus:outline-none focus:ring-2 focus:ring-violet-400 focus:ring-offset-2;
 }
 
 .focus-ring {
-  @apply focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2;
+  @apply focus:outline-none focus:ring-2 focus:ring-violet-400 focus:ring-offset-2;
 }
 
 .focus-ring-inset {
-  @apply focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-inset;
+  @apply focus:outline-none focus:ring-2 focus:ring-violet-400 focus:ring-inset;
 }
 
 .focus-ring-thick {
-  @apply focus:outline-none focus:ring-4 focus:ring-violet-500 focus:ring-offset-2;
+  @apply focus:outline-none focus:ring-4 focus:ring-violet-400 focus:ring-offset-2;
 }
 
 /* Enhanced focus for all interactive elements */
 button, a, input, select, textarea, [role="button"], [tabindex], [role="menuitem"], [role="menuitemradio"], [role="menuitemcheckbox"] {
-  @apply focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 focus:ring-offset-slate-900;
+  @apply focus:outline-none focus:ring-2 focus:ring-violet-400 focus:ring-offset-2 focus:ring-offset-slate-900;
 }
 
 /* High contrast focus for better visibility */
@@ -142,7 +142,7 @@ textarea:focus,
 [role="menuitemradio"]:focus,
 [role="menuitemcheckbox"]:focus,
 [tabindex]:focus {
-  @apply focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 focus:ring-offset-slate-900;
+  @apply focus:outline-none focus:ring-2 focus:ring-violet-400 focus:ring-offset-2 focus:ring-offset-slate-900;
   transition: all 0.2s ease-in-out;
 }
 
@@ -150,7 +150,7 @@ textarea:focus,
 nav:focus,
 [role="navigation"]:focus,
 [role="menu"]:focus {
-  @apply focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 focus:ring-offset-slate-900;
+  @apply focus:outline-none focus:ring-2 focus:ring-violet-400 focus:ring-offset-2 focus:ring-offset-slate-900;
 }
 
 /* Focus for landmark elements */
@@ -163,7 +163,7 @@ aside:focus,
 [role="main"]:focus,
 [role="contentinfo"]:focus,
 [role="complementary"]:focus {
-  @apply focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 focus:ring-offset-slate-900;
+  @apply focus:outline-none focus:ring-2 focus:ring-violet-400 focus:ring-offset-2 focus:ring-offset-slate-900;
 }
 
 /* Skip links focus enhancement */

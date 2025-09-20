@@ -276,7 +276,7 @@ const MaintenanceForecast: React.FC<MaintenanceForecastProps> = ({
             <select
               value={filter}
               onChange={(e) => setFilter(e.target.value as any)}
-              className="bg-slate-700/50 border border-slate-600 rounded-lg px-3 py-1.5 text-white text-sm focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+              className="bg-slate-700/50 border border-slate-600 rounded-lg px-3 py-1.5 text-white text-sm focus:ring-2 focus:ring-violet-400 focus:border-transparent"
             >
               <option value="all">All Services</option>
               <option value="urgent">Urgent</option>
@@ -291,7 +291,7 @@ const MaintenanceForecast: React.FC<MaintenanceForecastProps> = ({
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as any)}
-              className="bg-slate-700/50 border border-slate-600 rounded-lg px-3 py-1.5 text-white text-sm focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+              className="bg-slate-700/50 border border-slate-600 rounded-lg px-3 py-1.5 text-white text-sm focus:ring-2 focus:ring-violet-400 focus:border-transparent"
             >
               <option value="date">Sort by Date</option>
               <option value="cost">Sort by Cost</option>
@@ -305,7 +305,7 @@ const MaintenanceForecast: React.FC<MaintenanceForecastProps> = ({
             <select
               value={timeframe}
               onChange={(e) => setTimeframe(e.target.value as any)}
-              className="bg-slate-700/50 border border-slate-600 rounded-lg px-3 py-1.5 text-white text-sm focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+              className="bg-slate-700/50 border border-slate-600 rounded-lg px-3 py-1.5 text-white text-sm focus:ring-2 focus:ring-violet-400 focus:border-transparent"
             >
               <option value="3months">Next 3 Months</option>
               <option value="6months">Next 6 Months</option>

@@ -302,7 +302,7 @@ const EnhancedJobMatchingDemo: React.FC = () => {
                 <select
                   value={selectedTier}
                   onChange={(e) => setSelectedTier(e.target.value as any)}
-                  className="px-3 py-1 border border-slate-600 bg-slate-700 text-white rounded-lg text-sm focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+                  className="px-3 py-1 border border-slate-600 bg-slate-700 text-white rounded-lg text-sm focus:ring-2 focus:ring-violet-400 focus:border-violet-500"
                 >
                   <option value="Budget">Budget ($15/month)</option>
                   <option value="Mid-tier">Mid-tier ($35/month)</option>
@@ -312,7 +312,7 @@ const EnhancedJobMatchingDemo: React.FC = () => {
               <button
                 onClick={simulateAnalysis}
                 disabled={isLoading}
-                className="bg-violet-600 hover:bg-violet-700 disabled:bg-gray-600 text-white px-6 py-2 rounded-lg font-semibold transition-colors focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 focus:ring-offset-slate-900"
+                className="bg-violet-600 hover:bg-violet-700 disabled:bg-gray-600 text-white px-6 py-2 rounded-lg font-semibold transition-colors focus:ring-2 focus:ring-violet-400 focus:ring-offset-2 focus:ring-offset-slate-900"
               >
                 {isLoading ? 'Analyzing...' : 'Run Analysis'}
               </button>

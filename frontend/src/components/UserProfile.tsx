@@ -238,7 +238,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ onSave, onComplete, className
             type="number"
             value={profileData.personalInfo.age || ''}
             onChange={(e) => handleInputChange('personalInfo', 'age', parseInt(e.target.value) || 0)}
-            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-400"
             placeholder="28"
           />
         </div>
@@ -249,7 +249,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ onSave, onComplete, className
             type="text"
             value={profileData.personalInfo.location}
             onChange={(e) => handleInputChange('personalInfo', 'location', e.target.value)}
-            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-400"
             placeholder="Atlanta, GA"
           />
         </div>
@@ -259,7 +259,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ onSave, onComplete, className
           <select
             value={profileData.personalInfo.education}
             onChange={(e) => handleInputChange('personalInfo', 'education', e.target.value)}
-            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-400"
           >
             <option value="">Select Education Level</option>
             <option value="High School">High School</option>
@@ -276,7 +276,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ onSave, onComplete, className
             type="text"
             value={profileData.personalInfo.employment}
             onChange={(e) => handleInputChange('personalInfo', 'employment', e.target.value)}
-            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-400"
             placeholder="Marketing Coordinator"
           />
         </div>
@@ -299,7 +299,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ onSave, onComplete, className
             type="number"
             value={profileData.financialInfo.annualIncome || ''}
             onChange={(e) => handleInputChange('financialInfo', 'annualIncome', parseInt(e.target.value) || 0)}
-            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-400"
             placeholder="65000"
           />
         </div>
@@ -310,7 +310,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ onSave, onComplete, className
             type="number"
             value={profileData.financialInfo.monthlyTakehome || ''}
             onChange={(e) => handleInputChange('financialInfo', 'monthlyTakehome', parseInt(e.target.value) || 0)}
-            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-400"
             placeholder="4200"
           />
         </div>
@@ -321,7 +321,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ onSave, onComplete, className
             type="number"
             value={profileData.financialInfo.studentLoans || ''}
             onChange={(e) => handleInputChange('financialInfo', 'studentLoans', parseInt(e.target.value) || 0)}
-            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-400"
             placeholder="35000"
           />
         </div>
@@ -332,7 +332,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ onSave, onComplete, className
             type="number"
             value={profileData.financialInfo.creditCardDebt || ''}
             onChange={(e) => handleInputChange('financialInfo', 'creditCardDebt', parseInt(e.target.value) || 0)}
-            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-400"
             placeholder="8500"
           />
         </div>
@@ -343,7 +343,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ onSave, onComplete, className
             type="number"
             value={profileData.financialInfo.currentSavings || ''}
             onChange={(e) => handleInputChange('financialInfo', 'currentSavings', parseInt(e.target.value) || 0)}
-            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-400"
             placeholder="1200"
           />
         </div>
@@ -366,7 +366,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ onSave, onComplete, className
             type="number"
             value={profileData.monthlyExpenses.rent || ''}
             onChange={(e) => handleInputChange('monthlyExpenses', 'rent', parseInt(e.target.value) || 0)}
-            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-400"
             placeholder="1400"
           />
         </div>
@@ -377,7 +377,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ onSave, onComplete, className
             type="number"
             value={profileData.monthlyExpenses.carPayment || ''}
             onChange={(e) => handleInputChange('monthlyExpenses', 'carPayment', parseInt(e.target.value) || 0)}
-            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-400"
             placeholder="320"
           />
         </div>
@@ -388,7 +388,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ onSave, onComplete, className
             type="number"
             value={profileData.monthlyExpenses.insurance || ''}
             onChange={(e) => handleInputChange('monthlyExpenses', 'insurance', parseInt(e.target.value) || 0)}
-            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-400"
             placeholder="180"
           />
         </div>
@@ -399,7 +399,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ onSave, onComplete, className
             type="number"
             value={profileData.monthlyExpenses.groceries || ''}
             onChange={(e) => handleInputChange('monthlyExpenses', 'groceries', parseInt(e.target.value) || 0)}
-            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-400"
             placeholder="400"
           />
         </div>
@@ -410,7 +410,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ onSave, onComplete, className
             type="number"
             value={profileData.monthlyExpenses.utilities || ''}
             onChange={(e) => handleInputChange('monthlyExpenses', 'utilities', parseInt(e.target.value) || 0)}
-            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-400"
             placeholder="150"
           />
         </div>
@@ -421,7 +421,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ onSave, onComplete, className
             type="number"
             value={profileData.monthlyExpenses.studentLoanPayment || ''}
             onChange={(e) => handleInputChange('monthlyExpenses', 'studentLoanPayment', parseInt(e.target.value) || 0)}
-            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-400"
             placeholder="380"
           />
         </div>
@@ -432,7 +432,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ onSave, onComplete, className
             type="number"
             value={profileData.monthlyExpenses.creditCardMinimum || ''}
             onChange={(e) => handleInputChange('monthlyExpenses', 'creditCardMinimum', parseInt(e.target.value) || 0)}
-            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-400"
             placeholder="210"
           />
         </div>
@@ -455,7 +455,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ onSave, onComplete, className
             type="date"
             value={profileData.importantDates.birthday}
             onChange={(e) => handleInputChange('importantDates', 'birthday', e.target.value)}
-            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-400"
           />
         </div>
 
@@ -465,7 +465,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ onSave, onComplete, className
             type="date"
             value={profileData.importantDates.plannedVacation.date}
             onChange={(e) => handleNestedInputChange('importantDates', 'plannedVacation', 'date', e.target.value)}
-            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-400"
           />
         </div>
 
@@ -475,7 +475,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ onSave, onComplete, className
             type="number"
             value={profileData.importantDates.plannedVacation.cost || ''}
             onChange={(e) => handleNestedInputChange('importantDates', 'plannedVacation', 'cost', parseInt(e.target.value) || 0)}
-            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-400"
             placeholder="2000"
           />
         </div>
@@ -486,7 +486,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ onSave, onComplete, className
             type="date"
             value={profileData.importantDates.carInspection.date}
             onChange={(e) => handleNestedInputChange('importantDates', 'carInspection', 'date', e.target.value)}
-            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-400"
           />
         </div>
 
@@ -496,7 +496,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ onSave, onComplete, className
             type="number"
             value={profileData.importantDates.carInspection.cost || ''}
             onChange={(e) => handleNestedInputChange('importantDates', 'carInspection', 'cost', parseInt(e.target.value) || 0)}
-            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-400"
             placeholder="150"
           />
         </div>
@@ -507,7 +507,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ onSave, onComplete, className
             type="date"
             value={profileData.importantDates.sistersWedding.date}
             onChange={(e) => handleNestedInputChange('importantDates', 'sistersWedding', 'date', e.target.value)}
-            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-400"
           />
         </div>
 
@@ -517,7 +517,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ onSave, onComplete, className
             type="number"
             value={profileData.importantDates.sistersWedding.cost || ''}
             onChange={(e) => handleNestedInputChange('importantDates', 'sistersWedding', 'cost', parseInt(e.target.value) || 0)}
-            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-400"
             placeholder="800"
           />
         </div>
@@ -540,7 +540,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ onSave, onComplete, className
             type="number"
             value={profileData.healthWellness.physicalActivity || ''}
             onChange={(e) => handleInputChange('healthWellness', 'physicalActivity', parseInt(e.target.value) || 0)}
-            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-400"
             placeholder="3"
           />
         </div>
@@ -553,7 +553,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ onSave, onComplete, className
             max="10"
             value={profileData.healthWellness.relationshipSatisfaction || ''}
             onChange={(e) => handleInputChange('healthWellness', 'relationshipSatisfaction', parseInt(e.target.value) || 0)}
-            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-400"
             placeholder="7"
           />
         </div>
@@ -564,7 +564,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ onSave, onComplete, className
             type="number"
             value={profileData.healthWellness.meditationMinutes || ''}
             onChange={(e) => handleInputChange('healthWellness', 'meditationMinutes', parseInt(e.target.value) || 0)}
-            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-400"
             placeholder="45"
           />
         </div>
@@ -575,7 +575,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ onSave, onComplete, className
             type="number"
             value={profileData.healthWellness.stressSpending || ''}
             onChange={(e) => handleInputChange('healthWellness', 'stressSpending', parseInt(e.target.value) || 0)}
-            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-400"
             placeholder="120"
           />
         </div>
@@ -598,7 +598,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ onSave, onComplete, className
             type="number"
             value={profileData.vehicleWellness.vehicleExpenses || ''}
             onChange={(e) => handleInputChange('vehicleWellness', 'vehicleExpenses', parseInt(e.target.value) || 0)}
-            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-400"
             placeholder="0"
           />
           <p className="text-sm text-gray-400 mt-1">Repairs, maintenance, tickets, etc.</p>
@@ -609,7 +609,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ onSave, onComplete, className
           <select
             value={profileData.vehicleWellness.transportationStress || ''}
             onChange={(e) => handleInputChange('vehicleWellness', 'transportationStress', parseInt(e.target.value) || 0)}
-            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-400"
           >
             <option value="">Select stress level</option>
             <option value="1">1 - Very Low</option>
@@ -625,7 +625,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ onSave, onComplete, className
           <select
             value={profileData.vehicleWellness.commuteSatisfaction || ''}
             onChange={(e) => handleInputChange('vehicleWellness', 'commuteSatisfaction', parseInt(e.target.value) || 0)}
-            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-400"
           >
             <option value="">Select satisfaction level</option>
             <option value="1">1 - Very Dissatisfied</option>
@@ -641,7 +641,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ onSave, onComplete, className
           <textarea
             value={profileData.vehicleWellness.vehicleDecisions}
             onChange={(e) => handleInputChange('vehicleWellness', 'vehicleDecisions', e.target.value)}
-            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-400"
             rows={3}
             placeholder="e.g., Decided to get new tires, researched car insurance options, planned maintenance schedule..."
           />
@@ -666,7 +666,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ onSave, onComplete, className
             type="number"
             value={profileData.goals.emergencyFund || ''}
             onChange={(e) => handleInputChange('goals', 'emergencyFund', parseInt(e.target.value) || 0)}
-            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-400"
             placeholder="12000"
           />
           <p className="text-sm text-gray-400 mt-1">3 months of expenses</p>
@@ -678,7 +678,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ onSave, onComplete, className
             type="date"
             value={profileData.goals.debtPayoffDate}
             onChange={(e) => handleInputChange('goals', 'debtPayoffDate', e.target.value)}
-            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-400"
           />
           <p className="text-sm text-gray-400 mt-1">Credit cards by December 2026</p>
         </div>
@@ -689,7 +689,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ onSave, onComplete, className
             type="number"
             value={profileData.goals.monthlySavings || ''}
             onChange={(e) => handleInputChange('goals', 'monthlySavings', parseInt(e.target.value) || 0)}
-            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-400"
             placeholder="500"
           />
           <p className="text-sm text-gray-400 mt-1">Starting next month</p>

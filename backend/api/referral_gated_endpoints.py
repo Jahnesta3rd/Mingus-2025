@@ -9,6 +9,7 @@ import sys
 import json
 import logging
 from datetime import datetime
+from typing import Dict
 from flask import Blueprint, request, jsonify, current_app, render_template, redirect, url_for, flash
 from flask_cors import cross_origin
 from werkzeug.utils import secure_filename
@@ -24,8 +25,8 @@ from forms.referral_forms import (
     EnhancedResumeUploadForm, ApplicationTrackingForm, FeatureUnlockForm,
     ZipcodeValidationForm, JobRecommendationPreferencesForm
 )
-from utils.location_utils import LocationService
-from utils.mingus_job_recommendation_engine import MingusJobRecommendationEngine
+from backend.utils.location_utils import LocationService
+from backend.utils.mingus_job_recommendation_engine import MingusJobRecommendationEngine
 
 # Configure logging
 logger = logging.getLogger(__name__)

@@ -188,7 +188,7 @@ const VehicleSetupSuccess: React.FC<VehicleSetupSuccessProps> = ({
       <div className="flex flex-col sm:flex-row gap-3">
         <button
           onClick={onGoToDashboard}
-          className="flex-1 flex items-center justify-center space-x-2 bg-gradient-to-r from-violet-500 to-purple-500 hover:from-violet-600 hover:to-purple-600 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 focus:ring-offset-gray-900"
+          className="flex-1 flex items-center justify-center space-x-2 bg-gradient-to-r from-violet-500 to-purple-500 hover:from-violet-600 hover:to-purple-600 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:ring-offset-2 focus:ring-offset-gray-900"
         >
           <span>Go to Dashboard</span>
           <ArrowRight className="w-4 h-4" />

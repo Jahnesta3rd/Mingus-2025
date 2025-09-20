@@ -32,7 +32,6 @@ import math
 
 # Import existing components
 from .ab_testing_framework import ABTestFramework, TestStatus, TestType
-from .risk_analytics_integration import RiskAnalyticsTracker, RiskBasedSuccessMetrics
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -101,6 +100,9 @@ class RiskABTestFramework:
     
     def __init__(self, db_path: str = "backend/analytics/recommendation_analytics.db"):
         """Initialize the risk A/B testing framework"""
+        # Import here to avoid circular import
+        from .risk_analytics_integration import RiskAnalyticsTracker, RiskBasedSuccessMetrics
+        
         self.db_path = db_path
         self.base_framework = ABTestFramework(db_path)
         self.risk_analytics = RiskAnalyticsTracker(db_path)
@@ -132,13 +134,14 @@ class RiskABTestFramework:
                         status TEXT NOT NULL DEFAULT 'draft',
                         start_date DATETIME,
                         end_date DATETIME,
-                        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                        
-                        INDEX idx_risk_ab_configs_test_id (test_id),
-                        INDEX idx_risk_ab_configs_type (test_type),
-                        INDEX idx_risk_ab_configs_status (status)
+                        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
                     )
                 ''')
+                
+                # Create indexes for risk_ab_test_configs
+                cursor.execute('CREATE INDEX IF NOT EXISTS idx_risk_ab_configs_test_id ON risk_ab_test_configs (test_id)')
+                cursor.execute('CREATE INDEX IF NOT EXISTS idx_risk_ab_configs_type ON risk_ab_test_configs (test_type)')
+                cursor.execute('CREATE INDEX IF NOT EXISTS idx_risk_ab_configs_status ON risk_ab_test_configs (status)')
                 
                 # Risk A/B test participants
                 cursor.execute('''
@@ -154,13 +157,15 @@ class RiskABTestFramework:
                         conversion_events TEXT,
                         outcome_data TEXT,
                         
-                        UNIQUE(test_id, user_id),
-                        INDEX idx_risk_participants_test_id (test_id),
-                        INDEX idx_risk_participants_user_id (user_id),
-                        INDEX idx_risk_participants_variant (variant_id),
-                        INDEX idx_risk_participants_risk_score (risk_score)
+                        UNIQUE(test_id, user_id)
                     )
                 ''')
+                
+                # Create indexes for risk_ab_test_participants
+                cursor.execute('CREATE INDEX IF NOT EXISTS idx_risk_participants_test_id ON risk_ab_test_participants (test_id)')
+                cursor.execute('CREATE INDEX IF NOT EXISTS idx_risk_participants_user_id ON risk_ab_test_participants (user_id)')
+                cursor.execute('CREATE INDEX IF NOT EXISTS idx_risk_participants_variant ON risk_ab_test_participants (variant_id)')
+                cursor.execute('CREATE INDEX IF NOT EXISTS idx_risk_participants_risk_score ON risk_ab_test_participants (risk_score)')
                 
                 # Risk A/B test outcomes
                 cursor.execute('''
@@ -173,14 +178,15 @@ class RiskABTestFramework:
                         outcome_value REAL NOT NULL,
                         outcome_timestamp DATETIME NOT NULL,
                         success_metrics TEXT NOT NULL,
-                        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                        
-                        INDEX idx_risk_outcomes_test_id (test_id),
-                        INDEX idx_risk_outcomes_user_id (user_id),
-                        INDEX idx_risk_outcomes_variant (variant_id),
-                        INDEX idx_risk_outcomes_type (outcome_type)
+                        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
                     )
                 ''')
+                
+                # Create indexes for risk_ab_test_outcomes
+                cursor.execute('CREATE INDEX IF NOT EXISTS idx_risk_outcomes_test_id ON risk_ab_test_outcomes (test_id)')
+                cursor.execute('CREATE INDEX IF NOT EXISTS idx_risk_outcomes_user_id ON risk_ab_test_outcomes (user_id)')
+                cursor.execute('CREATE INDEX IF NOT EXISTS idx_risk_outcomes_variant ON risk_ab_test_outcomes (variant_id)')
+                cursor.execute('CREATE INDEX IF NOT EXISTS idx_risk_outcomes_type ON risk_ab_test_outcomes (outcome_type)')
                 
                 # Risk optimization history
                 cursor.execute('''
@@ -194,13 +200,14 @@ class RiskABTestFramework:
                         confidence_level REAL NOT NULL,
                         optimization_timestamp DATETIME NOT NULL,
                         test_results TEXT NOT NULL,
-                        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                        
-                        INDEX idx_risk_optimization_test_id (test_id),
-                        INDEX idx_risk_optimization_type (optimization_type),
-                        INDEX idx_risk_optimization_timestamp (optimization_timestamp)
+                        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
                     )
                 ''')
+                
+                # Create indexes for risk_optimization_history
+                cursor.execute('CREATE INDEX IF NOT EXISTS idx_risk_optimization_test_id ON risk_optimization_history (test_id)')
+                cursor.execute('CREATE INDEX IF NOT EXISTS idx_risk_optimization_type ON risk_optimization_history (optimization_type)')
+                cursor.execute('CREATE INDEX IF NOT EXISTS idx_risk_optimization_timestamp ON risk_optimization_history (optimization_timestamp)')
                 
                 conn.commit()
                 logger.info("Risk A/B testing tables initialized successfully")

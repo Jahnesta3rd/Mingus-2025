@@ -38,7 +38,7 @@ from .advanced_resume_parser import AdvancedResumeParser, IncomePotential, Leade
 from .resume_format_handler import AdvancedResumeParserWithFormats
 from .income_boost_job_matcher import IncomeBoostJobMatcher, SearchCriteria, CareerField, ExperienceLevel
 from .three_tier_job_selector import ThreeTierJobSelector, JobTier, TieredJobRecommendation
-from ..api.resume_endpoints import ResumeParser
+from backend.api.resume_endpoints import ResumeParser
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

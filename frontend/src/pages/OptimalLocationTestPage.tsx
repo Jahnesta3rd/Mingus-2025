@@ -104,7 +104,7 @@ const TestControls: React.FC<{
         <select
           value={currentTier}
           onChange={(e) => onTierChange(e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-400 focus:border-violet-500"
         >
           {mockUserTiers.map((tier) => (
             <option key={tier.tier} value={tier.tier}>

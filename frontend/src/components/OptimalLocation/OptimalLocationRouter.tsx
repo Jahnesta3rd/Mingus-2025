@@ -660,7 +660,7 @@ const HousingSearchView: React.FC<{
               value={formData.location}
               onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
               placeholder="Enter city, state, or ZIP code"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-400 focus:border-violet-500"
               disabled={!userTier.features.showBasicSearch}
             />
           </div>
@@ -679,7 +679,7 @@ const HousingSearchView: React.FC<{
                   ...prev, 
                   budget: { ...prev.budget, min: parseInt(e.target.value) || 0 }
                 }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-400 focus:border-violet-500"
                 disabled={!userTier.features.showBasicSearch}
               />
             </div>
@@ -695,7 +695,7 @@ const HousingSearchView: React.FC<{
                   ...prev, 
                   budget: { ...prev.budget, max: parseInt(e.target.value) || 0 }
                 }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-400 focus:border-violet-500"
                 disabled={!userTier.features.showBasicSearch}
               />
             </div>
@@ -714,7 +714,7 @@ const HousingSearchView: React.FC<{
                   ...prev, 
                   preferences: { ...prev.preferences, propertyType: e.target.value as any }
                 }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-400 focus:border-violet-500"
                 disabled={!userTier.features.showBasicSearch}
               >
                 <option value="any">Any</option>
@@ -734,7 +734,7 @@ const HousingSearchView: React.FC<{
                   ...prev, 
                   preferences: { ...prev.preferences, bedrooms: parseInt(e.target.value) }
                 }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-400 focus:border-violet-500"
                 disabled={!userTier.features.showBasicSearch}
               >
                 <option value={1}>1+</option>
@@ -754,7 +754,7 @@ const HousingSearchView: React.FC<{
                   ...prev, 
                   preferences: { ...prev.preferences, bathrooms: parseInt(e.target.value) }
                 }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-400 focus:border-violet-500"
                 disabled={!userTier.features.showBasicSearch}
               >
                 <option value={1}>1+</option>
@@ -968,7 +968,7 @@ const PreferencesManagementView: React.FC<{
                 id={pref.key}
                 checked={preferences[pref.key as keyof typeof preferences]}
                 onChange={(e) => onUpdatePreferences({ [pref.key]: e.target.checked })}
-                className="mt-1 h-4 w-4 text-violet-600 focus:ring-violet-500 border-gray-300 rounded"
+                className="mt-1 h-4 w-4 text-violet-600 focus:ring-violet-400 border-gray-300 rounded"
               />
               <div>
                 <label htmlFor={pref.key} className="text-sm font-medium text-gray-900">

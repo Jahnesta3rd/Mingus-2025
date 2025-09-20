@@ -194,7 +194,7 @@ const MaintenanceCashFlowIntegration: React.FC<CashFlowIntegrationProps> = ({
               <select
                 value={viewMode}
                 onChange={(e) => setViewMode(e.target.value as any)}
-                className="bg-slate-700/50 border border-slate-600 rounded-lg px-3 py-1.5 text-white text-sm focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                className="bg-slate-700/50 border border-slate-600 rounded-lg px-3 py-1.5 text-white text-sm focus:ring-2 focus:ring-violet-400 focus:border-transparent"
               >
                 <option value="chart">Chart View</option>
                 <option value="list">List View</option>

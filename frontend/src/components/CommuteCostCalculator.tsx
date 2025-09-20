@@ -461,7 +461,7 @@ const CommuteCostCalculator: React.FC<CommuteCostCalculatorProps> = ({
                 jobAutocomplete.searchAddresses(e.target.value);
               }}
               placeholder="Enter job address"
-              className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+              className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:border-violet-500"
             />
             {jobAutocomplete.loading && (
               <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
@@ -503,7 +503,7 @@ const CommuteCostCalculator: React.FC<CommuteCostCalculatorProps> = ({
                 homeAutocomplete.searchAddresses(e.target.value);
               }}
               placeholder="Enter home address"
-              className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+              className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:border-violet-500"
             />
             {homeAutocomplete.loading && (
               <div className="absolute right-3 top-1/2 transform -translate-y-1/2">

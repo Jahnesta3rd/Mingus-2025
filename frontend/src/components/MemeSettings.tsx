@@ -302,7 +302,7 @@ const MemeSettings: React.FC<MemeSettingsProps> = ({
           </div>
           <button
             onClick={() => handlePreferenceChange('enabled', !preferences.enabled)}
-            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 focus:ring-offset-slate-800 ${
+            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:ring-offset-2 focus:ring-offset-slate-800 ${
               preferences.enabled ? 'bg-gradient-to-r from-violet-600 to-purple-600' : 'bg-slate-600'
             }`}
             role="switch"
@@ -338,7 +338,7 @@ const MemeSettings: React.FC<MemeSettingsProps> = ({
                     type="checkbox"
                     checked={preferences.categories[category as keyof MemePreferences['categories']]}
                     onChange={() => handleCategoryToggle(category as keyof MemePreferences['categories'])}
-                    className="mt-1 h-4 w-4 text-violet-600 focus:ring-violet-500 focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800 border-slate-500 rounded"
+                    className="mt-1 h-4 w-4 text-violet-600 focus:ring-violet-400 focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800 border-slate-500 rounded"
                     aria-describedby={`${category}-description`}
                   />
                   <div className="flex-1 min-w-0">
@@ -373,7 +373,7 @@ const MemeSettings: React.FC<MemeSettingsProps> = ({
                     value={option.value}
                     checked={preferences.frequency === option.value}
                     onChange={() => handlePreferenceChange('frequency', option.value)}
-                    className="h-4 w-4 text-violet-600 focus:ring-violet-500 focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800 border-slate-500"
+                    className="h-4 w-4 text-violet-600 focus:ring-violet-400 focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800 border-slate-500"
                     aria-describedby={`${option.value}-description`}
                   />
                   <div className="flex-1 min-w-0">
@@ -399,7 +399,7 @@ const MemeSettings: React.FC<MemeSettingsProps> = ({
             <button
               onClick={previewMemes}
               disabled={previewLoading || saving}
-              className="inline-flex items-center px-4 py-2 border border-slate-600 rounded-md shadow-sm text-sm font-medium text-white bg-slate-700 hover:bg-slate-600 hover:border-violet-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-violet-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
+              className="inline-flex items-center px-4 py-2 border border-slate-600 rounded-md shadow-sm text-sm font-medium text-white bg-slate-700 hover:bg-slate-600 hover:border-violet-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-violet-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
             >
               {previewLoading ? (
                 <>
@@ -443,7 +443,7 @@ const MemeSettings: React.FC<MemeSettingsProps> = ({
         <button
           onClick={resetPreferences}
           disabled={saving}
-          className="inline-flex items-center px-4 py-2 border border-slate-600 rounded-md shadow-sm text-sm font-medium text-white bg-slate-700 hover:bg-slate-600 hover:border-violet-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-violet-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
+          className="inline-flex items-center px-4 py-2 border border-slate-600 rounded-md shadow-sm text-sm font-medium text-white bg-slate-700 hover:bg-slate-600 hover:border-violet-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-violet-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
         >
           Reset to Defaults
         </button>

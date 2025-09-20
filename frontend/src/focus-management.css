@@ -147,15 +147,15 @@ nav:focus,
 
 /* Focus ring utility classes */
 .focus-ring {
-  @apply focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2;
+  @apply focus:outline-none focus:ring-2 focus:ring-violet-400 focus:ring-offset-2;
 }
 
 .focus-ring-inset {
-  @apply focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-inset;
+  @apply focus:outline-none focus:ring-2 focus:ring-violet-400 focus:ring-inset;
 }
 
 .focus-ring-thick {
-  @apply focus:outline-none focus:ring-4 focus:ring-violet-500 focus:ring-offset-2;
+  @apply focus:outline-none focus:ring-4 focus:ring-violet-400 focus:ring-offset-2;
 }
 
 /* Focus trap utilities */

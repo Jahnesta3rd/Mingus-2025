@@ -458,7 +458,7 @@ const AssessmentResults: React.FC<AssessmentResultsProps> = ({
           </div>
           <button
             onClick={onClose}
-            className="text-violet-200 hover:text-white transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 focus:ring-offset-violet-600 rounded p-1"
+            className="text-violet-200 hover:text-white transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:ring-offset-2 focus:ring-offset-violet-600 rounded p-1"
             aria-label="Close results"
           >
             <X className="w-6 h-6" />

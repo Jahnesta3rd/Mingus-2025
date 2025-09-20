@@ -871,7 +871,7 @@ const AssessmentModal: React.FC<AssessmentModalProps> = ({
             </div>
             <button
               onClick={onClose}
-              className="text-violet-200 hover:text-white transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 focus:ring-offset-violet-600 rounded p-1"
+              className="text-violet-200 hover:text-white transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:ring-offset-2 focus:ring-offset-violet-600 rounded p-1"
               aria-label="Close assessment"
             >
               <X className="w-6 h-6" />
@@ -946,7 +946,7 @@ const AssessmentModal: React.FC<AssessmentModalProps> = ({
                         value={answers[currentQuestion.id] || ''}
                         onChange={(e) => handleAnswerChange(currentQuestion.id, e.target.value)}
                         placeholder={currentQuestion.placeholder}
-                        className="w-full pl-10 pr-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500 focus:ring-offset-2 focus:ring-offset-gray-900"
+                        className="w-full pl-10 pr-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:border-violet-500 focus:ring-offset-2 focus:ring-offset-gray-900"
                         required={currentQuestion.required}
                         aria-describedby={`${currentQuestion.id}-help`}
                       />
@@ -973,7 +973,7 @@ const AssessmentModal: React.FC<AssessmentModalProps> = ({
                         value={answers[currentQuestion.id] || ''}
                         onChange={(e) => handleAnswerChange(currentQuestion.id, e.target.value)}
                         placeholder={currentQuestion.placeholder}
-                        className="w-full pl-10 pr-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500 focus:ring-offset-2 focus:ring-offset-gray-900"
+                        className="w-full pl-10 pr-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:border-violet-500 focus:ring-offset-2 focus:ring-offset-gray-900"
                         required={currentQuestion.required}
                         aria-describedby={`${currentQuestion.id}-help`}
                       />
@@ -1015,7 +1015,7 @@ const AssessmentModal: React.FC<AssessmentModalProps> = ({
                             value={option}
                             checked={answers[currentQuestion.id] === option}
                             onChange={(e) => handleAnswerChange(currentQuestion.id, e.target.value)}
-                            className="sr-only focus:not-sr-only focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2"
+                            className="sr-only focus:not-sr-only focus:outline-none focus:ring-2 focus:ring-violet-400 focus:ring-offset-2"
                             aria-describedby={`${currentQuestion.id}-help`}
                           />
                           <div className={`w-4 h-4 rounded-full border-2 mr-3 flex items-center justify-center ${
@@ -1071,7 +1071,7 @@ const AssessmentModal: React.FC<AssessmentModalProps> = ({
                                 : currentValues.filter((v: string) => v !== option);
                               handleAnswerChange(currentQuestion.id, newValues);
                             }}
-                            className="sr-only focus:not-sr-only focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2"
+                            className="sr-only focus:not-sr-only focus:outline-none focus:ring-2 focus:ring-violet-400 focus:ring-offset-2"
                             aria-describedby={`${currentQuestion.id}-help`}
                           />
                           <div className={`w-4 h-4 rounded border-2 mr-3 flex items-center justify-center ${
@@ -1119,7 +1119,7 @@ const AssessmentModal: React.FC<AssessmentModalProps> = ({
                             value={option}
                             checked={answers[currentQuestion.id] === option}
                             onChange={(e) => handleAnswerChange(currentQuestion.id, e.target.value)}
-                            className="sr-only focus:not-sr-only focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2"
+                            className="sr-only focus:not-sr-only focus:outline-none focus:ring-2 focus:ring-violet-400 focus:ring-offset-2"
                             aria-describedby={`${currentQuestion.id}-help`}
                           />
                           <div className={`w-4 h-4 rounded-full border-2 mr-3 flex items-center justify-center ${
@@ -1159,7 +1159,7 @@ const AssessmentModal: React.FC<AssessmentModalProps> = ({
         <div className="bg-gray-800 px-6 py-4 flex items-center justify-between">
           <button
             onClick={currentStep > 0 ? handlePrevious : onClose}
-            className="flex items-center space-x-2 text-gray-400 hover:text-white transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 focus:ring-offset-gray-800 rounded px-2 py-1"
+            className="flex items-center space-x-2 text-gray-400 hover:text-white transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:ring-offset-2 focus:ring-offset-gray-800 rounded px-2 py-1"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>{currentStep > 0 ? 'Previous' : 'Cancel'}</span>
@@ -1168,7 +1168,7 @@ const AssessmentModal: React.FC<AssessmentModalProps> = ({
           <button
             onClick={handleNext}
             disabled={loading || (currentQuestion?.required && !answers[currentQuestion.id])}
-            className="flex items-center space-x-2 bg-gradient-to-r from-violet-500 to-purple-500 hover:from-violet-600 hover:to-purple-600 disabled:from-gray-600 disabled:to-gray-600 text-white px-6 py-2 rounded-lg font-semibold transition-all duration-200 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 focus:ring-offset-gray-800"
+            className="flex items-center space-x-2 bg-gradient-to-r from-violet-500 to-purple-500 hover:from-violet-600 hover:to-purple-600 disabled:from-gray-600 disabled:to-gray-600 text-white px-6 py-2 rounded-lg font-semibold transition-all duration-200 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-violet-400 focus:ring-offset-2 focus:ring-offset-gray-800"
           >
             {loading ? (
               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />

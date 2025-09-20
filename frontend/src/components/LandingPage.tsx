@@ -164,19 +164,14 @@ const features: Feature[] = [
 // Financial Wellness Features Data
 const financialWellnessFeatures: Feature[] = [
   {
-    icon: <Activity className="w-8 h-8" />,
-    title: "Community Health Integration",
-    description: "Track how your health choices impact your finances while addressing health disparities that affect our community's wealth-building potential."
-  },
-  {
     icon: <BarChart3 className="w-8 h-8" />,
     title: "Generational Wealth Forecasting",
     description: "Predict your financial future with AI-powered forecasting that accounts for systemic barriers and opportunities specific to Black professionals."
   },
   {
     icon: <Target className="w-8 h-8" />,
-    title: "Black Excellence Milestones",
-    description: "Set and achieve financial milestones with personalized roadmaps that honor our community's unique wealth-building journey and generational goals."
+    title: "Wealth Milestones",
+    description: "Set and achieve financial milestones with personalized roadmaps unique to the legacy that you want to build."
   },
   {
     icon: <Briefcase className="w-8 h-8" />,

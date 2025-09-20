@@ -599,7 +599,7 @@ const VehicleSetup: React.FC<VehicleSetupProps> = ({
             </div>
             <button
               onClick={onClose}
-              className="text-violet-200 hover:text-white transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 focus:ring-offset-violet-600 rounded p-1"
+              className="text-violet-200 hover:text-white transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:ring-offset-2 focus:ring-offset-violet-600 rounded p-1"
               aria-label="Close vehicle setup"
             >
               <X className="w-6 h-6" />
@@ -671,7 +671,7 @@ const VehicleSetup: React.FC<VehicleSetupProps> = ({
                         name="identification-method"
                         checked={formData.useVinLookup}
                         onChange={(e) => handleFormChange('useVinLookup', e.target.checked)}
-                        className="w-4 h-4 text-violet-600 bg-gray-800 border-gray-600 focus:ring-violet-500 focus:ring-2"
+                        className="w-4 h-4 text-violet-600 bg-gray-800 border-gray-600 focus:ring-violet-400 focus:ring-2"
                       />
                       <label htmlFor="vin-lookup" className="text-white font-medium">
                         Use VIN Lookup (Recommended)
@@ -692,7 +692,7 @@ const VehicleSetup: React.FC<VehicleSetupProps> = ({
                               onChange={(e) => handleVINChange(e.target.value)}
                               placeholder="Enter 17-character VIN"
                               maxLength={17}
-                              className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500 focus:ring-offset-2 focus:ring-offset-gray-900 font-mono text-sm"
+                              className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:border-violet-500 focus:ring-offset-2 focus:ring-offset-gray-900 font-mono text-sm"
                             />
                             {vinLookupLoading && (
                               <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
@@ -729,7 +729,7 @@ const VehicleSetup: React.FC<VehicleSetupProps> = ({
                         name="identification-method"
                         checked={!formData.useVinLookup}
                         onChange={(e) => handleFormChange('useVinLookup', !e.target.checked)}
-                        className="w-4 h-4 text-violet-600 bg-gray-800 border-gray-600 focus:ring-violet-500 focus:ring-2"
+                        className="w-4 h-4 text-violet-600 bg-gray-800 border-gray-600 focus:ring-violet-400 focus:ring-2"
                       />
                       <label htmlFor="manual-entry" className="text-white font-medium">
                         Enter Details Manually
@@ -747,7 +747,7 @@ const VehicleSetup: React.FC<VehicleSetupProps> = ({
                               id="year-select"
                               value={formData.year}
                               onChange={(e) => handleFormChange('year', parseInt(e.target.value))}
-                              className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500 focus:ring-offset-2 focus:ring-offset-gray-900"
+                              className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-400 focus:border-violet-500 focus:ring-offset-2 focus:ring-offset-gray-900"
                             >
                               <option value="">Select Year</option>
                               {YEARS.map(year => (
@@ -767,7 +767,7 @@ const VehicleSetup: React.FC<VehicleSetupProps> = ({
                                 handleFormChange('make', e.target.value);
                                 handleFormChange('model', ''); // Reset model when make changes
                               }}
-                              className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500 focus:ring-offset-2 focus:ring-offset-gray-900"
+                              className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-400 focus:border-violet-500 focus:ring-offset-2 focus:ring-offset-gray-900"
                             >
                               <option value="">Select Make</option>
                               {POPULAR_MAKES.map(make => (
@@ -787,7 +787,7 @@ const VehicleSetup: React.FC<VehicleSetupProps> = ({
                               value={formData.model}
                               onChange={(e) => handleFormChange('model', e.target.value)}
                               disabled={!formData.make}
-                              className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500 focus:ring-offset-2 focus:ring-offset-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
+                              className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-400 focus:border-violet-500 focus:ring-offset-2 focus:ring-offset-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                               <option value="">Select Model</option>
                               {formData.make && POPULAR_MODELS[formData.make]?.map(model => (
@@ -806,7 +806,7 @@ const VehicleSetup: React.FC<VehicleSetupProps> = ({
                               value={formData.trim || ''}
                               onChange={(e) => handleFormChange('trim', e.target.value)}
                               placeholder="e.g., EX, LX, Sport"
-                              className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500 focus:ring-offset-2 focus:ring-offset-gray-900"
+                              className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:border-violet-500 focus:ring-offset-2 focus:ring-offset-gray-900"
                             />
                           </div>
                         </div>
@@ -842,7 +842,7 @@ const VehicleSetup: React.FC<VehicleSetupProps> = ({
                           placeholder="e.g., 45000"
                           min="0"
                           max="999999"
-                          className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500 focus:ring-offset-2 focus:ring-offset-gray-900"
+                          className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:border-violet-500 focus:ring-offset-2 focus:ring-offset-gray-900"
                         />
                         <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm">
                           miles
@@ -866,7 +866,7 @@ const VehicleSetup: React.FC<VehicleSetupProps> = ({
                           placeholder="e.g., 1200"
                           min="0"
                           max="10000"
-                          className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500 focus:ring-offset-2 focus:ring-offset-gray-900"
+                          className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:border-violet-500 focus:ring-offset-2 focus:ring-offset-gray-900"
                         />
                         <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm">
                           miles
@@ -914,7 +914,7 @@ const VehicleSetup: React.FC<VehicleSetupProps> = ({
                         onChange={(e) => handleZipcodeChange(e.target.value)}
                         placeholder="Enter 5-digit ZIP code"
                         maxLength={5}
-                        className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500 focus:ring-offset-2 focus:ring-offset-gray-900"
+                        className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:border-violet-500 focus:ring-offset-2 focus:ring-offset-gray-900"
                       />
                       {zipcodeLookupLoading && (
                         <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
@@ -980,7 +980,7 @@ const VehicleSetup: React.FC<VehicleSetupProps> = ({
         <div className="bg-gray-800 px-6 py-4 flex items-center justify-between">
           <button
             onClick={currentStep > 0 ? handlePrevious : onClose}
-            className="flex items-center space-x-2 text-gray-400 hover:text-white transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 focus:ring-offset-gray-800 rounded px-2 py-1"
+            className="flex items-center space-x-2 text-gray-400 hover:text-white transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:ring-offset-2 focus:ring-offset-gray-800 rounded px-2 py-1"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>{currentStep > 0 ? 'Previous' : 'Cancel'}</span>
@@ -989,7 +989,7 @@ const VehicleSetup: React.FC<VehicleSetupProps> = ({
           <button
             onClick={handleNext}
             disabled={loading}
-            className="flex items-center space-x-2 bg-gradient-to-r from-violet-500 to-purple-500 hover:from-violet-600 hover:to-purple-600 disabled:from-gray-600 disabled:to-gray-600 text-white px-6 py-2 rounded-lg font-semibold transition-all duration-200 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 focus:ring-offset-gray-800"
+            className="flex items-center space-x-2 bg-gradient-to-r from-violet-500 to-purple-500 hover:from-violet-600 hover:to-purple-600 disabled:from-gray-600 disabled:to-gray-600 text-white px-6 py-2 rounded-lg font-semibold transition-all duration-200 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-violet-400 focus:ring-offset-2 focus:ring-offset-gray-800"
           >
             {loading ? (
               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />

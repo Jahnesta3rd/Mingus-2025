@@ -326,7 +326,7 @@ def delete_vehicle(vehicle_id):
 
 @vehicle_management_api.route('/api/vehicle/<int:vehicle_id>/maintenance-predictions', methods=['GET'])
 @require_auth
-def get_maintenance_predictions(vehicle_id):
+def get_vehicle_maintenance_predictions(vehicle_id):
     """
     Get maintenance predictions for a vehicle
     

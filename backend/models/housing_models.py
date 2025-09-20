@@ -124,7 +124,7 @@ class UserHousingPreferences(db.Model):
     max_rent_percentage = db.Column(db.Numeric(5, 2), nullable=True)  # percentage of income
     
     # Location preferences
-    preferred_neighborhoods = db.Column(db.ARRAY(db.String), nullable=True)
+    preferred_neighborhoods = db.Column(db.JSON, nullable=True)
     
     # Timestamps
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)

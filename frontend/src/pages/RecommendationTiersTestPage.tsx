@@ -5,6 +5,17 @@ const RecommendationTiersTestPage: React.FC = () => {
   const [userId, setUserId] = useState('test-user-123');
   const [locationRadius, setLocationRadius] = useState(10);
 
+  // Debug handlers
+  const handleUserIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log('User ID changing to:', e.target.value);
+    setUserId(e.target.value);
+  };
+
+  const handleRadiusChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log('Radius changing to:', e.target.value);
+    setLocationRadius(Number(e.target.value));
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -27,10 +38,11 @@ const RecommendationTiersTestPage: React.FC = () => {
                 <input
                   type="text"
                   value={userId}
-                  onChange={(e) => setUserId(e.target.value)}
+                  onChange={handleUserIdChange}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   placeholder="Enter user ID"
                 />
+                <p className="text-xs text-gray-500 mt-1">Current: {userId}</p>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -39,12 +51,19 @@ const RecommendationTiersTestPage: React.FC = () => {
                 <input
                   type="number"
                   value={locationRadius}
-                  onChange={(e) => setLocationRadius(Number(e.target.value))}
+                  onChange={handleRadiusChange}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   min="1"
                   max="999"
                 />
+                <p className="text-xs text-gray-500 mt-1">Current: {locationRadius} miles</p>
               </div>
+            </div>
+            
+            {/* Debug Info */}
+            <div className="mt-4 p-3 bg-gray-100 rounded-lg">
+              <h3 className="text-sm font-medium text-gray-700 mb-2">Debug Info:</h3>
+              <p className="text-xs text-gray-600">User ID: "{userId}" | Radius: {locationRadius} miles</p>
             </div>
           </div>
         </div>

@@ -151,19 +151,6 @@ def delete_vehicle(vehicle_id):
 # MAINTENANCE PREDICTION ENDPOINTS
 # ============================================================================
 
-@vehicle_api.route('/api/vehicles/<int:vehicle_id>/maintenance-predictions', methods=['GET'])
-def get_maintenance_predictions(vehicle_id):
-    """Get maintenance predictions for a vehicle"""
-    try:
-        predictions = MaintenancePrediction.query.filter_by(vehicle_id=vehicle_id).all()
-        return jsonify({
-            'success': True,
-            'predictions': [prediction.to_dict() for prediction in predictions]
-        })
-    
-    except Exception as e:
-        logger.error(f"Error getting maintenance predictions for vehicle {vehicle_id}: {e}")
-        return jsonify({'error': 'Failed to retrieve maintenance predictions'}), 500
 
 @vehicle_api.route('/api/vehicles/<int:vehicle_id>/maintenance-predictions', methods=['POST'])
 def create_maintenance_prediction(vehicle_id):

@@ -12,6 +12,9 @@ import CareerProtectionDashboard from './pages/CareerProtectionDashboard';
 import DashboardPreview from './pages/DashboardPreview';
 import ComprehensiveDashboardPreview from './pages/ComprehensiveDashboardPreview';
 import LocationMapTestPage from './pages/LocationMapTestPage';
+import SimpleJobMatchingPreview from './pages/SimpleJobMatchingPreview';
+import ResumeUploadPage from './pages/ResumeUploadPage';
+import VehicleAssessmentPage from './pages/VehicleAssessmentPage';
 import { AuthProvider, useAuth } from './hooks/useAuth';
 
 // Protected Route Component
@@ -73,7 +76,7 @@ const LoginPage: React.FC = () => {
                 type="email"
                 autoComplete="email"
                 required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-violet-500 focus:border-violet-500 focus:z-10 sm:text-sm"
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-2 focus:ring-violet-400 focus:border-violet-500 focus:z-10 sm:text-sm"
                 placeholder="Email address"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -89,7 +92,7 @@ const LoginPage: React.FC = () => {
                 type="password"
                 autoComplete="current-password"
                 required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-violet-500 focus:border-violet-500 focus:z-10 sm:text-sm"
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-2 focus:ring-violet-400 focus:border-violet-500 focus:z-10 sm:text-sm"
                 placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -105,7 +108,7 @@ const LoginPage: React.FC = () => {
             <button
               type="submit"
               disabled={loading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-violet-600 hover:bg-violet-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-violet-500 disabled:opacity-50"
+              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-violet-600 hover:bg-violet-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-violet-400 disabled:opacity-50"
             >
               {loading ? 'Signing in...' : 'Sign in'}
             </button>
@@ -163,6 +166,17 @@ function App() {
           <Route path="/location-map-test" element={
             <PageWrapper>
               <LocationMapTestPage />
+            </PageWrapper>
+          } />
+          <Route path="/job-matching-preview" element={<SimpleJobMatchingPreview />} />
+          <Route path="/resume-upload" element={
+            <PageWrapper>
+              <ResumeUploadPage />
+            </PageWrapper>
+          } />
+          <Route path="/vehicle-assessment" element={
+            <PageWrapper>
+              <VehicleAssessmentPage />
             </PageWrapper>
           } />
         </Routes>
