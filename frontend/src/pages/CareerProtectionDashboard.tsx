@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
 import RiskStatusHero from '../components/RiskStatusHero';
 import RecommendationTiers from '../components/RecommendationTiers';
@@ -12,16 +12,23 @@ import QuickActionsPanel from '../components/QuickActionsPanel';
 import RecentActivityPanel from '../components/RecentActivityPanel';
 import UnlockRecommendationsPanel from '../components/UnlockRecommendationsPanel';
 import DashboardSkeleton from '../components/DashboardSkeleton';
+import DailyOutlookCard from '../components/DailyOutlookCard';
 import { useAuth } from '../hooks/useAuth';
 import { useAnalytics } from '../hooks/useAnalytics';
 import { useDashboardStore, useDashboardSelectors, useHousingDataSync } from '../stores/dashboardStore';
 
+// Lazy load the full Daily Outlook component for performance
+const DailyOutlook = lazy(() => import('../components/DailyOutlook'));
+const MobileDailyOutlook = lazy(() => import('../components/MobileDailyOutlook'));
+
 interface DashboardState {
-  activeTab: 'overview' | 'recommendations' | 'location' | 'analytics' | 'housing';
+  activeTab: 'daily-outlook' | 'overview' | 'recommendations' | 'location' | 'analytics' | 'housing';
   riskLevel: 'secure' | 'watchful' | 'action_needed' | 'urgent';
   hasUnlockedRecommendations: boolean;
   emergencyMode: boolean;
   lastUpdated: Date;
+  showFullDailyOutlook: boolean;
+  isMobile: boolean;
 }
 
 const CareerProtectionDashboard: React.FC = () => {
@@ -37,6 +44,27 @@ const CareerProtectionDashboard: React.FC = () => {
     setEmergencyMode, 
     setUnlockedRecommendations 
   } = useDashboardStore();
+
+  // Local state for Daily Outlook integration
+  const [dashboardState, setDashboardState] = useState<DashboardState>({
+    activeTab: 'daily-outlook', // Start with Daily Outlook as first tab
+    riskLevel: 'watchful',
+    hasUnlockedRecommendations: true,
+    emergencyMode: false,
+    lastUpdated: new Date(),
+    showFullDailyOutlook: false,
+    isMobile: window.innerWidth < 768
+  });
+
+  // Handle mobile detection
+  useEffect(() => {
+    const handleResize = () => {
+      setDashboardState(prev => ({ ...prev, isMobile: window.innerWidth < 768 }));
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
   
   const { 
     housingSearches, 
@@ -120,13 +148,30 @@ const CareerProtectionDashboard: React.FC = () => {
   };
   
   const handleTabChange = async (tab: DashboardState['activeTab']) => {
+    setDashboardState(prev => ({ ...prev, activeTab: tab }));
     setActiveTab(tab);
     
     // Track tab interaction
     await trackInteraction('dashboard_tab_changed', {
-      previous_tab: activeTab,
+      previous_tab: dashboardState.activeTab,
       new_tab: tab,
-      risk_level: 'watchful'
+      risk_level: dashboardState.riskLevel
+    });
+  };
+
+  const handleViewFullDailyOutlook = () => {
+    setDashboardState(prev => ({ ...prev, showFullDailyOutlook: true }));
+    trackInteraction('daily_outlook_view_full', {
+      user_tier: user?.tier,
+      is_mobile: dashboardState.isMobile
+    });
+  };
+
+  const handleCloseFullDailyOutlook = () => {
+    setDashboardState(prev => ({ ...prev, showFullDailyOutlook: false }));
+    trackInteraction('daily_outlook_close_full', {
+      user_tier: user?.tier,
+      is_mobile: dashboardState.isMobile
     });
   };
   
@@ -239,6 +284,7 @@ const CareerProtectionDashboard: React.FC = () => {
           <div className="border-b border-gray-200">
             <nav className="-mb-px flex space-x-2 sm:space-x-8 overflow-x-auto">
               {[
+                { id: 'daily-outlook', label: 'Daily Outlook', icon: '🌅', shortLabel: 'Outlook' },
                 { id: 'overview', label: 'Overview', icon: '📊', shortLabel: 'Overview' },
                 { 
                   id: 'recommendations', 
@@ -281,7 +327,36 @@ const CareerProtectionDashboard: React.FC = () => {
           
           {/* Tab Content */}
           <div className="min-h-[600px]">
-            {activeTab === 'overview' && (
+            {dashboardState.activeTab === 'daily-outlook' && (
+              <div className="space-y-6">
+                {/* Daily Outlook Card for Dashboard Overview */}
+                <div className="grid gap-6 lg:grid-cols-2">
+                  <div className="lg:col-span-1">
+                    <DailyOutlookCard 
+                      onViewFullOutlook={handleViewFullDailyOutlook}
+                      compact={false}
+                    />
+                  </div>
+                  <div className="lg:col-span-1">
+                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
+                      <QuickActionsPanel 
+                        riskLevel={dashboardState.riskLevel}
+                        hasRecommendations={dashboardState.hasUnlockedRecommendations}
+                      />
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Recent Activity */}
+                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h3>
+                  <RecentActivityPanel />
+                </div>
+              </div>
+            )}
+
+            {dashboardState.activeTab === 'overview' && (
               <div className="space-y-6">
                 {/* Top Row - Quick Actions and Recent Activity */}
                 <div className="grid gap-6 lg:gap-8 lg:grid-cols-2">
@@ -305,15 +380,15 @@ const CareerProtectionDashboard: React.FC = () => {
               </div>
             )}
             
-            {activeTab === 'recommendations' && (
+            {dashboardState.activeTab === 'recommendations' && (
               <RecommendationTiers />
             )}
             
-            {activeTab === 'location' && (
+            {dashboardState.activeTab === 'location' && (
               <LocationIntelligenceMap />
             )}
             
-            {activeTab === 'housing' && (
+            {dashboardState.activeTab === 'housing' && (
               <div className="space-y-6">
                 {/* Housing Alerts */}
                 {urgentAlerts.length > 0 && (
@@ -395,13 +470,53 @@ const CareerProtectionDashboard: React.FC = () => {
               </div>
             )}
             
-            {activeTab === 'analytics' && (
+            {dashboardState.activeTab === 'analytics' && (
               <AnalyticsDashboard />
             )}
           </div>
           
         </div>
       </div>
+
+      {/* Full Daily Outlook Modal/Overlay */}
+      {dashboardState.showFullDailyOutlook && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+            <div className="flex items-center justify-between p-4 border-b border-gray-200">
+              <h2 className="text-xl font-semibold text-gray-900">Daily Outlook</h2>
+              <button
+                onClick={handleCloseFullDailyOutlook}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                aria-label="Close"
+              >
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <div className="overflow-y-auto max-h-[calc(90vh-80px)]">
+              <Suspense fallback={
+                <div className="p-6">
+                  <div className="animate-pulse space-y-4">
+                    <div className="h-6 bg-gray-200 rounded w-1/3"></div>
+                    <div className="h-16 bg-gray-200 rounded"></div>
+                    <div className="h-4 bg-gray-200 rounded w-2/3"></div>
+                  </div>
+                </div>
+              }>
+                {dashboardState.isMobile ? (
+                  <MobileDailyOutlook 
+                    onClose={handleCloseFullDailyOutlook}
+                    isFullScreen={true}
+                  />
+                ) : (
+                  <DailyOutlook />
+                )}
+              </Suspense>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
     </DashboardErrorBoundary>
   );

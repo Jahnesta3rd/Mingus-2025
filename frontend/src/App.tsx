@@ -15,6 +15,16 @@ import LocationMapTestPage from './pages/LocationMapTestPage';
 import SimpleJobMatchingPreview from './pages/SimpleJobMatchingPreview';
 import ResumeUploadPage from './pages/ResumeUploadPage';
 import VehicleAssessmentPage from './pages/VehicleAssessmentPage';
+import DailyOutlookTestPage from './pages/DailyOutlookTestPage';
+import DashboardTestSuite from './components/DashboardTestSuite';
+import SimpleDashboardTest from './pages/SimpleDashboardTest';
+import TestCareerDashboard from './pages/TestCareerDashboard';
+import DebugDashboard from './pages/DebugDashboard';
+import ComponentDiagnostic from './pages/ComponentDiagnostic';
+import NotificationTestSuite from './components/NotificationTestSuite';
+import NotificationDemo from './components/NotificationDemo';
+import NotificationTestPage from './pages/NotificationTestPage';
+import ABTestingManager from './components/ABTestingManager';
 import { AuthProvider, useAuth } from './hooks/useAuth';
 
 // Protected Route Component
@@ -178,6 +188,52 @@ function App() {
             <PageWrapper>
               <VehicleAssessmentPage />
             </PageWrapper>
+          } />
+          <Route path="/daily-outlook-test" element={
+            <PageWrapper>
+              <DailyOutlookTestPage />
+            </PageWrapper>
+          } />
+          <Route path="/dashboard-test" element={
+            <PageWrapper>
+              <DashboardTestSuite />
+            </PageWrapper>
+          } />
+          <Route path="/simple-test" element={
+            <PageWrapper>
+              <SimpleDashboardTest />
+            </PageWrapper>
+          } />
+          <Route path="/test-dashboard" element={
+            <PageWrapper>
+              <TestCareerDashboard />
+            </PageWrapper>
+          } />
+          <Route path="/debug-dashboard" element={
+            <PageWrapper>
+              <DebugDashboard />
+            </PageWrapper>
+          } />
+          <Route path="/diagnostic" element={
+            <PageWrapper>
+              <ComponentDiagnostic />
+            </PageWrapper>
+          } />
+          <Route path="/notification-test" element={
+            <PageWrapper>
+              <NotificationTestSuite />
+            </PageWrapper>
+          } />
+          <Route path="/notification-demo" element={
+            <PageWrapper>
+              <NotificationDemo />
+            </PageWrapper>
+          } />
+          <Route path="/notification-test-page" element={<NotificationTestPage />} />
+          <Route path="/ab-testing" element={
+            <ProtectedRoute>
+              <ABTestingManager />
+            </ProtectedRoute>
           } />
         </Routes>
       </Router>

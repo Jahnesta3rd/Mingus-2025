@@ -24,6 +24,7 @@ class User(db.Model):
     # Personal information
     first_name = db.Column(db.String(100), nullable=True)
     last_name = db.Column(db.String(100), nullable=True)
+    tier = db.Column(db.String(50), default='budget', nullable=False)
     
     # Referral system fields (from existing structure)
     referral_code = db.Column(db.String(50), unique=True, nullable=True)
@@ -40,6 +41,8 @@ class User(db.Model):
     
     # Relationships
     vehicles = db.relationship('Vehicle', backref='user', lazy=True, cascade='all, delete-orphan')
+    daily_outlooks = db.relationship('DailyOutlook', backref='user', lazy=True, cascade='all, delete-orphan')
+    relationship_status = db.relationship('UserRelationshipStatus', backref='user', lazy=True, cascade='all, delete-orphan', uselist=False)
     
     def __repr__(self):
         return f'<User {self.user_id}: {self.email}>'

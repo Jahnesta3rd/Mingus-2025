@@ -51,6 +51,49 @@ GAS_PRICE_BEAT_SCHEDULE = {
     },
 }
 
+# Daily Outlook Service Periodic Tasks
+DAILY_OUTLOOK_BEAT_SCHEDULE = {
+    # Daily outlook generation at 5:00 AM UTC
+    'generate-daily-outlooks': {
+        'task': 'backend.tasks.daily_outlook_tasks.generate_daily_outlooks_batch',
+        'schedule': crontab(hour=5, minute=0),  # 5:00 AM UTC daily
+        'options': {
+            'queue': 'daily_outlook_queue',
+            'priority': 5,
+        }
+    },
+    
+    # Daily outlook notifications at 6:45 AM UTC (weekdays) and 8:30 AM UTC (weekends)
+    'send-daily-outlook-notifications': {
+        'task': 'backend.tasks.daily_outlook_tasks.send_daily_outlook_notifications',
+        'schedule': crontab(hour=6, minute=45),  # 6:45 AM UTC daily (handles timezone conversion in task)
+        'options': {
+            'queue': 'daily_outlook_queue',
+            'priority': 4,
+        }
+    },
+    
+    # Content performance optimization weekly on Sunday at 3:00 AM UTC
+    'optimize-content-performance': {
+        'task': 'backend.tasks.daily_outlook_tasks.optimize_content_performance',
+        'schedule': crontab(hour=3, minute=0, day_of_week=0),  # Sunday 3:00 AM UTC
+        'options': {
+            'queue': 'daily_outlook_queue',
+            'priority': 3,
+        }
+    },
+    
+    # Daily outlook health check every 4 hours
+    'daily-outlook-health-check': {
+        'task': 'backend.tasks.daily_outlook_tasks.health_check_daily_outlook_tasks',
+        'schedule': crontab(minute=0, hour='*/4'),  # Every 4 hours
+        'options': {
+            'queue': 'daily_outlook_queue',
+            'priority': 2,
+        }
+    },
+}
+
 # Additional periodic tasks for the broader Mingus application
 MINGUS_BEAT_SCHEDULE = {
     # Add other periodic tasks here as needed
@@ -64,5 +107,6 @@ MINGUS_BEAT_SCHEDULE = {
 # Combined beat schedule
 CELERY_BEAT_SCHEDULE = {
     **GAS_PRICE_BEAT_SCHEDULE,
+    **DAILY_OUTLOOK_BEAT_SCHEDULE,
     **MINGUS_BEAT_SCHEDULE,
 }

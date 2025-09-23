@@ -300,6 +300,38 @@ class FeatureFlagService:
         except Exception as e:
             logger.error(f"Error getting all tiers info: {e}")
             return {}
+    
+    def check_user_tier_access(self, user_id: int, required_tier: FeatureTier) -> bool:
+        """
+        Check if a user has access to a specific tier feature
+        
+        Args:
+            user_id: User ID to check
+            required_tier: Required tier level
+            
+        Returns:
+            True if user has access, False otherwise
+        """
+        try:
+            # Get user's current tier
+            user_tier = self.get_user_tier(user_id)
+            
+            # Check if user tier meets or exceeds required tier
+            tier_hierarchy = {
+                FeatureTier.BUDGET: 1,
+                FeatureTier.BUDGET_CAREER_VEHICLE: 2,
+                FeatureTier.MID_TIER: 3,
+                FeatureTier.PROFESSIONAL: 4
+            }
+            
+            user_tier_level = tier_hierarchy.get(user_tier, 0)
+            required_tier_level = tier_hierarchy.get(required_tier, 0)
+            
+            return user_tier_level >= required_tier_level
+            
+        except Exception as e:
+            logger.error(f"Error checking tier access for user {user_id}: {e}")
+            return False
 
     def simulate_addon_purchase(self, user_id: int, feature: FeatureFlag) -> Dict[str, Any]:
         """
