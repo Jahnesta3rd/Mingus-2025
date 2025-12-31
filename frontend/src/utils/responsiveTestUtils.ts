@@ -168,11 +168,6 @@ export const runComprehensiveTest = () => {
   return comprehensiveResults;
 };
 
-// Auto-run test on load in development
-if (process.env.NODE_ENV === 'development') {
-  window.addEventListener('load', () => {
-    setTimeout(() => {
-      runComprehensiveTest();
-    }, 1000);
-  });
-}
+// Note: Auto-run functionality has been removed to prevent memory leaks.
+// React components should use useEffect with proper cleanup instead.
+// This ensures proper cleanup when components unmount.

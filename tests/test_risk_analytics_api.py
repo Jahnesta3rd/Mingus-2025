@@ -17,7 +17,7 @@ import pytest
 import json
 import asyncio
 import time
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from unittest.mock import Mock, patch, MagicMock
 import sqlite3
 import tempfile
@@ -601,13 +601,13 @@ class TestPerformanceMonitoring:
             monitor.PerformanceMetric(
                 endpoint='test_endpoint',
                 response_time=250.0,
-                timestamp=datetime.utcnow(),
+                timestamp=datetime.now(timezone.utc),
                 success=True
             ),
             monitor.PerformanceMetric(
                 endpoint='test_endpoint',
                 response_time=350.0,
-                timestamp=datetime.utcnow(),
+                timestamp=datetime.now(timezone.utc),
                 success=True
             )
         ]

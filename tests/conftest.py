@@ -13,10 +13,13 @@ from unittest.mock import patch
 @pytest.fixture(autouse=True, scope="function")
 def disable_auth_for_tests():
     """Disable authentication decorators for all tests"""
+    # Patch both where it's defined and where it's used
     with patch('backend.auth.decorators.require_auth', lambda f: f):
         with patch('backend.auth.decorators.require_csrf', lambda f: f):
             with patch('backend.auth.decorators.require_admin', lambda f: f):
-                yield
+                with patch('backend.api.daily_outlook_api.require_auth', lambda f: f):
+                    with patch('backend.api.daily_outlook_api.require_csrf', lambda f: f):
+                        yield
 
 
 # Additional shared fixtures can be added here as needed

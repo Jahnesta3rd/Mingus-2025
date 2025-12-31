@@ -14,7 +14,7 @@ Comprehensive test data fixtures for different user scenarios including:
 """
 
 import json
-from datetime import datetime, date, timedelta
+from datetime import datetime, date, timedelta, timezone
 from decimal import Decimal
 from typing import Dict, List, Any, Optional
 
@@ -663,7 +663,7 @@ class DailyOutlookTestFixtures:
                 'user_tier': 'budget',
                 'balance_score': 75,
                 'streak_count': 5,
-                'timestamp': datetime.utcnow().isoformat(),
+                'timestamp': datetime.now(timezone.utc).isoformat(),
                 'metadata': {
                     'load_time': 0.5,
                     'cache_hit': True,
@@ -675,7 +675,7 @@ class DailyOutlookTestFixtures:
                 'user_id': 123,
                 'action_id': 'action_1',
                 'completion_status': True,
-                'timestamp': datetime.utcnow().isoformat(),
+                'timestamp': datetime.now(timezone.utc).isoformat(),
                 'metadata': {
                     'completion_time': 0.2,
                     'action_priority': 'high'
@@ -685,7 +685,7 @@ class DailyOutlookTestFixtures:
                 'event_type': 'rating_submitted',
                 'user_id': 123,
                 'rating': 5,
-                'timestamp': datetime.utcnow().isoformat(),
+                'timestamp': datetime.now(timezone.utc).isoformat(),
                 'metadata': {
                     'rating_context': 'daily_outlook',
                     'user_satisfaction': 'high'

@@ -128,8 +128,29 @@ class FeatureFlagService:
         Get user's current subscription tier
         In a real implementation, this would query the billing system
         """
-        # TODO: Integrate with actual billing system
-        # For now, return a default tier for testing
+        try:
+            from backend.models.user_models import User
+            from backend.models.database import db
+            from flask import has_app_context
+            
+            # Ensure we're in an app context
+            if not has_app_context():
+                logger.warning(f"get_user_tier called outside app context for user {user_id}")
+                return FeatureTier.BUDGET
+            
+            # Use current session context
+            user = db.session.get(User, user_id)
+            if user and user.tier:
+                # Map string tier to FeatureTier enum
+                tier_mapping = {
+                    'budget': FeatureTier.BUDGET,
+                    'mid_tier': FeatureTier.MID_TIER,
+                    'professional': FeatureTier.PROFESSIONAL
+                }
+                return tier_mapping.get(user.tier.lower(), FeatureTier.BUDGET)
+        except Exception as e:
+            logger.error(f"Error getting user tier: {e}")
+        # Default fallback
         return FeatureTier.BUDGET
 
     def has_feature_access(self, user_id: int, feature: FeatureFlag) -> bool:

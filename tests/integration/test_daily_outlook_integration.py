@@ -14,7 +14,7 @@ import pytest
 import json
 import time
 import asyncio
-from datetime import datetime, date, timedelta
+from datetime import datetime, date, timedelta, timezone
 from decimal import Decimal
 from unittest.mock import Mock, patch, MagicMock
 from flask import Flask
@@ -203,7 +203,7 @@ class TestDailyOutlookEndToEndFlow:
                         relationship_weight=Decimal('0.25'),
                         career_weight=Decimal('0.20'),
                         streak_count=i+1,
-                        viewed_at=datetime.utcnow()
+                        viewed_at=datetime.now(timezone.utc)
                     )
                     db.session.add(outlook)
                 

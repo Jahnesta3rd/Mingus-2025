@@ -12,7 +12,7 @@ from backend.models.daily_outlook import DailyOutlook, UserRelationshipStatus
 from backend.models.user_models import User
 from backend.models.database import db
 from flask import Blueprint, jsonify, request, current_app
-from datetime import datetime, date
+from datetime import datetime, date, timezone, timezone
 import logging
 
 logger = logging.getLogger(__name__)
@@ -161,7 +161,7 @@ def mark_action_completed():
         
         # Note: completion_notes could be stored in a separate field if needed
         
-        outlook.updated_at = datetime.utcnow()
+        outlook.updated_at = datetime.now(timezone.utc)
         db.session.commit()
         
         return jsonify({
@@ -214,7 +214,7 @@ def submit_daily_rating():
         
         # Update the outlook with rating
         outlook.user_rating = rating
-        outlook.updated_at = datetime.utcnow()
+        outlook.updated_at = datetime.now(timezone.utc)
         db.session.commit()
         
         return jsonify({

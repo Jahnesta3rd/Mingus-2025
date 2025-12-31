@@ -20,7 +20,7 @@ import json
 import time
 import hashlib
 import hmac
-from datetime import datetime, date, timedelta
+from datetime import datetime, date, timedelta, timezone
 from decimal import Decimal
 from unittest.mock import Mock, patch, MagicMock
 from flask import Flask
@@ -769,7 +769,7 @@ class TestSessionManagement:
             # Test session timeout logic
             def is_session_valid(session_start, timeout_minutes=30):
                 """Check if session is still valid"""
-                return (datetime.utcnow() - session_start).total_seconds() < timeout_minutes * 60
+                return (datetime.now(timezone.utc) - session_start).total_seconds() < timeout_minutes * 60
             
             # Test valid session
             recent_session = datetime.utcnow() - timedelta(minutes=15)

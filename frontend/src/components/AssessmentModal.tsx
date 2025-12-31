@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { X, ArrowLeft, ArrowRight, Check, Mail, User } from 'lucide-react';
+import { AssessmentType } from '../types/assessments';
 import { InputValidator } from '../utils/validation';
 import { Sanitizer } from '../utils/sanitize';
 import AssessmentResults from './AssessmentResults';
@@ -34,14 +35,15 @@ export interface AssessmentConfig {
 
 interface AssessmentModalProps {
   isOpen: boolean;
-  assessmentType: 'ai-risk' | 'income-comparison' | 'cuffing-season' | 'layoff-risk' | 'vehicle-financial-health' | null;
+  assessmentType: AssessmentType | null;
   onClose: () => void;
   onSubmit: (data: AssessmentData) => void;
+  isSubmitting?: boolean;
   className?: string;
 }
 
 // Assessment Configurations
-const assessmentConfigs: Record<string, AssessmentConfig> = {
+const assessmentConfigs: Record<AssessmentType, AssessmentConfig> = {
   'ai-risk': {
     id: 'ai-risk',
     title: 'AI Replacement Risk Assessment',
@@ -575,6 +577,7 @@ const AssessmentModal: React.FC<AssessmentModalProps> = ({
   assessmentType,
   onClose,
   onSubmit,
+  isSubmitting = false,
   className = ''
 }) => {
   const [currentStep, setCurrentStep] = useState(0);
@@ -743,7 +746,7 @@ const AssessmentModal: React.FC<AssessmentModalProps> = ({
     // const riskLevels = ['Low', 'Medium', 'High'];
     const riskLevel = baseScore > 60 ? 'High' : baseScore > 40 ? 'Medium' : 'Low';
     
-    const recommendations = {
+    const recommendations: Record<AssessmentType, string[]> = {
       'ai-risk': [
         'Develop skills in areas where human judgment is irreplaceable',
         'Learn to work alongside AI tools rather than compete with them',
@@ -779,7 +782,7 @@ const AssessmentModal: React.FC<AssessmentModalProps> = ({
     return {
       score: baseScore,
       risk_level: riskLevel,
-      recommendations: recommendations[assessmentType as keyof typeof recommendations] || recommendations['ai-risk'],
+      recommendations: assessmentType ? recommendations[assessmentType] : recommendations['ai-risk'],
       assessment_type: assessmentType,
       completed_at: new Date().toISOString(),
       percentile: Math.floor(Math.random() * 40) + 30,
@@ -900,7 +903,7 @@ const AssessmentModal: React.FC<AssessmentModalProps> = ({
 
         {/* Content */}
         <div className="p-6 overflow-y-auto max-h-[calc(90vh-200px)]">
-          {loading ? (
+          {(loading || isSubmitting) ? (
             <LoadingSkeleton />
           ) : currentQuestion ? (
             <div className="space-y-6">
@@ -946,7 +949,8 @@ const AssessmentModal: React.FC<AssessmentModalProps> = ({
                         value={answers[currentQuestion.id] || ''}
                         onChange={(e) => handleAnswerChange(currentQuestion.id, e.target.value)}
                         placeholder={currentQuestion.placeholder}
-                        className="w-full pl-10 pr-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:border-violet-500 focus:ring-offset-2 focus:ring-offset-gray-900"
+                        disabled={isSubmitting}
+                        className="w-full pl-10 pr-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:border-violet-500 focus:ring-offset-2 focus:ring-offset-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
                         required={currentQuestion.required}
                         aria-describedby={`${currentQuestion.id}-help`}
                       />
@@ -973,7 +977,8 @@ const AssessmentModal: React.FC<AssessmentModalProps> = ({
                         value={answers[currentQuestion.id] || ''}
                         onChange={(e) => handleAnswerChange(currentQuestion.id, e.target.value)}
                         placeholder={currentQuestion.placeholder}
-                        className="w-full pl-10 pr-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:border-violet-500 focus:ring-offset-2 focus:ring-offset-gray-900"
+                        disabled={isSubmitting}
+                        className="w-full pl-10 pr-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:border-violet-500 focus:ring-offset-2 focus:ring-offset-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
                         required={currentQuestion.required}
                         aria-describedby={`${currentQuestion.id}-help`}
                       />
@@ -1055,7 +1060,11 @@ const AssessmentModal: React.FC<AssessmentModalProps> = ({
                       {currentQuestion.options.map((option, index) => (
                         <label
                           key={index}
-                          className={`flex items-center p-3 rounded-lg border cursor-pointer transition-all duration-200 ${
+                          className={`flex items-center p-3 rounded-lg border transition-all duration-200 ${
+                            isSubmitting 
+                              ? 'cursor-not-allowed opacity-50' 
+                              : 'cursor-pointer'
+                          } ${
                             answers[currentQuestion.id]?.includes(option)
                               ? 'border-violet-500 bg-violet-500 bg-opacity-10'
                               : 'border-gray-700 hover:border-gray-600'
@@ -1071,7 +1080,8 @@ const AssessmentModal: React.FC<AssessmentModalProps> = ({
                                 : currentValues.filter((v: string) => v !== option);
                               handleAnswerChange(currentQuestion.id, newValues);
                             }}
-                            className="sr-only focus:not-sr-only focus:outline-none focus:ring-2 focus:ring-violet-400 focus:ring-offset-2"
+                            disabled={isSubmitting}
+                            className="sr-only focus:not-sr-only focus:outline-none focus:ring-2 focus:ring-violet-400 focus:ring-offset-2 disabled:opacity-50"
                             aria-describedby={`${currentQuestion.id}-help`}
                           />
                           <div className={`w-4 h-4 rounded border-2 mr-3 flex items-center justify-center ${
@@ -1107,7 +1117,11 @@ const AssessmentModal: React.FC<AssessmentModalProps> = ({
                       {currentQuestion.options.map((option, index) => (
                         <label
                           key={index}
-                          className={`flex items-center p-3 rounded-lg border cursor-pointer transition-all duration-200 focus-within:outline-none focus-within:ring-2 focus-within:ring-violet-500 focus-within:ring-offset-2 focus-within:ring-offset-gray-900 ${
+                          className={`flex items-center p-3 rounded-lg border transition-all duration-200 focus-within:outline-none focus-within:ring-2 focus-within:ring-violet-500 focus-within:ring-offset-2 focus-within:ring-offset-gray-900 ${
+                            isSubmitting 
+                              ? 'cursor-not-allowed opacity-50' 
+                              : 'cursor-pointer'
+                          } ${
                             answers[currentQuestion.id] === option
                               ? 'border-violet-500 bg-violet-500 bg-opacity-10'
                               : 'border-gray-700 hover:border-gray-600'
@@ -1119,7 +1133,8 @@ const AssessmentModal: React.FC<AssessmentModalProps> = ({
                             value={option}
                             checked={answers[currentQuestion.id] === option}
                             onChange={(e) => handleAnswerChange(currentQuestion.id, e.target.value)}
-                            className="sr-only focus:not-sr-only focus:outline-none focus:ring-2 focus:ring-violet-400 focus:ring-offset-2"
+                            disabled={isSubmitting}
+                            className="sr-only focus:not-sr-only focus:outline-none focus:ring-2 focus:ring-violet-400 focus:ring-offset-2 disabled:opacity-50"
                             aria-describedby={`${currentQuestion.id}-help`}
                           />
                           <div className={`w-4 h-4 rounded-full border-2 mr-3 flex items-center justify-center ${
@@ -1159,7 +1174,8 @@ const AssessmentModal: React.FC<AssessmentModalProps> = ({
         <div className="bg-gray-800 px-6 py-4 flex items-center justify-between">
           <button
             onClick={currentStep > 0 ? handlePrevious : onClose}
-            className="flex items-center space-x-2 text-gray-400 hover:text-white transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:ring-offset-2 focus:ring-offset-gray-800 rounded px-2 py-1"
+            disabled={isSubmitting}
+            className="flex items-center space-x-2 text-gray-400 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:ring-offset-2 focus:ring-offset-gray-800 rounded px-2 py-1"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>{currentStep > 0 ? 'Previous' : 'Cancel'}</span>
@@ -1167,11 +1183,14 @@ const AssessmentModal: React.FC<AssessmentModalProps> = ({
 
           <button
             onClick={handleNext}
-            disabled={loading || (currentQuestion?.required && !answers[currentQuestion.id])}
+            disabled={loading || isSubmitting || (currentQuestion?.required && !answers[currentQuestion.id])}
             className="flex items-center space-x-2 bg-gradient-to-r from-violet-500 to-purple-500 hover:from-violet-600 hover:to-purple-600 disabled:from-gray-600 disabled:to-gray-600 text-white px-6 py-2 rounded-lg font-semibold transition-all duration-200 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-violet-400 focus:ring-offset-2 focus:ring-offset-gray-800"
           >
-            {loading ? (
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
+            {(loading || isSubmitting) ? (
+              <>
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
+                <span>Submitting...</span>
+              </>
             ) : currentStep === totalSteps - 1 ? (
               <>
                 <span>Complete Assessment</span>
