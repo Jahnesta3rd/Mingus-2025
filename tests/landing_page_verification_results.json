@@ -1,0 +1,25 @@
+{
+  "timestamp": "2025-12-31T15:30:31.823968",
+  "tests": {
+    "landing_page_exists": true,
+    "logger_exists": true,
+    "assessments_type_exists": true,
+    "no_console_statements": true,
+    "responsive_test_conditional": true,
+    "react_router_usage": true,
+    "aria_labels": true,
+    "assessment_type": true,
+    "dynamic_copyright": true,
+    "analytics_tracking": true,
+    "component_splitting": true,
+    "typescript_compilation": false,
+    "linting": false
+  },
+  "summary": {
+    "total": 13,
+    "passed": 11,
+    "failed": 2,
+    "skipped": 0,
+    "pass_rate": 84.61538461538461
+  }
+}

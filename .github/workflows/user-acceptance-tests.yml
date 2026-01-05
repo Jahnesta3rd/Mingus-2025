@@ -1,0 +1,161 @@
+name: User Acceptance Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'tests/user_acceptance/**'
+      - 'backend/**'
+      - 'tests/api/test_daily_outlook_api.py'
+      - '.github/workflows/user-acceptance-tests.yml'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'tests/user_acceptance/**'
+      - 'backend/**'
+      - 'tests/api/test_daily_outlook_api.py'
+  schedule:
+    # Run nightly at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: User Acceptance Tests
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        python-version: ['3.11', '3.12']
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+        cache: 'pip'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest pytest-cov pytest-html pytest-xdist
+    
+    - name: Create backend package init file
+      run: |
+        if [ ! -f backend/__init__.py ]; then
+          echo "# Mingus Backend Package" > backend/__init__.py
+        fi
+    
+    - name: Run user acceptance tests
+      run: |
+        python -m pytest tests/user_acceptance/test_daily_outlook_personas.py \
+          -v \
+          --tb=short \
+          --cov=backend \
+          --cov-report=html \
+          --cov-report=xml \
+          --cov-report=term \
+          --junit-xml=junit.xml \
+          --html=test-report.html \
+          --self-contained-html
+    
+    - name: Upload coverage reports
+      uses: codecov/codecov-action@v4
+      with:
+        file: ./coverage.xml
+        flags: user_acceptance_tests
+        name: user-acceptance-tests-${{ matrix.python-version }}
+        fail_ci_if_error: false
+    
+    - name: Upload test results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: test-results-${{ matrix.python-version }}
+        path: |
+          junit.xml
+          test-report.html
+          htmlcov/
+    
+    - name: Publish test results
+      uses: EnricoMi/publish-unit-test-result-action@v2
+      if: always()
+      with:
+        files: junit.xml
+        check_name: User Acceptance Tests Results
+    
+    - name: Comment PR with test results
+      if: github.event_name == 'pull_request'
+      uses: py-actions/pytest-github-actions-annotate-failures@v3
+      with:
+        pytest_json_report: pytest-report.json
+
+  lint:
+    name: Code Quality Checks
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+        cache: 'pip'
+    
+    - name: Install linting dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install flake8 pylint black isort mypy
+    
+    - name: Run flake8
+      run: |
+        flake8 tests/user_acceptance/ --max-line-length=120 --extend-ignore=E203,W503
+    
+    - name: Check code formatting with black
+      run: |
+        black --check tests/user_acceptance/
+    
+    - name: Check import sorting with isort
+      run: |
+        isort --check-only tests/user_acceptance/
+
+  security:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+    
+    - name: Install security scanning tools
+      run: |
+        python -m pip install --upgrade pip
+        pip install bandit safety
+    
+    - name: Run Bandit security scan
+      run: |
+        bandit -r tests/user_acceptance/ -f json -o bandit-report.json || true
+    
+    - name: Check dependencies for vulnerabilities
+      run: |
+        safety check --json || true
+    
+    - name: Upload security reports
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: security-reports
+        path: |
+          bandit-report.json
+
