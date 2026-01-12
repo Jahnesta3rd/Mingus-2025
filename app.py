@@ -41,8 +41,16 @@ from backend.api.housing_endpoints import housing_api
 # Import security middleware
 from backend.middleware.security import SecurityMiddleware
 
+# Import CORS logging middleware
+from backend.middleware.cors_logging import setup_cors_logging
+
 # Import SQLAlchemy models and database
 from backend.models.database import init_database
+
+# Import Redis session and cache configuration
+from backend.config.session_config import init_redis_session
+import redis
+from backend.services.query_cache_manager import QueryCacheManager
 
 # Configure logging
 import logging
@@ -67,19 +75,83 @@ CORS_ORIGINS = os.environ.get('CORS_ORIGINS', 'http://localhost:3000,http://loca
 CORS_METHODS = os.environ.get('CORS_METHODS', 'GET,POST,PUT,DELETE,OPTIONS').split(',')
 CORS_HEADERS = os.environ.get('CORS_HEADERS', 'Content-Type,Authorization,X-CSRF-Token,X-Requested-With').split(',')
 
-CORS(app, 
-     origins=CORS_ORIGINS,
-     methods=CORS_METHODS,
-     allow_headers=CORS_HEADERS,
-     supports_credentials=True,
-     expose_headers=['X-CSRF-Token'])
+# Determine if we're in development mode
+is_development = os.environ.get('FLASK_ENV', 'development') == 'development'
+
+# Configure CORS
+# In development, be more permissive for testing and load testing
+if is_development:
+    # Development: Allow all origins for testing (including requests without Origin header)
+    CORS(app, 
+         resources={r"/*": {
+             "origins": "*",
+             "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+             "allow_headers": "*",  # Allow all headers in development
+             "supports_credentials": False,
+             "expose_headers": "*"
+         }},
+         send_wildcard=True,
+         allow_headers="*")  # Explicitly allow all headers
+else:
+    # Production: Only allow configured origins
+    CORS(app, 
+         origins=CORS_ORIGINS,
+         methods=CORS_METHODS,
+         allow_headers=CORS_HEADERS,
+         supports_credentials=True,
+         expose_headers=['X-CSRF-Token'])
+
+# Set up CORS failure logging
+cors_logging_middleware = setup_cors_logging(app, allowed_origins=CORS_ORIGINS)
+logger.info(f"CORS logging enabled - monitoring {len(CORS_ORIGINS)} allowed origins")
+
+# Initialize Redis-based session storage
+# This will automatically fall back to filesystem if Redis is unavailable
+init_redis_session(app)
+
+# Initialize Redis query cache manager
+try:
+    redis_cache_url = os.environ.get('REDIS_CACHE_URL', 'redis://localhost:6379/1')
+    redis_password = os.environ.get('REDIS_PASSWORD')
+    
+    # Add password to URL if provided
+    if redis_password and '@' not in redis_cache_url:
+        if '://:' in redis_cache_url:
+            redis_cache_url = redis_cache_url.replace('://:', f'://:{redis_password}@')
+        elif 'redis://' in redis_cache_url:
+            redis_cache_url = redis_cache_url.replace('redis://', f'redis://:{redis_password}@')
+    
+    redis_cache_client = redis.from_url(
+        redis_cache_url,
+        decode_responses=True,
+        socket_timeout=2,  # Shorter timeout
+        socket_connect_timeout=2,  # Shorter timeout
+        retry_on_timeout=False,  # Don't retry on timeout
+        health_check_interval=30
+    )
+    
+    # Test connection with short timeout and error handling
+    try:
+        redis_cache_client.ping()
+    except Exception as ping_error:
+        raise ConnectionError(f"Redis ping failed: {ping_error}")
+    
+    # Initialize query cache manager
+    app.query_cache_manager = QueryCacheManager(redis_cache_client, default_ttl=300)
+    logger.info("Redis query cache manager initialized successfully")
+except (redis.ConnectionError, redis.TimeoutError, OSError, ConnectionError, Exception) as e:
+    logger.warning(f"Failed to initialize Redis query cache (will continue without caching): {e}")
+    # Set to None so code can check if cache is available
+    app.query_cache_manager = None
+    # Continue without caching - app will work fine
 
 # Configure rate limiting
 limiter = Limiter(
     app=app,
     key_func=get_remote_address,
     default_limits=[f"{app.config['RATE_LIMIT_PER_MINUTE']} per minute"],
-    storage_uri=os.environ.get('RATE_LIMIT_STORAGE_URL', 'memory://')
+    storage_uri=os.environ.get('RATE_LIMIT_STORAGE_URL', 'memory://'),
+    headers_enabled=True  # Enable rate limit headers (X-RateLimit-*)
 )
 
 # Register API blueprints
@@ -128,12 +200,23 @@ app.register_blueprint(optimal_location_api)
 init_database(app)
 
 # Initialize security middleware
+# Note: Security middleware will skip public endpoints like /health and /api/status
 security_middleware = SecurityMiddleware(app)
 
-# Health check endpoint
-@app.route('/health', methods=['GET'])
+# CORS logging is already initialized above with setup_cors_logging()
+
+# Health check endpoint (bypasses all middleware)
+@app.route('/health', methods=['GET', 'OPTIONS'])
 def health_check():
-    """Health check endpoint for monitoring"""
+    """Health check endpoint for monitoring - public endpoint, no auth required"""
+    # Handle OPTIONS for CORS preflight
+    if request.method == 'OPTIONS':
+        response = jsonify({})
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        response.headers.add('Access-Control-Allow-Methods', 'GET, OPTIONS')
+        response.headers.add('Access-Control-Allow-Headers', '*')
+        return response
+    
     return jsonify({
         'status': 'healthy',
         'timestamp': os.environ.get('TIMESTAMP', 'unknown'),
@@ -141,6 +224,8 @@ def health_check():
         'services': {
             'database': 'connected',
             'sqlalchemy_models': 'active',
+            'redis_sessions': 'active' if app.config.get('SESSION_TYPE') == 'redis' else 'inactive',
+            'query_cache': 'active' if hasattr(app, 'query_cache_manager') and app.query_cache_manager else 'inactive',
             'vehicle_management': 'active',
             'vehicle_management_api': 'active',
             'assessment_api': 'active',
@@ -153,10 +238,18 @@ def health_check():
         }
     })
 
-# API status endpoint
-@app.route('/api/status', methods=['GET'])
+# API status endpoint (public endpoint)
+@app.route('/api/status', methods=['GET', 'OPTIONS'])
 def api_status():
-    """API status endpoint"""
+    """API status endpoint - public endpoint, no auth required"""
+    # Handle OPTIONS for CORS preflight
+    if request.method == 'OPTIONS':
+        response = jsonify({})
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        response.headers.add('Access-Control-Allow-Methods', 'GET, OPTIONS')
+        response.headers.add('Access-Control-Allow-Headers', '*')
+        return response
+    
     return jsonify({
         'status': 'operational',
         'endpoints': {
@@ -301,6 +394,11 @@ def api_status():
             'rate_limiting': 'enabled',
             'input_validation': 'enabled',
             'data_encryption': app.config['DB_ENCRYPTION_ENABLED']
+        },
+        'performance': {
+            'redis_sessions': 'enabled' if app.config.get('SESSION_TYPE') == 'redis' else 'disabled',
+            'query_caching': 'enabled' if hasattr(app, 'query_cache_manager') and app.query_cache_manager else 'disabled',
+            'cache_stats': app.query_cache_manager.get_stats() if hasattr(app, 'query_cache_manager') and app.query_cache_manager else None
         }
     })
 
@@ -317,11 +415,20 @@ def not_found(error):
 @app.errorhandler(429)
 def rate_limit_exceeded(error):
     """Handle rate limit exceeded errors"""
-    return jsonify({
+    # Get retry-after from error if available, default to 60 seconds
+    retry_after = getattr(error, 'retry_after', 60)
+    
+    response = jsonify({
         'error': 'Rate Limit Exceeded',
         'message': 'Too many requests. Please try again later.',
-        'status_code': 429
-    }), 429
+        'status_code': 429,
+        'retry_after': retry_after
+    })
+    
+    # Add Retry-After header
+    response.headers['Retry-After'] = str(retry_after)
+    
+    return response, 429
 
 @app.errorhandler(500)
 def internal_error(error):
@@ -359,7 +466,9 @@ if __name__ == '__main__':
     
     # Get configuration from environment
     host = os.environ.get('FLASK_HOST', '0.0.0.0')
-    port = int(os.environ.get('FLASK_PORT', '5000'))
+    # Use 5001 if 5000 is occupied (common on macOS due to AirPlay)
+    default_port = 5001 if os.path.exists('/System/Library/CoreServices/AirPlayXPCHelper') else 5000
+    port = int(os.environ.get('FLASK_PORT', str(default_port)))
     debug = os.environ.get('FLASK_ENV', 'development') == 'development'
     
     logger.info(f"Starting Mingus Personal Finance App on {host}:{port}")

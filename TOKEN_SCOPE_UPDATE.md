@@ -19,7 +19,7 @@ You need to update your Personal Access Token to include the `workflow` scope.
 2. Click your profile picture → **Settings**
 3. Scroll down to **Developer settings** (bottom left)
 4. Click **Personal access tokens** → **Tokens (classic)**
-5. Find your token (the one starting with `ghp_... (redacted for security)`)
+5. Find your token (the one starting with `ghp_...` - redacted for security)
 6. Click **Edit** (or regenerate if edit isn't available)
 7. **Add the `workflow` scope:**
    - ✅ **repo** (Full control of private repositories) - Already selected

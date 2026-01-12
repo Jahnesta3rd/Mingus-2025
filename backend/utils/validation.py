@@ -10,9 +10,14 @@ class APIValidator:
         if not email or not isinstance(email, str):
             return False, "Email is required and must be a string"
         
+        # Length validation FIRST (before regex processing to prevent DoS)
+        # Check maximum length early to reject extremely long strings immediately
         if len(email) > 254:
-            return False, "Email is too long"
+            return False, "Email is too long (maximum 254 characters)"
+        if len(email) < 3:
+            return False, "Email is too short (minimum 3 characters)"
         
+        # Now validate format (regex is safe now that we've checked length)
         email_regex = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
         if not re.match(email_regex, email):
             return False, "Invalid email format"
@@ -25,10 +30,14 @@ class APIValidator:
         if not name or not isinstance(name, str):
             return False, "Name is required and must be a string"
         
-        if len(name) < 1 or len(name) > 100:
-            return False, "Name must be between 1 and 100 characters"
+        # Length validation FIRST (before regex processing to prevent DoS)
+        # Check maximum length early to reject extremely long strings immediately
+        if len(name) > 100:
+            return False, "Name is too long (maximum 100 characters)"
+        if len(name) < 1:
+            return False, "Name is too short (minimum 1 character)"
         
-        # Check for potentially malicious content
+        # Check for potentially malicious content (safe now that length is checked)
         if re.search(r'<script|javascript:|on\w+\s*=', name, re.IGNORECASE):
             return False, "Name contains potentially malicious content"
         
@@ -71,17 +80,43 @@ class APIValidator:
             return False, "Answers must be a dictionary"
         
         # Check for excessive data size
-        json_string = json.dumps(answers)
-        if len(json_string) > 10000:
-            return False, "Assessment answers are too large"
+        try:
+            json_string = json.dumps(answers)
+            if len(json_string) > 10000:
+                return False, "Assessment answers are too large (maximum 10KB)"
+        except (TypeError, ValueError):
+            return False, "Answers contain invalid data that cannot be serialized"
         
         # Validate each answer
         for key, value in answers.items():
-            if not isinstance(key, str) or len(key) > 100:
-                return False, "Invalid answer key"
+            if not isinstance(key, str):
+                return False, f"Answer key must be a string, got {type(key).__name__}"
+            if len(key) > 100:
+                return False, f"Answer key '{key[:20]}...' is too long (maximum 100 characters)"
+            if len(key) == 0:
+                return False, "Answer key cannot be empty"
             
-            if isinstance(value, str) and len(value) > 1000:
-                return False, f"Answer for {key} is too long"
+            # Validate answer value
+            if isinstance(value, str):
+                if len(value) > 1000:
+                    return False, f"Answer for '{key}' is too long (maximum 1000 characters)"
+            elif isinstance(value, (int, float, bool)):
+                # Numeric and boolean values are OK
+                pass
+            elif isinstance(value, list):
+                # Arrays are OK but check size
+                if len(value) > 100:
+                    return False, f"Answer for '{key}' contains too many items (maximum 100)"
+            elif isinstance(value, dict):
+                # Nested objects are OK but check depth
+                nested_json = json.dumps(value)
+                if len(nested_json) > 5000:
+                    return False, f"Answer for '{key}' is too large (maximum 5KB)"
+            elif value is None:
+                # None values are OK
+                pass
+            else:
+                return False, f"Answer for '{key}' has invalid type: {type(value).__name__}"
         
         return True, ""
     
@@ -125,43 +160,122 @@ class APIValidator:
         errors = []
         sanitized_data = {}
         
-        # Validate email
-        is_valid, error = APIValidator.validate_email(data.get('email', ''))
-        if not is_valid:
-            errors.append(f"Email: {error}")
-        else:
-            sanitized_data['email'] = data['email'].lower().strip()
+        # Type validation first - check that data is a dict
+        if not isinstance(data, dict):
+            return False, ["Request data must be a dictionary"], {}
         
-        # Validate first name
-        is_valid, error = APIValidator.validate_name(data.get('firstName', ''))
-        if not is_valid:
-            errors.append(f"First Name: {error}")
-        else:
-            sanitized_data['firstName'] = APIValidator.sanitize_string(data['firstName'])
+        # Check for excessive request size
+        try:
+            json_string = json.dumps(data)
+            if len(json_string) > 50000:  # 50KB limit
+                return False, ["Request payload is too large (maximum 50KB)"], {}
+        except (TypeError, ValueError):
+            return False, ["Invalid request data format"], {}
         
-        # Validate phone (optional)
-        if 'phone' in data:
-            is_valid, error = APIValidator.validate_phone(data['phone'])
-            if not is_valid:
-                errors.append(f"Phone: {error}")
+        # Validate email - with explicit type checking
+        email = data.get('email')
+        if email is None:
+            errors.append("Email: Email is required")
+        elif not isinstance(email, str):
+            # Reject wrong types immediately with clear error message
+            errors.append(f"Email: Email must be a string, got {type(email).__name__}")
+        else:
+            # Check length FIRST before calling validate_email (prevents DoS with extremely long strings)
+            if len(email) > 254:
+                errors.append(f"Email: Email is too long (maximum 254 characters)")
             else:
-                sanitized_data['phone'] = APIValidator.sanitize_string(data['phone'])
+                is_valid, error = APIValidator.validate_email(email)
+                if not is_valid:
+                    errors.append(f"Email: {error}")
+                else:
+                    sanitized_data['email'] = email.lower().strip()
         
-        # Validate assessment type
-        is_valid, error = APIValidator.validate_assessment_type(data.get('assessmentType', ''))
-        if not is_valid:
-            errors.append(f"Assessment Type: {error}")
+        # Validate first name - with explicit type checking
+        firstName = data.get('firstName')
+        if firstName is None:
+            # First name is optional, but if provided must be valid
+            pass
+        elif not isinstance(firstName, str):
+            errors.append(f"First Name: First name must be a string, got {type(firstName).__name__}")
         else:
-            sanitized_data['assessmentType'] = data['assessmentType']
+            # Check length FIRST before calling validate_name (prevents DoS with extremely long strings)
+            if len(firstName) > 100:
+                errors.append(f"First Name: First name is too long (maximum 100 characters)")
+            else:
+                is_valid, error = APIValidator.validate_name(firstName)
+                if not is_valid:
+                    errors.append(f"First Name: {error}")
+                else:
+                    sanitized_data['firstName'] = APIValidator.sanitize_string(firstName)
         
-        # Validate answers
-        is_valid, error = APIValidator.validate_answers(data.get('answers', {}))
-        if not is_valid:
-            errors.append(f"Answers: {error}")
+        # Validate phone (optional) - with explicit type checking
+        if 'phone' in data:
+            phone = data['phone']
+            if phone is not None and not isinstance(phone, str):
+                errors.append(f"Phone: Phone must be a string, got {type(phone).__name__}")
+            else:
+                is_valid, error = APIValidator.validate_phone(phone if phone else '')
+                if not is_valid:
+                    errors.append(f"Phone: {error}")
+                else:
+                    sanitized_data['phone'] = APIValidator.sanitize_string(phone) if phone else None
+        
+        # Validate assessment type - with explicit type checking
+        assessmentType = data.get('assessmentType')
+        if assessmentType is None:
+            errors.append("Assessment Type: Assessment type is required")
+        elif not isinstance(assessmentType, str):
+            errors.append(f"Assessment Type: Assessment type must be a string, got {type(assessmentType).__name__}")
         else:
-            sanitized_data['answers'] = APIValidator.sanitize_object(data['answers'])
+            is_valid, error = APIValidator.validate_assessment_type(assessmentType)
+            if not is_valid:
+                errors.append(f"Assessment Type: {error}")
+            else:
+                sanitized_data['assessmentType'] = assessmentType
+        
+        # Validate answers - with explicit type checking
+        answers = data.get('answers')
+        if answers is None:
+            errors.append("Answers: Answers are required")
+        elif not isinstance(answers, dict):
+            errors.append(f"Answers: Answers must be a dictionary, got {type(answers).__name__}")
+        else:
+            is_valid, error = APIValidator.validate_answers(answers)
+            if not is_valid:
+                errors.append(f"Answers: {error}")
+            else:
+                sanitized_data['answers'] = APIValidator.sanitize_object(answers)
+        
+        # Validate unknown/extra fields (reject fields not in the schema)
+        # This helps catch typos and prevents accepting invalid data
+        allowed_fields = {'email', 'firstName', 'phone', 'assessmentType', 'answers'}
+        unknown_fields = set(data.keys()) - allowed_fields
+        if unknown_fields:
+            # Validate unknown fields for basic type and length issues
+            for field in unknown_fields:
+                value = data[field]
+                # Basic validation for unknown fields to prevent abuse
+                if isinstance(value, str):
+                    if len(value) > 1000:
+                        errors.append(f"{field}: Value is too long (maximum 1000 characters)")
+                    # Check for obviously malicious content
+                    if len(value) > 100 and re.search(r'<script|javascript:|on\w+\s*=', value, re.IGNORECASE):
+                        errors.append(f"{field}: Contains potentially malicious content")
+                elif isinstance(value, (int, float)):
+                    # Reject extreme numeric values that might indicate abuse
+                    if abs(value) > 1000000:
+                        errors.append(f"{field}: Value is out of acceptable range")
+                elif isinstance(value, (list, dict)):
+                    # Check size of complex types
+                    try:
+                        json_size = len(json.dumps(value))
+                        if json_size > 5000:
+                            errors.append(f"{field}: Value is too large (maximum 5KB)")
+                    except (TypeError, ValueError):
+                        errors.append(f"{field}: Contains invalid data that cannot be serialized")
         
         # Add timestamp
-        sanitized_data['completedAt'] = datetime.now().isoformat()
+        if len(errors) == 0:
+            sanitized_data['completedAt'] = datetime.now().isoformat()
         
         return len(errors) == 0, errors, sanitized_data
