@@ -172,7 +172,7 @@ const DailyOutlook: React.FC<DailyOutlookProps> = ({
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to load daily outlook';
       setError(errorMessage);
-      await trackError('daily_outlook_fetch_error', errorMessage);
+      await trackError(err instanceof Error ? err : new Error(errorMessage), { context: 'daily_outlook_fetch_error' });
     } finally {
       setLoading(false);
     }
@@ -221,7 +221,7 @@ const DailyOutlook: React.FC<DailyOutlookProps> = ({
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to update action';
       setError(errorMessage);
-      await trackError('action_toggle_error', errorMessage);
+      await trackError(err instanceof Error ? err : new Error(errorMessage), { context: 'action_toggle_error' });
     }
   }, [trackInteraction, trackError]);
 
@@ -250,7 +250,7 @@ const DailyOutlook: React.FC<DailyOutlookProps> = ({
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to submit rating';
       setError(errorMessage);
-      await trackError('rating_submit_error', errorMessage);
+      await trackError(err instanceof Error ? err : new Error(errorMessage), { context: 'rating_submit_error' });
     }
   }, [trackInteraction, trackError]);
 
@@ -275,7 +275,7 @@ const DailyOutlook: React.FC<DailyOutlookProps> = ({
       });
 
     } catch (err) {
-      await trackError('share_error', err instanceof Error ? err.message : 'Share failed');
+      await trackError(err instanceof Error ? err : new Error('Share failed'), { context: 'share_error' });
     }
   }, [outlookData, trackInteraction, trackError]);
 

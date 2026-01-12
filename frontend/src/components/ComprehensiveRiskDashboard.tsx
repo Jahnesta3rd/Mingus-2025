@@ -436,7 +436,7 @@ const ComprehensiveRiskDashboard: React.FC<ComprehensiveRiskDashboardProps> = ({
               control={
                 <Switch
                   checked={autoRefresh}
-                  onChange={(e) => setAutoRefresh(e.target.checked)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAutoRefresh(e.target.checked)}
                 />
               }
               label="Auto Refresh"
@@ -447,7 +447,7 @@ const ComprehensiveRiskDashboard: React.FC<ComprehensiveRiskDashboardProps> = ({
               <Select
                 value={refreshInterval}
                 label="Refresh Interval"
-                onChange={(e) => setRefreshInterval(Number(e.target.value))}
+                onChange={(e: React.ChangeEvent<{ value: unknown }>) => setRefreshInterval(Number(e.target.value))}
                 disabled={!autoRefresh}
               >
                 <MenuItem value={30000}>30 seconds</MenuItem>

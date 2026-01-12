@@ -399,10 +399,15 @@ const CommuteCostCalculator: React.FC<CommuteCostCalculatorProps> = ({
     }
   };
 
-  const loadScenario = (scenario: CommuteScenario) => {
+  const loadScenario = async (scenario: CommuteScenario) => {
     setJobLocation(scenario.jobLocation.address);
     setHomeLocation(scenario.homeLocation.address);
-    setSelectedVehicle(scenario.vehicle);
+    // Convert scenario vehicle to full Vehicle type with defaults
+    setSelectedVehicle({
+      ...scenario.vehicle,
+      currentMileage: 0,
+      monthlyMiles: 0
+    });
     onLoadScenario(scenario.id);
     await trackInteraction('scenario_loaded', { scenario_id: scenario.id });
   };

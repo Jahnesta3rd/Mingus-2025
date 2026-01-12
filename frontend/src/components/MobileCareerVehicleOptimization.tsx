@@ -18,7 +18,7 @@ import {
   Wrench,
   Shield,
   ParkingCircle,
-  Route,
+  Navigation,
   ChevronDown,
   ChevronUp,
   Smartphone

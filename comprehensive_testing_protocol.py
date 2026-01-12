@@ -497,13 +497,21 @@ class ComprehensiveTester:
             
             is_active = result.returncode == 0 and result.stdout.strip() == 'active'
             
-            # Check nginx configuration
+            # Check nginx configuration (try with sudo first, then without)
             config_result = subprocess.run(
-                ['nginx', '-t'],
+                ['sudo', 'nginx', '-t'],
                 capture_output=True,
                 text=True,
                 timeout=5
             )
+            # If sudo fails, try without sudo
+            if config_result.returncode != 0:
+                config_result = subprocess.run(
+                    ['nginx', '-t'],
+                    capture_output=True,
+                    text=True,
+                    timeout=5
+                )
             
             config_valid = config_result.returncode == 0
             

@@ -45,7 +45,7 @@ import {
   TrendingDown,
   Refresh,
   Download,
-  Compare,
+  GitCompare,
   Assessment,
   Insights,
   Warning,
@@ -284,7 +284,7 @@ const VehicleAnalyticsDashboard: React.FC<VehicleAnalyticsDashboardProps> = ({
     { label: 'Maintenance', icon: <Build />, available: features.showBasicAnalytics },
     { label: 'Fuel Efficiency', icon: <LocalGasStation />, available: features.showBasicAnalytics },
     { label: 'Cost Analysis', icon: <AttachMoney />, available: features.showAdvancedAnalytics },
-    { label: 'Peer Comparison', icon: <Compare />, available: features.showPeerComparison },
+    { label: 'Peer Comparison', icon: <GitCompare />, available: features.showPeerComparison },
     { label: 'ROI Analysis', icon: <Assessment />, available: features.showROIAnalysis }
   ].filter(tab => tab.available);
 

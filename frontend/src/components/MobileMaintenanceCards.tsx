@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { 
   ChevronLeft, 
   ChevronRight, 
-  Swipe, 
+  MoveHorizontal, 
   Car, 
   DollarSign, 
   Calendar, 
@@ -204,7 +204,7 @@ const MobileMaintenanceCards: React.FC<MobileMaintenanceCardsProps> = ({
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-3">
             <div className="p-2 bg-violet-600/20 rounded-lg">
-              <Swipe className="w-5 h-5 text-violet-400" />
+              <MoveHorizontal className="w-5 h-5 text-violet-400" />
             </div>
             <div>
               <h2 className="text-lg font-semibold text-white">Maintenance Services</h2>
@@ -373,7 +373,7 @@ const MobileMaintenanceCards: React.FC<MobileMaintenanceCardsProps> = ({
         {/* Swipe Instructions */}
         <div className="mt-4 text-center">
           <div className="flex items-center justify-center space-x-2 text-gray-400 text-sm">
-            <Swipe className="w-4 h-4" />
+            <MoveHorizontal className="w-4 h-4" />
             <span>Swipe left or right to browse services</span>
           </div>
         </div>

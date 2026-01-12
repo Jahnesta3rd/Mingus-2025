@@ -782,7 +782,9 @@ const AssessmentModal: React.FC<AssessmentModalProps> = ({
     return {
       score: baseScore,
       risk_level: riskLevel,
-      recommendations: assessmentType ? recommendations[assessmentType] : recommendations['ai-risk'],
+      recommendations: assessmentType && assessmentType in recommendations 
+        ? recommendations[assessmentType as AssessmentType] 
+        : recommendations['ai-risk'],
       assessment_type: assessmentType,
       completed_at: new Date().toISOString(),
       percentile: Math.floor(Math.random() * 40) + 30,

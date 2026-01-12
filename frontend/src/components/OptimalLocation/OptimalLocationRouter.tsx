@@ -6,7 +6,7 @@ import {
   BarChart3, 
   Settings, 
   Search, 
-  Compare, 
+  GitCompare, 
   TrendingUp,
   AlertTriangle,
   RefreshCw,
@@ -284,7 +284,7 @@ const OptimalLocationRouter: React.FC<OptimalLocationRouterProps> = ({ className
   // HOUSING SEARCH
   // ========================================
 
-  const handleSearchSubmit = useCallback(async (searchData: Partial<HousingSearchState['housingSearch']>) => {
+  const handleSearchSubmit = useCallback(async (searchData: Partial<HousingSearchState>) => {
     if (!userTier?.features.showBasicSearch) {
       await trackInteraction('feature_restricted', {
         feature: 'housing_search',
@@ -516,7 +516,7 @@ const OptimalLocationRouter: React.FC<OptimalLocationRouterProps> = ({ className
             <nav className="flex space-x-8" role="tablist">
               {[
                 { id: 'search', label: 'Housing Search', icon: Search, enabled: userTier.features.showBasicSearch },
-                { id: 'scenarios', label: 'Scenarios', icon: Compare, enabled: userTier.features.showScenarioPlanning },
+                { id: 'scenarios', label: 'Scenarios', icon: GitCompare, enabled: userTier.features.showScenarioPlanning },
                 { id: 'results', label: 'Results', icon: BarChart3, enabled: true },
                 { id: 'preferences', label: 'Preferences', icon: Settings, enabled: true }
               ].map((tab) => {

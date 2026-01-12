@@ -48,7 +48,7 @@ import {
   TrendingDown,
   Refresh,
   Download,
-  Compare,
+  GitCompare,
   Assessment,
   Insights,
   Warning,
@@ -300,7 +300,7 @@ const ProfessionalVehicleAnalytics: React.FC<ProfessionalVehicleAnalyticsProps> 
     { label: 'Cost Analysis', icon: <AttachMoney /> },
     { label: 'Fleet Management', icon: <DirectionsCar /> },
     { label: 'Tax Optimization', icon: <AccountBalance /> },
-    { label: 'Peer Benchmarking', icon: <Compare /> },
+    { label: 'Peer Benchmarking', icon: <GitCompare /> },
     { label: 'ROI & Strategy', icon: <Assessment /> },
     { label: 'Compliance', icon: <CheckCircle /> }
   ];

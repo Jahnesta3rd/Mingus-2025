@@ -19,7 +19,7 @@ import {
   Wrench,
   Shield,
   ParkingCircle,
-  Route
+  Navigation
 } from 'lucide-react';
 import { useAnalytics } from '../hooks/useAnalytics';
 

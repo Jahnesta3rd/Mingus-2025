@@ -129,3 +129,7 @@ requirements_*.txt
 *_VALIDATION_REPORT.md
 *_VALIDATION_SUMMARY.md
 *_TESTING_SUMMARY.md
+
+# Database credentials - DO NOT COMMIT
+DATABASE_CREDENTIALS_SECURE.md
+node_modules
