@@ -1,0 +1,14 @@
+# Testing Protocol Dependencies
+# Install with: pip install -r test_requirements.txt
+
+# HTTP requests for API testing
+requests>=2.31.0
+
+# PostgreSQL database adapter
+psycopg2-binary>=2.9.9
+
+# Redis client
+redis>=5.0.0
+
+# STRIPE API client
+stripe>=7.0.0
