@@ -3,8 +3,7 @@
  * Comprehensive frontend optimization for Daily Outlook system
  */
 
-import { lazy, Suspense, ComponentType } from 'react';
-import { createRoot } from 'react-dom/client';
+import React, { lazy, Suspense, ComponentType } from 'react';
 
 // Service Worker Registration
 class ServiceWorkerManager {
@@ -99,7 +98,7 @@ class ProgressiveLoadingManager {
 class ImageOptimizationManager {
   private static instance: ImageOptimizationManager;
   private imageCache = new Map<string, string>();
-  private lazyImages = new Set<HTMLImageElement>();
+  private _lazyImages = new Set<HTMLImageElement>(); // Reserved for future use
 
   static getInstance(): ImageOptimizationManager {
     if (!ImageOptimizationManager.instance) {
@@ -180,7 +179,7 @@ class ImageOptimizationManager {
 // Component Lazy Loading Manager
 class LazyLoadingManager {
   private static instance: LazyLoadingManager;
-  private componentCache = new Map<string, ComponentType<any>>();
+  private _componentCache = new Map<string, ComponentType<any>>(); // Reserved for future use
 
   static getInstance(): LazyLoadingManager {
     if (!LazyLoadingManager.instance) {
@@ -192,14 +191,18 @@ class LazyLoadingManager {
   createLazyComponent<T extends ComponentType<any>>(
     importFunc: () => Promise<{ default: T }>,
     fallback?: ComponentType
-  ): ComponentType<T> {
+  ): ComponentType<any> {
     const LazyComponent = lazy(importFunc);
     
-    return (props: any) => (
-      <Suspense fallback={fallback ? <fallback /> : <div>Loading...</div>}>
-        <LazyComponent {...props} />
-      </Suspense>
-    );
+    const FallbackComponent = fallback || (() => React.createElement('div', null, 'Loading...'));
+    
+    return (props: any) => {
+      return React.createElement(
+        Suspense,
+        { fallback: React.createElement(FallbackComponent) },
+        React.createElement(LazyComponent, props)
+      );
+    };
   }
 
   preloadComponent(importFunc: () => Promise<any>): void {
@@ -359,15 +362,16 @@ class BundleOptimizationManager {
 
   optimizeBundleSplitting(): void {
     // Dynamic imports for route-based code splitting
-    const routeChunks = {
-      '/dashboard': () => import('../pages/Dashboard'),
-      '/daily-outlook': () => import('../pages/DailyOutlook'),
-      '/analytics': () => import('../pages/Analytics'),
-      '/settings': () => import('../pages/Settings')
-    };
+    // TODO: Uncomment when pages are created
+    // const routeChunks = {
+    //   '/dashboard': () => import('../pages/Dashboard'),
+    //   '/daily-outlook': () => import('../pages/DailyOutlook'),
+    //   '/analytics': () => import('../pages/Analytics'),
+    //   '/settings': () => import('../pages/Settings')
+    // };
 
     // Preload chunks based on user navigation patterns
-    this.preloadCriticalChunks(['dashboard', 'daily-outlook']);
+    // this.preloadCriticalChunks(['dashboard', 'daily-outlook']);
   }
 }
 

@@ -327,24 +327,26 @@ class NotificationService {
   }
 
   private showLocalNotification(notification: Omit<DailyOutlookNotification, 'id' | 'isDelivered' | 'deliveredAt'>): void {
-    const notificationOptions: NotificationOptions = {
+    const notificationOptions: NotificationOptions & { actions?: any[], data?: any } = {
       body: notification.message,
       icon: '/icons/icon-192x192.png',
       badge: '/icons/badge-72x72.png',
       tag: 'daily-outlook',
       requireInteraction: true,
-      actions: notification.actionButtons ? [
-        {
-          action: 'view',
-          title: 'View Outlook',
-          icon: '/icons/view-icon.png'
-        },
-        {
-          action: 'dismiss',
-          title: 'Dismiss',
-          icon: '/icons/dismiss-icon.png'
-        }
-      ] : undefined,
+      ...((notification as any).actionButtons ? {
+        actions: [
+          {
+            action: 'view',
+            title: 'View Outlook',
+            icon: '/icons/view-icon.png'
+          },
+          {
+            action: 'dismiss',
+            title: 'Dismiss',
+            icon: '/icons/dismiss-icon.png'
+          }
+        ]
+      } : {}),
       data: {
         url: notification.actionUrl,
         notificationId: `local-${Date.now()}`
@@ -355,7 +357,7 @@ class NotificationService {
 
     browserNotification.onclick = () => {
       this.trackNotificationInteraction(
-        notification.data?.notificationId || 'unknown',
+        (notification as any).data?.notificationId || 'unknown',
         'clicked'
       );
       window.focus();

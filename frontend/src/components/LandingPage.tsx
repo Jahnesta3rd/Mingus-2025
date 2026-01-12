@@ -617,9 +617,6 @@ const LandingPage: React.FC = () => {
       
       {/* Value Proposition Section */}
       <section className="relative py-20 px-4 sm:px-6 lg:px-8 overflow-hidden" role="region" aria-label="Value proposition and success stories">
-
-      {/* Value Proposition Section */}
-      <section className="relative py-20 px-4 sm:px-6 lg:px-8 overflow-hidden" role="region" aria-label="Value proposition and success stories">
         {/* Violet Gradient Background Overlay */}
         <div className="absolute inset-0 bg-gradient-to-br from-violet-900/90 via-purple-900/80 to-violet-800/90"></div>
         
