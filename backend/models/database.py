@@ -35,7 +35,19 @@ def init_database(app: Flask):
     
     # Create all tables
     with app.app_context():
-        db.create_all()
+        try:
+            db.create_all()
+        except Exception as e:
+            # Handle duplicate table/index errors gracefully
+            error_str = str(e).lower()
+            if 'duplicate' in error_str or 'already exists' in error_str:
+                # These are expected in production - tables/indexes already exist
+                import logging
+                logger = logging.getLogger(__name__)
+                logger.warning(f"Some database objects already exist (this is normal): {e}")
+            else:
+                # Re-raise unexpected errors
+                raise
     
     return db
 
