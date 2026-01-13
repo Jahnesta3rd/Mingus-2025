@@ -1,0 +1,58 @@
+[Unit]
+Description=Mingus Application Backend API
+After=network.target postgresql.service redis.service
+Wants=postgresql.service redis.service
+
+[Service]
+Type=notify
+User=mingus-app
+Group=mingus-app
+WorkingDirectory=/var/www/mingus-app
+Environment="PATH=/var/www/mingus-app/venv/bin"
+Environment="FLASK_ENV=production"
+EnvironmentFile=/var/www/mingus-app/.env.production
+
+# Gunicorn configuration
+ExecStart=/var/www/mingus-app/venv/bin/gunicorn \
+    --config /var/www/mingus-app/gunicorn_config.py \
+    --bind 0.0.0.0:5001 \
+    --workers 4 \
+    --worker-class sync \
+    --timeout 30 \
+    --graceful-timeout 30 \
+    --max-requests 1000 \
+    --max-requests-jitter 50 \
+    --access-logfile /var/log/mingus-app/backend-access.log \
+    --error-logfile /var/log/mingus-app/backend-error.log \
+    --log-level info \
+    --preload \
+    app:app
+
+# Restart configuration - Enhanced failure handling
+Restart=always
+RestartSec=10
+StartLimitInterval=300
+StartLimitBurst=5
+StartLimitAction=none
+
+# Restart on specific exit codes
+RestartPreventExitStatus=1
+SuccessExitStatus=0
+
+# Watchdog configuration (if supported)
+# WatchdogSec=30
+# NotifyAccess=all
+
+# Security settings
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/www/mingus-app /var/log/mingus-app /tmp
+
+# Resource limits
+LimitNOFILE=65536
+LimitNPROC=4096
+
+[Install]
+WantedBy=multi-user.target

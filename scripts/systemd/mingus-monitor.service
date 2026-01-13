@@ -1,0 +1,29 @@
+[Unit]
+Description=Mingus Application Service Monitor
+After=network.target mingus-backend.service mingus-frontend.service
+Wants=mingus-backend.service mingus-frontend.service
+
+[Service]
+Type=simple
+User=mingus-app
+Group=mingus-app
+WorkingDirectory=/var/www/mingus-app
+Environment="PATH=/usr/local/bin:/usr/bin:/bin"
+EnvironmentFile=/var/www/mingus-app/.env.production
+
+# Run monitoring script in daemon mode
+ExecStart=/var/www/mingus-app/scripts/monitor_services.sh --daemon --interval 30
+
+# Restart configuration
+Restart=always
+RestartSec=10
+StartLimitInterval=60
+StartLimitBurst=3
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=mingus-monitor
+
+[Install]
+WantedBy=multi-user.target

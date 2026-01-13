@@ -76,8 +76,12 @@ class APIValidator:
     @staticmethod
     def validate_answers(answers: Dict[str, Any]) -> tuple[bool, str]:
         """Validate assessment answers"""
-        if not answers or not isinstance(answers, dict):
+        if not isinstance(answers, dict):
             return False, "Answers must be a dictionary"
+        
+        # Empty dictionary is valid
+        if len(answers) == 0:
+            return True, ""
         
         # Check for excessive data size
         try:

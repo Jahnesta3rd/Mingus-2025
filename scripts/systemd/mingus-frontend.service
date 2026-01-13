@@ -1,0 +1,41 @@
+[Unit]
+Description=Mingus Application Frontend
+After=network.target
+Requires=network.target
+
+[Service]
+Type=simple
+User=mingus-app
+Group=mingus-app
+WorkingDirectory=/var/www/mingus-app/frontend
+Environment="NODE_ENV=production"
+Environment="PORT=3000"
+
+# Serve built frontend with a simple HTTP server
+# For production, you might want to use nginx to serve static files
+# or use a Node.js server like serve or http-server
+ExecStart=/usr/bin/npx serve -s dist -l 3000
+
+# Alternative: Use nginx to serve static files (recommended)
+# Comment out ExecStart above and configure nginx instead
+
+# Restart configuration - Enhanced failure handling
+Restart=always
+RestartSec=10
+StartLimitInterval=300
+StartLimitBurst=5
+StartLimitAction=none
+
+# Restart on specific exit codes
+RestartPreventExitStatus=1
+SuccessExitStatus=0
+
+# Security settings
+NoNewPrivileges=true
+PrivateTmp=true
+
+# Resource limits
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
