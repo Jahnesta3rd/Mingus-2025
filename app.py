@@ -6,7 +6,11 @@ Integrated Flask application with all API endpoints and security features
 
 import os
 import sys
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request, g, render_template
+from functools import wraps
+import time
+import threading
+from datetime import datetime
 from flask_cors import CORS
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
@@ -52,6 +56,19 @@ from backend.config.session_config import init_redis_session
 import redis
 from backend.services.query_cache_manager import QueryCacheManager
 
+# Import system monitoring
+from backend.monitoring.system_monitor import SystemResourceMonitor
+
+# Import error monitoring
+from backend.monitoring.error_monitor import (
+    get_error_monitor,
+    ErrorSeverity,
+    ErrorCategory
+)
+
+# Import dashboard API
+from backend.api.dashboard_endpoints import dashboard_api, init_dashboard
+
 # Configure logging
 import logging
 logging.basicConfig(level=logging.INFO)
@@ -67,7 +84,19 @@ app.config.update(
     ENCRYPTION_KEY=os.environ.get('ENCRYPTION_KEY', 'your-encryption-key'),
     RATE_LIMIT_PER_MINUTE=int(os.environ.get('RATE_LIMIT_PER_MINUTE', '100')),
     DB_ENCRYPTION_ENABLED=os.environ.get('DB_ENCRYPTION_ENABLED', 'true').lower() == 'true',
-    LOG_SENSITIVE_DATA=os.environ.get('LOG_SENSITIVE_DATA', 'false').lower() == 'true'
+    LOG_SENSITIVE_DATA=os.environ.get('LOG_SENSITIVE_DATA', 'false').lower() == 'true',
+    # Performance optimizations
+    MAX_CONTENT_LENGTH=int(os.environ.get('MAX_CONTENT_LENGTH', '16777216')),  # 16MB
+    SEND_FILE_MAX_AGE_DEFAULT=int(os.environ.get('SEND_FILE_MAX_AGE_DEFAULT', '31536000')),  # 1 year
+    PERMANENT_SESSION_LIFETIME=int(os.environ.get('PERMANENT_SESSION_LIFETIME', '86400')),  # 24 hours
+    # Database connection pool settings
+    SQLALCHEMY_ENGINE_OPTIONS={
+        'pool_size': int(os.environ.get('DB_POOL_SIZE', '10')),
+        'max_overflow': int(os.environ.get('DB_MAX_OVERFLOW', '20')),
+        'pool_timeout': int(os.environ.get('DB_POOL_TIMEOUT', '30')),
+        'pool_recycle': int(os.environ.get('DB_POOL_RECYCLE', '3600')),
+        'pool_pre_ping': os.environ.get('DB_POOL_PRE_PING', 'true').lower() == 'true'
+    }
 )
 
 # Configure CORS for all endpoints including new assessment endpoints
@@ -107,7 +136,12 @@ logger.info(f"CORS logging enabled - monitoring {len(CORS_ORIGINS)} allowed orig
 
 # Initialize Redis-based session storage
 # This will automatically fall back to filesystem if Redis is unavailable
-init_redis_session(app)
+try:
+    init_redis_session(app)
+    logger.info("Redis session storage initialized successfully")
+except Exception as e:
+    logger.warning(f"Failed to initialize Redis sessions (will continue without Redis): {e}")
+    # Continue without Redis - app will use filesystem sessions
 
 # Initialize Redis query cache manager
 try:
@@ -201,12 +235,143 @@ init_database(app)
 
 # Initialize security middleware
 # Note: Security middleware will skip public endpoints like /health and /api/status
-security_middleware = SecurityMiddleware(app)
+# Register security middleware AFTER CORS to ensure security headers are set after CORS headers
+security_middleware = SecurityMiddleware()
+security_middleware.init_app(app)
+
+# Initialize system resource monitoring
+monitoring_interval = int(os.environ.get('MONITORING_INTERVAL', '10'))
+enable_prometheus = os.environ.get('ENABLE_PROMETHEUS', 'false').lower() == 'true'
+prometheus_port = int(os.environ.get('PROMETHEUS_PORT', '9090'))
+
+system_monitor = SystemResourceMonitor(
+    monitoring_interval=monitoring_interval,
+    enable_prometheus=enable_prometheus,
+    prometheus_port=prometheus_port,
+    alert_thresholds={
+        'cpu_percent': float(os.environ.get('ALERT_CPU_THRESHOLD', '80.0')),
+        'memory_percent': float(os.environ.get('ALERT_MEMORY_THRESHOLD', '85.0')),
+        'disk_percent': float(os.environ.get('ALERT_DISK_THRESHOLD', '90.0')),
+        'error_rate': float(os.environ.get('ALERT_ERROR_RATE_THRESHOLD', '5.0')),
+        'response_time_ms': float(os.environ.get('ALERT_RESPONSE_TIME_THRESHOLD', '1000.0')),
+        'cache_hit_rate': float(os.environ.get('ALERT_CACHE_HIT_RATE_THRESHOLD', '0.70'))
+    }
+)
+system_monitor.start()
+logger.info("System resource monitoring initialized")
+
+# Initialize error monitoring
+error_monitor = get_error_monitor()
+logger.info("Error monitoring initialized")
+
+# Initialize dashboard API
+init_dashboard(system_monitor, error_monitor)
+app.register_blueprint(dashboard_api)
+logger.info("Dashboard API initialized")
+
+# Set up cache metrics integration (if cache manager is available)
+if hasattr(app, 'query_cache_manager') and app.query_cache_manager:
+    def update_cache_metrics():
+        """Update cache metrics in system monitor"""
+        try:
+            stats = app.query_cache_manager.get_stats()
+            system_monitor.update_cache_metrics(
+                hits=stats.get('hits', 0),
+                misses=stats.get('misses', 0)
+            )
+        except Exception as e:
+            logger.debug(f"Error updating cache metrics: {e}")
+    
+    # Schedule cache metrics update (every 30 seconds)
+    def cache_metrics_loop():
+        while True:
+            try:
+                update_cache_metrics()
+                time.sleep(30)
+            except Exception as e:
+                logger.debug(f"Error in cache metrics loop: {e}")
+                time.sleep(30)
+    
+    cache_metrics_thread = threading.Thread(target=cache_metrics_loop, daemon=True)
+    cache_metrics_thread.start()
+    logger.info("Cache metrics integration enabled")
+
+# Request tracking middleware
+@app.before_request
+def track_request_start():
+    """Track request start time"""
+    g.request_start_time = time.time()
+
+@app.after_request
+def track_request_end(response):
+    """Track request metrics and log errors"""
+    if hasattr(g, 'request_start_time'):
+        duration = time.time() - g.request_start_time
+        system_monitor.track_request(
+            method=request.method,
+            endpoint=request.endpoint or request.path,
+            status_code=response.status_code,
+            duration=duration
+        )
+        
+        # Log errors (4xx and 5xx)
+        if response.status_code >= 400:
+            try:
+                error_data = response.get_json() if response.is_json else {}
+                error_message = error_data.get('error', f'HTTP {response.status_code}')
+                
+                # Determine category based on status code
+                if response.status_code == 401:
+                    category = ErrorCategory.AUTHENTICATION
+                elif response.status_code == 403:
+                    category = ErrorCategory.AUTHORIZATION
+                elif response.status_code == 404:
+                    category = ErrorCategory.UNKNOWN  # Don't log 404s as errors
+                    return response
+                elif response.status_code == 422:
+                    category = ErrorCategory.VALIDATION
+                elif response.status_code >= 500:
+                    category = ErrorCategory.SYSTEM
+                else:
+                    category = ErrorCategory.UNKNOWN
+                
+                # Determine severity
+                if response.status_code >= 500:
+                    severity = ErrorSeverity.HIGH
+                elif response.status_code >= 400:
+                    severity = ErrorSeverity.MEDIUM
+                else:
+                    severity = ErrorSeverity.LOW
+                
+                # Create a simple exception for logging
+                class HTTPError(Exception):
+                    pass
+                
+                http_error = HTTPError(error_message)
+                http_error.status_code = response.status_code
+                
+                error_monitor.log_error(
+                    error=http_error,
+                    severity=severity,
+                    category=category,
+                    endpoint=request.endpoint or request.path,
+                    request_method=request.method,
+                    request_path=request.path,
+                    request_ip=request.remote_addr,
+                    request_user_agent=request.headers.get('User-Agent'),
+                    context={'status_code': response.status_code, 'response_data': error_data}
+                )
+            except Exception as e:
+                logger.debug(f"Error logging HTTP error: {e}")
+    
+    return response
 
 # CORS logging is already initialized above with setup_cors_logging()
 
 # Health check endpoint (bypasses all middleware)
+# Note: This endpoint must be exempt from rate limiting
 @app.route('/health', methods=['GET', 'OPTIONS'])
+@limiter.exempt  # Exempt from rate limiting
 def health_check():
     """Health check endpoint for monitoring - public endpoint, no auth required"""
     # Handle OPTIONS for CORS preflight
@@ -217,8 +382,11 @@ def health_check():
         response.headers.add('Access-Control-Allow-Headers', '*')
         return response
     
+    # Get system health from monitor
+    health_status = system_monitor.get_health_status()
+    
     return jsonify({
-        'status': 'healthy',
+        'status': health_status.get('status', 'healthy'),
         'timestamp': os.environ.get('TIMESTAMP', 'unknown'),
         'version': '1.0.0',
         'services': {
@@ -234,8 +402,10 @@ def health_check():
             'job_matching_api': 'active',
             'three_tier_api': 'active',
             'recommendation_engine_api': 'active',
-            'risk_analytics_api': 'active'
-        }
+            'risk_analytics_api': 'active',
+            'monitoring': 'active'
+        },
+        'monitoring': health_status
     })
 
 # API status endpoint (public endpoint)
@@ -433,7 +603,59 @@ def rate_limit_exceeded(error):
 @app.errorhandler(500)
 def internal_error(error):
     """Handle internal server errors"""
+    # Log to error monitor
+    try:
+        error_monitor.log_error(
+            error=error,
+            severity=ErrorSeverity.CRITICAL,
+            category=ErrorCategory.SYSTEM,
+            endpoint=request.endpoint or request.path if request else None,
+            request_method=request.method if request else None,
+            request_path=request.path if request else None,
+            request_ip=request.remote_addr if request else None,
+            request_user_agent=request.headers.get('User-Agent') if request else None
+        )
+    except Exception as e:
+        logger.error(f"Error logging to error monitor: {e}")
+    
     logger.error(f"Internal server error: {error}")
+    return jsonify({
+        'error': 'Internal Server Error',
+        'message': 'An unexpected error occurred',
+        'status_code': 500
+    }), 500
+
+@app.errorhandler(Exception)
+def handle_exception(e):
+    """Handle all unhandled exceptions"""
+    # Log to error monitor
+    try:
+        category = error_monitor.categorize_error(e)
+        severity = error_monitor.determine_severity(e, category)
+        
+        error_monitor.log_error(
+            error=e,
+            severity=severity,
+            category=category,
+            endpoint=request.endpoint or request.path if request else None,
+            request_method=request.method if request else None,
+            request_path=request.path if request else None,
+            request_ip=request.remote_addr if request else None,
+            request_user_agent=request.headers.get('User-Agent') if request else None
+        )
+    except Exception as log_error:
+        logger.error(f"Error logging exception: {log_error}")
+    
+    # Return appropriate response
+    if hasattr(e, 'code') and e.code == 404:
+        return jsonify({
+            'error': 'Not Found',
+            'message': 'The requested resource was not found',
+            'status_code': 404
+        }), 404
+    
+    # For other exceptions, return 500
+    logger.error(f"Unhandled exception: {e}", exc_info=True)
     return jsonify({
         'error': 'Internal Server Error',
         'message': 'An unexpected error occurred',
@@ -459,6 +681,86 @@ def initialize_app():
         logger.error(f"Failed to initialize assessment database: {e}")
     
     logger.info("Application initialization complete")
+
+# Metrics endpoints
+@app.route('/api/metrics', methods=['GET'])
+def get_metrics():
+    """Get detailed system and application metrics"""
+    return jsonify(system_monitor.get_metrics())
+
+@app.route('/api/metrics/health', methods=['GET'])
+def get_health_metrics():
+    """Get system health status"""
+    return jsonify(system_monitor.get_health_status())
+
+@app.route('/api/metrics/recommendations', methods=['GET'])
+def get_recommendations():
+    """Get performance recommendations"""
+    return jsonify({
+        'recommendations': system_monitor.get_recommendations(),
+        'timestamp': time.time()
+    })
+
+# Dashboard route
+@app.route('/dashboard', methods=['GET'])
+def dashboard():
+    """Monitoring dashboard page"""
+    return render_template('monitoring_dashboard.html')
+
+# Error monitoring endpoints
+@app.route('/api/errors/stats', methods=['GET'])
+def get_error_stats():
+    """Get error statistics"""
+    hours = int(request.args.get('hours', 24))
+    return jsonify(error_monitor.get_error_stats(hours=hours))
+
+@app.route('/api/errors', methods=['GET'])
+def get_errors():
+    """Get error list with optional filtering"""
+    severity = request.args.get('severity')
+    category = request.args.get('category')
+    limit = int(request.args.get('limit', 100))
+    
+    errors = error_monitor.get_errors(
+        severity=severity,
+        category=category,
+        limit=limit
+    )
+    
+    return jsonify({
+        'errors': errors,
+        'count': len(errors),
+        'filters': {
+            'severity': severity,
+            'category': category,
+            'limit': limit
+        }
+    })
+
+@app.route('/api/errors/health', methods=['GET'])
+def get_error_health():
+    """Get error monitoring health status"""
+    stats = error_monitor.get_error_stats(hours=1)
+    
+    # Determine health status
+    critical_count = stats['by_severity'].get('critical', 0)
+    high_count = stats['by_severity'].get('high', 0)
+    total_count = stats['total']
+    
+    if critical_count > 0:
+        status = 'critical'
+    elif high_count > 10:
+        status = 'degraded'
+    elif total_count > 50:
+        status = 'warning'
+    else:
+        status = 'healthy'
+    
+    return jsonify({
+        'status': status,
+        'stats': stats,
+        'timestamp': datetime.now().isoformat()
+    })
 
 if __name__ == '__main__':
     # Initialize application

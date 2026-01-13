@@ -17,7 +17,11 @@ class SecurityMiddleware:
             self.init_app(app)
     
     def init_app(self, app: Flask):
-        # Register middleware - use prepend to run before other middleware
+        # Register middleware
+        # before_request runs in registration order
+        # after_request runs in REVERSE registration order (last registered runs first)
+        # We want security headers to be set AFTER CORS, so we register after_request normally
+        # This ensures security headers are set last and won't be overwritten
         app.before_request(self.before_request)
         app.after_request(self.after_request)
     
@@ -28,13 +32,24 @@ class SecurityMiddleware:
             '/api/status',
         ]
         
-        # Skip ALL security checks for public endpoints (including rate limiting for testing)
-        if request.path in public_endpoints:
-            return None
-        
-        # Also skip for OPTIONS requests (CORS preflight)
+        # Also skip for OPTIONS requests (CORS preflight) - do this FIRST
+        # OPTIONS requests should always be allowed for CORS
         if request.method == 'OPTIONS':
             return None
+        
+        # Skip ALL security checks for public endpoints (including rate limiting and CSRF)
+        # Normalize path to handle trailing slashes
+        path = request.path.rstrip('/')
+        
+        # Check exact match first (most common case)
+        if path in public_endpoints or request.path in public_endpoints:
+            return None
+        
+        # Also check if path starts with any public endpoint (for sub-paths)
+        # This handles cases like /health/check or /api/status/detailed
+        for endpoint in public_endpoints:
+            if request.path.startswith(endpoint) or path.startswith(endpoint):
+                return None
         
         # Rate limiting
         client_ip = request.remote_addr
@@ -51,7 +66,11 @@ class SecurityMiddleware:
         
         # Check rate limit
         if len(self.rate_limits[client_ip]) >= self.max_requests:
-            return jsonify({'error': 'Rate limit exceeded'}), 429
+            response = jsonify({'error': 'Rate limit exceeded'})
+            response.status_code = 429
+            # Set security headers on error response
+            self._set_security_headers(response)
+            return response
         
         # Add current request
         self.rate_limits[client_ip].append(current_time)
@@ -69,10 +88,14 @@ class SecurityMiddleware:
             
             csrf_token = request.headers.get('X-CSRF-Token')
             if not self.validate_csrf_token(csrf_token):
-                return jsonify({'error': 'Invalid CSRF token'}), 403
+                response = jsonify({'error': 'Invalid CSRF token'})
+                response.status_code = 403
+                # Set security headers on error response
+                self._set_security_headers(response)
+                return response
     
-    def after_request(self, response):
-        # Security headers
+    def _set_security_headers(self, response):
+        """Helper method to set security headers on a response"""
         response.headers['X-Content-Type-Options'] = 'nosniff'
         response.headers['X-Frame-Options'] = 'DENY'
         response.headers['X-XSS-Protection'] = '1; mode=block'
@@ -90,7 +113,11 @@ class SecurityMiddleware:
             "frame-ancestors 'none';"
         )
         response.headers['Content-Security-Policy'] = csp
-        
+    
+    def after_request(self, response):
+        # Security headers - ALWAYS set these headers on ALL responses
+        # Use helper method to ensure consistency
+        self._set_security_headers(response)
         return response
     
     def validate_csrf_token(self, token: str) -> bool:
