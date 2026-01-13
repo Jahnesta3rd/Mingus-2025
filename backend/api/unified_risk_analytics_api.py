@@ -75,7 +75,12 @@ class RiskAnalyticsAPI:
         self.ab_testing = RiskABTestFramework(db_path)
         self.predictive_analytics = RiskPredictiveAnalytics(db_path)
         self.success_dashboard = RiskSuccessDashboard(db_path)
-        self.performance_monitor = RiskPerformanceMonitor(db_path)
+        # RiskPerformanceMonitor doesn't take db_path parameter on server
+        try:
+            self.performance_monitor = RiskPerformanceMonitor(db_path)
+        except TypeError:
+            # Fallback for server version that doesn't accept db_path
+            self.performance_monitor = RiskPerformanceMonitor()
         
         # Initialize recommendation components
         self.recommendation_engine = MingusJobRecommendationEngine()
