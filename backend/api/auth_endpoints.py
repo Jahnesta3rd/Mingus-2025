@@ -88,10 +88,20 @@ def register():
             logger.warning(f"Rate limit exceeded for IP: {client_ip}")
             return jsonify({'success': False, 'error': 'Rate limit exceeded'}), 429
         
-        data = request.get_json()
+        # Get JSON data - handle both application/json and form data
+        if request.is_json:
+            data = request.get_json()
+        else:
+            # Try to parse as JSON from raw data
+            try:
+                import json
+                data = json.loads(request.data.decode('utf-8'))
+            except:
+                data = request.form.to_dict()
         
         if not data:
-            raise BadRequest("No data provided")
+            logger.warning("No data provided in registration request")
+            return jsonify({'success': False, 'error': 'No data provided'}), 400
         
         # Validate required fields
         email = data.get('email', '').strip().lower()
@@ -160,9 +170,11 @@ def register():
         logger.error(f"Registration validation error: {e}")
         return jsonify({'success': False, 'error': str(e)}), 400
     except Exception as e:
-        logger.error(f"Registration error: {e}")
+        logger.error(f"Registration error: {e}", exc_info=True)
         db.session.rollback()
-        return jsonify({'success': False, 'error': 'Registration failed. Please try again.'}), 500
+        # Return more detailed error in development, generic in production
+        error_msg = str(e) if os.environ.get('FLASK_ENV') == 'development' else 'Registration failed. Please try again.'
+        return jsonify({'success': False, 'error': error_msg}), 500
 
 
 @auth_api.route('/login', methods=['POST'])
