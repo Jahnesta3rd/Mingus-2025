@@ -88,8 +88,16 @@ def validate_income(income):
     return 20000 <= income <= 500000
 
 def hash_password(password):
-    """Hash password for storage"""
-    return hashlib.sha256(password.encode()).hexdigest()
+    """Hash password for storage using bcrypt (secure password hashing)"""
+    import bcrypt
+    salt = bcrypt.gensalt(rounds=12)
+    hashed = bcrypt.hashpw(password.encode('utf-8'), salt)
+    return hashed.decode('utf-8')
+
+def check_password(password, hashed):
+    """Verify password against bcrypt hash"""
+    import bcrypt
+    return bcrypt.checkpw(password.encode('utf-8'), hashed.encode('utf-8'))
 
 def generate_user_id(email):
     """Generate unique user ID"""

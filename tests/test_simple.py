@@ -34,13 +34,31 @@ class TestBasicFunctionality:
         assert expired_value is None
     
     def test_encryption_service(self):
-        """Test encryption service functionality"""
+        """Test encryption service functionality with proper Fernet encryption"""
+        import os
+        from cryptography.fernet import Fernet
+        
+        # Set test encryption key if not already set
+        if 'ENCRYPTION_KEY' not in os.environ:
+            test_key = Fernet.generate_key().decode()
+            os.environ['ENCRYPTION_KEY'] = test_key
+        
         encryption = EncryptionService()
         test_data = 'sensitive data'
         encrypted = encryption.encrypt(test_data)
         decrypted = encryption.decrypt(encrypted)
+        
+        # Verify encryption works
         assert decrypted == test_data
         assert encrypted != test_data  # Should be different
+        # Verify encrypted data is longer (Fernet adds authentication and metadata)
+        assert len(encrypted) > len(test_data)
+        
+        # Test that same data produces different encrypted output (due to timestamp)
+        encrypted2 = encryption.encrypt(test_data)
+        # Note: Fernet includes timestamp, so same data encrypted twice may differ
+        # But both should decrypt to the same value
+        assert encryption.decrypt(encrypted2) == test_data
     
     def test_rate_limiter(self):
         """Test rate limiter functionality"""

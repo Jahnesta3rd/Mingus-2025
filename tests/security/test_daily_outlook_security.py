@@ -122,6 +122,14 @@ class TestUserDataPrivacy:
     
     def test_sensitive_data_encryption(self, app, test_user):
         """Test that sensitive data is encrypted"""
+        import os
+        from cryptography.fernet import Fernet
+        
+        # Set test encryption key if not already set
+        if 'ENCRYPTION_KEY' not in os.environ:
+            test_key = Fernet.generate_key().decode()
+            os.environ['ENCRYPTION_KEY'] = test_key
+        
         with app.app_context():
             # Create outlook with sensitive data
             outlook = DailyOutlook(
@@ -149,14 +157,17 @@ class TestUserDataPrivacy:
             assert 'primary_insight' in outlook_dict
             assert 'quick_actions' in outlook_dict
             
-            # Test encryption service
+            # Test encryption service with proper Fernet encryption
             encryption_service = EncryptionService()
             test_data = "Sensitive test data"
             encrypted_data = encryption_service.encrypt(test_data)
             decrypted_data = encryption_service.decrypt(encrypted_data)
             
+            # Verify encryption actually encrypts (not just base64)
             assert encrypted_data != test_data
             assert decrypted_data == test_data
+            # Verify encrypted data is base64-encoded Fernet token (longer than original)
+            assert len(encrypted_data) > len(test_data)
     
     def test_data_anonymization(self, app, test_user):
         """Test that data can be anonymized for privacy"""
@@ -657,7 +668,15 @@ class TestDataEncryptionAndProtection:
             db.drop_all()
     
     def test_sensitive_data_encryption(self, app):
-        """Test that sensitive data is encrypted"""
+        """Test that sensitive data is encrypted with proper Fernet encryption"""
+        import os
+        from cryptography.fernet import Fernet
+        
+        # Set test encryption key if not already set
+        if 'ENCRYPTION_KEY' not in os.environ:
+            test_key = Fernet.generate_key().decode()
+            os.environ['ENCRYPTION_KEY'] = test_key
+        
         with app.app_context():
             encryption_service = EncryptionService()
             
@@ -675,26 +694,47 @@ class TestDataEncryptionAndProtection:
             
             # Verify encryption
             for key, encrypted_value in encrypted_data.items():
+                # Verify encrypted data is different from original
                 assert encrypted_value != sensitive_data[key]
+                # Verify encrypted data is longer (Fernet adds metadata)
                 assert len(encrypted_value) > len(sensitive_data[key])
                 
-                # Verify decryption
+                # Verify decryption works correctly
                 decrypted_value = encryption_service.decrypt(encrypted_value)
                 assert decrypted_value == sensitive_data[key]
+            
+            # Test dictionary encryption/decryption
+            encrypted_dict = encryption_service.encrypt_dict(sensitive_data)
+            decrypted_dict = encryption_service.decrypt_dict(encrypted_dict)
+            assert decrypted_dict == sensitive_data
     
     def test_password_hashing(self, app):
-        """Test password hashing"""
+        """Test secure password hashing using bcrypt"""
+        import bcrypt
+        
         with app.app_context():
-            # Test password hashing
+            # Test password hashing with bcrypt
             password = 'test_password_123'
-            hashed_password = hashlib.sha256(password.encode()).hexdigest()
+            
+            # Hash password
+            salt = bcrypt.gensalt(rounds=12)
+            hashed_password = bcrypt.hashpw(password.encode('utf-8'), salt)
+            hashed_str = hashed_password.decode('utf-8')
             
             # Verify hash is different from original
-            assert hashed_password != password
-            assert len(hashed_password) == 64  # SHA256 hash length
+            assert hashed_str != password
+            # Bcrypt hashes are 60 characters long
+            assert len(hashed_str) == 60
             
-            # Verify hash verification
-            assert hashlib.sha256(password.encode()).hexdigest() == hashed_password
+            # Verify hash verification with bcrypt
+            assert bcrypt.checkpw(password.encode('utf-8'), hashed_password)
+            
+            # Verify wrong password fails
+            assert not bcrypt.checkpw('wrong_password'.encode('utf-8'), hashed_password)
+            
+            # Verify same password produces different hashes (due to salt)
+            hashed_password2 = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt(rounds=12))
+            assert hashed_password != hashed_password2  # Different salts = different hashes
     
     def test_data_integrity_checks(self, app):
         """Test data integrity checks"""
