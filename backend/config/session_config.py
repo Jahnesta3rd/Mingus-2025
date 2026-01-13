@@ -35,17 +35,21 @@ def init_redis_session(app: Flask):
             elif 'redis://' in redis_url:
                 redis_url = redis_url.replace('redis://', f'redis://:{redis_password}@')
         
-        # Create Redis connection
-        redis_client = redis.from_url(
-            redis_url,
-            decode_responses=True,
-            socket_timeout=5,
-            socket_connect_timeout=5,
-            retry_on_timeout=True
-        )
-        
-        # Test connection
-        redis_client.ping()
+        # Create Redis connection with error handling
+        try:
+            redis_client = redis.from_url(
+                redis_url,
+                decode_responses=True,
+                socket_timeout=2,  # Shorter timeout
+                socket_connect_timeout=2,  # Shorter timeout
+                retry_on_timeout=False,  # Don't retry
+                health_check_interval=30
+            )
+            
+            # Test connection with timeout
+            redis_client.ping()
+        except (redis.ConnectionError, redis.TimeoutError, OSError, Exception) as conn_error:
+            raise redis.ConnectionError(f"Failed to connect to Redis: {conn_error}")
         logger.info("Redis connection successful for session storage")
         
         # Configure Flask-Session

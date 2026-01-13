@@ -1,0 +1,149 @@
+config:
+  target: "http://localhost:5001"
+  phases:
+    # Warm-up phase
+    - duration: 30
+      arrivalRate: 2
+      name: "Warm-up"
+    # Ramp-up phase
+    - duration: 60
+      arrivalRate: 5
+      rampTo: 20
+      name: "Ramp-up"
+    # Sustained load
+    - duration: 120
+      arrivalRate: 20
+      name: "Sustained load"
+    # Spike test
+    - duration: 30
+      arrivalRate: 50
+      name: "Spike test"
+    # Cool-down
+    - duration: 30
+      arrivalRate: 5
+      name: "Cool-down"
+  
+  defaults:
+    headers:
+      Content-Type: "application/json"
+      User-Agent: "Artillery-LoadTest/1.0"
+  
+  plugins:
+    expect: {}
+    metrics-by-endpoint:
+      stripQueryString: true
+    publish-metrics:
+      # Optional: Send metrics to external service
+      # statsd:
+      #   host: localhost
+      #   port: 8125
+  
+  processor: "./artillery-processor.js"
+  
+  variables:
+    baseUrl: "http://localhost:5001"
+
+scenarios:
+  # Health check scenario
+  - name: "Health Check"
+    weight: 10
+    flow:
+      - get:
+          url: "/health"
+          capture:
+            - json: "$.status"
+              as: "health_status"
+          expect:
+            - statusCode: 200
+            - contentType: json
+  
+  # API Status scenario
+  - name: "API Status"
+    weight: 10
+    flow:
+      - get:
+          url: "/api/status"
+          expect:
+            - statusCode: 200
+  
+  # Metrics scenario
+  - name: "Metrics Endpoint"
+    weight: 5
+    flow:
+      - get:
+          url: "/api/metrics"
+          expect:
+            - statusCode: 200
+  
+  # Dashboard scenario
+  - name: "Dashboard Overview"
+    weight: 5
+    flow:
+      - get:
+          url: "/api/dashboard/overview"
+          expect:
+            - statusCode: 200
+  
+  # Error statistics scenario
+  - name: "Error Statistics"
+    weight: 5
+    flow:
+      - get:
+          url: "/api/errors/stats?hours=24"
+          expect:
+            - statusCode: 200
+  
+  # Assessment submission (POST)
+  - name: "Assessment Submission"
+    weight: 15
+    flow:
+      - post:
+          url: "/api/assessments"
+          json:
+            email: "test-{{ $randomString() }}@example.com"
+            firstName: "Test"
+            assessmentType: "financial_wellness"
+            answers:
+              - question: "How stressed are you about finances?"
+                answer: "moderate"
+          expect:
+            - statusCode: [200, 201, 400, 422]
+  
+  # Profile retrieval
+  - name: "Profile Retrieval"
+    weight: 10
+    flow:
+      - get:
+          url: "/api/profile"
+          expect:
+            - statusCode: [200, 401, 403]
+  
+  # Vehicle endpoint
+  - name: "Vehicle Endpoint"
+    weight: 10
+    flow:
+      - get:
+          url: "/api/vehicle"
+          expect:
+            - statusCode: [200, 401, 403]
+  
+  # Job matching
+  - name: "Job Matching"
+    weight: 10
+    flow:
+      - get:
+          url: "/api/job-matching/search"
+          qs:
+            location: "New York, NY"
+            keywords: "software engineer"
+          expect:
+            - statusCode: [200, 401, 403]
+  
+  # Error generation (for testing error monitoring)
+  - name: "Error Generation Test"
+    weight: 5
+    flow:
+      - get:
+          url: "/api/nonexistent-endpoint-{{ $randomString() }}"
+          expect:
+            - statusCode: 404

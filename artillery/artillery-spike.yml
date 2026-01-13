@@ -1,0 +1,39 @@
+config:
+  target: "http://localhost:5001"
+  phases:
+    # Normal load
+    - duration: 60
+      arrivalRate: 10
+      name: "Normal load"
+    # Sudden spike
+    - duration: 30
+      arrivalRate: 200
+      name: "Spike"
+    # Return to normal
+    - duration: 60
+      arrivalRate: 10
+      name: "Return to normal"
+  
+  defaults:
+    headers:
+      Content-Type: "application/json"
+  
+  plugins:
+    expect: {}
+    metrics-by-endpoint: {}
+  
+  processor: "./artillery-processor.js"
+
+scenarios:
+  - name: "Spike Test"
+    flow:
+      - get:
+          url: "/health"
+          expect:
+            - statusCode: 200
+            - maxResponseTime: 2000
+      - get:
+          url: "/api/status"
+          expect:
+            - statusCode: 200
+            - maxResponseTime: 2000

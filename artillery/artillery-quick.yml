@@ -1,0 +1,42 @@
+config:
+  target: "http://localhost:5001"
+  phases:
+    - duration: 30
+      arrivalRate: 10
+      name: "Quick test"
+  
+  defaults:
+    headers:
+      Content-Type: "application/json"
+  
+  plugins:
+    expect: {}
+    metrics-by-endpoint: {}
+
+scenarios:
+  - name: "Quick Health Check"
+    weight: 50
+    flow:
+      - get:
+          url: "/health"
+          expect:
+            - statusCode: 200
+            - maxResponseTime: 500
+  
+  - name: "Quick API Status"
+    weight: 30
+    flow:
+      - get:
+          url: "/api/status"
+          expect:
+            - statusCode: 200
+            - maxResponseTime: 500
+  
+  - name: "Quick Metrics"
+    weight: 20
+    flow:
+      - get:
+          url: "/api/metrics"
+          expect:
+            - statusCode: 200
+            - maxResponseTime: 1000

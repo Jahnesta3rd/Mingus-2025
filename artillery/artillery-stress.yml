@@ -1,0 +1,93 @@
+config:
+  target: "http://localhost:5001"
+  phases:
+    # Quick ramp to high load
+    - duration: 60
+      arrivalRate: 10
+      rampTo: 100
+      name: "Ramp to stress"
+    # Sustained stress
+    - duration: 300
+      arrivalRate: 100
+      name: "Sustained stress"
+    # Spike
+    - duration: 30
+      arrivalRate: 200
+      name: "Spike test"
+    # Recovery
+    - duration: 60
+      arrivalRate: 20
+      name: "Recovery"
+  
+  defaults:
+    headers:
+      Content-Type: "application/json"
+  
+  plugins:
+    expect: {}
+    metrics-by-endpoint: {}
+  
+  processor: "./artillery-processor.js"
+
+scenarios:
+  - name: "Stress Test - Health"
+    weight: 20
+    flow:
+      - get:
+          url: "/health"
+          expect:
+            - statusCode: 200
+            - maxResponseTime: 1000
+  
+  - name: "Stress Test - API Status"
+    weight: 20
+    flow:
+      - get:
+          url: "/api/status"
+          expect:
+            - statusCode: 200
+            - maxResponseTime: 1000
+  
+  - name: "Stress Test - Metrics"
+    weight: 15
+    flow:
+      - get:
+          url: "/api/metrics"
+          expect:
+            - statusCode: 200
+            - maxResponseTime: 2000
+  
+  - name: "Stress Test - Dashboard"
+    weight: 15
+    flow:
+      - get:
+          url: "/api/dashboard/overview"
+          expect:
+            - statusCode: 200
+            - maxResponseTime: 2000
+  
+  - name: "Stress Test - Assessments"
+    weight: 15
+    flow:
+      - post:
+          url: "/api/assessments"
+          json:
+            email: "stress-{{ $randomString() }}@example.com"
+            firstName: "Stress"
+            assessmentType: "financial_wellness"
+            answers:
+              - question: "test"
+                answer: "test"
+          expect:
+            - statusCode: [200, 201, 400, 422]
+            - maxResponseTime: 3000
+  
+  - name: "Stress Test - Mixed Endpoints"
+    weight: 15
+    flow:
+      - get:
+          url: "/health"
+      - get:
+          url: "/api/status"
+      - get:
+          url: "/api/metrics/health"

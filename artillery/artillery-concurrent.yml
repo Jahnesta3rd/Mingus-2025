@@ -1,0 +1,101 @@
+config:
+  target: "http://localhost:5001"
+  phases:
+    # Test 1: Low concurrency (5 users)
+    - duration: 30
+      arrivalRate: 5
+      name: "Low Concurrency (5 users)"
+    
+    # Test 2: Medium concurrency (20 users)
+    - duration: 30
+      arrivalRate: 20
+      name: "Medium Concurrency (20 users)"
+    
+    # Test 3: High concurrency (50 users)
+    - duration: 30
+      arrivalRate: 50
+      name: "High Concurrency (50 users)"
+    
+    # Test 4: Very high concurrency (100 users)
+    - duration: 30
+      arrivalRate: 100
+      name: "Very High Concurrency (100 users)"
+    
+    # Test 5: Extreme concurrency (200 users)
+    - duration: 30
+      arrivalRate: 200
+      name: "Extreme Concurrency (200 users)"
+  
+  defaults:
+    headers:
+      Content-Type: "application/json"
+      User-Agent: "Artillery-Concurrent-Test/1.0"
+  
+  plugins:
+    expect: {}
+    metrics-by-endpoint:
+      stripQueryString: true
+  
+  processor: "./artillery-processor.js"
+
+scenarios:
+  - name: "Concurrent Health Checks"
+    weight: 30
+    flow:
+      - get:
+          url: "/health"
+          expect:
+            - statusCode: 200
+            - maxResponseTime: 1000
+  
+  - name: "Concurrent API Status"
+    weight: 25
+    flow:
+      - get:
+          url: "/api/status"
+          expect:
+            - statusCode: 200
+            - maxResponseTime: 1000
+  
+  - name: "Concurrent Metrics"
+    weight: 15
+    flow:
+      - get:
+          url: "/api/metrics"
+          expect:
+            - statusCode: 200
+            - maxResponseTime: 2000
+  
+  - name: "Concurrent Dashboard"
+    weight: 15
+    flow:
+      - get:
+          url: "/api/dashboard/overview"
+          expect:
+            - statusCode: 200
+            - maxResponseTime: 2000
+  
+  - name: "Concurrent Assessment Submission"
+    weight: 10
+    flow:
+      - post:
+          url: "/api/assessments"
+          json:
+            email: "concurrent-{{ $randomString() }}@example.com"
+            firstName: "Test"
+            assessmentType: "financial_wellness"
+            answers:
+              - question: "How stressed are you about finances?"
+                answer: "moderate"
+          expect:
+            - statusCode: [200, 201, 400, 422]
+            - maxResponseTime: 3000
+  
+  - name: "Concurrent Error Stats"
+    weight: 5
+    flow:
+      - get:
+          url: "/api/errors/stats?hours=24"
+          expect:
+            - statusCode: 200
+            - maxResponseTime: 2000

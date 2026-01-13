@@ -1,0 +1,776 @@
+/* ========================================
+   MINGUS MOBILE-FIRST SPACING SYSTEM
+   ========================================
+   
+   This system provides optimal spacing, padding, and margins
+   for mobile-first design, ensuring adequate white space around
+   text elements for improved readability and reduced cognitive load.
+   
+   Design Principles:
+   - Mobile-first approach with progressive enhancement
+   - Adequate white space for reduced cognitive load
+   - Touch-friendly spacing for interactive elements
+   - Consistent spacing scale for visual harmony
+   - Accessibility-focused spacing for better readability
+*/
+
+/* ========================================
+   SPACING DESIGN TOKENS
+   ======================================== */
+
+:root {
+  /* Base Spacing Scale (4px grid system) */
+  --space-0: 0px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+  --space-24: 96px;
+
+  /* Component-Specific Spacing */
+  --section-spacing: var(--space-8);
+  --card-spacing: var(--space-6);
+  --text-spacing: var(--space-4);
+  --button-spacing: var(--space-4);
+  --form-spacing: var(--space-5);
+  --navigation-spacing: var(--space-4);
+
+  /* Touch Target Spacing */
+  --touch-target-min: 44px;
+  --touch-target-optimal: 48px;
+  --touch-target-large: 56px;
+
+  /* Content Spacing */
+  --content-margin: var(--space-4);
+  --content-padding: var(--space-4);
+  --content-gap: var(--space-6);
+
+  /* Typography Spacing */
+  --heading-margin-bottom: var(--space-4);
+  --paragraph-margin-bottom: var(--space-4);
+  --list-item-spacing: var(--space-2);
+  --blockquote-padding: var(--space-4);
+
+  /* Interactive Element Spacing */
+  --button-padding-y: var(--space-3);
+  --button-padding-x: var(--space-5);
+  --input-padding-y: var(--space-3);
+  --input-padding-x: var(--space-4);
+  --link-padding: var(--space-2);
+
+  /* Container Spacing */
+  --container-padding: var(--space-4);
+  --container-margin: var(--space-4);
+  --container-max-width: 414px;
+
+  /* Card and Component Spacing */
+  --card-padding: var(--space-5);
+  --card-margin: var(--space-4);
+  --card-border-radius: 12px;
+  --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+  /* Grid and Layout Spacing */
+  --grid-gap: var(--space-4);
+  --flex-gap: var(--space-4);
+  --stack-gap: var(--space-4);
+
+  /* Responsive Spacing Adjustments */
+  --mobile-spacing-multiplier: 1;
+  --tablet-spacing-multiplier: 1.25;
+  --desktop-spacing-multiplier: 1.5;
+}
+
+/* ========================================
+   RESPONSIVE SPACING ADJUSTMENTS
+   ======================================== */
+
+/* Mobile Small (320px - 375px) */
+@media (max-width: 375px) {
+  :root {
+    --section-spacing: var(--space-6);
+    --card-spacing: var(--space-5);
+    --text-spacing: var(--space-3);
+    --button-spacing: var(--space-3);
+    --form-spacing: var(--space-4);
+    --content-margin: var(--space-3);
+    --content-padding: var(--space-3);
+    --content-gap: var(--space-5);
+    --container-padding: var(--space-3);
+    --card-padding: var(--space-4);
+  }
+}
+
+/* Mobile Medium (376px - 414px) */
+@media (min-width: 376px) and (max-width: 414px) {
+  :root {
+    --section-spacing: var(--space-8);
+    --card-spacing: var(--space-6);
+    --text-spacing: var(--space-4);
+    --button-spacing: var(--space-4);
+    --form-spacing: var(--space-5);
+    --content-margin: var(--space-4);
+    --content-padding: var(--space-4);
+    --content-gap: var(--space-6);
+    --container-padding: var(--space-4);
+    --card-padding: var(--space-5);
+  }
+}
+
+/* Mobile Large (415px - 768px) */
+@media (min-width: 415px) and (max-width: 768px) {
+  :root {
+    --section-spacing: var(--space-10);
+    --card-spacing: var(--space-8);
+    --text-spacing: var(--space-5);
+    --button-spacing: var(--space-5);
+    --form-spacing: var(--space-6);
+    --content-margin: var(--space-5);
+    --content-padding: var(--space-5);
+    --content-gap: var(--space-8);
+    --container-padding: var(--space-5);
+    --card-padding: var(--space-6);
+  }
+}
+
+/* ========================================
+   BASE SPACING RESET
+   ======================================== */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  line-height: 1.6;
+}
+
+/* ========================================
+   CONTAINER SPACING
+   ======================================== */
+
+.container {
+  max-width: var(--container-max-width);
+  margin: 0 auto;
+  padding: 0 var(--container-padding);
+}
+
+.container-fluid {
+  width: 100%;
+  padding: 0 var(--container-padding);
+}
+
+.section {
+  padding: var(--section-spacing) 0;
+  margin: 0;
+}
+
+.section-compact {
+  padding: calc(var(--section-spacing) / 2) 0;
+}
+
+.section-spacious {
+  padding: calc(var(--section-spacing) * 1.5) 0;
+}
+
+/* ========================================
+   CONTENT SPACING
+   ======================================== */
+
+.content {
+  margin: var(--content-margin) 0;
+  padding: var(--content-padding);
+}
+
+.content-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--stack-gap);
+}
+
+.content-grid {
+  display: grid;
+  gap: var(--grid-gap);
+}
+
+.content-flex {
+  display: flex;
+  gap: var(--flex-gap);
+}
+
+/* ========================================
+   TYPOGRAPHY SPACING
+   ======================================== */
+
+/* Heading Spacing */
+h1, h2, h3, h4, h5, h6 {
+  margin: 0 0 var(--heading-margin-bottom) 0;
+  padding: 0;
+}
+
+h1:last-child,
+h2:last-child,
+h3:last-child,
+h4:last-child,
+h5:last-child,
+h6:last-child {
+  margin-bottom: 0;
+}
+
+/* Paragraph Spacing */
+p {
+  margin: 0 0 var(--paragraph-margin-bottom) 0;
+  padding: 0;
+}
+
+p:last-child {
+  margin-bottom: 0;
+}
+
+/* List Spacing */
+ul, ol {
+  margin: 0 0 var(--paragraph-margin-bottom) 0;
+  padding-left: var(--space-6);
+}
+
+li {
+  margin-bottom: var(--list-item-spacing);
+}
+
+li:last-child {
+  margin-bottom: 0;
+}
+
+/* Blockquote Spacing */
+blockquote {
+  margin: var(--space-6) 0;
+  padding: var(--blockquote-padding);
+  border-left: 4px solid var(--primary-color, #8A31FF);
+  background: var(--bg-secondary, #f8f9fa);
+  border-radius: 0 var(--card-border-radius) var(--card-border-radius) 0;
+}
+
+/* ========================================
+   CARD AND COMPONENT SPACING
+   ======================================== */
+
+.card {
+  padding: var(--card-padding);
+  margin: var(--card-margin) 0;
+  border-radius: var(--card-border-radius);
+  box-shadow: var(--card-shadow);
+  background: var(--bg-primary, #ffffff);
+}
+
+.card-compact {
+  padding: calc(var(--card-padding) * 0.75);
+}
+
+.card-spacious {
+  padding: calc(var(--card-padding) * 1.25);
+}
+
+.card-header {
+  padding-bottom: var(--space-4);
+  margin-bottom: var(--space-4);
+  border-bottom: 1px solid var(--border-color, #e9ecef);
+}
+
+.card-body {
+  padding: var(--space-4) 0;
+}
+
+.card-footer {
+  padding-top: var(--space-4);
+  margin-top: var(--space-4);
+  border-top: 1px solid var(--border-color, #e9ecef);
+}
+
+/* ========================================
+   BUTTON SPACING
+   ======================================== */
+
+.btn {
+  padding: var(--button-padding-y) var(--button-padding-x);
+  margin: var(--button-spacing) 0;
+  min-height: var(--touch-target-min);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-small {
+  padding: calc(var(--button-padding-y) * 0.75) calc(var(--button-padding-x) * 0.75);
+  min-height: 40px;
+}
+
+.btn-large {
+  padding: calc(var(--button-padding-y) * 1.25) calc(var(--button-padding-x) * 1.25);
+  min-height: var(--touch-target-large);
+}
+
+.btn-group {
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.btn-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  width: 100%;
+}
+
+.btn-stack .btn {
+  width: 100%;
+  margin: 0;
+}
+
+/* ========================================
+   FORM SPACING
+   ======================================== */
+
+.form-group {
+  margin-bottom: var(--form-spacing);
+}
+
+.form-group:last-child {
+  margin-bottom: 0;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: var(--space-2);
+  font-weight: 500;
+}
+
+.form-input,
+.form-textarea,
+.form-select {
+  width: 100%;
+  padding: var(--input-padding-y) var(--input-padding-x);
+  border: 1px solid var(--border-color, #e9ecef);
+  border-radius: 8px;
+  font-size: 16px; /* Prevents zoom on iOS */
+  min-height: var(--touch-target-min);
+}
+
+.form-input:focus,
+.form-textarea:focus,
+.form-select:focus {
+  outline: none;
+  border-color: var(--primary-color, #8A31FF);
+  box-shadow: 0 0 0 3px rgba(138, 49, 255, 0.1);
+}
+
+.form-helper {
+  margin-top: var(--space-2);
+  font-size: 14px;
+  color: var(--text-secondary, #666);
+}
+
+.form-error {
+  margin-top: var(--space-2);
+  font-size: 14px;
+  color: #dc3545;
+}
+
+.form-row {
+  display: flex;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.form-row .form-group {
+  flex: 1;
+  min-width: 200px;
+}
+
+/* ========================================
+   NAVIGATION SPACING
+   ======================================== */
+
+.nav {
+  padding: var(--navigation-spacing) 0;
+}
+
+.nav-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.nav-item {
+  margin: 0;
+}
+
+.nav-link {
+  padding: var(--link-padding);
+  min-height: var(--touch-target-min);
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.3s ease;
+}
+
+.nav-link:hover {
+  color: var(--primary-color, #8A31FF);
+}
+
+.nav-vertical {
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.nav-vertical .nav-link {
+  padding: var(--space-3) var(--space-4);
+  border-radius: 8px;
+}
+
+.nav-vertical .nav-link:hover {
+  background: var(--bg-secondary, #f8f9fa);
+}
+
+/* ========================================
+   LAYOUT SPACING
+   ======================================== */
+
+/* Header Spacing */
+.header {
+  padding: var(--space-4) 0;
+  border-bottom: 1px solid var(--border-color, #e9ecef);
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+/* Hero Section Spacing */
+.hero {
+  padding: var(--space-8) 0;
+  text-align: center;
+}
+
+.hero-content {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 0 var(--space-4);
+}
+
+.hero-title {
+  margin-bottom: var(--space-4);
+}
+
+.hero-subtitle {
+  margin-bottom: var(--space-6);
+}
+
+.hero-actions {
+  display: flex;
+  gap: var(--space-4);
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* Grid Layout Spacing */
+.grid {
+  display: grid;
+  gap: var(--grid-gap);
+}
+
+.grid-2 {
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+}
+
+.grid-3 {
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
+.grid-4 {
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+}
+
+/* Flex Layout Spacing */
+.flex {
+  display: flex;
+  gap: var(--flex-gap);
+}
+
+.flex-center {
+  align-items: center;
+  justify-content: center;
+}
+
+.flex-between {
+  align-items: center;
+  justify-content: space-between;
+}
+
+.flex-wrap {
+  flex-wrap: wrap;
+}
+
+.flex-column {
+  flex-direction: column;
+}
+
+/* Stack Layout Spacing */
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--stack-gap);
+}
+
+.stack-compact {
+  gap: calc(var(--stack-gap) * 0.75);
+}
+
+.stack-spacious {
+  gap: calc(var(--stack-gap) * 1.25);
+}
+
+/* ========================================
+   UTILITY SPACING CLASSES
+   ======================================== */
+
+/* Margin Utilities */
+.m-0 { margin: var(--space-0); }
+.m-1 { margin: var(--space-1); }
+.m-2 { margin: var(--space-2); }
+.m-3 { margin: var(--space-3); }
+.m-4 { margin: var(--space-4); }
+.m-5 { margin: var(--space-5); }
+.m-6 { margin: var(--space-6); }
+.m-8 { margin: var(--space-8); }
+.m-10 { margin: var(--space-10); }
+.m-12 { margin: var(--space-12); }
+
+.mt-0 { margin-top: var(--space-0); }
+.mt-1 { margin-top: var(--space-1); }
+.mt-2 { margin-top: var(--space-2); }
+.mt-3 { margin-top: var(--space-3); }
+.mt-4 { margin-top: var(--space-4); }
+.mt-5 { margin-top: var(--space-5); }
+.mt-6 { margin-top: var(--space-6); }
+.mt-8 { margin-top: var(--space-8); }
+.mt-10 { margin-top: var(--space-10); }
+.mt-12 { margin-top: var(--space-12); }
+
+.mb-0 { margin-bottom: var(--space-0); }
+.mb-1 { margin-bottom: var(--space-1); }
+.mb-2 { margin-bottom: var(--space-2); }
+.mb-3 { margin-bottom: var(--space-3); }
+.mb-4 { margin-bottom: var(--space-4); }
+.mb-5 { margin-bottom: var(--space-5); }
+.mb-6 { margin-bottom: var(--space-6); }
+.mb-8 { margin-bottom: var(--space-8); }
+.mb-10 { margin-bottom: var(--space-10); }
+.mb-12 { margin-bottom: var(--space-12); }
+
+.ml-0 { margin-left: var(--space-0); }
+.ml-1 { margin-left: var(--space-1); }
+.ml-2 { margin-left: var(--space-2); }
+.ml-3 { margin-left: var(--space-3); }
+.ml-4 { margin-left: var(--space-4); }
+.ml-5 { margin-left: var(--space-5); }
+.ml-6 { margin-left: var(--space-6); }
+.ml-8 { margin-left: var(--space-8); }
+.ml-10 { margin-left: var(--space-10); }
+.ml-12 { margin-left: var(--space-12); }
+
+.mr-0 { margin-right: var(--space-0); }
+.mr-1 { margin-right: var(--space-1); }
+.mr-2 { margin-right: var(--space-2); }
+.mr-3 { margin-right: var(--space-3); }
+.mr-4 { margin-right: var(--space-4); }
+.mr-5 { margin-right: var(--space-5); }
+.mr-6 { margin-right: var(--space-6); }
+.mr-8 { margin-right: var(--space-8); }
+.mr-10 { margin-right: var(--space-10); }
+.mr-12 { margin-right: var(--space-12); }
+
+/* Padding Utilities */
+.p-0 { padding: var(--space-0); }
+.p-1 { padding: var(--space-1); }
+.p-2 { padding: var(--space-2); }
+.p-3 { padding: var(--space-3); }
+.p-4 { padding: var(--space-4); }
+.p-5 { padding: var(--space-5); }
+.p-6 { padding: var(--space-6); }
+.p-8 { padding: var(--space-8); }
+.p-10 { padding: var(--space-10); }
+.p-12 { padding: var(--space-12); }
+
+.pt-0 { padding-top: var(--space-0); }
+.pt-1 { padding-top: var(--space-1); }
+.pt-2 { padding-top: var(--space-2); }
+.pt-3 { padding-top: var(--space-3); }
+.pt-4 { padding-top: var(--space-4); }
+.pt-5 { padding-top: var(--space-5); }
+.pt-6 { padding-top: var(--space-6); }
+.pt-8 { padding-top: var(--space-8); }
+.pt-10 { padding-top: var(--space-10); }
+.pt-12 { padding-top: var(--space-12); }
+
+.pb-0 { padding-bottom: var(--space-0); }
+.pb-1 { padding-bottom: var(--space-1); }
+.pb-2 { padding-bottom: var(--space-2); }
+.pb-3 { padding-bottom: var(--space-3); }
+.pb-4 { padding-bottom: var(--space-4); }
+.pb-5 { padding-bottom: var(--space-5); }
+.pb-6 { padding-bottom: var(--space-6); }
+.pb-8 { padding-bottom: var(--space-8); }
+.pb-10 { padding-bottom: var(--space-10); }
+.pb-12 { padding-bottom: var(--space-12); }
+
+.pl-0 { padding-left: var(--space-0); }
+.pl-1 { padding-left: var(--space-1); }
+.pl-2 { padding-left: var(--space-2); }
+.pl-3 { padding-left: var(--space-3); }
+.pl-4 { padding-left: var(--space-4); }
+.pl-5 { padding-left: var(--space-5); }
+.pl-6 { padding-left: var(--space-6); }
+.pl-8 { padding-left: var(--space-8); }
+.pl-10 { padding-left: var(--space-10); }
+.pl-12 { padding-left: var(--space-12); }
+
+.pr-0 { padding-right: var(--space-0); }
+.pr-1 { padding-right: var(--space-1); }
+.pr-2 { padding-right: var(--space-2); }
+.pr-3 { padding-right: var(--space-3); }
+.pr-4 { padding-right: var(--space-4); }
+.pr-5 { padding-right: var(--space-5); }
+.pr-6 { padding-right: var(--space-6); }
+.pr-8 { padding-right: var(--space-8); }
+.pr-10 { padding-right: var(--space-10); }
+.pr-12 { padding-right: var(--space-12); }
+
+/* Gap Utilities */
+.gap-0 { gap: var(--space-0); }
+.gap-1 { gap: var(--space-1); }
+.gap-2 { gap: var(--space-2); }
+.gap-3 { gap: var(--space-3); }
+.gap-4 { gap: var(--space-4); }
+.gap-5 { gap: var(--space-5); }
+.gap-6 { gap: var(--space-6); }
+.gap-8 { gap: var(--space-8); }
+.gap-10 { gap: var(--space-10); }
+.gap-12 { gap: var(--space-12); }
+
+/* ========================================
+   ACCESSIBILITY ENHANCEMENTS
+   ======================================== */
+
+/* Focus Indicators */
+.btn:focus,
+.form-input:focus,
+.form-textarea:focus,
+.form-select:focus,
+.nav-link:focus {
+  outline: 2px solid var(--primary-color, #8A31FF);
+  outline-offset: 2px;
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  :root {
+    --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+  
+  .card {
+    border: 2px solid var(--border-color, #000000);
+  }
+  
+  .btn {
+    border: 2px solid currentColor;
+  }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ========================================
+   PRINT OPTIMIZATION
+   ======================================== */
+
+@media print {
+  :root {
+    --section-spacing: var(--space-4);
+    --card-spacing: var(--space-3);
+    --text-spacing: var(--space-2);
+    --button-spacing: var(--space-2);
+    --form-spacing: var(--space-3);
+    --content-margin: var(--space-2);
+    --content-padding: var(--space-2);
+    --card-padding: var(--space-3);
+  }
+  
+  .btn {
+    border: 1px solid #000;
+    background: transparent !important;
+    color: #000 !important;
+  }
+  
+  .card {
+    border: 1px solid #000;
+    box-shadow: none;
+  }
+}
+
+/* Mobile Typography Enhancements */
+@media (max-width: 768px) {
+  .text-base {
+    line-height: 1.7;
+    letter-spacing: 0.01em;
+  }
+  
+  .text-lg {
+    line-height: 1.6;
+    letter-spacing: 0.005em;
+  }
+  
+  .text-xl {
+    line-height: 1.5;
+    letter-spacing: 0.002em;
+  }
+  
+  /* Enhanced CTA typography */
+  .btn, .button, .cta {
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-transform: none;
+  }
+  
+  /* Enhanced heading typography */
+  h1, h2, h3 {
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+  }
+}

@@ -1,0 +1,85 @@
+config:
+  target: "http://localhost:5001"
+  phases:
+    # Gradual ramp-up to test concurrent user handling
+    - duration: 60
+      arrivalRate: 1
+      rampTo: 10
+      name: "Ramp: 1→10 users"
+    
+    - duration: 60
+      arrivalRate: 10
+      rampTo: 25
+      name: "Ramp: 10→25 users"
+    
+    - duration: 60
+      arrivalRate: 25
+      rampTo: 50
+      name: "Ramp: 25→50 users"
+    
+    - duration: 60
+      arrivalRate: 50
+      rampTo: 100
+      name: "Ramp: 50→100 users"
+    
+    - duration: 60
+      arrivalRate: 100
+      rampTo: 200
+      name: "Ramp: 100→200 users"
+    
+    # Sustained high concurrency
+    - duration: 120
+      arrivalRate: 200
+      name: "Sustained: 200 concurrent users"
+    
+    # Cool-down
+    - duration: 60
+      arrivalRate: 50
+      name: "Cool-down: 50 users"
+  
+  defaults:
+    headers:
+      Content-Type: "application/json"
+  
+  plugins:
+    expect: {}
+    metrics-by-endpoint: {}
+  
+  processor: "./artillery-processor.js"
+
+scenarios:
+  - name: "Ramp Test - Health"
+    weight: 40
+    flow:
+      - get:
+          url: "/health"
+          expect:
+            - statusCode: 200
+            - maxResponseTime: 1000
+  
+  - name: "Ramp Test - Status"
+    weight: 30
+    flow:
+      - get:
+          url: "/api/status"
+          expect:
+            - statusCode: 200
+            - maxResponseTime: 1000
+  
+  - name: "Ramp Test - Metrics"
+    weight: 20
+    flow:
+      - get:
+          url: "/api/metrics"
+          expect:
+            - statusCode: 200
+            - maxResponseTime: 2000
+  
+  - name: "Ramp Test - Dashboard"
+    weight: 10
+    flow:
+      - get:
+          url: "/api/dashboard/overview"
+          expect:
+            - statusCode: 200
+            - maxResponseTime: 2000

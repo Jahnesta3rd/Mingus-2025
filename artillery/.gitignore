@@ -1,0 +1,9 @@
+# Artillery test results
+results/
+*.json
+*.html
+*.txt
+
+# Node modules (if installing locally)
+node_modules/
+package-lock.json
