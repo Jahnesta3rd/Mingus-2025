@@ -36,7 +36,11 @@ from backend.api.referral_gated_endpoints import referral_gated_api
 from backend.api.unified_risk_analytics_api import risk_analytics_api
 from backend.api.vehicle_endpoints import vehicle_api
 from backend.api.vehicle_management_api import vehicle_management_api
-from backend.api.vehicle_setup_endpoints import vehicle_setup_api
+try:
+    from backend.api.vehicle_setup_endpoints import vehicle_setup_api
+except ImportError:
+    vehicle_setup_api = None
+    logger.warning("vehicle_setup_endpoints module not found, skipping")
 from backend.api.vehicle_expense_endpoints import vehicle_expense_api
 from backend.api.enhanced_vehicle_expense_endpoints import enhanced_vehicle_api
 from backend.api.weekly_checkin_endpoints import weekly_checkin_api
@@ -203,7 +207,8 @@ app.register_blueprint(referral_gated_api)
 app.register_blueprint(risk_analytics_api)
 app.register_blueprint(vehicle_api)
 app.register_blueprint(vehicle_management_api)
-app.register_blueprint(vehicle_setup_api)
+if vehicle_setup_api:
+    app.register_blueprint(vehicle_setup_api)
 app.register_blueprint(vehicle_expense_api)
 app.register_blueprint(enhanced_vehicle_api)
 app.register_blueprint(weekly_checkin_api)
