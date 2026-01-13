@@ -21,6 +21,9 @@ class User(db.Model):
     user_id = db.Column(db.String(255), unique=True, nullable=False, index=True)
     email = db.Column(db.String(255), unique=True, nullable=False, index=True)
     
+    # Authentication
+    password_hash = db.Column(db.String(255), nullable=True)
+    
     # Personal information
     first_name = db.Column(db.String(100), nullable=True)
     last_name = db.Column(db.String(100), nullable=True)

@@ -177,11 +177,11 @@ const HeroSection: React.FC<HeroSectionProps> = ({
                   
                   {/* Bottom Action */}
                   <button 
-                    onClick={() => navigate('/career-dashboard')}
+                    onClick={() => navigate('/signup')}
                     className="w-full bg-gradient-to-r from-violet-500 to-purple-500 text-white py-2 sm:py-3 rounded-xl font-semibold text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-violet-400 focus:ring-offset-2 focus:ring-offset-gray-800"
-                    aria-label="View your full career dashboard with personalized insights"
+                    aria-label="Get started with Mingus"
                   >
-                    View Full Dashboard
+                    Get Started
                   </button>
                 </div>
               </div>

@@ -66,7 +66,7 @@ const PricingSection: React.FC<PricingSectionProps> = ({ pricingTiers, navigate 
                 }`}
                 aria-label={`Subscribe to ${tier.name} plan for ${tier.price} per ${tier.period}`}
                 aria-describedby={`${tier.name.toLowerCase().replace(/\s+/g, '-')}-description ${tier.name.toLowerCase().replace(/\s+/g, '-')}-features`}
-                onClick={() => navigate('/career-dashboard')}
+                onClick={() => navigate('/signup')}
               >
                 {tier.cta}
               </button>

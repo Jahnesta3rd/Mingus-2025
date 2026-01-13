@@ -263,13 +263,8 @@ const LandingPage: React.FC = () => {
       page: 'landing'
     });
     
-    setIsLoading(true);
-    // Simulate loading state
-    setTimeout(() => {
-      setIsLoading(false);
-      // Handle actual button action here
-      logger.log(`Button clicked: ${action}`);
-    }, 1000);
+    // Navigate to signup page
+    navigate('/signup');
   };
 
   // Handle assessment button clicks
@@ -490,11 +485,11 @@ const LandingPage: React.FC = () => {
                   Start Free Assessment
                 </button>
                 <button
-                  onClick={() => navigate('/career-dashboard')}
+                  onClick={() => navigate('/signup')}
                   className="bg-white text-blue-600 hover:bg-gray-100 rounded-lg px-6 py-3 text-sm font-semibold transition-all duration-200 hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-white/50"
-                  aria-label="View your career dashboard"
+                  aria-label="Get started with Mingus"
                 >
-                  View Dashboard
+                  Get Started
                 </button>
               </div>
             </div>
@@ -560,11 +555,11 @@ const LandingPage: React.FC = () => {
           
           <div className="text-center mt-8">
             <button
-              onClick={() => navigate('/career-dashboard')}
+              onClick={() => navigate('/signup')}
               className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3 rounded-lg font-semibold transition-all duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-              aria-label="View your full career dashboard with job recommendations"
+              aria-label="Get started with Mingus to access job recommendations"
             >
-              View Full Dashboard
+              Get Started
             </button>
           </div>
         </div>
@@ -659,6 +654,7 @@ const LandingPage: React.FC = () => {
         onButtonClick={handleButtonClick}
         onCTAKeyDown={handleCTAKeyDown}
         isLoading={isLoading}
+        navigate={navigate}
       />
       
       {/* Footer */}

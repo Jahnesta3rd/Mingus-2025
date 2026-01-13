@@ -1,6 +1,7 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, Link } from 'react-router-dom';
 import LandingPage from './components/LandingPage';
+import SignUpPage from './pages/SignUpPage';
 import AssessmentModal from './components/AssessmentModal';
 import MemeSplashPage from './components/MemeSplashPage';
 import MoodDashboard from './components/MoodDashboard';
@@ -123,6 +124,18 @@ const LoginPage: React.FC = () => {
               {loading ? 'Signing in...' : 'Sign in'}
             </button>
           </div>
+          
+          <div className="text-center">
+            <p className="text-sm text-gray-600">
+              Don't have an account?{' '}
+              <Link
+                to="/signup"
+                className="font-medium text-violet-600 hover:text-violet-500"
+              >
+                Sign up
+              </Link>
+            </p>
+          </div>
         </form>
       </div>
     </div>
@@ -135,6 +148,7 @@ function App() {
       <Router>
         <Routes>
           <Route path="/" element={<LandingPage />} />
+          <Route path="/signup" element={<SignUpPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/assessment" element={
             <PageWrapper>

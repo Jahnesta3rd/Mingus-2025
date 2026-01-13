@@ -4,12 +4,14 @@ interface CTASectionProps {
   onButtonClick: (action: string) => void;
   onCTAKeyDown: (e: React.KeyboardEvent, buttonText: string) => void;
   isLoading: boolean;
+  navigate: (path: string) => void;
 }
 
 const CTASection: React.FC<CTASectionProps> = ({
   onButtonClick,
   onCTAKeyDown,
-  isLoading
+  isLoading,
+  navigate
 }) => {
   return (
     <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-violet-600 via-violet-700 to-purple-800" role="region" aria-label="Call to action">
@@ -22,7 +24,10 @@ const CTASection: React.FC<CTASectionProps> = ({
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
           <button
-            onClick={() => onButtonClick('Start Your Wealth Journey')}
+            onClick={() => {
+              onButtonClick('Start Your Wealth Journey');
+              navigate('/signup');
+            }}
             onKeyDown={(e) => onCTAKeyDown(e, 'Start Your Wealth Journey')}
             disabled={isLoading}
             aria-label="Start your wealth building journey with Mingus"
@@ -34,7 +39,10 @@ const CTASection: React.FC<CTASectionProps> = ({
             {isLoading ? 'Loading...' : 'Start Your Wealth Journey'}
           </button>
           <button
-            onClick={() => onButtonClick('Join Our Community')}
+            onClick={() => {
+              onButtonClick('Join Our Community');
+              navigate('/signup');
+            }}
             onKeyDown={(e) => onCTAKeyDown(e, 'Join Our Community')}
             disabled={isLoading}
             aria-label="Join our community of Black professionals"

@@ -12,6 +12,7 @@ interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<void>;
+  register: (email: string, password: string, firstName: string, lastName?: string) => Promise<void>;
   logout: () => void;
   loading: boolean;
 }
@@ -101,6 +102,46 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const register = async (email: string, password: string, firstName: string, lastName?: string) => {
+    try {
+      setLoading(true);
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          email, 
+          password, 
+          first_name: firstName,
+          last_name: lastName || ''
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Registration failed');
+      }
+
+      const data = await response.json();
+      const userData = {
+        id: data.user_id,
+        email: data.email,
+        name: data.name || firstName,
+        token: data.token,
+        isAuthenticated: true
+      };
+
+      setUser(userData);
+      localStorage.setItem('mingus_token', data.token);
+    } catch (error: any) {
+      console.error('Registration error:', error);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const logout = () => {
     setUser(null);
     localStorage.removeItem('mingus_token');
@@ -110,6 +151,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     user,
     isAuthenticated: !!user?.isAuthenticated,
     login,
+    register,
     logout,
     loading
   };

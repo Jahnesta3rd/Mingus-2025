@@ -1,5 +1,6 @@
 import React from 'react';
-import { TrendingUp, AlertTriangle, Target, ArrowRight, Download, Share2, Mail, Calendar, BookOpen, Users, DollarSign, Shield, Zap, X, Car, Calculator } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { TrendingUp, AlertTriangle, Target, ArrowRight, Download, Share2, Mail, Calendar, BookOpen, Users, DollarSign, Shield, Zap, X, Car, Calculator, UserPlus } from 'lucide-react';
 
 // Types
 export interface AssessmentResult {
@@ -381,21 +382,30 @@ const CTASection: React.FC<{
       </div>
 
       {/* Action Buttons */}
-      <div className="flex space-x-3 pt-4">
+      <div className="space-y-3 pt-4">
         <button
-          onClick={onRetake}
-          className="flex-1 bg-gray-700 text-white px-4 py-2 rounded-lg font-medium hover:bg-gray-600 transition-colors duration-200 flex items-center justify-center space-x-2"
+          onClick={() => navigate('/signup')}
+          className="w-full bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-200 hover:scale-105 flex items-center justify-center space-x-2"
         >
-          <Target className="w-4 h-4" />
-          <span>Retake Assessment</span>
+          <UserPlus className="w-5 h-5" />
+          <span>Sign Up to Access Full Features</span>
         </button>
-        <button
-          onClick={onShare}
-          className="flex-1 bg-gray-700 text-white px-4 py-2 rounded-lg font-medium hover:bg-gray-600 transition-colors duration-200 flex items-center justify-center space-x-2"
-        >
-          <Share2 className="w-4 h-4" />
-          <span>Share Results</span>
-        </button>
+        <div className="flex space-x-3">
+          <button
+            onClick={onRetake}
+            className="flex-1 bg-gray-700 text-white px-4 py-2 rounded-lg font-medium hover:bg-gray-600 transition-colors duration-200 flex items-center justify-center space-x-2"
+          >
+            <Target className="w-4 h-4" />
+            <span>Retake Assessment</span>
+          </button>
+          <button
+            onClick={onShare}
+            className="flex-1 bg-gray-700 text-white px-4 py-2 rounded-lg font-medium hover:bg-gray-600 transition-colors duration-200 flex items-center justify-center space-x-2"
+          >
+            <Share2 className="w-4 h-4" />
+            <span>Share Results</span>
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -409,6 +419,7 @@ const AssessmentResults: React.FC<AssessmentResultsProps> = ({
   onShare,
   className = ''
 }) => {
+  const navigate = useNavigate();
   const getAssessmentTitle = (type: string) => {
     switch (type) {
       case 'ai-risk':

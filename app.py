@@ -23,6 +23,7 @@ load_dotenv()
 sys.path.append(os.path.join(os.path.dirname(__file__), 'backend'))
 
 # Import API blueprints
+from backend.api.auth_endpoints import auth_api
 from backend.api.assessment_endpoints import assessment_api
 from backend.api.meme_endpoints import meme_api
 from backend.api.user_preferences_endpoints import user_preferences_api
@@ -189,6 +190,7 @@ limiter = Limiter(
 )
 
 # Register API blueprints
+app.register_blueprint(auth_api)
 app.register_blueprint(assessment_api)
 app.register_blueprint(meme_api)
 app.register_blueprint(user_preferences_api)
