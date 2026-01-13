@@ -30,6 +30,9 @@ class SecurityMiddleware:
         public_endpoints = [
             '/health',
             '/api/status',
+            '/api/auth/register',
+            '/api/auth/login',
+            '/api/auth/verify',
         ]
         
         # Also skip for OPTIONS requests (CORS preflight) - do this FIRST
