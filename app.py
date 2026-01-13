@@ -40,7 +40,8 @@ try:
     from backend.api.vehicle_setup_endpoints import vehicle_setup_api
 except ImportError:
     vehicle_setup_api = None
-    logger.warning("vehicle_setup_endpoints module not found, skipping")
+    # Logger will be defined later, just skip for now
+    pass
 from backend.api.vehicle_expense_endpoints import vehicle_expense_api
 from backend.api.enhanced_vehicle_expense_endpoints import enhanced_vehicle_api
 from backend.api.weekly_checkin_endpoints import weekly_checkin_api
