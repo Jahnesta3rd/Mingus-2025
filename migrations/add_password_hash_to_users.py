@@ -2,9 +2,9 @@
 """
 Migration: Add password_hash field to users table
 This migration adds the password_hash column to support user authentication
+Supports both SQLite and PostgreSQL
 """
 
-import sqlite3
 import os
 import sys
 from pathlib import Path
@@ -12,54 +12,92 @@ from pathlib import Path
 # Add backend to path
 sys.path.append(str(Path(__file__).parent.parent))
 
-def get_db_path():
-    """Get database path from environment or use default"""
-    db_path = os.environ.get('DATABASE_URL', 'mingus_app.db')
-    # Remove sqlite:/// prefix if present
-    if db_path.startswith('sqlite:///'):
-        db_path = db_path.replace('sqlite:///', '')
-    return db_path
-
 def migrate():
     """Add password_hash column to users table"""
-    db_path = get_db_path()
+    database_url = os.environ.get('DATABASE_URL', '')
     
-    print(f"Connecting to database: {db_path}")
+    print(f"Connecting to database...")
     
     try:
-        conn = sqlite3.connect(db_path)
-        cursor = conn.cursor()
-        
-        # Check if column already exists
-        cursor.execute("PRAGMA table_info(users)")
-        columns = [column[1] for column in cursor.fetchall()]
-        
-        if 'password_hash' in columns:
-            print("✅ password_hash column already exists. Migration not needed.")
+        # Check if using PostgreSQL
+        if database_url.startswith('postgresql://') or database_url.startswith('postgres://'):
+            import psycopg2
+            from urllib.parse import urlparse
+            
+            # Parse database URL
+            parsed = urlparse(database_url)
+            
+            # Connect to PostgreSQL
+            conn = psycopg2.connect(
+                host=parsed.hostname,
+                port=parsed.port or 5432,
+                user=parsed.username,
+                password=parsed.password,
+                database=parsed.path.lstrip('/').split('?')[0],
+                sslmode='require'
+            )
+            cursor = conn.cursor()
+            
+            # Check if column already exists
+            cursor.execute("""
+                SELECT column_name 
+                FROM information_schema.columns 
+                WHERE table_name='users' AND column_name='password_hash'
+            """)
+            
+            if cursor.fetchone():
+                print("✅ password_hash column already exists. Migration not needed.")
+                conn.close()
+                return True
+            
+            # Add password_hash column
+            print("Adding password_hash column to users table...")
+            cursor.execute("""
+                ALTER TABLE users 
+                ADD COLUMN password_hash TEXT
+            """)
+            
+            conn.commit()
+            print("✅ Successfully added password_hash column to users table")
+            conn.close()
+            return True
+            
+        else:
+            # SQLite database
+            import sqlite3
+            
+            db_path = database_url.replace('sqlite:///', '') if database_url.startswith('sqlite:///') else (database_url or 'mingus_app.db')
+            
+            conn = sqlite3.connect(db_path)
+            cursor = conn.cursor()
+            
+            # Check if column already exists
+            cursor.execute("PRAGMA table_info(users)")
+            columns = [column[1] for column in cursor.fetchall()]
+            
+            if 'password_hash' in columns:
+                print("✅ password_hash column already exists. Migration not needed.")
+                conn.close()
+                return True
+            
+            # Add password_hash column
+            print("Adding password_hash column to users table...")
+            cursor.execute("""
+                ALTER TABLE users 
+                ADD COLUMN password_hash TEXT
+            """)
+            
+            conn.commit()
+            print("✅ Successfully added password_hash column to users table")
             conn.close()
             return True
         
-        # Add password_hash column
-        print("Adding password_hash column to users table...")
-        cursor.execute("""
-            ALTER TABLE users 
-            ADD COLUMN password_hash TEXT
-        """)
-        
-        conn.commit()
-        print("✅ Successfully added password_hash column to users table")
-        
-        conn.close()
-        return True
-        
-    except sqlite3.OperationalError as e:
-        if "duplicate column name" in str(e).lower():
+    except Exception as e:
+        error_msg = str(e).lower()
+        if "duplicate column" in error_msg or "already exists" in error_msg:
             print("✅ password_hash column already exists. Migration not needed.")
             return True
         print(f"❌ Error during migration: {e}")
-        return False
-    except Exception as e:
-        print(f"❌ Unexpected error during migration: {e}")
         return False
 
 if __name__ == "__main__":
