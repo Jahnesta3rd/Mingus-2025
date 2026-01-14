@@ -4,7 +4,7 @@ import { useAuth } from '../hooks/useAuth';
 
 const SignUpPage: React.FC = () => {
   const navigate = useNavigate();
-  const { register, loading } = useAuth();
+  const { register, loading, isAuthenticated } = useAuth();
   const [searchParams] = useSearchParams();
   const [formData, setFormData] = useState({
     email: '',
@@ -17,6 +17,13 @@ const SignUpPage: React.FC = () => {
   const [success, setSuccess] = useState(false);
   const [welcomeMessage, setWelcomeMessage] = useState<string | null>(null);
   const [entrySource, setEntrySource] = useState<'assessment' | 'cta' | null>(null);
+
+  // Redirect authenticated users to dashboard
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/career-dashboard', { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
 
   // Helper function to format assessment type
   const formatAssessmentType = (type: string): string => {

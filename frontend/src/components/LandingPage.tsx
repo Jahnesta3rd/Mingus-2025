@@ -374,11 +374,9 @@ const LandingPage: React.FC = () => {
         logger.warn('Could not save assessment data to localStorage');
       }
       
-      // Navigate to signup instead of just closing modal with assessment type
-      setTimeout(() => {
-        setActiveAssessment(null);
-        navigate(`/signup?from=assessment&type=${sanitizedData.assessmentType}`);
-      }, 1500);
+      // Note: AssessmentModal will show results first, then user clicks "Sign Up" button
+      // The navigation to signup happens from AssessmentResults component
+      // We don't auto-navigate here to let users see their results first
       
       // Clear success message after 5 seconds
       setTimeout(() => setSuccess(null), 5000);

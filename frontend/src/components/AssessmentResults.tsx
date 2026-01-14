@@ -384,7 +384,17 @@ const CTASection: React.FC<{
       {/* Action Buttons */}
       <div className="space-y-3 pt-4">
         <button
-          onClick={() => navigate('/signup')}
+          onClick={() => {
+            // Close the modal first
+            onClose();
+            
+            // Store assessment data before navigating (ensure it's saved)
+            const assessmentData = localStorage.getItem('mingus_assessment');
+            const assessmentType = result.assessment_type;
+            
+            // Navigate to signup with assessment type
+            navigate(`/signup?from=assessment&type=${assessmentType}`);
+          }}
           className="w-full bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-200 hover:scale-105 flex items-center justify-center space-x-2"
         >
           <UserPlus className="w-5 h-5" />
