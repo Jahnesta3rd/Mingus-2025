@@ -317,9 +317,10 @@ const LandingPage: React.FC = () => {
         answers: Sanitizer.sanitizeObject(data.answers)
       };
 
-      // Get CSRF token from meta tag or cookie
+      // Get CSRF token from meta tag or cookie, fallback to test-token for development
       const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || 
-                       getCookie('csrf-token') || '';
+                       getCookie('csrf-token') || 
+                       'test-token'; // Fallback for development/testing
 
       // Send assessment data to API with security headers
       const response = await fetch('/api/assessments', {

@@ -235,7 +235,8 @@ const CTASection: React.FC<{
   onRetake: () => void; 
   onShare: () => void;
   assessmentType: string;
-}> = ({ onRetake, onShare, assessmentType }) => {
+  onSignUp: () => void;
+}> = ({ onRetake, onShare, assessmentType, onSignUp }) => {
   const getCTAs = (type: string) => {
     switch (type) {
       case 'ai-risk':
@@ -384,17 +385,7 @@ const CTASection: React.FC<{
       {/* Action Buttons */}
       <div className="space-y-3 pt-4">
         <button
-          onClick={() => {
-            // Close the modal first
-            onClose();
-            
-            // Store assessment data before navigating (ensure it's saved)
-            const assessmentData = localStorage.getItem('mingus_assessment');
-            const assessmentType = result.assessment_type;
-            
-            // Navigate to signup with assessment type
-            navigate(`/signup?from=assessment&type=${assessmentType}`);
-          }}
+          onClick={onSignUp}
           className="w-full bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-200 hover:scale-105 flex items-center justify-center space-x-2"
         >
           <UserPlus className="w-5 h-5" />
@@ -548,6 +539,18 @@ const AssessmentResults: React.FC<AssessmentResultsProps> = ({
               onRetake={onRetake}
               onShare={onShare}
               assessmentType={result.assessment_type}
+              onSignUp={() => {
+                // Store assessment data before navigating (ensure it's saved)
+                const assessmentType = result.assessment_type;
+                
+                // Close the modal first, then navigate after a brief delay to ensure modal closes
+                onClose();
+                
+                // Use setTimeout to ensure modal closes before navigation
+                setTimeout(() => {
+                  navigate(`/signup?from=assessment&type=${assessmentType}`);
+                }, 100);
+              }}
             />
           </div>
         </div>
