@@ -236,7 +236,9 @@ const CTASection: React.FC<{
   onShare: () => void;
   assessmentType: string;
   onSignUp: () => void;
-}> = ({ onRetake, onShare, assessmentType, onSignUp }) => {
+  onClose: () => void;
+}> = ({ onRetake, onShare, assessmentType, onSignUp, onClose }) => {
+  const navigate = useNavigate();
   const getCTAs = (type: string) => {
     switch (type) {
       case 'ai-risk':
@@ -353,7 +355,15 @@ const CTASection: React.FC<{
             <p className="text-violet-100 text-sm mb-4">
               {ctas.primary.description}
             </p>
-            <button className="bg-white text-violet-600 px-6 py-2 rounded-lg font-semibold hover:bg-violet-50 transition-colors duration-200 flex items-center space-x-2">
+            <button 
+              onClick={() => {
+                onClose();
+                setTimeout(() => {
+                  navigate(`/signup?from=assessment&type=${assessmentType}`);
+                }, 100);
+              }}
+              className="bg-white text-violet-600 px-6 py-2 rounded-lg font-semibold hover:bg-violet-50 transition-colors duration-200 flex items-center space-x-2"
+            >
               <span>{ctas.primary.action}</span>
               <ArrowRight className="w-4 h-4" />
             </button>
@@ -374,7 +384,15 @@ const CTASection: React.FC<{
             <p className="text-gray-300 text-sm mb-4">
               {ctas.secondary.description}
             </p>
-            <button className="bg-gray-700 text-white px-6 py-2 rounded-lg font-semibold hover:bg-gray-600 transition-colors duration-200 flex items-center space-x-2">
+            <button 
+              onClick={() => {
+                onClose();
+                setTimeout(() => {
+                  navigate(`/signup?from=assessment&type=${assessmentType}`);
+                }, 100);
+              }}
+              className="bg-gray-700 text-white px-6 py-2 rounded-lg font-semibold hover:bg-gray-600 transition-colors duration-200 flex items-center space-x-2"
+            >
               <span>{ctas.secondary.action}</span>
               <ArrowRight className="w-4 h-4" />
             </button>
@@ -539,6 +557,7 @@ const AssessmentResults: React.FC<AssessmentResultsProps> = ({
               onRetake={onRetake}
               onShare={onShare}
               assessmentType={result.assessment_type}
+              onClose={onClose}
               onSignUp={() => {
                 // Store assessment data before navigating (ensure it's saved)
                 const assessmentType = result.assessment_type;
