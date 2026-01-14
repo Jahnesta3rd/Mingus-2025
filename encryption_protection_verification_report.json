@@ -1,0 +1,129 @@
+{
+  "timestamp": "2026-01-13T17:42:31.022674",
+  "summary": {
+    "total_checks": 18,
+    "passed": 11,
+    "critical_issues": 1,
+    "high_issues": 2,
+    "warnings": 4
+  },
+  "critical_issues": [
+    {
+      "severity": "CRITICAL",
+      "category": "Encryption",
+      "issue": "Encryption service uses base64 encoding only - NOT real encryption!",
+      "location": "backend/utils/encryption.py",
+      "recommendation": "Replace with proper encryption (Fernet/AES-256). Base64 is encoding, not encryption.",
+      "timestamp": "2026-01-13T14:56:01.062422"
+    }
+  ],
+  "high_issues": [
+    {
+      "severity": "HIGH",
+      "category": "Encryption",
+      "issue": "No proper encryption library detected",
+      "location": "backend/utils/encryption.py",
+      "recommendation": "Use cryptography library with Fernet or AES-256-GCM",
+      "timestamp": "2026-01-13T14:56:01.062734"
+    },
+    {
+      "severity": "HIGH",
+      "category": "Password Security",
+      "issue": "No secure password hashing library (bcrypt/argon2) in requirements",
+      "location": "requirements.txt",
+      "recommendation": "Add bcrypt or argon2-cffi for secure password hashing",
+      "timestamp": "2026-01-13T14:56:01.063488"
+    }
+  ],
+  "warnings": [
+    {
+      "severity": "MEDIUM",
+      "category": "Key Management",
+      "issue": "No encryption key management detected",
+      "location": "backend/utils/encryption.py",
+      "recommendation": "Implement secure key management from environment variables",
+      "timestamp": "2026-01-13T14:56:01.062986"
+    },
+    {
+      "severity": "MEDIUM",
+      "category": "Database Security",
+      "issue": "No database encryption migrations found",
+      "location": "migrations/",
+      "recommendation": "Create database encryption migration (002_add_encryption_fields.py)",
+      "timestamp": "2026-01-13T17:42:31.012154"
+    },
+    {
+      "severity": "MEDIUM",
+      "category": "Configuration",
+      "issue": "JWT_SECRET_KEY not in env.example",
+      "location": "env.example",
+      "recommendation": "Add JWT_SECRET_KEY for token signing",
+      "timestamp": "2026-01-13T17:42:31.016598"
+    },
+    {
+      "severity": "MEDIUM",
+      "category": "Transport Security",
+      "issue": "Session cookie security not enforced",
+      "location": "app.py",
+      "recommendation": "Enable SESSION_COOKIE_SECURE for HTTPS",
+      "timestamp": "2026-01-13T17:42:31.020751"
+    }
+  ],
+  "passed_checks": [
+    {
+      "category": "Encryption",
+      "message": "Housing data uses Fernet encryption (secure)",
+      "location": ""
+    },
+    {
+      "category": "Key Management",
+      "message": "Housing encryption key from environment",
+      "location": ""
+    },
+    {
+      "category": "Data Protection",
+      "message": "Sensitive data encryption function exists",
+      "location": ""
+    },
+    {
+      "category": "Configuration",
+      "message": "Encryption key configured",
+      "location": ""
+    },
+    {
+      "category": "Session Security",
+      "message": "Session cookie security configured",
+      "location": ""
+    },
+    {
+      "category": "CSRF Protection",
+      "message": "CSRF protection configured",
+      "location": ""
+    },
+    {
+      "category": "Database Security",
+      "message": "Security migration documentation exists",
+      "location": ""
+    },
+    {
+      "category": "Configuration",
+      "message": "ENCRYPTION_KEY in env.example",
+      "location": ""
+    },
+    {
+      "category": "Configuration",
+      "message": "SECRET_KEY in env.example",
+      "location": ""
+    },
+    {
+      "category": "Transport Security",
+      "message": "CORS configuration found",
+      "location": ""
+    },
+    {
+      "category": "Logging Security",
+      "message": "Sensitive data logging flag configured",
+      "location": ""
+    }
+  ]
+}
