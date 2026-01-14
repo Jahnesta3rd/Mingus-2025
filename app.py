@@ -28,6 +28,7 @@ from backend.api.assessment_endpoints import assessment_api
 from backend.api.meme_endpoints import meme_api
 from backend.api.user_preferences_endpoints import user_preferences_api
 from backend.api.profile_endpoints import profile_api
+from backend.api.quick_setup_endpoints import quick_setup_api
 from backend.api.resume_endpoints import resume_api
 from backend.api.job_matching_endpoints import job_matching_api
 from backend.api.three_tier_endpoints import three_tier_api
@@ -200,6 +201,7 @@ app.register_blueprint(assessment_api)
 app.register_blueprint(meme_api)
 app.register_blueprint(user_preferences_api)
 app.register_blueprint(profile_api)
+app.register_blueprint(quick_setup_api)
 app.register_blueprint(resume_api)
 app.register_blueprint(job_matching_api)
 app.register_blueprint(three_tier_api)

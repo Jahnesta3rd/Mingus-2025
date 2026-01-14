@@ -361,9 +361,23 @@ const LandingPage: React.FC = () => {
         timestamp: new Date().toISOString()
       });
       
-      // Close the modal after a short delay
+      // Store assessment data for registration pre-fill
+      try {
+        localStorage.setItem('mingus_assessment', JSON.stringify({
+          email: sanitizedData.email,
+          firstName: sanitizedData.firstName,
+          assessmentType: sanitizedData.assessmentType,
+          completedAt: new Date().toISOString()
+        }));
+      } catch (e) {
+        // localStorage might be unavailable in some contexts
+        logger.warn('Could not save assessment data to localStorage');
+      }
+      
+      // Navigate to signup instead of just closing modal
       setTimeout(() => {
         setActiveAssessment(null);
+        navigate('/signup?from=assessment');
       }, 1500);
       
       // Clear success message after 5 seconds

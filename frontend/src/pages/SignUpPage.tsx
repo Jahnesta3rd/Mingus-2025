@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 
 const SignUpPage: React.FC = () => {
   const navigate = useNavigate();
   const { register, loading } = useAuth();
+  const [searchParams] = useSearchParams();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -14,6 +15,43 @@ const SignUpPage: React.FC = () => {
   });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+  const [welcomeMessage, setWelcomeMessage] = useState<string | null>(null);
+
+  // Helper function to format assessment type
+  const formatAssessmentType = (type: string): string => {
+    const names: Record<string, string> = {
+      'ai-risk': 'AI Replacement Risk',
+      'income-comparison': 'Income Comparison',
+      'cuffing-season': 'Cuffing Season Score',
+      'layoff-risk': 'Layoff Risk'
+    };
+    return names[type] || 'Assessment';
+  };
+
+  // Pre-fill form from assessment data
+  useEffect(() => {
+    // Check if user came from assessment
+    const fromAssessment = searchParams.get('from') === 'assessment';
+    
+    const savedData = localStorage.getItem('mingus_assessment');
+    if (savedData) {
+      try {
+        const { email, firstName, assessmentType } = JSON.parse(savedData);
+        setFormData(prev => ({
+          ...prev,
+          email: email || prev.email,
+          firstName: firstName || prev.firstName
+        }));
+        
+        // Show a personalized message if from assessment
+        if (fromAssessment && assessmentType) {
+          setWelcomeMessage(`Complete your registration to see your full ${formatAssessmentType(assessmentType)} results!`);
+        }
+      } catch (e) {
+        console.warn('Could not parse assessment data');
+      }
+    }
+  }, [searchParams]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -67,9 +105,9 @@ const SignUpPage: React.FC = () => {
         formData.lastName
       );
       setSuccess(true);
-      // Redirect to dashboard after successful registration
+      // Redirect to quick setup after successful registration
       setTimeout(() => {
-        navigate('/career-dashboard');
+        navigate('/quick-setup');
       }, 1500);
     } catch (err: any) {
       setError(err.message || 'Registration failed. Please try again.');
@@ -89,6 +127,11 @@ const SignUpPage: React.FC = () => {
           <p className="mt-2 text-center text-sm text-gray-600">
             Start your journey to financial wellness
           </p>
+          {welcomeMessage && (
+            <div className="mt-4 rounded-md bg-violet-50 p-3 border border-violet-200">
+              <p className="text-sm text-violet-800 text-center">{welcomeMessage}</p>
+            </div>
+          )}
         </div>
         
         {success ? (

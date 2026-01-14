@@ -26,6 +26,7 @@ import NotificationTestSuite from './components/NotificationTestSuite';
 import NotificationDemo from './components/NotificationDemo';
 import NotificationTestPage from './pages/NotificationTestPage';
 import ABTestingManager from './components/ABTestingManager';
+import QuickSetup from './components/QuickSetup';
 import { AuthProvider, useAuth } from './hooks/useAuth';
 
 // Protected Route Component
@@ -150,6 +151,11 @@ function App() {
           <Route path="/" element={<LandingPage />} />
           <Route path="/signup" element={<SignUpPage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/quick-setup" element={
+            <ProtectedRoute>
+              <QuickSetup />
+            </ProtectedRoute>
+          } />
           <Route path="/assessment" element={
             <PageWrapper>
               <AssessmentModal isOpen={true} assessmentType="ai-risk" onClose={() => {}} onSubmit={() => {}} />
