@@ -80,7 +80,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
 
       if (!response.ok) {
-        throw new Error('Login failed');
+        let errorMessage = 'Login failed';
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.error || errorData.message || errorMessage;
+        } catch {
+          // If response is not JSON, use status text
+          errorMessage = response.statusText || errorMessage;
+        }
+        throw new Error(errorMessage);
       }
 
       const data = await response.json();
@@ -94,8 +102,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       setUser(userData);
       localStorage.setItem('mingus_token', data.token);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Login error:', error);
+      // Re-throw with better error message if it's a network error
+      if (error.name === 'TypeError' && error.message.includes('fetch')) {
+        throw new Error('Unable to connect to server. Please check your connection.');
+      }
       throw error;
     } finally {
       setLoading(false);
@@ -119,8 +131,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || 'Registration failed');
+        let errorMessage = 'Registration failed';
+        try {
+          const errorData = await response.json();
+          // Backend returns 'error' field, not 'message'
+          errorMessage = errorData.error || errorData.message || errorMessage;
+        } catch {
+          // If response is not JSON, use status text
+          errorMessage = response.statusText || errorMessage;
+        }
+        throw new Error(errorMessage);
       }
 
       const data = await response.json();
@@ -136,6 +156,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       localStorage.setItem('mingus_token', data.token);
     } catch (error: any) {
       console.error('Registration error:', error);
+      // Re-throw with better error message if it's a network error
+      if (error.name === 'TypeError' && error.message.includes('fetch')) {
+        throw new Error('Unable to connect to server. Please check your connection.');
+      }
       throw error;
     } finally {
       setLoading(false);

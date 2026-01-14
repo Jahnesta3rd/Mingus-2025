@@ -334,8 +334,16 @@ const LandingPage: React.FC = () => {
       });
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || `HTTP ${response.status}: Failed to submit assessment`);
+        let errorMessage = `HTTP ${response.status}: Failed to submit assessment`;
+        try {
+          const errorData = await response.json();
+          // Backend returns 'error' field, not 'message'
+          errorMessage = errorData.error || errorData.message || errorMessage;
+        } catch {
+          // If response is not JSON, use status text
+          errorMessage = response.statusText || errorMessage;
+        }
+        throw new Error(errorMessage);
       }
 
       // Track successful assessment submission
