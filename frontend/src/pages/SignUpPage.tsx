@@ -16,6 +16,7 @@ const SignUpPage: React.FC = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   const [welcomeMessage, setWelcomeMessage] = useState<string | null>(null);
+  const [entrySource, setEntrySource] = useState<'assessment' | 'cta' | null>(null);
 
   // Helper function to format assessment type
   const formatAssessmentType = (type: string): string => {
@@ -28,28 +29,40 @@ const SignUpPage: React.FC = () => {
     return names[type] || 'Assessment';
   };
 
-  // Pre-fill form from assessment data
+  // Pre-fill form from assessment data and set welcome message
   useEffect(() => {
-    // Check if user came from assessment
+    // Check entry source
     const fromAssessment = searchParams.get('from') === 'assessment';
+    const fromCTA = searchParams.get('source') === 'cta';
+    const assessmentType = searchParams.get('type');
+    
+    if (fromAssessment) {
+      setEntrySource('assessment');
+    } else if (fromCTA) {
+      setEntrySource('cta');
+    }
     
     const savedData = localStorage.getItem('mingus_assessment');
     if (savedData) {
       try {
-        const { email, firstName, assessmentType } = JSON.parse(savedData);
+        const { email, firstName, assessmentType: savedType } = JSON.parse(savedData);
         setFormData(prev => ({
           ...prev,
           email: email || prev.email,
           firstName: firstName || prev.firstName
         }));
         
-        // Show a personalized message if from assessment
-        if (fromAssessment && assessmentType) {
-          setWelcomeMessage(`Complete your registration to see your full ${formatAssessmentType(assessmentType)} results!`);
+        // Show personalized message based on entry point
+        if (fromAssessment && (assessmentType || savedType)) {
+          const type = assessmentType || savedType;
+          setWelcomeMessage(`Complete your registration to see your full ${formatAssessmentType(type)} results!`);
         }
       } catch (e) {
         console.warn('Could not parse assessment data');
       }
+    } else if (fromCTA) {
+      // Show welcome message for CTA users
+      setWelcomeMessage('Welcome to Mingus! Let\'s get you started on your financial wellness journey.');
     }
   }, [searchParams]);
 
@@ -105,9 +118,10 @@ const SignUpPage: React.FC = () => {
         formData.lastName
       );
       setSuccess(true);
-      // Redirect to quick setup after successful registration
+      // Redirect to quick setup after successful registration with source tracking
+      const sourceParam = entrySource === 'assessment' ? '?from=assessment' : entrySource === 'cta' ? '?source=cta' : '';
       setTimeout(() => {
-        navigate('/quick-setup');
+        navigate(`/quick-setup${sourceParam}`);
       }, 1500);
     } catch (err: any) {
       setError(err.message || 'Registration failed. Please try again.');

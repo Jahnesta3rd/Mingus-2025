@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { DollarSign, MapPin, Target, ArrowRight } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { DollarSign, MapPin, Target, ArrowRight, Award } from 'lucide-react';
 
 interface QuickSetupData {
   incomeRange: string;
@@ -10,6 +10,7 @@ interface QuickSetupData {
 
 const QuickSetup: React.FC = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [formData, setFormData] = useState<QuickSetupData>({
     incomeRange: '',
     location: '',
@@ -17,6 +18,43 @@ const QuickSetup: React.FC = () => {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [fromAssessment, setFromAssessment] = useState(false);
+  const [assessmentType, setAssessmentType] = useState<string | null>(null);
+
+  // Check if user came from assessment
+  useEffect(() => {
+    const from = searchParams.get('from');
+    const type = searchParams.get('type');
+    
+    if (from === 'assessment') {
+      setFromAssessment(true);
+      if (type) {
+        setAssessmentType(type);
+      } else {
+        // Try to get from localStorage
+        const savedData = localStorage.getItem('mingus_assessment');
+        if (savedData) {
+          try {
+            const { assessmentType: savedType } = JSON.parse(savedData);
+            setAssessmentType(savedType);
+          } catch (e) {
+            // Ignore parse errors
+          }
+        }
+      }
+    }
+  }, [searchParams]);
+
+  // Helper function to format assessment type
+  const formatAssessmentType = (type: string): string => {
+    const names: Record<string, string> = {
+      'ai-risk': 'AI Replacement Risk',
+      'income-comparison': 'Income Comparison',
+      'cuffing-season': 'Cuffing Season Score',
+      'layoff-risk': 'Layoff Risk'
+    };
+    return names[type] || 'Assessment';
+  };
 
   const incomeRanges = [
     { value: '30-50k', label: '$30,000 - $50,000' },
@@ -80,8 +118,19 @@ const QuickSetup: React.FC = () => {
     <div className="min-h-screen bg-gray-900 flex items-center justify-center px-4">
       <div className="max-w-md w-full">
         <div className="text-center mb-8">
+          {fromAssessment && assessmentType && (
+            <div className="mb-4 inline-flex items-center gap-2 bg-violet-600/20 border border-violet-500/30 rounded-full px-4 py-2">
+              <Award className="h-4 w-4 text-violet-400" />
+              <span className="text-sm text-violet-300">
+                {formatAssessmentType(assessmentType)} Assessment Completed
+              </span>
+            </div>
+          )}
           <h1 className="text-3xl font-bold text-white mb-2">
-            Let's personalize your experience
+            {fromAssessment 
+              ? "Let's personalize your experience based on your assessment"
+              : "Let's personalize your experience"
+            }
           </h1>
           <p className="text-gray-400">
             Just 3 quick questions to get you started

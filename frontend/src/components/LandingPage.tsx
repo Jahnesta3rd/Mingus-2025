@@ -263,8 +263,8 @@ const LandingPage: React.FC = () => {
       page: 'landing'
     });
     
-    // Navigate to signup page
-    navigate('/signup');
+    // Navigate to signup page with source tracking
+    navigate('/signup?source=cta');
   };
 
   // Handle assessment button clicks
@@ -374,10 +374,10 @@ const LandingPage: React.FC = () => {
         logger.warn('Could not save assessment data to localStorage');
       }
       
-      // Navigate to signup instead of just closing modal
+      // Navigate to signup instead of just closing modal with assessment type
       setTimeout(() => {
         setActiveAssessment(null);
-        navigate('/signup?from=assessment');
+        navigate(`/signup?from=assessment&type=${sanitizedData.assessmentType}`);
       }, 1500);
       
       // Clear success message after 5 seconds
@@ -507,7 +507,7 @@ const LandingPage: React.FC = () => {
                   Start Free Assessment
                 </button>
                 <button
-                  onClick={() => navigate('/signup')}
+                  onClick={() => navigate('/signup?source=cta')}
                   className="bg-white text-blue-600 hover:bg-gray-100 rounded-lg px-6 py-3 text-sm font-semibold transition-all duration-200 hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-white/50"
                   aria-label="Get started with Mingus"
                 >
@@ -577,7 +577,7 @@ const LandingPage: React.FC = () => {
           
           <div className="text-center mt-8">
             <button
-              onClick={() => navigate('/signup')}
+              onClick={() => navigate('/signup?source=cta')}
               className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3 rounded-lg font-semibold transition-all duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
               aria-label="Get started with Mingus to access job recommendations"
             >

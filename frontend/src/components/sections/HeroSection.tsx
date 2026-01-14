@@ -177,7 +177,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
                   
                   {/* Bottom Action */}
                   <button 
-                    onClick={() => navigate('/signup')}
+                    onClick={() => navigate('/signup?source=cta')}
                     className="w-full bg-gradient-to-r from-violet-500 to-purple-500 text-white py-2 sm:py-3 rounded-xl font-semibold text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-violet-400 focus:ring-offset-2 focus:ring-offset-gray-800"
                     aria-label="Get started with Mingus"
                   >
