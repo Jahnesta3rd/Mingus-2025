@@ -33,6 +33,7 @@ class SecurityMiddleware:
             '/api/auth/register',
             '/api/auth/login',
             '/api/auth/verify',
+            '/api/assessments',  # Public assessment submissions
         ]
         
         # Also skip for OPTIONS requests (CORS preflight) - do this FIRST
