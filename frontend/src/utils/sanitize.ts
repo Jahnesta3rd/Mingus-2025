@@ -9,8 +9,8 @@ export class Sanitizer {
     // Remove null bytes and control characters
     let sanitized = input.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
     
-    // Trim whitespace
-    sanitized = sanitized.trim();
+    // Note: Don't trim here - preserve spaces during input
+    // Trimming happens on final submission
     
     // Limit length
     sanitized = sanitized.substring(0, 1000);
