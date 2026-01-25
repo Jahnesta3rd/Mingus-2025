@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { TrendingUp, AlertTriangle, Target, ArrowRight, Download, Share2, Mail, Calendar, BookOpen, Users, DollarSign, Shield, Zap, X, Car, Calculator, UserPlus } from 'lucide-react';
+import { AlertTriangle, Target, Download, Mail, Calendar, Shield, X } from 'lucide-react';
 
 // Types
 export interface AssessmentResult {
@@ -191,246 +191,6 @@ const RiskLevelIndicator: React.FC<{ riskLevel: string; score: number }> = ({ ri
   );
 };
 
-const RecommendationCard: React.FC<{ 
-  recommendation: string; 
-  index: number;
-  category: 'action' | 'learning' | 'networking' | 'financial';
-}> = ({ recommendation, index, category }) => {
-  const getCategoryConfig = (cat: string) => {
-    switch (cat) {
-      case 'action':
-        return { icon: Zap, color: 'text-blue-400', bgColor: 'bg-blue-900/20' };
-      case 'learning':
-        return { icon: BookOpen, color: 'text-purple-400', bgColor: 'bg-purple-900/20' };
-      case 'networking':
-        return { icon: Users, color: 'text-green-400', bgColor: 'bg-green-900/20' };
-      case 'financial':
-        return { icon: DollarSign, color: 'text-yellow-400', bgColor: 'bg-yellow-900/20' };
-      default:
-        return { icon: Target, color: 'text-gray-400', bgColor: 'bg-gray-900/20' };
-    }
-  };
-
-  const config = getCategoryConfig(category);
-  const Icon = config.icon;
-
-  return (
-    <div className={`${config.bgColor} rounded-lg p-4 border border-gray-700`}>
-      <div className="flex items-start space-x-3">
-        <div className={`${config.color} mt-1`}>
-          <Icon className="w-5 h-5" />
-        </div>
-        <div className="flex-1">
-          <div className="text-sm text-white font-medium mb-1">
-            Step {index + 1}
-          </div>
-          <div className="text-sm text-gray-300">
-            {recommendation}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const CTASection: React.FC<{ 
-  onRetake: () => void; 
-  onShare: () => void;
-  assessmentType: string;
-  onSignUp: () => void;
-  onClose: () => void;
-}> = ({ onRetake, onShare, assessmentType, onSignUp, onClose }) => {
-  const navigate = useNavigate();
-  const getCTAs = (type: string) => {
-    switch (type) {
-      case 'ai-risk':
-        return {
-          primary: {
-            title: 'Get AI-Ready Skills Training',
-            description: 'Learn the skills that will keep you ahead of AI',
-            action: 'Start Learning',
-            icon: BookOpen
-          },
-          secondary: {
-            title: 'Join AI Professionals Network',
-            description: 'Connect with others navigating AI in their careers',
-            action: 'Join Network',
-            icon: Users
-          }
-        };
-      case 'income-comparison':
-        return {
-          primary: {
-            title: 'Negotiate Your Salary',
-            description: 'Get expert guidance on salary negotiation',
-            action: 'Get Negotiation Guide',
-            icon: DollarSign
-          },
-          secondary: {
-            title: 'Career Advancement Plan',
-            description: 'Create a roadmap to increase your earning potential',
-            action: 'Create Plan',
-            icon: TrendingUp
-          }
-        };
-      case 'cuffing-season':
-        return {
-          primary: {
-            title: 'Dating Success Workshop',
-            description: 'Learn proven strategies for meaningful connections',
-            action: 'Join Workshop',
-            icon: Users
-          },
-          secondary: {
-            title: 'Confidence Building Course',
-            description: 'Build the confidence to attract the right partner',
-            action: 'Start Course',
-            icon: Target
-          }
-        };
-      case 'layoff-risk':
-        return {
-          primary: {
-            title: 'Job Security Action Plan',
-            description: 'Protect your career with strategic moves',
-            action: 'Get Action Plan',
-            icon: Shield
-          },
-          secondary: {
-            title: 'Skills Development Program',
-            description: 'Build in-demand skills to future-proof your career',
-            action: 'Start Program',
-            icon: BookOpen
-          }
-        };
-      case 'vehicle-financial-health':
-        return {
-          primary: {
-            title: 'Vehicle Financial Planning Guide',
-            description: 'Get expert strategies for vehicle cost management',
-            action: 'Get Planning Guide',
-            icon: Car
-          },
-          secondary: {
-            title: 'Vehicle Emergency Fund Calculator',
-            description: 'Calculate the right emergency fund for your vehicle',
-            action: 'Calculate Fund',
-            icon: Calculator
-          }
-        };
-      default:
-        return {
-          primary: {
-            title: 'Get Personalized Guidance',
-            description: 'Receive expert advice tailored to your results',
-            action: 'Get Guidance',
-            icon: Target
-          },
-          secondary: {
-            title: 'Join Our Community',
-            description: 'Connect with others on similar journeys',
-            action: 'Join Community',
-            icon: Users
-          }
-        };
-    }
-  };
-
-  const ctas = getCTAs(assessmentType);
-  const PrimaryIcon = ctas.primary.icon;
-  const SecondaryIcon = ctas.secondary.icon;
-
-  return (
-    <div className="space-y-4">
-      <h3 className="text-lg font-semibold text-white mb-4">Your Next Steps</h3>
-      
-      {/* Primary CTA */}
-      <div className="bg-gradient-to-r from-violet-600 to-purple-600 rounded-lg p-6">
-        <div className="flex items-start space-x-4">
-          <div className="text-white">
-            <PrimaryIcon className="w-6 h-6" />
-          </div>
-          <div className="flex-1">
-            <h4 className="text-lg font-semibold text-white mb-2">
-              {ctas.primary.title}
-            </h4>
-            <p className="text-violet-100 text-sm mb-4">
-              {ctas.primary.description}
-            </p>
-            <button 
-              onClick={() => {
-                onClose();
-                setTimeout(() => {
-                  navigate(`/signup?from=assessment&type=${assessmentType}`);
-                }, 100);
-              }}
-              className="bg-white text-violet-600 px-6 py-2 rounded-lg font-semibold hover:bg-violet-50 transition-colors duration-200 flex items-center space-x-2"
-            >
-              <span>{ctas.primary.action}</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Secondary CTA */}
-      <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
-        <div className="flex items-start space-x-4">
-          <div className="text-gray-400">
-            <SecondaryIcon className="w-6 h-6" />
-          </div>
-          <div className="flex-1">
-            <h4 className="text-lg font-semibold text-white mb-2">
-              {ctas.secondary.title}
-            </h4>
-            <p className="text-gray-300 text-sm mb-4">
-              {ctas.secondary.description}
-            </p>
-            <button 
-              onClick={() => {
-                onClose();
-                setTimeout(() => {
-                  navigate(`/signup?from=assessment&type=${assessmentType}`);
-                }, 100);
-              }}
-              className="bg-gray-700 text-white px-6 py-2 rounded-lg font-semibold hover:bg-gray-600 transition-colors duration-200 flex items-center space-x-2"
-            >
-              <span>{ctas.secondary.action}</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Action Buttons */}
-      <div className="space-y-3 pt-4">
-        <button
-          onClick={onSignUp}
-          className="w-full bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-200 hover:scale-105 flex items-center justify-center space-x-2"
-        >
-          <UserPlus className="w-5 h-5" />
-          <span>Sign Up to Access Full Features</span>
-        </button>
-        <div className="flex space-x-3">
-          <button
-            onClick={onRetake}
-            className="flex-1 bg-gray-700 text-white px-4 py-2 rounded-lg font-medium hover:bg-gray-600 transition-colors duration-200 flex items-center justify-center space-x-2"
-          >
-            <Target className="w-4 h-4" />
-            <span>Retake Assessment</span>
-          </button>
-          <button
-            onClick={onShare}
-            className="flex-1 bg-gray-700 text-white px-4 py-2 rounded-lg font-medium hover:bg-gray-600 transition-colors duration-200 flex items-center justify-center space-x-2"
-          >
-            <Share2 className="w-4 h-4" />
-            <span>Share Results</span>
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
 
 // Main AssessmentResults Component
 const AssessmentResults: React.FC<AssessmentResultsProps> = ({
@@ -532,7 +292,7 @@ const AssessmentResults: React.FC<AssessmentResultsProps> = ({
     if (type === 'vehicle-financial-health') {
       if (roundedScore >= 80) return { color: 'text-green-400', text: 'Excellent vehicle financial health! You\'re well-prepared.' };
       if (roundedScore >= 60) return { color: 'text-blue-400', text: 'Good standing. Some areas could use attention.' };
-      if (roundedScore >= 40) return { color: 'text-yellow-400', text: 'Moderate risk. Consider the recommendations below.' };
+      if (roundedScore >= 40) return { color: 'text-yellow-400', text: 'Moderate risk. Sign up to see personalized financial insights.' };
       if (roundedScore >= 20) return { color: 'text-orange-400', text: 'Elevated risk. Action recommended to improve your position.' };
       return { color: 'text-red-400', text: 'High risk. Immediate attention needed in key areas.' };
     }
@@ -565,7 +325,7 @@ const AssessmentResults: React.FC<AssessmentResultsProps> = ({
 
       {/* Content */}
       <div className="p-4 sm:p-6 overflow-y-auto overflow-x-hidden max-h-[calc(90vh-200px)]">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="max-w-2xl mx-auto space-y-6">
           {/* Left Column - Score and Charts */}
           <div className="space-y-6">
             {/* Score Display */}
@@ -612,42 +372,71 @@ const AssessmentResults: React.FC<AssessmentResultsProps> = ({
             )}
           </div>
 
-          {/* Right Column - Recommendations and CTAs */}
-          <div className="space-y-6">
-            {/* Recommendations */}
-            <div>
-              <h3 className="text-lg font-semibold text-white mb-4">Personalized Recommendations</h3>
-              <div className="space-y-3">
-                {result.recommendations.map((recommendation, index) => (
-                  <RecommendationCard
-                    key={index}
-                    recommendation={recommendation}
-                    index={index}
-                    category={index % 2 === 0 ? 'action' : 'learning'}
-                  />
-                ))}
-              </div>
+          {/* Signup CTA */}
+          <div className="mt-8 p-6 bg-gradient-to-r from-violet-900/50 to-purple-900/50 rounded-xl border border-violet-500/30">
+            <h3 className="text-xl font-bold text-white text-center mb-3">
+              See How This Affects Your Finances
+            </h3>
+            
+            <p className="text-gray-300 text-center mb-6">
+              Your {result.assessment_type === 'ai-risk' ? 'AI risk score' : 
+                    result.assessment_type === 'income-comparison' ? 'income positioning' :
+                    result.assessment_type === 'layoff-risk' ? 'job security score' :
+                    'readiness score'} directly impacts your financial forecast. 
+              Sign up to see personalized projections and actionable insights.
+            </p>
+
+            <ul className="text-gray-300 text-sm space-y-2 mb-6 max-w-sm mx-auto">
+              <li className="flex items-center gap-2">
+                <svg className="w-5 h-5 text-green-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+                <span>See your score's impact on cash flow</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <svg className="w-5 h-5 text-green-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+                <span>Get personalized financial projections</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <svg className="w-5 h-5 text-green-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+                <span>Track improvements over time</span>
+              </li>
+            </ul>
+
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <button
+                onClick={() => {
+                  // Store assessment results for pre-fill
+                  localStorage.setItem('assessmentResults', JSON.stringify({
+                    type: result.assessment_type,
+                    score: Math.round(result.score),
+                    completedAt: new Date().toISOString()
+                  }));
+                  onClose();
+                  setTimeout(() => {
+                    navigate(`/signup?from=assessment&type=${result.assessment_type}`);
+                  }, 100);
+                }}
+                className="px-8 py-3 bg-violet-600 hover:bg-violet-500 text-white font-semibold rounded-lg transition-colors text-center"
+              >
+                Sign Up Free
+              </button>
+              
+              <button
+                onClick={onClose}
+                className="px-8 py-3 bg-transparent hover:bg-gray-700 text-gray-300 font-medium rounded-lg border border-gray-600 transition-colors text-center"
+              >
+                Maybe Later
+              </button>
             </div>
 
-            {/* CTAs */}
-            <CTASection
-              onRetake={onRetake}
-              onShare={onShare}
-              assessmentType={result.assessment_type}
-              onClose={onClose}
-              onSignUp={() => {
-                // Store assessment data before navigating (ensure it's saved)
-                const assessmentType = result.assessment_type;
-                
-                // Close the modal first, then navigate after a brief delay to ensure modal closes
-                onClose();
-                
-                // Use setTimeout to ensure modal closes before navigation
-                setTimeout(() => {
-                  navigate(`/signup?from=assessment&type=${assessmentType}`);
-                }, 100);
-              }}
-            />
+            <p className="text-gray-500 text-xs text-center mt-4">
+              Free 14-day trial • No credit card required
+            </p>
           </div>
         </div>
 
@@ -660,7 +449,7 @@ const AssessmentResults: React.FC<AssessmentResultsProps> = ({
                 📧 Results Email Sent!
               </div>
               <div className="text-xs text-green-300">
-                Check your email for detailed results and personalized recommendations
+                Check your email for detailed results
               </div>
             </div>
           </div>
