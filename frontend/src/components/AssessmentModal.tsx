@@ -720,19 +720,48 @@ const AssessmentModal: React.FC<AssessmentModalProps> = ({
         completedAt: new Date().toISOString()
       };
 
-      // Simulate API call and get results
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Call the API to submit assessment
+      const response = await fetch('/api/assessments', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || 'test-token',
+          'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify(assessmentData)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `Failed to submit assessment: ${response.statusText}`);
+      }
+
+      const apiResponse = await response.json();
       
-      // Generate mock results based on assessment type
-      const mockResult = generateMockResults(assessmentData.assessmentType, assessmentData.answers);
-      setAssessmentResult(mockResult);
+      // Get assessment_id from response
+      const assessmentId = apiResponse.assessment_id || parseInt(response.headers.get('X-Assessment-ID') || '0');
+      
+      // Use results from API or generate mock results as fallback
+      const results = apiResponse.results || generateMockResults(assessmentData.assessmentType, assessmentData.answers);
+      
+      // Add assessment_id to results
+      const resultWithId = {
+        ...results,
+        assessment_id: assessmentId,
+        assessment_type: assessmentData.assessmentType,
+        completed_at: assessmentData.completedAt
+      };
+      
+      setAssessmentResult(resultWithId);
       setShowResults(true);
       
-      // Still call onSubmit for data collection
+      // Still call onSubmit for data collection (parent component may need it)
       onSubmit(assessmentData);
       
       // Show email confirmation
-      console.log('📧 Results email sent to:', assessmentData.email);
+      if (apiResponse.email_sent) {
+        console.log('📧 Results email sent to:', assessmentData.email);
+      }
     } catch (err) {
       setError('Failed to submit assessment. Please try again.');
     } finally {

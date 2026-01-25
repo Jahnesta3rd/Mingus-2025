@@ -4,6 +4,7 @@ import { TrendingUp, AlertTriangle, Target, ArrowRight, Download, Share2, Mail, 
 
 // Types
 export interface AssessmentResult {
+  assessment_id?: number;
   score: number;
   risk_level: string;
   recommendations: string[];
@@ -439,6 +440,56 @@ const AssessmentResults: React.FC<AssessmentResultsProps> = ({
   className = ''
 }) => {
   const navigate = useNavigate();
+  
+  // Handle PDF download
+  const handleDownloadPDF = async () => {
+    if (!result.assessment_id) {
+      console.error('Assessment ID not available for download');
+      // Fallback: try to generate a client-side PDF or show error
+      alert('Assessment ID not available. Please complete the assessment again to download PDF.');
+      return;
+    }
+    
+    try {
+      const response = await fetch(`/api/assessments/${result.assessment_id}/download`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      if (!response.ok) {
+        if (response.status === 503) {
+          const errorData = await response.json();
+          alert(errorData.error || 'PDF generation is not available. Please contact support.');
+        } else if (response.status === 404) {
+          alert('Assessment not found. Please complete the assessment again.');
+        } else {
+          alert('Failed to download PDF. Please try again later.');
+        }
+        return;
+      }
+      
+      // Get the PDF blob
+      const blob = await response.blob();
+      
+      // Create download link
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `assessment-results-${result.assessment_type}-${result.assessment_id || Date.now()}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      
+      // Cleanup
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error('Error downloading PDF:', error);
+      alert('Failed to download PDF. Please check your connection and try again.');
+    }
+  };
+  
   const getAssessmentTitle = (type: string) => {
     switch (type) {
       case 'ai-risk':
@@ -593,7 +644,12 @@ const AssessmentResults: React.FC<AssessmentResultsProps> = ({
         <div className="mt-8 pt-6 border-t border-gray-700">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <button className="flex items-center space-x-2 text-gray-400 hover:text-white transition-colors duration-200">
+              <button 
+                onClick={handleDownloadPDF}
+                className="flex items-center space-x-2 text-gray-400 hover:text-white transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={!result.assessment_id}
+                title={result.assessment_id ? 'Download assessment results as PDF' : 'Assessment ID not available'}
+              >
                 <Download className="w-4 h-4" />
                 <span className="text-sm">Download PDF</span>
               </button>

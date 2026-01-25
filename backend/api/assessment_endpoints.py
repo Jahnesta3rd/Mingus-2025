@@ -11,7 +11,7 @@ import hashlib
 import hmac
 import secrets
 from datetime import datetime
-from flask import Blueprint, request, jsonify, current_app
+from flask import Blueprint, request, jsonify, current_app, send_file
 from werkzeug.exceptions import BadRequest, InternalServerError
 from ..utils.validation import APIValidator
 from ..services.email_service import EmailService
@@ -195,13 +195,15 @@ def submit_assessment():
             logger.error(f"Error sending results email: {email_error}")
             # Don't fail the assessment submission if email fails
         
-        return jsonify({
+        response = jsonify({
             'success': True,
             'assessment_id': assessment_id,
             'results': results,
             'message': 'Assessment submitted successfully',
             'email_sent': email_sent if 'email_sent' in locals() else False
         })
+        response.headers['X-Assessment-ID'] = str(assessment_id)
+        return response
         
     except BadRequest as e:
         logger.warning(f"Bad request in submit_assessment: {e}")
@@ -209,6 +211,75 @@ def submit_assessment():
     except Exception as e:
         logger.error(f"Error in submit_assessment: {e}")
         return jsonify({'success': False, 'error': 'Internal server error'}), 500
+    finally:
+        if 'conn' in locals():
+            conn.close()
+
+@assessment_api.route('/assessments/<int:assessment_id>/download', methods=['GET'])
+def download_assessment_pdf(assessment_id):
+    """
+    Generate and download assessment results as PDF
+    """
+    try:
+        from backend.services.pdf_service import PDFService
+        
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        # Get assessment data
+        cursor.execute('''
+            SELECT a.*, lmr.score, lmr.risk_level, lmr.recommendations
+            FROM assessments a
+            LEFT JOIN lead_magnet_results lmr ON a.id = lmr.assessment_id
+            WHERE a.id = ?
+        ''', (assessment_id,))
+        
+        result = cursor.fetchone()
+        
+        if not result:
+            return jsonify({'success': False, 'error': 'Assessment not found'}), 404
+        
+        # Prepare assessment data for PDF
+        assessment_data = {
+            'assessment_id': result['id'],
+            'email': result['email'],  # This is hashed, but we'll use it for display
+            'first_name': result['first_name'],
+            'assessment_type': result['assessment_type'],
+            'score': result['score'],
+            'risk_level': result['risk_level'],
+            'recommendations': json.loads(result['recommendations']) if result['recommendations'] else [],
+            'completed_at': result['completed_at']
+        }
+        
+        # Generate PDF
+        pdf_service = PDFService()
+        pdf_bytes = pdf_service.generate_assessment_pdf(assessment_data)
+        
+        # Create filename
+        assessment_type = assessment_data['assessment_type'].replace('-', '_')
+        filename = f"assessment_results_{assessment_type}_{assessment_id}_{datetime.now().strftime('%Y%m%d')}.pdf"
+        
+        # Return PDF as download
+        from io import BytesIO
+        pdf_io = BytesIO(pdf_bytes)
+        pdf_io.seek(0)
+        
+        return send_file(
+            pdf_io,
+            mimetype='application/pdf',
+            as_attachment=True,
+            download_name=filename
+        )
+        
+    except ImportError as e:
+        logger.error(f"PDF library not available: {e}")
+        return jsonify({
+            'success': False,
+            'error': 'PDF generation not available. Please install reportlab: pip install reportlab'
+        }), 503
+    except Exception as e:
+        logger.error(f"Error generating PDF: {e}")
+        return jsonify({'success': False, 'error': 'Failed to generate PDF'}), 500
     finally:
         if 'conn' in locals():
             conn.close()

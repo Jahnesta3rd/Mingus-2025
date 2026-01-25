@@ -1,0 +1,43 @@
+
+================================================================================
+AI REPLACEMENT RISK ASSESSMENT
+================================================================================
+
+Generated: 2026-01-24 20:57:49
+For: Test User (test@example.com)
+
+================================================================================
+YOUR RESULTS
+================================================================================
+
+Score: 65/100
+Risk Level: Medium
+
+================================================================================
+INTERPRETATION
+================================================================================
+
+Medium Risk - Some aspects of your role could be automated.
+
+================================================================================
+PERSONALIZED RECOMMENDATIONS
+================================================================================
+
+1. Continue building on your AI-resistant skills
+2. Consider mentoring others in your field
+3. Stay updated with industry trends
+4. Document your achievements and value to the company
+
+================================================================================
+NEXT STEPS
+================================================================================
+
+1. Review your personalized recommendations above
+2. Create an action plan based on your results
+3. Track your progress over time
+4. Consider retaking this assessment in 3-6 months
+
+================================================================================
+For more information, visit: https://mingus.com
+© 2025 Mingus Personal Finance. All rights reserved.
+================================================================================
