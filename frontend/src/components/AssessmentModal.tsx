@@ -878,29 +878,30 @@ const AssessmentModal: React.FC<AssessmentModalProps> = ({
 
   return (
     <div 
-      className={`fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 transition-all duration-300 ${
+      className={`fixed inset-0 z-50 flex items-center justify-center p-4 transition-all duration-300 ${
         isVisible ? 'opacity-100' : 'opacity-0'
       } ${className}`}
+      style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
       <div 
         ref={modalRef}
-        className={`bg-gray-900 rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden transition-all duration-300 ${
+        className={`bg-gray-800 rounded-lg w-full max-w-lg h-[85vh] sm:h-auto sm:max-h-[90vh] flex flex-col shadow-2xl transition-all duration-300 ${
           isVisible ? 'scale-100' : 'scale-95'
         }`}
         onKeyDown={handleKeyDown}
         tabIndex={-1}
       >
-        {/* Header */}
-        <div className="bg-gradient-to-r from-violet-600 to-purple-600 p-6 text-white">
+        {/* Header - fixed at top */}
+        <div className="bg-gradient-to-r from-violet-600 to-purple-600 p-4 sm:p-6 text-white flex-shrink-0 border-b border-violet-500">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-3">
               <div className="text-violet-200">
                 {config.icon}
               </div>
               <div>
-                <h2 className="text-xl font-bold">{config.title}</h2>
-                <p className="text-violet-100 text-sm">{config.description}</p>
+                <h2 className="text-lg sm:text-xl font-bold">{config.title}</h2>
+                <p className="text-violet-100 text-xs sm:text-sm">{config.description}</p>
               </div>
             </div>
             <button
@@ -908,7 +909,7 @@ const AssessmentModal: React.FC<AssessmentModalProps> = ({
               className="text-violet-200 hover:text-white transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:ring-offset-2 focus:ring-offset-violet-600 rounded p-1"
               aria-label="Close assessment"
             >
-              <X className="w-6 h-6" />
+              <X className="w-5 h-5 sm:w-6 sm:h-6" />
             </button>
           </div>
           
@@ -920,7 +921,7 @@ const AssessmentModal: React.FC<AssessmentModalProps> = ({
             />
           </div>
           <div className="flex items-center justify-between">
-            <p className="text-violet-100 text-sm font-medium">
+            <p className="text-violet-100 text-xs sm:text-sm font-medium">
               Question {currentStep + 1} of {totalSteps}
             </p>
             <p className="text-violet-200 text-xs">
@@ -932,8 +933,8 @@ const AssessmentModal: React.FC<AssessmentModalProps> = ({
           </div>
         </div>
 
-        {/* Content */}
-        <div className="p-6 overflow-y-auto max-h-[calc(90vh-200px)]">
+        {/* Scrollable content area */}
+        <div className="p-4 sm:p-6 overflow-y-auto flex-1">
           {(loading || isSubmitting) ? (
             <LoadingSkeleton />
           ) : currentQuestion ? (
@@ -1201,8 +1202,8 @@ const AssessmentModal: React.FC<AssessmentModalProps> = ({
           ) : null}
         </div>
 
-        {/* Footer */}
-        <div className="bg-gray-800 px-6 py-4 flex items-center justify-between">
+        {/* Footer with buttons - ALWAYS visible */}
+        <div className="p-4 sm:px-6 sm:py-4 border-t border-gray-700 flex-shrink-0 bg-gray-800 flex items-center justify-between">
           <button
             onClick={currentStep > 0 ? handlePrevious : onClose}
             disabled={isSubmitting}
