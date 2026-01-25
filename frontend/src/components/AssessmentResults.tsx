@@ -28,32 +28,33 @@ interface AssessmentResultsProps {
 
 // Chart components
 const ScoreChart: React.FC<{ score: number; maxScore?: number }> = ({ score, maxScore = 100 }) => {
-  const percentage = (score / maxScore) * 100;
-  const radius = 60;
+  const roundedScore = Math.round(score);
+  const percentage = (roundedScore / maxScore) * 100;
+  const radius = 45;
   const circumference = 2 * Math.PI * radius;
   const strokeDasharray = circumference;
   const strokeDashoffset = circumference - (percentage / 100) * circumference;
 
   return (
-    <div className="relative w-48 h-48 max-w-full mx-auto">
-      <svg className="w-full h-full max-w-full transform -rotate-90" viewBox="0 0 120 120" style={{ maxWidth: '100%', height: 'auto' }}>
+    <div className="relative w-32 h-32 max-w-full mx-auto" style={{ maxWidth: '150px', height: 'auto' }}>
+      <svg className="w-full h-full max-w-full transform -rotate-90" viewBox="0 0 100 100" style={{ maxWidth: '100%', height: 'auto' }}>
         {/* Background circle */}
         <circle
-          cx="60"
-          cy="60"
+          cx="50"
+          cy="50"
           r={radius}
           stroke="currentColor"
-          strokeWidth="8"
+          strokeWidth="6"
           fill="none"
           className="text-gray-700"
         />
         {/* Progress circle */}
         <circle
-          cx="60"
-          cy="60"
+          cx="50"
+          cy="50"
           r={radius}
           stroke="currentColor"
-          strokeWidth="8"
+          strokeWidth="6"
           fill="none"
           strokeDasharray={strokeDasharray}
           strokeDashoffset={strokeDashoffset}
@@ -63,7 +64,7 @@ const ScoreChart: React.FC<{ score: number; maxScore?: number }> = ({ score, max
       </svg>
       <div className="absolute inset-0 flex items-center justify-center">
         <div className="text-center">
-          <div className="text-4xl font-bold text-white">{score}</div>
+          <div className="text-3xl font-bold text-white">{roundedScore}</div>
           <div className="text-xs text-gray-400">out of {maxScore}</div>
         </div>
       </div>
@@ -182,7 +183,7 @@ const RiskLevelIndicator: React.FC<{ riskLevel: string; score: number }> = ({ ri
             {config.label}
           </div>
           <div className="text-xs text-gray-400">
-            Score: {score}/100
+            Score: {Math.round(score)}/100
           </div>
         </div>
       </div>
@@ -505,27 +506,42 @@ const AssessmentResults: React.FC<AssessmentResultsProps> = ({
     }
   };
 
-  const getScoreInterpretation = (score: number, type: string) => {
-    switch (type) {
-      case 'ai-risk':
-        if (score >= 70) return 'High Risk - Your job may be at risk from AI automation';
-        if (score >= 40) return 'Medium Risk - Some aspects of your role could be automated';
-        return 'Low Risk - Your job is relatively safe from AI automation';
-      case 'income-comparison':
-        if (score >= 70) return 'Above Market Rate - You\'re earning more than most in your field';
-        if (score >= 40) return 'Market Rate - Your salary aligns with industry standards';
-        return 'Below Market Rate - You may be underpaid for your role';
-      case 'cuffing-season':
-        if (score >= 70) return 'Highly Ready - You\'re well-prepared for meaningful connections';
-        if (score >= 40) return 'Somewhat Ready - You have potential for dating success';
-        return 'Not Ready - Focus on personal growth before dating';
-      case 'layoff-risk':
-        if (score >= 70) return 'High Risk - Your job security may be at risk';
-        if (score >= 40) return 'Medium Risk - Monitor your situation closely';
-        return 'Low Risk - Your job appears secure';
-      default:
-        return 'Assessment completed successfully';
+  const getScoreInterpretation = (type: string, score: number) => {
+    const roundedScore = Math.round(score);
+    
+    if (type === 'ai-risk') {
+      if (roundedScore < 30) return { color: 'text-green-400', text: 'Low AI replacement risk. Your role has strong human-centric elements.' };
+      if (roundedScore < 60) return { color: 'text-yellow-400', text: 'Moderate AI risk. Consider building skills in areas AI struggles with.' };
+      return { color: 'text-red-400', text: 'Higher AI risk. Focus on creativity, leadership, and interpersonal skills.' };
     }
+    if (type === 'income-comparison') {
+      if (roundedScore >= 70) return { color: 'text-green-400', text: 'Above market rate! You\'re earning well for your role and location.' };
+      if (roundedScore >= 40) return { color: 'text-yellow-400', text: 'Near market rate. There may be room for salary negotiation.' };
+      return { color: 'text-red-400', text: 'Below market rate. Consider negotiating or exploring new opportunities.' };
+    }
+    if (type === 'layoff-risk') {
+      if (roundedScore < 30) return { color: 'text-green-400', text: 'Low layoff risk. Your position appears stable.' };
+      if (roundedScore < 60) return { color: 'text-yellow-400', text: 'Moderate risk. Stay visible and document your contributions.' };
+      return { color: 'text-red-400', text: 'Elevated risk. Consider networking and updating your resume.' };
+    }
+    if (type === 'cuffing-season') {
+      if (roundedScore >= 70) return { color: 'text-green-400', text: 'High relationship readiness! You\'re in a great position.' };
+      if (roundedScore >= 40) return { color: 'text-yellow-400', text: 'Moderate readiness. Focus on the areas identified below.' };
+      return { color: 'text-orange-400', text: 'Some preparation needed. Work on yourself first.' };
+    }
+    if (type === 'vehicle-financial-health') {
+      if (roundedScore >= 80) return { color: 'text-green-400', text: 'Excellent vehicle financial health! You\'re well-prepared.' };
+      if (roundedScore >= 60) return { color: 'text-blue-400', text: 'Good standing. Some areas could use attention.' };
+      if (roundedScore >= 40) return { color: 'text-yellow-400', text: 'Moderate risk. Consider the recommendations below.' };
+      if (roundedScore >= 20) return { color: 'text-orange-400', text: 'Elevated risk. Action recommended to improve your position.' };
+      return { color: 'text-red-400', text: 'High risk. Immediate attention needed in key areas.' };
+    }
+    // Generic fallback
+    if (roundedScore >= 80) return { color: 'text-green-400', text: 'Excellent! You\'re well-positioned with low risk.' };
+    if (roundedScore >= 60) return { color: 'text-blue-400', text: 'Good standing. Some areas could use attention.' };
+    if (roundedScore >= 40) return { color: 'text-yellow-400', text: 'Moderate risk. Consider the recommendations below.' };
+    if (roundedScore >= 20) return { color: 'text-orange-400', text: 'Elevated risk. Action recommended to improve your position.' };
+    return { color: 'text-red-400', text: 'High risk. Immediate attention needed in key areas.' };
   };
 
   return (
@@ -555,21 +571,29 @@ const AssessmentResults: React.FC<AssessmentResultsProps> = ({
             {/* Score Display */}
             <div className="bg-gray-800 rounded-lg p-4 sm:p-6 text-center overflow-hidden">
               <h3 className="text-lg font-semibold text-white mb-4">Your Score</h3>
-              <div className="w-full max-w-xs mx-auto p-4">
+              <div className="max-w-[200px] mx-auto p-2">
                 <ScoreChart score={result.score} />
               </div>
+              {/* Score interpretation */}
+              <div className="mt-4 text-center px-4">
+                {(() => {
+                  const interpretation = getScoreInterpretation(result.assessment_type, result.score);
+                  return (
+                    <p className={`${interpretation.color} font-medium`}>
+                      {interpretation.text}
+                    </p>
+                  );
+                })()}
+              </div>
               <div className="mt-4">
-                <div className="text-sm text-gray-300 mb-2">
-                  {getScoreInterpretation(result.score, result.assessment_type)}
-                </div>
-                <RiskLevelIndicator riskLevel={result.risk_level} score={result.score} />
+                <RiskLevelIndicator riskLevel={result.risk_level} score={Math.round(result.score)} />
               </div>
             </div>
 
             {/* Benchmark Comparison */}
             {result.benchmark && (
               <BenchmarkChart
-                userScore={result.score}
+                userScore={Math.round(result.score)}
                 benchmark={result.benchmark}
                 title="Industry Comparison"
               />
@@ -581,7 +605,7 @@ const AssessmentResults: React.FC<AssessmentResultsProps> = ({
                 <h4 className="text-sm font-medium text-white mb-3">Percentile Ranking</h4>
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-300">You scored higher than</span>
-                  <span className="text-2xl font-bold text-violet-400">{result.percentile}%</span>
+                  <span className="text-2xl font-bold text-violet-400">{Math.round(result.percentile)}%</span>
                   <span className="text-sm text-gray-300">of people</span>
                 </div>
               </div>
