@@ -119,9 +119,11 @@ const ComprehensiveDashboardPreview: React.FC = () => {
             <div className="flex items-center gap-4">
               <div className="flex items-center space-x-3">
                 <div className="flex-shrink-0">
-                  <div className="w-10 h-10 bg-gradient-to-br from-violet-600 to-violet-700 rounded-lg flex items-center justify-center shadow-lg hover:shadow-violet-500/25 transition-all duration-300">
-                    <span className="text-white font-bold text-xl">M</span>
-                  </div>
+                  <img 
+                    src="/mingus-logo.png" 
+                    alt="Mingus" 
+                    className="h-8 w-auto object-contain brightness-0 invert"
+                  />
                 </div>
                 <div>
                   <h1 className="text-xl font-bold text-white">Career Protection Dashboard</h1>
