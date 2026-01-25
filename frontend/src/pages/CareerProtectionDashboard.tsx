@@ -13,6 +13,7 @@ import RecentActivityPanel from '../components/RecentActivityPanel';
 import UnlockRecommendationsPanel from '../components/UnlockRecommendationsPanel';
 import DashboardSkeleton from '../components/DashboardSkeleton';
 import DailyOutlookCard from '../components/DailyOutlookCard';
+import QuickSetupOverlay from '../components/QuickSetupOverlay';
 import { useAuth } from '../hooks/useAuth';
 import { useAnalytics } from '../hooks/useAnalytics';
 import { useDashboardStore, useDashboardSelectors, useHousingDataSync } from '../stores/dashboardStore';
@@ -82,6 +83,32 @@ const CareerProtectionDashboard: React.FC = () => {
   
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showQuickSetup, setShowQuickSetup] = useState(false);
+  
+  // Check if user has completed quick setup
+  useEffect(() => {
+    const checkSetupStatus = async () => {
+      try {
+        const response = await fetch('/api/profile/setup-status', {
+          credentials: 'include'
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          if (!data.setupCompleted) {
+            setShowQuickSetup(true);
+          }
+        }
+      } catch (error) {
+        // Fail silently if endpoint doesn't exist yet
+        console.debug('Setup status check failed:', error);
+      }
+    };
+    
+    if (isAuthenticated) {
+      checkSetupStatus();
+    }
+  }, [isAuthenticated]);
   
   // Authentication check
   useEffect(() => {
@@ -119,9 +146,7 @@ const CareerProtectionDashboard: React.FC = () => {
       
       // Fetch user's current state
       const response = await fetch('/api/risk/dashboard-state', {
-        headers: {
-          'Authorization': `Bearer ${user?.token}`
-        }
+        credentials: 'include'
       });
       
       if (!response.ok) {
@@ -517,6 +542,11 @@ const CareerProtectionDashboard: React.FC = () => {
           </div>
         </div>
       )}
+      <QuickSetupOverlay
+        isOpen={showQuickSetup}
+        onClose={() => setShowQuickSetup(false)}
+        onComplete={() => setShowQuickSetup(false)}
+      />
     </div>
     </DashboardErrorBoundary>
   );

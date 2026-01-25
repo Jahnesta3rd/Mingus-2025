@@ -1,7 +1,8 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, Link, useNavigate } from 'react-router-dom';
 import LandingPage from './components/LandingPage';
 import SignUpPage from './pages/SignUpPage';
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import AssessmentModal from './components/AssessmentModal';
 import MemeSplashPage from './components/MemeSplashPage';
 import MoodDashboard from './components/MoodDashboard';
@@ -46,17 +47,27 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
 
 // Login Page Component
 const LoginPage: React.FC = () => {
-  const { login, loading } = useAuth();
+  const { login, loading, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
+  const [rememberMe, setRememberMe] = React.useState(false);
   const [error, setError] = React.useState('');
+
+  // Redirect authenticated users to dashboard
+  React.useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/career-dashboard', { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     
     try {
-      await login(email, password);
+      await login(email, password, rememberMe);
+      // Navigation will happen automatically via useEffect when isAuthenticated becomes true
     } catch (err) {
       setError('Invalid email or password');
     }
@@ -112,6 +123,25 @@ const LoginPage: React.FC = () => {
             </div>
           </div>
 
+          <div className="flex items-center justify-between mt-4">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+                className="w-4 h-4 rounded border-gray-600 bg-gray-700 text-violet-600 focus:ring-violet-500"
+              />
+              <span className="text-sm text-gray-400">Remember me for 30 days</span>
+            </label>
+            <button
+              type="button"
+              onClick={() => navigate('/forgot-password')}
+              className="text-sm text-violet-400 hover:text-violet-300 hover:underline"
+            >
+              Forgot password?
+            </button>
+          </div>
+
           {error && (
             <div className="text-red-600 text-sm text-center">{error}</div>
           )}
@@ -151,6 +181,7 @@ function App() {
           <Route path="/" element={<LandingPage />} />
           <Route path="/signup" element={<SignUpPage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/quick-setup" element={
             <ProtectedRoute>
               <QuickSetup />

@@ -15,6 +15,29 @@ const HeroSection: React.FC<HeroSectionProps> = ({
   isLoading,
   navigate
 }) => {
+  // Smooth scroll function for anchor navigation
+  const scrollToAssessment = (assessmentType: AssessmentType) => {
+    const element = document.getElementById('assessments');
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // Open the assessment modal after scrolling completes
+      setTimeout(() => {
+        onAssessmentClick(assessmentType);
+      }, 600);
+    } else {
+      // Fallback: if element not found, open modal directly
+      onAssessmentClick(assessmentType);
+    }
+  };
+
+  // Keyboard handler that also uses scroll navigation
+  const handleKeyDown = (e: React.KeyboardEvent, assessmentType: AssessmentType) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      scrollToAssessment(assessmentType);
+    }
+  };
+
   return (
     <section className="hero-section relative pt-16 pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden" aria-label="Hero section">
       {/* Large Gradient Background */}
@@ -38,8 +61,8 @@ const HeroSection: React.FC<HeroSectionProps> = ({
             {/* Lead Magnet CTAs */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-6 sm:mb-8">
               <button 
-                onClick={() => onAssessmentClick('ai-risk')}
-                onKeyDown={(e) => onAssessmentKeyDown(e, 'ai-risk')}
+                onClick={() => scrollToAssessment('ai-risk')}
+                onKeyDown={(e) => handleKeyDown(e, 'ai-risk')}
                 disabled={isLoading}
                 aria-label="Determine Your Replacement Risk Due To AI"
                 aria-describedby="ai-replacement-risk-description"
@@ -54,8 +77,8 @@ const HeroSection: React.FC<HeroSectionProps> = ({
                 </span>
               </button>
               <button 
-                onClick={() => onAssessmentClick('income-comparison')}
-                onKeyDown={(e) => onAssessmentKeyDown(e, 'income-comparison')}
+                onClick={() => scrollToAssessment('income-comparison')}
+                onKeyDown={(e) => handleKeyDown(e, 'income-comparison')}
                 disabled={isLoading}
                 aria-label="Determine How Your Income Compares"
                 aria-describedby="income-comparison-description"
@@ -70,8 +93,8 @@ const HeroSection: React.FC<HeroSectionProps> = ({
                 </span>
               </button>
               <button 
-                onClick={() => onAssessmentClick('cuffing-season')}
-                onKeyDown={(e) => onAssessmentKeyDown(e, 'cuffing-season')}
+                onClick={() => scrollToAssessment('cuffing-season')}
+                onKeyDown={(e) => handleKeyDown(e, 'cuffing-season')}
                 disabled={isLoading}
                 aria-label="Determine Your Cuffing Season Score"
                 aria-describedby="cuffing-season-description"
@@ -86,8 +109,8 @@ const HeroSection: React.FC<HeroSectionProps> = ({
                 </span>
               </button>
               <button 
-                onClick={() => onAssessmentClick('layoff-risk')}
-                onKeyDown={(e) => onAssessmentKeyDown(e, 'layoff-risk')}
+                onClick={() => scrollToAssessment('layoff-risk')}
+                onKeyDown={(e) => handleKeyDown(e, 'layoff-risk')}
                 disabled={isLoading}
                 aria-label="Determine Your Layoff Risk"
                 aria-describedby="layoff-risk-description"

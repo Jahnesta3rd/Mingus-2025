@@ -117,16 +117,16 @@ is_development = os.environ.get('FLASK_ENV', 'development') == 'development'
 # Configure CORS
 # In development, be more permissive for testing and load testing
 if is_development:
-    # Development: Allow all origins for testing (including requests without Origin header)
+    # Development: Allow specific origins with credentials support for cookie-based auth
     CORS(app, 
          resources={r"/*": {
-             "origins": "*",
+             "origins": ["http://localhost:5173", "http://localhost:3000", "http://127.0.0.1:5173", "http://127.0.0.1:3000"],
              "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
              "allow_headers": "*",  # Allow all headers in development
-             "supports_credentials": False,
+             "supports_credentials": True,  # Enable credentials for httpOnly cookies
              "expose_headers": "*"
          }},
-         send_wildcard=True,
+         send_wildcard=False,
          allow_headers="*")  # Explicitly allow all headers
 else:
     # Production: Only allow configured origins

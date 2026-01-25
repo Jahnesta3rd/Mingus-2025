@@ -77,18 +77,10 @@ const QuickSetup: React.FC = () => {
     setIsSubmitting(true);
     
     try {
-      const token = localStorage.getItem('mingus_token');
-      if (!token) {
-        setError('Authentication required. Please log in again.');
-        navigate('/login');
-        return;
-      }
-
       const response = await fetch('/api/profile/quick-setup', {
         method: 'POST',
         headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Content-Type': 'application/json'
         },
         credentials: 'include',
         body: JSON.stringify(formData)

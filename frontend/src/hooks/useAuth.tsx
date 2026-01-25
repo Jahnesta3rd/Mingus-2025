@@ -4,14 +4,13 @@ interface User {
   id: string;
   email: string;
   name: string;
-  token: string;
   isAuthenticated: boolean;
 }
 
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string, rememberMe?: boolean) => Promise<void>;
   register: (email: string, password: string, firstName: string, lastName?: string) => Promise<void>;
   logout: () => void;
   loading: boolean;
@@ -35,31 +34,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Check for existing session on mount
     const checkAuth = async () => {
       try {
-        const token = localStorage.getItem('mingus_token');
-        if (token) {
-          // Verify token with backend
-          const response = await fetch('/api/auth/verify', {
-            headers: {
-              'Authorization': `Bearer ${token}`
-            }
+        // Verify token with backend (token is in httpOnly cookie)
+        const response = await fetch('/api/auth/verify', {
+          credentials: 'include'
+        });
+        
+        if (response.ok) {
+          const userData = await response.json();
+          setUser({
+            id: userData.user_id,
+            email: userData.email,
+            name: userData.name,
+            isAuthenticated: true
           });
-          
-          if (response.ok) {
-            const userData = await response.json();
-            setUser({
-              id: userData.user_id,
-              email: userData.email,
-              name: userData.name,
-              token,
-              isAuthenticated: true
-            });
-          } else {
-            localStorage.removeItem('mingus_token');
-          }
         }
       } catch (error) {
         console.error('Auth verification failed:', error);
-        localStorage.removeItem('mingus_token');
       } finally {
         setLoading(false);
       }
@@ -68,7 +58,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     checkAuth();
   }, []);
 
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, password: string, rememberMe: boolean = false) => {
     try {
       setLoading(true);
       const response = await fetch('/api/auth/login', {
@@ -76,7 +66,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password }),
+        credentials: 'include',
+        body: JSON.stringify({ email, password, rememberMe }),
       });
 
       if (!response.ok) {
@@ -92,16 +83,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       const data = await response.json();
+      // Token is now in httpOnly cookie, not in response
       const userData = {
         id: data.user_id,
         email: data.email,
         name: data.name,
-        token: data.token,
         isAuthenticated: true
       };
 
       setUser(userData);
-      localStorage.setItem('mingus_token', data.token);
     } catch (error: any) {
       console.error('Login error:', error);
       // Re-throw with better error message if it's a network error
@@ -122,6 +112,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({ 
           email, 
           password, 
@@ -144,16 +135,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       const data = await response.json();
+      // Token is now in httpOnly cookie, not in response
       const userData = {
         id: data.user_id,
         email: data.email,
         name: data.name || firstName,
-        token: data.token,
         isAuthenticated: true
       };
 
       setUser(userData);
-      localStorage.setItem('mingus_token', data.token);
     } catch (error: any) {
       console.error('Registration error:', error);
       // Re-throw with better error message if it's a network error
@@ -166,9 +156,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem('mingus_token');
+  const logout = async () => {
+    try {
+      // Call logout endpoint to clear cookie
+      await fetch('/api/auth/logout', {
+        method: 'POST',
+        credentials: 'include'
+      });
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      setUser(null);
+    }
   };
 
   const value = {

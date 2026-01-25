@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
+import { Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 
 const SignUpPage: React.FC = () => {
@@ -9,10 +10,10 @@ const SignUpPage: React.FC = () => {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
-    confirmPassword: '',
     firstName: '',
     lastName: ''
   });
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   const [welcomeMessage, setWelcomeMessage] = useState<string | null>(null);
@@ -98,10 +99,6 @@ const SignUpPage: React.FC = () => {
       setError('Password must be at least 8 characters long');
       return false;
     }
-    if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
-      return false;
-    }
     if (!formData.firstName) {
       setError('First name is required');
       return false;
@@ -125,10 +122,10 @@ const SignUpPage: React.FC = () => {
         formData.lastName
       );
       setSuccess(true);
-      // Redirect to quick setup after successful registration with source tracking
-      const sourceParam = entrySource === 'assessment' ? '?from=assessment' : entrySource === 'cta' ? '?source=cta' : '';
+      // Redirect to dashboard after successful registration
+      // QuickSetupOverlay will appear if setup is not completed
       setTimeout(() => {
-        navigate(`/quick-setup${sourceParam}`);
+        navigate('/career-dashboard');
       }, 1500);
     } catch (err: any) {
       setError(err.message || 'Registration failed. Please try again.');
@@ -220,33 +217,29 @@ const SignUpPage: React.FC = () => {
                 <label htmlFor="password" className="sr-only">
                   Password
                 </label>
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  autoComplete="new-password"
-                  required
-                  className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:border-violet-500 focus:z-10 sm:text-sm"
-                  placeholder="Password (min. 8 characters)"
-                  value={formData.password}
-                  onChange={handleChange}
-                />
-              </div>
-              <div>
-                <label htmlFor="confirmPassword" className="sr-only">
-                  Confirm Password
-                </label>
-                <input
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  type="password"
-                  autoComplete="new-password"
-                  required
-                  className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-2 focus:ring-violet-400 focus:border-violet-500 focus:z-10 sm:text-sm"
-                  placeholder="Confirm Password"
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                />
+                <div className="relative">
+                  <input
+                    id="password"
+                    name="password"
+                    type={showPassword ? "text" : "password"}
+                    autoComplete="new-password"
+                    required
+                    minLength={8}
+                    className="appearance-none rounded-md relative block w-full px-3 py-2 pr-10 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:border-violet-500 focus:z-10 sm:text-sm"
+                    placeholder="Password (min. 8 characters)"
+                    value={formData.password}
+                    onChange={handleChange}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                  >
+                    {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  </button>
+                </div>
+                <p className="text-xs text-gray-500 mt-1">Must be at least 8 characters</p>
               </div>
             </div>
 

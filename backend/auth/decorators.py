@@ -26,16 +26,19 @@ def require_auth(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         try:
-            # Get Authorization header
-            auth_header = request.headers.get('Authorization')
-            if not auth_header or not auth_header.startswith('Bearer '):
-                return jsonify({
-                    'error': 'Authentication required',
-                    'message': 'Missing or invalid Authorization header'
-                }), 401
+            # Try to get token from cookie first, fallback to Authorization header for backward compatibility
+            token = request.cookies.get('mingus_token')
             
-            # Extract token
-            token = auth_header.split(' ')[1]
+            if not token:
+                # Fallback to Authorization header for backward compatibility
+                auth_header = request.headers.get('Authorization')
+                if auth_header and auth_header.startswith('Bearer '):
+                    token = auth_header.split(' ')[1]
+                else:
+                    return jsonify({
+                        'error': 'Authentication required',
+                        'message': 'Missing or invalid authentication token'
+                    }), 401
             
             # Decode and validate JWT token
             try:

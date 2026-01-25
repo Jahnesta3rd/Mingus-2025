@@ -16,7 +16,8 @@ import {
   Briefcase,
   TrendingDown,
   Zap,
-  Car
+  Car,
+  Clock
 } from 'lucide-react';
 import NavigationBar from './NavigationBar';
 import ResponsiveTestComponent from './ResponsiveTestComponent';
@@ -31,7 +32,6 @@ import { useNavigate } from 'react-router-dom';
 import { AssessmentType } from '../types/assessments';
 import { useAnalytics } from '../hooks/useAnalytics';
 import HeroSection from './sections/HeroSection';
-import AssessmentSection from './sections/AssessmentSection';
 import FeaturesSection from './sections/FeaturesSection';
 import PricingSection from './sections/PricingSection';
 import FAQSection from './sections/FAQSection';
@@ -479,51 +479,126 @@ const LandingPage: React.FC = () => {
           navigate={navigate}
         />
         
-        {/* Risk Assessment Preview Section - Only shows preview, not actual results */}
-      <section className="py-8 px-4 sm:px-6 lg:px-8 bg-gray-900" role="region" aria-label="Career risk assessment preview">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-white">
-              Understand Your Career Risk
-            </h2>
-            <p className="text-xl text-gray-300 max-w-3xl mx-auto mb-8">
-              Get personalized risk assessments and career protection recommendations based on your industry, role, and market conditions.
-            </p>
-            <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-8 text-white">
-              <div className="flex items-center justify-center gap-3 mb-4">
-                <Shield className="h-8 w-8" />
-                <h3 className="text-2xl font-semibold">Risk Assessment Preview</h3>
-              </div>
-              <p className="text-lg mb-6 text-blue-100">
-                Subscribe to unlock your personalized career risk analysis and get actionable recommendations to protect your career.
+        {/* Unified Assessment Section - THE ONLY ASSESSMENT AREA */}
+        <section 
+          id="assessments"
+          className="py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-gray-900 to-gray-800" 
+          role="region" 
+          aria-label="Free career and financial assessments"
+        >
+          <div className="max-w-7xl mx-auto">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-bold mb-4 text-white">
+                Discover Your Financial & Career Profile
+              </h2>
+              <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+                Take our free assessments to understand your unique situation and get personalized recommendations.
               </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <button
-                  onClick={() => setActiveAssessment('ai-risk')}
-                  className="bg-white/20 hover:bg-white/30 backdrop-blur-sm border border-white/30 rounded-lg px-6 py-3 text-sm font-semibold transition-all duration-200 hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-white/50"
-                  aria-label="Start free AI replacement risk assessment"
-                >
-                  Start Free Assessment
-                </button>
-                <button
-                  onClick={() => navigate('/signup?source=cta')}
-                  className="bg-white text-blue-600 hover:bg-gray-100 rounded-lg px-6 py-3 text-sm font-semibold transition-all duration-200 hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-white/50"
-                  aria-label="Get started with Mingus"
-                >
-                  Get Started
-                </button>
-              </div>
+            </div>
+            
+            {/* Assessment Cards Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+              {/* AI Replacement Risk */}
+              <button
+                onClick={() => setActiveAssessment('ai-risk')}
+                className="group bg-gray-800 hover:bg-gray-700 border border-gray-700 hover:border-violet-500 rounded-xl p-6 text-left transition-all duration-300 transform hover:scale-105"
+                aria-label="Start AI Replacement Risk Assessment"
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <Shield className="h-8 w-8 text-violet-400 group-hover:text-violet-300" />
+                  <span className="bg-green-500/20 text-green-400 text-xs font-semibold px-2 py-1 rounded-full">
+                    FREE
+                  </span>
+                </div>
+                <h3 className="text-lg font-semibold text-white mb-2">AI Replacement Risk</h3>
+                <p className="text-sm text-gray-400 mb-3">
+                  Discover how AI might impact your career and what you can do to stay ahead.
+                </p>
+                <div className="flex items-center text-xs text-gray-500">
+                  <Clock className="h-4 w-4 mr-1" />
+                  <span>3-5 minutes</span>
+                </div>
+              </button>
+
+              {/* Income Comparison */}
+              <button
+                onClick={() => setActiveAssessment('income-comparison')}
+                className="group bg-gray-800 hover:bg-gray-700 border border-gray-700 hover:border-violet-500 rounded-xl p-6 text-left transition-all duration-300 transform hover:scale-105"
+                aria-label="Start Income Comparison Assessment"
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <TrendingUp className="h-8 w-8 text-violet-400 group-hover:text-violet-300" />
+                  <span className="bg-green-500/20 text-green-400 text-xs font-semibold px-2 py-1 rounded-full">
+                    FREE
+                  </span>
+                </div>
+                <h3 className="text-lg font-semibold text-white mb-2">Income Comparison</h3>
+                <p className="text-sm text-gray-400 mb-3">
+                  See how your income compares to others in your field and location.
+                </p>
+                <div className="flex items-center text-xs text-gray-500">
+                  <Clock className="h-4 w-4 mr-1" />
+                  <span>2-3 minutes</span>
+                </div>
+              </button>
+
+              {/* Cuffing Season Score */}
+              <button
+                onClick={() => setActiveAssessment('cuffing-season')}
+                className="group bg-gray-800 hover:bg-gray-700 border border-gray-700 hover:border-violet-500 rounded-xl p-6 text-left transition-all duration-300 transform hover:scale-105"
+                aria-label="Start Cuffing Season Score Assessment"
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <Heart className="h-8 w-8 text-violet-400 group-hover:text-violet-300" />
+                  <span className="bg-green-500/20 text-green-400 text-xs font-semibold px-2 py-1 rounded-full">
+                    FREE
+                  </span>
+                </div>
+                <h3 className="text-lg font-semibold text-white mb-2">Cuffing Season Score</h3>
+                <p className="text-sm text-gray-400 mb-3">
+                  Evaluate your relationship readiness and financial compatibility.
+                </p>
+                <div className="flex items-center text-xs text-gray-500">
+                  <Clock className="h-4 w-4 mr-1" />
+                  <span>3-4 minutes</span>
+                </div>
+              </button>
+
+              {/* Layoff Risk */}
+              <button
+                onClick={() => setActiveAssessment('layoff-risk')}
+                className="group bg-gray-800 hover:bg-gray-700 border border-gray-700 hover:border-violet-500 rounded-xl p-6 text-left transition-all duration-300 transform hover:scale-105"
+                aria-label="Start Layoff Risk Assessment"
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <Briefcase className="h-8 w-8 text-violet-400 group-hover:text-violet-300" />
+                  <span className="bg-green-500/20 text-green-400 text-xs font-semibold px-2 py-1 rounded-full">
+                    FREE
+                  </span>
+                </div>
+                <h3 className="text-lg font-semibold text-white mb-2">Layoff Risk</h3>
+                <p className="text-sm text-gray-400 mb-3">
+                  Assess your job security and prepare for potential market changes.
+                </p>
+                <div className="flex items-center text-xs text-gray-500">
+                  <Clock className="h-4 w-4 mr-1" />
+                  <span>4-5 minutes</span>
+                </div>
+              </button>
+            </div>
+
+            {/* Skip Option */}
+            <div className="text-center">
+              <button
+                onClick={() => navigate('/signup?source=direct')}
+                className="text-gray-400 hover:text-white transition-colors text-sm underline"
+              >
+                Skip assessments and sign up directly
+              </button>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Assessment Section */}
-      <AssessmentSection
-        onAssessmentClick={handleAssessmentClick}
-        onAssessmentKeyDown={handleAssessmentKeyDown}
-        isLoading={isLoading}
-      />
 
       {/* Job Recommendations Preview Section */}
       <section className="py-20 px-4 sm:px-6 lg:px-8 bg-white" role="region" aria-label="Job recommendations preview">
