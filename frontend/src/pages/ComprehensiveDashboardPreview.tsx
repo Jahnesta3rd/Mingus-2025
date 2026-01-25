@@ -122,7 +122,7 @@ const ComprehensiveDashboardPreview: React.FC = () => {
                   <img 
                     src="/mingus-logo.png" 
                     alt="Mingus" 
-                    className="h-8 w-auto object-contain brightness-0 invert"
+                    className="h-8 w-auto object-contain"
                   />
                 </div>
                 <div>
