@@ -35,8 +35,8 @@ const ScoreChart: React.FC<{ score: number; maxScore?: number }> = ({ score, max
   const strokeDashoffset = circumference - (percentage / 100) * circumference;
 
   return (
-    <div className="relative w-32 h-32 mx-auto">
-      <svg className="w-32 h-32 transform -rotate-90" viewBox="0 0 120 120">
+    <div className="relative w-48 h-48 max-w-full mx-auto">
+      <svg className="w-full h-full max-w-full transform -rotate-90" viewBox="0 0 120 120" style={{ maxWidth: '100%', height: 'auto' }}>
         {/* Background circle */}
         <circle
           cx="60"
@@ -63,7 +63,7 @@ const ScoreChart: React.FC<{ score: number; maxScore?: number }> = ({ score, max
       </svg>
       <div className="absolute inset-0 flex items-center justify-center">
         <div className="text-center">
-          <div className="text-2xl font-bold text-white">{score}</div>
+          <div className="text-4xl font-bold text-white">{score}</div>
           <div className="text-xs text-gray-400">out of {maxScore}</div>
         </div>
       </div>
@@ -529,7 +529,7 @@ const AssessmentResults: React.FC<AssessmentResultsProps> = ({
   };
 
   return (
-    <div className={`bg-gray-900 rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden ${className}`}>
+    <div className={`bg-gray-900 rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden overflow-x-hidden ${className}`}>
       {/* Header */}
       <div className="bg-gradient-to-r from-violet-600 to-purple-600 p-6 text-white">
         <div className="flex items-center justify-between mb-4">
@@ -548,14 +548,16 @@ const AssessmentResults: React.FC<AssessmentResultsProps> = ({
       </div>
 
       {/* Content */}
-      <div className="p-6 overflow-y-auto max-h-[calc(90vh-200px)]">
+      <div className="p-4 sm:p-6 overflow-y-auto overflow-x-hidden max-h-[calc(90vh-200px)]">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Left Column - Score and Charts */}
           <div className="space-y-6">
             {/* Score Display */}
-            <div className="bg-gray-800 rounded-lg p-6 text-center">
+            <div className="bg-gray-800 rounded-lg p-4 sm:p-6 text-center overflow-hidden">
               <h3 className="text-lg font-semibold text-white mb-4">Your Score</h3>
-              <ScoreChart score={result.score} />
+              <div className="w-full max-w-xs mx-auto p-4">
+                <ScoreChart score={result.score} />
+              </div>
               <div className="mt-4">
                 <div className="text-sm text-gray-300 mb-2">
                   {getScoreInterpretation(result.score, result.assessment_type)}
