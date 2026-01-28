@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, lazy, Suspense } from 'react';
+import React, { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
 import RiskStatusHero from '../components/RiskStatusHero';
 import RecommendationTiers from '../components/RecommendationTiers';
@@ -16,7 +16,7 @@ import DailyOutlookCard from '../components/DailyOutlookCard';
 import QuickSetupOverlay from '../components/QuickSetupOverlay';
 import { useAuth } from '../hooks/useAuth';
 import { useAnalytics } from '../hooks/useAnalytics';
-import { useDashboardStore, useDashboardSelectors, useHousingDataSync } from '../stores/dashboardStore';
+import { useDashboardStore, useDashboardSelectors } from '../stores/dashboardStore';
 
 // Lazy load the full Daily Outlook component for performance
 const DailyOutlook = lazy(() => import('../components/DailyOutlook'));
@@ -37,17 +37,20 @@ const CareerProtectionDashboard: React.FC = () => {
   const { user, isAuthenticated } = useAuth();
   const { trackPageView, trackInteraction } = useAnalytics();
   
-  // Use dashboard store
+  // Use ref to track initialization - prevents double-initialization
+  const hasInitializedRef = useRef(false);
+  
+  // Use dashboard store - DO NOT put these functions in useEffect dependencies
   const { 
     activeTab: storeActiveTab, 
     setActiveTab, 
     setRiskLevel, 
     setEmergencyMode, 
-    setUnlockedRecommendations 
+    setUnlockedRecommendations,
+    fetchHousingData
   } = useDashboardStore();
 
   // Local state for Daily Outlook integration
-  // Sync with store's activeTab
   const [dashboardState, setDashboardState] = useState<DashboardState>({
     activeTab: storeActiveTab as DashboardState['activeTab'],
     riskLevel: 'watchful',
@@ -57,23 +60,6 @@ const CareerProtectionDashboard: React.FC = () => {
     showFullDailyOutlook: false,
     isMobile: window.innerWidth < 768
   });
-
-  // Sync local state with store when store changes
-  useEffect(() => {
-    if (storeActiveTab !== dashboardState.activeTab) {
-      setDashboardState(prev => ({ ...prev, activeTab: storeActiveTab as DashboardState['activeTab'] }));
-    }
-  }, [storeActiveTab, dashboardState.activeTab]);
-
-  // Handle mobile detection
-  useEffect(() => {
-    const handleResize = () => {
-      setDashboardState(prev => ({ ...prev, isMobile: window.innerWidth < 768 }));
-    };
-
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
   
   const { 
     housingSearches, 
@@ -87,115 +73,122 @@ const CareerProtectionDashboard: React.FC = () => {
     housingError 
   } = useDashboardSelectors();
   
-  const { syncAllHousingData } = useHousingDataSync();
-  
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showQuickSetup, setShowQuickSetup] = useState(false);
-  
-  // Check if user has completed quick setup
+
+  // Sync local state with store when store changes (non-data-fetching, safe)
   useEffect(() => {
-    const checkSetupStatus = async () => {
-      try {
-        const response = await fetch('/api/profile/setup-status', {
-          credentials: 'include'
-        });
-        
-        if (response.ok) {
-          const data = await response.json();
-          if (!data.setupCompleted) {
-            setShowQuickSetup(true);
-          }
-        }
-      } catch (error) {
-        // Fail silently if endpoint doesn't exist yet
-        console.debug('Setup status check failed:', error);
-      }
+    if (storeActiveTab !== dashboardState.activeTab) {
+      setDashboardState(prev => ({ ...prev, activeTab: storeActiveTab as DashboardState['activeTab'] }));
+    }
+  }, [storeActiveTab]); // Only depend on storeActiveTab, not dashboardState.activeTab
+
+  // Handle mobile detection (non-data-fetching, safe)
+  useEffect(() => {
+    const handleResize = () => {
+      setDashboardState(prev => ({ ...prev, isMobile: window.innerWidth < 768 }));
     };
-    
-    if (isAuthenticated) {
-      checkSetupStatus();
-    }
-  }, [isAuthenticated]);
-  
-  const initializeDashboard = useCallback(async () => {
-    try {
-      setLoading(true);
-      
-      // Fetch user's current state
-      const response = await fetch('/api/risk/dashboard-state', {
-        credentials: 'include'
-      });
-      
-      if (!response.ok) {
-        throw new Error('Failed to load dashboard data');
-      }
-      
-      const data = await response.json();
-      
-      // Update store with dashboard state
-      setRiskLevel(data.current_risk_level);
-      setUnlockedRecommendations(data.recommendations_unlocked);
-      
-      // If emergency mode, show emergency interface
-      if (data.current_risk_level === 'urgent') {
-        setEmergencyMode(true);
-      }
-      
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
-      console.error('Dashboard initialization failed:', err);
-    } finally {
-      setLoading(false);
-    }
-  }, [setRiskLevel, setEmergencyMode, setUnlockedRecommendations]);
-  
-  // Authentication check
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // SINGLE useEffect that runs ONCE on mount - all data fetching happens here
   useEffect(() => {
+    // Prevent double-initialization
+    if (hasInitializedRef.current) return;
+    hasInitializedRef.current = true;
+
+    // Authentication check - redirect if not authenticated
     if (!isAuthenticated) {
       navigate('/login');
       return;
     }
-    
-    initializeDashboard();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isAuthenticated]); // Only run when authentication status changes
-  
-  // Track page view (only on mount)
-  useEffect(() => {
-    trackPageView('career_protection_dashboard', {
-      user_id: user?.id,
-      risk_level: dashboardState.activeTab,
-      has_recommendations_unlocked: true
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Intentionally empty - only track on initial mount
-  
-  // Sync housing data on mount and periodically
-  useEffect(() => {
-    if (!isAuthenticated) return;
-    
-    syncAllHousingData();
-    
-    // Set up periodic sync every 5 minutes
+
+    // Set up periodic housing data sync every 5 minutes
     const interval = setInterval(() => {
-      syncAllHousingData();
+      fetchHousingData();
     }, 5 * 60 * 1000);
-    
+
+    const initDashboard = async () => {
+      setLoading(true);
+      setError(null);
+      
+      try {
+        // Track page view
+        trackPageView('career_protection_dashboard', {
+          user_id: user?.id,
+          risk_level: dashboardState.activeTab,
+          has_recommendations_unlocked: true
+        });
+
+        // Fetch dashboard state
+        const dashboardResponse = await fetch('/api/risk/dashboard-state', {
+          credentials: 'include'
+        });
+        
+        if (dashboardResponse.ok) {
+          const dashboardData = await dashboardResponse.json();
+          
+          // Update store with dashboard state
+          setRiskLevel(dashboardData.current_risk_level || 'watchful');
+          setUnlockedRecommendations(dashboardData.recommendations_unlocked || false);
+          
+          // Update local state
+          setDashboardState(prev => ({
+            ...prev,
+            riskLevel: dashboardData.current_risk_level || 'watchful',
+            hasUnlockedRecommendations: dashboardData.recommendations_unlocked || false,
+            emergencyMode: dashboardData.current_risk_level === 'urgent'
+          }));
+        }
+
+        // Check setup status
+        try {
+          const setupResponse = await fetch('/api/profile/setup-status', {
+            credentials: 'include'
+          });
+          
+          if (setupResponse.ok) {
+            const setupData = await setupResponse.json();
+            if (!setupData.setupCompleted) {
+              setShowQuickSetup(true);
+            }
+          }
+        } catch (setupError) {
+          // Fail silently if endpoint doesn't exist yet
+          console.debug('Setup status check failed:', setupError);
+        }
+
+        // Fetch housing data (using store function)
+        await fetchHousingData();
+        
+      } catch (err) {
+        console.error('Dashboard initialization error:', err);
+        setError(err instanceof Error ? err.message : 'Failed to load dashboard');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    initDashboard();
+
+    // Cleanup interval on unmount
     return () => clearInterval(interval);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isAuthenticated]); // Only run when authentication status changes - syncAllHousingData should not be in deps
+  }, []); // EMPTY dependency array - runs once on mount only
   
   const handleTabChange = async (tab: DashboardState['activeTab']) => {
     setDashboardState(prev => ({ ...prev, activeTab: tab }));
     setActiveTab(tab);
     
-    // Track tab interaction
-    await trackInteraction('dashboard_tab_changed', {
+    // Track tab interaction (non-blocking)
+    trackInteraction('dashboard_tab_changed', {
       previous_tab: dashboardState.activeTab,
       new_tab: tab,
       risk_level: dashboardState.riskLevel
-    });
+    }).catch(err => console.error('Failed to track tab change:', err));
   };
 
   const handleViewFullDailyOutlook = () => {
@@ -248,7 +241,10 @@ const CareerProtectionDashboard: React.FC = () => {
           <h3 className="text-lg font-semibold text-gray-900 mb-2">Dashboard Unavailable</h3>
           <p className="text-gray-600 mb-4">{error}</p>
           <button
-            onClick={initializeDashboard}
+            onClick={() => {
+              hasInitializedRef.current = false;
+              window.location.reload();
+            }}
             className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors"
           >
             Try Again
@@ -287,7 +283,9 @@ const CareerProtectionDashboard: React.FC = () => {
               <div className="flex items-center gap-2 sm:gap-4">
                 <HousingNotificationSystem />
                 <button
-                  onClick={initializeDashboard}
+                  onClick={() => {
+                    fetchHousingData().catch(err => console.error('Failed to refresh:', err));
+                  }}
                   className="text-sm text-blue-600 hover:text-blue-700 font-medium px-2 py-1 rounded hover:bg-blue-50 transition-colors"
                 >
                   <span className="hidden sm:inline">Refresh</span>
