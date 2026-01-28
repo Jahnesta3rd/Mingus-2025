@@ -701,6 +701,24 @@ async def get_comprehensive_risk_analytics():
 # HEALTH CHECK ENDPOINT
 # =====================================================
 
+@risk_analytics_api.route('/dashboard-state', methods=['GET', 'OPTIONS'])
+def get_dashboard_state():
+    """Get dashboard state for career protection dashboard"""
+    if request.method == 'OPTIONS':
+        return jsonify({}), 200
+    
+    try:
+        # Return default dashboard state
+        # In production, this would fetch actual user risk data
+        return jsonify({
+            'current_risk_level': 'watchful',
+            'recommendations_unlocked': True
+        }), 200
+        
+    except Exception as e:
+        logger.error(f"Error getting dashboard state: {e}")
+        return jsonify({'error': 'Internal server error'}), 500
+
 @risk_analytics_api.route('/health', methods=['GET'])
 def health_check():
     """Health check endpoint for risk analytics API"""

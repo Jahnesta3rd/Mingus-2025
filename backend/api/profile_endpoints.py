@@ -18,7 +18,7 @@ from ..utils.validation import APIValidator
 logger = logging.getLogger(__name__)
 
 # Create blueprint
-profile_api = Blueprint('profile_api', __name__)
+profile_api = Blueprint('profile_api', __name__, url_prefix='/api')
 
 def get_db_connection():
     """Get database connection"""
@@ -424,6 +424,37 @@ def generate_recommendations(financial_info, monthly_expenses, goals):
         })
     
     return recommendations
+
+@profile_api.route('/profile/setup-status', methods=['GET', 'OPTIONS'])
+def get_setup_status():
+    """
+    Get user setup completion status
+    """
+    if request.method == 'OPTIONS':
+        return jsonify({}), 200
+    
+    try:
+        # Validate CSRF token
+        csrf_token = request.headers.get('X-CSRF-Token')
+        if not validate_csrf_token(csrf_token):
+            logger.warning("Invalid CSRF token in setup status check")
+            return jsonify({'success': False, 'error': 'Invalid CSRF token'}), 403
+        
+        # For now, return default completed status
+        # In production, this would check the database for actual setup completion
+        return jsonify({
+            'success': True,
+            'setupCompleted': True,
+            'data': {
+                'is_complete': True,
+                'steps_completed': [],
+                'current_step': None
+            }
+        }), 200
+        
+    except Exception as e:
+        logger.error(f"Error in get_setup_status: {e}")
+        return jsonify({'success': False, 'error': 'Internal server error'}), 500
 
 # Initialize database when module is imported
 init_profile_database()

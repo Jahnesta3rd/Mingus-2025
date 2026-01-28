@@ -8,6 +8,8 @@ from .profile_endpoints import profile_api
 from .assessment_endpoints import assessment_api
 from .meme_endpoints import meme_api
 from .daily_outlook_api import daily_outlook_api
+from .analytics_endpoints import analytics_bp
+from .unified_risk_analytics_api import risk_analytics_api
 
 # List of all API blueprints
 API_BLUEPRINTS = [
@@ -19,7 +21,9 @@ API_BLUEPRINTS = [
     profile_api,
     assessment_api,
     meme_api,
-    daily_outlook_api
+    daily_outlook_api,
+    analytics_bp,
+    risk_analytics_api
 ]
 
 def register_all_apis(app):

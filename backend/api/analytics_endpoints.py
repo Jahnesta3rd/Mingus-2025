@@ -123,6 +123,20 @@ def end_user_session():
         logger.error(f"Error ending user session: {e}")
         return jsonify({'error': 'Internal server error'}), 500
 
+@analytics_bp.route('/track-interaction', methods=['POST', 'OPTIONS'])
+@cross_origin()
+def track_interaction():
+    """Simple stub endpoint for tracking interactions"""
+    if request.method == 'OPTIONS':
+        return jsonify({}), 200
+    
+    try:
+        # Just acknowledge the tracking request
+        return jsonify({'success': True}), 200
+    except Exception as e:
+        logger.error(f"Error tracking interaction: {e}")
+        return jsonify({'error': 'Internal server error'}), 500
+
 @analytics_bp.route('/user-behavior/track-interaction', methods=['POST'])
 @cross_origin()
 def track_user_interaction():

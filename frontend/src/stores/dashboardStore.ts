@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { useCallback } from 'react';
 
 // ========================================
 // TYPES & INTERFACES
@@ -58,10 +59,12 @@ export interface HousingLocationState {
   loading: boolean;
   error: string | null;
   lastUpdated: Date;
+  isLoadingHousing: boolean;
+  housingDataFetched: boolean;
 }
 
 export interface DashboardState {
-  activeTab: 'overview' | 'recommendations' | 'vehicles' | 'location' | 'analytics' | 'housing';
+  activeTab: 'daily-outlook' | 'overview' | 'recommendations' | 'vehicles' | 'location' | 'analytics' | 'housing';
   riskLevel: 'secure' | 'watchful' | 'action_needed' | 'urgent';
   hasUnlockedRecommendations: boolean;
   emergencyMode: boolean;
@@ -114,7 +117,7 @@ export interface DashboardActions {
 // ========================================
 
 const initialState: DashboardState = {
-  activeTab: 'overview',
+  activeTab: 'daily-outlook',
   riskLevel: 'secure',
   hasUnlockedRecommendations: false,
   emergencyMode: false,
@@ -127,6 +130,8 @@ const initialState: DashboardState = {
     loading: false,
     error: null,
     lastUpdated: new Date(),
+    isLoadingHousing: false,
+    housingDataFetched: false,
   },
 };
 
@@ -269,66 +274,60 @@ export const useDashboardStore = create<DashboardState & DashboardActions>()(
 
       // Data fetching
       fetchHousingData: async () => {
-        set((state) => ({
-          housing: { ...state.housing, loading: true, error: null },
+        // Prevent multiple simultaneous calls
+        const state = get();
+        if (state.housing.isLoadingHousing) return;
+        
+        set((prevState) => ({
+          housing: { ...prevState.housing, isLoadingHousing: true, loading: true, error: null },
         }));
-
-        try {
-          const token = localStorage.getItem('mingus_token');
-          const [searchesResponse, scenariosResponse, leaseResponse, alertsResponse] = await Promise.all([
-            fetch('/api/housing/recent-searches', {
-              headers: {
-                'Authorization': `Bearer ${token}`,
-                'X-CSRF-Token': 'test-token',
-              },
-            }),
-            fetch('/api/housing/scenarios', {
-              headers: {
-                'Authorization': `Bearer ${token}`,
-                'X-CSRF-Token': 'test-token',
-              },
-            }),
-            fetch('/api/housing/lease-info', {
-              headers: {
-                'Authorization': `Bearer ${token}`,
-                'X-CSRF-Token': 'test-token',
-              },
-            }),
-            fetch('/api/housing/alerts', {
-              headers: {
-                'Authorization': `Bearer ${token}`,
-                'X-CSRF-Token': 'test-token',
-              },
-            }),
-          ]);
-
-          const searchesData = searchesResponse.ok ? await searchesResponse.json() : { data: { searches: [] } };
-          const scenariosData = scenariosResponse.ok ? await scenariosResponse.json() : { data: { scenarios: [] } };
-          const leaseData = leaseResponse.ok ? await leaseResponse.json() : { data: null };
-          const alertsData = alertsResponse.ok ? await alertsResponse.json() : { data: { alerts: [] } };
-
-          set((state) => ({
-            housing: {
-              ...state.housing,
-              recentSearches: searchesData.data?.searches || [],
-              recentScenarios: scenariosData.data?.scenarios || [],
-              leaseInfo: leaseData.data,
-              alerts: alertsData.data?.alerts || [],
-              loading: false,
-              error: null,
-              lastUpdated: new Date(),
-            },
+        
+        const token = localStorage.getItem('mingus_token');
+        if (!token) {
+          set((prevState) => ({
+            housing: { ...prevState.housing, isLoadingHousing: false, loading: false },
           }));
-        } catch (error) {
-          console.error('Error fetching housing data:', error);
-          set((state) => ({
-            housing: {
-              ...state.housing,
-              loading: false,
-              error: error instanceof Error ? error.message : 'Failed to fetch housing data',
-            },
-          }));
+          return;
         }
+
+        const headers = {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        };
+
+        // Helper that returns fallback on ANY error - no retry
+        const safeFetch = async <T>(url: string, fallback: T): Promise<T> => {
+          try {
+            const response = await fetch(url, { headers });
+            if (!response.ok) return fallback;
+            const data = await response.json();
+            return data.data || data || fallback;
+          } catch {
+            return fallback;
+          }
+        };
+
+        const [searches, scenarios, leaseInfo, alerts] = await Promise.all([
+          safeFetch('/api/housing/recent-searches', { searches: [] }),
+          safeFetch('/api/housing/scenarios', { scenarios: [] }),
+          safeFetch('/api/housing/lease-info', { lease_info: null }),
+          safeFetch('/api/housing/alerts', { alerts: [] }),
+        ]);
+
+        set((prevState) => ({
+          housing: {
+            ...prevState.housing,
+            recentSearches: searches.searches || [],
+            recentScenarios: scenarios.scenarios || [],
+            leaseInfo: leaseInfo.lease_info || null,
+            alerts: alerts.alerts || [],
+            isLoadingHousing: false,
+            loading: false,
+            error: null,
+            housingDataFetched: true,
+            lastUpdated: new Date(),
+          },
+        }));
       },
 
       refreshHousingData: async () => {
@@ -484,11 +483,11 @@ export const useHousingDataSync = () => {
   const { fetchHousingData, refreshHousingData } = useDashboardStore();
   const { checkLeaseExpiration, checkNewOpportunities } = useHousingNotifications();
   
-  const syncAllHousingData = async () => {
+  const syncAllHousingData = useCallback(async () => {
     await fetchHousingData();
     checkLeaseExpiration();
     await checkNewOpportunities();
-  };
+  }, [fetchHousingData, checkLeaseExpiration, checkNewOpportunities]);
   
   return {
     syncAllHousingData,

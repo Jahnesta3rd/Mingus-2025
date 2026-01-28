@@ -1,4 +1,4 @@
-import React, { useState, useEffect, lazy, Suspense } from 'react';
+import React, { useState, useEffect, useCallback, lazy, Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
 import RiskStatusHero from '../components/RiskStatusHero';
 import RecommendationTiers from '../components/RecommendationTiers';
@@ -39,7 +39,7 @@ const CareerProtectionDashboard: React.FC = () => {
   
   // Use dashboard store
   const { 
-    activeTab, 
+    activeTab: storeActiveTab, 
     setActiveTab, 
     setRiskLevel, 
     setEmergencyMode, 
@@ -47,8 +47,9 @@ const CareerProtectionDashboard: React.FC = () => {
   } = useDashboardStore();
 
   // Local state for Daily Outlook integration
+  // Sync with store's activeTab
   const [dashboardState, setDashboardState] = useState<DashboardState>({
-    activeTab: 'daily-outlook', // Start with Daily Outlook as first tab
+    activeTab: storeActiveTab as DashboardState['activeTab'],
     riskLevel: 'watchful',
     hasUnlockedRecommendations: true,
     emergencyMode: false,
@@ -56,6 +57,13 @@ const CareerProtectionDashboard: React.FC = () => {
     showFullDailyOutlook: false,
     isMobile: window.innerWidth < 768
   });
+
+  // Sync local state with store when store changes
+  useEffect(() => {
+    if (storeActiveTab !== dashboardState.activeTab) {
+      setDashboardState(prev => ({ ...prev, activeTab: storeActiveTab as DashboardState['activeTab'] }));
+    }
+  }, [storeActiveTab, dashboardState.activeTab]);
 
   // Handle mobile detection
   useEffect(() => {
@@ -110,37 +118,7 @@ const CareerProtectionDashboard: React.FC = () => {
     }
   }, [isAuthenticated]);
   
-  // Authentication check
-  useEffect(() => {
-    if (!isAuthenticated) {
-      navigate('/login');
-      return;
-    }
-    
-    initializeDashboard();
-  }, [isAuthenticated]);
-  
-  // Track page view
-  useEffect(() => {
-    trackPageView('career_protection_dashboard', {
-      user_id: user?.id,
-      risk_level: activeTab,
-      has_recommendations_unlocked: true
-    });
-  }, []);
-  
-  // Sync housing data on mount and periodically
-  useEffect(() => {
-    if (isAuthenticated) {
-      syncAllHousingData();
-      
-      // Set up periodic sync every 5 minutes
-      const interval = setInterval(syncAllHousingData, 5 * 60 * 1000);
-      return () => clearInterval(interval);
-    }
-  }, [isAuthenticated, syncAllHousingData]);
-  
-  const initializeDashboard = async () => {
+  const initializeDashboard = useCallback(async () => {
     try {
       setLoading(true);
       
@@ -170,7 +148,43 @@ const CareerProtectionDashboard: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [setRiskLevel, setEmergencyMode, setUnlockedRecommendations]);
+  
+  // Authentication check
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate('/login');
+      return;
+    }
+    
+    initializeDashboard();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthenticated]); // Only run when authentication status changes
+  
+  // Track page view (only on mount)
+  useEffect(() => {
+    trackPageView('career_protection_dashboard', {
+      user_id: user?.id,
+      risk_level: dashboardState.activeTab,
+      has_recommendations_unlocked: true
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Intentionally empty - only track on initial mount
+  
+  // Sync housing data on mount and periodically
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    
+    syncAllHousingData();
+    
+    // Set up periodic sync every 5 minutes
+    const interval = setInterval(() => {
+      syncAllHousingData();
+    }, 5 * 60 * 1000);
+    
+    return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthenticated]); // Only run when authentication status changes - syncAllHousingData should not be in deps
   
   const handleTabChange = async (tab: DashboardState['activeTab']) => {
     setDashboardState(prev => ({ ...prev, activeTab: tab }));
@@ -328,7 +342,7 @@ const CareerProtectionDashboard: React.FC = () => {
                   onClick={() => tab.locked ? null : handleTabChange(tab.id as any)}
                   className={`
                     relative py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap flex items-center gap-1 sm:gap-2 flex-shrink-0
-                    ${activeTab === tab.id
+                    ${dashboardState.activeTab === tab.id
                       ? 'border-blue-500 text-blue-600'
                       : tab.locked
                         ? 'border-transparent text-gray-400 cursor-not-allowed'
