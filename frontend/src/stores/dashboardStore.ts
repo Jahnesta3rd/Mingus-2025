@@ -391,7 +391,7 @@ export const useDashboardSelectors = () => {
     
     // Computed selectors
     hasLeaseExpiringSoon: () => {
-      if (!store.housing.leaseInfo) return false;
+      if (!store.housing.leaseInfo || !store.housing.leaseInfo.lease_end_date) return false;
       const leaseEnd = new Date(store.housing.leaseInfo.lease_end_date);
       const now = new Date();
       const daysUntilExpiry = Math.ceil((leaseEnd.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
@@ -399,7 +399,7 @@ export const useDashboardSelectors = () => {
     },
     
     leaseExpirationDays: () => {
-      if (!store.housing.leaseInfo) return null;
+      if (!store.housing.leaseInfo || !store.housing.leaseInfo.lease_end_date) return null;
       const leaseEnd = new Date(store.housing.leaseInfo.lease_end_date);
       const now = new Date();
       return Math.ceil((leaseEnd.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));

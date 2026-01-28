@@ -460,16 +460,20 @@ const CareerProtectionDashboard: React.FC = () => {
                       <div className="space-y-3">
                         <div>
                           <p className="text-sm text-gray-600">Property Address</p>
-                          <p className="font-medium text-gray-900">{leaseInfo.property_address}</p>
+                          <p className="font-medium text-gray-900">{leaseInfo.property_address ?? 'N/A'}</p>
                         </div>
                         <div>
                           <p className="text-sm text-gray-600">Monthly Rent</p>
-                          <p className="font-medium text-gray-900">${leaseInfo.monthly_rent.toLocaleString()}</p>
+                          <p className="font-medium text-gray-900">
+                            ${leaseInfo?.monthly_rent?.toLocaleString() ?? 'N/A'}
+                          </p>
                         </div>
                         <div>
                           <p className="text-sm text-gray-600">Lease End Date</p>
                           <p className="font-medium text-gray-900">
-                            {new Date(leaseInfo.lease_end_date).toLocaleDateString()}
+                            {leaseInfo?.lease_end_date 
+                              ? new Date(leaseInfo.lease_end_date).toLocaleDateString()
+                              : 'N/A'}
                             {hasLeaseExpiringSoon() && (
                               <span className="ml-2 text-red-600 text-sm font-medium">
                                 (Expires Soon!)

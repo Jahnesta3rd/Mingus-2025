@@ -128,7 +128,7 @@ const HousingLocationTile: React.FC<HousingLocationTileProps> = ({ className = '
   const getLeaseExpirationAlerts = () => {
     const alerts = [];
     
-    if (leaseInfo && hasLeaseExpiringSoon()) {
+    if (leaseInfo && leaseInfo.lease_end_date && hasLeaseExpiringSoon()) {
       const leaseEndDate = new Date(leaseInfo.lease_end_date);
       const now = new Date();
       const daysUntilExpiry = Math.ceil((leaseEndDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
@@ -261,7 +261,7 @@ const HousingLocationTile: React.FC<HousingLocationTileProps> = ({ className = '
                     <MapPinIcon className="h-4 w-4 text-gray-400" />
                     <div>
                       <p className="text-sm font-medium text-gray-900">
-                        {search.search_criteria.bedrooms} bed • ${search.search_criteria.max_rent}/mo
+                        {search.search_criteria?.bedrooms ?? 'N/A'} bed • ${search.search_criteria?.max_rent?.toLocaleString() ?? 'N/A'}/mo
                       </p>
                       <p className="text-xs text-gray-500">
                         {search.search_criteria.zip_code} • {search.results_count} results

@@ -39,7 +39,7 @@ const HousingNotificationSystem: React.FC<HousingNotificationSystemProps> = ({ c
     const checkForNewAlerts = async () => {
       // This would typically check for new housing opportunities, market changes, etc.
       // For now, we'll simulate this
-      if (leaseInfo && hasLeaseExpiringSoon()) {
+      if (leaseInfo && leaseInfo.lease_end_date && leaseInfo.id && hasLeaseExpiringSoon()) {
         const leaseEndDate = new Date(leaseInfo.lease_end_date);
         const now = new Date();
         const daysUntilExpiry = Math.ceil((leaseEndDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
