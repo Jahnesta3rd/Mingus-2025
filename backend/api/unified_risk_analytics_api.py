@@ -203,10 +203,11 @@ def assess_risk_with_full_tracking():
         # In production, this would perform actual risk analysis
         return jsonify({
             'success': True,
-            'data': {
+            'risk_analysis': {
                 'risk_level': 'low',
                 'score': 25,
-                'factors': []
+                'factors': [],
+                'recommendations': []
             }
         }), 200
         
@@ -214,10 +215,11 @@ def assess_risk_with_full_tracking():
         logger.error(f"Risk assessment with tracking failed: {e}")
         return jsonify({
             'success': True,
-            'data': {
+            'risk_analysis': {
                 'risk_level': 'low',
                 'score': 25,
-                'factors': []
+                'factors': [],
+                'recommendations': []
             }
         }), 200
 
