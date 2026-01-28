@@ -48,6 +48,11 @@ from backend.api.enhanced_vehicle_expense_endpoints import enhanced_vehicle_api
 from backend.api.weekly_checkin_endpoints import weekly_checkin_api
 from backend.api.career_vehicle_optimization_api import career_vehicle_api
 from backend.api.housing_endpoints import housing_api
+from backend.api.subscription_endpoints import subscription_bp
+from backend.api.analytics_endpoints import analytics_bp
+from backend.api.activity_endpoints import activity_bp
+from backend.api.user_endpoints import user_bp
+from backend.api.career_endpoints import career_bp
 
 # Import security middleware
 from backend.middleware.security import SecurityMiddleware
@@ -239,6 +244,13 @@ app.register_blueprint(external_api)
 # Import and register Optimal Location API for housing features
 from backend.api.optimal_location_api import optimal_location_api
 app.register_blueprint(optimal_location_api)
+
+# Register additional API blueprints
+app.register_blueprint(subscription_bp)
+app.register_blueprint(analytics_bp)
+app.register_blueprint(activity_bp)
+app.register_blueprint(user_bp)
+app.register_blueprint(career_bp)
 
 # Initialize SQLAlchemy database
 init_database(app)
