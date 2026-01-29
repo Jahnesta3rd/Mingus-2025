@@ -19,7 +19,13 @@ interface RiskStatusHeroProps {
 }
 
 const RiskStatusHero: React.FC<RiskStatusHeroProps> = ({ className = '', onRiskLevelChange }) => {
-  const [riskData, setRiskData] = useState<RiskData | null>(null);
+  const [riskData, setRiskData] = useState<RiskData | null>({
+    overall_risk: 0,
+    risk_level: 'watchful',
+    primary_threats: [],
+    recommendations_available: false,
+    emergency_unlock_granted: false
+  });
   const [loading, setLoading] = useState(true);
   const [animateRing, setAnimateRing] = useState(false);
   
@@ -43,18 +49,25 @@ const RiskStatusHero: React.FC<RiskStatusHeroProps> = ({ className = '', onRiskL
       }
       
       const data = await response.json();
-      setRiskData(data.risk_analysis);
+      const riskAnalysis = data.risk_analysis || {};
+      setRiskData({
+        overall_risk: riskAnalysis.overall_risk ?? riskAnalysis.score ?? 0,
+        risk_level: riskAnalysis.risk_level || 'watchful',
+        primary_threats: riskAnalysis.primary_threats || riskAnalysis.factors || [],
+        recommendations_available: riskAnalysis.recommendations_available ?? false,
+        emergency_unlock_granted: riskAnalysis.emergency_unlock_granted ?? false
+      });
       setAnimateRing(true);
       
       // Notify parent component of risk level change
       if (onRiskLevelChange) {
-        onRiskLevelChange(data.risk_analysis.risk_level);
+        onRiskLevelChange(riskAnalysis.risk_level || 'watchful');
       }
       
       // Track analytics for hero component interaction
       await trackAnalyticsEvent('risk_hero_viewed', {
-        risk_level: data.risk_analysis.risk_level,
-        risk_score: data.risk_analysis.overall_risk
+        risk_level: riskAnalysis.risk_level || 'watchful',
+        risk_score: riskAnalysis.overall_risk ?? riskAnalysis.score ?? 0
       });
       
     } catch (error) {
@@ -126,7 +139,7 @@ const RiskStatusHero: React.FC<RiskStatusHeroProps> = ({ className = '', onRiskL
     return <RiskHeroError onRetry={fetchRiskStatus} />;
   }
   
-  const config = getRiskConfig(riskData.risk_level, riskData.overall_risk);
+  const config = getRiskConfig(riskData.risk_level || 'watchful', riskData.overall_risk || 0);
   const IconComponent = config.icon;
   
   return (
@@ -141,7 +154,7 @@ const RiskStatusHero: React.FC<RiskStatusHeroProps> = ({ className = '', onRiskL
           <div className="flex items-center gap-3 mb-4">
             <IconComponent className="h-8 w-8" />
             <div>
-              <h2 className="text-lg font-semibold capitalize">{riskData.risk_level.replace('_', ' ')} Status</h2>
+              <h2 className="text-lg font-semibold capitalize">{(riskData?.risk_level || 'watchful').replace('_', ' ')} Status</h2>
               <p className="text-sm text-white/80">Career Risk Assessment</p>
             </div>
           </div>
@@ -151,13 +164,13 @@ const RiskStatusHero: React.FC<RiskStatusHeroProps> = ({ className = '', onRiskL
           </p>
           
           {/* Primary Threat Preview */}
-          {riskData.primary_threats.length > 0 && (
+          {(riskData?.primary_threats?.length ?? 0) > 0 && (
             <div className="mb-4">
               <p className="text-sm text-white/90 font-medium">
-                Primary Risk: {riskData.primary_threats[0].factor}
+                Primary Risk: {riskData?.primary_threats?.[0]?.factor ?? 'N/A'}
               </p>
               <p className="text-xs text-white/70">
-                Timeline: {riskData.primary_threats[0].timeline}
+                Timeline: {riskData?.primary_threats?.[0]?.timeline ?? 'N/A'}
               </p>
             </div>
           )}
@@ -166,7 +179,7 @@ const RiskStatusHero: React.FC<RiskStatusHeroProps> = ({ className = '', onRiskL
           <button
             onClick={handleCTAClick}
             className="bg-white/20 hover:bg-white/30 backdrop-blur-sm border border-white/30 rounded-lg px-6 py-3 text-sm font-semibold transition-all duration-200 hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-white/50"
-            aria-label={`${config.cta} - Risk level: ${riskData.risk_level}`}
+            aria-label={`${config.cta} - Risk level: ${riskData?.risk_level || 'watchful'}`}
           >
             {config.cta}
           </button>
@@ -183,7 +196,7 @@ const RiskStatusHero: React.FC<RiskStatusHeroProps> = ({ className = '', onRiskL
       </div>
       
       {/* Emergency Indicator */}
-      {riskData.risk_level === 'urgent' && (
+      {(riskData?.risk_level || 'watchful') === 'urgent' && (
         <div className="absolute top-2 right-2">
           <div className="bg-white/20 rounded-full p-2 animate-pulse" aria-label="Emergency alert">
             <Zap className="h-4 w-4" />
