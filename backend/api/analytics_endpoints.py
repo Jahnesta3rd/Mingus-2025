@@ -15,8 +15,9 @@ Features:
 - Real-time metrics endpoints
 """
 
-from flask import Blueprint, request, jsonify, current_app
+from flask import Blueprint, request, jsonify, current_app, g
 from flask_cors import cross_origin
+from backend.auth.decorators import require_auth
 import logging
 import traceback
 import sqlite3
@@ -1161,6 +1162,52 @@ def get_resource_predictions():
     except Exception as e:
         logger.error(f"Error getting resource predictions: {e}")
         return jsonify({'error': 'Internal server error'}), 500
+
+@analytics_bp.route('/dashboard', methods=['GET', 'OPTIONS'])
+@cross_origin()
+@require_auth
+def get_analytics_dashboard():
+    """Get analytics dashboard data for the current user"""
+    if request.method == 'OPTIONS':
+        return jsonify({}), 200
+    
+    try:
+        user_id = g.get('user_id') or g.get('current_user_id')
+        
+        return jsonify({
+            'success': True,
+            'data': {
+                'overview': {
+                    'total_sessions': 0,
+                    'total_interactions': 0,
+                    'avg_session_duration': 0,
+                    'last_active': None
+                },
+                'engagement': {
+                    'daily_active': False,
+                    'weekly_streak': 0,
+                    'features_used': []
+                },
+                'financial_summary': {
+                    'budget_adherence': 0,
+                    'savings_progress': 0,
+                    'goals_on_track': 0
+                },
+                'recent_activity': []
+            }
+        }), 200
+    except Exception as e:
+        print(f"Error in get_analytics_dashboard: {e}")
+        logger.error(f"Error in get_analytics_dashboard: {e}")
+        return jsonify({
+            'success': True,
+            'data': {
+                'overview': {},
+                'engagement': {},
+                'financial_summary': {},
+                'recent_activity': []
+            }
+        }), 200
 
 @analytics_bp.route('/risk-dashboard/career-protection-report')
 @cross_origin()
