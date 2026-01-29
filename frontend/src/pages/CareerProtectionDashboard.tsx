@@ -4,6 +4,7 @@ import RiskStatusHero from '../components/RiskStatusHero';
 import RecommendationTiers from '../components/RecommendationTiers';
 import LocationIntelligenceMap from '../components/LocationIntelligenceMap';
 import AnalyticsDashboard from '../components/AnalyticsDashboard';
+import VehicleDashboard from '../components/VehicleDashboard';
 import HousingLocationTile from '../components/HousingLocationTile';
 import HousingNotificationSystem from '../components/HousingNotificationSystem';
 import HousingProfileIntegration from '../components/HousingProfileIntegration';
@@ -23,7 +24,7 @@ const DailyOutlook = lazy(() => import('../components/DailyOutlook'));
 const MobileDailyOutlook = lazy(() => import('../components/MobileDailyOutlook'));
 
 interface DashboardState {
-  activeTab: 'daily-outlook' | 'overview' | 'recommendations' | 'location' | 'analytics' | 'housing';
+  activeTab: 'daily-outlook' | 'overview' | 'recommendations' | 'location' | 'analytics' | 'housing' | 'vehicle';
   riskLevel: 'secure' | 'watchful' | 'action_needed' | 'urgent';
   hasUnlockedRecommendations: boolean;
   emergencyMode: boolean;
@@ -272,7 +273,7 @@ const CareerProtectionDashboard: React.FC = () => {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between h-16">
               <div className="flex items-center gap-4">
-                <h1 className="text-xl font-semibold text-gray-900">Career Protection</h1>
+                <h1 className="text-xl font-semibold text-gray-900">Dashboard</h1>
                 <div className="hidden sm:block">
                   <span className="text-sm text-gray-500">
                     Last updated: {dashboardState.lastUpdated.toLocaleTimeString()}
@@ -333,6 +334,7 @@ const CareerProtectionDashboard: React.FC = () => {
                 },
                 { id: 'location', label: 'Location Intelligence', shortLabel: 'Location', icon: '🗺️' },
                 { id: 'housing', label: 'Housing Location', shortLabel: 'Housing', icon: '🏠', badge: unreadAlerts.length > 0 ? unreadAlerts.length.toString() : null },
+                { id: 'vehicle', label: 'Vehicle Status', shortLabel: 'Vehicle', icon: '🚗' },
                 { id: 'analytics', label: 'Career Analytics', shortLabel: 'Analytics', icon: '📈' }
               ].map((tab) => (
                 <button
@@ -509,6 +511,10 @@ const CareerProtectionDashboard: React.FC = () => {
                 {/* Profile Integration */}
                 <HousingProfileIntegration />
               </div>
+            )}
+            
+            {dashboardState.activeTab === 'vehicle' && (
+              <VehicleDashboard />
             )}
             
             {dashboardState.activeTab === 'analytics' && (
