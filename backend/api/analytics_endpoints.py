@@ -1163,7 +1163,7 @@ def get_resource_predictions():
         logger.error(f"Error getting resource predictions: {e}")
         return jsonify({'error': 'Internal server error'}), 500
 
-@analytics_bp.route('/dashboard', methods=['GET', 'OPTIONS'])
+@analytics_bp.route('/dashboard', methods=['GET', 'POST', 'OPTIONS'])
 @cross_origin()
 @require_auth
 def get_analytics_dashboard():
