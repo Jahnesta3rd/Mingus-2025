@@ -48,6 +48,15 @@ class User(db.Model):
     vehicles = db.relationship('Vehicle', backref='user', lazy=True, cascade='all, delete-orphan')
     daily_outlooks = db.relationship('DailyOutlook', backref='user', lazy=True, cascade='all, delete-orphan')
     relationship_status = db.relationship('UserRelationshipStatus', backref='user', lazy=True, cascade='all, delete-orphan', uselist=False)
+    # Weekly check-in wellness (back_populates on wellness/financial_setup models)
+    weekly_checkins = db.relationship('WeeklyCheckin', back_populates='user', lazy='dynamic', cascade='all, delete-orphan')
+    wellness_scores = db.relationship('WellnessScore', back_populates='user', lazy='dynamic', cascade='all, delete-orphan')
+    wellness_finance_correlations = db.relationship('WellnessFinanceCorrelation', back_populates='user', lazy='dynamic', cascade='all, delete-orphan')
+    wellness_checkin_streak = db.relationship('WellnessCheckinStreak', back_populates='user', uselist=False, cascade='all, delete-orphan')
+    spending_baseline = db.relationship('UserSpendingBaseline', back_populates='user', uselist=False, cascade='all, delete-orphan')
+    # Financial setup
+    recurring_expenses = db.relationship('RecurringExpense', back_populates='user', lazy='dynamic', cascade='all, delete-orphan')
+    user_income_sources = db.relationship('UserIncome', back_populates='user', lazy='dynamic', cascade='all, delete-orphan')
     
     def __repr__(self):
         return f'<User {self.user_id}: {self.email}>'

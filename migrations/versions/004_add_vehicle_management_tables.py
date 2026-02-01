@@ -10,8 +10,9 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import sqlite
 
 # revision identifiers, used by Alembic.
+# 003_seed_initial_data is a SQL file, not a Python revision; 004 is the chain root.
 revision = '004_add_vehicle_management_tables'
-down_revision = '003_seed_initial_data'
+down_revision = None
 branch_labels = None
 depends_on = None
 

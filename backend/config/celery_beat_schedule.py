@@ -94,6 +94,19 @@ DAILY_OUTLOOK_BEAT_SCHEDULE = {
     },
 }
 
+# Check-in Notification Periodic Tasks
+NOTIFICATION_BEAT_SCHEDULE = {
+    # Hourly: check all users and send check-in reminders at Sunday 6pm, Monday 10am, Monday 7pm (user TZ)
+    'check-and-send-reminders': {
+        'task': 'backend.tasks.notification_tasks.check_and_send_reminders',
+        'schedule': crontab(minute=0),  # Every hour at :00
+        'options': {
+            'queue': 'notification_queue',
+            'priority': 5,
+        }
+    },
+}
+
 # Additional periodic tasks for the broader Mingus application
 MINGUS_BEAT_SCHEDULE = {
     # Add other periodic tasks here as needed
@@ -108,5 +121,6 @@ MINGUS_BEAT_SCHEDULE = {
 CELERY_BEAT_SCHEDULE = {
     **GAS_PRICE_BEAT_SCHEDULE,
     **DAILY_OUTLOOK_BEAT_SCHEDULE,
+    **NOTIFICATION_BEAT_SCHEDULE,
     **MINGUS_BEAT_SCHEDULE,
 }

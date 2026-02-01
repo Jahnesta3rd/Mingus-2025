@@ -1,0 +1,150 @@
+{
+  "new_user": {
+    "email": "new_user@mingus.test",
+    "password": "TestPassword123!",
+    "auth": {
+      "user_id": "usr_new_001",
+      "email": "new_user@mingus.test",
+      "name": "New User"
+    },
+    "wellness": {
+      "scores": null,
+      "insights": [],
+      "streak": {
+        "current_streak": 0,
+        "longest_streak": 0,
+        "total_checkins": 0,
+        "last_checkin_date": null
+      },
+      "current_week_checkin": null
+    }
+  },
+  "early_user": {
+    "email": "early_user@mingus.test",
+    "password": "TestPassword123!",
+    "auth": {
+      "user_id": "usr_early_002",
+      "email": "early_user@mingus.test",
+      "name": "Early User"
+    },
+    "wellness": {
+      "scores": {
+        "physical_score": 72,
+        "mental_score": 68,
+        "relational_score": 75,
+        "financial_feeling_score": 70,
+        "overall_wellness_score": 71,
+        "physical_change": 2,
+        "mental_change": -1,
+        "relational_change": 0,
+        "overall_change": 1,
+        "week_ending_date": "2026-01-19"
+      },
+      "insights": [],
+      "streak": {
+        "current_streak": 2,
+        "longest_streak": 2,
+        "total_checkins": 2,
+        "last_checkin_date": "2026-01-19"
+      },
+      "current_week_checkin": null
+    }
+  },
+  "insight_ready_user": {
+    "email": "insight_user@mingus.test",
+    "password": "TestPassword123!",
+    "auth": {
+      "user_id": "usr_insight_003",
+      "email": "insight_user@mingus.test",
+      "name": "Insight Ready User"
+    },
+    "wellness": {
+      "scores": {
+        "physical_score": 78,
+        "mental_score": 74,
+        "relational_score": 80,
+        "financial_feeling_score": 72,
+        "overall_wellness_score": 76,
+        "physical_change": 3,
+        "mental_change": 2,
+        "relational_change": 1,
+        "overall_change": 2,
+        "week_ending_date": "2026-01-26"
+      },
+      "insights": [
+        {
+          "type": "recommendation",
+          "title": "Higher stress, higher spending",
+          "message": "On weeks when stress was above 6, dining spending was about $40 higher on average.",
+          "data_backing": "4 weeks of check-ins",
+          "action": "Try a short walk before ordering takeout.",
+          "priority": 1,
+          "category": "financial",
+          "dollar_amount": 40
+        },
+        {
+          "type": "pattern",
+          "title": "Sleep and impulse buys",
+          "message": "Better sleep (7+) correlated with fewer impulse purchases.",
+          "data_backing": "4 weeks",
+          "action": "",
+          "priority": 2,
+          "category": "physical",
+          "dollar_amount": null
+        }
+      ],
+      "streak": {
+        "current_streak": 4,
+        "longest_streak": 4,
+        "total_checkins": 4,
+        "last_checkin_date": "2026-01-26"
+      },
+      "current_week_checkin": {
+        "week_ending_date": "2026-01-26",
+        "completed_at": "2026-01-26T14:00:00Z"
+      }
+    }
+  },
+  "streak_user": {
+    "email": "streak_user@mingus.test",
+    "password": "TestPassword123!",
+    "auth": {
+      "user_id": "usr_streak_004",
+      "email": "streak_user@mingus.test",
+      "name": "Streak User"
+    },
+    "wellness": {
+      "scores": {
+        "physical_score": 82,
+        "mental_score": 79,
+        "relational_score": 85,
+        "financial_feeling_score": 78,
+        "overall_wellness_score": 81,
+        "physical_change": 1,
+        "mental_change": 2,
+        "relational_change": 0,
+        "overall_change": 1,
+        "week_ending_date": "2026-01-19"
+      },
+      "insights": [
+        {
+          "type": "recommendation",
+          "title": "Keep your momentum",
+          "message": "Your 8-week streak is associated with more consistent spending control.",
+          "data_backing": "8 weeks",
+          "action": "Complete this week's check-in to keep the streak.",
+          "priority": 1,
+          "category": "financial",
+          "dollar_amount": null
+        }
+      ],
+      "streak": {
+        "current_streak": 8,
+        "longest_streak": 8,
+        "total_checkins": 8,
+        "last_checkin_date": "2026-01-19"
+      },
+      "current_week_checkin": null
+    }
+  }
+}

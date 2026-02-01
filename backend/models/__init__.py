@@ -10,22 +10,31 @@ from .vehicle_models import Vehicle, MaintenancePrediction, CommuteScenario, MSA
 from .housing_models import HousingSearch, HousingScenario, UserHousingPreferences, CommuteRouteCache, HousingType
 from .daily_outlook import DailyOutlook, UserRelationshipStatus, DailyOutlookTemplate, RelationshipStatus, TemplateTier, TemplateCategory
 from .notification_models import (
-    UserNotificationPreferences, 
-    PushSubscription, 
-    NotificationDelivery, 
-    NotificationInteraction, 
+    UserNotificationPreferences,
+    PushSubscription,
+    NotificationDelivery,
+    NotificationInteraction,
     NotificationTemplate,
     NotificationChannel,
     NotificationType,
     DeliveryStatus,
     InteractionType
 )
+from .wellness import (
+    WeeklyCheckin,
+    WellnessScore,
+    WellnessFinanceCorrelation,
+    WellnessCheckinStreak,
+    UserSpendingBaseline,
+    UserAchievement,
+)
+from .financial_setup import RecurringExpense, UserIncome
 
 __all__ = [
     'db',
-    'User', 
+    'User',
     'Vehicle',
-    'MaintenancePrediction', 
+    'MaintenancePrediction',
     'CommuteScenario',
     'MSAGasPrice',
     'HousingSearch',
@@ -47,5 +56,13 @@ __all__ = [
     'NotificationChannel',
     'NotificationType',
     'DeliveryStatus',
-    'InteractionType'
+    'InteractionType',
+    'WeeklyCheckin',
+    'WellnessScore',
+    'WellnessFinanceCorrelation',
+    'WellnessCheckinStreak',
+    'UserSpendingBaseline',
+    'UserAchievement',
+    'RecurringExpense',
+    'UserIncome',
 ]

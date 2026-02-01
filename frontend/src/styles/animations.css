@@ -1,0 +1,100 @@
+/* Mingus app flow animations */
+
+/* Logo Splash Animations */
+@keyframes pulse-subtle {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+}
+
+.animate-pulse-subtle {
+  animation: pulse-subtle 2s ease-in-out infinite;
+}
+
+/* Streak Celebration Animations */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes bounce-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.3) translateY(20px);
+  }
+  50% {
+    transform: scale(1.05) translateY(-10px);
+  }
+  70% {
+    transform: scale(0.95) translateY(5px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out forwards;
+}
+
+.animate-bounce-in {
+  animation: bounce-in 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+}
+
+.animate-spin-slow {
+  animation: spin-slow 3s linear infinite;
+}
+
+/* Vibe Card Animations */
+@keyframes tilt-right {
+  to {
+    transform: rotate(3deg) translateX(20px);
+  }
+}
+
+@keyframes tilt-left {
+  to {
+    transform: rotate(-3deg) translateX(-20px);
+  }
+}
+
+.animate-tilt-right {
+  animation: tilt-right 0.3s ease-out forwards;
+}
+
+.animate-tilt-left {
+  animation: tilt-left 0.3s ease-out forwards;
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  .animate-pulse-subtle,
+  .animate-bounce-in,
+  .animate-spin-slow,
+  .animate-tilt-right,
+  .animate-tilt-left {
+    animation: none;
+  }
+
+  .animate-fade-in {
+    animation-duration: 0.01ms;
+  }
+}

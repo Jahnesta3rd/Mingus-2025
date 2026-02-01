@@ -9,6 +9,7 @@ import HousingLocationTile from '../components/HousingLocationTile';
 import HousingNotificationSystem from '../components/HousingNotificationSystem';
 import HousingProfileIntegration from '../components/HousingProfileIntegration';
 import DashboardErrorBoundary from '../components/DashboardErrorBoundary';
+import DashboardWellnessSection from '../components/DashboardWellnessSection';
 import QuickActionsPanel from '../components/QuickActionsPanel';
 import RecentActivityPanel from '../components/RecentActivityPanel';
 import UnlockRecommendationsPanel from '../components/UnlockRecommendationsPanel';
@@ -327,6 +328,9 @@ const CareerProtectionDashboard: React.FC = () => {
           <RiskStatusHero 
             onRiskLevelChange={handleRiskLevelChange}
           />
+
+          {/* Wellness Section - Check-in reminder, score card, impact card */}
+          <DashboardWellnessSection />
           
           {/* Tab Navigation */}
           <div className="border-b border-gray-200">

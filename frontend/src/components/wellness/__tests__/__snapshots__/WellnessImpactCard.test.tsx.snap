@@ -1,0 +1,502 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`WellnessImpactCard snapshot matches snapshot when loading 1`] = `
+<div>
+  <div
+    aria-label="Wellness-money connection"
+    class="rounded-2xl bg-slate-800/80 border border-slate-700 p-6 "
+    role="region"
+  >
+    <h2
+      class="text-lg font-semibold text-slate-200 mb-4 flex items-center gap-2"
+    >
+      <svg
+        aria-hidden="true"
+        class="w-5 h-5 text-violet-400"
+        fill="none"
+        height="24"
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        viewBox="0 0 24 24"
+        width="24"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"
+        />
+        <path
+          d="M5 3v4"
+        />
+        <path
+          d="M19 17v4"
+        />
+        <path
+          d="M3 5h4"
+        />
+        <path
+          d="M17 19h4"
+        />
+      </svg>
+      Your Wellness-Money Connection
+    </h2>
+    <div
+      aria-label="Loading insights"
+      class="space-y-4 "
+      role="status"
+    >
+      <div
+        aria-hidden="true"
+        class="rounded-xl border border-slate-600 bg-slate-800/80 p-4 animate-pulse overflow-hidden"
+      >
+        <div
+          class="flex items-center gap-3 mb-3"
+        >
+          <div
+            class="w-10 h-10 rounded-lg bg-slate-700 shrink-0"
+          />
+          <div
+            class="h-5 bg-slate-700 rounded w-2/3 max-w-[200px]"
+          />
+        </div>
+        <div
+          class="space-y-2 mb-3"
+        >
+          <div
+            class="h-4 bg-slate-700 rounded w-full"
+          />
+          <div
+            class="h-4 bg-slate-700 rounded w-5/6"
+          />
+          <div
+            class="h-4 bg-slate-700 rounded w-4/6"
+          />
+        </div>
+        <div
+          class="h-3 bg-slate-700 rounded w-1/2 mb-3"
+        />
+        <div
+          class="h-10 bg-slate-700 rounded-lg w-full max-w-[180px]"
+        />
+      </div>
+      <div
+        aria-hidden="true"
+        class="rounded-xl border border-slate-600 bg-slate-800/80 p-4 animate-pulse overflow-hidden"
+      >
+        <div
+          class="flex items-center gap-3 mb-3"
+        >
+          <div
+            class="w-10 h-10 rounded-lg bg-slate-700 shrink-0"
+          />
+          <div
+            class="h-5 bg-slate-700 rounded w-2/3 max-w-[200px]"
+          />
+        </div>
+        <div
+          class="space-y-2 mb-3"
+        >
+          <div
+            class="h-4 bg-slate-700 rounded w-full"
+          />
+          <div
+            class="h-4 bg-slate-700 rounded w-5/6"
+          />
+          <div
+            class="h-4 bg-slate-700 rounded w-4/6"
+          />
+        </div>
+        <div
+          class="h-3 bg-slate-700 rounded w-1/2 mb-3"
+        />
+        <div
+          class="h-10 bg-slate-700 rounded-lg w-full max-w-[180px]"
+        />
+      </div>
+      <div
+        aria-hidden="true"
+        class="rounded-xl border border-slate-600 bg-slate-800/80 p-4 animate-pulse overflow-hidden"
+      >
+        <div
+          class="flex items-center gap-3 mb-3"
+        >
+          <div
+            class="w-10 h-10 rounded-lg bg-slate-700 shrink-0"
+          />
+          <div
+            class="h-5 bg-slate-700 rounded w-2/3 max-w-[200px]"
+          />
+        </div>
+        <div
+          class="space-y-2 mb-3"
+        >
+          <div
+            class="h-4 bg-slate-700 rounded w-full"
+          />
+          <div
+            class="h-4 bg-slate-700 rounded w-5/6"
+          />
+          <div
+            class="h-4 bg-slate-700 rounded w-4/6"
+          />
+        </div>
+        <div
+          class="h-3 bg-slate-700 rounded w-1/2 mb-3"
+        />
+        <div
+          class="h-10 bg-slate-700 rounded-lg w-full max-w-[180px]"
+        />
+      </div>
+      <span
+        class="sr-only"
+      >
+        Loading wellness insights…
+      </span>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`WellnessImpactCard snapshot matches snapshot with insights 1`] = `
+<div>
+  <div
+    aria-label="Wellness-money connection"
+    class="rounded-2xl bg-slate-800/80 border border-slate-700 p-6 "
+    role="region"
+  >
+    <h2
+      class="text-lg font-semibold text-slate-200 mb-4 flex items-center gap-2"
+    >
+      <svg
+        aria-hidden="true"
+        class="w-5 h-5 text-violet-400"
+        fill="none"
+        height="24"
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        viewBox="0 0 24 24"
+        width="24"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"
+        />
+        <path
+          d="M5 3v4"
+        />
+        <path
+          d="M19 17v4"
+        />
+        <path
+          d="M3 5h4"
+        />
+        <path
+          d="M17 19h4"
+        />
+      </svg>
+      Your Wellness-Money Connection
+    </h2>
+    <div
+      aria-label="Personalized insights"
+      class="space-y-4"
+      role="list"
+    >
+      <div
+        role="listitem"
+      >
+        <article
+          aria-describedby="insight-desc-0"
+          aria-labelledby="insight-title-0"
+          class="
+        rounded-xl border p-4
+        animate-fade-in-up
+        bg-blue-500/10 border-blue-500/30
+        
+        
+        
+      "
+          role="article"
+          style="animation-delay: 0ms; animation-fill-mode: backwards;"
+        >
+          <div
+            class="flex items-start gap-3"
+          >
+            <div
+              aria-hidden="true"
+              class="w-10 h-10 rounded-lg flex items-center justify-center shrink-0 bg-blue-500/20 text-blue-400"
+            >
+              <svg
+                class="w-5 h-5"
+                fill="none"
+                height="24"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+                width="24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M9 17H7A5 5 0 0 1 7 7h2"
+                />
+                <path
+                  d="M15 7h2a5 5 0 1 1 0 10h-2"
+                />
+                <line
+                  x1="8"
+                  x2="16"
+                  y1="12"
+                  y2="12"
+                />
+              </svg>
+            </div>
+            <div
+              class="min-w-0 flex-1"
+            >
+              <span
+                class="sr-only"
+              >
+                Correlation
+              </span>
+              <h3
+                class="text-base font-bold text-slate-100"
+                id="insight-title-0"
+              >
+                Stress & Spending Link
+              </h3>
+              <div
+                class="mt-2 space-y-2"
+                id="insight-desc-0"
+              >
+                <p
+                  class="text-slate-300 text-sm leading-relaxed"
+                >
+                  Your data shows higher stress weeks tend to have more impulse spending.
+                </p>
+                <p
+                  class="text-slate-500 text-xs italic mt-1"
+                  role="note"
+                >
+                  Based on 8 weeks of your data
+                </p>
+              </div>
+              <div
+                aria-label="Suggested action"
+                class="mt-3 rounded-lg bg-slate-800/60 border border-slate-600 px-3 py-2"
+                role="complementary"
+              >
+                <p
+                  class="text-slate-300 text-sm font-medium"
+                >
+                  Consider a 24-hour pause when stress is high.
+                </p>
+              </div>
+            </div>
+          </div>
+        </article>
+      </div>
+      <div
+        role="listitem"
+      >
+        <article
+          aria-describedby="insight-desc-1"
+          aria-labelledby="insight-title-1"
+          class="
+        rounded-xl border p-4
+        animate-fade-in-up
+        bg-blue-500/10 border-blue-500/30
+        
+        
+        
+      "
+          role="article"
+          style="animation-delay: 80ms; animation-fill-mode: backwards;"
+        >
+          <div
+            class="flex items-start gap-3"
+          >
+            <div
+              aria-hidden="true"
+              class="w-10 h-10 rounded-lg flex items-center justify-center shrink-0 bg-blue-500/20 text-blue-400"
+            >
+              <svg
+                class="w-5 h-5"
+                fill="none"
+                height="24"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+                width="24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M9 17H7A5 5 0 0 1 7 7h2"
+                />
+                <path
+                  d="M15 7h2a5 5 0 1 1 0 10h-2"
+                />
+                <line
+                  x1="8"
+                  x2="16"
+                  y1="12"
+                  y2="12"
+                />
+              </svg>
+            </div>
+            <div
+              class="min-w-0 flex-1"
+            >
+              <span
+                class="sr-only"
+              >
+                Correlation
+              </span>
+              <h3
+                class="text-base font-bold text-slate-100"
+                id="insight-title-1"
+              >
+                Second Insight
+              </h3>
+              <div
+                class="mt-2 space-y-2"
+                id="insight-desc-1"
+              >
+                <p
+                  class="text-slate-300 text-sm leading-relaxed"
+                >
+                  Your data shows higher stress weeks tend to have more impulse spending.
+                </p>
+                <p
+                  class="text-slate-500 text-xs italic mt-1"
+                  role="note"
+                >
+                  Based on 8 weeks of your data
+                </p>
+              </div>
+              <div
+                aria-label="Suggested action"
+                class="mt-3 rounded-lg bg-slate-800/60 border border-slate-600 px-3 py-2"
+                role="complementary"
+              >
+                <p
+                  class="text-slate-300 text-sm font-medium"
+                >
+                  Consider a 24-hour pause when stress is high.
+                </p>
+              </div>
+            </div>
+          </div>
+        </article>
+      </div>
+    </div>
+    <p
+      aria-live="polite"
+      class="sr-only"
+      role="status"
+    >
+      2
+       new insight
+      s
+       available.
+    </p>
+  </div>
+</div>
+`;
+
+exports[`WellnessImpactCard snapshot matches snapshot with insufficient data 1`] = `
+<div>
+  <div
+    aria-label="Wellness-money connection"
+    class="rounded-2xl bg-slate-800/80 border border-slate-700 p-6 "
+    role="region"
+  >
+    <h2
+      class="text-lg font-semibold text-slate-200 mb-2 flex items-center gap-2"
+    >
+      <svg
+        aria-hidden="true"
+        class="w-5 h-5 text-violet-400"
+        fill="none"
+        height="24"
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        viewBox="0 0 24 24"
+        width="24"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"
+        />
+        <path
+          d="M5 3v4"
+        />
+        <path
+          d="M19 17v4"
+        />
+        <path
+          d="M3 5h4"
+        />
+        <path
+          d="M17 19h4"
+        />
+      </svg>
+      Your Wellness-Money Connection
+    </h2>
+    <p
+      class="text-slate-300 text-sm mb-4"
+    >
+      Complete a few more weekly check-ins to unlock personalized insights!
+    </p>
+    <p
+      class="text-slate-400 text-sm mb-4"
+    >
+      We need about 
+      4
+       weeks of data to find patterns.
+    </p>
+    <div
+      aria-label="2 of 4 weeks completed. 2 more to unlock personalized insights."
+      aria-valuemax="4"
+      aria-valuemin="0"
+      aria-valuenow="2"
+      class="space-y-2 "
+      role="progressbar"
+    >
+      <div
+        class="flex justify-between text-sm"
+      >
+        <span
+          class="text-slate-300 font-medium"
+        >
+          2
+           of 
+          4
+           weeks completed
+        </span>
+        <span
+          class="text-slate-400 tabular-nums"
+        >
+          50
+          %
+        </span>
+      </div>
+      <div
+        class="h-2.5 w-full bg-slate-700 rounded-full overflow-hidden"
+      >
+        <div
+          class="h-full bg-violet-500 rounded-full transition-all duration-500 ease-out"
+          style="width: 50%;"
+        />
+      </div>
+    </div>
+  </div>
+</div>
+`;

@@ -74,19 +74,74 @@ module.exports = {
         sans: ['Inter', 'system-ui', 'sans-serif'],
       },
       animation: {
-        'fade-in-up': 'fadeInUp 0.6s ease-out',
+        'fade-in-up': 'fadeInUp 0.6s ease-out forwards',
+        'fade-in': 'fadeIn 0.2s ease-out',
         'bounce-slow': 'bounce 2s infinite',
+        'pulse-slow': 'pulseSlow 2.5s ease-in-out infinite',
+        'slide-in-banner': 'slideInBanner 0.4s ease-out forwards',
+        'slide-up-sheet': 'slideUpSheet 0.3s ease-out forwards',
+        'scale-in': 'scaleIn 0.25s ease-out forwards',
+        /* Mingus app flow */
+        'pulse-subtle': 'pulseSubtle 2s ease-in-out infinite',
+        'bounce-in': 'bounceIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards',
+        'spin-slow': 'spinSlow 3s linear infinite',
+      },
+      animationDelay: {
+        '80': '80ms',
+        '160': '160ms',
+        '240': '240ms',
       },
       keyframes: {
         fadeInUp: {
           '0%': {
             opacity: '0',
-            transform: 'translateY(30px)'
+            transform: 'translateY(20px)'
           },
           '100%': {
             opacity: '1',
             transform: 'translateY(0)'
           }
+        },
+        pulseSlow: {
+          '0%, 100%': { opacity: '1', transform: 'scale(1)' },
+          '50%': { opacity: '0.95', transform: 'scale(1.02)' }
+        },
+        slideInBanner: {
+          '0%': { opacity: '0', transform: 'translateY(-16px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' }
+        },
+        slideUpSheet: {
+          '0%': { opacity: '0', transform: 'translateY(100%)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' }
+        },
+        scaleIn: {
+          '0%': { opacity: '0', transform: 'scale(0.95)' },
+          '100%': { opacity: '1', transform: 'scale(1)' }
+        },
+        fadeIn: {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' }
+        },
+        /* Mingus app flow */
+        pulseSubtle: {
+          '0%, 100%': { transform: 'scale(1)' },
+          '50%': { transform: 'scale(1.02)' }
+        },
+        bounceIn: {
+          '0%': { opacity: '0', transform: 'scale(0.3) translateY(20px)' },
+          '50%': { transform: 'scale(1.05) translateY(-10px)' },
+          '70%': { transform: 'scale(0.95) translateY(5px)' },
+          '100%': { opacity: '1', transform: 'scale(1) translateY(0)' }
+        },
+        spinSlow: {
+          from: { transform: 'rotate(0deg)' },
+          to: { transform: 'rotate(360deg)' }
+        },
+        tiltRight: {
+          to: { transform: 'rotate(3deg) translateX(20px)' }
+        },
+        tiltLeft: {
+          to: { transform: 'rotate(-3deg) translateX(-20px)' }
         }
       }
     },

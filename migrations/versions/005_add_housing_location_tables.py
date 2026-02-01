@@ -90,7 +90,7 @@ def upgrade():
         sa.Column('min_bedrooms', sa.Integer(), nullable=True),
         sa.Column('max_bedrooms', sa.Integer(), nullable=True),
         sa.Column('max_rent_percentage', sa.Numeric(precision=5, scale=2), nullable=True),
-        sa.Column('preferred_neighborhoods', sa.ARRAY(sa.String()), nullable=True),
+        sa.Column('preferred_neighborhoods', sa.JSON(), nullable=True),  # SQLite-compatible (ARRAY on PG)
         sa.Column('updated_at', sa.DateTime(), nullable=False, server_default=sa.text('CURRENT_TIMESTAMP')),
         sa.PrimaryKeyConstraint('user_id'),
         sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='CASCADE'),

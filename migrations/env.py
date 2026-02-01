@@ -8,11 +8,13 @@ from alembic import context
 # Add the project root to the Python path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-# Import your models here
+# Import your models here (must load all models for autogenerate)
 from backend.models.database import db
 from backend.models.user_models import User
 from backend.models.vehicle_models import Vehicle, MaintenancePrediction, CommuteScenario, MSAGasPrice
 from backend.models.housing_models import HousingSearch, HousingScenario, UserHousingPreferences, CommuteRouteCache, HousingType
+from backend.models.wellness import WeeklyCheckin, WellnessScore, WellnessFinanceCorrelation, WellnessCheckinStreak, UserSpendingBaseline
+from backend.models.financial_setup import RecurringExpense, UserIncome
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
