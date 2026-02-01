@@ -1,137 +1,77 @@
 #!/bin/bash
-# Local wrapper script to deploy to Digital Ocean
-# This script will SSH into the server and run the deployment
+# ============================================================
+# MINGUS APP - ONE-COMMAND DEPLOY TO DIGITAL OCEAN
+# Server: test.mingusapp.com (64.225.16.241)
+# ============================================================
 
 set -e
 
-echo "🚀 Starting Digital Ocean Deployment..."
-echo "=================================================="
-echo ""
+# --- Configuration ---
+SSH_HOST="test.mingusapp.com"
+REPO_DIR="/home/mingus-app/mingus-app"
+WEB_ROOT="/var/www/mingusapp.com"
+BACKEND_DIR="/opt/mingus-test"
+BRANCH="main"
 
-# Server details
-SERVER="mingus-app@test.mingusapp.com"
-APP_DIR="/var/www/mingus-app"
+# --- Colors ---
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+RED='\033[0;31m'
+NC='\033[0m'
 
-echo "📋 Connecting to server: $SERVER"
-echo ""
+echo -e "${GREEN}========================================${NC}"
+echo -e "${GREEN}  MINGUS DEPLOY - test.mingusapp.com${NC}"
+echo -e "${GREEN}========================================${NC}"
 
-# SSH into server and run deployment commands
-ssh -t $SERVER << 'ENDSSH'
-    set -e
-    
-    echo "✅ Connected to server"
-    echo ""
-    
-    # Navigate to app directory
-    echo "📁 Navigating to app directory..."
-    cd /var/www/mingus-app || {
-        echo "❌ Error: /var/www/mingus-app not found"
-        exit 1
-    }
-    
-    echo "✅ Current directory: $(pwd)"
-    echo ""
-    
-    # Pull latest changes
-    echo "📥 Pulling latest changes from GitHub..."
-    git pull origin main || {
-        echo "❌ Error: Git pull failed"
-        exit 1
-    }
-    
-    echo "✅ Git pull completed"
-    echo ""
-    
-    # Show recent commits
-    echo "📋 Recent commits:"
-    git log --oneline -5
-    echo ""
-    
-    # Build frontend
-    echo "🔨 Building frontend..."
-    cd frontend || {
-        echo "❌ Error: frontend directory not found"
-        exit 1
-    }
-    
-    echo "📦 Installing npm dependencies..."
-    npm install || {
-        echo "⚠️  Warning: npm install had some issues, but continuing..."
-    }
-    
-    echo "🏗️  Building frontend (this may take a few minutes)..."
-    npm run build || {
-        echo "❌ Error: Frontend build failed"
-        exit 1
-    }
-    
-    echo "✅ Frontend build completed"
-    cd ..
-    echo ""
-    
-    # Check if backend needs updates
-    echo "🔍 Checking backend..."
-    if [ -f "requirements.txt" ]; then
-        echo "📦 Backend requirements.txt found"
-        if [ -d "venv" ]; then
-            echo "🐍 Activating virtual environment..."
-            source venv/bin/activate
-            echo "📦 Installing/updating Python dependencies..."
-            pip install -r requirements.txt --quiet || {
-                echo "⚠️  Warning: pip install had some issues"
-            }
-        else
-            echo "⚠️  Warning: Virtual environment not found, skipping pip install"
-        fi
-    else
-        echo "ℹ️  No requirements.txt found, skipping backend dependency update"
-    fi
-    echo ""
-    
-    # Restart services
-    echo "🔄 Restarting services..."
-    
-    echo "  → Restarting mingus-backend..."
-    sudo systemctl restart mingus-backend || {
-        echo "⚠️  Warning: mingus-backend restart failed or service not found"
-        echo "Trying alternative: gunicorn..."
-        sudo systemctl restart gunicorn || {
-            echo "⚠️  Warning: gunicorn restart also failed"
-        }
-    }
-    
-    echo "  → Restarting nginx..."
-    sudo systemctl restart nginx || {
-        echo "❌ Error: nginx restart failed"
-        exit 1
-    }
-    
-    echo "✅ Services restarted"
-    echo ""
-    
-    # Check service status
-    echo "📊 Checking service status..."
-    echo ""
-    echo "Backend service status:"
-    sudo systemctl status mingus-backend --no-pager -l | head -15 || sudo systemctl status gunicorn --no-pager -l | head -15 || echo "⚠️  Could not check backend status"
-    
-    echo ""
-    echo "Nginx service status:"
-    sudo systemctl status nginx --no-pager -l | head -15
-    
-    echo ""
-    echo "=================================================="
-    echo "🎉 Deployment Complete!"
-    echo "=================================================="
-    echo ""
-    echo "📝 Next Steps:"
-    echo "1. Visit https://test.mingusapp.com to verify the changes"
-    echo "2. Check logs if issues occur:"
-    echo "   sudo journalctl -u mingus-backend -f"
-    echo "   sudo tail -f /var/log/nginx/error.log"
-    echo ""
-ENDSSH
+# --- Step 1: Push local changes ---
+echo -e "\n${YELLOW}[1/6] Pushing local changes to GitHub...${NC}"
+git add -A
+git diff --cached --quiet && echo "  No new changes to commit" || {
+    git commit -m "Deploy $(date '+%Y-%m-%d %H:%M:%S')"
+}
+git push origin $BRANCH
+echo -e "${GREEN}  ✅ Code pushed to GitHub${NC}"
 
-echo ""
-echo "✅ Deployment script completed!"
-echo ""
+# --- Step 2: Pull on server ---
+echo -e "\n${YELLOW}[2/6] Pulling latest code on server...${NC}"
+ssh $SSH_HOST "cd $REPO_DIR && git pull origin $BRANCH"
+echo -e "${GREEN}  ✅ Server code updated${NC}"
+
+# --- Step 3: Build frontend ---
+echo -e "\n${YELLOW}[3/6] Building frontend...${NC}"
+ssh $SSH_HOST "cd $REPO_DIR/frontend && npm install --production=false 2>&1 | tail -3 && npm run build 2>&1 | tail -5"
+echo -e "${GREEN}  ✅ Frontend built${NC}"
+
+# --- Step 4: Deploy frontend to web root ---
+echo -e "\n${YELLOW}[4/6] Deploying frontend to web root...${NC}"
+ssh $SSH_HOST "sudo rsync -a --delete $REPO_DIR/frontend/dist/ $WEB_ROOT/ && sudo chown -R www-data:www-data $WEB_ROOT/"
+echo -e "${GREEN}  ✅ Frontend deployed to $WEB_ROOT${NC}"
+
+# --- Step 5: Restart backend ---
+echo -e "\n${YELLOW}[5/6] Restarting backend...${NC}"
+ssh $SSH_HOST "sudo pkill -f 'gunicorn.*app:app' 2>/dev/null; sleep 2; sudo -u mingus-app bash -c 'cd $BACKEND_DIR && $BACKEND_DIR/venv/bin/gunicorn --bind 127.0.0.1:5000 --workers 2 --timeout 120 app:app --daemon'"
+echo -e "${GREEN}  ✅ Backend restarted${NC}"
+
+# --- Step 6: Verify ---
+echo -e "\n${YELLOW}[6/6] Verifying deployment...${NC}"
+
+# Check frontend
+FRONTEND_STATUS=$(ssh $SSH_HOST "curl -s -o /dev/null -w '%{http_code}' https://test.mingusapp.com/")
+if [ "$FRONTEND_STATUS" = "200" ]; then
+    echo -e "${GREEN}  ✅ Frontend: HTTP $FRONTEND_STATUS${NC}"
+else
+    echo -e "${RED}  ❌ Frontend: HTTP $FRONTEND_STATUS${NC}"
+fi
+
+# Check backend
+BACKEND_STATUS=$(ssh $SSH_HOST "curl -s http://127.0.0.1:5000/health | python3 -c \"import sys,json; print(json.load(sys.stdin).get('status','unknown'))\" 2>/dev/null || echo 'unreachable'")
+echo -e "${GREEN}  ✅ Backend health: $BACKEND_STATUS${NC}"
+
+# Check gunicorn
+WORKERS=$(ssh $SSH_HOST "ps aux | grep 'gunicorn.*app:app' | grep -v grep | wc -l")
+echo -e "${GREEN}  ✅ Gunicorn workers: $WORKERS${NC}"
+
+echo -e "\n${GREEN}========================================${NC}"
+echo -e "${GREEN}  DEPLOY COMPLETE!${NC}"
+echo -e "${GREEN}  https://test.mingusapp.com${NC}"
+echo -e "${GREEN}========================================${NC}"
