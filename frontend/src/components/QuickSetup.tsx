@@ -94,7 +94,7 @@ const QuickSetup: React.FC = () => {
       // Clear assessment data from localStorage after successful setup
       localStorage.removeItem('mingus_assessment');
       
-      navigate('/career-dashboard');
+      navigate('/dashboard');
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Setup error occurred';
       setError(errorMessage);
