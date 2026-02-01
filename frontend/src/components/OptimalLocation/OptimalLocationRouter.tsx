@@ -482,7 +482,7 @@ const OptimalLocationRouter: React.FC<OptimalLocationRouterProps> = ({ className
             <div className="flex items-center justify-between h-16">
               {/* Back Button */}
               <button
-                onClick={() => navigate('/career-dashboard')}
+                onClick={() => navigate('/dashboard')}
                 className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
                 aria-label="Back to dashboard"
               >

@@ -22,7 +22,7 @@ const SignUpPage: React.FC = () => {
   // Redirect authenticated users to dashboard
   useEffect(() => {
     if (isAuthenticated) {
-      navigate('/career-dashboard', { replace: true });
+      navigate('/dashboard', { replace: true });
     }
   }, [isAuthenticated, navigate]);
 
@@ -125,7 +125,7 @@ const SignUpPage: React.FC = () => {
       // Redirect to dashboard after successful registration
       // QuickSetupOverlay will appear if setup is not completed
       setTimeout(() => {
-        navigate('/career-dashboard');
+        navigate('/dashboard');
       }, 1500);
     } catch (err: any) {
       setError(err.message || 'Registration failed. Please try again.');

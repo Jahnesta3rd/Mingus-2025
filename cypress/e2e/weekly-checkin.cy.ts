@@ -41,7 +41,7 @@ function login(users: Record<string, { email: string; password: string }>, userK
   cy.get('input[name="email"]').type(u.email);
   cy.get('input[name="password"]').type(u.password);
   cy.get('form').submit();
-  cy.url().should('include', '/career-dashboard');
+  cy.url().should('include', '/dashboard');
 }
 
 function completeCheckinForm() {
@@ -255,7 +255,7 @@ describe('Weekly Check-in E2E', () => {
       cy.intercept('POST', '/api/wellness/expense-tag*', { statusCode: 200, body: { success: true } }).as('saveExpenseTag');
 
       cy.fixture('weekly-checkin-users').then((users) => login(users, 'early_user'));
-      cy.visit('/career-dashboard');
+      cy.visit('/dashboard');
 
       // If app has "Add expense" or "Log expense" that opens quick tag after create:
       cy.get('body').then(($body) => {

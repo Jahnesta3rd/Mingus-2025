@@ -74,7 +74,7 @@ const DashboardTestSuite: React.FC = () => {
       async () => {
         // Test if we can navigate to the dashboard
         try {
-          navigate('/career-dashboard');
+          navigate('/dashboard');
           return true;
         } catch {
           return false;
@@ -180,7 +180,7 @@ const DashboardTestSuite: React.FC = () => {
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center space-x-4">
               <button
-                onClick={() => navigate('/career-dashboard')}
+                onClick={() => navigate('/dashboard')}
                 className="text-blue-600 hover:text-blue-700 font-medium"
               >
                 ← Back to Dashboard
@@ -302,7 +302,7 @@ const DashboardTestSuite: React.FC = () => {
               <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                 <span className="font-medium">Dashboard Route</span>
                 <button
-                  onClick={() => navigate('/career-dashboard')}
+                  onClick={() => navigate('/dashboard')}
                   className="px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700"
                 >
                   Test Dashboard

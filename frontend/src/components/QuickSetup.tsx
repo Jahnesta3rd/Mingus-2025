@@ -220,7 +220,7 @@ const QuickSetup: React.FC = () => {
           {/* Skip Option */}
           <button
             type="button"
-            onClick={() => navigate('/career-dashboard')}
+            onClick={() => navigate('/dashboard')}
             className="w-full py-2 text-gray-400 hover:text-white transition-colors text-sm"
           >
             Skip for now

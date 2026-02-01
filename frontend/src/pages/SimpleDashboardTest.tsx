@@ -34,7 +34,7 @@ const SimpleDashboardTest: React.FC = () => {
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center space-x-4">
               <button
-                onClick={() => navigate('/career-dashboard')}
+                onClick={() => navigate('/dashboard')}
                 className="text-blue-600 hover:text-blue-700 font-medium"
               >
                 ← Back to Dashboard
@@ -116,7 +116,7 @@ const SimpleDashboardTest: React.FC = () => {
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-3">
                 <button
-                  onClick={() => navigate('/career-dashboard')}
+                  onClick={() => navigate('/dashboard')}
                   className="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
                 >
                   Test Main Dashboard
