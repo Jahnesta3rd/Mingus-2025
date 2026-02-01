@@ -229,7 +229,7 @@ const NavigationBar: React.FC<NavigationBarProps> = ({ className = '' }) => {
                       role="menuitem"
                     >
                       <Shield className="h-4 w-4" />
-                      Career Dashboard
+                      Main Dashboard
                     </button>
                     <button
                       onClick={handleLogout}
@@ -317,10 +317,10 @@ const NavigationBar: React.FC<NavigationBarProps> = ({ className = '' }) => {
                     onClick={handleNavigateToDashboard}
                     className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 transform hover:scale-105 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-800"
                     role="menuitem"
-                    aria-label="Career Dashboard"
+                    aria-label="Main Dashboard"
                   >
                     <Shield className="h-4 w-4" />
-                    Career Dashboard
+                    Main Dashboard
                   </button>
                   <button 
                     ref={el => menuItemsRef.current[4] = el}
