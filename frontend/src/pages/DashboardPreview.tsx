@@ -75,7 +75,7 @@ const DashboardPreview: React.FC = () => {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between h-16">
               <div className="flex items-center gap-4">
-                <h1 className="text-xl font-semibold text-gray-900">Career Protection Dashboard</h1>
+                <h1 className="text-xl font-semibold text-gray-900">Main Dashboard</h1>
                 <div className="hidden sm:block">
                   <span className="text-sm text-gray-500">
                     Last updated: {dashboardState.lastUpdated.toLocaleTimeString()}
