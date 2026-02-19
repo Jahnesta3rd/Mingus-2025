@@ -96,6 +96,11 @@ const CareerProtectionDashboard: React.FC = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  // Set page title
+  useEffect(() => {
+    document.title = 'Dashboard';
+  }, []);
+
   // SINGLE useEffect that runs ONCE on mount - all data fetching happens here
   useEffect(() => {
     // Prevent double-initialization
