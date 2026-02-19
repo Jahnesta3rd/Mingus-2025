@@ -218,71 +218,38 @@ def submit_assessment():
 @assessment_api.route('/assessments/<int:assessment_id>/download', methods=['GET'])
 def download_assessment_pdf(assessment_id):
     """
-    Generate and download assessment results as PDF
+    Download test assessment PDF (temporary - returns sample PDF for all assessments)
     """
     try:
-        from backend.services.pdf_service import PDFService
+        import os
+        from flask import send_file
         
-        conn = get_db_connection()
-        cursor = conn.cursor()
+        # Path to the test PDF
+        pdf_path = os.path.join(
+            os.path.dirname(__file__), 
+            '..', '..', 
+            'frontend', 'public', 'downloads', 
+            'Test_Assessment_Result_Document.pdf'
+        )
         
-        # Get assessment data
-        cursor.execute('''
-            SELECT a.*, lmr.score, lmr.risk_level, lmr.recommendations
-            FROM assessments a
-            LEFT JOIN lead_magnet_results lmr ON a.id = lmr.assessment_id
-            WHERE a.id = ?
-        ''', (assessment_id,))
+        # Check if file exists
+        if not os.path.exists(pdf_path):
+            logger.error(f"Test PDF not found at: {pdf_path}")
+            return jsonify({'success': False, 'error': 'PDF file not found'}), 404
         
-        result = cursor.fetchone()
-        
-        if not result:
-            return jsonify({'success': False, 'error': 'Assessment not found'}), 404
-        
-        # Prepare assessment data for PDF
-        assessment_data = {
-            'assessment_id': result['id'],
-            'email': result['email'],  # This is hashed, but we'll use it for display
-            'first_name': result['first_name'],
-            'assessment_type': result['assessment_type'],
-            'score': result['score'],
-            'risk_level': result['risk_level'],
-            'recommendations': json.loads(result['recommendations']) if result['recommendations'] else [],
-            'completed_at': result['completed_at']
-        }
-        
-        # Generate PDF
-        pdf_service = PDFService()
-        pdf_bytes = pdf_service.generate_assessment_pdf(assessment_data)
-        
-        # Create filename
-        assessment_type = assessment_data['assessment_type'].replace('-', '_')
-        filename = f"assessment_results_{assessment_type}_{assessment_id}_{datetime.now().strftime('%Y%m%d')}.pdf"
-        
-        # Return PDF as download
-        from io import BytesIO
-        pdf_io = BytesIO(pdf_bytes)
-        pdf_io.seek(0)
+        # Create filename for download
+        filename = f"assessment_results_{assessment_id}_{datetime.now().strftime('%Y%m%d')}.pdf"
         
         return send_file(
-            pdf_io,
+            pdf_path,
             mimetype='application/pdf',
             as_attachment=True,
             download_name=filename
         )
         
-    except ImportError as e:
-        logger.error(f"PDF library not available: {e}")
-        return jsonify({
-            'success': False,
-            'error': 'PDF generation not available. Please install reportlab: pip install reportlab'
-        }), 503
     except Exception as e:
-        logger.error(f"Error generating PDF: {e}")
-        return jsonify({'success': False, 'error': 'Failed to generate PDF'}), 500
-    finally:
-        if 'conn' in locals():
-            conn.close()
+        logger.error(f"Error serving PDF: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 @assessment_api.route('/assessments/<int:assessment_id>/results', methods=['GET'])
 def get_assessment_results(assessment_id):
