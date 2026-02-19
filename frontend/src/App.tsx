@@ -51,6 +51,7 @@ const router = createBrowserRouter([
   },
 
   // Redirects
+  { path: '/career-dashboard', element: <Navigate to="/dashboard" replace /> },
   { path: '/', element: <Navigate to="/dashboard" replace /> },
   { path: '*', element: <Navigate to="/dashboard" replace /> },
 ]);
