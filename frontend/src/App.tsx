@@ -7,6 +7,7 @@ import LogoSplash from './components/splash/LogoSplash';
 import VibeCheckPage from './components/vibe/VibeCheckPage';
 import DashboardLayout from './components/dashboard/DashboardLayout';
 import MoodDashboard from './components/MoodDashboard';
+import CareerProtectionDashboard from './pages/CareerProtectionDashboard';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import AuthGuard from './guards/AuthGuard';
 import VibeGuard from './guards/VibeGuard';
@@ -43,13 +44,10 @@ const router = createBrowserRouter([
     element: (
       <AuthGuard>
         <VibeGuard>
-          <DashboardLayout />
+          <CareerProtectionDashboard />
         </VibeGuard>
       </AuthGuard>
     ),
-    children: [
-      { index: true, element: <MoodDashboard userId="test-user" /> },
-    ],
   },
 
   // Redirects
