@@ -163,6 +163,14 @@ def test_enhanced_cash_flow_forecast():
     for month_key in month_keys:
         total = forecast.total_monthly_forecast[month_key]
         print(f"  {month_key}: ${total:,.2f}")
+
+    # Test build_daily_cashflow for FinancialForecastTab
+    daily_cashflow = engine.build_daily_cashflow(forecast, initial_balance=5000.0, days=90)
+    assert len(daily_cashflow) == 90, "daily_cashflow should have 90 entries"
+    first = daily_cashflow[0]
+    assert 'date' in first and 'opening_balance' in first and 'closing_balance' in first
+    assert first['balance_status'] in ('healthy', 'warning', 'danger')
+    print(f"\n📊 Daily cashflow (FinancialForecastTab): {len(daily_cashflow)} days, first date={first['date']}")
     
     return True
 

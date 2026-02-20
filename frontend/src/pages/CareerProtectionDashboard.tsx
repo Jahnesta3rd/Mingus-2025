@@ -16,6 +16,9 @@ import UnlockRecommendationsPanel from '../components/UnlockRecommendationsPanel
 import DashboardSkeleton from '../components/DashboardSkeleton';
 import DailyOutlookCard from '../components/DailyOutlookCard';
 import QuickSetupOverlay from '../components/QuickSetupOverlay';
+import SpendingMilestonesWidget from '../components/SpendingMilestonesWidget';
+import SpecialDatesWidget from '../components/SpecialDatesWidget';
+import FinancialForecastTab from '../components/FinancialForecastTab';
 import { useAuth } from '../hooks/useAuth';
 import { useAnalytics } from '../hooks/useAnalytics';
 import { useDashboardStore, useDashboardSelectors } from '../stores/dashboardStore';
@@ -25,7 +28,7 @@ const DailyOutlook = lazy(() => import('../components/DailyOutlook'));
 const MobileDailyOutlook = lazy(() => import('../components/MobileDailyOutlook'));
 
 interface DashboardState {
-  activeTab: 'daily-outlook' | 'overview' | 'recommendations' | 'location' | 'analytics' | 'housing' | 'vehicle';
+  activeTab: 'daily-outlook' | 'financial-forecast' | 'overview' | 'recommendations' | 'location' | 'analytics' | 'housing' | 'vehicle';
   riskLevel: 'secure' | 'watchful' | 'action_needed' | 'urgent';
   hasUnlockedRecommendations: boolean;
   emergencyMode: boolean;
@@ -81,8 +84,9 @@ const CareerProtectionDashboard: React.FC = () => {
 
   // Sync local state with store when store changes (non-data-fetching, safe)
   useEffect(() => {
-    if (storeActiveTab !== dashboardState.activeTab) {
-      setDashboardState(prev => ({ ...prev, activeTab: storeActiveTab as DashboardState['activeTab'] }));
+    const localTab = storeActiveTab === 'vehicles' ? 'vehicle' : storeActiveTab;
+    if (localTab !== dashboardState.activeTab) {
+      setDashboardState(prev => ({ ...prev, activeTab: localTab as DashboardState['activeTab'] }));
     }
   }, [storeActiveTab]); // Only depend on storeActiveTab, not dashboardState.activeTab
 
@@ -188,7 +192,7 @@ const CareerProtectionDashboard: React.FC = () => {
   
   const handleTabChange = async (tab: DashboardState['activeTab']) => {
     setDashboardState(prev => ({ ...prev, activeTab: tab }));
-    setActiveTab(tab);
+    setActiveTab(tab === 'vehicle' ? 'vehicles' : tab);
     
     // Track tab interaction (non-blocking)
     trackInteraction('dashboard_tab_changed', {
@@ -201,7 +205,7 @@ const CareerProtectionDashboard: React.FC = () => {
   const handleViewFullDailyOutlook = () => {
     setDashboardState(prev => ({ ...prev, showFullDailyOutlook: true }));
     trackInteraction('daily_outlook_view_full', {
-      user_tier: user?.tier,
+      user_tier: (user as { tier?: string })?.tier,
       is_mobile: dashboardState.isMobile
     });
   };
@@ -209,7 +213,7 @@ const CareerProtectionDashboard: React.FC = () => {
   const handleCloseFullDailyOutlook = () => {
     setDashboardState(prev => ({ ...prev, showFullDailyOutlook: false }));
     trackInteraction('daily_outlook_close_full', {
-      user_tier: user?.tier,
+      user_tier: (user as { tier?: string })?.tier,
       is_mobile: dashboardState.isMobile
     });
   };
@@ -342,6 +346,7 @@ const CareerProtectionDashboard: React.FC = () => {
             <nav className="-mb-px flex space-x-2 sm:space-x-8 overflow-x-auto">
               {[
                 { id: 'daily-outlook', label: 'Daily Outlook', icon: '🌅', shortLabel: 'Outlook' },
+                { id: 'financial-forecast', label: 'Financial Forecast', icon: '📈', shortLabel: 'Forecast' },
                 { id: 'overview', label: 'Overview', icon: '📊', shortLabel: 'Overview' },
                 { 
                   id: 'recommendations', 
@@ -394,6 +399,13 @@ const CareerProtectionDashboard: React.FC = () => {
                       onViewFullOutlook={handleViewFullDailyOutlook}
                       compact={false}
                     />
+                    <button
+                      type="button"
+                      onClick={() => handleTabChange('overview')}
+                      className="mt-2 block text-sm text-purple-600 hover:underline cursor-pointer"
+                    >
+                      View all milestones →
+                    </button>
                   </div>
                   <div className="lg:col-span-1">
                     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
@@ -414,6 +426,14 @@ const CareerProtectionDashboard: React.FC = () => {
               </div>
             )}
 
+            {dashboardState.activeTab === 'financial-forecast' && (
+              <FinancialForecastTab
+                userEmail={user?.email ?? ''}
+                userTier={(user as { tier?: string })?.tier === 'professional' ? 'professional' : (user as { tier?: string })?.tier === 'mid_tier' ? 'mid' : 'budget'}
+                className="mt-4"
+              />
+            )}
+
             {dashboardState.activeTab === 'overview' && (
               <div className="space-y-6">
                 {/* Top Row - Quick Actions and Recent Activity */}
@@ -430,6 +450,14 @@ const CareerProtectionDashboard: React.FC = () => {
                     <RecentActivityPanel />
                   </div>
                 </div>
+
+                <SpendingMilestonesWidget userId={user?.id ?? ''} className="mt-6" />
+                <SpecialDatesWidget
+                  userId={user?.id ?? ''}
+                  userEmail={user?.email ?? ''}
+                  onNavigateToForecast={() => handleTabChange('financial-forecast')}
+                  className="mt-6"
+                />
                 
                 {/* Bottom Row - Housing Location Tile */}
                 <div>

@@ -65,6 +65,18 @@ def get_enhanced_cash_flow_forecast(user_email):
         if not forecast:
             return jsonify({'success': False, 'error': 'Failed to generate forecast'}), 500
         
+        # Build daily_cashflow for FinancialForecastTab (90 days)
+        daily_cashflow = forecast_engine.build_daily_cashflow(forecast, initial_balance=5000.0, days=90)
+        monthly_summaries = [
+            {'month_key': k, 'total': v}
+            for k, v in forecast.total_monthly_forecast.items()
+        ]
+        vehicle_expense_totals = {'total': 0.0, 'routine': 0.0, 'repair': 0.0}
+        if forecast.vehicle_expenses:
+            vehicle_expense_totals['total'] = sum(ve.total_forecast_cost for ve in forecast.vehicle_expenses)
+            vehicle_expense_totals['routine'] = sum(sum(ve.routine_costs.values()) for ve in forecast.vehicle_expenses)
+            vehicle_expense_totals['repair'] = sum(sum(ve.repair_costs.values()) for ve in forecast.vehicle_expenses)
+
         # Convert forecast to JSON-serializable format
         forecast_data = {
             'user_email': forecast.user_email,
@@ -76,7 +88,10 @@ def get_enhanced_cash_flow_forecast(user_email):
             'average_monthly_amount': forecast.average_monthly_amount,
             'categories': {},
             'vehicle_expenses': [],
-            'total_monthly_forecast': forecast.total_monthly_forecast
+            'total_monthly_forecast': forecast.total_monthly_forecast,
+            'daily_cashflow': daily_cashflow,
+            'monthly_summaries': monthly_summaries,
+            'vehicle_expense_totals': vehicle_expense_totals,
         }
         
         # Convert categories
@@ -348,6 +363,18 @@ def get_backward_compatible_forecast(user_email):
         if not forecast:
             return jsonify({'success': False, 'error': 'Failed to generate forecast'}), 500
         
+        # Build daily_cashflow for FinancialForecastTab (90 days)
+        daily_cashflow = forecast_engine.build_daily_cashflow(forecast, initial_balance=5000.0, days=90)
+        monthly_summaries = [
+            {'month_key': k, 'total': v}
+            for k, v in forecast.total_monthly_forecast.items()
+        ]
+        vehicle_expense_totals = {'total': 0.0, 'routine': 0.0, 'repair': 0.0}
+        if forecast.vehicle_expenses:
+            vehicle_expense_totals['total'] = sum(ve.total_forecast_cost for ve in forecast.vehicle_expenses)
+            vehicle_expense_totals['routine'] = sum(sum(ve.routine_costs.values()) for ve in forecast.vehicle_expenses)
+            vehicle_expense_totals['repair'] = sum(sum(ve.repair_costs.values()) for ve in forecast.vehicle_expenses)
+
         # Convert to backward-compatible format
         compatible_forecast = {
             'user_email': forecast.user_email,
@@ -362,7 +389,10 @@ def get_backward_compatible_forecast(user_email):
                 'repair_cost': 0.0,
                 'vehicles': []
             },
-            'generated_date': forecast.generated_date.isoformat()
+            'generated_date': forecast.generated_date.isoformat(),
+            'daily_cashflow': daily_cashflow,
+            'monthly_summaries': monthly_summaries,
+            'vehicle_expense_totals': vehicle_expense_totals,
         }
         
         # Convert monthly breakdown

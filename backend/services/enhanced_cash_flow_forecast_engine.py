@@ -449,7 +449,57 @@ class EnhancedCashFlowForecastEngine:
         except Exception as e:
             logger.error(f"Error generating enhanced cash flow forecast for {user_email}: {e}")
             return None
-    
+
+    def build_daily_cashflow(
+        self,
+        forecast: EnhancedCashFlowForecast,
+        initial_balance: float = 5000.0,
+        days: int = 90,
+    ) -> List[Dict[str, Any]]:
+        """
+        Build a daily cashflow array from the forecast for use by the FinancialForecastTab.
+        Each day gets a proportional share of the month's total as net_change; running balance
+        and balance_status are computed.
+        """
+        result = []
+        start = forecast.start_date
+        running_balance = initial_balance
+        month_totals = forecast.total_monthly_forecast
+
+        for i in range(days):
+            d = start + timedelta(days=i)
+            date_str = d.isoformat()
+            month_key = d.strftime('%Y-%m')
+
+            # Days in this month for proportional daily amount
+            if d.month < 12:
+                next_month = date(d.year, d.month + 1, 1)
+            else:
+                next_month = date(d.year + 1, 1, 1)
+            days_in_month = (next_month - date(d.year, d.month, 1)).days
+            monthly_total = month_totals.get(month_key, 0.0)
+            daily_net = monthly_total / days_in_month if days_in_month else 0.0
+
+            opening_balance = running_balance
+            closing_balance = opening_balance + daily_net
+            running_balance = closing_balance
+
+            if closing_balance >= 5000:
+                balance_status = 'healthy'
+            elif closing_balance >= 0:
+                balance_status = 'warning'
+            else:
+                balance_status = 'danger'
+
+            result.append({
+                'date': date_str,
+                'opening_balance': round(opening_balance, 2),
+                'closing_balance': round(closing_balance, 2),
+                'net_change': round(daily_net, 2),
+                'balance_status': balance_status,
+            })
+        return result
+
     def get_vehicle_expense_details(self, user_email: str, month_key: str) -> Dict[str, Any]:
         """
         Get detailed vehicle expense breakdown for a specific month
