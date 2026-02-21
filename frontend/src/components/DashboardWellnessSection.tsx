@@ -40,7 +40,7 @@ export const DashboardWellnessSection: React.FC<DashboardWellnessSectionProps> =
     ? currentWeekCheckin.week_ending_date
     : (streak?.last_checkin_date ?? null);
   const currentStreak = streak?.current_streak ?? 0;
-  const weeks = weeksOfData || streak?.total_checkins ?? 0;
+  const weeks = weeksOfData || (streak?.total_checkins ?? 0);
 
   const scoresForCard: WellnessScores | null = scoresRaw
     ? {
