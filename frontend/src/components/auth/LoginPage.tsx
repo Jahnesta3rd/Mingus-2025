@@ -36,7 +36,7 @@ const LoginPage: React.FC = () => {
       sessionStorage.removeItem('last_vibe_date');
 
       // Navigate to vibe check
-      navigate('/vibe-check-meme', { replace: true });
+      window.location.href = '/vibe-check-meme';
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Invalid email or password');
     } finally {
