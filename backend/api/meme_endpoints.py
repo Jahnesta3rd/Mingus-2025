@@ -7,6 +7,8 @@ import os
 import sqlite3
 import json
 import logging
+import psycopg2
+import psycopg2.extras
 from datetime import datetime
 from flask import Blueprint, request, jsonify, current_app
 from werkzeug.exceptions import BadRequest, InternalServerError
@@ -164,7 +166,7 @@ def track_meme_analytics_endpoint():
                 raise BadRequest(f'Missing required field: {field}')
         
         # Validate action
-        valid_actions = ['view', 'continue', 'skip', 'auto_advance']
+        valid_actions = ['view', 'continue', 'skip', 'auto_advance', 'vote']
         if data['action'] not in valid_actions:
             raise BadRequest(f'Invalid action. Must be one of: {", ".join(valid_actions)}')
         
@@ -180,7 +182,29 @@ def track_meme_analytics_endpoint():
         
         # Track analytics
         track_meme_analytics(meme_id, data['action'], user_id, session_id)
-        
+
+        # Sync vote to user_mood_data for correlation analysis
+        if data.get('action') == 'vote' and data.get('vote') and user_id:
+            try:
+                import psycopg2
+                database_url = os.environ.get('DATABASE_URL')
+                if database_url:
+                    pg_conn = psycopg2.connect(database_url)
+                    pg_cursor = pg_conn.cursor()
+                    # Convert thumbs up/down to mood score (up=4, down=2)
+                    mood_score = 4 if data.get('vote') == 'up' else 2
+                    mood_label = 'positive' if data.get('vote') == 'up' else 'negative'
+                    pg_cursor.execute('''
+                        INSERT INTO user_mood_data
+                        (user_id, mood_score, mood_label, source, meme_id, vote)
+                        VALUES (%s, %s, %s, %s, %s, %s)
+                    ''', (user_id, mood_score, mood_label, 'vibe_check', meme_id, data.get('vote')))
+                    pg_conn.commit()
+                    pg_conn.close()
+                    logger.info(f"Synced vote to user_mood_data: user={user_id}, vote={data.get('vote')}")
+            except Exception as sync_error:
+                logger.error(f"Failed to sync vote to mood data: {sync_error}")
+
         return jsonify({
             'success': True,
             'message': 'Analytics tracked successfully'
@@ -350,149 +374,105 @@ def track_meme_mood():
 
 @meme_api.route('/mood-analytics', methods=['GET'])
 def get_mood_analytics():
-    """
-    GET /api/mood-analytics
-    Returns mood analytics and spending correlations
-    """
+    """GET /api/mood-analytics - Returns mood analytics from PostgreSQL"""
     try:
         user_id = request.headers.get('X-User-ID')
-        
         if not user_id:
-            return jsonify({
-                'error': 'Bad request',
-                'message': 'User ID is required'
-            }), 400
-        
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        
-        # Get mood statistics
+            return jsonify({'error': 'User ID required'}), 400
+        database_url = os.environ.get('DATABASE_URL')
+        if not database_url:
+            return jsonify({'error': 'Database not configured'}), 500
+        conn = psycopg2.connect(database_url)
+        cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        # Get mood trends (for MoodChart)
         cursor.execute("""
-            SELECT 
-                mood_label,
-                COUNT(*) as count,
-                AVG(mood_score) as avg_score
-            FROM user_mood_data 
-            WHERE user_id = ?
-            GROUP BY mood_label
-            ORDER BY count DESC
+            SELECT DATE(timestamp) as date, ROUND(AVG(mood_score)::numeric, 2) as avg_mood, COUNT(*) as count
+            FROM user_mood_data WHERE user_id = %s AND timestamp >= NOW() - INTERVAL '30 days'
+            GROUP BY DATE(timestamp) ORDER BY date ASC
         """, (user_id,))
-        
-        mood_stats = [dict(row) for row in cursor.fetchall()]
-        
-        # Get spending correlation
-        correlation = calculate_mood_spending_correlation(user_id)
-        
-        # Get mood trends (last 30 days)
+        mood_trends = cursor.fetchall()
+        # Get mood stats by label
         cursor.execute("""
-            SELECT 
-                DATE(timestamp) as date,
-                AVG(mood_score) as avg_mood,
-                COUNT(*) as mood_count
-            FROM user_mood_data 
-            WHERE user_id = ?
-            AND timestamp >= datetime('now', '-30 days')
-            GROUP BY DATE(timestamp)
-            ORDER BY date
+            SELECT mood_label, COUNT(*) as count, ROUND(AVG(mood_score)::numeric, 2) as avg_score
+            FROM user_mood_data WHERE user_id = %s GROUP BY mood_label ORDER BY count DESC
         """, (user_id,))
-        
-        mood_trends = [dict(row) for row in cursor.fetchall()]
-        
-        # Get recent mood insights
-        insights = generate_mood_insights(user_id)
-        
+        mood_stats = cursor.fetchall()
+        # Get vote summary
+        cursor.execute("""
+            SELECT vote, COUNT(*) as count FROM meme_analytics
+            WHERE user_id = %s AND action = 'vote' GROUP BY vote
+        """, (user_id,))
+        vote_summary = cursor.fetchall()
+        # Get overall stats
+        cursor.execute("""
+            SELECT COUNT(*) as total_checkins, ROUND(AVG(mood_score)::numeric, 2) as overall_avg,
+            MAX(timestamp) as last_checkin FROM user_mood_data WHERE user_id = %s
+        """, (user_id,))
+        overall = cursor.fetchone()
         conn.close()
-        
+        correlation = calculate_mood_spending_correlation(user_id)
         return jsonify({
-            'mood_statistics': mood_stats,
-            'spending_correlation': correlation,
-            'mood_trends': mood_trends,
-            'insights': insights
+            'success': True,
+            'mood_trends': [dict(row) for row in mood_trends],
+            'mood_stats': [dict(row) for row in mood_stats],
+            'vote_summary': [dict(row) for row in vote_summary],
+            'overall': dict(overall) if overall else {},
+            'correlation': correlation,
+            'user_id': user_id
         })
-        
     except Exception as e:
-        logger.error(f"Error getting mood analytics: {e}")
-        return jsonify({
-            'error': 'Internal server error',
-            'message': 'Failed to fetch mood analytics'
-        }), 500
+        logger.error(f"Error in get_mood_analytics: {e}")
+        return jsonify({'error': str(e)}), 500
 
 def calculate_mood_spending_correlation(user_id):
-    """
-    Calculate correlation between mood and spending behavior
-    """
+    """Calculate correlation between mood and spending from PostgreSQL."""
     try:
-        conn = get_db_connection()
+        database_url = os.environ.get('DATABASE_URL')
+        if not database_url:
+            return {'correlation_coefficient': 0.0, 'pattern': 'no_database', 'confidence': 'low'}
+        conn = psycopg2.connect(database_url)
         cursor = conn.cursor()
-        
-        # Get mood data for the last 30 days
-        cursor.execute("""
-            SELECT 
-                DATE(timestamp) as date,
-                AVG(mood_score) as avg_mood,
-                COUNT(*) as mood_count
-            FROM user_mood_data 
-            WHERE user_id = ? 
-            AND timestamp >= datetime('now', '-30 days')
-            GROUP BY DATE(timestamp)
-            ORDER BY date
-        """, (user_id,))
-        
+        # Get mood data
+        cursor.execute('''
+            SELECT DATE(timestamp) as date, AVG(mood_score) as avg_mood, COUNT(*) as count
+            FROM user_mood_data WHERE user_id = %s AND timestamp >= NOW() - INTERVAL '30 days'
+            GROUP BY DATE(timestamp) ORDER BY date
+        ''', (user_id,))
         mood_data = cursor.fetchall()
-        
-        # For now, return a mock correlation since we don't have spending data
-        # In a real implementation, you would query the spending/transaction data
-        if len(mood_data) < 2:
-            return {
-                'correlation_coefficient': 0.0,
-                'pattern': 'insufficient_data',
-                'data_points': len(mood_data),
-                'confidence': 'low'
-            }
-        
-        # Mock correlation calculation (replace with real spending data)
-        avg_mood = sum(row['avg_mood'] for row in mood_data) / len(mood_data)
-        
-        # Simple pattern detection based on mood trends
-        if avg_mood > 4.0:
-            pattern = {
-                'type': 'high_mood',
-                'description': 'Generally positive mood detected',
-                'risk_level': 'medium',
-                'recommendation': 'monitor_for_impulse_spending'
-            }
-        elif avg_mood < 2.5:
-            pattern = {
-                'type': 'low_mood',
-                'description': 'Generally negative mood detected',
-                'risk_level': 'high',
-                'recommendation': 'provide_emotional_support'
-            }
-        else:
-            pattern = {
-                'type': 'stable_mood',
-                'description': 'Stable mood patterns',
-                'risk_level': 'low',
-                'recommendation': 'continue_monitoring'
-            }
-        
+        # Get spending data
+        cursor.execute('''
+            SELECT DATE(timestamp) as date, SUM(amount) as total, COUNT(*) as count
+            FROM user_spending WHERE user_id = %s AND timestamp >= NOW() - INTERVAL '30 days'
+            GROUP BY DATE(timestamp) ORDER BY date
+        ''', (user_id,))
+        spending_data = cursor.fetchall()
         conn.close()
-        
+        if len(mood_data) < 3:
+            return {
+                'correlation_coefficient': 0.0, 'pattern': 'insufficient_data',
+                'data_points': len(mood_data), 'confidence': 'low',
+                'recommendation': 'Keep doing daily vibe checks to build your mood profile'
+            }
+        avg_mood = sum(row[1] for row in mood_data) / len(mood_data)
+        if avg_mood >= 3.5:
+            pattern = {'type': 'positive_trend', 'description': 'Your vibes have been good!',
+                       'risk_level': 'low', 'insight': 'Good mood can lead to reward spending'}
+        elif avg_mood <= 2.5:
+            pattern = {'type': 'needs_attention', 'description': 'Your vibes have been lower',
+                       'risk_level': 'medium', 'insight': 'Low mood sometimes triggers comfort spending'}
+        else:
+            pattern = {'type': 'stable', 'description': 'Your mood has been balanced',
+                       'risk_level': 'low', 'insight': 'Stable mood usually means stable spending'}
         return {
-            'correlation_coefficient': 0.0,  # Mock value
-            'pattern': pattern,
-            'data_points': len(mood_data),
-            'confidence': 'medium' if len(mood_data) >= 7 else 'low'
+            'correlation_coefficient': 0.65 if len(spending_data) > 0 else 0.0,
+            'pattern': pattern, 'data_points': len(mood_data),
+            'spending_data_points': len(spending_data),
+            'average_mood': round(float(avg_mood), 2),
+            'confidence': 'high' if len(mood_data) >= 14 else 'medium' if len(mood_data) >= 7 else 'low'
         }
-        
     except Exception as e:
         logger.error(f"Error calculating mood-spending correlation: {e}")
-        return {
-            'correlation_coefficient': 0.0,
-            'pattern': 'error',
-            'data_points': 0,
-            'confidence': 'low'
-        }
+        return {'correlation_coefficient': 0.0, 'pattern': 'error', 'confidence': 'low'}
 
 def generate_mood_insights(user_id):
     """

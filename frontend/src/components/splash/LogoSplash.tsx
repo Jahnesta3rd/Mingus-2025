@@ -36,13 +36,7 @@ const LogoSplash: React.FC = () => {
       await delay(200);
       if (!mounted) return;
 
-      const response = vibeData as VibeResponse | null;
-      if (response?.has_vibe && response.vibe) {
-        sessionStorage.setItem('prefetched_vibe', JSON.stringify(response.vibe));
-        navigate('/vibe-check', { replace: true });
-      } else {
-        navigate('/dashboard', { replace: true });
-      }
+      navigate('/vibe-check-meme', { replace: true });
     };
 
     runFlow();

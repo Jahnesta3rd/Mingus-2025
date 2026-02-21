@@ -1,16 +1,22 @@
 import React from 'react';
-import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider, Navigate, useNavigate } from 'react-router-dom';
 import { AuthProvider } from './hooks/useAuth';
 import LoginPage from './components/auth/LoginPage';
 import RegisterPage from './components/auth/RegisterPage';
 import LogoSplash from './components/splash/LogoSplash';
 import VibeCheckPage from './components/vibe/VibeCheckPage';
+import VibeCheckMeme from './components/vibe/VibeCheckMeme';
 import DashboardLayout from './components/dashboard/DashboardLayout';
 import MoodDashboard from './components/MoodDashboard';
 import CareerProtectionDashboard from './pages/CareerProtectionDashboard';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import AuthGuard from './guards/AuthGuard';
 import VibeGuard from './guards/VibeGuard';
+
+const VibeCheckMemeWrapper: React.FC = () => {
+  const navigate = useNavigate();
+  return <VibeCheckMeme onContinue={() => navigate('/dashboard', { replace: true })} />;
+};
 
 const router = createBrowserRouter([
   // Public routes
@@ -24,6 +30,14 @@ const router = createBrowserRouter([
     element: (
       <AuthGuard>
         <LogoSplash />
+      </AuthGuard>
+    ),
+  },
+  {
+    path: '/vibe-check-meme',
+    element: (
+      <AuthGuard>
+        <VibeCheckMemeWrapper />
       </AuthGuard>
     ),
   },
