@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../../hooks/useAuth';
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
-  const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
@@ -16,17 +14,29 @@ const LoginPage: React.FC = () => {
     setError('');
     setLoading(true);
     try {
-      await login(email, password, rememberMe);
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ email, password, rememberMe }),
+      });
 
-      // Set auth_token for AuthGuard compatibility
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.error || errData.message || 'Login failed');
+      }
+
+      const data = await response.json();
+
+      // Set auth token for AuthGuard
       localStorage.setItem('auth_token', 'ok');
 
       // Clear stale session data
       sessionStorage.removeItem('prefetched_vibe');
       sessionStorage.removeItem('last_vibe_date');
 
-      // Navigate to logo splash
-      navigate('/welcome', { replace: true });
+      // Navigate to vibe check
+      navigate('/vibe-check-meme', { replace: true });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Invalid email or password');
     } finally {
