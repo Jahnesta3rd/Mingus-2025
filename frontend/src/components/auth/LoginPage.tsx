@@ -35,8 +35,8 @@ const LoginPage: React.FC = () => {
       sessionStorage.removeItem('prefetched_vibe');
       sessionStorage.removeItem('last_vibe_date');
 
-      // Navigate to vibe check
-      window.location.href = '/vibe-check-meme';
+      // Navigate in-app so we don't trigger a full reload (avoids cached old bundle)
+      navigate('/vibe-check-meme', { replace: true });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Invalid email or password');
     } finally {
