@@ -41,12 +41,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         
         if (response.ok) {
           const userData = await response.json();
-          setUser({
-            id: userData.user_id,
-            email: userData.email,
-            name: userData.name,
-            isAuthenticated: true
-          });
+          if (userData.authenticated !== false && userData.user_id) {
+            setUser({
+              id: userData.user_id,
+              email: userData.email,
+              name: userData.name,
+              isAuthenticated: true
+            });
+          }
         }
       } catch (error) {
         console.error('Auth verification failed:', error);

@@ -296,7 +296,8 @@ def verify_token():
             if auth_header and auth_header.startswith('Bearer '):
                 token = auth_header.split(' ')[1]
             else:
-                return jsonify({'success': False, 'error': 'Missing or invalid authentication token'}), 401
+                # Return 200 with authenticated: false so app load doesn't show 401 in Network tab
+                return jsonify({'success': True, 'authenticated': False}), 200
         
         try:
             payload = jwt.decode(token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])

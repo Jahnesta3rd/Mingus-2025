@@ -25,36 +25,36 @@ class SecurityMiddleware:
         app.before_request(self.before_request)
         app.after_request(self.after_request)
     
-    def before_request(self):
-        # Public endpoints that don't need any security checks
+    def _is_public_request(self):
+        """True if this request should skip all security checks (auth, health, etc.)."""
+        path = request.path.rstrip('/')
         public_endpoints = [
             '/health',
             '/api/status',
             '/api/auth/register',
             '/api/auth/login',
             '/api/auth/verify',
-            '/api/assessments',  # Public assessment submissions
+            '/api/auth/forgot-password',
+            '/api/assessments',
         ]
-        
-        # Also skip for OPTIONS requests (CORS preflight) - do this FIRST
-        # OPTIONS requests should always be allowed for CORS
-        if request.method == 'OPTIONS':
-            return None
-        
-        # Skip ALL security checks for public endpoints (including rate limiting and CSRF)
-        # Normalize path to handle trailing slashes
-        path = request.path.rstrip('/')
-        
-        # Check exact match first (most common case)
         if path in public_endpoints or request.path in public_endpoints:
-            return None
-        
-        # Also check if path starts with any public endpoint (for sub-paths)
-        # This handles cases like /health/check or /api/status/detailed
+            return True
         for endpoint in public_endpoints:
             if request.path.startswith(endpoint) or path.startswith(endpoint):
-                return None
-        
+                return True
+        # Allow any path that looks like auth (handles proxy prefix, trailing slash)
+        if 'auth/login' in path or 'auth/verify' in path or 'auth/register' in path or 'auth/forgot-password' in path:
+            return True
+        return False
+
+    def before_request(self):
+        # OPTIONS requests (CORS preflight) always allowed first
+        if request.method == 'OPTIONS':
+            return None
+
+        if self._is_public_request():
+            return None
+
         # Rate limiting
         client_ip = request.remote_addr
         current_time = time.time()
@@ -80,16 +80,9 @@ class SecurityMiddleware:
         self.rate_limits[client_ip].append(current_time)
         
         # CSRF protection (only for state-changing methods)
-        # Skip CSRF for OPTIONS (CORS preflight) and public endpoints
         if request.method in ['POST', 'PUT', 'DELETE', 'PATCH']:
-            # Allow OPTIONS requests (CORS preflight)
-            if request.method == 'OPTIONS':
+            if self._is_public_request():
                 return None
-            
-            # Check if this is a public endpoint
-            if request.path in public_endpoints:
-                return None
-            
             csrf_token = request.headers.get('X-CSRF-Token')
             if not self.validate_csrf_token(csrf_token):
                 response = jsonify({'error': 'Invalid CSRF token'})
