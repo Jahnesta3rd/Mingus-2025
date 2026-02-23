@@ -55,8 +55,8 @@ echo -e "${GREEN}  ✅ Backend restarted${NC}"
 # --- Step 6: Verify ---
 echo -e "\n${YELLOW}[6/6] Verifying deployment...${NC}"
 
-# Check frontend
-FRONTEND_STATUS=$(ssh $SSH_HOST "curl -s -o /dev/null -w '%{http_code}' https://test.mingusapp.com/")
+# Check frontend (don't abort if curl fails)
+FRONTEND_STATUS=$(ssh $SSH_HOST "curl -s -o /dev/null -w '%{http_code}' --connect-timeout 5 https://test.mingusapp.com/" 2>/dev/null) || FRONTEND_STATUS="000"
 if [ "$FRONTEND_STATUS" = "200" ]; then
     echo -e "${GREEN}  ✅ Frontend: HTTP $FRONTEND_STATUS${NC}"
 else
@@ -64,11 +64,11 @@ else
 fi
 
 # Check backend
-BACKEND_STATUS=$(ssh $SSH_HOST "curl -s http://127.0.0.1:5000/health | python3 -c \"import sys,json; print(json.load(sys.stdin).get('status','unknown'))\" 2>/dev/null || echo 'unreachable'")
+BACKEND_STATUS=$(ssh $SSH_HOST "curl -s --connect-timeout 3 http://127.0.0.1:5000/health | python3 -c \"import sys,json; print(json.load(sys.stdin).get('status','unknown'))\" 2>/dev/null" || echo "unreachable")
 echo -e "${GREEN}  ✅ Backend health: $BACKEND_STATUS${NC}"
 
-# Check gunicorn
-WORKERS=$(ssh $SSH_HOST "ps aux | grep 'gunicorn.*app:app' | grep -v grep | wc -l")
+# Check gunicorn (grep exits 1 when no match; don't abort)
+WORKERS=$(ssh $SSH_HOST "ps aux | grep 'gunicorn.*app:app' | grep -v grep | wc -l" 2>/dev/null) || WORKERS=0
 echo -e "${GREEN}  ✅ Gunicorn workers: $WORKERS${NC}"
 
 echo -e "\n${GREEN}========================================${NC}"
