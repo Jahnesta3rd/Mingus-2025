@@ -9,22 +9,19 @@ interface AuthGuardProps {
 const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  // Initialize from localStorage so we don't flash spinner when token was just set (e.g. after login)
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(() =>
+    typeof window !== 'undefined' && localStorage.getItem('auth_token') ? true : null
+  );
 
   useEffect(() => {
-    const checkAuth = () => {
-      const token = localStorage.getItem('auth_token');
-
-      if (!token) {
-        sessionStorage.setItem('redirect_after_login', location.pathname);
-        navigate('/login', { replace: true });
-        return;
-      }
-
-      setIsAuthenticated(true);
-    };
-
-    checkAuth();
+    const token = localStorage.getItem('auth_token');
+    if (!token) {
+      sessionStorage.setItem('redirect_after_login', location.pathname);
+      navigate('/login', { replace: true });
+      return;
+    }
+    setIsAuthenticated(true);
   }, [navigate, location.pathname]);
 
   if (isAuthenticated === null) {

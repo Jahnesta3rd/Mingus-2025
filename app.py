@@ -6,7 +6,7 @@ Integrated Flask application with all API endpoints and security features
 
 import os
 import sys
-from flask import Flask, jsonify, request, g, render_template
+from flask import Flask, jsonify, request, g, render_template, send_from_directory
 from functools import wraps
 import time
 import threading
@@ -783,6 +783,35 @@ def get_error_health():
         'stats': stats,
         'timestamp': datetime.now().isoformat()
     })
+
+# SPA fallback: serve React app for client routes so /vibe-check-meme, /dashboard, etc. don't 404
+# when the frontend is built and served from this app (e.g. frontend/dist).
+_FRONTEND_DIST = os.path.join(os.path.dirname(__file__), 'frontend', 'dist')
+_SPA_INDEX = os.path.join(_FRONTEND_DIST, 'index.html')
+
+@app.route('/', defaults={'path': ''}, methods=['GET'])
+@app.route('/<path:path>', methods=['GET'])
+def serve_spa_or_404(path):
+    """Serve frontend index.html for SPA routes, or static assets from frontend/dist."""
+    if request.path.startswith('/api') or request.path.startswith('/health'):
+        # Let 404 handler handle unknown API/health paths
+        return jsonify({
+            'error': 'Not Found',
+            'message': 'The requested resource was not found',
+            'status_code': 404
+        }), 404
+    if not os.path.isfile(_SPA_INDEX):
+        return jsonify({
+            'error': 'Not Found',
+            'message': 'The requested resource was not found',
+            'status_code': 404
+        }), 404
+    # Serve static file if it exists (e.g. /assets/chunk-xxx.mjs)
+    if path:
+        static_file = os.path.join(_FRONTEND_DIST, path)
+        if os.path.isfile(static_file):
+            return send_from_directory(_FRONTEND_DIST, path)
+    return send_from_directory(_FRONTEND_DIST, 'index.html')
 
 if __name__ == '__main__':
     # Initialize application
