@@ -47,29 +47,36 @@ echo -e "\n${YELLOW}[4/6] Deploying frontend to web root...${NC}"
 ssh $SSH_HOST "sudo rsync -a --delete $REPO_DIR/frontend/dist/ $WEB_ROOT/ && sudo chown -R www-data:www-data $WEB_ROOT/"
 echo -e "${GREEN}  ✅ Frontend deployed to $WEB_ROOT${NC}"
 
-# --- Step 5: Restart backend ---
+# --- Step 5: Restart backend (don't abort script if this fails) ---
 echo -e "\n${YELLOW}[5/6] Restarting backend...${NC}"
+set +e
 ssh $SSH_HOST "sudo pkill -f 'gunicorn.*app:app' 2>/dev/null || true; sleep 2; sudo -u mingus-app bash -c 'cd $BACKEND_DIR && $BACKEND_DIR/venv/bin/gunicorn --bind 127.0.0.1:5000 --workers 2 --timeout 120 app:app --daemon'"
-echo -e "${GREEN}  ✅ Backend restarted${NC}"
+STEP5_EXIT=$?
+set -e
+if [ "$STEP5_EXIT" -eq 0 ]; then
+    echo -e "${GREEN}  ✅ Backend restarted${NC}"
+else
+    echo -e "${RED}  ⚠ Backend restart failed (exit $STEP5_EXIT) - check $BACKEND_DIR and gunicorn on server${NC}"
+fi
 
-# --- Step 6: Verify ---
+# --- Step 6: Verify (never abort; always show results) ---
 echo -e "\n${YELLOW}[6/6] Verifying deployment...${NC}"
-
-# Check frontend (don't abort if curl fails)
+set +e
 FRONTEND_STATUS=$(ssh $SSH_HOST "curl -s -o /dev/null -w '%{http_code}' --connect-timeout 5 https://test.mingusapp.com/" 2>/dev/null) || FRONTEND_STATUS="000"
+[ -z "$FRONTEND_STATUS" ] && FRONTEND_STATUS="000"
 if [ "$FRONTEND_STATUS" = "200" ]; then
     echo -e "${GREEN}  ✅ Frontend: HTTP $FRONTEND_STATUS${NC}"
 else
     echo -e "${RED}  ❌ Frontend: HTTP $FRONTEND_STATUS${NC}"
 fi
 
-# Check backend
-BACKEND_STATUS=$(ssh $SSH_HOST "curl -s --connect-timeout 3 http://127.0.0.1:5000/health | python3 -c \"import sys,json; print(json.load(sys.stdin).get('status','unknown'))\" 2>/dev/null" || echo "unreachable")
+BACKEND_STATUS=$(ssh $SSH_HOST "curl -s --connect-timeout 3 http://127.0.0.1:5000/health 2>/dev/null | python3 -c \"import sys,json; d=json.load(sys.stdin); print(d.get('status','unknown'))\" 2>/dev/null" || echo "unreachable")
 echo -e "${GREEN}  ✅ Backend health: $BACKEND_STATUS${NC}"
 
-# Check gunicorn (grep exits 1 when no match; don't abort)
-WORKERS=$(ssh $SSH_HOST "ps aux | grep 'gunicorn.*app:app' | grep -v grep | wc -l" 2>/dev/null) || WORKERS=0
+WORKERS=$(ssh $SSH_HOST "ps aux 2>/dev/null | grep 'gunicorn.*app:app' | grep -v grep | wc -l" 2>/dev/null) || WORKERS=0
+[ -z "$WORKERS" ] && WORKERS=0
 echo -e "${GREEN}  ✅ Gunicorn workers: $WORKERS${NC}"
+set -e
 
 echo -e "\n${GREEN}========================================${NC}"
 echo -e "${GREEN}  DEPLOY COMPLETE!${NC}"
