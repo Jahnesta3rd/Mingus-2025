@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 const LoginPage: React.FC = () => {
-  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
@@ -26,17 +25,20 @@ const LoginPage: React.FC = () => {
         throw new Error(errData.error || errData.message || 'Login failed');
       }
 
-      const data = await response.json();
-
-      // Set auth token for AuthGuard
+      // Set auth token first so AuthGuard allows /vibe-check-meme on the next load
       localStorage.setItem('auth_token', 'ok');
-
-      // Clear stale session data
       sessionStorage.removeItem('prefetched_vibe');
       sessionStorage.removeItem('last_vibe_date');
 
-      // Navigate in-app so we don't trigger a full reload (avoids cached old bundle)
-      navigate('/vibe-check-meme', { replace: true });
+      try {
+        await response.json();
+      } catch {
+        // ignore
+      }
+
+      // Full page redirect so the app loads fresh and AuthGuard sees the token.
+      // Cache-bust so we don't get a cached HTML/JS bundle.
+      window.location.replace('/vibe-check-meme?t=' + Date.now());
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Invalid email or password');
     } finally {
