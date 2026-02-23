@@ -49,7 +49,7 @@ echo -e "${GREEN}  ✅ Frontend deployed to $WEB_ROOT${NC}"
 
 # --- Step 5: Restart backend ---
 echo -e "\n${YELLOW}[5/6] Restarting backend...${NC}"
-ssh $SSH_HOST "sudo pkill -f 'gunicorn.*app:app' 2>/dev/null; sleep 2; sudo -u mingus-app bash -c 'cd $BACKEND_DIR && $BACKEND_DIR/venv/bin/gunicorn --bind 127.0.0.1:5000 --workers 2 --timeout 120 app:app --daemon'"
+ssh $SSH_HOST "sudo pkill -f 'gunicorn.*app:app' 2>/dev/null || true; sleep 2; sudo -u mingus-app bash -c 'cd $BACKEND_DIR && $BACKEND_DIR/venv/bin/gunicorn --bind 127.0.0.1:5000 --workers 2 --timeout 120 app:app --daemon'"
 echo -e "${GREEN}  ✅ Backend restarted${NC}"
 
 # --- Step 6: Verify ---
