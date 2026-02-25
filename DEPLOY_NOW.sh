@@ -50,15 +50,15 @@ echo -e "${GREEN}  ✅ Frontend deployed to $WEB_ROOT${NC}"
 # --- Step 5: Restart backend from repo (so API runs latest code) ---
 echo -e "\n${YELLOW}[5/6] Restarting backend...${NC}"
 set +e
-# Restart as the SSH user (usually mingus-app). Avoid sudo to prevent 255 from sudo/quoting.
-# Capture stderr so we can show it on failure.
-STEP5_ERR=$(mktemp)
-ssh $SSH_HOST "pkill -f 'gunicorn.*app:app' 2>/dev/null || true; sleep 2; cd $REPO_DIR && $BACKEND_DIR/venv/bin/gunicorn --bind 127.0.0.1:5000 --workers 2 --timeout 120 app:app --daemon" 2>"$STEP5_ERR"
+# Restart as the SSH user. Capture remote stderr so we can show it on failure.
+REMOTE_ERR="/tmp/gunicorn-restart.err"
+ssh $SSH_HOST "pkill -f 'gunicorn.*app:app' 2>/dev/null || true; sleep 2; cd $REPO_DIR && $BACKEND_DIR/venv/bin/gunicorn --bind 127.0.0.1:5000 --workers 2 --timeout 120 app:app --daemon 2>\"$REMOTE_ERR\""
 STEP5_EXIT=$?
-if [ -s "$STEP5_ERR" ]; then
-    echo -e "${RED}  stderr: $(cat "$STEP5_ERR")${NC}"
+# If restart failed, fetch and show remote stderr
+if [ "$STEP5_EXIT" -ne 0 ]; then
+    REMOTE_OUT=$(ssh $SSH_HOST "cat \"$REMOTE_ERR\" 2>/dev/null; rm -f \"$REMOTE_ERR\"" 2>/dev/null)
+    [ -n "$REMOTE_OUT" ] && echo -e "${RED}  remote stderr: ${REMOTE_OUT}${NC}"
 fi
-rm -f "$STEP5_ERR"
 set -e
 if [ "$STEP5_EXIT" -eq 0 ]; then
     echo -e "${GREEN}  ✅ Backend restarted${NC}"
