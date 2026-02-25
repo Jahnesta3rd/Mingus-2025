@@ -92,6 +92,8 @@ typography_backup_*/
 performance_metrics.db
 *.performance
 *_performance_*
+# Exception: risk_performance_monitor is source code, not a generated file
+!backend/analytics/risk_performance_monitor.py
 
 # Security and audit files
 security_audit.json
