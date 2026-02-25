@@ -35,6 +35,11 @@ echo -e "${GREEN}  ✅ Code pushed to GitHub${NC}"
 # --- Step 2: Pull on server ---
 echo -e "\n${YELLOW}[2/6] Pulling latest code on server...${NC}"
 ssh $SSH_HOST "cd $REPO_DIR && git pull origin $BRANCH"
+# Ensure critical backend files exist (they can be ignored locally if .gitignore was fixed after add)
+ssh $SSH_HOST "test -f $REPO_DIR/backend/analytics/risk_performance_monitor.py && test -f $REPO_DIR/backend/api/financial_setup_api.py" || {
+    echo -e "${YELLOW}  Fetching latest from origin in case files were missing...${NC}"
+    ssh $SSH_HOST "cd $REPO_DIR && git fetch origin $BRANCH && git checkout origin/$BRANCH -- backend/analytics/risk_performance_monitor.py backend/api/financial_setup_api.py 2>/dev/null || true"
+}
 echo -e "${GREEN}  ✅ Server code updated${NC}"
 
 # --- Step 3: Build frontend ---
@@ -50,20 +55,15 @@ echo -e "${GREEN}  ✅ Frontend deployed to $WEB_ROOT${NC}"
 # --- Step 5: Restart backend from repo (so API runs latest code) ---
 echo -e "\n${YELLOW}[5/6] Restarting backend...${NC}"
 set +e
-STEP5_LOG=$(mktemp)
-# Restart as the SSH user. Capture all remote output to see why exit 255 happens.
-ssh $SSH_HOST "pkill -f 'gunicorn.*app:app' 2>/dev/null || true; sleep 2; cd $REPO_DIR && $BACKEND_DIR/venv/bin/gunicorn --bind 127.0.0.1:5000 --workers 2 --timeout 120 app:app --daemon" >"$STEP5_LOG" 2>&1
+# Use nohup + & so the SSH command exits 0 (gunicorn runs in background). Avoids exit 255 from
+# gunicorn --daemon when SSH has no TTY. Log to /tmp for debugging.
+ssh $SSH_HOST "pkill -f 'gunicorn.*app:app' 2>/dev/null || true; sleep 2; cd $REPO_DIR && PYTHONPATH=$REPO_DIR nohup $BACKEND_DIR/venv/bin/gunicorn --bind 127.0.0.1:5000 --workers 2 --timeout 120 app:app > /tmp/gunicorn.log 2>&1 & sleep 2; exit 0"
 STEP5_EXIT=$?
-if [ "$STEP5_EXIT" -ne 0 ]; then
-    echo -e "${RED}  Backend restart failed (exit $STEP5_EXIT). Remote output:${NC}"
-    sed 's/^/    /' "$STEP5_LOG"
-fi
-rm -f "$STEP5_LOG"
 set -e
 if [ "$STEP5_EXIT" -eq 0 ]; then
-    echo -e "${GREEN}  ✅ Backend restarted${NC}"
+    echo -e "${GREEN}  ✅ Backend restart triggered${NC}"
 else
-    echo -e "${RED}  ⚠ Check $BACKEND_DIR and gunicorn on server${NC}"
+    echo -e "${RED}  ⚠ Backend restart failed (exit $STEP5_EXIT)${NC}"
 fi
 
 # --- Step 6: Verify (never abort; always show results) ---

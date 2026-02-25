@@ -6,6 +6,12 @@ Integrated Flask application with all API endpoints and security features
 
 import os
 import sys
+
+# Ensure repo root is on path first so "backend.*" imports work (e.g. under gunicorn/nohup)
+_REPO_ROOT = os.path.dirname(os.path.abspath(__file__))
+if _REPO_ROOT not in sys.path:
+    sys.path.insert(0, _REPO_ROOT)
+
 from flask import Flask, jsonify, request, g, render_template, send_from_directory
 from functools import wraps
 import time
@@ -19,8 +25,8 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
-# Add backend directory to Python path
-sys.path.append(os.path.join(os.path.dirname(__file__), 'backend'))
+# Add backend directory to Python path (for any imports that expect backend on path)
+sys.path.append(os.path.join(_REPO_ROOT, 'backend'))
 
 # Import API blueprints
 from backend.api.auth_endpoints import auth_api
