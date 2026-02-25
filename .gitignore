@@ -121,6 +121,8 @@ seo_validation_*
 *_migration_*
 *_setup_*
 setup_*
+# Exception: financial_setup_api is source code, not a migration/setup file
+!backend/api/financial_setup_api.py
 
 # Requirements backup files
 requirements-*.txt
