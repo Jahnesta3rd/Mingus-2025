@@ -86,3 +86,73 @@ Use the directory that matches **test.mingusapp.com** (e.g. `test.mingusapp.com`
 | **SPA** | try_files $uri $uri/ /index.html for / |
 
 After this, `https://test.mingusapp.com` and `https://test.mingusapp.com/vibe-check-meme` should serve the current frontend from `/var/www/mingusapp.com`.
+
+**If /login or /vibe-check-meme still return 404:** The server is not using this config (or nginx wasn’t reloaded). Ensure the config above is the one in use for `test.mingusapp.com` and run `sudo nginx -t && sudo systemctl reload nginx`. The block must have `location / { try_files $uri $uri/ /index.html; }` so all client routes serve `index.html`.
+
+---
+
+## Conflicting server name "test.mingusapp.com" (ignored)
+
+If nginx -t shows:
+
+```text
+[warn] conflicting server name "test.mingusapp.com" on 0.0.0.0:443, ignored
+```
+
+then **two** configs define `test.mingusapp.com` (e.g. `mingusapp.com` and `mingus-test`). Nginx uses the first and **ignores** the second, so the mingus-test config is not used.
+
+**Fix: use only one config for test.mingusapp.com.**
+
+**Option A – Use only mingus-test (recommended)**  
+Remove the test.mingusapp.com server blocks from the main config so mingus-test is the only one:
+
+```bash
+ssh test.mingusapp.com
+sudo nano /etc/nginx/sites-available/mingusapp.com
+```
+
+Find every `server { ... server_name test.mingusapp.com; ... }` block (HTTP and HTTPS) and **comment it out** (add `#` at the start of each line) or delete it. Save, then:
+
+```bash
+sudo nginx -t && sudo systemctl reload nginx
+```
+
+Now only `sites-enabled/mingus-test` defines test.mingusapp.com (root /var/www/mingusapp.com, SPA fallback).
+
+**Option B – Use only the main config**  
+Disable mingus-test and fix the test block in mingusapp.com:
+
+```bash
+ssh test.mingusapp.com
+sudo rm /etc/nginx/sites-enabled/mingus-test
+sudo nano /etc/nginx/sites-available/mingusapp.com
+```
+
+In the **test.mingusapp.com** server block, set:
+
+- `root /var/www/mingusapp.com;`
+- `location / { try_files $uri $uri/ /index.html; }`
+- `location /api/ { proxy_pass http://127.0.0.1:5000; ... }` (as in mingus-test)
+
+Then:
+
+```bash
+sudo nginx -t && sudo systemctl reload nginx
+```
+
+---
+
+## If you get 502 on /api/* (e.g. api/auth/login)
+
+502 means nginx is proxying to the backend but gunicorn is not responding. Fix by starting the backend from the **repo directory** so it uses the latest code:
+
+```bash
+ssh test.mingusapp.com
+sudo pkill -f 'gunicorn.*app:app' 2>/dev/null || true
+sleep 2
+# Run from repo; use venv from /opt/mingus-test
+sudo -u mingus-app bash -c 'cd /home/mingus-app/mingus-app && /opt/mingus-test/venv/bin/gunicorn --bind 127.0.0.1:5000 --workers 2 --timeout 120 app:app --daemon'
+curl -s http://127.0.0.1:5000/health
+```
+
+If that fails, check: `ls /home/mingus-app/mingus-app/app.py` and `ls /opt/mingus-test/venv/bin/gunicorn`. The deploy script (Step 5) now runs the backend from the repo directory automatically.
