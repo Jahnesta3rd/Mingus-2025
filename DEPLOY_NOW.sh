@@ -50,20 +50,20 @@ echo -e "${GREEN}  ✅ Frontend deployed to $WEB_ROOT${NC}"
 # --- Step 5: Restart backend from repo (so API runs latest code) ---
 echo -e "\n${YELLOW}[5/6] Restarting backend...${NC}"
 set +e
-# Restart as the SSH user. Capture remote stderr so we can show it on failure.
-REMOTE_ERR="/tmp/gunicorn-restart.err"
-ssh $SSH_HOST "pkill -f 'gunicorn.*app:app' 2>/dev/null || true; sleep 2; cd $REPO_DIR && $BACKEND_DIR/venv/bin/gunicorn --bind 127.0.0.1:5000 --workers 2 --timeout 120 app:app --daemon 2>\"$REMOTE_ERR\""
+STEP5_LOG=$(mktemp)
+# Restart as the SSH user. Capture all remote output to see why exit 255 happens.
+ssh $SSH_HOST "pkill -f 'gunicorn.*app:app' 2>/dev/null || true; sleep 2; cd $REPO_DIR && $BACKEND_DIR/venv/bin/gunicorn --bind 127.0.0.1:5000 --workers 2 --timeout 120 app:app --daemon" >"$STEP5_LOG" 2>&1
 STEP5_EXIT=$?
-# If restart failed, fetch and show remote stderr
 if [ "$STEP5_EXIT" -ne 0 ]; then
-    REMOTE_OUT=$(ssh $SSH_HOST "cat \"$REMOTE_ERR\" 2>/dev/null; rm -f \"$REMOTE_ERR\"" 2>/dev/null)
-    [ -n "$REMOTE_OUT" ] && echo -e "${RED}  remote stderr: ${REMOTE_OUT}${NC}"
+    echo -e "${RED}  Backend restart failed (exit $STEP5_EXIT). Remote output:${NC}"
+    sed 's/^/    /' "$STEP5_LOG"
 fi
+rm -f "$STEP5_LOG"
 set -e
 if [ "$STEP5_EXIT" -eq 0 ]; then
     echo -e "${GREEN}  ✅ Backend restarted${NC}"
 else
-    echo -e "${RED}  ⚠ Backend restart failed (exit $STEP5_EXIT) - check $BACKEND_DIR and gunicorn on server${NC}"
+    echo -e "${RED}  ⚠ Check $BACKEND_DIR and gunicorn on server${NC}"
 fi
 
 # --- Step 6: Verify (never abort; always show results) ---
