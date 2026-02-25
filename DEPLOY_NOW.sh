@@ -50,9 +50,15 @@ echo -e "${GREEN}  ✅ Frontend deployed to $WEB_ROOT${NC}"
 # --- Step 5: Restart backend from repo (so API runs latest code) ---
 echo -e "\n${YELLOW}[5/6] Restarting backend...${NC}"
 set +e
-# Run from REPO_DIR so app.py and backend/ are current; use gunicorn from BACKEND_DIR venv
-ssh $SSH_HOST "sudo pkill -f 'gunicorn.*app:app' 2>/dev/null || true; sleep 2; sudo -u mingus-app bash -c 'cd $REPO_DIR && $BACKEND_DIR/venv/bin/gunicorn --bind 127.0.0.1:5000 --workers 2 --timeout 120 app:app --daemon'"
+# Restart as the SSH user (usually mingus-app). Avoid sudo to prevent 255 from sudo/quoting.
+# Capture stderr so we can show it on failure.
+STEP5_ERR=$(mktemp)
+ssh $SSH_HOST "pkill -f 'gunicorn.*app:app' 2>/dev/null || true; sleep 2; cd $REPO_DIR && $BACKEND_DIR/venv/bin/gunicorn --bind 127.0.0.1:5000 --workers 2 --timeout 120 app:app --daemon" 2>"$STEP5_ERR"
 STEP5_EXIT=$?
+if [ -s "$STEP5_ERR" ]; then
+    echo -e "${RED}  stderr: $(cat "$STEP5_ERR")${NC}"
+fi
+rm -f "$STEP5_ERR"
 set -e
 if [ "$STEP5_EXIT" -eq 0 ]; then
     echo -e "${GREEN}  ✅ Backend restarted${NC}"
