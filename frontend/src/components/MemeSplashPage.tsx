@@ -10,6 +10,7 @@ interface MemeData {
   is_active: boolean;
   created_at: string;
   updated_at: string;
+  media_type?: 'image' | 'video' | 'audio';
 }
 
 interface MemeAnalytics {
@@ -429,18 +430,33 @@ const MemeSplashPage: React.FC<MemeSplashPageProps> = ({
       tabIndex={-1}
     >
       <div className="w-full max-w-md">
-        {/* Meme Image */}
+        {/* Meme media (image, video, or audio) */}
         <div className="relative mb-6">
-          <img
-            src={meme?.image_url}
-            alt={meme?.alt_text ? `Meme showing ${meme.alt_text} for ${selectedMood || 'current'} mood` : `Meme image for ${selectedMood || 'current'} mood`}
-            className="w-full h-64 object-cover rounded-lg shadow-lg"
-            onError={(e) => {
-              console.error('Image failed to load:', meme?.image_url);
-              setError('Failed to load meme image');
-            }}
-          />
-          
+          {meme?.media_type === 'video' ? (
+            <video
+              src={meme.image_url}
+              className="w-full h-64 object-cover rounded-lg shadow-lg"
+              controls
+              playsInline
+              aria-label={meme.alt_text || meme.caption}
+            />
+          ) : meme?.media_type === 'audio' ? (
+            <div className="w-full h-64 flex flex-col items-center justify-center bg-gray-800 rounded-lg shadow-lg gap-2">
+              <audio src={meme.image_url} controls className="w-full max-w-sm" aria-label={meme.alt_text || meme.caption} />
+              <span className="text-gray-400 text-sm">Audio meme</span>
+            </div>
+          ) : (
+            <img
+              src={meme?.image_url}
+              alt={meme?.alt_text ? `Meme showing ${meme.alt_text} for ${selectedMood || 'current'} mood` : `Meme image for ${selectedMood || 'current'} mood`}
+              className="w-full h-64 object-cover rounded-lg shadow-lg"
+              onError={(e) => {
+                console.error('Image failed to load:', meme?.image_url);
+                setError('Failed to load meme image');
+              }}
+            />
+          )}
+
           {/* Auto-advance countdown indicator */}
           {countdown > 0 && (
             <div className="absolute top-4 right-4 bg-black bg-opacity-50 text-white px-3 py-1 rounded-full text-sm">

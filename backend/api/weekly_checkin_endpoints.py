@@ -18,7 +18,8 @@ logger = logging.getLogger(__name__)
 weekly_checkin_api = Blueprint('weekly_checkin_api', __name__, url_prefix='/api')
 
 # Database path
-DB_PATH = os.path.join(os.path.dirname(__file__), '..', '..', 'mingus_memes.db')
+_DEFAULT_DB = os.path.join(os.path.dirname(__file__), '..', '..', 'mingus_memes.db')
+DB_PATH = os.environ.get('MINGUS_MEME_DB_PATH', _DEFAULT_DB)
 
 def get_db_connection():
     """Get database connection"""

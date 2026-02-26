@@ -699,6 +699,7 @@ def initialize_app():
     os.makedirs('logs', exist_ok=True)
     os.makedirs('database_backups', exist_ok=True)
     os.makedirs('static/uploads', exist_ok=True)
+    os.makedirs('static/memes', exist_ok=True)
     
     # Initialize assessment database
     try:
@@ -789,6 +790,15 @@ def get_error_health():
         'stats': stats,
         'timestamp': datetime.now().isoformat()
     })
+
+# Serve meme images (GIF/PNG) from static/memes/ for vibe-check and meme features
+_MEMES_DIR = os.path.join(os.path.dirname(__file__), 'static', 'memes')
+@app.route('/memes/<path:filename>', methods=['GET'])
+def serve_meme(filename):
+    """Serve meme images from static/memes/."""
+    if not os.path.isdir(_MEMES_DIR):
+        return jsonify({'error': 'Not Found', 'message': 'Memes directory not configured'}), 404
+    return send_from_directory(_MEMES_DIR, filename)
 
 # SPA fallback: serve React app for client routes so /vibe-check-meme, /dashboard, etc. don't 404
 # when the frontend is built and served from this app (e.g. frontend/dist).

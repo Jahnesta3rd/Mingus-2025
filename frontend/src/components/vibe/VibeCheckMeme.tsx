@@ -11,6 +11,7 @@ interface MemeData {
   image_url: string;
   caption: string;
   category: string;
+  media_type?: 'image' | 'video' | 'audio';
 }
 
 const VibeCheckMeme: React.FC<VibeCheckMemeProps> = ({ onContinue, userId }) => {
@@ -86,14 +87,29 @@ const VibeCheckMeme: React.FC<VibeCheckMemeProps> = ({ onContinue, userId }) => 
       <h1 className="text-3xl font-bold text-white mb-2">Vibe Check</h1>
       <p className="text-violet-400 mb-6">How's this hitting today?</p>
       <div className="bg-gray-800 rounded-xl shadow-2xl max-w-md w-full overflow-hidden">
-        <img
-          src={meme.image_url}
-          alt={meme.caption}
-          className="w-full h-64 object-cover"
-          onError={(e) => {
-            (e.target as HTMLImageElement).src = '/placeholder-meme.png';
-          }}
-        />
+        {meme.media_type === 'video' ? (
+          <video
+            src={meme.image_url}
+            className="w-full h-64 object-cover"
+            controls
+            playsInline
+            aria-label={meme.caption}
+          />
+        ) : meme.media_type === 'audio' ? (
+          <div className="w-full h-64 flex flex-col items-center justify-center bg-gray-900 gap-2">
+            <audio src={meme.image_url} controls className="w-full max-w-sm" aria-label={meme.caption} />
+            <span className="text-gray-400 text-sm">Audio meme</span>
+          </div>
+        ) : (
+          <img
+            src={meme.image_url}
+            alt={meme.caption}
+            className="w-full h-64 object-cover"
+            onError={(e) => {
+              (e.target as HTMLImageElement).src = '/placeholder-meme.png';
+            }}
+          />
+        )}
         <div className="p-4">
           <p className="text-white text-center text-lg">{meme.caption}</p>
         </div>

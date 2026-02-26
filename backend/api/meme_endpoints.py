@@ -19,8 +19,9 @@ logger = logging.getLogger(__name__)
 # Create blueprint
 meme_api = Blueprint('meme_api', __name__, url_prefix='/api')
 
-# Database path
-DB_PATH = os.path.join(os.path.dirname(__file__), '..', '..', 'mingus_memes.db')
+# Database path: allow override via env for deployment (e.g. /var/lib/mingus/mingus_memes.db)
+_DEFAULT_DB = os.path.join(os.path.dirname(__file__), '..', '..', 'mingus_memes.db')
+DB_PATH = os.environ.get('MINGUS_MEME_DB_PATH', _DEFAULT_DB)
 
 def get_db_connection():
     """Get database connection"""
@@ -28,37 +29,63 @@ def get_db_connection():
     conn.row_factory = sqlite3.Row
     return conn
 
+
+def infer_media_type_from_url(url):
+    """Infer media_type from image_url for backward compatibility when column is missing."""
+    if not url:
+        return "image"
+    url_lower = (url or "").lower()
+    if any(url_lower.endswith(ext) for ext in (".mp4", ".webm", ".mov")):
+        return "video"
+    if any(url_lower.endswith(ext) for ext in (".mp3", ".wav", ".m4a", ".aac")):
+        return "audio"
+    if ".ogg" in url_lower:
+        return "video"  # ogg can be video or audio; default video for vibe-check display
+    return "image"
+
 def get_user_meme(user_id=None, session_id=None):
     """
-    Get a random meme for the user
-    Can be personalized based on user preferences in the future
+    Get a meme for the user. When memes have day_of_week set (e.g. test data),
+    prefers today's theme meme; otherwise returns a random active meme.
     """
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
-        
-        # For now, get a random active meme
-        # In the future, this could be personalized based on:
-        # - User preferences
-        # - Time of day
-        # - User demographics
-        # - Previous meme interactions
-        
+        # Python weekday: Monday=0 .. Sunday=6
+        today = datetime.utcnow().weekday()
+
+        # Prefer "today's meme" if day_of_week column exists and a meme is set for today
+        try:
+            cursor.execute(
+                '''
+                SELECT * FROM memes
+                WHERE is_active = 1 AND day_of_week = ?
+                ORDER BY RANDOM()
+                LIMIT 1
+                ''',
+                (today,),
+            )
+            meme = cursor.fetchone()
+            if meme:
+                conn.close()
+                return dict(meme)
+        except sqlite3.OperationalError:
+            # Column day_of_week may not exist (migration 004 not applied)
+            pass
+
+        # Fallback: random active meme (original behavior)
         cursor.execute('''
-            SELECT * FROM memes 
-            WHERE is_active = 1 
-            ORDER BY RANDOM() 
+            SELECT * FROM memes
+            WHERE is_active = 1
+            ORDER BY RANDOM()
             LIMIT 1
         ''')
-        
         meme = cursor.fetchone()
         conn.close()
-        
+
         if not meme:
             return None
-            
         return dict(meme)
-        
     except Exception as e:
         logger.error(f"Error fetching user meme: {e}")
         raise InternalServerError("Failed to fetch meme")
@@ -127,6 +154,10 @@ def get_user_meme_endpoint():
                 'error': 'No memes available',
                 'message': 'No active memes found in the database'
             }), 404
+
+        meme = dict(meme)
+        if not meme.get('media_type'):
+            meme['media_type'] = infer_media_type_from_url(meme.get('image_url'))
         
         # Track view analytics
         track_meme_analytics(meme['id'], 'view', user_id, session_id)
