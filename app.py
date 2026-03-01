@@ -51,6 +51,7 @@ except ImportError:
     pass
 from backend.api.vehicle_expense_endpoints import vehicle_expense_api
 from backend.api.enhanced_vehicle_expense_endpoints import enhanced_vehicle_api
+from backend.api.enhanced_cash_flow_endpoints import enhanced_cash_flow_api
 from backend.api.weekly_checkin_endpoints import weekly_checkin_api
 from backend.api.career_vehicle_optimization_api import career_vehicle_api
 from backend.api.housing_endpoints import housing_api
@@ -225,6 +226,7 @@ if vehicle_setup_api:
     app.register_blueprint(vehicle_setup_api)
 app.register_blueprint(vehicle_expense_api)
 app.register_blueprint(enhanced_vehicle_api)
+app.register_blueprint(enhanced_cash_flow_api)
 app.register_blueprint(weekly_checkin_api)
 app.register_blueprint(career_vehicle_api)
 app.register_blueprint(housing_api)
