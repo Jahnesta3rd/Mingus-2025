@@ -26,6 +26,106 @@ interface AssessmentResultsProps {
   className?: string;
 }
 
+/** Band-specific result copy: headline + recommendation paragraph (by assessment type and risk_level). */
+const ASSESSMENT_BAND_COPY: Record<string, Record<string, { headline: string; copy: string }>> = {
+  'ai-risk': {
+    'High Risk': {
+      headline: 'Your role has significant automation exposure.',
+      copy: 'Several factors suggest your current position is vulnerable to AI displacement from the nature of your daily tasks to your current adaptation pace. The good news: awareness is the first step. Mingus can help you identify the specific skills and moves most likely to protect your income.'
+    },
+    'Elevated Risk': {
+      headline: 'Real vulnerabilities worth addressing now.',
+      copy: "Your role has meaningful automation risk, but it's not inevitable. Targeted action – learning the right skills, increasing your visibility, and diversifying your income – can significantly improve your position."
+    },
+    'Moderate Risk': {
+      headline: 'You have a moat, but it needs reinforcing.',
+      copy: 'Your role has strong AI-resistant elements, but gaps remain. Staying ahead requires consistent adaptation. Mingus can help you identify the highest-leverage moves to protect and grow your income.'
+    },
+    'Low Risk': {
+      headline: "You're well-positioned in the age of AI.",
+      copy: "Your role's human-judgment content, your proactive adaptation, and your visibility to leadership all signal strong AI resilience. Use this position to your advantage – now is the time to negotiate and grow."
+    }
+  },
+  'income-comparison': {
+    'Significant Gap': {
+      headline: "You're likely leaving real money on the table.",
+      copy: "The data is clear: people who benchmark and negotiate earn significantly more over their careers. You haven't done either recently – and that gap compounds. Mingus will show you exactly what people in your role and location are earning, and how to start closing the gap."
+    },
+    'Awareness Gap': {
+      headline: "You know there's a gap – now it's time to act.",
+      copy: "You have some sense of the market, but you haven't made the moves that change the number. Mingus will help you build a specific, timed plan to increase your income."
+    },
+    'Active but Incomplete': {
+      headline: 'Good instincts. A few optimizations could make a real difference.',
+      copy: 'You benchmark and negotiate – that puts you ahead of most. But there are a few specific opportunities you may be missing. Mingus will show you where to focus.'
+    },
+    'Income Optimized': {
+      headline: 'You manage your income like an asset.',
+      copy: 'You benchmark, negotiate, and understand your full compensation. Mingus will help you put that income to work – building wealth, not just earning it.'
+    }
+  },
+  'cuffing-season': {
+    'Not Ready': {
+      headline: 'Significant barriers are standing between you and the relationship you want.',
+      copy: 'Emotional and financial blocks are real – and they affect how you show up in relationships. Mingus can help you address the financial piece directly, which often unlocks more than people expect.'
+    },
+    'Warming Up': {
+      headline: "You're closer than you think – a few things are in the way.",
+      copy: 'The barriers are real but addressable. For many people, financial stress is the silent relationship killer. Getting that stable changes everything. Mingus can help.'
+    },
+    'Mostly Ready': {
+      headline: "You're in a good position – a few refinements could make a difference.",
+      copy: "You're emotionally available and mostly aligned in what you want. Removing the last friction points – often financial anxiety – can meaningfully improve how you show up."
+    },
+    'Fully Ready': {
+      headline: "You're ready – and you know what you want.",
+      copy: "High readiness across the board. Financial confidence, emotional availability, and clarity on what you're looking for. Mingus can help you maintain the foundation that makes relationships thrive."
+    }
+  },
+  'layoff-risk': {
+    'High Risk': {
+      headline: 'Multiple layoff risk factors are active right now.',
+      copy: 'Multiple factors suggest your job security could be at risk. Mingus can help you build a plan to reduce exposure and protect your income.'
+    },
+    'Elevated Risk': {
+      headline: 'Some layoff risk factors need your attention.',
+      copy: 'You have meaningful exposure, but targeted steps – visibility, skills, and a financial buffer – can significantly improve your position. Mingus can help you prioritize.'
+    },
+    'Moderate Risk': {
+      headline: 'You have a solid base, but stay proactive.',
+      copy: 'Your position and relationships provide some protection. Staying visible and continuing to build skills will help you maintain that edge. Mingus can help you track and strengthen your position.'
+    },
+    'Low Risk': {
+      headline: 'Your job security looks strong.',
+      copy: 'Your visibility, institutional knowledge, and relationships signal lower layoff risk. Use this stability to build your financial foundation and career options. Mingus can help you make the most of it.'
+    }
+  },
+  'vehicle-financial-health': {
+    'High Risk': {
+      headline: 'Your vehicle finances need attention.',
+      copy: 'Unexpected costs and lack of planning can put real pressure on your budget. Mingus can help you build a vehicle emergency fund and plan for total cost of ownership.'
+    },
+    'Elevated Risk': {
+      headline: 'A few changes could reduce vehicle-related stress.',
+      copy: 'You have some awareness of costs, but gaps remain. Mingus can help you track expenses and plan for repairs so you stay in control.'
+    },
+    'Moderate Risk': {
+      headline: 'You\'re in decent shape – small steps can help.',
+      copy: 'You manage most vehicle costs consciously. Mingus can help you optimize insurance, savings, and your next purchase decision.'
+    },
+    'Low Risk': {
+      headline: 'You\'re on top of your vehicle finances.',
+      copy: 'You plan for total cost, track expenses, and have a buffer. Mingus can help you keep that foundation strong and put savings to work elsewhere.'
+    }
+  }
+};
+
+function getBandCopy(assessmentType: string, riskLevel: string): { headline: string; copy: string } | null {
+  const byType = ASSESSMENT_BAND_COPY[assessmentType];
+  if (!byType) return null;
+  return byType[riskLevel] ?? null;
+}
+
 // Chart components
 const ScoreChart: React.FC<{ score: number; maxScore?: number }> = ({ score, maxScore = 100 }) => {
   const roundedScore = Math.round(score);
@@ -135,40 +235,27 @@ const BenchmarkChart: React.FC<{
 
 const RiskLevelIndicator: React.FC<{ riskLevel: string; score: number }> = ({ riskLevel, score }) => {
   const getRiskConfig = (level: string) => {
-    switch (level.toLowerCase()) {
-      case 'low':
-        return { 
-          color: 'text-green-400', 
-          bgColor: 'bg-green-900/20', 
-          borderColor: 'border-green-500',
-          icon: Shield,
-          label: 'Low Risk'
-        };
-      case 'medium':
-        return { 
-          color: 'text-yellow-400', 
-          bgColor: 'bg-yellow-900/20', 
-          borderColor: 'border-yellow-500',
-          icon: AlertTriangle,
-          label: 'Medium Risk'
-        };
-      case 'high':
-        return { 
-          color: 'text-red-400', 
-          bgColor: 'bg-red-900/20', 
-          borderColor: 'border-red-500',
-          icon: AlertTriangle,
-          label: 'High Risk'
-        };
-      default:
-        return { 
-          color: 'text-gray-400', 
-          bgColor: 'bg-gray-900/20', 
-          borderColor: 'border-gray-500',
-          icon: Target,
-          label: 'Unknown'
-        };
+    const lower = level.toLowerCase();
+    // Legacy single-word levels
+    if (lower === 'low') {
+      return { color: 'text-green-400', bgColor: 'bg-green-900/20', borderColor: 'border-green-500', icon: Shield, label: 'Low Risk' };
     }
+    if (lower === 'medium') {
+      return { color: 'text-yellow-400', bgColor: 'bg-yellow-900/20', borderColor: 'border-yellow-500', icon: AlertTriangle, label: 'Medium Risk' };
+    }
+    if (lower === 'high') {
+      return { color: 'text-red-400', bgColor: 'bg-red-900/20', borderColor: 'border-red-500', icon: AlertTriangle, label: 'High Risk' };
+    }
+    // Point-weighted band labels: derive color from band name, use band as label
+    const positive = /low risk|income optimized|fully ready/i;
+    const caution = /elevated risk|moderate risk|awareness gap|active but incomplete|warming up|mostly ready/i;
+    if (positive.test(level)) {
+      return { color: 'text-green-400', bgColor: 'bg-green-900/20', borderColor: 'border-green-500', icon: Shield, label: level };
+    }
+    if (caution.test(level)) {
+      return { color: 'text-yellow-400', bgColor: 'bg-yellow-900/20', borderColor: 'border-yellow-500', icon: AlertTriangle, label: level };
+    }
+    return { color: 'text-red-400', bgColor: 'bg-red-900/20', borderColor: 'border-red-500', icon: AlertTriangle, label: level };
   };
 
   const config = getRiskConfig(riskLevel);
@@ -261,6 +348,8 @@ const AssessmentResults: React.FC<AssessmentResultsProps> = ({
         return 'Cuffing Season Score';
       case 'layoff-risk':
         return 'Layoff Risk Assessment';
+      case 'vehicle-financial-health':
+        return 'Vehicle Financial Health Assessment';
       default:
         return 'Assessment Results';
     }
@@ -334,10 +423,19 @@ const AssessmentResults: React.FC<AssessmentResultsProps> = ({
               <div className="max-w-[200px] mx-auto p-2">
                 <ScoreChart score={result.score} />
               </div>
-              {/* Score interpretation */}
-              <div className="mt-4 text-center px-4">
+              {/* Band-specific headline and copy, or fallback interpretation */}
+              <div className="mt-4 text-center px-4 space-y-2">
                 {(() => {
+                  const bandCopy = getBandCopy(result.assessment_type, result.risk_level);
                   const interpretation = getScoreInterpretation(result.assessment_type, result.score);
+                  if (bandCopy) {
+                    return (
+                      <>
+                        <p className="text-white font-semibold">{bandCopy.headline}</p>
+                        <p className="text-gray-300 text-sm leading-relaxed">{bandCopy.copy}</p>
+                      </>
+                    );
+                  }
                   return (
                     <p className={`${interpretation.color} font-medium`}>
                       {interpretation.text}

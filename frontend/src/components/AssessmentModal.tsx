@@ -3,6 +3,7 @@ import { X, ArrowLeft, ArrowRight, Check, Mail, User } from 'lucide-react';
 import { AssessmentType } from '../types/assessments';
 import { InputValidator } from '../utils/validation';
 import { Sanitizer } from '../utils/sanitize';
+import { calculateAssessmentScore } from '../utils/assessmentScoring';
 import AssessmentResults from './AssessmentResults';
 
 // Types
@@ -48,7 +49,7 @@ const assessmentConfigs: Record<AssessmentType, AssessmentConfig> = {
     id: 'ai-risk',
     title: 'AI Replacement Risk Assessment',
     description: 'Determine your job security in the age of artificial intelligence',
-    estimatedTime: '3-5 minutes',
+    estimatedTime: '5-7 minutes',
     icon: <User className="w-8 h-8" />,
     questions: [
       {
@@ -66,60 +67,128 @@ const assessmentConfigs: Record<AssessmentType, AssessmentConfig> = {
         placeholder: 'Your first name'
       },
       {
-        id: 'jobTitle',
-        question: 'What\'s your current job title?',
-        type: 'text',
-        required: true,
-        placeholder: 'e.g., Software Engineer, Marketing Manager'
-      },
-      {
-        id: 'industry',
-        question: 'What industry do you work in?',
+        id: 'automateFirst',
+        question: 'If your employer could automate 50% of your tasks tomorrow at no cost, which 50% would go first?',
         type: 'single',
         required: true,
         options: [
-          'Technology/Software',
-          'Healthcare',
-          'Finance/Banking',
-          'Education',
-          'Manufacturing',
-          'Retail/E-commerce',
-          'Marketing/Advertising',
-          'Consulting',
-          'Government',
-          'Other'
+          'Administrative/scheduling',
+          'Data entry or reporting',
+          'Research and summarizing',
+          'Customer communications',
+          'Decision-making',
+          'I genuinely don\'t know'
         ]
       },
       {
-        id: 'automationLevel',
-        question: 'How much of your daily work involves repetitive, rule-based tasks?',
-        type: 'scale',
+        id: 'replacedByProcess',
+        question: 'Have you ever been replaced by a process, software, or system – even partially?',
+        type: 'single',
         required: true,
-        options: ['Very Little', 'Some', 'Moderate', 'A Lot', 'Almost Everything']
+        options: [
+          'Yes, significantly',
+          'Yes, in a minor way',
+          'No, I don\'t think so',
+          'I\'m not sure'
+        ]
       },
       {
-        id: 'aiTools',
-        question: 'Do you currently use AI tools in your work?',
+        id: 'productivityDrop',
+        question: 'If your role didn\'t exist tomorrow, how long would it take your team to notice a productivity drop?',
         type: 'single',
+        required: true,
+        options: [
+          'Immediately',
+          'Within a few days',
+          'Within a week or two',
+          'A month or more',
+          'Probably not for a while'
+        ]
+      },
+      {
+        id: 'proactiveLearning',
+        question: 'How often do you proactively learn new tools or skills without being told to?',
+        type: 'scale',
         required: true,
         options: ['Never', 'Rarely', 'Sometimes', 'Often', 'Constantly']
       },
       {
-        id: 'skills',
-        question: 'Which skills best describe your expertise? (Select all that apply)',
-        type: 'multiple',
+        id: 'newTechReaction',
+        question: 'When new technology is introduced at your job, which best describes your reaction?',
+        type: 'single',
         required: true,
         options: [
-          'Data Analysis',
-          'Creative Writing',
-          'Customer Service',
-          'Project Management',
-          'Coding/Programming',
-          'Sales',
-          'Research',
-          'Design',
-          'Strategy',
-          'Teaching/Training'
+          'I resist it and stick to what works',
+          'I wait to see what others do',
+          'I adopt it when required',
+          'I try to learn it early',
+          'I help others adopt it'
+        ]
+      },
+      {
+        id: 'salaryDecidersUnderstand',
+        question: 'Do the people who decide your salary fully understand what you do day to day?',
+        type: 'single',
+        required: true,
+        options: [
+          'Yes, completely',
+          'Mostly',
+          'Somewhat',
+          'Not really',
+          'No, not at all'
+        ]
+      },
+      {
+        id: 'valueInHeadVsDocumented',
+        question: 'How much of the unique value you bring to your job lives in your head versus in documented systems?',
+        type: 'scale',
+        required: true,
+        options: [
+          'Almost all in my head',
+          'Mostly in my head',
+          'Split roughly evenly',
+          'Mostly documented',
+          'Almost entirely documented'
+        ]
+      },
+      {
+        id: 'toolTookOverTask',
+        question: 'In the past year, has a tool or system taken over any task that used to require your direct involvement?',
+        type: 'single',
+        required: true,
+        options: [
+          'Yes, several tasks',
+          'Yes, one or two things',
+          'Not yet but I can see it coming',
+          'No',
+          'Not that I\'m aware of'
+        ]
+      },
+      {
+        id: 'reasonNotLearningAI',
+        question: 'What\'s your honest reason for not learning AI tools more deeply?',
+        type: 'single',
+        required: true,
+        options: [
+          'No time',
+          'No access or resources',
+          'Don\'t see the relevance',
+          'Worried it will replace me',
+          'Already using them actively',
+          'No particular reason'
+        ]
+      },
+      {
+        id: 'jobExistsFiveYears',
+        question: 'If you had to bet on your job existing in its current form five years from now, what odds would you give yourself?',
+        type: 'single',
+        required: true,
+        options: [
+          'Less than 25% chance it survives unchanged',
+          '25-50%',
+          '50-75%',
+          '75-90%',
+          'Greater than 90%'
         ]
       }
     ]
@@ -128,7 +197,7 @@ const assessmentConfigs: Record<AssessmentType, AssessmentConfig> = {
     id: 'income-comparison',
     title: 'Income Comparison Assessment',
     description: 'See how your income compares to others in your field and location',
-    estimatedTime: '2-3 minutes',
+    estimatedTime: '4-6 minutes',
     icon: <User className="w-8 h-8" />,
     questions: [
       {
@@ -146,71 +215,109 @@ const assessmentConfigs: Record<AssessmentType, AssessmentConfig> = {
         placeholder: 'Your first name'
       },
       {
-        id: 'currentSalary',
-        question: 'What\'s your current annual salary?',
+        id: 'lastSalaryResearch',
+        question: 'When did you last research what someone in your exact role earns at another company?',
         type: 'single',
         required: true,
         options: [
-          'Under $30,000',
-          '$30,000 - $50,000',
-          '$50,000 - $75,000',
-          '$75,000 - $100,000',
-          '$100,000 - $150,000',
-          '$150,000 - $200,000',
-          'Over $200,000'
+          'Within the last 3 months',
+          '6-12 months ago',
+          '1-2 years ago',
+          'More than 2 years ago',
+          'Never'
         ]
       },
       {
-        id: 'jobTitle',
-        question: 'What\'s your job title?',
-        type: 'text',
-        required: true,
-        placeholder: 'e.g., Software Engineer, Marketing Manager'
-      },
-      {
-        id: 'experience',
-        question: 'How many years of experience do you have?',
+        id: 'lastRaiseNegotiate',
+        question: 'When you last received a raise or offer, did you negotiate?',
         type: 'single',
         required: true,
         options: [
-          'Less than 1 year',
-          '1-2 years',
-          '3-5 years',
-          '6-10 years',
-          '11-15 years',
-          '16-20 years',
-          'Over 20 years'
+          'Yes, and I got more than the initial offer',
+          'Yes, but I accepted the first counter',
+          'No, I accepted without negotiating',
+          'I didn\'t think I could negotiate',
+          'I don\'t remember'
         ]
       },
       {
-        id: 'location',
-        question: 'What\'s your work location?',
+        id: 'colleagueEarnedMore',
+        question: 'If a colleague doing the same job as you earned 30% more, what would you do?',
         type: 'single',
         required: true,
         options: [
-          'New York, NY',
-          'San Francisco, CA',
-          'Los Angeles, CA',
-          'Chicago, IL',
-          'Austin, TX',
-          'Seattle, WA',
-          'Boston, MA',
-          'Remote',
-          'Other'
+          'Ask my manager immediately',
+          'Research whether it\'s true first',
+          'Feel upset but probably do nothing',
+          'Update my resume',
+          'Leave as soon as possible'
         ]
       },
       {
-        id: 'education',
-        question: 'What\'s your highest level of education?',
+        id: 'benchmarkSalaryFrequency',
+        question: 'How often do you benchmark your salary against market data?',
+        type: 'scale',
+        required: true,
+        options: ['Never', 'Rarely', 'Once a year', 'Every few months', 'Continuously']
+      },
+      {
+        id: 'reasonNotEarnedMore',
+        question: 'What is the single biggest reason you haven\'t earned more money in the past 2 years?',
         type: 'single',
         required: true,
         options: [
-          'High School',
-          'Associate Degree',
-          'Bachelor\'s Degree',
-          'Master\'s Degree',
-          'PhD/Professional Degree'
+          'Didn\'t ask for a raise',
+          'Limited opportunities at my company',
+          'My skills aren\'t in high demand',
+          'Personal circumstances limited my ability to move',
+          'I have been earning more',
+          'I don\'t know'
         ]
+      },
+      {
+        id: 'incomeGrowthInitiative',
+        question: 'How much of your income growth over your career has come from proactive moves you made vs. things that just happened?',
+        type: 'scale',
+        required: true,
+        options: [
+          'Almost all just happened',
+          'Mostly happened to me',
+          'Roughly equal',
+          'Mostly my initiative',
+          'Almost entirely my own doing'
+        ]
+      },
+      {
+        id: 'incomeSameFiveYears',
+        question: 'If your income stayed exactly the same for the next 5 years, how significantly would it affect your quality of life?',
+        type: 'scale',
+        required: true,
+        options: [
+          'No impact at all',
+          'Minor inconvenience',
+          'Moderate concern',
+          'Serious problem',
+          'It would be devastating'
+        ]
+      },
+      {
+        id: 'turnedDownHigherPay',
+        question: 'Have you ever turned down a higher-paying opportunity to stay in your current role?',
+        type: 'single',
+        required: true,
+        options: [
+          'Yes, multiple times',
+          'Yes, once',
+          'No, I\'ve always pursued better pay',
+          'Not applicable'
+        ]
+      },
+      {
+        id: 'understandTotalComp',
+        question: 'How well do you understand the total value of your compensation, including benefits, equity, and perks?',
+        type: 'scale',
+        required: true,
+        options: ['Not at all', 'Vaguely', 'Somewhat', 'Pretty well', 'Completely']
       }
     ]
   },
@@ -218,99 +325,6 @@ const assessmentConfigs: Record<AssessmentType, AssessmentConfig> = {
     id: 'cuffing-season',
     title: 'Cuffing Season Score Assessment',
     description: 'Discover your relationship patterns and dating readiness',
-    estimatedTime: '3-4 minutes',
-    icon: <User className="w-8 h-8" />,
-    questions: [
-      {
-        id: 'email',
-        question: 'What\'s your email address?',
-        type: 'email',
-        required: true,
-        placeholder: 'your.email@example.com'
-      },
-      {
-        id: 'firstName',
-        question: 'What\'s your first name?',
-        type: 'text',
-        required: true,
-        placeholder: 'Your first name'
-      },
-      {
-        id: 'age',
-        question: 'What\'s your age range?',
-        type: 'single',
-        required: true,
-        options: [
-          '18-24',
-          '25-29',
-          '30-34',
-          '35-39',
-          '40-44',
-          '45-49',
-          '50+'
-        ]
-      },
-      {
-        id: 'relationshipStatus',
-        question: 'What\'s your current relationship status?',
-        type: 'single',
-        required: true,
-        options: [
-          'Single and dating',
-          'Single and not dating',
-          'In a relationship',
-          'Married',
-          'Divorced',
-          'Widowed'
-        ]
-      },
-      {
-        id: 'datingFrequency',
-        question: 'How often do you go on dates?',
-        type: 'single',
-        required: true,
-        options: [
-          'Multiple times per week',
-          'Once a week',
-          '2-3 times per month',
-          'Once a month',
-          'Rarely',
-          'Never'
-        ]
-      },
-      {
-        id: 'winterDating',
-        question: 'Do you find yourself more interested in dating during winter months?',
-        type: 'single',
-        required: true,
-        options: [
-          'Much more interested',
-          'Somewhat more interested',
-          'No change',
-          'Less interested',
-          'Much less interested'
-        ]
-      },
-      {
-        id: 'relationshipGoals',
-        question: 'What are you looking for in a relationship? (Select all that apply)',
-        type: 'multiple',
-        required: true,
-        options: [
-          'Casual dating',
-          'Serious relationship',
-          'Marriage',
-          'Friendship',
-          'Just having fun',
-          'Not sure'
-        ]
-      }
-    ]
-  },
-  'layoff-risk': {
-    id: 'layoff-risk',
-    title: 'Layoff Risk Assessment',
-    description: 'Evaluate your job security and career stability',
     estimatedTime: '4-5 minutes',
     icon: <User className="w-8 h-8" />,
     questions: [
@@ -329,80 +343,229 @@ const assessmentConfigs: Record<AssessmentType, AssessmentConfig> = {
         placeholder: 'Your first name'
       },
       {
-        id: 'companySize',
-        question: 'How many employees does your company have?',
+        id: 'lastRelationshipEnded',
+        question: 'Looking back at your last significant relationship, what ended it or what\'s keeping you from one now?',
         type: 'single',
         required: true,
         options: [
-          '1-10 employees',
-          '11-50 employees',
-          '51-200 employees',
-          '201-1000 employees',
-          '1000+ employees'
+          'Compatibility issues',
+          'Timing or life circumstances',
+          'Financial stress',
+          'Emotional unavailability (mine)',
+          'Emotional unavailability (theirs)',
+          'I\'m currently in a relationship',
+          'I\'m not sure'
         ]
       },
       {
-        id: 'tenure',
-        question: 'How long have you been with your current company?',
-        type: 'single',
+        id: 'whatWouldGetInWay',
+        question: 'If the right person came along tomorrow, what would realistically get in the way?',
+        type: 'multiple',
         required: true,
         options: [
-          'Less than 6 months',
-          '6 months - 1 year',
-          '1-2 years',
-          '3-5 years',
-          '6-10 years',
-          'Over 10 years'
+          'Work schedule or career demands',
+          'Financial stress',
+          'Where I live',
+          'My own emotional state',
+          'Past relationship baggage',
+          'Nothing - I\'m ready',
+          'I don\'t know'
         ]
       },
       {
-        id: 'performance',
-        question: 'How would you rate your recent job performance?',
+        id: 'datingHabitsAligned',
+        question: 'How aligned are your dating habits with what you say you actually want?',
+        type: 'scale',
+        required: true,
+        options: ['Completely misaligned', 'Somewhat misaligned', 'Neutral', 'Mostly aligned', 'Completely aligned']
+      },
+      {
+        id: 'overlookRedFlags',
+        question: 'When you\'re attracted to someone, do you tend to overlook red flags early on?',
+        type: 'scale',
+        required: true,
+        options: ['Almost always', 'Often', 'Sometimes', 'Rarely', 'Never']
+      },
+      {
+        id: 'financialConfidenceDating',
+        question: 'How much does your financial situation affect the confidence you bring to dating?',
+        type: 'scale',
+        required: true,
+        options: ['Not at all', 'Slightly', 'Moderately', 'Quite a bit', 'Significantly']
+      },
+      {
+        id: 'financialIncompatibilityTension',
+        question: 'Have you been in a relationship where financial incompatibility was a source of tension?',
         type: 'single',
         required: true,
         options: [
-          'Exceeds expectations',
-          'Meets expectations',
-          'Below expectations',
-          'Unsure'
+          'Yes, it was a major issue',
+          'Yes, a minor issue',
+          'No, not at all',
+          'I haven\'t been in a serious relationship'
         ]
       },
       {
-        id: 'companyHealth',
-        question: 'How would you describe your company\'s financial health?',
+        id: 'commitmentConcerns',
+        question: 'When you think about committing to a partner, what concerns you most?',
         type: 'single',
         required: true,
         options: [
-          'Very strong',
-          'Strong',
-          'Stable',
-          'Some concerns',
-          'Major concerns'
+          'Losing my independence',
+          'Financial entanglement',
+          'Getting hurt again',
+          'Making the wrong choice',
+          'Nothing - I\'m ready to commit',
+          'Not applicable'
         ]
       },
       {
-        id: 'recentLayoffs',
-        question: 'Has your company had recent layoffs?',
-        type: 'single',
+        id: 'friendsInfluenceDating',
+        question: 'How much of your dating behavior is influenced by what your friends or social circle are doing?',
+        type: 'scale',
+        required: true,
+        options: ['Barely at all', 'Slightly', 'Somewhat', 'A fair amount', 'Significantly']
+      },
+      {
+        id: 'honestAboutFinances',
+        question: 'How honest are you with new partners about your financial situation and goals early in a relationship?',
+        type: 'scale',
+        required: true,
+        options: ['Not at all honest', 'Somewhat guarded', 'Neutral', 'Fairly open', 'Completely open']
+      }
+    ]
+  },
+  'layoff-risk': {
+    id: 'layoff-risk',
+    title: 'Layoff Risk Assessment',
+    description: 'Evaluate your job security and career stability',
+    estimatedTime: '5-6 minutes',
+    icon: <User className="w-8 h-8" />,
+    questions: [
+      {
+        id: 'email',
+        question: 'What\'s your email address?',
+        type: 'email',
+        required: true,
+        placeholder: 'your.email@example.com'
+      },
+      {
+        id: 'firstName',
+        question: 'What\'s your first name?',
+        type: 'text',
+        required: true,
+        placeholder: 'Your first name'
+      },
+      {
+        id: 'confidentSurviveCut',
+        question: 'If your company had to cut 20% of its workforce tomorrow, how confident are you that you\'d be in the surviving 80%?',
+        type: 'scale',
+        required: true,
+        options: ['Not confident at all', 'Slightly confident', 'Somewhat confident', 'Fairly confident', 'Very confident']
+      },
+      {
+        id: 'replaceableInstitutionalKnowledge',
+        question: 'How replaceable is your institutional knowledge – the things only you know about your company or role?',
+        type: 'scale',
         required: true,
         options: [
-          'Yes, major layoffs',
-          'Yes, minor layoffs',
-          'No layoffs',
-          'Not sure'
+          'Anyone could do my job quickly',
+          'It would take some ramp-up',
+          'I\'d be hard to replace in the short term',
+          'I\'m very difficult to replace',
+          'Irreplaceable in my current context'
         ]
       },
       {
-        id: 'skillsRelevance',
-        question: 'How relevant are your skills to current market demands?',
+        id: 'trustedColleagueJobSecurityConcerns',
+        question: 'Has a trusted colleague, manager, or mentor ever raised concerns about your job security – even gently?',
         type: 'single',
         required: true,
         options: [
-          'Very relevant',
-          'Somewhat relevant',
-          'Neutral',
-          'Somewhat outdated',
-          'Very outdated'
+          'Yes, explicitly',
+          'Yes, subtly or indirectly',
+          'No, I\'ve only received positive signals',
+          'I don\'t have those kinds of conversations',
+          'I\'m not sure'
+        ]
+      },
+      {
+        id: 'relationshipWithDecisionMakers',
+        question: 'How would you describe your relationship with the decision-makers who would determine layoffs at your company?',
+        type: 'single',
+        required: true,
+        options: [
+          'Strong, I\'m well-known and valued',
+          'Good, they know who I am',
+          'Neutral, they know my name',
+          'Weak, I\'m mostly invisible to leadership',
+          'I don\'t know'
+        ]
+      },
+      {
+        id: 'stepsToReduceLayoffRisk',
+        question: 'Have you taken any concrete steps in the past 6 months to reduce your layoff risk?',
+        type: 'multiple',
+        required: true,
+        options: [
+          'Updated my resume',
+          'Expanded my professional network',
+          'Learned a new in-demand skill',
+          'Had a direct conversation with my manager',
+          'Built visibility with leadership',
+          'No, I haven\'t done any of these'
+        ]
+      },
+      {
+        id: 'incomeExpensesThreeMonths',
+        question: 'How would your income and expenses hold up if you went 3 months without a paycheck?',
+        type: 'single',
+        required: true,
+        options: [
+          'I\'d be fine - I have savings',
+          'I\'d manage but it would be tight',
+          'I\'d struggle significantly',
+          'I\'d be in serious financial trouble within weeks',
+          'I haven\'t thought about it'
+        ]
+      },
+      {
+        id: 'leadershipCommunicateFinancialPressure',
+        question: 'When your company faces financial pressure, does leadership communicate clearly with employees?',
+        type: 'single',
+        required: true,
+        options: [
+          'Yes, very transparently',
+          'Generally yes',
+          'It\'s inconsistent',
+          'Rarely',
+          'Never - we\'re usually the last to know'
+        ]
+      },
+      {
+        id: 'roleMentionedInRestructuring',
+        question: 'How often has your role, budget, or headcount been mentioned in restructuring conversations?',
+        type: 'single',
+        required: true,
+        options: [
+          'Frequently',
+          'A few times',
+          'Once',
+          'Never that I know of',
+          'I wouldn\'t be told'
+        ]
+      },
+      {
+        id: 'jobSearchDurationIfLaidOff',
+        question: 'If you were laid off today, how long would your job search realistically take - not how long you hope it would take?',
+        type: 'single',
+        required: true,
+        options: [
+          'Less than a month',
+          '1-3 months',
+          '3-6 months',
+          '6-12 months',
+          'More than a year'
         ]
       }
     ]
@@ -411,7 +574,7 @@ const assessmentConfigs: Record<AssessmentType, AssessmentConfig> = {
     id: 'vehicle-financial-health',
     title: 'Vehicle Financial Health Assessment',
     description: 'Evaluate your vehicle-related financial wellness and planning',
-    estimatedTime: '4-5 minutes',
+    estimatedTime: '5-6 minutes',
     icon: <User className="w-8 h-8" />,
     questions: [
       {
@@ -429,129 +592,129 @@ const assessmentConfigs: Record<AssessmentType, AssessmentConfig> = {
         placeholder: 'Your first name'
       },
       {
-        id: 'vehicleAge',
-        question: 'How old is your current vehicle?',
+        id: 'researchTotalCostOfOwnership',
+        question: 'When you bought or leased your current vehicle, did you research total cost of ownership (insurance, gas, maintenance) before deciding?',
         type: 'single',
         required: true,
         options: [
-          'Less than 2 years',
-          '2-5 years',
-          '6-10 years',
-          '11-15 years',
-          '16-20 years',
-          'Over 20 years',
+          'Yes, thoroughly',
+          'Yes, but only partially',
+          'I mainly focused on the monthly payment',
+          'No, I didn\'t think about it that way',
           'I don\'t own a vehicle'
         ]
       },
       {
-        id: 'vehicleMileage',
-        question: 'What is your vehicle\'s current mileage?',
+        id: 'twoThousandRepairTomorrow',
+        question: 'If your vehicle needed a $2,000 repair tomorrow, what would you do?',
         type: 'single',
         required: true,
         options: [
-          'Under 50,000 miles',
-          '50,000 - 75,000 miles',
-          '75,000 - 100,000 miles',
-          '100,000 - 150,000 miles',
-          '150,000 - 200,000 miles',
-          'Over 200,000 miles',
-          'I don\'t know'
-        ]
-      },
-      {
-        id: 'maintenanceHistory',
-        question: 'How would you describe your recent maintenance history?',
-        type: 'single',
-        required: true,
-        options: [
-          'Regular maintenance, no major issues',
-          'Some minor repairs, mostly routine maintenance',
-          'Several unexpected repairs in the past year',
-          'Major repairs needed recently',
-          'I don\'t keep track of maintenance',
+          'Pay cash from savings',
+          'Put it on a credit card',
+          'Finance it somehow',
+          'I\'d have to delay the repair',
+          'I\'m not sure',
           'I don\'t own a vehicle'
         ]
       },
       {
-        id: 'monthlyTransportationCosts',
-        question: 'How aware are you of your monthly transportation costs?',
+        id: 'unexpectedRepairsPastYear',
+        question: 'How much has your vehicle cost you in unexpected repairs over the past 12 months?',
         type: 'single',
         required: true,
         options: [
-          'Very aware - I track every expense',
-          'Somewhat aware - I know the major costs',
-          'Generally aware - I have a rough idea',
-          'Not very aware - I don\'t track these costs',
-          'Not aware at all - I don\'t know my costs'
-        ]
-      },
-      {
-        id: 'emergencyFund',
-        question: 'Do you have an emergency fund specifically for vehicle repairs?',
-        type: 'single',
-        required: true,
-        options: [
-          'Yes, I have a dedicated vehicle emergency fund',
-          'Yes, I have a general emergency fund that could cover vehicle repairs',
-          'No, but I have some savings that could help',
-          'No, I don\'t have any emergency savings',
+          'Nothing',
+          'Under $500',
+          '$500-$1,500',
+          '$1,500-$3,000',
+          'Over $3,000',
+          'I don\'t track this',
           'I don\'t own a vehicle'
         ]
       },
       {
-        id: 'vehicleFinancialStress',
-        question: 'How much financial stress do your vehicle costs cause you?',
+        id: 'expenseMostUnderestimate',
+        question: 'Which vehicle expense do you most frequently underestimate or forget to account for?',
         type: 'single',
         required: true,
         options: [
-          'No stress at all',
-          'Minimal stress',
-          'Moderate stress',
-          'Significant stress',
-          'Extreme stress',
+          'Insurance',
+          'Fuel',
+          'Routine maintenance',
+          'Unexpected repairs',
+          'Depreciation',
+          'Registration and taxes',
+          'I account for all of them',
           'I don\'t own a vehicle'
         ]
       },
       {
-        id: 'commuteDistance',
-        question: 'What is your typical daily commute distance?',
+        id: 'vehicleFinancialOrLifestyle',
+        question: 'Be honest: is your current vehicle a financial decision, a lifestyle/status decision, or both?',
         type: 'single',
         required: true,
         options: [
-          'Less than 10 miles round trip',
-          '10-25 miles round trip',
-          '25-50 miles round trip',
-          '50-75 miles round trip',
-          'Over 75 miles round trip',
-          'I work from home',
-          'I don\'t have a regular commute'
-        ]
-      },
-      {
-        id: 'vehicleInsurance',
-        question: 'How would you describe your vehicle insurance and financing situation?',
-        type: 'single',
-        required: true,
-        options: [
-          'Fully paid off, comprehensive insurance',
-          'Making payments, comprehensive insurance',
-          'Fully paid off, basic insurance',
-          'Making payments, basic insurance',
-          'Leasing with insurance included',
+          'Purely financial - it gets me where I need to go',
+          'Mostly financial with some preference',
+          'An equal mix of both',
+          'Mostly about image or lifestyle',
+          'Primarily about image or lifestyle',
           'I don\'t own a vehicle'
         ]
       },
       {
-        id: 'futureVehiclePlanning',
-        question: 'How are you planning for your next vehicle purchase?',
+        id: 'stayedLongerThanShouldHave',
+        question: 'Have you ever stayed in a vehicle longer than you should have because repairs felt cheaper than a new payment - only to spend more in the end?',
         type: 'single',
         required: true,
         options: [
-          'I have a detailed savings plan and timeline',
-          'I have a general savings plan',
-          'I\'m saving some money but no specific plan',
-          'I\'ll figure it out when the time comes',
-          'I plan to finance it when needed',
+          'Yes, that\'s happened to me',
+          'Possibly, I\'m not sure',
+          'No, I\'ve always made good calls',
+          'Not applicable',
+          'I don\'t own a vehicle'
+        ]
+      },
+      {
+        id: 'breakdownAffectIncome',
+        question: 'If your vehicle broke down permanently tomorrow, how would it affect your ability to earn income?',
+        type: 'single',
+        required: true,
+        options: [
+          'I\'d lose my job or income immediately',
+          'It would significantly disrupt my work',
+          'Moderate disruption',
+          'Minimal impact',
+          'No impact - I work remotely or have other options',
+          'I don\'t own a vehicle'
+        ]
+      },
+      {
+        id: 'marketValueAndUnderwater',
+        question: 'Do you know the current market value of your vehicle and whether you owe more than it\'s worth?',
+        type: 'single',
+        required: true,
+        options: [
+          'Yes, I know both and I\'m in good shape',
+          'Yes, and I owe more than it\'s worth (underwater)',
+          'I have a general idea',
+          'No, I haven\'t looked',
+          'I don\'t own a vehicle'
+        ]
+      },
+      {
+        id: 'betterVehicleDecisionNextTime',
+        question: 'What would it take for you to make a fundamentally better vehicle financial decision next time?',
+        type: 'single',
+        required: true,
+        options: [
+          'A clear budget before I shop',
+          'Knowledge of total cost, not just payments',
+          'Less pressure from salespeople or circumstances',
+          'More emergency savings going in',
+          'A plan for my current vehicle before buying',
+          'I\'m already making good decisions',
           'I don\'t plan to buy another vehicle'
         ]
       }
@@ -720,7 +883,8 @@ const AssessmentModal: React.FC<AssessmentModalProps> = ({
         completedAt: new Date().toISOString()
       };
 
-      // Call the API to submit assessment
+      const calculatedResults = calculateAssessmentScore(config.id as import('../utils/assessmentScoring').AssessmentType, assessmentData.answers);
+
       const response = await fetch('/api/assessments', {
         method: 'POST',
         headers: {
@@ -728,7 +892,15 @@ const AssessmentModal: React.FC<AssessmentModalProps> = ({
           'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || 'test-token',
           'X-Requested-With': 'XMLHttpRequest'
         },
-        body: JSON.stringify(assessmentData)
+        body: JSON.stringify({
+          ...assessmentData,
+          calculatedResults: {
+            score: calculatedResults.score,
+            risk_level: calculatedResults.risk_level,
+            recommendations: calculatedResults.recommendations,
+            subscores: calculatedResults.subscores
+          }
+        })
       });
 
       if (!response.ok) {
@@ -741,8 +913,19 @@ const AssessmentModal: React.FC<AssessmentModalProps> = ({
       // Get assessment_id from response
       const assessmentId = apiResponse.assessment_id || parseInt(response.headers.get('X-Assessment-ID') || '0');
       
-      // Use results from API or generate mock results as fallback
-      const results = apiResponse.results || generateMockResults(assessmentData.assessmentType, assessmentData.answers);
+      const scored = calculatedResults;
+      const results = apiResponse.results || {
+        ...scored,
+        assessment_type: assessmentData.assessmentType,
+        completed_at: assessmentData.completedAt,
+        subscores: scored.subscores,
+        percentile: Math.min(95, Math.max(5, scored.score + Math.floor(Math.random() * 20) - 10)),
+        benchmark: {
+          average: Math.max(0, scored.score - 12),
+          high: Math.min(100, scored.score + 18),
+          low: Math.max(0, scored.score - 28)
+        }
+      };
       
       // Add assessment_id to results
       const resultWithId = {
@@ -768,62 +951,6 @@ const AssessmentModal: React.FC<AssessmentModalProps> = ({
       setLoading(false);
     }
   }, [config, answers, onSubmit, onClose]);
-
-  // Generate mock results for demonstration
-  const generateMockResults = (assessmentType: string, _answers: Record<string, any>) => {
-    const baseScore = Math.floor(Math.random() * 40) + 30; // Score between 30-70
-    // const riskLevels = ['Low', 'Medium', 'High'];
-    const riskLevel = baseScore > 60 ? 'High' : baseScore > 40 ? 'Medium' : 'Low';
-    
-    const recommendations: Record<AssessmentType, string[]> = {
-      'ai-risk': [
-        'Develop skills in areas where human judgment is irreplaceable',
-        'Learn to work alongside AI tools rather than compete with them',
-        'Focus on creative problem-solving and emotional intelligence',
-        'Stay updated with AI trends in your industry'
-      ],
-      'income-comparison': [
-        'Research salary benchmarks for your role and location',
-        'Document your achievements and value to the company',
-        'Practice your negotiation skills and timing',
-        'Consider additional certifications or training'
-      ],
-      'cuffing-season': [
-        'Be authentic and genuine in your interactions',
-        'Focus on building meaningful connections',
-        'Work on your communication skills',
-        'Take care of your physical and mental health'
-      ],
-      'layoff-risk': [
-        'Build strong relationships with key stakeholders',
-        'Develop skills that are in high demand',
-        'Create a personal brand and online presence',
-        'Have a backup plan and emergency fund'
-      ],
-      'vehicle-financial-health': [
-        'Create a dedicated vehicle emergency fund',
-        'Track all vehicle-related expenses monthly',
-        'Research and compare insurance options regularly',
-        'Plan ahead for your next vehicle purchase'
-      ]
-    };
-
-    return {
-      score: baseScore,
-      risk_level: riskLevel,
-      recommendations: assessmentType && assessmentType in recommendations 
-        ? recommendations[assessmentType as AssessmentType] 
-        : recommendations['ai-risk'],
-      assessment_type: assessmentType,
-      completed_at: new Date().toISOString(),
-      percentile: Math.floor(Math.random() * 40) + 30,
-      benchmark: {
-        average: baseScore - 10,
-        high: baseScore + 20,
-        low: baseScore - 25
-      }
-    };
-  };
 
   // Handle retaking assessment
   const handleRetake = useCallback(() => {

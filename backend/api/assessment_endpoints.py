@@ -76,12 +76,17 @@ def init_assessment_db():
                 score INTEGER,
                 risk_level TEXT,
                 recommendations TEXT,
+                subscores TEXT,
                 results_sent_at TIMESTAMP,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (assessment_id) REFERENCES assessments (id)
             )
         ''')
-        
+        try:
+            cursor.execute('ALTER TABLE lead_magnet_results ADD COLUMN subscores TEXT')
+            conn.commit()
+        except sqlite3.OperationalError:
+            pass
         conn.commit()
         logger.info("Assessment database initialized successfully")
         
@@ -148,22 +153,39 @@ def submit_assessment():
         
         assessment_id = cursor.lastrowid
         
-        # Calculate and store results
-        results = calculate_assessment_results(sanitized_data['assessmentType'], sanitized_data['answers'])
-        
+        if sanitized_data.get('calculatedResults'):
+            cr = sanitized_data['calculatedResults']
+            results = {
+                'score': cr.get('score', 0),
+                'risk_level': cr.get('risk_level', 'Unknown'),
+                'recommendations': cr.get('recommendations') or [],
+                'subscores': cr.get('subscores')
+            }
+        else:
+            results = calculate_assessment_results(sanitized_data['assessmentType'], sanitized_data['answers'])
+            if not isinstance(results.get('subscores'), dict):
+                results['subscores'] = None
+
+        subscores_json = json.dumps(results['subscores']) if results.get('subscores') else None
         cursor.execute('''
-            INSERT INTO lead_magnet_results (assessment_id, email, assessment_type, score, risk_level, recommendations)
-            VALUES (?, ?, ?, ?, ?, ?)
+            INSERT INTO lead_magnet_results (assessment_id, email, assessment_type, score, risk_level, recommendations, subscores)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
         ''', (
             assessment_id,
-            email_hash,  # Store hashed email
+            email_hash,
             sanitized_data['assessmentType'],
             results['score'],
             results['risk_level'],
-            json.dumps(results['recommendations'])
+            json.dumps(results.get('recommendations') or []),
+            subscores_json
         ))
         
         conn.commit()
+
+        try:
+            sync_assessments_to_profile(sanitized_data['email'])
+        except Exception as sync_err:
+            logger.warning(f"Sync assessments to profile failed: {sync_err}")
         
         # Log analytics (without sensitive data)
         log_assessment_analytics(assessment_id, 'completed', {
@@ -293,6 +315,98 @@ def get_assessment_results(assessment_id):
     finally:
         if 'conn' in locals():
             conn.close()
+
+def compute_financial_readiness_index(scores_by_type):
+    """
+    Compute Financial Readiness Index (FRI) from assessment scores.
+    Weights: AI Risk 0.25, Income Comparison 0.30, Layoff Risk 0.25, Vehicle 0.20.
+    Cuffing Season is excluded (lifestyle, not financial).
+    """
+    weights = {
+        'ai-risk': 0.25,
+        'income-comparison': 0.30,
+        'layoff-risk': 0.25,
+        'vehicle-financial-health': 0.20
+    }
+    total_weight = 0.0
+    weighted_sum = 0.0
+    for atype, weight in weights.items():
+        s = scores_by_type.get(atype)
+        if s is not None:
+            weighted_sum += float(s) * weight
+            total_weight += weight
+    if total_weight <= 0:
+        return None
+    return round((weighted_sum / total_weight), 1)
+
+
+def sync_assessments_to_profile(email):
+    """
+    Fetch all assessments for this email (by hash), build assessment_results and FRI,
+    and update user_profiles. Called after signup or when user completes an assessment.
+    """
+    email_hash = hashlib.sha256(email.lower().strip().encode()).hexdigest()
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('''
+        SELECT a.id, a.assessment_type, a.answers, a.completed_at,
+               lmr.score, lmr.risk_level, lmr.recommendations, lmr.subscores
+        FROM assessments a
+        LEFT JOIN lead_magnet_results lmr ON a.id = lmr.assessment_id
+        WHERE a.email = ?
+        ORDER BY a.completed_at DESC
+    ''', (email_hash,))
+    rows = cursor.fetchall()
+    conn.close()
+    assessment_results = {}
+    scores_by_type = {}
+    for r in rows:
+        aid = r['id']
+        atype = r['assessment_type']
+        answers = json.loads(r['answers']) if r['answers'] else {}
+        assessment_results[str(aid)] = {
+            'completed_at': r['completed_at'] or '',
+            'score': r['score'],
+            'subscores': json.loads(r['subscores']) if r.get('subscores') else None,
+            'answers': answers,
+            'risk_level': r['risk_level'],
+            'recommendations': json.loads(r['recommendations']) if r.get('recommendations') else []
+        }
+        if atype in ('ai-risk', 'income-comparison', 'layoff-risk', 'vehicle-financial-health'):
+            scores_by_type[atype] = r['score']
+    fri = compute_financial_readiness_index(scores_by_type) if len(scores_by_type) >= 2 else None
+    profile_db_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'user_profiles.db'))
+    if not os.path.exists(profile_db_path):
+        return
+    pconn = sqlite3.connect(profile_db_path)
+    pc = pconn.cursor()
+    try:
+        pc.execute(
+            'UPDATE user_profiles SET assessment_results = ?, financial_readiness_index = ?, updated_at = ? WHERE email = ?',
+            (json.dumps(assessment_results), fri, datetime.now().isoformat(), email.lower().strip())
+        )
+        pconn.commit()
+    finally:
+        pconn.close()
+
+
+@assessment_api.route('/assessments/sync-profile', methods=['POST'])
+def sync_profile_assessments():
+    """
+    Sync assessment results to user profile (assessment_results, financial_readiness_index).
+    Call after signup so pre-signup assessments are merged. Body: { "email": "user@example.com" }.
+    """
+    try:
+        data = request.get_json() or {}
+        email = (data.get('email') or '').strip()
+        if not email:
+            return jsonify({'success': False, 'error': 'Email is required'}), 400
+        sync_assessments_to_profile(email)
+        return jsonify({'success': True, 'message': 'Profile synced with assessment results'})
+    except Exception as e:
+        logger.error(f"Error in sync_profile_assessments: {e}")
+        return jsonify({'success': False, 'error': 'Internal server error'}), 500
+
 
 @assessment_api.route('/assessments/analytics', methods=['POST'])
 def track_assessment_analytics():

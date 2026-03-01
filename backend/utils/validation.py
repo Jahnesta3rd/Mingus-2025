@@ -250,9 +250,19 @@ class APIValidator:
             else:
                 sanitized_data['answers'] = APIValidator.sanitize_object(answers)
         
+        # Optional: client-calculated results (score, risk_level, recommendations, subscores)
+        calculated_results = data.get('calculatedResults')
+        if calculated_results is not None and isinstance(calculated_results, dict):
+            sanitized_data['calculatedResults'] = {
+                'score': calculated_results.get('score'),
+                'risk_level': calculated_results.get('risk_level'),
+                'recommendations': calculated_results.get('recommendations'),
+                'subscores': calculated_results.get('subscores')
+            }
+
         # Validate unknown/extra fields (reject fields not in the schema)
         # This helps catch typos and prevents accepting invalid data
-        allowed_fields = {'email', 'firstName', 'phone', 'assessmentType', 'answers'}
+        allowed_fields = {'email', 'firstName', 'phone', 'assessmentType', 'answers', 'completedAt', 'calculatedResults'}
         unknown_fields = set(data.keys()) - allowed_fields
         if unknown_fields:
             # Validate unknown fields for basic type and length issues

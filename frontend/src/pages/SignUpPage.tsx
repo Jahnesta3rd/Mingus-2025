@@ -18,6 +18,7 @@ const SignUpPage: React.FC = () => {
   const [success, setSuccess] = useState(false);
   const [welcomeMessage, setWelcomeMessage] = useState<string | null>(null);
   const [entrySource, setEntrySource] = useState<'assessment' | 'cta' | null>(null);
+  const [prefilledFromAssessment, setPrefilledFromAssessment] = useState(false);
 
   // Redirect authenticated users to dashboard
   useEffect(() => {
@@ -54,12 +55,15 @@ const SignUpPage: React.FC = () => {
     if (savedData) {
       try {
         const { email, firstName, assessmentType: savedType } = JSON.parse(savedData);
+        const hasPrefill = !!(email || firstName);
         setFormData(prev => ({
           ...prev,
           email: email || prev.email,
           firstName: firstName || prev.firstName
         }));
-        
+        if (fromAssessment && hasPrefill) {
+          setPrefilledFromAssessment(true);
+        }
         // Show personalized message based on entry point
         if (fromAssessment && (assessmentType || savedType)) {
           const type = assessmentType || savedType;
@@ -122,6 +126,16 @@ const SignUpPage: React.FC = () => {
         formData.lastName
       );
       setSuccess(true);
+      // Sync pre-signup assessment results to profile (assessment_results, FRI)
+      try {
+        await fetch('/api/assessments/sync-profile', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: formData.email })
+        });
+      } catch {
+        // Non-blocking; profile may not exist yet
+      }
       // Redirect to dashboard after successful registration
       // QuickSetupOverlay will appear if setup is not completed
       setTimeout(() => {
@@ -181,11 +195,15 @@ const SignUpPage: React.FC = () => {
                   name="firstName"
                   type="text"
                   required
-                  className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:border-violet-500 focus:z-10 sm:text-sm"
+                  readOnly={prefilledFromAssessment}
+                  className={`appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:border-violet-500 focus:z-10 sm:text-sm ${prefilledFromAssessment ? 'bg-gray-50 cursor-not-allowed' : ''}`}
                   placeholder="First Name"
                   value={formData.firstName}
                   onChange={handleChange}
                 />
+                {prefilledFromAssessment && formData.firstName && (
+                  <p className="text-xs text-gray-500 mt-0.5">From your assessment</p>
+                )}
               </div>
               <div>
                 <label htmlFor="lastName" className="sr-only">
@@ -211,11 +229,15 @@ const SignUpPage: React.FC = () => {
                   type="email"
                   autoComplete="email"
                   required
-                  className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:border-violet-500 focus:z-10 sm:text-sm"
+                  readOnly={prefilledFromAssessment}
+                  className={`appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:border-violet-500 focus:z-10 sm:text-sm ${prefilledFromAssessment ? 'bg-gray-50 cursor-not-allowed' : ''}`}
                   placeholder="Email address"
                   value={formData.email}
                   onChange={handleChange}
                 />
+                {prefilledFromAssessment && formData.email && (
+                  <p className="text-xs text-gray-500 mt-0.5">From your assessment</p>
+                )}
               </div>
               <div>
                 <label htmlFor="password" className="sr-only">

@@ -63,6 +63,12 @@ def init_profile_database():
             )
         ''')
         
+        for col, typ in [('assessment_results', 'TEXT'), ('financial_readiness_index', 'REAL')]:
+            try:
+                cursor.execute(f'ALTER TABLE user_profiles ADD COLUMN {col} {typ}')
+                conn.commit()
+            except sqlite3.OperationalError:
+                pass
         conn.commit()
         conn.close()
         logger.info("Profile database initialized successfully")
