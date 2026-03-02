@@ -12,6 +12,8 @@ import CareerProtectionDashboard from './pages/CareerProtectionDashboard';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import AuthGuard from './guards/AuthGuard';
 import VibeGuard from './guards/VibeGuard';
+import LandingPage from './components/LandingPage';
+import SignUpPage from './pages/SignUpPage';
 
 const VibeCheckMemeWrapper: React.FC = () => {
   const navigate = useNavigate();
@@ -20,7 +22,9 @@ const VibeCheckMemeWrapper: React.FC = () => {
 
 const router = createBrowserRouter([
   // Public routes
+  { path: '/', element: <LandingPage /> },
   { path: '/login', element: <LoginPage /> },
+  { path: '/signup', element: <SignUpPage /> },
   { path: '/register', element: <RegisterPage /> },
   { path: '/forgot-password', element: <ForgotPasswordPage /> },
 
@@ -66,8 +70,7 @@ const router = createBrowserRouter([
 
   // Redirects
   { path: '/career-dashboard', element: <Navigate to="/dashboard" replace /> },
-  { path: '/', element: <Navigate to="/dashboard" replace /> },
-  { path: '*', element: <Navigate to="/dashboard" replace /> },
+  { path: '*', element: <Navigate to="/" replace /> },
 ]);
 
 function App() {
