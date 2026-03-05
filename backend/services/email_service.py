@@ -44,7 +44,8 @@ class EmailService:
             'ai-risk': 'AI Replacement Risk Assessment',
             'income-comparison': 'Income Comparison Assessment',
             'cuffing-season': 'Cuffing Season Score',
-            'layoff-risk': 'Layoff Risk Assessment'
+            'layoff-risk': 'Layoff Risk Assessment',
+            'vehicle-financial-health': 'Vehicle Financial Health Assessment'
         }
         return titles.get(assessment_type, 'Assessment')
 
@@ -226,6 +227,10 @@ class EmailService:
             'layoff-risk': {
                 'interpretation': f"Your score of {score} suggests a {risk_level.lower()} risk of layoff based on current market conditions and your role.",
                 'next_steps': "Build strong relationships with key stakeholders, develop in-demand skills, and create a personal brand. Consider having a backup plan and emergency fund."
+            },
+            'vehicle-financial-health': {
+                'interpretation': f"Your vehicle financial health score of {score} indicates {risk_level.lower()} based on your vehicle costs and planning.",
+                'next_steps': "Create a dedicated vehicle emergency fund, track all vehicle-related expenses monthly, and plan ahead for your next vehicle purchase."
             }
         }
         

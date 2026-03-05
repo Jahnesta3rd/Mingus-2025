@@ -7,6 +7,9 @@ Integrated Flask application with all API endpoints and security features
 import os
 import sys
 
+# Avoid NumPy FPE on macOS when NumPy runs _mac_os_check (polyfit/inv) at first import
+os.environ.setdefault("NPY_DISABLE_CPU_FEATURES", "AVX512,AVX2")
+
 # Ensure repo root is on path first so "backend.*" imports work (e.g. under gunicorn/nohup)
 _REPO_ROOT = os.path.dirname(os.path.abspath(__file__))
 if _REPO_ROOT not in sys.path:
@@ -21,9 +24,13 @@ from flask_cors import CORS
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from dotenv import load_dotenv
+import stripe
 
 # Load environment variables
 load_dotenv()
+
+# Configure Stripe
+stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
 
 # Add backend directory to Python path (for any imports that expect backend on path)
 sys.path.append(os.path.join(_REPO_ROOT, 'backend'))
@@ -119,7 +126,12 @@ app.config.update(
 )
 
 # Configure CORS for all endpoints including new assessment endpoints
-CORS_ORIGINS = os.environ.get('CORS_ORIGINS', 'http://localhost:3000,http://localhost:5173,http://127.0.0.1:3000').split(',')
+CORS_ORIGINS_RAW = os.environ.get('CORS_ORIGINS', 'http://localhost:3000,http://localhost:5173,http://127.0.0.1:3000')
+CORS_ORIGINS = [o.strip() for o in CORS_ORIGINS_RAW.split(',') if o.strip()]
+# Always allow test frontend origin (in case env is not updated on server)
+_TEST_ORIGIN = 'https://test.mingusapp.com'
+if _TEST_ORIGIN not in CORS_ORIGINS:
+    CORS_ORIGINS.append(_TEST_ORIGIN)
 CORS_METHODS = os.environ.get('CORS_METHODS', 'GET,POST,PUT,DELETE,OPTIONS').split(',')
 CORS_HEADERS = os.environ.get('CORS_HEADERS', 'Content-Type,Authorization,X-CSRF-Token,X-Requested-With').split(',')
 
@@ -130,9 +142,10 @@ is_development = os.environ.get('FLASK_ENV', 'development') == 'development'
 # In development, be more permissive for testing and load testing
 if is_development:
     # Development: Allow specific origins with credentials support for cookie-based auth
+    dev_origins = ["http://localhost:5173", "http://localhost:3000", "http://127.0.0.1:5173", "http://127.0.0.1:3000", "https://test.mingusapp.com"]
     CORS(app, 
          resources={r"/*": {
-             "origins": ["http://localhost:5173", "http://localhost:3000", "http://127.0.0.1:5173", "http://127.0.0.1:3000"],
+             "origins": dev_origins,
              "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
              "allow_headers": "*",  # Allow all headers in development
              "supports_credentials": True,  # Enable credentials for httpOnly cookies
@@ -792,6 +805,25 @@ def get_error_health():
         'stats': stats,
         'timestamp': datetime.now().isoformat()
     })
+
+# Stripe payment intent endpoint (POST for create, OPTIONS for CORS preflight)
+@app.route('/api/create-payment-intent', methods=['POST', 'OPTIONS'])
+def create_payment_intent():
+    """Create a Stripe PaymentIntent and return its client secret."""
+    if request.method == 'OPTIONS':
+        return '', 204
+    data = request.get_json() or {}
+    if "amount" not in data:
+        return jsonify({"error": "Missing 'amount' in request body"}), 400
+
+    try:
+        intent = stripe.PaymentIntent.create(
+            amount=data["amount"],  # amount in cents
+            currency="usd",
+        )
+        return jsonify({"clientSecret": intent["client_secret"]})
+    except stripe.error.StripeError as e:
+        return jsonify({"error": str(e)}), 400
 
 # Serve meme images (GIF/PNG) from static/memes/ for vibe-check and meme features
 _MEMES_DIR = os.path.join(os.path.dirname(__file__), 'static', 'memes')

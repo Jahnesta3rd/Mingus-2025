@@ -63,7 +63,7 @@ class APIValidator:
     @staticmethod
     def validate_assessment_type(assessment_type: str) -> tuple[bool, str]:
         """Validate assessment type"""
-        valid_types = ['ai-risk', 'income-comparison', 'cuffing-season', 'layoff-risk']
+        valid_types = ['ai-risk', 'income-comparison', 'cuffing-season', 'layoff-risk', 'vehicle-financial-health']
         
         if not assessment_type or not isinstance(assessment_type, str):
             return False, "Assessment type is required"

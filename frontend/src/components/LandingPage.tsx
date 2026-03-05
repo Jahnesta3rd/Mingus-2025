@@ -497,7 +497,7 @@ const LandingPage: React.FC = () => {
             </div>
             
             {/* Assessment Cards Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
               {/* AI Replacement Risk */}
               <button
                 onClick={() => setActiveAssessment('ai-risk')}
@@ -579,6 +579,28 @@ const LandingPage: React.FC = () => {
                 <h3 className="text-lg font-semibold text-white mb-2">Layoff Risk</h3>
                 <p className="text-sm text-gray-400 mb-3">
                   Assess your job security and prepare for potential market changes.
+                </p>
+                <div className="flex items-center text-xs text-gray-500">
+                  <Clock className="h-4 w-4 mr-1" />
+                  <span>4-5 minutes</span>
+                </div>
+              </button>
+
+              {/* Vehicle Financial Health */}
+              <button
+                onClick={() => setActiveAssessment('vehicle-financial-health')}
+                className="group bg-gray-800 hover:bg-gray-700 border border-gray-700 hover:border-violet-500 rounded-xl p-6 text-left transition-all duration-300 transform hover:scale-105"
+                aria-label="Start Vehicle Financial Health Assessment"
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <Car className="h-8 w-8 text-violet-400 group-hover:text-violet-300" />
+                  <span className="bg-green-500/20 text-green-400 text-xs font-semibold px-2 py-1 rounded-full">
+                    FREE
+                  </span>
+                </div>
+                <h3 className="text-lg font-semibold text-white mb-2">Vehicle Financial Health</h3>
+                <p className="text-sm text-gray-400 mb-3">
+                  Understand how your vehicle costs affect your finances and plan for the road ahead.
                 </p>
                 <div className="flex items-center text-xs text-gray-500">
                   <Clock className="h-4 w-4 mr-1" />

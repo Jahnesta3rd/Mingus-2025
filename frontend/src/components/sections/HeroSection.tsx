@@ -59,7 +59,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
             </p>
             
             {/* Lead Magnet CTAs */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-6 sm:mb-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4 mb-6 sm:mb-8">
               <button 
                 onClick={() => scrollToAssessment('ai-risk')}
                 onKeyDown={(e) => handleKeyDown(e, 'ai-risk')}
@@ -124,6 +124,22 @@ const HeroSection: React.FC<HeroSectionProps> = ({
                   {isLoading ? 'Loading...' : 'Determine Your Layoff Risk'}
                 </span>
               </button>
+              <button 
+                onClick={() => scrollToAssessment('vehicle-financial-health')}
+                onKeyDown={(e) => handleKeyDown(e, 'vehicle-financial-health')}
+                disabled={isLoading}
+                aria-label="Determine Your Vehicle Financial Health"
+                aria-describedby="vehicle-financial-health-description"
+                className="group bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 disabled:from-amber-500 disabled:to-orange-500 text-white px-4 sm:px-6 py-3 sm:py-4 rounded-lg text-base sm:text-lg font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-xl hover:shadow-amber-500/25 flex items-center justify-center hover:-translate-y-1 disabled:scale-100 disabled:translate-y-0 disabled:cursor-not-allowed focus-ring focus-visible:ring-4 focus-visible:ring-amber-400 focus-visible:ring-offset-4 focus-visible:ring-offset-gray-900"
+                type="button"
+              >
+                {isLoading && (
+                  <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-b-2 border-white mr-2"></div>
+                )}
+                <span className="text-sm sm:text-base">
+                  {isLoading ? 'Loading...' : 'Vehicle Financial Health'}
+                </span>
+              </button>
             </div>
             
             {/* Hidden descriptions for accessibility */}
@@ -139,6 +155,9 @@ const HeroSection: React.FC<HeroSectionProps> = ({
               </div>
               <div id="layoff-risk-description">
                 Determine your layoff risk with our comprehensive job security assessment that analyzes industry trends, company stability, and your personal risk factors.
+              </div>
+              <div id="vehicle-financial-health-description">
+                Evaluate your vehicle financial health with our assessment that looks at total cost of ownership, emergency readiness, and planning for your next vehicle.
               </div>
             </div>
           </div>

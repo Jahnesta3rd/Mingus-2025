@@ -1,0 +1,26 @@
+[Unit]
+Description=Mingus Test (test.mingusapp.com)
+After=network.target
+# Add other After= if needed (e.g. postgresql.service redis.service)
+
+[Service]
+Type=notify
+User=mingus-app
+Group=mingus-app
+WorkingDirectory=/var/www/mingus
+Environment="PATH=/var/www/mingus/venv/bin"
+# Set these from a secure env file or systemd drop-in; do not commit real keys.
+# Environment="STRIPE_SECRET_KEY=sk_test_..."
+# Environment="STRIPE_PUBLISHABLE_KEY=pk_test_..."
+Environment="DATABASE_URL=sqlite:////var/www/mingus/instance/mingus_vehicles.db"
+# CORS: allow test frontend and common dev origins (app.py also appends https://test.mingusapp.com if missing)
+Environment="CORS_ORIGINS=http://159.65.160.106,http://localhost:3000,http://localhost:5173,https://test.mingusapp.com"
+
+# Gunicorn/uvicorn/ExecStart as used on the droplet
+# ExecStart=...
+
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

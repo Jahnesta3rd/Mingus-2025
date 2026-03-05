@@ -480,6 +480,7 @@ const AssessmentResults: React.FC<AssessmentResultsProps> = ({
               Your {result.assessment_type === 'ai-risk' ? 'AI risk score' : 
                     result.assessment_type === 'income-comparison' ? 'income positioning' :
                     result.assessment_type === 'layoff-risk' ? 'job security score' :
+                    result.assessment_type === 'vehicle-financial-health' ? 'vehicle financial health score' :
                     'readiness score'} directly impacts your financial forecast. 
               Sign up to see personalized projections and actionable insights.
             </p>
@@ -516,12 +517,12 @@ const AssessmentResults: React.FC<AssessmentResultsProps> = ({
                   }));
                   onClose();
                   setTimeout(() => {
-                    navigate(`/signup?from=assessment&type=${result.assessment_type}`);
+                    navigate(`/checkout?from=assessment&type=${result.assessment_type}`);
                   }, 100);
                 }}
                 className="px-8 py-3 bg-violet-600 hover:bg-violet-500 text-white font-semibold rounded-lg transition-colors text-center"
               >
-                Sign Up Free
+                Continue to Sign Up
               </button>
               
               <button
