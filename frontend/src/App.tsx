@@ -13,7 +13,8 @@ import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import AuthGuard from './guards/AuthGuard';
 import VibeGuard from './guards/VibeGuard';
 import LandingPage from './components/LandingPage';
-import SignUpPage from './pages/SignUpPage';
+import SignupPage from './pages/SignupPage';
+import CheckoutPage from './pages/CheckoutPage';
 
 const VibeCheckMemeWrapper: React.FC = () => {
   const navigate = useNavigate();
@@ -24,9 +25,10 @@ const router = createBrowserRouter([
   // Public routes
   { path: '/', element: <LandingPage /> },
   { path: '/login', element: <LoginPage /> },
-  { path: '/signup', element: <SignUpPage /> },
+  { path: '/signup', element: <SignupPage /> },
   { path: '/register', element: <RegisterPage /> },
   { path: '/forgot-password', element: <ForgotPasswordPage /> },
+  { path: '/checkout', element: <CheckoutPage /> },
 
   // Logo splash (first stop after login)
   {

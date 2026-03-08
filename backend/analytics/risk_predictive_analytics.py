@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Risk Predictive Analytics for Career Protection System
+"""Risk Predictive Analytics for Career Protection System.
 
 This module provides predictive analytics capabilities for forecasting career risks,
 identifying emerging risk patterns, and generating proactive insights for career
@@ -14,6 +13,7 @@ Features:
 - Predictive model accuracy tracking
 - Automated risk pattern analysis
 """
+from __future__ import annotations
 
 import sqlite3
 import json
@@ -21,24 +21,36 @@ import logging
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Any, Tuple
 from dataclasses import dataclass, asdict
-try:
-    import numpy as np
-    from sklearn.ensemble import RandomForestRegressor, IsolationForest
-    from sklearn.linear_model import LinearRegression
-    from sklearn.preprocessing import StandardScaler
-    from sklearn.metrics import mean_squared_error, r2_score
-    import pandas as pd
-    import warnings
-    warnings.filterwarnings('ignore')
-except ImportError:
-    # Fallback for testing without sklearn/pandas
-    print("Warning: sklearn/pandas not available. Some features will be limited.")
-    np = None
-    RandomForestRegressor = None
-    IsolationForest = None
-    LinearRegression = None
-    StandardScaler = None
-    pd = None
+
+# Lazy ML imports to avoid NumPy's _mac_os_check FPE at app startup on some macOS/Anaconda setups
+np = None
+RandomForestRegressor = None
+IsolationForest = None
+LinearRegression = None
+StandardScaler = None
+mean_squared_error = None
+r2_score = None
+pd = None
+
+def _ensure_ml():
+    global np, RandomForestRegressor, IsolationForest, LinearRegression, StandardScaler
+    global mean_squared_error, r2_score, pd
+    if np is not None:
+        return
+    try:
+        import numpy as _np
+        from sklearn.ensemble import RandomForestRegressor as _RF, IsolationForest as _IF
+        from sklearn.linear_model import LinearRegression as _LR
+        from sklearn.preprocessing import StandardScaler as _SS
+        from sklearn.metrics import mean_squared_error as _mse, r2_score as _r2
+        import pandas as _pd
+        import warnings
+        warnings.filterwarnings('ignore')
+        np, RandomForestRegressor, IsolationForest = _np, _RF, _IF
+        LinearRegression, StandardScaler = _LR, _SS
+        mean_squared_error, r2_score, pd = _mse, _r2, _pd
+    except ImportError:
+        logger.warning("sklearn/pandas not available. Some risk predictive features will be limited.")
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -82,9 +94,18 @@ class RiskPredictiveAnalytics:
         self.db_path = db_path
         self.models = {}
         self.scalers = {}
+        self._models_initialized = False
         self._init_database()
-        self._init_models()
+        # Defer _init_models() to first use to avoid NumPy/sklearn import at app startup
         logger.info("RiskPredictiveAnalytics initialized successfully")
+
+    def _ensure_models(self):
+        """Load ML deps and init models on first use (avoids NumPy FPE at startup)."""
+        if self._models_initialized:
+            return
+        _ensure_ml()
+        self._init_models()
+        self._models_initialized = True
     
     def _init_database(self):
         """Initialize the analytics database with required tables for risk forecasting."""
@@ -221,6 +242,7 @@ class RiskPredictiveAnalytics:
     
     def _init_models(self):
         """Initialize predictive models"""
+        _ensure_ml()
         try:
             if RandomForestRegressor is None:
                 logger.warning("ML libraries not available. Using simplified models.")
@@ -287,6 +309,7 @@ class RiskPredictiveAnalytics:
         Returns:
             List of RiskForecast objects
         """
+        self._ensure_models()
         try:
             forecasts = []
             
@@ -437,6 +460,7 @@ class RiskPredictiveAnalytics:
         Returns:
             Dictionary containing heat map data
         """
+        self._ensure_models()
         try:
             conn = sqlite3.connect(self.db_path)
             cursor = conn.cursor()
@@ -494,6 +518,7 @@ class RiskPredictiveAnalytics:
         Returns:
             Dictionary containing accuracy metrics
         """
+        self._ensure_models()
         try:
             conn = sqlite3.connect(self.db_path)
             cursor = conn.cursor()

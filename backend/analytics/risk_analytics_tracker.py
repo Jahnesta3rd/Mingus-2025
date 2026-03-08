@@ -23,7 +23,11 @@ from typing import Dict, List, Optional, Any, Tuple
 from dataclasses import dataclass, asdict
 from enum import Enum
 import statistics
-import numpy as np
+
+# Lazy import to avoid NumPy's _mac_os_check FPE at app startup on some macOS/Anaconda setups
+def _np():
+    import numpy as np
+    return np
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -177,7 +181,7 @@ class RiskAnalyticsTracker:
             ] if score is not None]
             
             if risk_scores:
-                overall_risk_score = np.mean(risk_scores)
+                overall_risk_score = _np().mean(risk_scores)
             else:
                 # Fallback calculation based on risk factors
                 overall_risk_score = self._calculate_risk_score_from_factors(risk_factors)

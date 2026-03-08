@@ -373,6 +373,14 @@ class UserBehaviorAnalytics:
         Returns:
             bool: Success status
         """
+        # DB CHECK constraint only allows specific types; map others to form_submit to avoid failure
+        _allowed = frozenset({
+            'page_view', 'button_click', 'form_submit', 'scroll_depth', 'time_on_page',
+            'recommendation_view', 'recommendation_click', 'application_start',
+            'application_complete', 'share', 'bookmark'
+        })
+        if interaction_type not in _allowed:
+            interaction_type = 'form_submit'
         try:
             interaction = UserInteraction(
                 session_id=session_id,
@@ -384,25 +392,31 @@ class UserBehaviorAnalytics:
                 interaction_data=json.dumps(interaction_data or {})
             )
             
-            conn = sqlite3.connect(self.db_path)
-            cursor = conn.cursor()
-            
-            cursor.execute('''
-                INSERT INTO user_interactions (
-                    session_id, user_id, interaction_type, page_url,
-                    element_id, element_text, interaction_data
-                ) VALUES (?, ?, ?, ?, ?, ?, ?)
-            ''', (
-                interaction.session_id, interaction.user_id, interaction.interaction_type,
-                interaction.page_url, interaction.element_id, interaction.element_text,
-                interaction.interaction_data
-            ))
-            
-            conn.commit()
-            conn.close()
-            
-            logger.debug(f"Tracked interaction: {interaction_type} for session {session_id}")
-            return True
+            conn = sqlite3.connect(self.db_path, timeout=5.0)
+            try:
+                cursor = conn.cursor()
+                for attempt in range(3):
+                    try:
+                        cursor.execute('''
+                            INSERT INTO user_interactions (
+                                session_id, user_id, interaction_type, page_url,
+                                element_id, element_text, interaction_data
+                            ) VALUES (?, ?, ?, ?, ?, ?, ?)
+                        ''', (
+                            interaction.session_id, interaction.user_id, interaction.interaction_type,
+                            interaction.page_url, interaction.element_id, interaction.element_text,
+                            interaction.interaction_data
+                        ))
+                        conn.commit()
+                        logger.debug(f"Tracked interaction: {interaction_type} for session {session_id}")
+                        return True
+                    except sqlite3.OperationalError as oe:
+                        if 'locked' in str(oe).lower() and attempt < 2:
+                            time.sleep(0.2 * (attempt + 1))
+                            continue
+                        raise
+            finally:
+                conn.close()
             
         except Exception as e:
             logger.error(f"Error tracking user interaction: {e}")

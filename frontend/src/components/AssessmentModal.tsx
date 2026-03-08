@@ -908,6 +908,8 @@ const AssessmentModal: React.FC<AssessmentModalProps> = ({
           assessment_id: undefined,
           assessment_type: assessmentData.assessmentType,
           completed_at: assessmentData.completedAt,
+          email: assessmentData.email,
+          firstName: assessmentData.firstName ?? '',
           percentile: Math.min(95, Math.max(5, calculatedResults.score + Math.floor(Math.random() * 20) - 10)),
           benchmark: {
             average: Math.max(0, calculatedResults.score - 12),
@@ -921,8 +923,11 @@ const AssessmentModal: React.FC<AssessmentModalProps> = ({
         return;
       }
 
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 45000); // 45s: avoid hanging forever if backend is down/OOM
       const response = await fetch('/api/assessments', {
         method: 'POST',
+        signal: controller.signal,
         headers: {
           'Content-Type': 'application/json',
           'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || 'test-token',
@@ -938,6 +943,7 @@ const AssessmentModal: React.FC<AssessmentModalProps> = ({
           }
         })
       });
+      clearTimeout(timeoutId);
 
       if (isVehicle) {
         console.log('API response', { ok: response.ok, status: response.status, statusText: response.statusText });
@@ -968,12 +974,14 @@ const AssessmentModal: React.FC<AssessmentModalProps> = ({
         }
       };
       
-      // Add assessment_id to results
+      // Add assessment_id and signup prefill to results
       const resultWithId = {
         ...results,
         assessment_id: assessmentId,
         assessment_type: assessmentData.assessmentType,
-        completed_at: assessmentData.completedAt
+        completed_at: assessmentData.completedAt,
+        email: assessmentData.email,
+        firstName: assessmentData.firstName ?? ''
       };
 
       if (isVehicle) console.log('Setting results (success path)', resultWithId);
@@ -997,6 +1005,8 @@ const AssessmentModal: React.FC<AssessmentModalProps> = ({
           assessment_id: undefined,
           assessment_type: assessmentData.assessmentType,
           completed_at: assessmentData.completedAt,
+          email: assessmentData.email,
+          firstName: assessmentData.firstName ?? '',
           percentile: Math.min(95, Math.max(5, calculatedResults.score + Math.floor(Math.random() * 20) - 10)),
           benchmark: {
             average: Math.max(0, calculatedResults.score - 12),

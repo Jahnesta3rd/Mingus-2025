@@ -10,6 +10,8 @@ export interface AssessmentResult {
   recommendations: string[];
   assessment_type: string;
   completed_at: string;
+  email?: string;
+  firstName?: string;
   percentile?: number;
   benchmark?: {
     average: number;
@@ -508,16 +510,19 @@ const AssessmentResults: React.FC<AssessmentResultsProps> = ({
 
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <button
+                data-testid="continue-to-sign-up"
                 onClick={() => {
-                  // Store assessment results for pre-fill
                   localStorage.setItem('assessmentResults', JSON.stringify({
                     type: result.assessment_type,
                     score: Math.round(result.score),
                     completedAt: new Date().toISOString()
                   }));
                   onClose();
+                  const params = new URLSearchParams({ from: 'assessment', type: result.assessment_type });
+                  if (result.email) params.set('email', result.email);
+                  if (result.firstName) params.set('firstName', result.firstName);
                   setTimeout(() => {
-                    navigate(`/checkout?from=assessment&type=${result.assessment_type}`);
+                    navigate(`/signup?${params.toString()}`);
                   }, 100);
                 }}
                 className="px-8 py-3 bg-violet-600 hover:bg-violet-500 text-white font-semibold rounded-lg transition-colors text-center"

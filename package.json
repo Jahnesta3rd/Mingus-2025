@@ -11,6 +11,7 @@
     "start": "python app.py"
   },
   "devDependencies": {
+    "@playwright/test": "^1.58.2",
     "autoprefixer": "^10.4.21",
     "cypress": "^15.9.0",
     "postcss": "^8.5.6",

@@ -105,20 +105,19 @@ def register():
             logger.warning("No data provided in registration request")
             return jsonify({'success': False, 'error': 'No data provided'}), 400
         
-        # Validate required fields
+        # Validate required fields (accept firstName for signup flow)
         email = data.get('email', '').strip().lower()
         password = data.get('password', '')
-        first_name = data.get('first_name', '').strip()
-        last_name = data.get('last_name', '').strip()
+        first_name = (data.get('first_name') or data.get('firstName') or '').strip()
+        last_name = (data.get('last_name') or data.get('lastName') or '').strip()
+        if not first_name:
+            first_name = 'User'
         
         if not email:
             return jsonify({'success': False, 'error': 'Email is required'}), 400
         
         if not password:
             return jsonify({'success': False, 'error': 'Password is required'}), 400
-        
-        if not first_name:
-            return jsonify({'success': False, 'error': 'First name is required'}), 400
         
         # Validate email format
         if '@' not in email or '.' not in email.split('@')[1]:
@@ -131,7 +130,7 @@ def register():
         # Check if user already exists
         existing_user = User.query.filter_by(email=email).first()
         if existing_user:
-            return jsonify({'success': False, 'error': 'User with this email already exists'}), 409
+            return jsonify({'success': False, 'error': 'Email already registered'}), 409
         
         # Generate unique user_id
         user_id = str(uuid.uuid4())
@@ -160,9 +159,11 @@ def register():
         
         logger.info(f"User registered successfully: {email}")
         
-        # Create response without token in JSON
+        # Create response with token and user for frontend (cookie also set below)
         response = jsonify({
             'success': True,
+            'token': token,
+            'user': {'email': email, 'firstName': first_name},
             'user_id': user_id,
             'email': email,
             'name': first_name,

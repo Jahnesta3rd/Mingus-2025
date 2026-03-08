@@ -35,7 +35,7 @@ class EmailService:
             return self._send_email(email, subject, html_content, text_content)
             
         except Exception as e:
-            logger.error(f"Error sending assessment results email: {e}")
+            logger.exception("Error sending assessment results email: %s", e)
             return False
 
     def _get_assessment_title(self, assessment_type: str) -> str:
@@ -272,7 +272,7 @@ class EmailService:
                 return True
                 
         except Exception as e:
-            logger.error(f"Failed to send email to {to_email}: {e}")
+            logger.exception("Failed to send email to %s: %s", to_email, e)
             return False
 
     def send_welcome_email(self, email: str, first_name: str) -> bool:

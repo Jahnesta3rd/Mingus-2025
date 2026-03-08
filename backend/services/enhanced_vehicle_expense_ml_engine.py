@@ -21,21 +21,29 @@ from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Any, Tuple
 from dataclasses import dataclass, asdict
 from enum import Enum
-import numpy as np
 
-# ML Libraries with fallback
-try:
-    from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
-    from sklearn.linear_model import LogisticRegression, LinearRegression
-    from sklearn.preprocessing import StandardScaler, LabelEncoder
-    from sklearn.model_selection import train_test_split
-    from sklearn.metrics import accuracy_score, classification_report, mean_squared_error
-    from sklearn.feature_extraction.text import TfidfVectorizer
-    import pandas as pd
-    ML_AVAILABLE = True
-except ImportError:
-    ML_AVAILABLE = False
-    print("Warning: ML libraries not available. Using rule-based fallback.")
+# Lazy ML imports to avoid NumPy's _mac_os_check FPE at app startup on some macOS/Anaconda setups
+np = None
+ML_AVAILABLE = None
+
+def _ensure_ml():
+    global np, ML_AVAILABLE
+    if ML_AVAILABLE is not None:
+        return
+    try:
+        import numpy as _np
+        from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
+        from sklearn.linear_model import LogisticRegression, LinearRegression
+        from sklearn.preprocessing import StandardScaler, LabelEncoder
+        from sklearn.model_selection import train_test_split
+        from sklearn.metrics import accuracy_score, classification_report, mean_squared_error
+        from sklearn.feature_extraction.text import TfidfVectorizer
+        import pandas as pd
+        np = _np
+        ML_AVAILABLE = True
+    except ImportError:
+        ML_AVAILABLE = False
+        logger.warning("ML libraries not available. Using rule-based fallback.")
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -111,10 +119,10 @@ class EnhancedVehicleExpenseMLEngine:
     
     def __init__(self, db_path: str = "backend/mingus_vehicles.db", 
                  profile_db_path: str = "user_profiles.db"):
-        """Initialize the enhanced ML engine"""
+        """Initialize the enhanced ML engine (ML libs loaded on first use to avoid NumPy FPE at startup)."""
         self.db_path = db_path
         self.profile_db_path = profile_db_path
-        self.ml_available = ML_AVAILABLE
+        self.ml_available = ML_AVAILABLE  # None until _ensure_ml() is called
         
         # ML Models
         self.categorization_model = None

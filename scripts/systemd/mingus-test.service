@@ -16,8 +16,7 @@ Environment="DATABASE_URL=sqlite:////var/www/mingus/instance/mingus_vehicles.db"
 # CORS: allow test frontend and common dev origins (app.py also appends https://test.mingusapp.com if missing)
 Environment="CORS_ORIGINS=http://159.65.160.106,http://localhost:3000,http://localhost:5173,https://test.mingusapp.com"
 
-# Gunicorn/uvicorn/ExecStart as used on the droplet
-# ExecStart=...
+ExecStart=/var/www/mingus/venv/bin/gunicorn -w 1 -b 127.0.0.1:5000 app:app
 
 Restart=always
 RestartSec=10

@@ -157,7 +157,7 @@ def submit_assessment():
             cr = sanitized_data['calculatedResults']
             results = {
                 'score': cr.get('score', 0),
-                'risk_level': cr.get('risk_level', 'Unknown'),
+                'risk_level': cr.get('risk_level') or cr.get('health_level', 'Unknown'),
                 'recommendations': cr.get('recommendations') or [],
                 'subscores': cr.get('subscores')
             }
@@ -165,6 +165,7 @@ def submit_assessment():
             results = calculate_assessment_results(sanitized_data['assessmentType'], sanitized_data['answers'])
             if not isinstance(results.get('subscores'), dict):
                 results['subscores'] = None
+        results.setdefault('risk_level', results.get('health_level', 'Unknown'))
 
         subscores_json = json.dumps(results['subscores']) if results.get('subscores') else None
         cursor.execute('''
@@ -197,32 +198,40 @@ def submit_assessment():
         
         logger.info(f"Assessment submitted successfully: {assessment_id}")
         
-        # Send immediate results email
-        try:
-            email_service = EmailService()
-            email_sent = email_service.send_assessment_results(
-                email=sanitized_data['email'],
-                first_name=sanitized_data.get('firstName', 'there'),
-                assessment_type=sanitized_data['assessmentType'],
-                results=results,
-                recommendations=results.get('recommendations', [])
-            )
-            
-            if email_sent:
-                logger.info(f"Results email sent successfully to {sanitized_data['email']}")
-            else:
-                logger.warning(f"Failed to send results email to {sanitized_data['email']}")
-                
-        except Exception as email_error:
-            logger.error(f"Error sending results email: {email_error}")
-            # Don't fail the assessment submission if email fails
+        # Send immediate results email (never fail the request if email fails)
+        # Skip sending in test env so e2e/suite tests don't hit SMTP or crash the worker
+        email_sent = False
+        is_testing = (
+            os.environ.get('FLASK_ENV') == 'testing'
+            or os.environ.get('TESTING', '').lower() in ('1', 'true', 'yes')
+            or (current_app.config.get('TESTING') if current_app else False)
+        )
+        if not is_testing:
+            try:
+                email_service = EmailService()
+                email_sent = email_service.send_assessment_results(
+                    email=sanitized_data['email'],
+                    first_name=sanitized_data.get('firstName', 'there'),
+                    assessment_type=sanitized_data['assessmentType'],
+                    results=results,
+                    recommendations=results.get('recommendations', [])
+                )
+                if email_sent:
+                    logger.info(f"Results email sent successfully to {sanitized_data['email']}")
+                else:
+                    logger.warning(f"Failed to send results email to {sanitized_data['email']}")
+            except Exception as email_error:
+                logger.exception("Error sending results email: %s", email_error)
+                email_sent = False
+        else:
+            logger.info("Skipping results email (TESTING/FLASK_ENV=testing)")
         
         response = jsonify({
             'success': True,
             'assessment_id': assessment_id,
             'results': results,
             'message': 'Assessment submitted successfully',
-            'email_sent': email_sent if 'email_sent' in locals() else False
+            'email_sent': email_sent
         })
         response.headers['X-Assessment-ID'] = str(assessment_id)
         return response
@@ -231,7 +240,7 @@ def submit_assessment():
         logger.warning(f"Bad request in submit_assessment: {e}")
         return jsonify({'success': False, 'error': str(e)}), 400
     except Exception as e:
-        logger.error(f"Error in submit_assessment: {e}")
+        logger.exception("Error in submit_assessment: %s", e)
         return jsonify({'success': False, 'error': 'Internal server error'}), 500
     finally:
         if 'conn' in locals():
@@ -360,20 +369,32 @@ def sync_assessments_to_profile(email):
     conn.close()
     assessment_results = {}
     scores_by_type = {}
-    for r in rows:
+    for row in rows:
+        r = dict(row)  # sqlite3.Row has no .get(); convert so r.get() works
         aid = r['id']
         atype = r['assessment_type']
-        answers = json.loads(r['answers']) if r['answers'] else {}
+        raw_answers = r.get('answers')
+        answers = json.loads(raw_answers) if raw_answers else {}
+        raw_rec = r.get('recommendations')
+        raw_sub = r.get('subscores')
+        try:
+            recs = json.loads(raw_rec) if raw_rec else []
+        except (TypeError, ValueError):
+            recs = []
+        try:
+            subs = json.loads(raw_sub) if raw_sub else None
+        except (TypeError, ValueError):
+            subs = None
         assessment_results[str(aid)] = {
-            'completed_at': r['completed_at'] or '',
-            'score': r['score'],
-            'subscores': json.loads(r['subscores']) if r.get('subscores') else None,
+            'completed_at': r.get('completed_at') or '',
+            'score': r.get('score'),
+            'subscores': subs,
             'answers': answers,
-            'risk_level': r['risk_level'],
-            'recommendations': json.loads(r['recommendations']) if r.get('recommendations') else []
+            'risk_level': r.get('risk_level') or 'Unknown',
+            'recommendations': recs
         }
-        if atype in ('ai-risk', 'income-comparison', 'layoff-risk', 'vehicle-financial-health'):
-            scores_by_type[atype] = r['score']
+        if atype in ('ai-risk', 'income-comparison', 'layoff-risk', 'vehicle-financial-health') and r.get('score') is not None:
+            scores_by_type[atype] = r.get('score')
     fri = compute_financial_readiness_index(scores_by_type) if len(scores_by_type) >= 2 else None
     profile_db_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'user_profiles.db'))
     if not os.path.exists(profile_db_path):
@@ -951,6 +972,7 @@ def calculate_vehicle_financial_health_results(answers):
     return {
         'score': min(100, max(0, score)),
         'health_level': health_level,
+        'risk_level': health_level,  # alias for lead_magnet_results.risk_level
         'recommendations': recommendations
     }
 
