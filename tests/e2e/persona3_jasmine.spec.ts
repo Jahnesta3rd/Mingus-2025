@@ -492,6 +492,18 @@ test.describe('Persona 3 - Jasmine', () => {
     await professionalTierBtn.click({ force: true });
     await page.waitForTimeout(1000);
 
+    const e2eSecret = process.env.E2E_PAYMENT_SECRET || 'e2e-payment-secret';
+    await page.route('**/api/create-payment-intent', async (route) => {
+      if (route.request().method() !== 'POST') return route.fallback();
+      await route.continue({
+        headers: {
+          ...route.request().headers(),
+          'X-E2E-Secret': e2eSecret,
+          'X-E2E-User-Email': JASMINE_EMAIL,
+        },
+      });
+    });
+
     const continueBtn = page.getByTestId('checkout-continue');
     await expect(continueBtn).toBeEnabled({ timeout: 5000 });
     const responsePromise = page.waitForResponse(

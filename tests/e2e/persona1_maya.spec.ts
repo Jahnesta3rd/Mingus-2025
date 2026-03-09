@@ -200,6 +200,7 @@ test.describe('Persona 1 - Maya', () => {
   });
 
   test('Maya completes Cuffing Season Score Assessment', async () => {
+    test.setTimeout(90000); // Assessment can be slow; avoid teardown while waiting for questions
     // 1. Navigate to landing page
     await page.goto(BASE_URL);
     await expect(page).toHaveURL(BASE_URL);
@@ -238,7 +239,9 @@ test.describe('Persona 1 - Maya', () => {
     await page.locator('label').filter({ hasText: /Financial stress/i }).first().click(); // Q1
     await nextQuestion();
     await page.locator('label').filter({ hasText: /Financial stress/i }).first().click(); // Q2 first checkbox
-    await page.locator('label').filter({ hasText: /My own emotional state/i }).click();   // Q2 second checkbox
+    const q2Second = page.locator('label').filter({ hasText: /My own emotional state|emotional state/i });
+    await expect(q2Second.first()).toBeVisible({ timeout: 15000 });
+    await q2Second.first().click(); // Q2 second checkbox
     await nextQuestion();
     await page.locator('label').filter({ hasText: /Somewhat misaligned/i }).click();
     await nextQuestion();
@@ -535,7 +538,17 @@ test.describe('Persona 1 - Maya', () => {
     await page.waitForTimeout(1000);
     await page.screenshot({ path: 'test-results/p1f-tier-selected.png', fullPage: true });
     console.log('P1F: Budget tier clicked');
-    // Using real create-payment-intent backend endpoint
+    // E2E auth: add headers so backend accepts create-payment-intent without JWT (signup is mocked)
+    const e2eSecret = process.env.E2E_PAYMENT_SECRET || 'e2e-payment-secret';
+    await page.route('**/api/create-payment-intent', async (route) => {
+      if (route.request().method() !== 'POST') return route.fallback();
+      const headers = {
+        ...route.request().headers(),
+        'X-E2E-Secret': e2eSecret,
+        'X-E2E-User-Email': 'maya.johnson.test@gmail.com',
+      };
+      await route.continue({ headers });
+    });
     // Listen for the payment intent request
     let paymentIntentFired = false;
     page.on('request', req => {

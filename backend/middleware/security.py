@@ -36,6 +36,8 @@ class SecurityMiddleware:
             '/api/auth/verify',
             '/api/auth/forgot-password',
             '/api/assessments',
+            # Stripe webhooks must be callable by Stripe without CSRF/auth
+            '/api/stripe/webhook',
         ]
         if path in public_endpoints or request.path in public_endpoints:
             return True

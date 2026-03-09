@@ -39,3 +39,4 @@ secrets
 typing
 re
 time
+resend

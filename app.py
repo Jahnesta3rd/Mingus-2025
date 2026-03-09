@@ -75,7 +75,11 @@ from backend.middleware.security import SecurityMiddleware
 from backend.middleware.cors_logging import setup_cors_logging
 
 # Import SQLAlchemy models and database
-from backend.models.database import init_database
+from backend.models.database import init_database, db
+from backend.models.user_models import User
+
+# Auth helpers for identifying current user (JWT in cookie)
+from backend.auth.decorators import require_auth, get_current_user_id
 
 # Import Redis session and cache configuration
 from backend.config.session_config import init_redis_session
@@ -806,24 +810,239 @@ def get_error_health():
         'timestamp': datetime.now().isoformat()
     })
 
-# Stripe payment intent endpoint (POST for create, OPTIONS for CORS preflight)
-@app.route('/api/create-payment-intent', methods=['POST', 'OPTIONS'])
+# Stripe payment intent endpoints
+
+@app.route('/api/create-payment-intent', methods=['OPTIONS'])
+def create_payment_intent_options():
+    """CORS preflight handler for Stripe PaymentIntent creation."""
+    return '', 204
+
+
+def _authenticate_for_payment_intent():
+    """
+    Authenticate the request for create-payment-intent: either via E2E headers
+    (when E2E_PAYMENT_SECRET is set) or via JWT cookie/header. Sets g.current_user_id
+    on success. Returns (None, None) on success, or (response, status_code) on failure.
+    """
+    e2e_secret = request.headers.get('X-E2E-Secret')
+    e2e_email = (request.headers.get('X-E2E-User-Email') or '').strip().lower()
+    env_secret = os.getenv('E2E_PAYMENT_SECRET')
+    if e2e_secret and e2e_email and env_secret and e2e_secret == env_secret:
+        # E2E path: if user exists, use it; otherwise still allow the request and
+        # let downstream logic attach only tier/email metadata.
+        user = User.query.filter_by(email=e2e_email).first()
+        if user:
+            g.current_user_id = user.user_id
+            g.current_user_email = user.email
+        else:
+            g.current_user_id = None
+            g.current_user_email = e2e_email
+        return None, None
+    # Normal JWT auth (same as require_auth)
+    token = request.cookies.get('mingus_token')
+    if not token:
+        auth_header = request.headers.get('Authorization')
+        if auth_header and auth_header.startswith('Bearer '):
+            token = auth_header.split(' ')[1]
+    if not token:
+        return jsonify({'error': 'Authentication required', 'message': 'Missing or invalid authentication token'}), 401
+    try:
+        import jwt as jwt_lib
+        from backend.auth.decorators import JWT_SECRET_KEY, JWT_ALGORITHM
+        payload = jwt_lib.decode(token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
+        if 'exp' in payload and datetime.utcnow().timestamp() > payload['exp']:
+            return jsonify({'error': 'Token expired', 'message': 'Please refresh your authentication token'}), 401
+        g.current_user_id = payload.get('user_id')
+        g.current_user_email = payload.get('email')
+        return None, None
+    except jwt_lib.ExpiredSignatureError:
+        return jsonify({'error': 'Token expired', 'message': 'Please refresh your authentication token'}), 401
+    except jwt_lib.InvalidTokenError:
+        return jsonify({'error': 'Invalid token', 'message': 'Authentication token is malformed or invalid'}), 401
+    except Exception as e:
+        logger.warning(f"Payment intent auth error: {e}")
+        return jsonify({'error': 'Authentication required', 'message': 'Missing or invalid authentication token'}), 401
+
+
+@app.route('/api/create-payment-intent', methods=['POST'])
 def create_payment_intent():
-    """Create a Stripe PaymentIntent and return its client secret."""
-    if request.method == 'OPTIONS':
-        return '', 204
+    """
+    Create a Stripe PaymentIntent for the authenticated user and return its client secret.
+    
+    Authenticates via JWT (cookie/header) or, when E2E_PAYMENT_SECRET is set,
+    via X-E2E-Secret and X-E2E-User-Email headers for E2E tests.
+    The intent is annotated with user and tier metadata so that the Stripe webhook
+    can safely update the user's tier after payment succeeds.
+    """
+    err_resp, err_status = _authenticate_for_payment_intent()
+    if err_resp is not None:
+        return err_resp, err_status
     data = request.get_json() or {}
-    if "amount" not in data:
+    amount = data.get("amount")
+    tier_name = data.get("tierName") or data.get("tier")
+
+    if amount is None:
         return jsonify({"error": "Missing 'amount' in request body"}), 400
 
     try:
+        amount_int = int(amount)
+    except (TypeError, ValueError):
+        return jsonify({"error": "Invalid 'amount' – must be an integer number of cents"}), 400
+
+    # Map frontend tier labels/ids to canonical backend tier keys
+    tier_mapping = {
+        'budget': 'budget',
+        'Budget': 'budget',
+        'budget_tier': 'budget',
+        'mid': 'mid_tier',
+        'Mid': 'mid_tier',
+        'Mid-tier': 'mid_tier',
+        'mid_tier': 'mid_tier',
+        'professional': 'professional',
+        'Professional': 'professional',
+    }
+
+    target_tier = None
+    if tier_name:
+        target_tier = tier_mapping.get(tier_name)
+
+    # Fallback: infer tier from amount if we didn't get a recognizable name
+    if not target_tier:
+        amount_to_tier = {
+            1500: 'budget',
+            3500: 'mid_tier',
+            10000: 'professional',
+        }
+        target_tier = amount_to_tier.get(amount_int, 'budget')
+
+    # Look up the current user so we can attach stable identifiers in metadata
+    user_external_id = get_current_user_id()
+    user = None
+    if user_external_id:
+        try:
+            user = User.query.filter_by(user_id=str(user_external_id)).first()
+        except Exception as e:
+            logger.error(f"Error looking up user for payment intent (user_id={user_external_id}): {e}")
+
+    metadata = {
+        "target_tier": target_tier,
+    }
+
+    if user:
+        metadata.update(
+            {
+                "user_db_id": str(user.id),
+                "user_external_id": user.user_id,
+                "user_email": user.email,
+            }
+        )
+    elif user_external_id:
+        # Fall back to external id only if we couldn't resolve the DB row
+        metadata["user_external_id"] = str(user_external_id)
+    else:
+        # For E2E flows, we may only have an email from the special headers
+        user_email = getattr(g, "current_user_email", None)
+        if user_email:
+            metadata["user_email"] = user_email
+
+    try:
         intent = stripe.PaymentIntent.create(
-            amount=data["amount"],  # amount in cents
+            amount=amount_int,  # amount in cents
             currency="usd",
+            metadata=metadata,
+            description=f"Mingus subscription upgrade to {target_tier}",
         )
         return jsonify({"clientSecret": intent["client_secret"]})
     except stripe.error.StripeError as e:
+        logger.error(f"Stripe error creating PaymentIntent: {e}")
         return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        logger.error(f"Unexpected error creating PaymentIntent: {e}", exc_info=True)
+        return jsonify({"error": "Failed to create payment intent"}), 500
+
+
+@app.route('/api/stripe/webhook', methods=['POST'])
+@limiter.exempt  # Stripe will retry on non-2xx; don't rate-limit this
+def stripe_webhook():
+    """
+    Handle Stripe webhook events.
+
+    On payment_intent.succeeded, upgrade the associated user's tier based on
+    metadata stored on the PaymentIntent.
+    """
+    # Stripe sends the raw payload for signature verification
+    payload = request.data
+    sig_header = request.headers.get("Stripe-Signature")
+    endpoint_secret = os.getenv("STRIPE_WEBHOOK_SECRET")
+
+    try:
+        if endpoint_secret:
+            event = stripe.Webhook.construct_event(payload, sig_header, endpoint_secret)
+        else:
+            # Fallback: trust the payload without signature verification (development only)
+            logger.warning("STRIPE_WEBHOOK_SECRET not set; skipping signature verification")
+            event = stripe.Event.construct_from(request.get_json(force=True) or {}, stripe.api_key)
+    except ValueError as e:
+        # Invalid payload
+        logger.error(f"Invalid Stripe webhook payload: {e}")
+        return jsonify({"error": "Invalid payload"}), 400
+    except stripe.error.SignatureVerificationError as e:
+        logger.error(f"Invalid Stripe signature: {e}")
+        return jsonify({"error": "Invalid signature"}), 400
+
+    event_type = event.get("type")
+    data_object = event.get("data", {}).get("object", {})
+
+    if event_type == "payment_intent.succeeded":
+        intent = data_object
+        metadata = intent.get("metadata") or {}
+        target_tier = (metadata.get("target_tier") or "").strip()
+        user_db_id = metadata.get("user_db_id")
+        user_external_id = metadata.get("user_external_id")
+
+        if not target_tier:
+            logger.warning("Stripe webhook payment_intent.succeeded missing target_tier metadata")
+        else:
+            try:
+                user = None
+                if user_db_id:
+                    try:
+                        user = db.session.get(User, int(user_db_id))
+                    except (TypeError, ValueError):
+                        logger.warning(f"Invalid user_db_id in Stripe metadata: {user_db_id}")
+
+                if not user and user_external_id:
+                    user = User.query.filter_by(user_id=str(user_external_id)).first()
+
+                if not user:
+                    logger.error(
+                        f"Stripe webhook could not resolve user for metadata "
+                        f"user_db_id={user_db_id}, user_external_id={user_external_id}"
+                    )
+                else:
+                    # Only update if the tier is actually changing
+                    previous_tier = user.tier or "budget"
+                    if previous_tier != target_tier:
+                        user.tier = target_tier
+                        db.session.commit()
+                        logger.info(
+                            f"Upgraded user {user.id} ({user.email}) tier "
+                            f"from {previous_tier} to {target_tier} via Stripe webhook"
+                        )
+                    else:
+                        logger.info(
+                            f"Stripe webhook received for user {user.id} but tier already {target_tier}; no change"
+                        )
+            except Exception as e:
+                logger.error(f"Error updating user tier from Stripe webhook: {e}", exc_info=True)
+                db.session.rollback()
+                # Return 200 so Stripe doesn't keep retrying; internal alerts will capture failure
+
+    else:
+        # For now, just log other event types
+        logger.info(f"Received unhandled Stripe event type: {event_type}")
+
+    return jsonify({"received": True}), 200
 
 # Serve meme images (GIF/PNG) from static/memes/ for vibe-check and meme features
 _MEMES_DIR = os.path.join(os.path.dirname(__file__), 'static', 'memes')
