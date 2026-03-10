@@ -17,8 +17,11 @@ from backend.models.database import db
 from backend.models.user_models import User
 from backend.utils.password import hash_password, check_password, verify_password_strength
 
-# Simple rate limiting (in-memory)
-_rate_limit_store = {}
+ # Simple rate limiting (in-memory)
+ # TODO PRE-LAUNCH: Replace with Redis-backed rate limiting via flask-limiter.
+ # Current in-memory dict is per-worker and resets on restart.
+ # Also replace request.remote_addr with X-Real-IP header for nginx deployments.
+ _rate_limit_store = {}
 _rate_limit_max = 100  # requests per minute
 _rate_limit_window = 60  # seconds
 
@@ -397,6 +400,77 @@ def forgot_password():
             'success': True,
             'message': "If an account exists, a reset link has been sent"
         }), 200
+
+
+@auth_api.route('/reset-password', methods=['POST'])
+def reset_password():
+    """
+    Reset user's password using a reset token
+    Expects JSON body: { "token": "...", "password": "NewPassword123!" }
+    """
+    try:
+        # Rate limiting check
+        client_ip = request.remote_addr
+        if not check_rate_limit(client_ip):
+            logger.warning(f"Rate limit exceeded for IP: {client_ip}")
+            return jsonify({'success': False, 'error': 'Rate limit exceeded'}), 429
+
+        data = request.get_json()
+
+        if not data:
+            return jsonify({'success': False, 'error': 'No data provided'}), 400
+
+        token = (data.get('token') or data.get('resetToken') or '').strip()
+        new_password = data.get('password') or data.get('newPassword') or ''
+
+        if not token:
+            return jsonify({'success': False, 'error': 'Reset token is required'}), 400
+
+        # Validate password strength
+        is_valid, error_msg = verify_password_strength(new_password)
+        if not is_valid:
+            return jsonify({'success': False, 'error': error_msg}), 400
+
+        # Look up user by reset token
+        user = User.query.filter_by(password_reset_token=token).first()
+
+        # Use generic error message to avoid leaking token validity details
+        generic_error = 'Invalid or expired reset token'
+
+        if not user or not user.password_reset_expires:
+            return jsonify({'success': False, 'error': generic_error}), 400
+
+        # Check token expiry
+        if datetime.utcnow() > user.password_reset_expires:
+            # Clear expired token
+            user.password_reset_token = None
+            user.password_reset_expires = None
+            db.session.commit()
+            return jsonify({'success': False, 'error': generic_error}), 400
+
+        # Update password hash
+        try:
+            user.password_hash = hash_password(new_password)
+        except ValueError as e:
+            return jsonify({'success': False, 'error': str(e)}), 400
+
+        # Clear reset token fields
+        user.password_reset_token = None
+        user.password_reset_expires = None
+        user.updated_at = datetime.utcnow()
+
+        db.session.commit()
+
+        logger.info(f"Password reset successful for user: {user.email}")
+
+        return jsonify({
+            'success': True,
+            'message': 'Password has been reset successfully'
+        }), 200
+
+    except Exception as e:
+        logger.error(f"Reset password error: {e}", exc_info=True)
+        return jsonify({'success': False, 'error': 'Password reset failed. Please try again.'}), 500
 
 
 @auth_api.route('/logout', methods=['POST'])
