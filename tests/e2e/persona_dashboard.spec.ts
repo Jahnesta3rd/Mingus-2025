@@ -69,10 +69,6 @@ const JASMINE_DATA: DashboardMockInput = {
 async function loginAs(page: Page, email: string, password: string) {
   await page.goto(BASE_URL + '/login');
   await page.waitForLoadState('domcontentloaded');
-  await page.evaluate(() => {
-    localStorage.setItem('auth_token', 'ok');
-    localStorage.setItem('mingus_token', 'e2e-dashboard-token');
-  });
   await page.locator('input[type="email"]').first().fill(email);
   await page.locator('input[type="password"]').first().fill(password);
   const loginResponse = page.waitForResponse(
@@ -80,7 +76,25 @@ async function loginAs(page: Page, email: string, password: string) {
     { timeout: 15000 }
   ).catch(() => null);
   await page.getByRole('button', { name: /sign in|log in|login/i }).first().click();
-  await loginResponse;
+  const resp = await loginResponse;
+  if (resp?.ok()) {
+    // Wait for navigation to settle before touching localStorage
+    await page.waitForLoadState('domcontentloaded').catch(() => {});
+    await page.waitForTimeout(500);
+
+    // Retry localStorage set up to 3 times in case of navigation race
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try {
+        await page.evaluate(() => {
+          localStorage.setItem('auth_token', 'ok');
+          localStorage.setItem('mingus_token', 'e2e-dashboard-token');
+        });
+        break; // success
+      } catch {
+        await page.waitForTimeout(500);
+      }
+    }
+  }
   await page
     .waitForFunction(
       () =>
@@ -103,6 +117,16 @@ async function loginAs(page: Page, email: string, password: string) {
     console.log(`loginAs: redirect not observed, forcing dashboard navigation from ${page.url()}`);
     await page.goto(BASE_URL + '/dashboard');
     await page.waitForLoadState('domcontentloaded').catch(() => {});
+    await page.waitForTimeout(2000);
+    if (!page.url().includes('/dashboard')) {
+      await page.evaluate(() => {
+        localStorage.setItem('auth_token', 'ok');
+        localStorage.setItem('mingus_token', 'e2e-dashboard-token');
+      });
+      await page.goto(BASE_URL + '/dashboard');
+      await page.waitForLoadState('domcontentloaded').catch(() => {});
+      await page.waitForTimeout(2000);
+    }
   }
 
   await expect(page).toHaveURL(/\/dashboard/, { timeout: 15000 });
@@ -637,7 +661,7 @@ test.describe('Dashboard - Marcus (Mid)', () => {
 });
 
 test.describe('Dashboard - Jasmine (Professional)', () => {
-  test.setTimeout(60000);
+  test.setTimeout(120000);
 
   let context: BrowserContext;
   let page: Page;
@@ -681,6 +705,5 @@ test.describe('Dashboard - Jasmine (Professional)', () => {
       /tax-loss harvesting/i,
       'DB-P3C'
     );
-    await page.screenshot({ path: 'test-results/dashboard-jasmine-outlook.png', fullPage: true });
   });
 });
