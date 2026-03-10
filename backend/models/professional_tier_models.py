@@ -346,7 +346,7 @@ class MaintenanceRecord(db.Model):
     # Indexes
     __table_args__ = (
         db.Index('idx_maintenance_vehicle_date', 'fleet_vehicle_id', 'service_date'),
-        db.Index('idx_maintenance_service_type', 'service_type'),
+        db.Index('idx_maintenance_record_service_type', 'service_type'),
         db.Index('idx_maintenance_provider', 'service_provider'),
         db.CheckConstraint('total_cost >= 0', name='check_positive_total_cost'),
         db.CheckConstraint('labor_cost >= 0 OR labor_cost IS NULL', name='check_positive_labor_cost'),

@@ -102,11 +102,8 @@ class MaintenancePrediction(db.Model):
     # Timestamps
     created_date = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     
-    # Indexes
+    # Constraints (indexes are managed via migrations to avoid duplicate creation)
     __table_args__ = (
-        db.Index('idx_maintenance_vehicle_date', 'vehicle_id', 'predicted_date'),
-        db.Index('idx_maintenance_service_type', 'service_type'),
-        db.Index('idx_maintenance_routine', 'is_routine'),
         db.CheckConstraint('probability >= 0.0 AND probability <= 1.0', name='check_probability_range'),
         db.CheckConstraint('estimated_cost >= 0', name='check_positive_cost'),
     )

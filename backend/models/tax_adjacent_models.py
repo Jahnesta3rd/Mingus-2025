@@ -252,7 +252,7 @@ class MaintenanceDocument(db.Model):
     __table_args__ = (
         db.Index('idx_maintenance_user_date', 'user_id', 'service_date'),
         db.Index('idx_maintenance_vehicle', 'vehicle_year', 'vehicle_make', 'vehicle_model'),
-        db.Index('idx_maintenance_service_type', 'service_type'),
+        db.Index('idx_maintenance_document_service_type', 'service_type'),
         db.CheckConstraint('total_cost >= 0', name='check_positive_total_cost'),
         db.CheckConstraint('labor_cost >= 0 OR labor_cost IS NULL', name='check_positive_labor_cost'),
         db.CheckConstraint('parts_cost >= 0 OR parts_cost IS NULL', name='check_positive_parts_cost'),
