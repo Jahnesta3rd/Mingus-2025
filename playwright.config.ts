@@ -18,6 +18,21 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'] },
     },
     {
+      name: 'chromium',
+      testIgnore: '**/auth.spec.ts',
+      use: { ...devices['Desktop Chrome'] },
+    },
+    {
+      name: 'firefox',
+      testIgnore: '**/auth.spec.ts',
+      use: { ...devices['Desktop Firefox'] },
+    },
+    {
+      name: 'webkit',
+      testIgnore: '**/auth.spec.ts',
+      use: { ...devices['Desktop Safari'] },
+    },
+    {
       name: 'auth',
       testMatch: '**/auth.spec.ts',
       use: { ...devices['Desktop Chrome'] },
