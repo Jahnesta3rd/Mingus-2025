@@ -284,3 +284,8 @@ The application is **production-ready** and provides significant value to users 
 **Testing Duration:** Comprehensive multi-tier assessment  
 **Next Steps:** Production deployment and user onboarding
 
+
+## Gunicorn Config Update (2026-03-11)
+Changed: `-w 1` → `-w 4`, `--max-requests 20` → `--max-requests 1000`
+Result: Auth/verify 25c avg dropped from 2946ms → 117ms (25x improvement)
+Service file lives on server only — never commit to git (contains secrets).
