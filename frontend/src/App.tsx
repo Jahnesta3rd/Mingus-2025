@@ -10,6 +10,7 @@ import DashboardLayout from './components/dashboard/DashboardLayout';
 import MoodDashboard from './components/MoodDashboard';
 import CareerProtectionDashboard from './pages/CareerProtectionDashboard';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
+import ResetPasswordPage from './pages/ResetPasswordPage';
 import AuthGuard from './guards/AuthGuard';
 import VibeGuard from './guards/VibeGuard';
 import LandingPage from './components/LandingPage';
@@ -28,6 +29,7 @@ const router = createBrowserRouter([
   { path: '/signup', element: <SignUpPage /> },
   { path: '/register', element: <RegisterPage /> },
   { path: '/forgot-password', element: <ForgotPasswordPage /> },
+  { path: '/reset-password', element: <ResetPasswordPage /> },
   { path: '/checkout', element: <CheckoutPage /> },
 
   // Logo splash (first stop after login)

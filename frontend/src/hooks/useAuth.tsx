@@ -5,6 +5,7 @@ interface User {
   email: string;
   name: string;
   isAuthenticated: boolean;
+  tier?: string;
 }
 
 interface AuthContextType {
@@ -46,7 +47,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               id: userData.user_id,
               email: userData.email,
               name: userData.name,
-              isAuthenticated: true
+              isAuthenticated: true,
+              ...(userData.tier != null && { tier: userData.tier }),
             });
           }
         }
@@ -90,7 +92,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         id: data.user_id,
         email: data.email,
         name: data.name,
-        isAuthenticated: true
+        isAuthenticated: true,
+        ...(data.tier != null && { tier: data.tier }),
       };
 
       setUser(userData);

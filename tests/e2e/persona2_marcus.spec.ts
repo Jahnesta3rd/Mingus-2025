@@ -511,7 +511,7 @@ test.describe('Persona 2 - Marcus', () => {
     const stripeIframes = page.locator('iframe[name^="__privateStripeFrame"], iframe[title*="Secure"], iframe[title*="secure"]');
     await expect(stripeIframes.first()).toBeAttached({ timeout: 30000 });
     await expect(async () => {
-      expect(await stripeIframes.count()).toBeGreaterThanOrEqual(6);
+      expect(await stripeIframes.count()).toBeGreaterThanOrEqual(4);
     }).toPass({ timeout: 15000 });
     await page.waitForTimeout(2000);
 

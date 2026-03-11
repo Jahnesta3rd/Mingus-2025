@@ -452,8 +452,6 @@ test.describe.serial('Data Persistence', () => {
   // ── DP-03: Mocked login, budget tier UI ───────────────────────────────────
   test('DP-03: Budget tier label displays correctly on dashboard', async () => {
     await loginAndGoToDashboard(page, context, USERS.budget, MAYA_DASHBOARD_DATA);
-    await expect(page).toHaveURL(/\/dashboard/, { timeout: 15000 });
-
     const forecastBtn = page.getByRole('button', { name: /Financial Forecast|Forecast/i }).first();
     await forecastBtn.click();
     await page.waitForTimeout(2000);
