@@ -4,7 +4,8 @@ Provides endpoints for handling lead magnet assessments
 """
 
 import os
-import sqlite3
+import psycopg2
+import psycopg2.extras
 import json
 import logging
 import hashlib
@@ -22,13 +23,11 @@ logger = logging.getLogger(__name__)
 # Create blueprint
 assessment_api = Blueprint('assessment_api', __name__, url_prefix='/api')
 
-# Database path
-DB_PATH = os.path.join(os.path.dirname(__file__), '..', '..', 'assessments.db')
 
 def get_db_connection():
     """Get database connection"""
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row
+    conn = psycopg2.connect(os.environ['DATABASE_URL'])
+    conn.cursor_factory = psycopg2.extras.RealDictCursor
     return conn
 
 def init_assessment_db():
@@ -40,7 +39,7 @@ def init_assessment_db():
         # Create assessments table
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS assessments (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                id SERIAL PRIMARY KEY,
                 email TEXT NOT NULL,
                 first_name TEXT,
                 phone TEXT,
@@ -54,7 +53,7 @@ def init_assessment_db():
         # Create assessment analytics table
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS assessment_analytics (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                id SERIAL PRIMARY KEY,
                 assessment_id INTEGER,
                 action TEXT NOT NULL,
                 question_id TEXT,
@@ -69,7 +68,7 @@ def init_assessment_db():
         # Create lead magnet results table
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS lead_magnet_results (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                id SERIAL PRIMARY KEY,
                 assessment_id INTEGER,
                 email TEXT NOT NULL,
                 assessment_type TEXT NOT NULL,
@@ -85,7 +84,7 @@ def init_assessment_db():
         try:
             cursor.execute('ALTER TABLE lead_magnet_results ADD COLUMN subscores TEXT')
             conn.commit()
-        except sqlite3.OperationalError:
+        except Exception:
             pass
         conn.commit()
         logger.info("Assessment database initialized successfully")
@@ -141,7 +140,8 @@ def submit_assessment():
         # Insert assessment data with encrypted email
         cursor.execute('''
             INSERT INTO assessments (email, first_name, phone, assessment_type, answers, completed_at)
-            VALUES (?, ?, ?, ?, ?, ?)
+            VALUES (%s, %s, %s, %s, %s, %s)
+            RETURNING id
         ''', (
             email_hash,  # Store hashed email instead of plain text
             sanitized_data.get('firstName'),
@@ -151,7 +151,7 @@ def submit_assessment():
             sanitized_data.get('completedAt', datetime.now().isoformat())
         ))
         
-        assessment_id = cursor.lastrowid
+        assessment_id = cursor.fetchone()['id']
         
         if sanitized_data.get('calculatedResults'):
             cr = sanitized_data['calculatedResults']
@@ -170,7 +170,7 @@ def submit_assessment():
         subscores_json = json.dumps(results['subscores']) if results.get('subscores') else None
         cursor.execute('''
             INSERT INTO lead_magnet_results (assessment_id, email, assessment_type, score, risk_level, recommendations, subscores)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
         ''', (
             assessment_id,
             email_hash,
@@ -295,7 +295,7 @@ def get_assessment_results(assessment_id):
             SELECT a.*, lmr.score, lmr.risk_level, lmr.recommendations
             FROM assessments a
             LEFT JOIN lead_magnet_results lmr ON a.id = lmr.assessment_id
-            WHERE a.id = ?
+            WHERE a.id = %s
         ''', (assessment_id,))
         
         result = cursor.fetchone()
@@ -362,7 +362,7 @@ def sync_assessments_to_profile(email):
                lmr.score, lmr.risk_level, lmr.recommendations, lmr.subscores
         FROM assessments a
         LEFT JOIN lead_magnet_results lmr ON a.id = lmr.assessment_id
-        WHERE a.email = ?
+        WHERE a.email = %s
         ORDER BY a.completed_at DESC
     ''', (email_hash,))
     rows = cursor.fetchall()
@@ -450,7 +450,7 @@ def track_assessment_analytics():
         
         cursor.execute('''
             INSERT INTO assessment_analytics (assessment_id, action, question_id, answer_value, session_id, user_agent)
-            VALUES (?, ?, ?, ?, ?, ?)
+            VALUES (%s, %s, %s, %s, %s, %s)
         ''', (
             data.get('assessment_id'),
             data['action'],
@@ -1010,7 +1010,7 @@ def log_assessment_analytics(assessment_id, action, data):
         
         cursor.execute('''
             INSERT INTO assessment_analytics (assessment_id, action, session_id, user_agent)
-            VALUES (?, ?, ?, ?)
+            VALUES (%s, %s, %s, %s)
         ''', (
             assessment_id,
             action,
