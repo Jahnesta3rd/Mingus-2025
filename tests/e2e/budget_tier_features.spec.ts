@@ -114,22 +114,6 @@ let context: BrowserContext;
 let page: Page;
 
 async function addAllMocks(p: Page) {
-  // Auth mocks
-  await p.route('**/api/auth/login', async (route) => {
-    if (route.request().method() !== 'POST') return route.fallback();
-    await route.fulfill({
-      status: 200, contentType: 'application/json',
-      body: JSON.stringify({ success: true, user_id: 1, email: MAYA.email, name: 'Maya', message: 'Login successful' }),
-    });
-  });
-
-  await p.route('**/api/auth/verify**', async (route) => {
-    await route.fulfill({
-      status: 200, contentType: 'application/json',
-      body: JSON.stringify({ valid: true, user: { email: MAYA.email, tier: 'budget', firstName: 'Maya' } }),
-    });
-  });
-
   // Profile
   await p.route('**/api/profile/setup-status**', async (route) => {
     if (route.request().method() !== 'GET') return route.fallback();
@@ -235,51 +219,33 @@ async function loginAndGoToDashboard(p: Page, ctx: BrowserContext) {
   await p.waitForLoadState('domcontentloaded');
   try { await p.evaluate(() => { localStorage.clear(); sessionStorage.clear(); }); } catch { /* ignore */ }
 
-  await addAllMocks(p);
-  await p.waitForTimeout(500);
-
+  // Real login — let the server issue a real JWT cookie
   await p.getByLabel(/email/i).first().fill(MAYA.email);
   await p.getByLabel(/password/i).first().fill(MAYA.password);
-
   const loginResp = p.waitForResponse(
     (r) => r.url().includes('/api/auth/login') && r.request().method() === 'POST',
     { timeout: 15000 }
   );
   await p.getByRole('button', { name: /sign in|log in|login/i }).first().click();
   try { await loginResp; } catch { /* proceed */ }
-
   await p.waitForLoadState('domcontentloaded');
-  await p.waitForTimeout(1000);
+  await p.waitForTimeout(1500);
 
-  for (let i = 0; i < 3; i++) {
-    try {
-      await p.evaluate(() => {
-        localStorage.setItem('auth_token', 'ok');
-        localStorage.setItem('mingus_token', 'e2e-dashboard-token');
-      });
-      break;
-    } catch { await p.waitForTimeout(500); }
-  }
-
-  if (!p.url().includes('/dashboard')) {
-    await p.goto(`${BASE_URL}/dashboard`);
-    await p.waitForLoadState('domcontentloaded');
-    await p.waitForTimeout(2000);
-  }
-
+  // Handle vibe-check redirect
   if (p.url().includes('vibe-check-meme')) {
     await p.goto(`${BASE_URL}/dashboard`);
     await p.waitForLoadState('domcontentloaded');
     await p.waitForTimeout(2000);
   }
 
-  try {
-    await p.evaluate(() => {
-      localStorage.setItem('auth_token', 'ok');
-      localStorage.setItem('mingus_token', 'e2e-dashboard-token');
-    });
-  } catch { /* ignore */ }
+  // Force navigate to dashboard if not there
+  if (!p.url().includes('/dashboard')) {
+    await p.goto(`${BASE_URL}/dashboard`);
+    await p.waitForLoadState('domcontentloaded');
+    await p.waitForTimeout(2000);
+  }
 
+  // Add data mocks AFTER real auth
   await addAllMocks(p);
   await dismissModal(p);
 }
@@ -290,12 +256,14 @@ async function dismissModal(p: Page) {
   if (!await overlay.isVisible().catch(() => false)) return;
   for (const sel of [
     "button:has-text(\"I'll do this later\")",
+    'button:has-text("Later")',
     '[aria-label="Close and skip setup"]',
     'button:has-text("Continue to Dashboard")',
     'button:has-text("Close")',
     'button:has-text("Skip")',
     '[aria-label="Close"]',
     '[role="dialog"] button',
+    '.fixed.inset-0 button', // any button in overlay
   ]) {
     const btn = p.locator(sel).first();
     if (await btn.isVisible().catch(() => false)) {
@@ -311,8 +279,9 @@ async function dismissModal(p: Page) {
 }
 
 async function navigateToTab(p: Page, tabName: string) {
+  await dismissModal(p);
   const btn = p.getByRole('button', { name: new RegExp(tabName, 'i') }).first();
-  await btn.click();
+  await btn.click({ timeout: 15000 });
   await p.waitForTimeout(1500);
   await addAllMocks(p); // re-apply after navigation
   await p.waitForTimeout(500);
