@@ -506,9 +506,6 @@ const LandingPage: React.FC = () => {
               >
                 <div className="flex items-center justify-between mb-4">
                   <Shield className="h-8 w-8 text-violet-400 group-hover:text-violet-300" />
-                  <span className="bg-green-500/20 text-green-400 text-xs font-semibold px-2 py-1 rounded-full">
-                    FREE
-                  </span>
                 </div>
                 <h3 className="text-lg font-semibold text-white mb-2">AI Replacement Risk</h3>
                 <p className="text-sm text-gray-400 mb-3">
@@ -528,9 +525,6 @@ const LandingPage: React.FC = () => {
               >
                 <div className="flex items-center justify-between mb-4">
                   <TrendingUp className="h-8 w-8 text-violet-400 group-hover:text-violet-300" />
-                  <span className="bg-green-500/20 text-green-400 text-xs font-semibold px-2 py-1 rounded-full">
-                    FREE
-                  </span>
                 </div>
                 <h3 className="text-lg font-semibold text-white mb-2">Income Comparison</h3>
                 <p className="text-sm text-gray-400 mb-3">
@@ -550,9 +544,6 @@ const LandingPage: React.FC = () => {
               >
                 <div className="flex items-center justify-between mb-4">
                   <Heart className="h-8 w-8 text-violet-400 group-hover:text-violet-300" />
-                  <span className="bg-green-500/20 text-green-400 text-xs font-semibold px-2 py-1 rounded-full">
-                    FREE
-                  </span>
                 </div>
                 <h3 className="text-lg font-semibold text-white mb-2">Cuffing Season Score</h3>
                 <p className="text-sm text-gray-400 mb-3">
@@ -572,9 +563,6 @@ const LandingPage: React.FC = () => {
               >
                 <div className="flex items-center justify-between mb-4">
                   <Briefcase className="h-8 w-8 text-violet-400 group-hover:text-violet-300" />
-                  <span className="bg-green-500/20 text-green-400 text-xs font-semibold px-2 py-1 rounded-full">
-                    FREE
-                  </span>
                 </div>
                 <h3 className="text-lg font-semibold text-white mb-2">Layoff Risk</h3>
                 <p className="text-sm text-gray-400 mb-3">
@@ -594,9 +582,6 @@ const LandingPage: React.FC = () => {
               >
                 <div className="flex items-center justify-between mb-4">
                   <Car className="h-8 w-8 text-violet-400 group-hover:text-violet-300" />
-                  <span className="bg-green-500/20 text-green-400 text-xs font-semibold px-2 py-1 rounded-full">
-                    FREE
-                  </span>
                 </div>
                 <h3 className="text-lg font-semibold text-white mb-2">Vehicle Financial Health</h3>
                 <p className="text-sm text-gray-400 mb-3">
@@ -689,8 +674,6 @@ const LandingPage: React.FC = () => {
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
               Financial Wellness
-              <br />
-              <span className="text-violet-400">For Our Community</span>
             </h2>
             <p className="text-xl text-gray-300 max-w-3xl mx-auto">
               Comprehensive financial tools designed specifically for African American professionals, addressing the unique challenges and opportunities in our community's wealth-building journey.

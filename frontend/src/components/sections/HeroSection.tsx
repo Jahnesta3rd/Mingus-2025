@@ -179,7 +179,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
                   {/* Cards */}
                   <div className="space-y-2 sm:space-y-3 flex-1">
                     {/* Wellness Score Card */}
-                    <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 sm:p-4 border border-violet-400/20">
+                    <div className="bg-white/20 backdrop-blur-sm rounded-xl p-3 sm:p-4 border border-violet-400/20">
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center">
                           <Heart className="w-4 h-4 sm:w-5 sm:h-5 text-violet-300 mr-2" />
@@ -193,7 +193,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
                     </div>
                     
                     {/* Cash Flow Card */}
-                    <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 sm:p-4 border border-violet-400/20">
+                    <div className="bg-white/20 backdrop-blur-sm rounded-xl p-3 sm:p-4 border border-violet-400/20">
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center">
                           <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-violet-300 mr-2" />
@@ -205,7 +205,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
                     </div>
                     
                     {/* Next Milestone Card */}
-                    <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 sm:p-4 border border-violet-400/20">
+                    <div className="bg-white/20 backdrop-blur-sm rounded-xl p-3 sm:p-4 border border-violet-400/20">
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center">
                           <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-violet-300 mr-2" />
