@@ -19,6 +19,7 @@ import QuickSetupOverlay from '../components/QuickSetupOverlay';
 import SpendingMilestonesWidget from '../components/SpendingMilestonesWidget';
 import SpecialDatesWidget from '../components/SpecialDatesWidget';
 import FinancialForecastTab from '../components/FinancialForecastTab';
+import UserProfile from '../components/UserProfile';
 import { useAuth } from '../hooks/useAuth';
 import { useAnalytics } from '../hooks/useAnalytics';
 import { useDashboardStore, useDashboardSelectors } from '../stores/dashboardStore';
@@ -41,6 +42,7 @@ const CareerProtectionDashboard: React.FC = () => {
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
   const { trackPageView, trackInteraction } = useAnalytics();
+  const [showProfileModal, setShowProfileModal] = useState(false);
   
   // Use ref to track initialization - prevents double-initialization
   const hasInitializedRef = useRef(false);
@@ -303,6 +305,13 @@ const CareerProtectionDashboard: React.FC = () => {
               
               <div className="flex items-center gap-2 sm:gap-4">
                 <HousingNotificationSystem />
+                <button
+                  onClick={() => setShowProfileModal(true)}
+                  className="text-sm text-purple-600 hover:text-purple-700 font-medium px-2 py-1 rounded hover:bg-purple-50 transition-colors"
+                >
+                  <span className="hidden sm:inline">Edit Profile</span>
+                  <span className="sm:hidden">👤</span>
+                </button>
                 <button
                   onClick={() => {
                     fetchHousingData().catch(err => console.error('Failed to refresh:', err));
@@ -611,6 +620,29 @@ const CareerProtectionDashboard: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Edit Profile Modal */}
+      {showProfileModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 p-4">
+          <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-xl">
+            <button
+              onClick={() => setShowProfileModal(false)}
+              className="absolute top-4 right-4 z-10 text-white bg-gray-700 hover:bg-gray-600 rounded-full w-8 h-8 flex items-center justify-center text-lg font-bold"
+              aria-label="Close profile editor"
+            >
+              ×
+            </button>
+            <UserProfile
+              onSave={(data) => {
+                console.log('Profile updated:', data);
+                setShowProfileModal(false);
+              }}
+              onComplete={() => setShowProfileModal(false)}
+            />
+          </div>
+        </div>
+      )}
+
       <QuickSetupOverlay
         isOpen={showQuickSetup}
         onClose={() => setShowQuickSetup(false)}
