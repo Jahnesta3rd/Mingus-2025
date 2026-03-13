@@ -674,7 +674,7 @@ const LandingPage: React.FC = () => {
           <div className="text-center mt-8">
             <button
               onClick={() => navigate('/signup?source=cta')}
-              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3 rounded-lg font-semibold transition-all duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3 min-h-[44px] rounded-lg font-semibold transition-all duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
               aria-label="Get started with Mingus to access job recommendations"
             >
               Get Started
