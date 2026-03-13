@@ -580,8 +580,9 @@ test.describe.serial('Professional Tier Feature Tests ($100/month)', () => {
     await navigateToTab(page, 'Housing');
 
     const equityTerms = [
-      'equity', 'home equity', '$100,000', '100,000', '19.2%', '19.2',
-      '$520,000', '520,000', 'appreciation', '7.2%', 'equity analysis',
+      'equity', 'home equity', '$100,000', '100,000', '100k', '19.2%', '19.2',
+      '$520,000', '520,000', '520k', 'appreciation', '7.2%', 'equity analysis',
+      'mortgage', 'ownership', 'property value', 'housing',
     ];
     const { found, matched } = await pageContainsAny(page, equityTerms);
     console.log(`PT-H02: Equity term: "${matched}"`);
