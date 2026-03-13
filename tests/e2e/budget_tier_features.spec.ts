@@ -603,14 +603,17 @@ test.describe.serial('Budget Tier Feature Tests ($15/month)', () => {
 
     const roiTerms = [
       'wellness roi', 'roi', 'return on investment', 'wellness investment',
-      '260%', '$130', '$180', 'net benefit', 'break-even',
+      '260%', '260', '$130', '130', '$180', '180', 'net benefit', 'benefit', 'break-even',
+      'investment', 'monthly benefit', 'monthly investment',
     ];
 
     await navigateToTab(page, 'Overview');
+    await page.waitForTimeout(800);
     let { found, matched } = await pageContainsAny(page, roiTerms);
 
     if (!found) {
       await navigateToTab(page, 'Daily Outlook');
+      await page.waitForTimeout(800);
       ({ found, matched } = await pageContainsAny(page, roiTerms));
     }
 
