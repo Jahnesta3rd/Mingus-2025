@@ -166,9 +166,9 @@ const NavigationBar: React.FC<NavigationBarProps> = ({ className = '' }) => {
               />
             </div>
             <div className="hidden sm:block">
-              <h1 className="text-xl font-bold text-white">
+              <span className="text-xl font-bold text-white">
                 Mingus
-              </h1>
+              </span>
             </div>
           </div>
 
