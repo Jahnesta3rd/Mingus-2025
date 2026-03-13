@@ -108,7 +108,7 @@ const LoginPage: React.FC = () => {
               Forgot password?
             </Link>
           </div>
-          {error && <div className="text-red-600 text-sm text-center">{error}</div>}
+          {error && <div className="text-red-600 text-sm text-center" role="alert" aria-live="assertive">{error}</div>}
           <div>
             <button
               type="submit"
