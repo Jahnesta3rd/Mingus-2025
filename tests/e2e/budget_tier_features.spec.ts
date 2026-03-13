@@ -703,8 +703,12 @@ test.describe.serial('Budget Tier Feature Tests ($15/month)', () => {
     const proFeatureFound = proOnlyTerms.find(t => bodyText.includes(t));
 
     if (proFeatureFound) {
-      // If found, it should be behind an upgrade prompt
-      const upgradeLocked = bodyText.includes('upgrade') || bodyText.includes('locked') || bodyText.includes('professional');
+      // If found, it should be behind an upgrade prompt (or "unlock" CTA)
+      const upgradeLocked =
+        bodyText.includes('upgrade') ||
+        bodyText.includes('unlock') ||
+        bodyText.includes('locked') ||
+        bodyText.includes('professional');
       console.log(`BT-E02: Pro feature "${proFeatureFound}" found — locked: ${upgradeLocked}`);
       expect(upgradeLocked).toBe(true);
     } else {
