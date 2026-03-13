@@ -257,7 +257,7 @@ const NavigationBar: React.FC<NavigationBarProps> = ({ className = '' }) => {
           <div className="md:hidden mobile-menu-container">
             <button
               onClick={handleMenuToggle}
-              className="text-gray-300 hover:text-white p-2 rounded-md transition-colors duration-200 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-900"
+              className="text-gray-300 hover:text-white p-2 min-h-[44px] min-w-[44px] rounded-md transition-colors duration-200 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-900"
               aria-label={isMenuOpen ? "Close mobile menu" : "Open mobile menu"}
               aria-expanded={isMenuOpen}
               aria-controls="mobile-menu"
