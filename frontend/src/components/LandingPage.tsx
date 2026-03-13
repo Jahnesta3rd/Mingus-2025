@@ -613,7 +613,7 @@ const LandingPage: React.FC = () => {
             <div className="text-center">
               <button
                 onClick={() => navigate('/signup?source=direct')}
-                className="text-gray-400 hover:text-white transition-colors text-sm underline"
+                className="text-gray-400 hover:text-white transition-colors text-sm underline min-h-[44px] px-3"
               >
                 Skip assessments and sign up directly
               </button>
