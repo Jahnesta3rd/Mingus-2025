@@ -188,6 +188,29 @@ let context: BrowserContext | undefined;
 let page: Page | undefined;
 
 async function addAllMocks(p: Page) {
+  // Auth verify — so useAuth() sets user and dashboard does not redirect to login
+  await p.route('**/api/auth/verify**', async (route) => {
+    if (route.request().method() !== 'GET') return route.fallback();
+    await route.fulfill({
+      status: 200, contentType: 'application/json',
+      body: JSON.stringify({
+        authenticated: true,
+        user_id: 3,
+        email: JASMINE.email,
+        name: JASMINE.name,
+        tier: 'professional',
+      }),
+    });
+  });
+
+  // Vibe mock — prevent VibeGuard from redirecting to /vibe-check
+  await p.route('**/api/vibe/daily', async (route) => {
+    await route.fulfill({
+      status: 200, contentType: 'application/json',
+      body: JSON.stringify({ has_vibe: false, vibe: null }),
+    });
+  });
+
   await p.route('**/api/profile/setup-status**', async (route) => {
     if (route.request().method() !== 'GET') return route.fallback();
     await route.fulfill({
@@ -268,11 +291,18 @@ async function addAllMocks(p: Page) {
 
 async function loginAndGoToDashboard(p: Page, ctx: BrowserContext) {
   await ctx.clearCookies();
-  await p.goto(`${BASE_URL}/login`);
-  await p.waitForLoadState('domcontentloaded');
+  await p.goto(`${BASE_URL}/login`, { waitUntil: 'domcontentloaded', timeout: 30000 });
   try { await p.evaluate(() => { localStorage.clear(); sessionStorage.clear(); }); } catch { /* ignore */ }
 
-  // Real login — let the server issue a real JWT cookie
+  // Register vibe mock early so VibeGuard never redirects to /vibe-check
+  await p.route('**/api/vibe/daily', async (route) => {
+    await route.fulfill({
+      status: 200, contentType: 'application/json',
+      body: JSON.stringify({ has_vibe: false, vibe: null }),
+    });
+  });
+
+  // Real login — server sets HttpOnly mingus_token cookie
   await p.getByLabel(/email/i).first().fill(JASMINE.email);
   await p.getByLabel(/password/i).first().fill(JASMINE.password);
   const loginResponse = p.waitForResponse(
@@ -282,24 +312,32 @@ async function loginAndGoToDashboard(p: Page, ctx: BrowserContext) {
   await p.getByRole('button', { name: /sign in|log in|login/i }).first().click();
   try { await loginResponse; } catch { /* proceed */ }
   await p.waitForLoadState('domcontentloaded');
-  await p.waitForTimeout(1500);
+  await p.waitForURL(/\/(?:dashboard|vibe-check-meme)/, { timeout: 15000 }).catch(() => {});
+  await p.waitForTimeout(2000);
 
-  // Handle vibe-check redirect
+  // Satisfy AuthGuard + VibeGuard so dashboard (or vibe-check) doesn't redirect to login
+  try {
+    await p.evaluate(() => {
+      localStorage.setItem('auth_token', 'ok');
+      const today = new Date().toISOString().split('T')[0];
+      sessionStorage.setItem('last_vibe_date', today);
+    });
+  } catch { /* ignore */ }
+
+  // Handle vibe-check-meme: go to dashboard (mocks already active from before login)
   if (p.url().includes('vibe-check-meme')) {
-    await p.goto(`${BASE_URL}/dashboard`);
-    await p.waitForLoadState('domcontentloaded');
+    await p.goto(`${BASE_URL}/dashboard`, { waitUntil: 'domcontentloaded', timeout: 30000 });
     await p.waitForTimeout(2000);
   }
 
-  // Force navigate to dashboard if not there
+  // If still not on dashboard, install mocks and navigate
   if (!p.url().includes('/dashboard')) {
-    await p.goto(`${BASE_URL}/dashboard`);
-    await p.waitForLoadState('domcontentloaded');
-    await p.waitForTimeout(2000);
+    await addAllMocks(p);
+    await p.goto(`${BASE_URL}/dashboard`, { waitUntil: 'domcontentloaded', timeout: 30000 });
+    await p.waitForTimeout(3000);
+  } else {
+    await addAllMocks(p);
   }
-
-  // Add data mocks AFTER real auth
-  await addAllMocks(p);
   await dismissModal(p);
 }
 
@@ -344,10 +382,16 @@ async function ensureOnDashboard(p: Page | undefined) {
     test.skip(true, 'Dashboard auth redirect — covered in dashboard_access.spec.ts');
     return;
   }
+  try {
+    await p.evaluate(() => {
+      localStorage.setItem('auth_token', 'ok');
+      const today = new Date().toISOString().split('T')[0];
+      sessionStorage.setItem('last_vibe_date', today);
+    });
+  } catch { /* ignore */ }
   await addAllMocks(p);
   try {
-    await p.goto(`${BASE_URL}/dashboard`);
-    await p.waitForLoadState('domcontentloaded');
+    await p.goto(`${BASE_URL}/dashboard`, { waitUntil: 'domcontentloaded', timeout: 30000 });
     await p.waitForTimeout(2000);
   } catch (e) {
     console.log(`ensureOnDashboard: goto/load failed (e.g. browser closed) — skipping:`, e);
