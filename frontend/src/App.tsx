@@ -16,6 +16,7 @@ import VibeGuard from './guards/VibeGuard';
 import LandingPage from './components/LandingPage';
 import SignUpPage from './pages/SignUpPage';
 import CheckoutPage from './pages/CheckoutPage';
+import PreLaunchTracker from './pages/PreLaunchTracker';
 
 const VibeCheckMemeWrapper: React.FC = () => {
   const navigate = useNavigate();
@@ -31,6 +32,9 @@ const router = createBrowserRouter([
   { path: '/forgot-password', element: <ForgotPasswordPage /> },
   { path: '/reset-password', element: <ResetPasswordPage /> },
   { path: '/checkout', element: <CheckoutPage /> },
+
+  // Pre-launch fix tracker (internal)
+  { path: '/pre-launch', element: <PreLaunchTracker /> },
 
   // Logo splash (first stop after login)
   {

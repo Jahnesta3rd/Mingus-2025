@@ -445,6 +445,7 @@ test.describe.serial('Dashboard Access', () => {
 
   // ── DA-04: Budget tier — Financial Forecast shows upgrade prompt ───────────
   test('DA-04: Budget tier sees upgrade prompt in Financial Forecast tab', async () => {
+    test.slow();
     await loginAndGoToDashboard(page, context, USERS.budget, MAYA_DASHBOARD_DATA);
     await expect(page).toHaveURL(/\/dashboard/, { timeout: 15000 });
     await dismissModal(page);

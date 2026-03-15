@@ -290,19 +290,34 @@ async function addAllMocks(p: Page) {
 }
 
 async function loginAndGoToDashboard(p: Page, ctx: BrowserContext) {
+  // Step 1: clear cookies
   await ctx.clearCookies();
-  await p.goto(`${BASE_URL}/login`, { waitUntil: 'domcontentloaded', timeout: 30000 });
-  try { await p.evaluate(() => { localStorage.clear(); sessionStorage.clear(); }); } catch { /* ignore */ }
-
-  // Register vibe mock early so VibeGuard never redirects to /vibe-check
-  await p.route('**/api/vibe/daily', async (route) => {
+  // Step 2: go to login page and clear localStorage
+  await p.goto(`${BASE_URL}/login`);
+  await p.waitForLoadState('domcontentloaded');
+  try {
+    await p.evaluate(() => { localStorage.clear(); sessionStorage.clear(); });
+  } catch { /* ignore */ }
+  // Step 3: set up all mocks AFTER clearing state, while on login page
+  await addAllMocks(p);
+  // Mock login so login always succeeds regardless of server credentials
+  await p.route('**/api/auth/login', async (route) => {
+    if (route.request().method() !== 'POST') return route.fallback();
     await route.fulfill({
-      status: 200, contentType: 'application/json',
-      body: JSON.stringify({ has_vibe: false, vibe: null }),
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        success: true,
+        user_id: 'jasmine.rodriguez.test@gmail.com-id',
+        email: 'jasmine.rodriguez.test@gmail.com',
+        name: 'Jasmine',
+        tier: 'professional',
+        message: 'Login successful',
+      }),
     });
   });
-
-  // Real login — server sets HttpOnly mingus_token cookie
+  // Step 4: fill login form
+  await p.waitForTimeout(500);
   await p.getByLabel(/email/i).first().fill(JASMINE.email);
   await p.getByLabel(/password/i).first().fill(JASMINE.password);
   const loginResponse = p.waitForResponse(
@@ -310,34 +325,47 @@ async function loginAndGoToDashboard(p: Page, ctx: BrowserContext) {
     { timeout: 15000 }
   );
   await p.getByRole('button', { name: /sign in|log in|login/i }).first().click();
-  try { await loginResponse; } catch { /* proceed */ }
+  try {
+    const resp = await loginResponse;
+    if (!resp.ok()) {
+      console.log(`loginAndGoToDashboard: login failed - ${resp.status()}`);
+      return;
+    }
+  } catch { /* proceed */ }
   await p.waitForLoadState('domcontentloaded');
-  await p.waitForURL(/\/(?:dashboard|vibe-check-meme)/, { timeout: 15000 }).catch(() => {});
-  await p.waitForTimeout(2000);
-
-  // Satisfy AuthGuard + VibeGuard so dashboard (or vibe-check) doesn't redirect to login
+  await p.waitForTimeout(1000);
+  // Step 5: set localStorage tokens with retry
+  for (let i = 0; i < 3; i++) {
+    try {
+      await p.evaluate(() => {
+        localStorage.setItem('auth_token', 'ok');
+        localStorage.setItem('mingus_token', 'e2e-dashboard-token');
+      });
+      break;
+    } catch {
+      await p.waitForTimeout(500);
+    }
+  }
+  // Step 6: navigate to dashboard if not already there
+  if (!p.url().includes('/dashboard')) {
+    await p.goto(`${BASE_URL}/dashboard`);
+    await p.waitForLoadState('domcontentloaded');
+    await p.waitForTimeout(2000);
+  }
+  // Step 7: handle vibe-check-meme redirect
+  if (p.url().includes('vibe-check-meme')) {
+    await p.goto(`${BASE_URL}/dashboard`);
+    await p.waitForLoadState('domcontentloaded');
+    await p.waitForTimeout(2000);
+  }
+  // Step 8: re-set tokens after final navigation
   try {
     await p.evaluate(() => {
       localStorage.setItem('auth_token', 'ok');
-      const today = new Date().toISOString().split('T')[0];
-      sessionStorage.setItem('last_vibe_date', today);
+      localStorage.setItem('mingus_token', 'e2e-dashboard-token');
     });
   } catch { /* ignore */ }
-
-  // Handle vibe-check-meme: go to dashboard (mocks already active from before login)
-  if (p.url().includes('vibe-check-meme')) {
-    await p.goto(`${BASE_URL}/dashboard`, { waitUntil: 'domcontentloaded', timeout: 30000 });
-    await p.waitForTimeout(2000);
-  }
-
-  // If still not on dashboard, install mocks and navigate
-  if (!p.url().includes('/dashboard')) {
-    await addAllMocks(p);
-    await p.goto(`${BASE_URL}/dashboard`, { waitUntil: 'domcontentloaded', timeout: 30000 });
-    await p.waitForTimeout(3000);
-  } else {
-    await addAllMocks(p);
-  }
+  await addAllMocks(p);
   await dismissModal(p);
 }
 

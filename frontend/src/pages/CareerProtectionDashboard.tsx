@@ -40,7 +40,7 @@ interface DashboardState {
 
 const CareerProtectionDashboard: React.FC = () => {
   const navigate = useNavigate();
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, loading: authLoading } = useAuth();
   const { trackPageView, trackInteraction } = useAnalytics();
   const [showProfileModal, setShowProfileModal] = useState(false);
   
@@ -107,17 +107,20 @@ const CareerProtectionDashboard: React.FC = () => {
     document.title = 'Dashboard';
   }, []);
 
-  // SINGLE useEffect that runs ONCE on mount - all data fetching happens here
+  // Wait for auth check (/api/auth/verify) before redirecting — avoids e2e race
   useEffect(() => {
-    // Prevent double-initialization
-    if (hasInitializedRef.current) return;
-    hasInitializedRef.current = true;
-
-    // Authentication check - redirect if not authenticated
+    if (authLoading) return;
     if (!isAuthenticated) {
       navigate('/login');
       return;
     }
+  }, [authLoading, isAuthenticated, navigate]);
+
+  // SINGLE useEffect that runs ONCE after auth is ready - all data fetching happens here
+  useEffect(() => {
+    if (authLoading || !isAuthenticated) return;
+    if (hasInitializedRef.current) return;
+    hasInitializedRef.current = true;
 
     // Set up periodic housing data sync every 5 minutes
     const interval = setInterval(() => {
@@ -190,7 +193,7 @@ const CareerProtectionDashboard: React.FC = () => {
     // Cleanup interval on unmount
     return () => clearInterval(interval);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // EMPTY dependency array - runs once on mount only
+  }, [authLoading, isAuthenticated]); // Run when auth is ready, then once (ref guards re-run)
   
   const handleTabChange = async (tab: DashboardState['activeTab']) => {
     setDashboardState(prev => ({ ...prev, activeTab: tab }));
