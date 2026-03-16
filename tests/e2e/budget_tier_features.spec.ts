@@ -364,30 +364,46 @@ async function loginAndGoToDashboard(p: Page, ctx: BrowserContext) {
 }
 
 async function dismissModal(p: Page) {
-  await p.waitForTimeout(800);
-  const overlay = p.locator('.fixed.inset-0').first();
-  if (!await overlay.isVisible().catch(() => false)) return;
-  for (const sel of [
-    "button:has-text(\"I'll do this later\")",
-    'button:has-text("Later")',
-    '[aria-label="Close and skip setup"]',
-    'button:has-text("Continue to Dashboard")',
-    'button:has-text("Close")',
-    'button:has-text("Skip")',
-    '[aria-label="Close"]',
-    '[role="dialog"] button',
-    '.fixed.inset-0 button', // any button in overlay
-  ]) {
-    const btn = p.locator(sel).first();
-    if (await btn.isVisible().catch(() => false)) {
-      await btn.click().catch(() => {});
-      await p.waitForTimeout(500);
-      break;
+  if (!p) return;
+  // Try multiple times to close any overlay
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const overlay = p.locator('.fixed.inset-0').first();
+    const isVisible = await overlay.isVisible().catch(() => false);
+    if (!isVisible) break;
+
+    // Try each dismiss selector in order
+    const selectors = [
+      "button:has-text(\"I'll do this later\")",
+      'button:has-text("Later")',
+      '[aria-label="Close and skip setup"]',
+      'button:has-text("Continue to Dashboard")',
+      'button:has-text("Close")',
+      'button:has-text("Skip")',
+      '[aria-label="Close"]',
+      '[role="dialog"] button',
+      '.fixed.inset-0 button',
+      '.bg-gray-800 button',
+    ];
+
+    let dismissed = false;
+    for (const sel of selectors) {
+      const el = p.locator(sel).first();
+      if (await el.isVisible().catch(() => false)) {
+        await el.click({ force: true }).catch(() => {});
+        await p.waitForTimeout(500);
+        dismissed = true;
+        break;
+      }
     }
-  }
-  if (await overlay.isVisible().catch(() => false)) {
-    await p.keyboard.press('Escape');
-    await p.waitForTimeout(500);
+
+    if (!dismissed) {
+      // Force close with Escape
+      await p.keyboard.press('Escape').catch(() => {});
+      await p.waitForTimeout(500);
+    }
+
+    // Wait for overlay to disappear
+    await overlay.waitFor({ state: 'hidden', timeout: 3000 }).catch(() => {});
   }
 }
 
