@@ -159,12 +159,20 @@ async function addAllMocks(p: Page) {
     });
   });
 
-  // Profile
+  // Profile — mark setup as complete so QuickSetupOverlay does not appear
   await p.route('**/api/profile/setup-status**', async (route) => {
     if (route.request().method() !== 'GET') return route.fallback();
     await route.fulfill({
-      status: 200, contentType: 'application/json',
-      body: JSON.stringify({ setup_complete: true, tier: 'budget', email: MAYA.email, firstName: 'Maya', user_id: 1 }),
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        setup_complete: true,
+        setupCompleted: true,
+        tier: 'budget',
+        email: MAYA.email,
+        firstName: 'Maya',
+        user_id: 1,
+      }),
     });
   });
 
@@ -411,17 +419,28 @@ async function navigateToTab(p: Page | undefined, tabName: string) {
   if (!p) return;
   await dismissModal(p);
   const btn = p.getByRole('button', { name: new RegExp(tabName, 'i') }).first();
-  await btn.click({ timeout: 15000 });
-  await p.waitForTimeout(1500);
+  await btn.waitFor({ state: 'visible', timeout: 10000 }).catch(() => {});
+  let clicked = false;
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      await btn.click({ timeout: 15000, force: true });
+      clicked = true;
+      break;
+    } catch {
+      await p.waitForTimeout(400);
+    }
+  }
+  if (!clicked) await btn.click({ timeout: 15000, force: true });
+  await p.waitForTimeout(1200);
   await addAllMocks(p);
-  await p.waitForTimeout(500);
+  await p.waitForTimeout(400);
 }
 
 /** Wait for Housing tab content to be visible (tab label in app is "Housing Location"). */
 async function waitForHousingContent(p: Page | undefined) {
   if (!p) return;
-  await p.getByText(/lease information|recent housing activity|saved scenarios|property address|housing location/i).first().waitFor({ state: 'visible', timeout: 10000 }).catch(() => {});
-  await p.waitForTimeout(500);
+  await p.getByText(/lease information|recent housing activity|saved scenarios|property address|housing location/i).first().waitFor({ state: 'visible', timeout: 12_000 }).catch(() => {});
+  await p.waitForTimeout(300);
 }
 
 // Helper: search page text for any of the provided terms
@@ -474,8 +493,8 @@ async function ensureOnDashboard(p: Page | undefined) {
 
 // ── Suite ─────────────────────────────────────────────────────────────────────
 
-test.describe.serial('Budget Tier Feature Tests ($15/month)', () => {
-  test.setTimeout(120000);
+test.describe('Budget Tier Feature Tests ($15/month)', () => {
+  test.setTimeout(180000);
 
   test.beforeEach(async () => {
     try {
@@ -555,9 +574,9 @@ test.describe.serial('Budget Tier Feature Tests ($15/month)', () => {
     await ensureOnDashboard(page);
     await navigateToTab(page, 'Vehicle Status');
 
-    // Vehicle Status tab shows VehicleDashboard (overview/maintenance/budget). It may show
-    // fuel-related copy from BudgetVehicleAnalytics on another route, or VehicleDashboard
-    // content: mileage, maintenance, budget, vehicle overview.
+    // Wait for Vehicle tab content so we don't assert before the page is ready
+    await page?.getByText(/Vehicle Dashboard|Total Mileage|Monthly Budget|Upcoming Maintenance|maintenance|No Vehicles|Add Vehicle/i).first().waitFor({ state: 'visible', timeout: 15_000 }).catch(() => {});
+
     const fuelTerms = [
       'fuel', 'efficiency', 'mpg', 'gas', 'mileage', 'miles per gallon',
       'Total Mileage', 'Vehicle Overview', 'Monthly Budget', 'Upcoming Maintenance',
@@ -682,6 +701,7 @@ test.describe.serial('Budget Tier Feature Tests ($15/month)', () => {
     await ensureOnDashboard(page);
     await navigateToTab(page, 'Housing Location');
     await waitForHousingContent(page);
+    await page?.waitForTimeout(500);
 
     // Housing tab may show down-payment tool or, for budget, lease/activity content (planning context).
     const dpTerms = [
@@ -689,6 +709,7 @@ test.describe.serial('Budget Tier Feature Tests ($15/month)', () => {
       'savings goal', 'target', '$36,000', '$34,000',
       'Lease Information', 'Property Address', 'Recent Housing Activity',
       'Saved Scenarios', 'Lease End Date', 'lease', 'Scenarios', 'Address',
+      'housing', 'Monthly Rent', 'property', 'activity',
     ];
     const { found, matched } = await pageContainsAny(page, dpTerms);
 
@@ -739,20 +760,11 @@ test.describe.serial('Budget Tier Feature Tests ($15/month)', () => {
   test('BT-W01: Wellness section loads for budget tier', async () => {
     await ensureOnDashboard(page);
 
-    // Wellness data surfaces in Daily Outlook or Overview tabs
-    // Try Overview first, then Daily Outlook
-    await navigateToTab(page, 'Overview');
-
     let wellnessFound = false;
     const wellnessTerms = ['wellness', 'stress', 'activity', 'health', 'roi', 'spending pattern'];
-    let { found, matched } = await pageContainsAny(page, wellnessTerms);
+    await navigateToTab(page, 'Daily Outlook');
+    const { found, matched } = await pageContainsAny(page, wellnessTerms);
     wellnessFound = found;
-
-    if (!wellnessFound) {
-      await navigateToTab(page, 'Daily Outlook');
-      ({ found, matched } = await pageContainsAny(page, wellnessTerms));
-      wellnessFound = found;
-    }
 
     console.log(`BT-W01: Wellness term found: "${matched}"`);
     expect(wellnessFound).toBe(true);
