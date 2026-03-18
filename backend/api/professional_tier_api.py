@@ -288,7 +288,7 @@ def log_mileage():
             return jsonify({'error': 'Invalid mileage values'}), 400
         
         # Get current IRS mileage rate (this would typically come from a service)
-        current_mileage_rate = Decimal('0.655')  # 2024 rate, should be dynamic
+        current_mileage_rate = Decimal('0.67')  # 2024 rate, should be dynamic
         
         # Calculate business deduction
         business_deduction = Decimal(str(business_miles)) * current_mileage_rate
@@ -466,7 +466,7 @@ def calculate_tax_deductions():
         
         # Calculate mileage deduction
         total_business_miles = sum(log.business_miles for log in mileage_logs)
-        mileage_rate = Decimal('0.655')  # 2024 rate
+        mileage_rate = Decimal('0.67')  # 2024 rate
         mileage_deduction = Decimal(str(total_business_miles)) * mileage_rate
         
         # Calculate actual expenses deduction
@@ -606,7 +606,7 @@ def generate_tax_report():
             total_business_miles=total_business_miles,
             total_personal_miles=total_personal_miles,
             mileage_deduction_amount=Decimal(str(mileage_deduction)),
-            average_mileage_rate=Decimal('0.655'),
+            average_mileage_rate=Decimal('0.67'),
             total_business_expenses=total_business_expenses,
             maintenance_expenses=maintenance_expenses,
             fuel_expenses=fuel_expenses,

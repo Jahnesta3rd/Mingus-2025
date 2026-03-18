@@ -22,6 +22,7 @@ import {
 import { useAuth } from '../hooks/useAuth';
 import { useAnalytics } from '../hooks/useAnalytics';
 import { useDailyOutlookCache } from '../hooks/useDailyOutlookCache';
+import MCIConditionsStrip from './MCIConditionsStrip';
 
 // ========================================
 // TYPESCRIPT INTERFACES
@@ -246,6 +247,24 @@ const DailyOutlookCard: React.FC<DailyOutlookCardProps> = ({
   }
 
   const tierColor = getTierColor(outlookData.user_tier);
+  const mciUserTier: "budget" | "mid" | "professional" =
+    user?.tier === 'professional'
+      ? 'professional'
+      : user?.tier === 'mid_tier'
+        ? 'mid'
+        : user?.tier
+          ? // Fall back to what Daily Outlook returned (e.g. budget_career_vehicle)
+            outlookData.user_tier === 'professional'
+              ? 'professional'
+              : outlookData.user_tier === 'mid_tier'
+                ? 'mid'
+                : 'budget'
+          : // If auth tier isn't available yet, use the API-backed tier.
+            outlookData.user_tier === 'professional'
+              ? 'professional'
+              : outlookData.user_tier === 'mid_tier'
+                ? 'mid'
+                : 'budget';
 
   // ========================================
   // COMPACT VERSION
@@ -386,6 +405,10 @@ const DailyOutlookCard: React.FC<DailyOutlookCardProps> = ({
         </div>
 
         {/* Primary Insight */}
+        <MCIConditionsStrip
+          userTier={mciUserTier}
+          className="mt-4 mb-2"
+        />
         <div className={`rounded-lg p-4 mb-4 border ${getInsightTypeColor(outlookData.primary_insight.type)}`}>
           <div className="flex items-start space-x-3">
             {getInsightIcon(outlookData.primary_insight.icon)}

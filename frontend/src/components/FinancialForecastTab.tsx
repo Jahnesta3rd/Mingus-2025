@@ -10,6 +10,9 @@ import {
   ReferenceLine,
 } from 'recharts';
 
+import { useMCI } from '../context/MCIContext';
+import type { MCIDirection, MCIConstituent, MCISeverity } from '../types/mci';
+
 // ========================================
 // TYPES
 // ========================================
@@ -152,6 +155,186 @@ function buildMonthlyTableRows(daily: DailyCashflowEntry[]): MonthlyTableRow[] {
         worst_status: worst,
       };
     });
+}
+
+function formatMciMonthDay(isoDate: string): string {
+  const d = new Date(isoDate);
+  if (Number.isNaN(d.getTime())) return isoDate;
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
+function getMCIDotClasses(severity: MCISeverity): string {
+  switch (severity) {
+    case 'green':
+      return 'bg-green-500';
+    case 'amber':
+      return 'bg-amber-500';
+    case 'red':
+      return 'bg-red-500';
+    default:
+      return 'bg-gray-400';
+  }
+}
+
+function getMCIDirectionClasses(direction: MCIDirection): string {
+  switch (direction) {
+    case 'up':
+      return 'text-green-600';
+    case 'down':
+      return 'text-red-600';
+    case 'flat':
+      return 'text-gray-500';
+    default:
+      return 'text-gray-500';
+  }
+}
+
+function getDirectionArrow(direction: MCIDirection): string {
+  switch (direction) {
+    case 'up':
+      return '↑';
+    case 'down':
+      return '↓';
+    case 'flat':
+      return '→';
+    default:
+      return '→';
+  }
+}
+
+interface MCIForecastPanelProps {
+  userTier: 'budget' | 'mid' | 'professional';
+}
+
+function MCIForecastPanel({ userTier }: MCIForecastPanelProps) {
+  const { snapshot, loading, error } = useMCI();
+
+  const renderSkeleton = () => (
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4" role="status" aria-label="Loading market conditions">
+      {[1, 2].map((i) => (
+        <div key={i} className="rounded-xl border border-gray-100 p-4 bg-white shadow-sm animate-pulse">
+          <div className="h-4 w-40 bg-gray-200 rounded mb-3" />
+          <div className="h-3 w-24 bg-gray-200 rounded mb-2" />
+          <div className="h-3 w-32 bg-gray-200 rounded mb-2" />
+          <div className="h-3 w-28 bg-gray-200 rounded" />
+        </div>
+      ))}
+    </div>
+  );
+
+  if (loading) {
+    return (
+      <div className="mb-6">
+        {renderSkeleton()}
+      </div>
+    );
+  }
+
+  if (error || !snapshot) {
+    return null;
+  }
+
+  const findConstituent = (slug: string): MCIConstituent | undefined =>
+    snapshot.constituents.find((c) => c.slug === slug);
+
+  const labor = findConstituent('labor_market_strength');
+  const housing = findConstituent('housing_affordability_pressure');
+
+  if (userTier === 'budget') {
+    return (
+      <div className="mb-6">
+        <div className="bg-gray-50 border border-dashed border-gray-200 rounded-xl p-4">
+          <div className="flex items-start gap-3">
+            <div className="mt-1 w-8 h-8 rounded-lg bg-white border border-gray-200 flex items-center justify-center">
+              {/* Simple inline lock icon */}
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+                <path
+                  d="M7 10V7.8C7 5.149 9.239 3 12 3C14.761 3 17 5.149 17 7.8V10"
+                  stroke="#6b7280"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                />
+                <path
+                  d="M6.5 10H17.5C18.328 10 19 10.672 19 11.5V19C19 19.828 18.328 20.5 17.5 20.5H6.5C5.672 20.5 5 19.828 5 19V11.5C5 10.672 5.672 10 6.5 10Z"
+                  stroke="#6b7280"
+                  strokeWidth="2"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M12 14V16"
+                  stroke="#6b7280"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                />
+              </svg>
+            </div>
+            <div className="flex-1">
+              <p className="text-sm font-medium text-gray-700">
+                Upgrade to Mid-tier to see how market conditions affect your forecast
+              </p>
+              <a
+                href="/#pricing"
+                className="mt-3 inline-block rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800"
+              >
+                View Plans
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const renderInterpretation = (c: MCIConstituent, interpretKind: 'labor' | 'housing') => {
+    if (interpretKind === 'labor') {
+      if (c.severity === 'green') return 'Job market is strong — your income projection is stable.';
+      if (c.severity === 'amber') return 'Job market is cooling — consider a conservative forecast.';
+      return 'Layoff risk is elevated — review your emergency fund target.';
+    }
+    // housing
+    if (c.severity === 'green') return 'Mortgage rates are favorable for your home buying timeline.';
+    if (c.severity === 'amber') return 'Rates are elevated — re-run your affordability calculator.';
+    return 'Rates are high — your rent vs. buy decision may have shifted.';
+  };
+
+  const renderConstituentCard = (c: MCIConstituent | undefined, kind: 'labor' | 'housing') => {
+    if (!c) {
+      return (
+        <div className="border border-gray-100 rounded-xl p-4 bg-white shadow-sm">
+          <p className="text-sm font-medium text-gray-700">{kind === 'labor' ? 'Labor unavailable' : 'Housing unavailable'}</p>
+        </div>
+      );
+    }
+
+    return (
+      <div className="border border-gray-100 rounded-xl p-4 bg-white shadow-sm">
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <span className={`h-2 w-2 rounded-full ${getMCIDotClasses(c.severity)}`} aria-hidden />
+            <div className="text-sm font-medium text-gray-800">{c.name}</div>
+          </div>
+          <div className={`text-sm font-medium ${getMCIDirectionClasses(c.direction)}`} aria-hidden>
+            {getDirectionArrow(c.direction)}
+          </div>
+        </div>
+        <div className="mt-2 text-sm font-medium text-gray-700">{c.headline}</div>
+        <div className="mt-2 text-xs text-gray-600">{renderInterpretation(c, kind)}</div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="mb-6">
+      <div className="mb-4">
+        <h3 className="text-sm font-semibold text-gray-700">Market conditions affecting your forecast</h3>
+        <p className="text-xs text-gray-400">Updated {formatMciMonthDay(snapshot.snapshot_date)}</p>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {renderConstituentCard(labor, 'labor')}
+        {renderConstituentCard(housing, 'housing')}
+      </div>
+    </div>
+  );
 }
 
 // ========================================
@@ -331,6 +514,7 @@ export default function FinancialForecastTab({
 
   return (
     <div className={`space-y-6 ${className}`}>
+      <MCIForecastPanel userTier={userTier} />
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         {/* Card 1 — Today's Balance */}
         <div className="rounded-xl bg-white p-6 shadow-sm">

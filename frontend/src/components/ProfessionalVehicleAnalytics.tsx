@@ -620,7 +620,7 @@ const TaxOptimizationTab: React.FC<{ data: ProfessionalAnalyticsData }> = ({ dat
                 <TableRow>
                   <TableCell>Business Miles</TableCell>
                   <TableCell align="right">{data.businessMetrics.totalBusinessMiles.toLocaleString()}</TableCell>
-                  <TableCell align="right">${(data.businessMetrics.totalBusinessMiles * 0.655).toFixed(0)}</TableCell>
+                  <TableCell align="right">${(data.businessMetrics.totalBusinessMiles * 0.67).toFixed(0)}</TableCell>
                 </TableRow>
                 <TableRow>
                   <TableCell>Vehicle Depreciation</TableCell>

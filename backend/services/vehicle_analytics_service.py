@@ -439,7 +439,7 @@ class VehicleAnalyticsService:
         business_use_percentage = (total_business_miles / (total_business_miles + total_personal_miles)) * 100
         
         # Calculate tax deduction
-        tax_deduction_amount = total_business_miles * 0.655  # 2024 IRS rate
+        tax_deduction_amount = total_business_miles * 0.67  # 2024 IRS rate
         
         return {
             'totalBusinessMiles': total_business_miles,
