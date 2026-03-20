@@ -427,7 +427,6 @@ async function loginAndGoToDashboard(p: Page, ctx: BrowserContext, user: (typeof
 
 // ── Test Suite ────────────────────────────────────────────────────────────────
 test.describe.serial('MCI Conditions Index', () => {
-  test.skip(true, 'MCI strip not yet implemented in frontend — unblock when /api/mci/snapshot is integrated into DailyOutlookCard');
   test.setTimeout(180000);
 
   test.afterEach(async () => {

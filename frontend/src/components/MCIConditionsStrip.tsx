@@ -275,8 +275,9 @@ const MCIConditionsStrip: React.FC<MCIConditionsStripProps> = ({
 
       {/* Expanded: constituent grid */}
       <div
-        className="overflow-hidden transition-all duration-300"
-        style={{ maxHeight: expanded ? 1000 : 0, opacity: expanded ? 1 : 0.98 }}
+        className={`overflow-hidden transition-all duration-300 ${expanded ? "" : "invisible"}`}
+        style={{ maxHeight: expanded ? 1000 : 0 }}
+        aria-hidden={!expanded}
       >
         <div className="pt-4">
           <div
