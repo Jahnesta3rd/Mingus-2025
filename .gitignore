@@ -13,6 +13,9 @@ __pycache__/
 build/
 develop-eggs/
 dist/
+# Track Vite build output (see also committed frontend/dist/)
+!frontend/dist/
+!frontend/dist/**
 downloads/
 eggs/
 .eggs/
