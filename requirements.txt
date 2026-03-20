@@ -40,3 +40,4 @@ typing
 re
 time
 resend
+beautifulsoup4

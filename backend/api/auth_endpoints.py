@@ -21,7 +21,7 @@ from backend.utils.password import hash_password, check_password, verify_passwor
  # TODO PRE-LAUNCH: Replace with Redis-backed rate limiting via flask-limiter.
  # Current in-memory dict is per-worker and resets on restart.
  # Also replace request.remote_addr with X-Real-IP header for nginx deployments.
- _rate_limit_store = {}
+_rate_limit_store = {}
 _rate_limit_max = 100  # requests per minute
 _rate_limit_window = 60  # seconds
 
