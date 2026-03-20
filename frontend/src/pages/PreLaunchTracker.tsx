@@ -57,7 +57,7 @@ const INITIAL_ITEMS: PreLaunchItem[] = [
     id: "FIX-06", priority: "recommended", status: "open",
     suite: "Accessibility", test: "ACC-06",
     title: "Two <h1> tags on landing page",
-    detail: 'Landing has "Mingus" and "Financial Wellness Built For Our Community" both as H1. Demote second to H2.',
+    detail: 'Landing has "Mingus" and "Financial Wellness Built For The Underdogs" both as H1. Demote second to H2.',
     file: "frontend/src/components/LandingPage.tsx"
   },
   {
@@ -85,7 +85,7 @@ const INITIAL_ITEMS: PreLaunchItem[] = [
     id: "FIX-10", priority: "recommended", status: "open",
     suite: "Accessibility", test: "ACC-09",
     title: "6 text elements fail 4.5:1 contrast ratio",
-    detail: 'Failing: "For Our Community" overlay, stat labels (Wellness Score, Cash Flow, Next Milestone), "+$2,340" value, "FREE" badge. Need darker text or adjusted backgrounds.',
+    detail: 'Failing: "For The Underdogs" overlay, stat labels (Wellness Score, Cash Flow, Next Milestone), "+$2,340" value, "FREE" badge. Need darker text or adjusted backgrounds.',
     file: "frontend/src/components/LandingPage.tsx"
   },
   {

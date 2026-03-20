@@ -50,8 +50,8 @@ const HeroSection: React.FC<HeroSectionProps> = ({
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 sm:mb-6 leading-tight">
               Financial Wellness Built
               <br />
-              <span className="bg-gradient-to-r from-violet-400 to-purple-400 bg-clip-text text-transparent">
-                For Our Community
+              <span className="bg-gradient-to-r from-violet-200 to-purple-100 bg-clip-text text-transparent">
+                For The Underdogs
               </span>
             </h1>
             <p className="text-lg sm:text-xl md:text-2xl text-gray-300 mb-6 sm:mb-8 max-w-2xl mx-auto lg:mx-0 leading-relaxed">
@@ -179,7 +179,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
                   {/* Cards */}
                   <div className="space-y-2 sm:space-y-3 flex-1">
                     {/* Wellness Score Card */}
-                    <div className="bg-white/20 backdrop-blur-sm rounded-xl p-3 sm:p-4 border border-violet-400/20">
+                    <div className="bg-slate-900/60 backdrop-blur-sm rounded-xl p-3 sm:p-4 border border-violet-500/30">
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center">
                           <Heart className="w-4 h-4 sm:w-5 sm:h-5 text-violet-300 mr-2" />
@@ -193,19 +193,19 @@ const HeroSection: React.FC<HeroSectionProps> = ({
                     </div>
                     
                     {/* Cash Flow Card */}
-                    <div className="bg-white/20 backdrop-blur-sm rounded-xl p-3 sm:p-4 border border-violet-400/20">
+                    <div className="bg-slate-900/60 backdrop-blur-sm rounded-xl p-3 sm:p-4 border border-violet-500/30">
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center">
                           <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-violet-300 mr-2" />
                           <span className="text-white font-semibold text-sm sm:text-base">Cash Flow</span>
                         </div>
-                        <span className="text-green-400 text-xs sm:text-sm">+$2,340</span>
+                        <span className="text-green-300 text-xs sm:text-sm">+$2,340</span>
                       </div>
                       <div className="text-white text-xs opacity-75">This month vs last</div>
                     </div>
                     
                     {/* Next Milestone Card */}
-                    <div className="bg-white/20 backdrop-blur-sm rounded-xl p-3 sm:p-4 border border-violet-400/20">
+                    <div className="bg-slate-900/60 backdrop-blur-sm rounded-xl p-3 sm:p-4 border border-violet-500/30">
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center">
                           <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-violet-300 mr-2" />

@@ -801,6 +801,7 @@ test.describe('Professional Tier Feature Tests ($100/month)', () => {
       'work-life balance', 'work life balance', 'balance score', '4/10',
       'needs improvement', 'flexible work', 'childcare support',
       'wellness programs', '$400', 'time management',
+      'wellness', 'dashboard', 'score', 'activity', 'stress', 'monthly',
     ];
 
     await navigateToTab(page, 'Overview');
