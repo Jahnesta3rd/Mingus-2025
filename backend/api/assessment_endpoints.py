@@ -4,8 +4,7 @@ Provides endpoints for handling lead magnet assessments
 """
 
 import os
-import psycopg2
-import psycopg2.extras
+import sqlite3
 import json
 import logging
 import hashlib
@@ -26,8 +25,17 @@ assessment_api = Blueprint('assessment_api', __name__, url_prefix='/api')
 
 def get_db_connection():
     """Get database connection"""
-    conn = psycopg2.connect(os.environ['DATABASE_URL'])
-    conn.cursor_factory = psycopg2.extras.RealDictCursor
+    db_url = os.environ.get('DATABASE_URL', 'sqlite:////var/www/mingus/instance/app.db')
+    # Strip sqlite:/// or sqlite://// prefix
+    if db_url.startswith('sqlite:////'):
+        db_path = db_url[len('sqlite:////'):]
+        db_path = '/' + db_path
+    elif db_url.startswith('sqlite:///'):
+        db_path = db_url[len('sqlite:///'):]
+    else:
+        db_path = '/var/www/mingus/instance/app.db'
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
     return conn
 
 def init_assessment_db():
@@ -140,8 +148,7 @@ def submit_assessment():
         # Insert assessment data with encrypted email
         cursor.execute('''
             INSERT INTO assessments (email, first_name, phone, assessment_type, answers, completed_at)
-            VALUES (%s, %s, %s, %s, %s, %s)
-            RETURNING id
+            VALUES (?, ?, ?, ?, ?, ?)
         ''', (
             email_hash,  # Store hashed email instead of plain text
             sanitized_data.get('firstName'),
@@ -151,7 +158,7 @@ def submit_assessment():
             sanitized_data.get('completedAt', datetime.now().isoformat())
         ))
         
-        assessment_id = cursor.fetchone()['id']
+        assessment_id = cursor.lastrowid
         
         if sanitized_data.get('calculatedResults'):
             cr = sanitized_data['calculatedResults']
@@ -170,7 +177,7 @@ def submit_assessment():
         subscores_json = json.dumps(results['subscores']) if results.get('subscores') else None
         cursor.execute('''
             INSERT INTO lead_magnet_results (assessment_id, email, assessment_type, score, risk_level, recommendations, subscores)
-            VALUES (%s, %s, %s, %s, %s, %s, %s)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
         ''', (
             assessment_id,
             email_hash,
@@ -295,7 +302,7 @@ def get_assessment_results(assessment_id):
             SELECT a.*, lmr.score, lmr.risk_level, lmr.recommendations
             FROM assessments a
             LEFT JOIN lead_magnet_results lmr ON a.id = lmr.assessment_id
-            WHERE a.id = %s
+            WHERE a.id = ?
         ''', (assessment_id,))
         
         result = cursor.fetchone()
@@ -362,7 +369,7 @@ def sync_assessments_to_profile(email):
                lmr.score, lmr.risk_level, lmr.recommendations, lmr.subscores
         FROM assessments a
         LEFT JOIN lead_magnet_results lmr ON a.id = lmr.assessment_id
-        WHERE a.email = %s
+        WHERE a.email = ?
         ORDER BY a.completed_at DESC
     ''', (email_hash,))
     rows = cursor.fetchall()
@@ -450,7 +457,7 @@ def track_assessment_analytics():
         
         cursor.execute('''
             INSERT INTO assessment_analytics (assessment_id, action, question_id, answer_value, session_id, user_agent)
-            VALUES (%s, %s, %s, %s, %s, %s)
+            VALUES (?, ?, ?, ?, ?, ?)
         ''', (
             data.get('assessment_id'),
             data['action'],
@@ -1010,7 +1017,7 @@ def log_assessment_analytics(assessment_id, action, data):
         
         cursor.execute('''
             INSERT INTO assessment_analytics (assessment_id, action, session_id, user_agent)
-            VALUES (%s, %s, %s, %s)
+            VALUES (?, ?, ?, ?)
         ''', (
             assessment_id,
             action,

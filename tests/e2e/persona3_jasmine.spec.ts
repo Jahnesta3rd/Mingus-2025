@@ -1,4 +1,5 @@
 import { test, expect, chromium, Browser, BrowserContext, Page } from '@playwright/test';
+import handlePaymentIntent from './support/payment_intent';
 
 /**
  * Persona 3 - Jasmine Rodriguez
@@ -491,6 +492,8 @@ test.describe('Persona 3 - Jasmine', () => {
       const passwordInput = page.locator('#signup-password');
       await expect(passwordInput).toBeVisible({ timeout: 10000 });
       await passwordInput.fill('SecureTest123!');
+
+      await handlePaymentIntent(page, 'test-user@email.com');
       await page.getByRole('button', { name: /Create Account & Continue/i }).first().click();
       await expect(page).toHaveURL(/\/checkout/, { timeout: 15000 });
     }
@@ -504,17 +507,8 @@ test.describe('Persona 3 - Jasmine', () => {
     await professionalTierBtn.click({ force: true });
     await page.waitForTimeout(1000);
 
-    const e2eSecret = process.env.E2E_PAYMENT_SECRET || 'e2e-payment-secret';
-    await page.route('**/api/create-payment-intent', async (route) => {
-      if (route.request().method() !== 'POST') return route.fallback();
-      await route.continue({
-        headers: {
-          ...route.request().headers(),
-          'X-E2E-Secret': e2eSecret,
-          'X-E2E-User-Email': JASMINE_EMAIL,
-        },
-      });
-    });
+    // Ensure create-payment-intent is mocked (local) or carries required headers (live)
+    await handlePaymentIntent(page, 'test-user@email.com');
 
     const continueBtn = page.getByTestId('checkout-continue');
     await expect(continueBtn).toBeEnabled({ timeout: 5000 });
@@ -532,10 +526,14 @@ test.describe('Persona 3 - Jasmine', () => {
       try {
         body = await response.json();
       } catch {
-        // non-JSON or empty body
+        /* empty */
       }
       if (status !== 200 || !body?.clientSecret) {
         throw new Error(`create-payment-intent failed: status=${status} body=${JSON.stringify(body)}`);
+      }
+      if (body.clientSecret.startsWith('pi_test_mock')) {
+        console.log('Payment mocked — skipping Stripe card entry');
+        return;
       }
     } catch (e) {
       if (gotResponse) throw e;

@@ -71,13 +71,18 @@ const DEVICE_PROFILES = {
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 async function setupMobileContext(browser: any, profile: typeof DEVICE_PROFILES.iphone) {
-  const context = await browser.newContext({
+  // Firefox does not support isMobile on newContext (throws)
+  const isFirefox = browser.browserType().name() === 'firefox';
+
+  const contextOptions = {
     viewport: profile.viewport,
     deviceScaleFactor: profile.deviceScaleFactor,
-    isMobile: profile.isMobile,
     hasTouch: profile.hasTouch,
     userAgent: profile.userAgent,
-  });
+    ...(!isFirefox ? { isMobile: profile.isMobile } : {}),
+  };
+
+  const context = await browser.newContext(contextOptions);
   const page = await context.newPage();
   return { context, page };
 }

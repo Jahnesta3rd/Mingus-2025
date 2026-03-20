@@ -235,6 +235,7 @@ const MCIConditionsStrip: React.FC<MCIConditionsStripProps> = ({
         if (e.key === "Enter" || e.key === " ") toggleExpanded();
       }}
       aria-expanded={expanded}
+      data-testid="mci-strip"
     >
       {/* Collapsed Row */}
       <div className="flex items-center justify-between gap-4">
@@ -242,6 +243,7 @@ const MCIConditionsStrip: React.FC<MCIConditionsStripProps> = ({
           <div className="flex flex-col items-center">
             <div
               className={`w-12 h-12 rounded-full flex items-center justify-center ${compStyles.badgeBg} ${compStyles.badgeText} font-semibold`}
+              data-testid="mci-composite-score"
             >
               {compositeScoreInt}
             </div>

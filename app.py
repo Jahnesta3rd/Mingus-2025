@@ -252,6 +252,10 @@ app.register_blueprint(housing_api)
 from backend.api.gas_price_endpoints import gas_price_api
 app.register_blueprint(gas_price_api)
 
+# Import and register MCI snapshot API
+from backend.api.mci_api import mci_api
+app.register_blueprint(mci_api)
+
 # Import and register Professional tier APIs
 from backend.api.professional_tier_api import professional_tier_api
 from backend.api.business_integrations_api import business_integrations_api

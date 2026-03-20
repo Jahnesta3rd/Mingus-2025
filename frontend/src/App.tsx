@@ -13,6 +13,7 @@ import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
 import AuthGuard from './guards/AuthGuard';
 import VibeGuard from './guards/VibeGuard';
+import { MCIProvider } from './context/MCIContext';
 import LandingPage from './components/LandingPage';
 import SignUpPage from './pages/SignUpPage';
 import CheckoutPage from './pages/CheckoutPage';
@@ -70,7 +71,9 @@ const router = createBrowserRouter([
     element: (
       <AuthGuard>
         <VibeGuard>
-          <CareerProtectionDashboard />
+          <MCIProvider>
+            <CareerProtectionDashboard />
+          </MCIProvider>
         </VibeGuard>
       </AuthGuard>
     ),

@@ -1,4 +1,5 @@
 import { test, expect, chromium, Browser, BrowserContext, Page } from '@playwright/test';
+import handlePaymentIntent from './support/payment_intent';
 
 const BASE_URL = 'https://test.mingusapp.com';
 
@@ -535,6 +536,8 @@ test.describe('Persona 1 - Maya', () => {
       const passwordInput = page.locator('#signup-password');
       await expect(passwordInput).toBeVisible({ timeout: 10000 });
       await passwordInput.fill('SecureTest123!');
+
+      await handlePaymentIntent(page, 'test-user@email.com');
       await page.getByRole('button', { name: /Create Account & Continue/i }).click();
       await expect(page).toHaveURL(/\/checkout/, { timeout: 15000 });
       console.log('P1F: Signup complete, now on checkout:', page.url());
@@ -558,17 +561,9 @@ test.describe('Persona 1 - Maya', () => {
     await page.waitForTimeout(1000);
     await page.screenshot({ path: 'test-results/p1f-tier-selected.png', fullPage: true });
     console.log('P1F: Budget tier clicked');
-    // E2E auth: add headers so backend accepts create-payment-intent without JWT (signup is mocked)
-    const e2eSecret = process.env.E2E_PAYMENT_SECRET || 'e2e-payment-secret';
-    await page.route('**/api/create-payment-intent', async (route) => {
-      if (route.request().method() !== 'POST') return route.fallback();
-      const headers = {
-        ...route.request().headers(),
-        'X-E2E-Secret': e2eSecret,
-        'X-E2E-User-Email': 'maya.johnson.test@gmail.com',
-      };
-      await route.continue({ headers });
-    });
+
+    // Ensure create-payment-intent is mocked (local) or carries required headers (live)
+    await handlePaymentIntent(page, 'test-user@email.com');
     // Listen for the payment intent request
     let paymentIntentFired = false;
     page.on('request', req => {
@@ -599,11 +594,15 @@ test.describe('Persona 1 - Maya', () => {
       try {
         body = await response.json();
       } catch {
-        // non-JSON or empty body
+        /* empty */
       }
       console.log('P1F: create-payment-intent response status:', status, 'has clientSecret:', !!body?.clientSecret);
       if (status !== 200 || !body?.clientSecret) {
         throw new Error(`create-payment-intent failed: status=${status} body=${JSON.stringify(body)}`);
+      }
+      if (body.clientSecret.startsWith('pi_test_mock')) {
+        console.log('Payment mocked — skipping Stripe card entry');
+        return;
       }
     } catch (e) {
       if (gotResponse) throw e;

@@ -1,11 +1,16 @@
 import os
 import logging
-import resend
+try:
+    import resend  # type: ignore
+except ModuleNotFoundError:  # pragma: no cover
+    resend = None
 from typing import Optional
 
 logger = logging.getLogger(__name__)
 
-resend.api_key = os.getenv("RESEND_API_KEY", "")
+# Configure Resend only if the dependency is available.
+if resend is not None:
+    resend.api_key = os.getenv("RESEND_API_KEY", "")
 
 FROM_EMAIL = os.getenv("FROM_EMAIL", "hello@mingusapp.com")
 FROM_NAME  = os.getenv("FROM_NAME",  "Mingus")
@@ -29,6 +34,10 @@ class EmailService:
         recommendations: list,
     ) -> bool:
         try:
+            if resend is None:
+                logger.warning("Resend dependency not installed; skipping email send.")
+                return False
+
             label = ASSESSMENT_LABELS.get(assessment_type, assessment_type.replace("-", " ").title())
             score = results.get("score", "N/A")
             risk  = results.get("risk_level", "")
@@ -84,6 +93,10 @@ class EmailService:
 
     def send_welcome_email(self, email: str, first_name: str) -> bool:
         try:
+            if resend is None:
+                logger.warning("Resend dependency not installed; skipping welcome email send.")
+                return False
+
             html = f"""
 <!DOCTYPE html>
 <html>

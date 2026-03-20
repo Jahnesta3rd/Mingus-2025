@@ -137,3 +137,6 @@ requirements_*.txt
 # Database credentials - DO NOT COMMIT
 DATABASE_CREDENTIALS_SECURE.md
 node_modules
+
+# MCI file cache artifacts
+backend/cache/*.json

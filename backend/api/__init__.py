@@ -16,6 +16,7 @@ from .user_endpoints import user_bp
 from .career_endpoints import career_bp
 from .wellness_checkin_api import wellness_checkin_bp
 from .financial_setup_api import financial_setup_bp
+from .mci_api import mci_api
 
 # List of all API blueprints
 API_BLUEPRINTS = [
@@ -35,7 +36,8 @@ API_BLUEPRINTS = [
     user_bp,
     career_bp,
     wellness_checkin_bp,
-    financial_setup_bp
+    financial_setup_bp,
+    mci_api,
 ]
 
 def register_all_apis(app):
