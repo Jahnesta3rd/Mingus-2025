@@ -426,7 +426,8 @@ async function loginAndGoToDashboard(p: Page, ctx: BrowserContext, user: (typeof
 }
 
 // ── Test Suite ────────────────────────────────────────────────────────────────
-test.describe.serial('MCI Conditions Index', () => {
+// Two serial groups so a Budget failure does not skip all Mid-tier MCI tests (and vice versa).
+test.describe.serial('MCI Conditions Index — Budget tier', () => {
   test.setTimeout(180000);
 
   test.afterEach(async () => {
@@ -482,37 +483,7 @@ test.describe.serial('MCI Conditions Index', () => {
 
       await expect(page.getByText(/Today’s Focus/i)).toBeVisible({ timeout: 15000 });
 
-      // Debug: show what API endpoints are hit for this flow.
-      // (We need this because the deployed app isn't calling `/api/mci/snapshot`.)
-      const mciUrlsAtT0 = apiUrls.filter((u) => u.includes('/api/mci/'));
-      console.log('MCI-01 debug apiUrls (t0):', apiUrls.slice(0, 30));
-      console.log('MCI-01 debug mciUrls (t0):', mciUrlsAtT0);
-      console.log('MCI-01 debug mciLikeUrls (t0):', mciLikeUrls);
-
       await page.waitForTimeout(10000);
-
-      const mciUrlsAtT10 = apiUrls.filter((u) => u.includes('/api/mci/'));
-      console.log('MCI-01 debug apiUrls (t+10s):', apiUrls.slice(0, 50));
-      console.log('MCI-01 debug mciUrls (t+10s):', mciUrlsAtT10);
-      console.log('MCI-01 debug mciLikeUrls (t+10s):', mciLikeUrls);
-      console.log('MCI-01 debug mciSnapshotHits:', mciSnapshotHits);
-
-      const conditionsUnavailableCount = await page.getByText(/Conditions unavailable/i).count();
-      const viewConditionsButtonCount = await page.getByRole('button', { name: /View conditions/i }).count();
-      const hideConditionsButtonCount = await page.getByRole('button', { name: /Hide conditions/i }).count();
-      const housingCostsCount = await page.getByText(/Housing costs/i).count();
-      const mciStripByTestIdCount = await page.locator('[data-testid="mci-strip"]').count();
-      const anyConditionWordCount = await page.getByText(/condition/i).count();
-      const anyMciWordCount = await page.getByText(/MCI/i).count();
-      console.log('MCI-01 debug dom counts:', {
-        conditionsUnavailableCount,
-        viewConditionsButtonCount,
-        hideConditionsButtonCount,
-        housingCostsCount,
-        mciStripByTestIdCount,
-        anyConditionWordCount,
-        anyMciWordCount,
-      });
 
       const collapsedStrip = page.getByRole('button', { name: /View conditions/i }).first();
 
@@ -546,6 +517,18 @@ test.describe.serial('MCI Conditions Index', () => {
       ).toBeVisible();
       await expect(page.getByText('Market conditions affecting your forecast')).toHaveCount(0);
     });
+  });
+});
+
+test.describe.serial('MCI Conditions Index — Mid tier', () => {
+  test.setTimeout(180000);
+
+  test.afterEach(async () => {
+    try {
+      await browser?.close();
+    } catch {
+      // ignore
+    }
   });
 
   test.describe('Mid tier (marcus)', () => {
