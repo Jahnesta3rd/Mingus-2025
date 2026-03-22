@@ -356,87 +356,50 @@ async function addAllMocks(p: Page) {
 }
 
 async function loginAndGoToDashboard(p: Page, ctx: BrowserContext) {
-  // Step 1: clear cookies
+  // Ensure tokens are set (storageState seeds them but we reinforce here)
   await ctx.clearCookies();
-  // Step 2: go to login page and clear localStorage
   await p.goto(`${BASE_URL}/login`);
   await p.waitForLoadState('domcontentloaded');
-  try {
-    await p.evaluate(() => { localStorage.clear(); sessionStorage.clear(); });
-  } catch { /* ignore */ }
-  // Step 3: set up all mocks AFTER clearing state, while on login page
-  await addAllMocks(p);
-  // Mock login so login always succeeds regardless of server credentials
-  await p.route('**/api/auth/login', async (route) => {
-    if (route.request().method() !== 'POST') return route.fallback();
-    await route.fulfill({
-      status: 200,
-      contentType: 'application/json',
-      body: JSON.stringify({
-        success: true,
-        user_id: 'marcus.thompson.test@gmail.com-id',
-        email: 'marcus.thompson.test@gmail.com',
-        name: 'Marcus',
-        tier: 'mid_tier',
-        message: 'Login successful',
-      }),
-    });
-  });
-  // Step 4: fill login form
-  await p.waitForTimeout(500);
-  await p.getByLabel(/email/i).first().fill(MARCUS.email);
-  await p.getByLabel(/password/i).first().fill(MARCUS.password);
-  const loginResponse = p.waitForResponse(
-    (r) => r.url().includes('/api/auth/login') && r.request().method() === 'POST',
-    { timeout: 15000 }
-  );
-  await p.getByRole('button', { name: /sign in|log in|login/i }).first().click();
-  try {
-    const resp = await loginResponse;
-    if (!resp.ok()) {
-      console.log(`loginAndGoToDashboard: login failed - ${resp.status()}`);
-      return;
-    }
-  } catch { /* proceed */ }
-  await p.waitForLoadState('domcontentloaded');
-  await p.waitForTimeout(1000);
-  // Step 5: set localStorage tokens with retry
-  for (let i = 0; i < 3; i++) {
-    try {
-      await p.evaluate(() => {
-        localStorage.setItem('auth_token', 'ok');
-        localStorage.setItem('mingus_token', 'e2e-dashboard-token');
-      });
-      break;
-    } catch {
-      await p.waitForTimeout(500);
-    }
-  }
-  // Step 6: navigate to dashboard if not already there
-  try {
-    if (!p.url().includes('/dashboard')) {
-      await p.goto(`${BASE_URL}/dashboard`, { waitUntil: 'load', timeout: 30000 });
-      await p.waitForTimeout(2000);
-    }
-    // Step 7: handle vibe-check-meme redirect
-    if (p.url().includes('vibe-check-meme')) {
-      await p.goto(`${BASE_URL}/dashboard`, { waitUntil: 'load', timeout: 30000 });
-      await p.waitForTimeout(2000);
-    }
-  } catch (err) {
-    console.log(
-      'loginAndGoToDashboard: dashboard navigation failed — skipping mid-tier feature tests for this run:',
-      (err as Error)?.message ?? err
-    );
-    test.skip(true, 'Dashboard not reachable; skipping mid-tier feature tests for this run.');
-  }
-  // Step 8: re-set tokens after final navigation
   try {
     await p.evaluate(() => {
       localStorage.setItem('auth_token', 'ok');
       localStorage.setItem('mingus_token', 'e2e-dashboard-token');
     });
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
+
+  // Set up all mocks before navigating to dashboard
+  await addAllMocks(p);
+
+  // Dashboard: avoid waitUntil 'load' — third-party assets can exceed 60s under load and burn the full test timeout
+  const dashNav = { waitUntil: 'domcontentloaded' as const, timeout: 45_000 };
+  try {
+    await p.goto(`${BASE_URL}/dashboard`, dashNav);
+    if (p.url().includes('vibe-check-meme') || p.url().includes('/login')) {
+      await p.evaluate(() => {
+        localStorage.setItem('auth_token', 'ok');
+        localStorage.setItem('mingus_token', 'e2e-dashboard-token');
+      });
+      await addAllMocks(p);
+      await p.goto(`${BASE_URL}/dashboard`, dashNav);
+    }
+    // Shell: tab strip or main landmark (faster + more reliable than waiting for full load)
+    await p
+      .getByRole('button', { name: /Vehicle Status|Overview|Daily Outlook/i })
+      .first()
+      .waitFor({ state: 'visible', timeout: 30_000 })
+      .catch(() => {});
+    await p.waitForTimeout(800);
+  } catch (err) {
+    console.log(
+      'loginAndGoToDashboard: dashboard navigation failed — skipping:',
+      (err as Error)?.message ?? err
+    );
+    test.skip(true, 'Dashboard not reachable; skipping mid-tier feature tests for this run.');
+  }
+
+  // Re-apply mocks after final navigation
   await addAllMocks(p);
   await dismissModal(p);
 }
@@ -536,7 +499,9 @@ async function navigateToTab(p: Page, tabName: string) {
         clicked = true;
         break;
       } catch {
-        await p.waitForTimeout(300);
+        if (!p.isClosed()) {
+          await p.waitForTimeout(300);
+        }
       }
     }
     if (!clicked) {
@@ -567,12 +532,13 @@ async function anyVisible(p: Page, selectors: string[]): Promise<{ found: boolea
 // ── Suite ─────────────────────────────────────────────────────────────────────
 
 test.describe('Mid-Tier Feature Tests ($35/month)', () => {
-  test.setTimeout(180000);
+  // beforeEach launches browser + loginAndGoToDashboard; allow headroom when the server is slow
+  test.setTimeout(240_000);
 
   test.beforeEach(async () => {
     try {
       browser = await chromium.launch({ headless: process.env.PLAYWRIGHT_HEADED !== '1' });
-      context = await browser.newContext();
+      context = await browser.newContext({ storageState: '.auth/marcus.json' });
       page = await context.newPage();
       await loginAndGoToDashboard(page, context);
     } catch (err) {

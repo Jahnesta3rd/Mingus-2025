@@ -1,0 +1,12 @@
+{
+  "cookies": [],
+  "origins": [
+    {
+      "origin": "https://test.mingusapp.com",
+      "localStorage": [
+        { "name": "mingus_token", "value": "e2e-dashboard-token" },
+        { "name": "auth_token", "value": "ok" }
+      ]
+    }
+  ]
+}
