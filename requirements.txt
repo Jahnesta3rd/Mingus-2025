@@ -16,7 +16,6 @@ bcrypt==4.0.1
 python-dotenv==1.0.0
 
 # Database dependencies
-sqlite3
 Flask-SQLAlchemy==3.0.5
 
 # Image processing
@@ -26,18 +25,5 @@ Pillow==10.0.0
 reportlab==4.0.7
 
 # Utilities
-uuid
-datetime
-pathlib
-logging
-json
-os
-sys
-hashlib
-hmac
-secrets
-typing
-re
-time
 resend
 beautifulsoup4
