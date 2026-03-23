@@ -3,7 +3,8 @@ Resume Parsing API endpoints for extracting and analyzing resume data
 """
 
 import os
-import sqlite3
+import psycopg2
+import psycopg2.extras
 import json
 import logging
 import re
@@ -23,9 +24,14 @@ logger = logging.getLogger(__name__)
 resume_api = Blueprint('resume_api', __name__, url_prefix='/api')
 
 def get_db_connection():
-    """Get database connection"""
-    conn = sqlite3.connect('resume_parsing.db')
-    conn.row_factory = sqlite3.Row
+    """Get PostgreSQL database connection"""
+    db_url = os.environ.get('DATABASE_URL')
+    if not db_url:
+        raise RuntimeError(
+            "DATABASE_URL is required. SQLite is not supported."
+        )
+    conn = psycopg2.connect(db_url)
+    conn.cursor_factory = psycopg2.extras.RealDictCursor
     return conn
 
 def init_resume_database():
@@ -37,7 +43,7 @@ def init_resume_database():
         # Create resume parsing results table
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS resume_parsing_results (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                id SERIAL PRIMARY KEY,
                 user_id TEXT,
                 file_name TEXT,
                 file_hash TEXT UNIQUE,
@@ -53,7 +59,7 @@ def init_resume_database():
         # Create resume analytics table
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS resume_analytics (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                id SERIAL PRIMARY KEY,
                 resume_id INTEGER,
                 action TEXT NOT NULL,
                 data TEXT,
@@ -1566,7 +1572,7 @@ def parse_resume():
         conn = get_db_connection()
         cursor = conn.cursor()
         
-        cursor.execute('SELECT * FROM resume_parsing_results WHERE file_hash = ?', (file_hash,))
+        cursor.execute('SELECT * FROM resume_parsing_results WHERE file_hash = %s', (file_hash,))
         existing_result = cursor.fetchone()
         
         if existing_result:
@@ -1595,7 +1601,8 @@ def parse_resume():
         cursor.execute('''
             INSERT INTO resume_parsing_results 
             (user_id, file_name, file_hash, raw_content, parsed_data, extraction_errors, confidence_score, processing_time)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+            RETURNING id
         ''', (
             user_id,
             file_name,
@@ -1607,12 +1614,12 @@ def parse_resume():
             processing_time
         ))
         
-        resume_id = cursor.lastrowid
+        resume_id = cursor.fetchone()['id']
         
         # Track analytics
         cursor.execute('''
             INSERT INTO resume_analytics (resume_id, action, data)
-            VALUES (?, ?, ?)
+            VALUES (%s, %s, %s)
         ''', (resume_id, 'resume_parsed', json.dumps({
             'file_name': file_name,
             'content_length': len(content),
@@ -1660,7 +1667,7 @@ def get_resume_result(resume_id):
         cursor = conn.cursor()
         
         cursor.execute('''
-            SELECT * FROM resume_parsing_results WHERE id = ?
+            SELECT * FROM resume_parsing_results WHERE id = %s
         ''', (resume_id,))
         
         result = cursor.fetchone()
@@ -1715,7 +1722,7 @@ def get_resume_analytics():
         cursor.execute('''
             SELECT action, COUNT(*) as count 
             FROM resume_analytics 
-            WHERE timestamp > datetime('now', '-7 days')
+            WHERE timestamp > NOW() - INTERVAL '7 days'
             GROUP BY action
         ''')
         recent_activity = {row['action']: row['count'] for row in cursor.fetchall()}
