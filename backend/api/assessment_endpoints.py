@@ -4,7 +4,8 @@ Provides endpoints for handling lead magnet assessments
 """
 
 import os
-import sqlite3
+import psycopg2
+import psycopg2.extras
 import json
 import logging
 import hashlib
@@ -24,18 +25,14 @@ assessment_api = Blueprint('assessment_api', __name__, url_prefix='/api')
 
 
 def get_db_connection():
-    """Get database connection"""
-    db_url = os.environ.get('DATABASE_URL', 'sqlite:////var/www/mingus/instance/app.db')
-    # Strip sqlite:/// or sqlite://// prefix
-    if db_url.startswith('sqlite:////'):
-        db_path = db_url[len('sqlite:////'):]
-        db_path = '/' + db_path
-    elif db_url.startswith('sqlite:///'):
-        db_path = db_url[len('sqlite:///'):]
-    else:
-        db_path = '/var/www/mingus/instance/app.db'
-    conn = sqlite3.connect(db_path)
-    conn.row_factory = sqlite3.Row
+    """Get PostgreSQL database connection"""
+    db_url = os.environ.get('DATABASE_URL')
+    if not db_url:
+        raise RuntimeError(
+            "DATABASE_URL is required. SQLite is not supported."
+        )
+    conn = psycopg2.connect(db_url)
+    conn.cursor_factory = psycopg2.extras.RealDictCursor
     return conn
 
 def init_assessment_db():
@@ -98,6 +95,8 @@ def init_assessment_db():
         logger.info("Assessment database initialized successfully")
         
     except Exception as e:
+        if 'conn' in locals():
+            conn.rollback()
         logger.error(f"Error initializing assessment database: {e}")
         raise InternalServerError("Database initialization failed")
     finally:
@@ -148,7 +147,8 @@ def submit_assessment():
         # Insert assessment data with encrypted email
         cursor.execute('''
             INSERT INTO assessments (email, first_name, phone, assessment_type, answers, completed_at)
-            VALUES (?, ?, ?, ?, ?, ?)
+            VALUES (%s, %s, %s, %s, %s, %s)
+            RETURNING id
         ''', (
             email_hash,  # Store hashed email instead of plain text
             sanitized_data.get('firstName'),
@@ -158,7 +158,7 @@ def submit_assessment():
             sanitized_data.get('completedAt', datetime.now().isoformat())
         ))
         
-        assessment_id = cursor.lastrowid
+        assessment_id = cursor.fetchone()['id']
         
         if sanitized_data.get('calculatedResults'):
             cr = sanitized_data['calculatedResults']
@@ -177,7 +177,7 @@ def submit_assessment():
         subscores_json = json.dumps(results['subscores']) if results.get('subscores') else None
         cursor.execute('''
             INSERT INTO lead_magnet_results (assessment_id, email, assessment_type, score, risk_level, recommendations, subscores)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
         ''', (
             assessment_id,
             email_hash,
@@ -302,7 +302,7 @@ def get_assessment_results(assessment_id):
             SELECT a.*, lmr.score, lmr.risk_level, lmr.recommendations
             FROM assessments a
             LEFT JOIN lead_magnet_results lmr ON a.id = lmr.assessment_id
-            WHERE a.id = ?
+            WHERE a.id = %s
         ''', (assessment_id,))
         
         result = cursor.fetchone()
@@ -369,7 +369,7 @@ def sync_assessments_to_profile(email):
                lmr.score, lmr.risk_level, lmr.recommendations, lmr.subscores
         FROM assessments a
         LEFT JOIN lead_magnet_results lmr ON a.id = lmr.assessment_id
-        WHERE a.email = ?
+        WHERE a.email = %s
         ORDER BY a.completed_at DESC
     ''', (email_hash,))
     rows = cursor.fetchall()
@@ -377,7 +377,7 @@ def sync_assessments_to_profile(email):
     assessment_results = {}
     scores_by_type = {}
     for row in rows:
-        r = dict(row)  # sqlite3.Row has no .get(); convert so r.get() works
+        r = dict(row)  # Row has no .get(); convert so r.get() works
         aid = r['id']
         atype = r['assessment_type']
         raw_answers = r.get('answers')
@@ -403,19 +403,24 @@ def sync_assessments_to_profile(email):
         if atype in ('ai-risk', 'income-comparison', 'layoff-risk', 'vehicle-financial-health') and r.get('score') is not None:
             scores_by_type[atype] = r.get('score')
     fri = compute_financial_readiness_index(scores_by_type) if len(scores_by_type) >= 2 else None
-    profile_db_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'user_profiles.db'))
-    if not os.path.exists(profile_db_path):
-        return
-    pconn = sqlite3.connect(profile_db_path)
-    pc = pconn.cursor()
     try:
+        pconn = get_db_connection()
+        pc = pconn.cursor()
         pc.execute(
-            'UPDATE user_profiles SET assessment_results = ?, financial_readiness_index = ?, updated_at = ? WHERE email = ?',
-            (json.dumps(assessment_results), fri, datetime.now().isoformat(), email.lower().strip())
+            '''UPDATE user_profiles 
+               SET assessment_results = %s, 
+                   financial_readiness_index = %s, 
+                   updated_at = %s 
+               WHERE email = %s''',
+            (json.dumps(assessment_results), fri,
+             datetime.now().isoformat(), email.lower().strip())
         )
         pconn.commit()
+    except Exception as e:
+        logger.warning(f"Could not sync profile: {e}")
     finally:
-        pconn.close()
+        if 'pconn' in locals():
+            pconn.close()
 
 
 @assessment_api.route('/assessments/sync-profile', methods=['POST'])
@@ -457,7 +462,7 @@ def track_assessment_analytics():
         
         cursor.execute('''
             INSERT INTO assessment_analytics (assessment_id, action, question_id, answer_value, session_id, user_agent)
-            VALUES (?, ?, ?, ?, ?, ?)
+            VALUES (%s, %s, %s, %s, %s, %s)
         ''', (
             data.get('assessment_id'),
             data['action'],
@@ -1017,7 +1022,7 @@ def log_assessment_analytics(assessment_id, action, data):
         
         cursor.execute('''
             INSERT INTO assessment_analytics (assessment_id, action, session_id, user_agent)
-            VALUES (?, ?, ?, ?)
+            VALUES (%s, %s, %s, %s)
         ''', (
             assessment_id,
             action,
