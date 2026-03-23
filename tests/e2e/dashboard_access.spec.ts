@@ -363,7 +363,7 @@ test.describe.serial('Dashboard Access', () => {
 
   test.beforeEach(async () => {
     browser = await chromium.launch({ headless: false });
-    context = await browser.newContext();
+    context = await browser.newContext({ storageState: '.auth/marcus.json' });
     page = await context.newPage();
   });
 
@@ -381,7 +381,7 @@ test.describe.serial('Dashboard Access', () => {
           ? MARCUS_DASHBOARD_DATA
           : JASMINE_DASHBOARD_DATA;
 
-      const ctx = await browser.newContext();
+      const ctx = await browser.newContext({ storageState: '.auth/marcus.json' });
       const p = await ctx.newPage();
 
       await loginAndGoToDashboard(p, ctx, user, data);

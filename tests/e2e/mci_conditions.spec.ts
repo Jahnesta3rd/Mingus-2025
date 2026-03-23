@@ -446,7 +446,7 @@ test.describe.serial('MCI Conditions Index — Budget tier', () => {
 
     test.beforeEach(async () => {
       browser = await chromium.launch({ headless: process.env.PLAYWRIGHT_HEADED !== '1' });
-      context = await browser.newContext();
+      context = await browser.newContext({ storageState: '.auth/marcus.json' });
       page = await context.newPage();
 
       mciSnapshotHits = 0;
@@ -534,7 +534,7 @@ test.describe.serial('MCI Conditions Index — Mid tier', () => {
   test.describe('Mid tier (marcus)', () => {
     test.beforeEach(async () => {
       browser = await chromium.launch({ headless: process.env.PLAYWRIGHT_HEADED !== '1' });
-      context = await browser.newContext();
+      context = await browser.newContext({ storageState: '.auth/marcus.json' });
       page = await context.newPage();
 
       await page.route('**/api/mci/snapshot*', async (route) => {

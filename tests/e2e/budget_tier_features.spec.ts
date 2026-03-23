@@ -500,7 +500,7 @@ test.describe('Budget Tier Feature Tests ($15/month)', () => {
     try {
       browser = await chromium.launch({ headless: process.env.PLAYWRIGHT_HEADED === '1' ? false : true });
       if (!browser) throw new Error('Browser failed to launch');
-      context = await browser.newContext();
+      context = await browser.newContext({ storageState: '.auth/marcus.json' });
       page = await context.newPage();
       await loginAndGoToDashboard(page, context);
     } catch (err) {

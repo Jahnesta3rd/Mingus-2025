@@ -75,6 +75,7 @@ async function setupMobileContext(browser: any, profile: typeof DEVICE_PROFILES.
   const isFirefox = browser.browserType().name() === 'firefox';
 
   const contextOptions = {
+    storageState: '.auth/marcus.json',
     viewport: profile.viewport,
     deviceScaleFactor: profile.deviceScaleFactor,
     hasTouch: profile.hasTouch,

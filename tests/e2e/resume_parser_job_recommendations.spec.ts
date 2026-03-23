@@ -398,7 +398,7 @@ test.describe.serial('Resume Parser & Job Recommendation Tests', () => {
   test.beforeEach(async () => {
     try {
       browser = await chromium.launch({ headless: false });
-      context = await browser.newContext();
+      context = await browser.newContext({ storageState: '.auth/marcus.json' });
       page = await context.newPage();
     } catch (err) {
       console.log('beforeEach error:', err);
@@ -506,7 +506,7 @@ test.describe.serial('Resume Parser & Job Recommendation Tests', () => {
     const results: Record<string, boolean> = {};
 
     for (const tier of ['budget', 'mid', 'pro'] as const) {
-      const ctx2 = await browser.newContext();
+      const ctx2 = await browser.newContext({ storageState: '.auth/marcus.json' });
       const p2 = await ctx2.newPage();
       await loginAndGoToDashboard(p2, ctx2, tier);
       await ensureOnDashboard(p2, tier);
@@ -585,7 +585,7 @@ test.describe.serial('Resume Parser & Job Recommendation Tests', () => {
   test('RP-P04: Skills identified (technical and soft skills)', async () => {
     // Verify skills across all three tiers
     for (const tier of ['budget', 'mid', 'pro'] as const) {
-      const ctx2 = await browser.newContext();
+      const ctx2 = await browser.newContext({ storageState: '.auth/marcus.json' });
       const p2 = await ctx2.newPage();
       await addResumeMocks(p2, tier);
 
@@ -605,7 +605,7 @@ test.describe.serial('Resume Parser & Job Recommendation Tests', () => {
 
   test('RP-P05: Target salary range extracted', async () => {
     for (const tier of ['budget', 'mid', 'pro'] as const) {
-      const ctx2 = await browser.newContext();
+      const ctx2 = await browser.newContext({ storageState: '.auth/marcus.json' });
       const p2 = await ctx2.newPage();
       await addResumeMocks(p2, tier);
 
@@ -630,7 +630,7 @@ test.describe.serial('Resume Parser & Job Recommendation Tests', () => {
 
   test('RP-J01: Job Recommendations tab loads for all 3 tiers', async () => {
     for (const tier of ['budget', 'mid', 'pro'] as const) {
-      const ctx2 = await browser.newContext();
+      const ctx2 = await browser.newContext({ storageState: '.auth/marcus.json' });
       const p2 = await ctx2.newPage();
       await loginAndGoToDashboard(p2, ctx2, tier);
       await ensureOnDashboard(p2, tier);
@@ -647,7 +647,7 @@ test.describe.serial('Resume Parser & Job Recommendation Tests', () => {
   test('RP-J02: Job matches are relevant (all match scores ≥ 85%)', async () => {
     for (const tier of ['budget', 'mid', 'pro'] as const) {
       const jobs = JOB_RECOMMENDATIONS[tier];
-      const ctx2 = await browser.newContext();
+      const ctx2 = await browser.newContext({ storageState: '.auth/marcus.json' });
       const p2 = await ctx2.newPage();
       await addResumeMocks(p2, tier);
 
@@ -677,7 +677,7 @@ test.describe.serial('Resume Parser & Job Recommendation Tests', () => {
     };
 
     for (const tier of ['budget', 'mid', 'pro'] as const) {
-      const ctx2 = await browser.newContext();
+      const ctx2 = await browser.newContext({ storageState: '.auth/marcus.json' });
       const p2 = await ctx2.newPage();
       await addResumeMocks(p2, tier);
 
@@ -707,7 +707,7 @@ test.describe.serial('Resume Parser & Job Recommendation Tests', () => {
     };
 
     for (const tier of ['budget', 'mid', 'pro'] as const) {
-      const ctx2 = await browser.newContext();
+      const ctx2 = await browser.newContext({ storageState: '.auth/marcus.json' });
       const p2 = await ctx2.newPage();
       await addResumeMocks(p2, tier);
 
@@ -739,7 +739,7 @@ test.describe.serial('Resume Parser & Job Recommendation Tests', () => {
     };
 
     for (const tier of ['budget', 'mid', 'pro'] as const) {
-      const ctx2 = await browser.newContext();
+      const ctx2 = await browser.newContext({ storageState: '.auth/marcus.json' });
       const p2 = await ctx2.newPage();
       await addResumeMocks(p2, tier);
 
@@ -763,7 +763,7 @@ test.describe.serial('Resume Parser & Job Recommendation Tests', () => {
 
   test('RP-J06: Each persona receives at least 3 distinct job recommendations', async () => {
     for (const tier of ['budget', 'mid', 'pro'] as const) {
-      const ctx2 = await browser.newContext();
+      const ctx2 = await browser.newContext({ storageState: '.auth/marcus.json' });
       const p2 = await ctx2.newPage();
       await addResumeMocks(p2, tier);
 
@@ -796,7 +796,7 @@ test.describe.serial('Resume Parser & Job Recommendation Tests', () => {
     };
 
     for (const tier of ['budget', 'mid', 'pro'] as const) {
-      const ctx2 = await browser.newContext();
+      const ctx2 = await browser.newContext({ storageState: '.auth/marcus.json' });
       const p2 = await ctx2.newPage();
       await addResumeMocks(p2, tier);
 
@@ -829,7 +829,7 @@ test.describe.serial('Resume Parser & Job Recommendation Tests', () => {
     };
 
     for (const tier of ['budget', 'mid', 'pro'] as const) {
-      const ctx2 = await browser.newContext();
+      const ctx2 = await browser.newContext({ storageState: '.auth/marcus.json' });
       const p2 = await ctx2.newPage();
       await addResumeMocks(p2, tier);
 
@@ -860,7 +860,7 @@ test.describe.serial('Resume Parser & Job Recommendation Tests', () => {
     };
 
     for (const tier of ['budget', 'mid', 'pro'] as const) {
-      const ctx2 = await browser.newContext();
+      const ctx2 = await browser.newContext({ storageState: '.auth/marcus.json' });
       const p2 = await ctx2.newPage();
       await addResumeMocks(p2, tier);
 

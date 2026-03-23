@@ -361,7 +361,7 @@ test.describe.serial('Data Persistence', () => {
 
   test.beforeEach(async () => {
     browser = await chromium.launch({ headless: false });
-    context = await browser.newContext();
+    context = await browser.newContext({ storageState: '.auth/marcus.json' });
     page = await context.newPage();
   });
 
