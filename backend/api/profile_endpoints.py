@@ -3,7 +3,8 @@ Profile API endpoints for user profile and financial data
 """
 
 import os
-import sqlite3
+import psycopg2
+import psycopg2.extras
 import json
 import logging
 import hashlib
@@ -23,9 +24,14 @@ logger = logging.getLogger(__name__)
 profile_api = Blueprint('profile_api', __name__, url_prefix='/api')
 
 def get_db_connection():
-    """Get database connection"""
-    conn = sqlite3.connect('user_profiles.db')
-    conn.row_factory = sqlite3.Row
+    """Get PostgreSQL database connection"""
+    db_url = os.environ.get('DATABASE_URL')
+    if not db_url:
+        raise RuntimeError(
+            "DATABASE_URL is required. SQLite is not supported."
+        )
+    conn = psycopg2.connect(db_url)
+    conn.cursor_factory = psycopg2.extras.RealDictCursor
     return conn
 
 def init_profile_database():
@@ -37,7 +43,7 @@ def init_profile_database():
         # Create user profiles table
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS user_profiles (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                id SERIAL PRIMARY KEY,
                 email TEXT UNIQUE NOT NULL,
                 first_name TEXT,
                 personal_info TEXT,
@@ -54,7 +60,7 @@ def init_profile_database():
         # Create profile analytics table
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS profile_analytics (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                id SERIAL PRIMARY KEY,
                 profile_id INTEGER,
                 action TEXT NOT NULL,
                 data TEXT,
@@ -67,13 +73,15 @@ def init_profile_database():
             try:
                 cursor.execute(f'ALTER TABLE user_profiles ADD COLUMN {col} {typ}')
                 conn.commit()
-            except sqlite3.OperationalError:
+            except Exception:
                 pass
         conn.commit()
         conn.close()
         logger.info("Profile database initialized successfully")
         
     except Exception as e:
+        if 'conn' in locals():
+            conn.rollback()
         logger.error(f"Error initializing profile database: {e}")
         raise
 
@@ -140,17 +148,17 @@ def save_profile():
         cursor = conn.cursor()
         
         # Check if profile exists
-        cursor.execute('SELECT id FROM user_profiles WHERE email = ?', (sanitized_data['email'],))
+        cursor.execute('SELECT id FROM user_profiles WHERE email = %s', (sanitized_data['email'],))
         existing_profile = cursor.fetchone()
         
         if existing_profile:
             # Update existing profile
             cursor.execute('''
                 UPDATE user_profiles 
-                SET first_name = ?, personal_info = ?, financial_info = ?, 
-                    monthly_expenses = ?, important_dates = ?, health_wellness = ?, 
-                    goals = ?, updated_at = CURRENT_TIMESTAMP
-                WHERE email = ?
+                SET first_name = %s, personal_info = %s, financial_info = %s, 
+                    monthly_expenses = %s, important_dates = %s, health_wellness = %s, 
+                    goals = %s, updated_at = CURRENT_TIMESTAMP
+                WHERE email = %s
             ''', (
                 sanitized_data['first_name'],
                 sanitized_data['personal_info'],
@@ -168,7 +176,8 @@ def save_profile():
                 INSERT INTO user_profiles 
                 (email, first_name, personal_info, financial_info, monthly_expenses, 
                  important_dates, health_wellness, goals)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                RETURNING id
             ''', (
                 sanitized_data['email'],
                 sanitized_data['first_name'],
@@ -179,12 +188,12 @@ def save_profile():
                 sanitized_data['health_wellness'],
                 sanitized_data['goals']
             ))
-            profile_id = cursor.lastrowid
+            profile_id = cursor.fetchone()['id']
         
         # Track analytics
         cursor.execute('''
             INSERT INTO profile_analytics (profile_id, action, data)
-            VALUES (?, ?, ?)
+            VALUES (%s, %s, %s)
         ''', (profile_id, 'profile_saved', json.dumps({
             'has_personal_info': bool(data.get('personalInfo')),
             'has_financial_info': bool(data.get('financialInfo')),
@@ -228,7 +237,7 @@ def get_profile(email):
         cursor = conn.cursor()
         
         cursor.execute('''
-            SELECT * FROM user_profiles WHERE email = ?
+            SELECT * FROM user_profiles WHERE email = %s
         ''', (email,))
         
         profile = cursor.fetchone()
@@ -279,7 +288,7 @@ def track_profile_analytics(email):
         cursor = conn.cursor()
         
         # Get profile ID
-        cursor.execute('SELECT id FROM user_profiles WHERE email = ?', (email,))
+        cursor.execute('SELECT id FROM user_profiles WHERE email = %s', (email,))
         profile = cursor.fetchone()
         
         if not profile:
@@ -288,7 +297,7 @@ def track_profile_analytics(email):
         # Track analytics
         cursor.execute('''
             INSERT INTO profile_analytics (profile_id, action, data)
-            VALUES (?, ?, ?)
+            VALUES (%s, %s, %s)
         ''', (profile['id'], data['action'], json.dumps(data.get('data', {}))))
         
         conn.commit()
@@ -324,7 +333,7 @@ def get_profile_summary(email):
         cursor = conn.cursor()
         
         cursor.execute('''
-            SELECT * FROM user_profiles WHERE email = ?
+            SELECT * FROM user_profiles WHERE email = %s
         ''', (email,))
         
         profile = cursor.fetchone()
