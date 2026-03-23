@@ -4,7 +4,8 @@ Extends the existing resume parsing with advanced analytics for African American
 """
 
 import os
-import sqlite3
+import psycopg2
+import psycopg2.extras
 import json
 import logging
 import hashlib
@@ -26,9 +27,14 @@ logger = logging.getLogger(__name__)
 advanced_resume_api = Blueprint('advanced_resume_api', __name__, url_prefix='/api')
 
 def get_db_connection():
-    """Get database connection"""
-    conn = sqlite3.connect('resume_parsing.db')
-    conn.row_factory = sqlite3.Row
+    """Get PostgreSQL database connection"""
+    db_url = os.environ.get('DATABASE_URL')
+    if not db_url:
+        raise RuntimeError(
+            "DATABASE_URL is required. SQLite is not supported."
+        )
+    conn = psycopg2.connect(db_url)
+    conn.cursor_factory = psycopg2.extras.RealDictCursor
     return conn
 
 def validate_csrf_token(token: str) -> bool:
@@ -84,7 +90,7 @@ def parse_resume_advanced():
         conn = get_db_connection()
         cursor = conn.cursor()
         
-        cursor.execute('SELECT * FROM resume_parsing_results WHERE file_hash = ?', (file_hash,))
+        cursor.execute('SELECT * FROM resume_parsing_results WHERE file_hash = %s', (file_hash,))
         existing_result = cursor.fetchone()
         
         if existing_result:
@@ -124,7 +130,8 @@ def parse_resume_advanced():
         cursor.execute('''
             INSERT INTO resume_parsing_results 
             (user_id, file_name, file_hash, raw_content, parsed_data, extraction_errors, confidence_score, processing_time, advanced_analytics)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+            RETURNING id
         ''', (
             user_id,
             file_name,
@@ -137,12 +144,12 @@ def parse_resume_advanced():
             json.dumps(advanced_analytics)
         ))
         
-        resume_id = cursor.lastrowid
+        resume_id = cursor.fetchone()['id']
         
         # Track analytics
         cursor.execute('''
             INSERT INTO resume_analytics (resume_id, action, data)
-            VALUES (?, ?, ?)
+            VALUES (%s, %s, %s)
         ''', (resume_id, 'advanced_resume_parsed', json.dumps({
             'file_name': file_name,
             'content_length': len(content),
@@ -239,7 +246,8 @@ def parse_resume_file():
         cursor.execute('''
             INSERT INTO resume_parsing_results 
             (user_id, file_name, file_hash, raw_content, parsed_data, extraction_errors, confidence_score, processing_time, advanced_analytics)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+            RETURNING id
         ''', (
             user_id,
             file_name,
@@ -252,12 +260,12 @@ def parse_resume_file():
             json.dumps(advanced_analytics)
         ))
         
-        resume_id = cursor.lastrowid
+        resume_id = cursor.fetchone()['id']
         
         # Track analytics
         cursor.execute('''
             INSERT INTO resume_analytics (resume_id, action, data)
-            VALUES (?, ?, ?)
+            VALUES (%s, %s, %s)
         ''', (resume_id, 'advanced_file_resume_parsed', json.dumps({
             'file_name': file_name,
             'file_size': len(file_bytes),
@@ -306,7 +314,7 @@ def get_resume_analytics(resume_id):
         cursor.execute('''
             SELECT parsed_data, advanced_analytics, confidence_score, created_at
             FROM resume_parsing_results 
-            WHERE id = ?
+            WHERE id = %s
         ''', (resume_id,))
         
         result = cursor.fetchone()
@@ -352,7 +360,7 @@ def get_analytics_summary():
         
         # Get career field distribution
         cursor.execute('''
-            SELECT json_extract(advanced_analytics, '$.career_field') as career_field,
+            SELECT advanced_analytics->>'career_field' as career_field,
                    COUNT(*) as count
             FROM resume_parsing_results
             WHERE advanced_analytics IS NOT NULL AND advanced_analytics != '{}'
@@ -364,7 +372,7 @@ def get_analytics_summary():
         
         # Get experience level distribution
         cursor.execute('''
-            SELECT json_extract(advanced_analytics, '$.experience_level') as experience_level,
+            SELECT advanced_analytics->>'experience_level' as experience_level,
                    COUNT(*) as count
             FROM resume_parsing_results
             WHERE advanced_analytics IS NOT NULL AND advanced_analytics != '{}'
