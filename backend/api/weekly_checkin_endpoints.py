@@ -4,7 +4,8 @@ Provides endpoints for submitting and retrieving weekly check-in data
 """
 
 import os
-import sqlite3
+import psycopg2
+import psycopg2.extras
 import json
 import logging
 from datetime import datetime, timedelta
@@ -17,14 +18,15 @@ logger = logging.getLogger(__name__)
 # Create blueprint
 weekly_checkin_api = Blueprint('weekly_checkin_api', __name__, url_prefix='/api')
 
-# Database path
-_DEFAULT_DB = os.path.join(os.path.dirname(__file__), '..', '..', 'mingus_memes.db')
-DB_PATH = os.environ.get('MINGUS_MEME_DB_PATH', _DEFAULT_DB)
-
 def get_db_connection():
-    """Get database connection"""
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row
+    """Get PostgreSQL database connection"""
+    db_url = os.environ.get('DATABASE_URL')
+    if not db_url:
+        raise RuntimeError(
+            "DATABASE_URL is required. SQLite is not supported."
+        )
+    conn = psycopg2.connect(db_url)
+    conn.cursor_factory = psycopg2.extras.RealDictCursor
     return conn
 
 def get_week_start_date(check_in_date):
@@ -102,7 +104,7 @@ def submit_weekly_checkin():
         # Create weekly_checkins table if it doesn't exist
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS weekly_checkins (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                id SERIAL PRIMARY KEY,
                 user_id TEXT NOT NULL,
                 session_id TEXT,
                 check_in_date DATE NOT NULL,
@@ -123,11 +125,23 @@ def submit_weekly_checkin():
         
         # Insert or update check-in data
         cursor.execute('''
-            INSERT OR REPLACE INTO weekly_checkins 
+            INSERT INTO weekly_checkins 
             (user_id, session_id, check_in_date, week_start_date, 
              physical_activity, relationship_satisfaction, meditation_minutes, stress_spending,
              vehicle_expenses, transportation_stress, commute_satisfaction, vehicle_decisions)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            ON CONFLICT (user_id, week_start_date) DO UPDATE SET
+                session_id = EXCLUDED.session_id,
+                check_in_date = EXCLUDED.check_in_date,
+                physical_activity = EXCLUDED.physical_activity,
+                relationship_satisfaction = EXCLUDED.relationship_satisfaction,
+                meditation_minutes = EXCLUDED.meditation_minutes,
+                stress_spending = EXCLUDED.stress_spending,
+                vehicle_expenses = EXCLUDED.vehicle_expenses,
+                transportation_stress = EXCLUDED.transportation_stress,
+                commute_satisfaction = EXCLUDED.commute_satisfaction,
+                vehicle_decisions = EXCLUDED.vehicle_decisions,
+                updated_at = CURRENT_TIMESTAMP
         ''', (
             user_id,
             session_id,
@@ -161,6 +175,8 @@ def submit_weekly_checkin():
         }), 400
         
     except Exception as e:
+        if 'conn' in locals():
+            conn.rollback()
         logger.error(f"Error submitting weekly check-in: {e}")
         return jsonify({
             'error': 'Internal server error',
@@ -188,7 +204,7 @@ def get_latest_checkin():
         # Get latest check-in
         cursor.execute('''
             SELECT * FROM weekly_checkins 
-            WHERE user_id = ? 
+            WHERE user_id = %s 
             ORDER BY check_in_date DESC 
             LIMIT 1
         ''', (user_id,))
@@ -239,9 +255,9 @@ def get_checkin_history():
         # Get check-in history
         cursor.execute('''
             SELECT * FROM weekly_checkins 
-            WHERE user_id = ? 
+            WHERE user_id = %s 
             ORDER BY check_in_date DESC 
-            LIMIT ?
+            LIMIT %s
         ''', (user_id, weeks))
         
         checkins = [dict(row) for row in cursor.fetchall()]
@@ -282,9 +298,9 @@ def get_checkin_analytics():
         # Get check-in data for analysis
         cursor.execute('''
             SELECT * FROM weekly_checkins 
-            WHERE user_id = ? 
+            WHERE user_id = %s 
             ORDER BY check_in_date DESC 
-            LIMIT ?
+            LIMIT %s
         ''', (user_id, weeks))
         
         checkins = [dict(row) for row in cursor.fetchall()]
