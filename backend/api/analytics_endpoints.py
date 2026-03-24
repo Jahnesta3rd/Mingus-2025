@@ -20,7 +20,8 @@ from flask_cors import cross_origin
 from backend.auth.decorators import require_auth
 import logging
 import traceback
-import sqlite3
+import psycopg2
+import psycopg2.extras
 from datetime import datetime, timedelta
 from typing import Dict, Any, Optional
 from dataclasses import asdict
@@ -37,6 +38,20 @@ from ..analytics.risk_success_dashboard import RiskSuccessDashboard
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+
+def get_pg_connection():
+    """Get PostgreSQL database connection"""
+    import os
+    db_url = os.environ.get('DATABASE_URL')
+    if not db_url:
+        raise RuntimeError(
+            "DATABASE_URL is required. SQLite is not supported."
+        )
+    conn = psycopg2.connect(db_url)
+    conn.cursor_factory = psycopg2.extras.RealDictCursor
+    return conn
+
 
 # Create analytics blueprint
 analytics_bp = Blueprint('analytics', __name__, url_prefix='/api/analytics')
@@ -883,7 +898,7 @@ def get_risk_success_stories():
         limit = request.args.get('limit', 10, type=int)
         story_type = request.args.get('story_type')
         
-        conn = sqlite3.connect(risk_dashboard.db_path)
+        conn = get_pg_connection()
         cursor = conn.cursor()
         
         query = '''
@@ -895,10 +910,10 @@ def get_risk_success_stories():
         
         params = []
         if story_type:
-            query += ' AND story_type = ?'
+            query += ' AND story_type = %s'
             params.append(story_type)
         
-        query += ' ORDER BY created_date DESC LIMIT ?'
+        query += ' ORDER BY created_date DESC LIMIT %s'
         params.append(limit)
         
         cursor.execute(query, params)
@@ -906,13 +921,13 @@ def get_risk_success_stories():
         stories = []
         for row in cursor.fetchall():
             stories.append({
-                'user_id': row[0],
-                'story_type': row[1],
-                'story_title': row[2],
-                'story_description': row[3],
-                'user_satisfaction': row[4],
-                'would_recommend': row[5],
-                'created_date': row[6]
+                'user_id': row['user_id'],
+                'story_type': row['story_type'],
+                'story_title': row['story_title'],
+                'story_description': row['story_description'],
+                'user_satisfaction': row['user_satisfaction'],
+                'would_recommend': row['would_recommend'],
+                'created_date': row['created_date']
             })
         
         conn.close()
