@@ -15,6 +15,8 @@ from flask_cors import cross_origin
 from werkzeug.utils import secure_filename
 from werkzeug.exceptions import BadRequest, Forbidden, NotFound
 import asyncio
+import psycopg2
+import psycopg2.extras
 
 # Add backend modules to path
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
@@ -30,6 +32,17 @@ from backend.utils.mingus_job_recommendation_engine import MingusJobRecommendati
 
 # Configure logging
 logger = logging.getLogger(__name__)
+
+def get_pg_connection():
+    """Get PostgreSQL database connection"""
+    db_url = os.environ.get('DATABASE_URL')
+    if not db_url:
+        raise RuntimeError(
+            "DATABASE_URL is required. SQLite is not supported."
+        )
+    conn = psycopg2.connect(db_url)
+    conn.cursor_factory = psycopg2.extras.RealDictCursor
+    return conn
 
 # Create blueprint
 referral_gated_api = Blueprint('referral_gated_api', __name__)
@@ -215,12 +228,10 @@ def refer_friend():
         personal_message = data.get('personal_message', '')
         
         # Get user's referral code
-        conn = referral_system.db_path
-        import sqlite3
-        conn = sqlite3.connect(conn)
+        conn = get_pg_connection()
         cursor = conn.cursor()
         
-        cursor.execute('SELECT referral_code FROM users WHERE user_id = ?', (user_id,))
+        cursor.execute('SELECT referral_code FROM users WHERE user_id = %s', (user_id,))
         user_data = cursor.fetchone()
         
         if not user_data:
@@ -230,12 +241,12 @@ def refer_friend():
                 'error': 'User not found'
             }), 404
         
-        referral_code = user_data[0]
+        referral_code = user_data['referral_code']
         
         # Create referral record
         cursor.execute('''
             INSERT INTO referrals (referrer_user_id, referred_email, referral_code)
-            VALUES (?, ?, ?)
+            VALUES (%s, %s, %s)
         ''', (user_id, friend_email, referral_code))
         
         conn.commit()
@@ -262,15 +273,14 @@ def refer_friend():
 def track_referral_status(referral_code):
     """Track individual referral success"""
     try:
-        import sqlite3
-        conn = sqlite3.connect(referral_system.db_path)
+        conn = get_pg_connection()
         cursor = conn.cursor()
         
         cursor.execute('''
             SELECT r.*, u.first_name, u.last_name
             FROM referrals r
             JOIN users u ON r.referrer_user_id = u.user_id
-            WHERE r.referral_code = ?
+            WHERE r.referral_code = %s
         ''', (referral_code,))
         
         referral = cursor.fetchone()
@@ -287,12 +297,12 @@ def track_referral_status(referral_code):
         return jsonify({
             'success': True,
             'referral': {
-                'code': referral[3],
-                'referrer_name': f"{referral[7]} {referral[8]}",
-                'referred_email': referral[2],
-                'status': referral[4],
-                'created_at': referral[5],
-                'completed_at': referral[6]
+                'code': referral['referral_code'],
+                'referrer_name': f"{referral['first_name']} {referral['last_name']}",
+                'referred_email': referral['referred_email'],
+                'status': referral['status'],
+                'created_at': referral['created_at'],
+                'completed_at': referral['completed_at']
             }
         })
         
@@ -507,13 +517,12 @@ def process_recommendations():
             }), 400
         
         # Get user's location preferences
-        import sqlite3
-        conn = sqlite3.connect(referral_system.db_path)
+        conn = get_pg_connection()
         cursor = conn.cursor()
         
         cursor.execute('''
             SELECT zipcode, search_radius, commute_preference, remote_ok
-            FROM location_preferences WHERE user_id = ?
+            FROM location_preferences WHERE user_id = %s
         ''', (user_id,))
         
         location_prefs = cursor.fetchone()
@@ -531,10 +540,10 @@ def process_recommendations():
             'target_salary_increase': data.get('target_salary_increase', 0.25),
             'career_field': data.get('career_field', 'technology'),
             'experience_level': data.get('experience_level', 'mid'),
-            'zipcode': location_prefs[0],
-            'search_radius': location_prefs[1],
-            'remote_ok': bool(location_prefs[3]),
-            'commute_preference': location_prefs[2]
+            'zipcode': location_prefs['zipcode'],
+            'search_radius': location_prefs['search_radius'],
+            'remote_ok': bool(location_prefs['remote_ok']),
+            'commute_preference': location_prefs['commute_preference']
         }
         
         # Process recommendations asynchronously
