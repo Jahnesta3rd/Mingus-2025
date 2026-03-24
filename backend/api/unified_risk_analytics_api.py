@@ -19,6 +19,7 @@ Features:
 import asyncio
 import json
 import logging
+import os
 import time
 import uuid
 from datetime import datetime, timedelta
@@ -30,7 +31,8 @@ from flask import Blueprint, request, jsonify, current_app, g
 from flask_cors import cross_origin
 from backend.auth.decorators import require_auth, require_admin
 from functools import wraps
-import sqlite3
+import psycopg2
+import psycopg2.extras
 
 # Import existing risk analytics components
 from ..analytics.risk_analytics_integration import (
@@ -66,22 +68,16 @@ class RiskAnalyticsAPI:
     assessment, monitoring, recommendations, and analytics tracking.
     """
     
-    def __init__(self, db_path: str = "backend/analytics/risk_analytics.db"):
+    def __init__(self):
         """Initialize the unified risk analytics API"""
-        self.db_path = db_path
         
         # Initialize core risk analytics components
-        self.risk_analyzer = RiskAnalyticsIntegration(db_path)
-        self.risk_tracker = RiskAnalyticsTracker(db_path)
-        self.ab_testing = RiskABTestFramework(db_path)
-        self.predictive_analytics = RiskPredictiveAnalytics(db_path)
-        self.success_dashboard = RiskSuccessDashboard(db_path)
-        # RiskPerformanceMonitor doesn't take db_path parameter on server
-        try:
-            self.performance_monitor = RiskPerformanceMonitor(db_path)
-        except TypeError:
-            # Fallback for server version that doesn't accept db_path
-            self.performance_monitor = RiskPerformanceMonitor()
+        self.risk_analyzer = RiskAnalyticsIntegration()
+        self.risk_tracker = RiskAnalyticsTracker()
+        self.ab_testing = RiskABTestFramework()
+        self.predictive_analytics = RiskPredictiveAnalytics()
+        self.success_dashboard = RiskSuccessDashboard()
+        self.performance_monitor = RiskPerformanceMonitor()
         
         # Initialize recommendation components
         self.recommendation_engine = MingusJobRecommendationEngine()
@@ -95,30 +91,33 @@ class RiskAnalyticsAPI:
     def _init_database(self):
         """Initialize database tables for risk analytics API"""
         try:
-            conn = sqlite3.connect(self.db_path)
+            db_url = os.environ.get('DATABASE_URL')
+            if not db_url:
+                logger.warning("DATABASE_URL not set — skipping risk analytics table init")
+                return
+            conn = psycopg2.connect(db_url)
+            conn.cursor_factory = psycopg2.extras.RealDictCursor
             cursor = conn.cursor()
             
-            # Risk assessment history table
             cursor.execute('''
                 CREATE TABLE IF NOT EXISTS risk_assessment_history (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    id SERIAL PRIMARY KEY,
                     user_id TEXT NOT NULL,
                     overall_risk_score REAL NOT NULL,
                     ai_replacement_risk REAL,
                     layoff_risk REAL,
                     industry_risk REAL,
                     primary_risk_factor TEXT,
-                    risk_triggers TEXT, -- JSON
+                    risk_triggers TEXT,
                     assessment_type TEXT DEFAULT 'user_requested',
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )
             ''')
             
-            # Risk-triggered recommendations table
             cursor.execute('''
                 CREATE TABLE IF NOT EXISTS risk_triggered_recommendations (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    id SERIAL PRIMARY KEY,
                     user_id TEXT NOT NULL,
                     risk_assessment_id INTEGER,
                     recommendation_id TEXT NOT NULL,
@@ -131,10 +130,9 @@ class RiskAnalyticsAPI:
                 )
             ''')
             
-            # Risk monitoring alerts table
             cursor.execute('''
                 CREATE TABLE IF NOT EXISTS risk_monitoring_alerts (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    id SERIAL PRIMARY KEY,
                     user_id TEXT NOT NULL,
                     alert_type TEXT NOT NULL,
                     risk_level TEXT NOT NULL,
@@ -145,10 +143,9 @@ class RiskAnalyticsAPI:
                 )
             ''')
             
-            # Risk A/B test assignments table
             cursor.execute('''
                 CREATE TABLE IF NOT EXISTS risk_ab_test_assignments (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    id SERIAL PRIMARY KEY,
                     user_id TEXT NOT NULL,
                     test_id TEXT NOT NULL,
                     variant TEXT NOT NULL,
@@ -157,7 +154,6 @@ class RiskAnalyticsAPI:
                 )
             ''')
             
-            # Create indexes for performance
             cursor.execute('CREATE INDEX IF NOT EXISTS idx_risk_assessment_user_id ON risk_assessment_history(user_id)')
             cursor.execute('CREATE INDEX IF NOT EXISTS idx_risk_assessment_created_at ON risk_assessment_history(created_at)')
             cursor.execute('CREATE INDEX IF NOT EXISTS idx_risk_recommendations_user_id ON risk_triggered_recommendations(user_id)')
@@ -168,6 +164,8 @@ class RiskAnalyticsAPI:
             conn.close()
             
         except Exception as e:
+            if 'conn' in locals():
+                conn.rollback()
             logger.error(f"Failed to initialize risk analytics database: {e}")
             raise
 
