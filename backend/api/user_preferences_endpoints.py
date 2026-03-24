@@ -4,7 +4,8 @@ Provides endpoints for managing user meme preferences and settings
 """
 
 import os
-import sqlite3
+import psycopg2
+import psycopg2.extras
 import json
 import logging
 from datetime import datetime
@@ -17,13 +18,15 @@ logger = logging.getLogger(__name__)
 # Create blueprint
 user_preferences_api = Blueprint('user_preferences_api', __name__, url_prefix='/api')
 
-# Database path - using the main app database for user preferences
-DB_PATH = os.path.join(os.path.dirname(__file__), '..', '..', 'app.db')
-
 def get_db_connection():
-    """Get database connection"""
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row
+    """Get PostgreSQL database connection"""
+    db_url = os.environ.get('DATABASE_URL')
+    if not db_url:
+        raise RuntimeError(
+            "DATABASE_URL is required. SQLite is not supported."
+        )
+    conn = psycopg2.connect(db_url)
+    conn.cursor_factory = psycopg2.extras.RealDictCursor
     return conn
 
 def ensure_user_preferences_table():
@@ -35,7 +38,7 @@ def ensure_user_preferences_table():
         # Create user_meme_preferences table if it doesn't exist
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS user_meme_preferences (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                id SERIAL PRIMARY KEY,
                 user_id TEXT NOT NULL UNIQUE,
                 preferences TEXT NOT NULL,
                 created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -53,6 +56,8 @@ def ensure_user_preferences_table():
         conn.close()
         
     except Exception as e:
+        if 'conn' in locals():
+            conn.rollback()
         logger.error(f"Error ensuring user preferences table: {e}")
         raise InternalServerError("Database setup failed")
 
@@ -67,7 +72,7 @@ def get_user_meme_preferences(user_id):
         
         cursor.execute('''
             SELECT preferences FROM user_meme_preferences 
-            WHERE user_id = ?
+            WHERE user_id = %s
         ''', (user_id,))
         
         result = cursor.fetchone()
@@ -96,10 +101,13 @@ def save_user_meme_preferences(user_id, preferences):
         
         preferences_json = json.dumps(preferences)
         
-        # Use INSERT OR REPLACE to handle both new and existing users
+        # Upsert preferences for both new and existing users
         cursor.execute('''
-            INSERT OR REPLACE INTO user_meme_preferences (user_id, preferences, updated_at)
-            VALUES (?, ?, CURRENT_TIMESTAMP)
+            INSERT INTO user_meme_preferences (user_id, preferences, updated_at)
+            VALUES (%s, %s, CURRENT_TIMESTAMP)
+            ON CONFLICT (user_id) DO UPDATE SET
+                preferences = EXCLUDED.preferences,
+                updated_at = CURRENT_TIMESTAMP
         ''', (user_id, preferences_json))
         
         conn.commit()
@@ -256,7 +264,7 @@ def delete_user_meme_preferences_endpoint(user_id):
         
         # Delete user preferences
         cursor.execute('''
-            DELETE FROM user_meme_preferences WHERE user_id = ?
+            DELETE FROM user_meme_preferences WHERE user_id = %s
         ''', (user_id,))
         
         if cursor.rowcount == 0:
