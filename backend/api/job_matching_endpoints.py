@@ -13,6 +13,8 @@ from typing import Dict, List, Any
 import asyncio
 import sys
 import os
+import psycopg2
+import psycopg2.extras
 
 # Add backend utils to path
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'utils'))
@@ -22,6 +24,19 @@ from income_boost_job_matcher import (
     JobOpportunity, CompanyProfile
 )
 from job_board_apis import JobBoardAPIManager, CompanyDataAPIManager
+
+
+def get_pg_connection():
+    """Get PostgreSQL database connection"""
+    db_url = os.environ.get('DATABASE_URL')
+    if not db_url:
+        raise RuntimeError(
+            "DATABASE_URL is required. SQLite is not supported."
+        )
+    conn = psycopg2.connect(db_url)
+    conn.cursor_factory = psycopg2.extras.RealDictCursor
+    return conn
+
 
 # Create blueprint
 job_matching_api = Blueprint('job_matching_api', __name__)
@@ -451,8 +466,7 @@ def get_job_matching_analytics():
         matcher = IncomeBoostJobMatcher()
         
         # Get analytics from database
-        import sqlite3
-        conn = sqlite3.connect(matcher.db_path)
+        conn = get_pg_connection()
         cursor = conn.cursor()
         
         # Get job count by field
@@ -490,7 +504,9 @@ def get_job_matching_analytics():
                 SUM(CASE WHEN remote_friendly = 1 THEN 1 ELSE 0 END) as remote
             FROM job_opportunities
         ''')
-        total, remote = cursor.fetchone()
+        row = cursor.fetchone()
+        total = row['total']
+        remote = row['remote']
         remote_percentage = (remote / total * 100) if total > 0 else 0
         
         conn.close()
@@ -523,11 +539,10 @@ def health_check():
         matcher = IncomeBoostJobMatcher()
         
         # Check database connection
-        import sqlite3
-        conn = sqlite3.connect(matcher.db_path)
+        conn = get_pg_connection()
         cursor = conn.cursor()
-        cursor.execute('SELECT COUNT(*) FROM job_opportunities')
-        job_count = cursor.fetchone()[0]
+        cursor.execute('SELECT COUNT(*) as count FROM job_opportunities')
+        job_count = cursor.fetchone()['count']
         conn.close()
         
         return jsonify({
