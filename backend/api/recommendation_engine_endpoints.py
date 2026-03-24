@@ -14,12 +14,28 @@ from datetime import datetime
 from flask import Blueprint, request, jsonify
 from flask_cors import cross_origin
 from werkzeug.exceptions import BadRequest, InternalServerError
+import os
+import psycopg2
+import psycopg2.extras
 
 # Import the orchestration engine
 from ..utils.mingus_job_recommendation_engine import MingusJobRecommendationEngine
 
 # Configure logging
 logger = logging.getLogger(__name__)
+
+
+def get_pg_connection():
+    """Get PostgreSQL database connection"""
+    db_url = os.environ.get('DATABASE_URL')
+    if not db_url:
+        raise RuntimeError(
+            "DATABASE_URL is required. SQLite is not supported."
+        )
+    conn = psycopg2.connect(db_url)
+    conn.cursor_factory = psycopg2.extras.RealDictCursor
+    return conn
+
 
 # Create blueprint
 recommendation_engine_api = Blueprint('recommendation_engine_api', __name__)
@@ -164,14 +180,13 @@ def get_processing_status(session_id):
     """
     try:
         # Get session status from database
-        import sqlite3
-        conn = sqlite3.connect(engine.db_path)
+        conn = get_pg_connection()
         cursor = conn.cursor()
         
         cursor.execute('''
             SELECT status, created_at, completed_at, total_processing_time, error_message
             FROM workflow_sessions 
-            WHERE session_id = ?
+            WHERE session_id = %s
         ''', (session_id,))
         
         session = cursor.fetchone()
@@ -179,13 +194,17 @@ def get_processing_status(session_id):
         if not session:
             return jsonify({'success': False, 'error': 'Session not found'}), 404
         
-        status, created_at, completed_at, processing_time, error_message = session
+        status = session['status']
+        created_at = session['created_at']
+        completed_at = session['completed_at']
+        processing_time = session['total_processing_time']
+        error_message = session['error_message']
         
         # Get workflow steps
         cursor.execute('''
             SELECT step_name, status, start_time, end_time, duration, error_message
             FROM workflow_steps 
-            WHERE session_id = ?
+            WHERE session_id = %s
             ORDER BY start_time
         ''', (session_id,))
         
@@ -204,12 +223,12 @@ def get_processing_status(session_id):
             'error_message': error_message,
             'workflow_steps': [
                 {
-                    'step_name': step[0],
-                    'status': step[1],
-                    'start_time': step[2],
-                    'end_time': step[3],
-                    'duration': step[4],
-                    'error_message': step[5]
+                    'step_name': step['step_name'],
+                    'status': step['status'],
+                    'start_time': step['start_time'],
+                    'end_time': step['end_time'],
+                    'duration': step['duration'],
+                    'error_message': step['error_message']
                 }
                 for step in steps
             ]
@@ -283,8 +302,7 @@ def get_performance_metrics():
     """
     try:
         # Get recent performance metrics
-        import sqlite3
-        conn = sqlite3.connect(engine.db_path)
+        conn = get_pg_connection()
         cursor = conn.cursor()
         
         # Get recent sessions
@@ -294,7 +312,7 @@ def get_performance_metrics():
                    COUNT(CASE WHEN status = 'completed' THEN 1 END) as successful_sessions,
                    COUNT(CASE WHEN status = 'failed' THEN 1 END) as failed_sessions
             FROM workflow_sessions 
-            WHERE created_at > datetime('now', '-24 hours')
+            WHERE created_at > NOW() - INTERVAL '24 hours'
         ''')
         
         recent_stats = cursor.fetchone()
@@ -312,8 +330,8 @@ def get_performance_metrics():
         conn.close()
         
         # Calculate success rate
-        total_sessions = recent_stats[0] or 0
-        successful_sessions = recent_stats[2] or 0
+        total_sessions = recent_stats['total_sessions'] or 0
+        successful_sessions = recent_stats['successful_sessions'] or 0
         success_rate = (successful_sessions / total_sessions * 100) if total_sessions > 0 else 0
         
         response = {
@@ -322,14 +340,14 @@ def get_performance_metrics():
                 'last_24_hours': {
                     'total_sessions': total_sessions,
                     'successful_sessions': successful_sessions,
-                    'failed_sessions': recent_stats[3] or 0,
+                    'failed_sessions': recent_stats['failed_sessions'] or 0,
                     'success_rate': round(success_rate, 2),
-                    'avg_processing_time': round(recent_stats[1] or 0, 2)
+                    'avg_processing_time': round(recent_stats['avg_processing_time'] or 0, 2)
                 },
                 'cache_performance': {
-                    'total_entries': cache_stats[0] or 0,
-                    'avg_hit_count': round(cache_stats[1] or 0, 2),
-                    'active_entries': cache_stats[2] or 0
+                    'total_entries': cache_stats['total_cache_entries'] or 0,
+                    'avg_hit_count': round(cache_stats['avg_hit_count'] or 0, 2),
+                    'active_entries': cache_stats['active_entries'] or 0
                 },
                 'current_metrics': {
                     'total_time': engine.metrics.total_time,
@@ -364,8 +382,7 @@ def health_check():
     """
     try:
         # Check database connectivity
-        import sqlite3
-        conn = sqlite3.connect(engine.db_path)
+        conn = get_pg_connection()
         cursor = conn.cursor()
         cursor.execute('SELECT 1')
         conn.close()
@@ -415,8 +432,7 @@ def clear_cache():
     """
     try:
         # Clear cache
-        import sqlite3
-        conn = sqlite3.connect(engine.db_path)
+        conn = get_pg_connection()
         cursor = conn.cursor()
         
         cursor.execute('DELETE FROM recommendation_cache')
@@ -454,14 +470,13 @@ def get_session_results(session_id):
     """
     try:
         # Get session results
-        import sqlite3
-        conn = sqlite3.connect(engine.db_path)
+        conn = get_pg_connection()
         cursor = conn.cursor()
         
         cursor.execute('''
             SELECT status, result_data, total_processing_time, error_message
             FROM workflow_sessions 
-            WHERE session_id = ?
+            WHERE session_id = %s
         ''', (session_id,))
         
         session = cursor.fetchone()
@@ -469,7 +484,10 @@ def get_session_results(session_id):
         if not session:
             return jsonify({'success': False, 'error': 'Session not found'}), 404
         
-        status, result_data, processing_time, error_message = session
+        status = session['status']
+        result_data = session['result_data']
+        processing_time = session['total_processing_time']
+        error_message = session['error_message']
         
         if status != 'completed':
             return jsonify({
