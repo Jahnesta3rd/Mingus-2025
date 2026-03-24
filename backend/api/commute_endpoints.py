@@ -6,7 +6,8 @@ Provides endpoints for commute cost calculations, scenario management, and geoco
 
 import json
 import logging
-import sqlite3
+import psycopg2
+import psycopg2.extras
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Any, Tuple
 from dataclasses import dataclass, asdict
@@ -22,9 +23,6 @@ logger = logging.getLogger(__name__)
 
 # Create blueprint
 commute_bp = Blueprint('commute', __name__, url_prefix='/api/commute')
-
-# Database path
-DB_PATH = "backend/mingus_commute.db"
 
 @dataclass
 class CommuteScenario:
@@ -54,7 +52,11 @@ class Vehicle:
 def init_commute_database():
     """Initialize the commute scenarios database"""
     try:
-        conn = sqlite3.connect(DB_PATH)
+        db_url = os.environ.get('DATABASE_URL')
+        if not db_url:
+            raise RuntimeError("DATABASE_URL is required.")
+        conn = psycopg2.connect(db_url)
+        conn.cursor_factory = psycopg2.extras.RealDictCursor
         cursor = conn.cursor()
         
         # Create scenarios table
@@ -95,6 +97,8 @@ def init_commute_database():
         logger.info("Commute database initialized successfully")
         
     except Exception as e:
+        if 'conn' in locals():
+            conn.rollback()
         logger.error(f"Failed to initialize commute database: {e}")
         raise
 
@@ -117,7 +121,11 @@ def get_google_maps_api_key():
 def get_scenarios():
     """Get all saved commute scenarios for the user"""
     try:
-        conn = sqlite3.connect(DB_PATH)
+        db_url = os.environ.get('DATABASE_URL')
+        if not db_url:
+            raise RuntimeError("DATABASE_URL is required.")
+        conn = psycopg2.connect(db_url)
+        conn.cursor_factory = psycopg2.extras.RealDictCursor
         cursor = conn.cursor()
         
         # In a real implementation, you would filter by user_id
@@ -131,15 +139,15 @@ def get_scenarios():
         scenarios = []
         for row in cursor.fetchall():
             scenario = {
-                'id': row[0],
-                'name': row[1],
-                'job_location': json.loads(row[2]),
-                'home_location': json.loads(row[3]),
-                'vehicle': json.loads(row[4]),
-                'commute_details': json.loads(row[5]),
-                'costs': json.loads(row[6]),
-                'created_at': row[7],
-                'updated_at': row[8]
+                'id': row['id'],
+                'name': row['name'],
+                'job_location': json.loads(row['job_location']),
+                'home_location': json.loads(row['home_location']),
+                'vehicle': json.loads(row['vehicle']),
+                'commute_details': json.loads(row['commute_details']),
+                'costs': json.loads(row['costs']),
+                'created_at': row['created_at'],
+                'updated_at': row['updated_at']
             }
             scenarios.append(scenario)
         
@@ -180,15 +188,27 @@ def save_scenario():
                     'error': f'Missing required field: {field}'
                 }), 400
         
-        conn = sqlite3.connect(DB_PATH)
+        db_url = os.environ.get('DATABASE_URL')
+        if not db_url:
+            raise RuntimeError("DATABASE_URL is required.")
+        conn = psycopg2.connect(db_url)
+        conn.cursor_factory = psycopg2.extras.RealDictCursor
         cursor = conn.cursor()
         
         # Insert or update scenario
         cursor.execute('''
-            INSERT OR REPLACE INTO commute_scenarios 
+            INSERT INTO commute_scenarios 
             (id, user_id, name, job_location, home_location, vehicle, 
              commute_details, costs, updated_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+            ON CONFLICT (id) DO UPDATE SET
+                name = EXCLUDED.name,
+                job_location = EXCLUDED.job_location,
+                home_location = EXCLUDED.home_location,
+                vehicle = EXCLUDED.vehicle,
+                commute_details = EXCLUDED.commute_details,
+                costs = EXCLUDED.costs,
+                updated_at = EXCLUDED.updated_at
         ''', (
             data['id'],
             'current_user',  # In real implementation, get from JWT token
@@ -223,10 +243,14 @@ def save_scenario():
 def delete_scenario(scenario_id):
     """Delete a commute scenario"""
     try:
-        conn = sqlite3.connect(DB_PATH)
+        db_url = os.environ.get('DATABASE_URL')
+        if not db_url:
+            raise RuntimeError("DATABASE_URL is required.")
+        conn = psycopg2.connect(db_url)
+        conn.cursor_factory = psycopg2.extras.RealDictCursor
         cursor = conn.cursor()
         
-        cursor.execute('DELETE FROM commute_scenarios WHERE id = ?', (scenario_id,))
+        cursor.execute('DELETE FROM commute_scenarios WHERE id = %s', (scenario_id,))
         
         if cursor.rowcount == 0:
             conn.close()
@@ -256,7 +280,11 @@ def delete_scenario(scenario_id):
 def get_vehicles():
     """Get user's vehicles"""
     try:
-        conn = sqlite3.connect(DB_PATH)
+        db_url = os.environ.get('DATABASE_URL')
+        if not db_url:
+            raise RuntimeError("DATABASE_URL is required.")
+        conn = psycopg2.connect(db_url)
+        conn.cursor_factory = psycopg2.extras.RealDictCursor
         cursor = conn.cursor()
         
         # In a real implementation, you would filter by user_id
@@ -270,16 +298,16 @@ def get_vehicles():
         vehicles = []
         for row in cursor.fetchall():
             vehicle = {
-                'id': row[0],
-                'make': row[1],
-                'model': row[2],
-                'year': row[3],
-                'mpg': row[4],
-                'fuel_type': row[5],
-                'current_mileage': row[6],
-                'monthly_miles': row[7],
-                'created_at': row[8],
-                'updated_at': row[9]
+                'id': row['id'],
+                'make': row['make'],
+                'model': row['model'],
+                'year': row['year'],
+                'mpg': row['mpg'],
+                'fuel_type': row['fuel_type'],
+                'current_mileage': row['current_mileage'],
+                'monthly_miles': row['monthly_miles'],
+                'created_at': row['created_at'],
+                'updated_at': row['updated_at']
             }
             vehicles.append(vehicle)
         
