@@ -15,7 +15,9 @@ Features:
 - User retention and engagement scoring
 """
 
-import sqlite3
+import psycopg2
+import psycopg2.extras
+import os
 import json
 import logging
 import uuid
@@ -122,6 +124,17 @@ class FeatureUsage:
     success_rate: float = 0.0
     satisfaction_score: Optional[int] = None
 
+def get_pg_connection():
+    """Get PostgreSQL database connection"""
+    db_url = os.environ.get('DATABASE_URL')
+    if not db_url:
+        raise RuntimeError(
+            "DATABASE_URL is required. SQLite is not supported."
+        )
+    conn = psycopg2.connect(db_url)
+    conn.cursor_factory = psycopg2.extras.RealDictCursor
+    return conn
+
 class UserBehaviorAnalytics:
     """
     Comprehensive user behavior analytics system for job recommendation engine.
@@ -130,27 +143,17 @@ class UserBehaviorAnalytics:
     to provide insights into user behavior patterns and system effectiveness.
     """
     
-    def __init__(self, db_path: str = "backend/analytics/recommendation_analytics.db"):
+    def __init__(self, db_path: str = None):
         """Initialize the user behavior analytics system"""
-        self.db_path = db_path
         self._init_database()
-        logger.info("UserBehaviorAnalytics initialized successfully")
     
     def _init_database(self):
-        """Initialize the analytics database with required tables"""
+        """Verify PostgreSQL database connection"""
         try:
-            conn = sqlite3.connect(self.db_path)
-            cursor = conn.cursor()
-            
-            # Read and execute the schema
-            with open('backend/analytics/recommendation_analytics_schema.sql', 'r') as f:
-                schema_sql = f.read()
-            
-            cursor.executescript(schema_sql)
-            conn.commit()
+            conn = get_pg_connection()
             conn.close()
-            logger.info("Analytics database initialized successfully")
             
+            logger.info("Analytics database initialized successfully")
         except Exception as e:
             logger.error(f"Error initializing analytics database: {e}")
             raise
@@ -194,14 +197,14 @@ class UserBehaviorAnalytics:
                 referrer=referrer
             )
             
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             cursor.execute('''
                 INSERT INTO user_sessions (
                     session_id, user_id, session_start, device_type,
                     browser, os, ip_address, user_agent, referrer
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
             ''', (
                 session.session_id, session.user_id, session.session_start,
                 session.device_type, session.browser, session.os,
@@ -236,12 +239,12 @@ class UserBehaviorAnalytics:
             bool: Success status
         """
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             # Get session start time
             cursor.execute('''
-                SELECT session_start FROM user_sessions WHERE session_id = ?
+                SELECT session_start FROM user_sessions WHERE session_id = %s
             ''', (session_id,))
             
             result = cursor.fetchone()
@@ -249,7 +252,9 @@ class UserBehaviorAnalytics:
                 logger.warning(f"Session {session_id} not found")
                 return False
             
-            session_start = datetime.fromisoformat(result[0])
+            session_start = result['session_start']
+            if isinstance(session_start, str):
+                session_start = datetime.fromisoformat(session_start)
             session_end = datetime.now()
             session_duration = int((session_end - session_start).total_seconds())
             
@@ -259,9 +264,9 @@ class UserBehaviorAnalytics:
             # Update session
             cursor.execute('''
                 UPDATE user_sessions SET
-                    session_end = ?, session_duration = ?, exit_page = ?,
-                    bounce_rate = ?, conversion_events = ?
-                WHERE session_id = ?
+                    session_end = %s, session_duration = %s, exit_page = %s,
+                    bounce_rate = %s, conversion_events = %s
+                WHERE session_id = %s
             ''', (session_end, session_duration, exit_page, bounce_rate, conversion_events, session_id))
             
             conn.commit()
@@ -322,7 +327,7 @@ class UserBehaviorAnalytics:
                 extracted_fields=json.dumps(extracted_fields or {})
             )
             
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             cursor.execute('''
@@ -330,7 +335,7 @@ class UserBehaviorAnalytics:
                     session_id, user_id, event_type, file_name, file_size,
                     file_type, processing_time, error_message, success_rate,
                     confidence_score, extracted_fields
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             ''', (
                 event.session_id, event.user_id, event.event_type,
                 event.file_name, event.file_size, event.file_type,
@@ -392,7 +397,7 @@ class UserBehaviorAnalytics:
                 interaction_data=json.dumps(interaction_data or {})
             )
             
-            conn = sqlite3.connect(self.db_path, timeout=5.0)
+            conn = get_pg_connection()
             try:
                 cursor = conn.cursor()
                 for attempt in range(3):
@@ -401,7 +406,7 @@ class UserBehaviorAnalytics:
                             INSERT INTO user_interactions (
                                 session_id, user_id, interaction_type, page_url,
                                 element_id, element_text, interaction_data
-                            ) VALUES (?, ?, ?, ?, ?, ?, ?)
+                            ) VALUES (%s, %s, %s, %s, %s, %s, %s)
                         ''', (
                             interaction.session_id, interaction.user_id, interaction.interaction_type,
                             interaction.page_url, interaction.element_id, interaction.element_text,
@@ -410,8 +415,8 @@ class UserBehaviorAnalytics:
                         conn.commit()
                         logger.debug(f"Tracked interaction: {interaction_type} for session {session_id}")
                         return True
-                    except sqlite3.OperationalError as oe:
-                        if 'locked' in str(oe).lower() and attempt < 2:
+                    except Exception as oe:
+                        if attempt < 2:
                             time.sleep(0.2 * (attempt + 1))
                             continue
                         raise
@@ -444,13 +449,13 @@ class UserBehaviorAnalytics:
             bool: Success status
         """
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             # Check if feature usage record exists
             cursor.execute('''
                 SELECT usage_count, total_time_spent, success_rate, first_used
-                FROM feature_usage WHERE user_id = ? AND feature_name = ?
+                FROM feature_usage WHERE user_id = %s AND feature_name = %s
             ''', (user_id, feature_name))
             
             result = cursor.fetchone()
@@ -458,7 +463,10 @@ class UserBehaviorAnalytics:
             
             if result:
                 # Update existing record
-                usage_count, total_time_spent, success_rate, first_used = result
+                usage_count = result['usage_count']
+                total_time_spent = result['total_time_spent']
+                success_rate = result['success_rate']
+                first_used = result['first_used']
                 new_usage_count = usage_count + 1
                 new_total_time = total_time_spent + time_spent
                 
@@ -468,9 +476,9 @@ class UserBehaviorAnalytics:
                 
                 cursor.execute('''
                     UPDATE feature_usage SET
-                        usage_count = ?, last_used = ?, total_time_spent = ?,
-                        success_rate = ?, satisfaction_score = ?
-                    WHERE user_id = ? AND feature_name = ?
+                        usage_count = %s, last_used = %s, total_time_spent = %s,
+                        success_rate = %s, satisfaction_score = %s
+                    WHERE user_id = %s AND feature_name = %s
                 ''', (new_usage_count, now, new_total_time, new_success_rate,
                       satisfaction_score, user_id, feature_name))
             else:
@@ -479,7 +487,7 @@ class UserBehaviorAnalytics:
                     INSERT INTO feature_usage (
                         user_id, feature_name, usage_count, first_used, last_used,
                         total_time_spent, success_rate, satisfaction_score
-                    ) VALUES (?, ?, 1, ?, ?, ?, ?, ?)
+                    ) VALUES (%s, %s, 1, %s, %s, %s, %s, %s)
                 ''', (user_id, feature_name, now, now, time_spent,
                       (100 if success else 0), satisfaction_score))
             
@@ -509,7 +517,7 @@ class UserBehaviorAnalytics:
             Dict containing behavior metrics
         """
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             start_date = datetime.now() - timedelta(days=days)
@@ -522,7 +530,7 @@ class UserBehaviorAnalytics:
                     COUNT(CASE WHEN bounce_rate = 1 THEN 1 END) as bounce_sessions,
                     COUNT(CASE WHEN conversion_events > 0 THEN 1 END) as conversion_sessions
                 FROM user_sessions 
-                WHERE user_id = ? AND session_start >= ?
+                WHERE user_id = %s AND session_start >= %s
             ''', (user_id, start_date))
             
             session_metrics = cursor.fetchone()
@@ -535,7 +543,7 @@ class UserBehaviorAnalytics:
                     AVG(processing_time) as avg_processing_time,
                     AVG(confidence_score) as avg_confidence_score
                 FROM resume_events 
-                WHERE user_id = ? AND timestamp >= ?
+                WHERE user_id = %s AND timestamp >= %s
             ''', (user_id, start_date))
             
             resume_metrics = cursor.fetchone()
@@ -546,7 +554,7 @@ class UserBehaviorAnalytics:
                     interaction_type,
                     COUNT(*) as count
                 FROM user_interactions 
-                WHERE user_id = ? AND timestamp >= ?
+                WHERE user_id = %s AND timestamp >= %s
                 GROUP BY interaction_type
                 ORDER BY count DESC
             ''', (user_id, start_date))
@@ -562,18 +570,18 @@ class UserBehaviorAnalytics:
                     total_time_spent,
                     satisfaction_score
                 FROM feature_usage 
-                WHERE user_id = ?
+                WHERE user_id = %s
                 ORDER BY usage_count DESC
             ''', (user_id,))
             
             feature_metrics = []
             for row in cursor.fetchall():
                 feature_metrics.append({
-                    'feature_name': row[0],
-                    'usage_count': row[1],
-                    'success_rate': row[2],
-                    'total_time_spent': row[3],
-                    'satisfaction_score': row[4]
+                    'feature_name': row['feature_name'],
+                    'usage_count': row['usage_count'],
+                    'success_rate': row['success_rate'],
+                    'total_time_spent': row['total_time_spent'],
+                    'satisfaction_score': row['satisfaction_score']
                 })
             
             conn.close()
@@ -582,16 +590,16 @@ class UserBehaviorAnalytics:
                 'user_id': user_id,
                 'analysis_period_days': days,
                 'session_metrics': {
-                    'total_sessions': session_metrics[0] or 0,
-                    'avg_session_duration': session_metrics[1] or 0,
-                    'bounce_rate': (session_metrics[2] or 0) / max(session_metrics[0] or 1, 1) * 100,
-                    'conversion_rate': (session_metrics[3] or 0) / max(session_metrics[0] or 1, 1) * 100
+                    'total_sessions': session_metrics['total_sessions'] or 0,
+                    'avg_session_duration': session_metrics['avg_session_duration'] or 0,
+                    'bounce_rate': (session_metrics['bounce_sessions'] or 0) / max(session_metrics['total_sessions'] or 1, 1) * 100,
+                    'conversion_rate': (session_metrics['conversion_sessions'] or 0) / max(session_metrics['total_sessions'] or 1, 1) * 100
                 },
                 'resume_metrics': {
-                    'total_uploads': resume_metrics[0] or 0,
-                    'success_rate': (resume_metrics[1] or 0) / max(resume_metrics[0] or 1, 1) * 100,
-                    'avg_processing_time': resume_metrics[2] or 0,
-                    'avg_confidence_score': resume_metrics[3] or 0
+                    'total_uploads': resume_metrics['total_uploads'] or 0,
+                    'success_rate': (resume_metrics['successful_uploads'] or 0) / max(resume_metrics['total_uploads'] or 1, 1) * 100,
+                    'avg_processing_time': resume_metrics['avg_processing_time'] or 0,
+                    'avg_confidence_score': resume_metrics['avg_confidence_score'] or 0
                 },
                 'interaction_metrics': interaction_metrics,
                 'feature_metrics': feature_metrics
@@ -615,7 +623,7 @@ class UserBehaviorAnalytics:
             Dict containing system metrics
         """
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             start_date = datetime.now() - timedelta(days=days)
@@ -629,7 +637,7 @@ class UserBehaviorAnalytics:
                     COUNT(CASE WHEN bounce_rate = 1 THEN 1 END) * 100.0 / COUNT(*) as bounce_rate,
                     COUNT(CASE WHEN conversion_events > 0 THEN 1 END) * 100.0 / COUNT(*) as conversion_rate
                 FROM user_sessions 
-                WHERE session_start >= ?
+                WHERE session_start >= %s
             ''', (start_date,))
             
             session_metrics = cursor.fetchone()
@@ -642,7 +650,7 @@ class UserBehaviorAnalytics:
                     AVG(processing_time) as avg_processing_time,
                     AVG(confidence_score) as avg_confidence_score
                 FROM resume_events 
-                WHERE timestamp >= ?
+                WHERE timestamp >= %s
             ''', (start_date,))
             
             resume_metrics = cursor.fetchone()
@@ -655,7 +663,7 @@ class UserBehaviorAnalytics:
                     AVG(success_rate) as avg_success_rate,
                     AVG(satisfaction_score) as avg_satisfaction
                 FROM feature_usage 
-                WHERE last_used >= ?
+                WHERE last_used >= %s
                 GROUP BY feature_name
                 ORDER BY total_usage DESC
                 LIMIT 10
@@ -664,10 +672,10 @@ class UserBehaviorAnalytics:
             top_features = []
             for row in cursor.fetchall():
                 top_features.append({
-                    'feature_name': row[0],
-                    'total_usage': row[1],
-                    'avg_success_rate': row[2],
-                    'avg_satisfaction': row[3]
+                    'feature_name': row['feature_name'],
+                    'total_usage': row['total_usage'],
+                    'avg_success_rate': row['avg_success_rate'],
+                    'avg_satisfaction': row['avg_satisfaction']
                 })
             
             # Device and browser breakdown
@@ -676,7 +684,7 @@ class UserBehaviorAnalytics:
                     device_type,
                     COUNT(*) as count
                 FROM user_sessions 
-                WHERE session_start >= ?
+                WHERE session_start >= %s
                 GROUP BY device_type
                 ORDER BY count DESC
             ''', (start_date,))
@@ -688,17 +696,17 @@ class UserBehaviorAnalytics:
             return {
                 'analysis_period_days': days,
                 'session_metrics': {
-                    'unique_users': session_metrics[0] or 0,
-                    'total_sessions': session_metrics[1] or 0,
-                    'avg_session_duration': session_metrics[2] or 0,
-                    'bounce_rate': session_metrics[3] or 0,
-                    'conversion_rate': session_metrics[4] or 0
+                    'unique_users': session_metrics['unique_users'] or 0,
+                    'total_sessions': session_metrics['total_sessions'] or 0,
+                    'avg_session_duration': session_metrics['avg_session_duration'] or 0,
+                    'bounce_rate': session_metrics['bounce_rate'] or 0,
+                    'conversion_rate': session_metrics['conversion_rate'] or 0
                 },
                 'resume_metrics': {
-                    'total_uploads': resume_metrics[0] or 0,
-                    'success_rate': resume_metrics[1] or 0,
-                    'avg_processing_time': resume_metrics[2] or 0,
-                    'avg_confidence_score': resume_metrics[3] or 0
+                    'total_uploads': resume_metrics['total_uploads'] or 0,
+                    'success_rate': resume_metrics['success_rate'] or 0,
+                    'avg_processing_time': resume_metrics['avg_processing_time'] or 0,
+                    'avg_confidence_score': resume_metrics['avg_confidence_score'] or 0
                 },
                 'top_features': top_features,
                 'device_breakdown': device_breakdown
@@ -724,7 +732,7 @@ class UserBehaviorAnalytics:
             List of journey events in chronological order
         """
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             # Get session information
@@ -732,14 +740,14 @@ class UserBehaviorAnalytics:
                 cursor.execute('''
                     SELECT session_id, session_start, session_duration, device_type
                     FROM user_sessions 
-                    WHERE user_id = ? AND session_id = ?
+                    WHERE user_id = %s AND session_id = %s
                     ORDER BY session_start
                 ''', (user_id, session_id))
             else:
                 cursor.execute('''
                     SELECT session_id, session_start, session_duration, device_type
                     FROM user_sessions 
-                    WHERE user_id = ?
+                    WHERE user_id = %s
                     ORDER BY session_start DESC
                     LIMIT 1
                 ''', (user_id,))
@@ -748,7 +756,10 @@ class UserBehaviorAnalytics:
             if not session_info:
                 return []
             
-            session_id, session_start, session_duration, device_type = session_info
+            session_id = session_info['session_id']
+            session_start = session_info['session_start']
+            session_duration = session_info['session_duration']
+            device_type = session_info['device_type']
             
             # Get all events for this session
             journey_events = []
@@ -758,18 +769,18 @@ class UserBehaviorAnalytics:
                 SELECT 'resume_event' as event_type, event_type as event_name,
                        timestamp, file_name, processing_time, success_rate
                 FROM resume_events 
-                WHERE session_id = ?
+                WHERE session_id = %s
                 ORDER BY timestamp
             ''', (session_id,))
             
             for row in cursor.fetchall():
                 journey_events.append({
-                    'type': row[0],
-                    'name': row[1],
-                    'timestamp': row[2],
-                    'file_name': row[3],
-                    'processing_time': row[4],
-                    'success_rate': row[5]
+                    'type': row['event_type'],
+                    'name': row['event_name'],
+                    'timestamp': row['timestamp'],
+                    'file_name': row['file_name'],
+                    'processing_time': row['processing_time'],
+                    'success_rate': row['success_rate']
                 })
             
             # User interactions
@@ -777,18 +788,18 @@ class UserBehaviorAnalytics:
                 SELECT 'interaction' as event_type, interaction_type as event_name,
                        timestamp, page_url, element_id, element_text
                 FROM user_interactions 
-                WHERE session_id = ?
+                WHERE session_id = %s
                 ORDER BY timestamp
             ''', (session_id,))
             
             for row in cursor.fetchall():
                 journey_events.append({
-                    'type': row[0],
-                    'name': row[1],
-                    'timestamp': row[2],
-                    'page_url': row[3],
-                    'element_id': row[4],
-                    'element_text': row[5]
+                    'type': row['event_type'],
+                    'name': row['event_name'],
+                    'timestamp': row['timestamp'],
+                    'page_url': row['page_url'],
+                    'element_id': row['element_id'],
+                    'element_text': row['element_text']
                 })
             
             # Sort by timestamp
@@ -896,7 +907,8 @@ class UserBehaviorAnalytics:
             Dict containing journey analysis
         """
         try:
-            with sqlite3.connect(self.db_path) as conn:
+            conn = get_pg_connection()
+            with conn:
                 cursor = conn.cursor()
                 
                 # Get risk-related interactions
@@ -907,9 +919,9 @@ class UserBehaviorAnalytics:
                         interaction_data,
                         page_url
                     FROM user_interactions
-                    WHERE user_id = ? 
+                    WHERE user_id = %s 
                     AND interaction_type LIKE 'risk_%'
-                    AND interaction_timestamp >= datetime('now', '-{} days')
+                    AND interaction_timestamp >= NOW() - INTERVAL '{} days'
                     ORDER BY interaction_timestamp
                 '''.format(days), (user_id,))
                 
@@ -920,9 +932,11 @@ class UserBehaviorAnalytics:
                 step_times = []
                 
                 for interaction in risk_interactions:
-                    interaction_type = interaction[0]
-                    timestamp = datetime.fromisoformat(interaction[1])
-                    interaction_data = json.loads(interaction[2]) if interaction[2] else {}
+                    interaction_type = interaction['interaction_type']
+                    timestamp = interaction['interaction_timestamp']
+                    if isinstance(timestamp, str):
+                        timestamp = datetime.fromisoformat(timestamp)
+                    interaction_data = json.loads(interaction['interaction_data']) if interaction['interaction_data'] else {}
                     
                     journey_steps.append({
                         'step': interaction_type.replace('risk_', ''),
@@ -1005,7 +1019,8 @@ class UserBehaviorAnalytics:
             Dict containing user segment analysis
         """
         try:
-            with sqlite3.connect(self.db_path) as conn:
+            conn = get_pg_connection()
+            with conn:
                 cursor = conn.cursor()
                 
                 # Get users with risk interactions
@@ -1019,7 +1034,7 @@ class UserBehaviorAnalytics:
                         MAX(interaction_timestamp) as last_interaction
                     FROM user_interactions
                     WHERE interaction_type LIKE 'risk_%'
-                    AND interaction_timestamp >= datetime('now', '-{} days')
+                    AND interaction_timestamp >= NOW() - INTERVAL '{} days'
                     GROUP BY user_id
                 '''.format(days))
                 
@@ -1034,12 +1049,12 @@ class UserBehaviorAnalytics:
                 }
                 
                 for user_row in user_data:
-                    user_id = user_row[0]
-                    risk_interaction_count = user_row[1]
-                    assessments = user_row[2]
-                    recommendations_clicked = user_row[3]
-                    proactive_actions = user_row[4]
-                    last_interaction = user_row[5]
+                    user_id = user_row['user_id']
+                    risk_interaction_count = user_row['risk_interaction_count']
+                    assessments = user_row['assessments']
+                    recommendations_clicked = user_row['recommendations_clicked']
+                    proactive_actions = user_row['proactive_actions']
+                    last_interaction = user_row['last_interaction']
                     
                     # Calculate engagement level
                     engagement_score = (recommendations_clicked + proactive_actions) / max(1, assessments)

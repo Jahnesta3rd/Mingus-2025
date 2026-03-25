@@ -15,7 +15,9 @@ Features:
 """
 from __future__ import annotations
 
-import sqlite3
+import psycopg2
+import psycopg2.extras
+import os
 import json
 import logging
 from datetime import datetime, timedelta
@@ -80,6 +82,17 @@ class RiskPattern:
     first_detected: datetime
     last_updated: datetime
 
+def get_pg_connection():
+    """Get PostgreSQL database connection"""
+    db_url = os.environ.get('DATABASE_URL')
+    if not db_url:
+        raise RuntimeError(
+            "DATABASE_URL is required. SQLite is not supported."
+        )
+    conn = psycopg2.connect(db_url)
+    conn.cursor_factory = psycopg2.extras.RealDictCursor
+    return conn
+
 class RiskPredictiveAnalytics:
     """
     Predictive analytics system for career risk forecasting and pattern detection.
@@ -89,9 +102,8 @@ class RiskPredictiveAnalytics:
     proactive career protection.
     """
     
-    def __init__(self, db_path: str = "backend/analytics/recommendation_analytics.db"):
+    def __init__(self, db_path: str = None):
         """Initialize the risk predictive analytics system"""
-        self.db_path = db_path
         self.models = {}
         self.scalers = {}
         self._models_initialized = False
@@ -108,137 +120,14 @@ class RiskPredictiveAnalytics:
         self._models_initialized = True
     
     def _init_database(self):
-        """Initialize the analytics database with required tables for risk forecasting."""
+        """Verify PostgreSQL database connection"""
         try:
-            conn = sqlite3.connect(self.db_path)
-            cursor = conn.cursor()
-
-            # Try to read the schema file, fallback to basic tables if not available
-            try:
-                with open('backend/analytics/recommendation_analytics_schema.sql', 'r') as f:
-                    schema_sql = f.read()
-                cursor.executescript(schema_sql)
-            except FileNotFoundError:
-                # Create basic tables if schema file not found
-                self._create_basic_tables(cursor)
-            
-            conn.commit()
+            conn = get_pg_connection()
             conn.close()
             logger.info("Risk predictive analytics database schema ensured.")
-
         except Exception as e:
             logger.error(f"Error initializing risk predictive analytics database: {e}")
-            # Try to create basic tables as fallback
-            try:
-                conn = sqlite3.connect(self.db_path)
-                cursor = conn.cursor()
-                self._create_basic_tables(cursor)
-                conn.commit()
-                conn.close()
-                logger.info("Created basic tables as fallback")
-            except Exception as fallback_error:
-                logger.error(f"Fallback table creation also failed: {fallback_error}")
-                raise
-    
-    def _create_basic_tables(self, cursor):
-        """Create basic tables for risk analytics if schema file is not available."""
-        # Create user_risk_assessments table
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS user_risk_assessments (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                user_id TEXT NOT NULL,
-                risk_level TEXT NOT NULL,
-                risk_score REAL NOT NULL,
-                risk_factors TEXT,
-                industry_risk_score REAL,
-                company_risk_score REAL,
-                role_risk_score REAL,
-                market_risk_score REAL,
-                personal_risk_score REAL,
-                assessment_confidence REAL,
-                assessment_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                next_assessment_date TIMESTAMP,
-                intervention_triggered BOOLEAN DEFAULT FALSE,
-                intervention_date TIMESTAMP
-            )
-        ''')
-        
-        # Create risk_forecasts table
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS risk_forecasts (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                forecast_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                forecast_type TEXT NOT NULL,
-                target_entity TEXT NOT NULL,
-                forecast_horizon_days INTEGER NOT NULL,
-                risk_probability REAL NOT NULL,
-                confidence_level REAL NOT NULL,
-                forecast_data TEXT,
-                actual_outcome TEXT,
-                accuracy_score REAL,
-                model_version TEXT DEFAULT '1.0',
-                created_by TEXT DEFAULT 'system'
-            )
-        ''')
-        
-        # Create risk_interventions table
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS risk_interventions (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                user_id TEXT NOT NULL,
-                risk_assessment_id INTEGER NOT NULL,
-                intervention_type TEXT NOT NULL,
-                intervention_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                intervention_status TEXT DEFAULT 'triggered',
-                intervention_data TEXT,
-                success_metrics TEXT,
-                completion_date TIMESTAMP,
-                effectiveness_score REAL,
-                user_response TEXT
-            )
-        ''')
-        
-        # Create career_protection_outcomes table
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS career_protection_outcomes (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                user_id TEXT NOT NULL,
-                risk_assessment_id INTEGER NOT NULL,
-                intervention_id INTEGER,
-                outcome_type TEXT NOT NULL,
-                outcome_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                outcome_details TEXT,
-                salary_change REAL,
-                job_security_improvement REAL,
-                time_to_new_role INTEGER,
-                satisfaction_score INTEGER,
-                would_recommend BOOLEAN,
-                success_factors TEXT,
-                verification_status TEXT DEFAULT 'unverified',
-                verified_date TIMESTAMP
-            )
-        ''')
-        
-        # Create risk_success_stories table
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS risk_success_stories (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                user_id TEXT NOT NULL,
-                story_type TEXT NOT NULL,
-                story_title TEXT NOT NULL,
-                story_description TEXT NOT NULL,
-                original_risk_factors TEXT,
-                intervention_timeline TEXT,
-                outcome_details TEXT,
-                user_satisfaction INTEGER,
-                would_recommend BOOLEAN,
-                testimonial_text TEXT,
-                approval_status TEXT DEFAULT 'pending',
-                created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                approved_date TIMESTAMP,
-                featured BOOLEAN DEFAULT FALSE
-            )
-        ''')
+            raise
     
     def _init_models(self):
         """Initialize predictive models"""
@@ -348,7 +237,7 @@ class RiskPredictiveAnalytics:
             List of detected risk patterns
         """
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             start_date = datetime.now() - timedelta(days=analysis_period_days)
@@ -357,18 +246,18 @@ class RiskPredictiveAnalytics:
             cursor.execute('''
                 SELECT user_id, risk_factors, risk_score, assessment_date
                 FROM user_risk_assessments 
-                WHERE assessment_date >= ? AND risk_level IN ('high', 'critical')
+                WHERE assessment_date >= %s AND risk_level IN ('high', 'critical')
                 ORDER BY assessment_date DESC
             ''', (start_date,))
             
             risk_data = []
             for row in cursor.fetchall():
-                risk_factors = json.loads(row[1]) if row[1] else {}
+                risk_factors = json.loads(row['risk_factors']) if row['risk_factors'] else {}
                 risk_data.append({
-                    'user_id': row[0],
+                    'user_id': row['user_id'],
                     'risk_factors': risk_factors,
-                    'risk_score': row[2],
-                    'assessment_date': row[3]
+                    'risk_score': row['risk_score'],
+                    'assessment_date': row['assessment_date']
                 })
             
             conn.close()
@@ -407,25 +296,25 @@ class RiskPredictiveAnalytics:
             Dictionary containing risk trajectory prediction
         """
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             # Get user's historical risk data
             cursor.execute('''
                 SELECT assessment_date, risk_score, risk_level, risk_factors
                 FROM user_risk_assessments 
-                WHERE user_id = ?
+                WHERE user_id = %s
                 ORDER BY assessment_date DESC
                 LIMIT 20
             ''', (user_id,))
             
             historical_data = []
             for row in cursor.fetchall():
-                risk_factors = json.loads(row[3]) if row[3] else {}
+                risk_factors = json.loads(row['risk_factors']) if row['risk_factors'] else {}
                 historical_data.append({
-                    'date': row[0],
-                    'risk_score': row[1],
-                    'risk_level': row[2],
+                    'date': row['assessment_date'],
+                    'risk_score': row['risk_score'],
+                    'risk_level': row['risk_level'],
                     'risk_factors': risk_factors
                 })
             
@@ -462,7 +351,7 @@ class RiskPredictiveAnalytics:
         """
         self._ensure_models()
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             start_date = datetime.now() - timedelta(days=analysis_period_days)
@@ -470,23 +359,24 @@ class RiskPredictiveAnalytics:
             # Get risk data by industry and geography
             cursor.execute('''
                 SELECT 
-                    json_extract(risk_factors, '$.industry') as industry,
-                    json_extract(risk_factors, '$.location') as location,
+                    risk_factors->>'industry' as industry,
+                    risk_factors->>'location' as location,
                     AVG(risk_score) as avg_risk_score,
                     COUNT(*) as user_count
                 FROM user_risk_assessments 
-                WHERE assessment_date >= ? AND risk_level IN ('high', 'critical')
-                GROUP BY industry, location
-                HAVING industry IS NOT NULL AND location IS NOT NULL
+                WHERE assessment_date >= %s AND risk_level IN ('high', 'critical')
+                GROUP BY risk_factors->>'industry', risk_factors->>'location'
+                HAVING risk_factors->>'industry' IS NOT NULL 
+                   AND risk_factors->>'location' IS NOT NULL
             ''', (start_date,))
             
             heat_map_data = []
             for row in cursor.fetchall():
                 heat_map_data.append({
-                    'industry': row[0],
-                    'location': row[1],
-                    'risk_score': round(row[2], 2),
-                    'user_count': row[3]
+                    'industry': row['industry'],
+                    'location': row['location'],
+                    'risk_score': round(row['avg_risk_score'], 2),
+                    'user_count': row['user_count']
                 })
             
             conn.close()
@@ -520,7 +410,7 @@ class RiskPredictiveAnalytics:
         """
         self._ensure_models()
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             start_date = datetime.now() - timedelta(days=days)
@@ -535,7 +425,7 @@ class RiskPredictiveAnalytics:
                     accuracy_score,
                     forecast_date
                 FROM risk_forecasts 
-                WHERE forecast_date >= ? AND actual_outcome IS NOT NULL
+                WHERE forecast_date >= %s AND actual_outcome IS NOT NULL
                 ORDER BY forecast_date DESC
             ''', (start_date,))
             
@@ -547,9 +437,9 @@ class RiskPredictiveAnalytics:
             # Calculate accuracy metrics by forecast type
             accuracy_metrics = {}
             for forecast_type in ['industry_risk', 'market_risk', 'user_risk']:
-                type_forecasts = [f for f in forecasts if f[0] == forecast_type]
+                type_forecasts = [f for f in forecasts if f['forecast_type'] == forecast_type]
                 if type_forecasts:
-                    accuracy_scores = [f[4] for f in type_forecasts if f[4] is not None]
+                    accuracy_scores = [f['accuracy_score'] for f in type_forecasts if f['accuracy_score'] is not None]
                     if accuracy_scores:
                         accuracy_metrics[forecast_type] = {
                             'total_forecasts': len(type_forecasts),
@@ -565,7 +455,7 @@ class RiskPredictiveAnalytics:
                 'analysis_period_days': days,
                 'total_forecasts': len(forecasts),
                 'accuracy_by_type': accuracy_metrics,
-                'overall_accuracy': round(np.mean([f[4] for f in forecasts if f[4] is not None]), 3)
+                'overall_accuracy': round(np.mean([f['accuracy_score'] for f in forecasts if f['accuracy_score'] is not None]), 3)
             }
             
         except Exception as e:
@@ -760,13 +650,13 @@ class RiskPredictiveAnalytics:
     
     def _get_industry_historical_data(self, industry: str) -> List[Dict[str, Any]]:
         """Get historical risk data for industry"""
-        conn = sqlite3.connect(self.db_path)
+        conn = get_pg_connection()
         cursor = conn.cursor()
         
         cursor.execute('''
             SELECT assessment_date, risk_score, risk_level
             FROM user_risk_assessments 
-            WHERE json_extract(risk_factors, '$.industry') = ?
+            WHERE risk_factors->>'industry' = %s
             ORDER BY assessment_date DESC
             LIMIT 100
         ''', (industry,))
@@ -774,9 +664,9 @@ class RiskPredictiveAnalytics:
         data = []
         for row in cursor.fetchall():
             data.append({
-                'date': row[0],
-                'risk_score': row[1],
-                'risk_level': row[2]
+                'date': row['assessment_date'],
+                'risk_score': row['risk_score'],
+                'risk_level': row['risk_level']
             })
         
         conn.close()
@@ -784,23 +674,24 @@ class RiskPredictiveAnalytics:
     
     def _get_market_historical_data(self, market: str) -> List[Dict[str, Any]]:
         """Get historical market risk data"""
-        conn = sqlite3.connect(self.db_path)
+        conn = get_pg_connection()
         cursor = conn.cursor()
         
         cursor.execute('''
-            SELECT assessment_date, AVG(risk_score) as avg_risk_score
+            SELECT DATE(assessment_date) as assessment_date, 
+                   AVG(risk_score) as avg_risk_score
             FROM user_risk_assessments 
-            WHERE json_extract(risk_factors, '$.location') = ?
+            WHERE risk_factors->>'location' = %s
             GROUP BY DATE(assessment_date)
-            ORDER BY assessment_date DESC
+            ORDER BY DATE(assessment_date) DESC
             LIMIT 100
         ''', (market,))
         
         data = []
         for row in cursor.fetchall():
             data.append({
-                'date': row[0],
-                'avg_risk_score': row[1]
+                'date': row['assessment_date'],
+                'avg_risk_score': row['avg_risk_score']
             })
         
         conn.close()
@@ -808,13 +699,13 @@ class RiskPredictiveAnalytics:
     
     def _get_user_historical_data(self, user_id: str) -> List[Dict[str, Any]]:
         """Get historical risk data for user"""
-        conn = sqlite3.connect(self.db_path)
+        conn = get_pg_connection()
         cursor = conn.cursor()
         
         cursor.execute('''
             SELECT assessment_date, risk_score, risk_level, risk_factors
             FROM user_risk_assessments 
-            WHERE user_id = ?
+            WHERE user_id = %s
             ORDER BY assessment_date DESC
             LIMIT 50
         ''', (user_id,))
@@ -822,10 +713,10 @@ class RiskPredictiveAnalytics:
         data = []
         for row in cursor.fetchall():
             data.append({
-                'date': row[0],
-                'risk_score': row[1],
-                'risk_level': row[2],
-                'risk_factors': json.loads(row[3]) if row[3] else {}
+                'date': row['assessment_date'],
+                'risk_score': row['risk_score'],
+                'risk_level': row['risk_level'],
+                'risk_factors': json.loads(row['risk_factors']) if row['risk_factors'] else {}
             })
         
         conn.close()
@@ -1142,13 +1033,13 @@ class RiskPredictiveAnalytics:
     
     def _get_personal_risk_factors(self, user_id: str) -> List[str]:
         """Get personal risk factors for user"""
-        conn = sqlite3.connect(self.db_path)
+        conn = get_pg_connection()
         cursor = conn.cursor()
         
         cursor.execute('''
             SELECT risk_factors
             FROM user_risk_assessments 
-            WHERE user_id = ?
+            WHERE user_id = %s
             ORDER BY assessment_date DESC
             LIMIT 1
         ''', (user_id,))
@@ -1156,8 +1047,8 @@ class RiskPredictiveAnalytics:
         result = cursor.fetchone()
         conn.close()
         
-        if result and result[0]:
-            risk_factors = json.loads(result[0])
+        if result and result['risk_factors']:
+            risk_factors = json.loads(result['risk_factors'])
             return [key for key, value in risk_factors.items() if value]
         
         return []
@@ -1165,7 +1056,7 @@ class RiskPredictiveAnalytics:
     def _save_forecast(self, forecast: RiskForecast):
         """Save forecast to database"""
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             cursor.execute('''
@@ -1173,7 +1064,7 @@ class RiskPredictiveAnalytics:
                     forecast_type, target_entity, forecast_horizon_days,
                     risk_probability, confidence_level, forecast_data,
                     model_version, created_by
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
             ''', (
                 forecast.forecast_type, forecast.target_entity, forecast.forecast_horizon_days,
                 forecast.risk_probability, forecast.confidence_level, json.dumps(forecast.forecast_data),
@@ -1189,7 +1080,7 @@ class RiskPredictiveAnalytics:
     def _save_risk_pattern(self, pattern: RiskPattern):
         """Save detected risk pattern to database"""
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             # For now, just log the pattern

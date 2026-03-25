@@ -15,7 +15,9 @@ Features:
 - Real-time risk analytics and alerting
 """
 
-import sqlite3
+import psycopg2
+import psycopg2.extras
+import os
 import json
 import logging
 from datetime import datetime, timedelta
@@ -113,6 +115,17 @@ class CareerProtectionOutcome:
     verification_status: str = "unverified"
     verified_date: Optional[datetime] = None
 
+def get_pg_connection():
+    """Get PostgreSQL database connection"""
+    db_url = os.environ.get('DATABASE_URL')
+    if not db_url:
+        raise RuntimeError(
+            "DATABASE_URL is required. SQLite is not supported."
+        )
+    conn = psycopg2.connect(db_url)
+    conn.cursor_factory = psycopg2.extras.RealDictCursor
+    return conn
+
 class RiskAnalyticsTracker:
     """
     Comprehensive risk analytics tracker for career protection system.
@@ -121,27 +134,17 @@ class RiskAnalyticsTracker:
     the effectiveness of risk-based career protection strategies.
     """
     
-    def __init__(self, db_path: str = "backend/analytics/recommendation_analytics.db"):
+    def __init__(self, db_path: str = None):
         """Initialize the risk analytics tracker"""
-        self.db_path = db_path
         self._init_database()
         logger.info("RiskAnalyticsTracker initialized successfully")
     
     def _init_database(self):
-        """Initialize the analytics database with required tables"""
+        """Verify PostgreSQL database connection"""
         try:
-            conn = sqlite3.connect(self.db_path)
-            cursor = conn.cursor()
-            
-            # Read and execute the schema
-            with open('backend/analytics/recommendation_analytics_schema.sql', 'r') as f:
-                schema_sql = f.read()
-            
-            cursor.executescript(schema_sql)
-            conn.commit()
+            conn = get_pg_connection()
             conn.close()
             logger.info("Risk analytics database initialized successfully")
-            
         except Exception as e:
             logger.error(f"Error initializing risk analytics database: {e}")
             raise
@@ -214,7 +217,7 @@ class RiskAnalyticsTracker:
                 next_assessment_date=next_assessment_date
             )
             
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             cursor.execute('''
@@ -223,7 +226,8 @@ class RiskAnalyticsTracker:
                     industry_risk_score, company_risk_score, role_risk_score,
                     market_risk_score, personal_risk_score, assessment_confidence,
                     next_assessment_date
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                RETURNING id
             ''', (
                 assessment.user_id, assessment.assessment_date, assessment.risk_level,
                 assessment.risk_score, json.dumps(assessment.risk_factors),
@@ -233,7 +237,7 @@ class RiskAnalyticsTracker:
                 assessment.next_assessment_date
             ))
             
-            assessment_id = cursor.lastrowid
+            assessment_id = cursor.fetchone()['id']
             
             # Trigger intervention if high risk
             if risk_level in [RiskLevel.HIGH.value, RiskLevel.CRITICAL.value]:
@@ -279,14 +283,15 @@ class RiskAnalyticsTracker:
                 success_metrics={}
             )
             
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             cursor.execute('''
                 INSERT INTO risk_interventions (
                     user_id, risk_assessment_id, intervention_type, intervention_date,
                     intervention_status, intervention_data, success_metrics
-                ) VALUES (?, ?, ?, ?, ?, ?, ?)
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s)
+                RETURNING id
             ''', (
                 intervention.user_id, intervention.risk_assessment_id,
                 intervention.intervention_type, intervention.intervention_date,
@@ -294,13 +299,13 @@ class RiskAnalyticsTracker:
                 json.dumps(intervention.success_metrics)
             ))
             
-            intervention_id = cursor.lastrowid
+            intervention_id = cursor.fetchone()['id']
             
             # Update risk assessment to mark intervention triggered
             cursor.execute('''
                 UPDATE user_risk_assessments 
-                SET intervention_triggered = TRUE, intervention_date = ?
-                WHERE id = ?
+                SET intervention_triggered = TRUE, intervention_date = %s
+                WHERE id = %s
             ''', (intervention.intervention_date, risk_assessment_id))
             
             conn.commit()
@@ -333,16 +338,16 @@ class RiskAnalyticsTracker:
             bool: Success status
         """
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             completion_date = datetime.now() if status == "completed" else None
             
             cursor.execute('''
                 UPDATE risk_interventions 
-                SET intervention_status = ?, effectiveness_score = ?, 
-                    user_response = ?, completion_date = ?
-                WHERE id = ?
+                SET intervention_status = %s, effectiveness_score = %s, 
+                    user_response = %s, completion_date = %s
+                WHERE id = %s
             ''', (
                 status, effectiveness_score, 
                 json.dumps(user_response) if user_response else None,
@@ -408,7 +413,7 @@ class RiskAnalyticsTracker:
                 success_factors=success_factors
             )
             
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             cursor.execute('''
@@ -416,7 +421,8 @@ class RiskAnalyticsTracker:
                     user_id, risk_assessment_id, intervention_id, outcome_type,
                     outcome_date, outcome_details, salary_change, job_security_improvement,
                     time_to_new_role, satisfaction_score, would_recommend, success_factors
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                RETURNING id
             ''', (
                 outcome.user_id, outcome.risk_assessment_id, outcome.intervention_id,
                 outcome.outcome_type, outcome.outcome_date, json.dumps(outcome.outcome_details),
@@ -425,7 +431,7 @@ class RiskAnalyticsTracker:
                 outcome.would_recommend, json.dumps(outcome.success_factors) if outcome.success_factors else None
             ))
             
-            outcome_id = cursor.lastrowid
+            outcome_id = cursor.fetchone()['id']
             conn.commit()
             conn.close()
             
@@ -468,7 +474,7 @@ class RiskAnalyticsTracker:
             int: Success story ID
         """
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             cursor.execute('''
@@ -476,14 +482,15 @@ class RiskAnalyticsTracker:
                     user_id, story_type, story_title, story_description,
                     original_risk_factors, intervention_timeline, outcome_details,
                     user_satisfaction, would_recommend, testimonial_text
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                RETURNING id
             ''', (
                 user_id, story_type, story_title, story_description,
                 json.dumps(original_risk_factors), json.dumps(intervention_timeline),
                 json.dumps(outcome_details), user_satisfaction, would_recommend, testimonial_text
             ))
             
-            story_id = cursor.lastrowid
+            story_id = cursor.fetchone()['id']
             conn.commit()
             conn.close()
             
@@ -508,7 +515,7 @@ class RiskAnalyticsTracker:
             Dict containing career protection metrics
         """
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             # Calculate date range
@@ -525,43 +532,43 @@ class RiskAnalyticsTracker:
             cursor.execute('''
                 SELECT COUNT(*) as high_risk_users
                 FROM user_risk_assessments 
-                WHERE assessment_date >= ? AND risk_level IN ('high', 'critical')
+                WHERE assessment_date >= %s AND risk_level IN ('high', 'critical')
             ''', (start_date,))
-            high_risk_users = cursor.fetchone()[0]
+            high_risk_users = list(cursor.fetchone().values())[0]
             
             # Get successful transitions
             cursor.execute('''
                 SELECT COUNT(*) as successful_transitions
                 FROM career_protection_outcomes 
-                WHERE outcome_date >= ? AND outcome_type = 'successful_transition'
+                WHERE outcome_date >= %s AND outcome_type = 'successful_transition'
             ''', (start_date,))
-            successful_transitions = cursor.fetchone()[0]
+            successful_transitions = list(cursor.fetchone().values())[0]
             
             # Get unemployment prevented
             cursor.execute('''
                 SELECT COUNT(*) as unemployment_prevented
                 FROM career_protection_outcomes 
-                WHERE outcome_date >= ? AND outcome_type = 'unemployment_prevented'
+                WHERE outcome_date >= %s AND outcome_type = 'unemployment_prevented'
             ''', (start_date,))
-            unemployment_prevented = cursor.fetchone()[0]
+            unemployment_prevented = list(cursor.fetchone().values())[0]
             
             # Get average advance warning time
             cursor.execute('''
-                SELECT AVG(julianday(cpo.outcome_date) - julianday(ura.assessment_date)) as avg_warning_days
+                SELECT AVG(EXTRACT(EPOCH FROM (cpo.outcome_date - ura.assessment_date))/86400) as avg_warning_days
                 FROM user_risk_assessments ura
                 JOIN career_protection_outcomes cpo ON ura.id = cpo.risk_assessment_id
-                WHERE ura.assessment_date >= ? AND cpo.outcome_type = 'successful_transition'
+                WHERE ura.assessment_date >= %s AND cpo.outcome_type = 'successful_transition'
             ''', (start_date,))
-            avg_warning_days = cursor.fetchone()[0] or 0
+            avg_warning_days = list(cursor.fetchone().values())[0] or 0
             
             # Get income protection rate
             cursor.execute('''
                 SELECT 
                     COUNT(CASE WHEN salary_change >= 0 THEN 1 END) * 100.0 / COUNT(*) as income_protection_rate
                 FROM career_protection_outcomes 
-                WHERE outcome_date >= ? AND salary_change IS NOT NULL
+                WHERE outcome_date >= %s AND salary_change IS NOT NULL
             ''', (start_date,))
-            income_protection_rate = cursor.fetchone()[0] or 0
+            income_protection_rate = list(cursor.fetchone().values())[0] or 0
             
             # Calculate overall success rate
             overall_success_rate = (successful_transitions / high_risk_users * 100) if high_risk_users > 0 else 0
@@ -586,7 +593,7 @@ class RiskAnalyticsTracker:
         """
         Retrieves approved risk success stories.
         """
-        conn = sqlite3.connect(self.db_path)
+        conn = get_pg_connection()
         cursor = conn.cursor()
 
         query = '''
@@ -599,10 +606,10 @@ class RiskAnalyticsTracker:
         '''
         params = []
         if story_type:
-            query += ' AND story_type = ?'
+            query += ' AND story_type = %s'
             params.append(story_type)
 
-        query += ' ORDER BY created_date DESC LIMIT ?'
+        query += ' ORDER BY created_date DESC LIMIT %s'
         params.append(limit)
 
         cursor.execute(query, params)
@@ -610,17 +617,17 @@ class RiskAnalyticsTracker:
         stories = []
         for row in cursor.fetchall():
             stories.append({
-                'user_id': row[0],
-                'story_type': row[1],
-                'story_title': row[2],
-                'story_description': row[3],
-                'original_risk_factors': json.loads(row[4]),
-                'intervention_timeline': json.loads(row[5]),
-                'outcome_details': json.loads(row[6]),
-                'user_satisfaction': row[7],
-                'would_recommend': bool(row[8]),
-                'testimonial_text': row[9],
-                'created_date': row[10]
+                'user_id': row['user_id'],
+                'story_type': row['story_type'],
+                'story_title': row['story_title'],
+                'story_description': row['story_description'],
+                'original_risk_factors': json.loads(row['original_risk_factors']) if row['original_risk_factors'] else {},
+                'intervention_timeline': json.loads(row['intervention_timeline']) if row['intervention_timeline'] else {},
+                'outcome_details': json.loads(row['outcome_details']) if row['outcome_details'] else {},
+                'user_satisfaction': row['user_satisfaction'],
+                'would_recommend': bool(row['would_recommend']),
+                'testimonial_text': row['testimonial_text'],
+                'created_date': row['created_date']
             })
         conn.close()
         return stories
@@ -639,7 +646,7 @@ class RiskAnalyticsTracker:
             Dict containing intervention effectiveness metrics
         """
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             # Calculate date range
@@ -661,20 +668,20 @@ class RiskAnalyticsTracker:
                     AVG(effectiveness_score) as avg_effectiveness_score,
                     COUNT(CASE WHEN intervention_status = 'completed' AND effectiveness_score >= 7 THEN 1 END) as effective_interventions
                 FROM risk_interventions 
-                WHERE intervention_date >= ?
+                WHERE intervention_date >= %s
                 GROUP BY intervention_type
                 ORDER BY avg_effectiveness_score DESC
             ''', (start_date,))
             
             intervention_metrics = {}
             for row in cursor.fetchall():
-                intervention_metrics[row[0]] = {
-                    'total_interventions': row[1],
-                    'completed_interventions': row[2],
-                    'avg_effectiveness_score': round(row[3] or 0, 2),
-                    'effective_interventions': row[4],
-                    'completion_rate': round((row[2] / row[1] * 100) if row[1] > 0 else 0, 2),
-                    'effectiveness_rate': round((row[4] / row[2] * 100) if row[2] > 0 else 0, 2)
+                intervention_metrics[row['intervention_type']] = {
+                    'total_interventions': row['total_interventions'],
+                    'completed_interventions': row['completed_interventions'],
+                    'avg_effectiveness_score': round(row['avg_effectiveness_score'] or 0, 2),
+                    'effective_interventions': row['effective_interventions'],
+                    'completion_rate': round((row['completed_interventions'] / row['total_interventions'] * 100) if row['total_interventions'] > 0 else 0, 2),
+                    'effectiveness_rate': round((row['effective_interventions'] / row['completed_interventions'] * 100) if row['completed_interventions'] > 0 else 0, 2)
                 }
             
             conn.close()
@@ -702,7 +709,7 @@ class RiskAnalyticsTracker:
             Dict containing risk trend analysis
         """
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             start_date = datetime.now() - timedelta(days=days)
@@ -714,25 +721,25 @@ class RiskAnalyticsTracker:
                     risk_level,
                     COUNT(*) as count
                 FROM user_risk_assessments 
-                WHERE assessment_date >= ?
+                WHERE assessment_date >= %s
                 GROUP BY DATE(assessment_date), risk_level
                 ORDER BY assessment_date DESC, risk_level
             ''', (start_date,))
             
             risk_trends = {}
             for row in cursor.fetchall():
-                date_str = row[0]
+                date_str = str(row['assessment_date'])
                 if date_str not in risk_trends:
                     risk_trends[date_str] = {}
-                risk_trends[date_str][row[1]] = row[2]
+                risk_trends[date_str][row['risk_level']] = row['count']
             
             # Get risk factor frequency
             cursor.execute('''
                 SELECT 
-                    json_extract(risk_factors, '$.primary_factor') as primary_factor,
+                    risk_factors->>'primary_factor' as primary_factor,
                     COUNT(*) as frequency
                 FROM user_risk_assessments 
-                WHERE assessment_date >= ? AND risk_level IN ('high', 'critical')
+                WHERE assessment_date >= %s AND risk_level IN ('high', 'critical')
                 GROUP BY primary_factor
                 ORDER BY frequency DESC
                 LIMIT 10
@@ -740,8 +747,8 @@ class RiskAnalyticsTracker:
             
             top_risk_factors = {}
             for row in cursor.fetchall():
-                if row[0]:
-                    top_risk_factors[row[0]] = row[1]
+                if row['primary_factor']:
+                    top_risk_factors[row['primary_factor']] = row['frequency']
             
             conn.close()
             
