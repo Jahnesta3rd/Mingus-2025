@@ -17,7 +17,9 @@ Features:
 
 import asyncio
 import logging
-import sqlite3
+import psycopg2
+import psycopg2.extras
+import os
 import json
 import uuid
 import time
@@ -90,6 +92,17 @@ class RiskTestResult:
     confidence_interval_upper: float
     improvement_percentage: float
 
+def get_pg_connection():
+    """Get PostgreSQL database connection"""
+    db_url = os.environ.get('DATABASE_URL')
+    if not db_url:
+        raise RuntimeError(
+            "DATABASE_URL is required. SQLite is not supported."
+        )
+    conn = psycopg2.connect(db_url)
+    conn.cursor_factory = psycopg2.extras.RealDictCursor
+    return conn
+
 class RiskABTestFramework:
     """
     Comprehensive A/B testing framework for risk-based career protection optimization.
@@ -98,28 +111,28 @@ class RiskABTestFramework:
     including threshold optimization, communication testing, and intervention timing.
     """
     
-    def __init__(self, db_path: str = "backend/analytics/recommendation_analytics.db"):
+    def __init__(self, db_path: str = None):
         """Initialize the risk A/B testing framework"""
         # Import here to avoid circular import
         from .risk_analytics_integration import RiskAnalyticsTracker, RiskBasedSuccessMetrics
         
-        self.db_path = db_path
-        self.base_framework = ABTestFramework(db_path)
-        self.risk_analytics = RiskAnalyticsTracker(db_path)
-        self.success_metrics = RiskBasedSuccessMetrics(db_path)
+        self.base_framework = ABTestFramework()
+        self.risk_analytics = RiskAnalyticsTracker()
+        self.success_metrics = RiskBasedSuccessMetrics()
         self._init_risk_ab_tables()
         logger.info("RiskABTestFramework initialized successfully")
     
     def _init_risk_ab_tables(self):
         """Initialize risk-specific A/B testing tables"""
         try:
-            with sqlite3.connect(self.db_path) as conn:
+            conn = get_pg_connection()
+            with conn:
                 cursor = conn.cursor()
                 
                 # Risk A/B test configurations
                 cursor.execute('''
                     CREATE TABLE IF NOT EXISTS risk_ab_test_configs (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        id SERIAL PRIMARY KEY,
                         test_id TEXT UNIQUE NOT NULL,
                         test_name TEXT NOT NULL,
                         test_type TEXT NOT NULL,
@@ -132,9 +145,9 @@ class RiskABTestFramework:
                         minimum_risk_users_per_variant INTEGER NOT NULL,
                         risk_score_range TEXT NOT NULL,
                         status TEXT NOT NULL DEFAULT 'draft',
-                        start_date DATETIME,
-                        end_date DATETIME,
-                        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                        start_date TIMESTAMP,
+                        end_date TIMESTAMP,
+                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                     )
                 ''')
                 
@@ -146,14 +159,14 @@ class RiskABTestFramework:
                 # Risk A/B test participants
                 cursor.execute('''
                     CREATE TABLE IF NOT EXISTS risk_ab_test_participants (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        id SERIAL PRIMARY KEY,
                         test_id TEXT NOT NULL,
                         user_id TEXT NOT NULL,
                         variant_id TEXT NOT NULL,
                         risk_score REAL NOT NULL,
                         risk_level TEXT NOT NULL,
-                        assigned_at DATETIME NOT NULL,
-                        last_activity DATETIME,
+                        assigned_at TIMESTAMP NOT NULL,
+                        last_activity TIMESTAMP,
                         conversion_events TEXT,
                         outcome_data TEXT,
                         
@@ -170,15 +183,15 @@ class RiskABTestFramework:
                 # Risk A/B test outcomes
                 cursor.execute('''
                     CREATE TABLE IF NOT EXISTS risk_ab_test_outcomes (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        id SERIAL PRIMARY KEY,
                         test_id TEXT NOT NULL,
                         user_id TEXT NOT NULL,
                         variant_id TEXT NOT NULL,
                         outcome_type TEXT NOT NULL,
                         outcome_value REAL NOT NULL,
-                        outcome_timestamp DATETIME NOT NULL,
+                        outcome_timestamp TIMESTAMP NOT NULL,
                         success_metrics TEXT NOT NULL,
-                        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                     )
                 ''')
                 
@@ -191,16 +204,16 @@ class RiskABTestFramework:
                 # Risk optimization history
                 cursor.execute('''
                     CREATE TABLE IF NOT EXISTS risk_optimization_history (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        id SERIAL PRIMARY KEY,
                         test_id TEXT NOT NULL,
                         optimization_type TEXT NOT NULL,
                         original_value REAL NOT NULL,
                         optimized_value REAL NOT NULL,
                         improvement_percentage REAL NOT NULL,
                         confidence_level REAL NOT NULL,
-                        optimization_timestamp DATETIME NOT NULL,
+                        optimization_timestamp TIMESTAMP NOT NULL,
                         test_results TEXT NOT NULL,
-                        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                     )
                 ''')
                 
@@ -248,7 +261,8 @@ class RiskABTestFramework:
             )
             
             # Store test configuration
-            with sqlite3.connect(self.db_path) as conn:
+            conn = get_pg_connection()
+            with conn:
                 cursor = conn.cursor()
                 
                 cursor.execute('''
@@ -256,7 +270,7 @@ class RiskABTestFramework:
                     (test_id, test_name, test_type, description, hypothesis, variants_config,
                      success_criteria, target_participants, test_duration_days, 
                      minimum_risk_users_per_variant, risk_score_range, status, start_date)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 ''', (
                     test_id,
                     test_config.test_name,
@@ -348,7 +362,8 @@ class RiskABTestFramework:
             )
             
             # Store test configuration
-            with sqlite3.connect(self.db_path) as conn:
+            conn = get_pg_connection()
+            with conn:
                 cursor = conn.cursor()
                 
                 cursor.execute('''
@@ -356,7 +371,7 @@ class RiskABTestFramework:
                     (test_id, test_name, test_type, description, hypothesis, variants_config,
                      success_criteria, target_participants, test_duration_days, 
                      minimum_risk_users_per_variant, risk_score_range, status, start_date)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 ''', (
                     test_id,
                     test_config.test_name,
@@ -435,7 +450,8 @@ class RiskABTestFramework:
             )
             
             # Store test configuration
-            with sqlite3.connect(self.db_path) as conn:
+            conn = get_pg_connection()
+            with conn:
                 cursor = conn.cursor()
                 
                 cursor.execute('''
@@ -443,7 +459,7 @@ class RiskABTestFramework:
                     (test_id, test_name, test_type, description, hypothesis, variants_config,
                      success_criteria, target_participants, test_duration_days, 
                      minimum_risk_users_per_variant, risk_score_range, status, start_date)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 ''', (
                     test_id,
                     test_config.test_name,
@@ -575,40 +591,41 @@ class RiskABTestFramework:
     ) -> Optional[str]:
         """Assign a user to a risk A/B test variant"""
         try:
-            with sqlite3.connect(self.db_path) as conn:
+            conn = get_pg_connection()
+            with conn:
                 cursor = conn.cursor()
                 
                 # Check if user is already assigned
                 cursor.execute('''
                     SELECT variant_id FROM risk_ab_test_participants 
-                    WHERE test_id = ? AND user_id = ?
+                    WHERE test_id = %s AND user_id = %s
                 ''', (test_id, user_id))
                 
                 existing_assignment = cursor.fetchone()
                 if existing_assignment:
-                    return existing_assignment[0]
+                    return existing_assignment['variant_id']
                 
                 # Get test configuration
                 cursor.execute('''
                     SELECT variants_config, status, minimum_risk_users_per_variant
-                    FROM risk_ab_test_configs WHERE test_id = ?
+                    FROM risk_ab_test_configs WHERE test_id = %s
                 ''', (test_id,))
                 
                 test_info = cursor.fetchone()
-                if not test_info or test_info[1] != 'active':
+                if not test_info or test_info['status'] != 'active':
                     return None
                 
-                variants_config = json.loads(test_info[0])
-                min_risk_users = test_info[2]
+                variants_config = json.loads(test_info['variants_config'])
+                min_risk_users = test_info['minimum_risk_users_per_variant']
                 
                 # Check if we have enough risk users for each variant
                 for variant_id in variants_config.keys():
                     cursor.execute('''
                         SELECT COUNT(*) FROM risk_ab_test_participants 
-                        WHERE test_id = ? AND variant_id = ? AND risk_score >= 0.5
+                        WHERE test_id = %s AND variant_id = %s AND risk_score >= 0.5
                     ''', (test_id, variant_id))
                     
-                    risk_user_count = cursor.fetchone()[0]
+                    risk_user_count = list(cursor.fetchone().values())[0]
                     if risk_user_count < min_risk_users:
                         # Assign to this variant to balance risk users
                         variant_id_to_assign = variant_id
@@ -624,7 +641,7 @@ class RiskABTestFramework:
                 cursor.execute('''
                     INSERT INTO risk_ab_test_participants 
                     (test_id, user_id, variant_id, risk_score, risk_level, assigned_at)
-                    VALUES (?, ?, ?, ?, ?, ?)
+                    VALUES (%s, %s, %s, %s, %s, %s)
                 ''', (test_id, user_id, variant_id_to_assign, risk_score, risk_level, datetime.now()))
                 
                 conn.commit()
@@ -646,13 +663,14 @@ class RiskABTestFramework:
     ) -> bool:
         """Track conversion event for a user in a risk A/B test"""
         try:
-            with sqlite3.connect(self.db_path) as conn:
+            conn = get_pg_connection()
+            with conn:
                 cursor = conn.cursor()
                 
                 # Get user's current conversion events
                 cursor.execute('''
                     SELECT conversion_events FROM risk_ab_test_participants 
-                    WHERE test_id = ? AND user_id = ?
+                    WHERE test_id = %s AND user_id = %s
                 ''', (test_id, user_id))
                 
                 result = cursor.fetchone()
@@ -660,7 +678,7 @@ class RiskABTestFramework:
                     logger.warning(f"User {user_id} not assigned to risk test {test_id}")
                     return False
                 
-                conversion_events = json.loads(result[0]) if result[0] else {}
+                conversion_events = json.loads(result['conversion_events']) if result['conversion_events'] else {}
                 
                 # Add new conversion event
                 if conversion_event not in conversion_events:
@@ -675,8 +693,8 @@ class RiskABTestFramework:
                 # Update conversion events
                 cursor.execute('''
                     UPDATE risk_ab_test_participants 
-                    SET conversion_events = ?, last_activity = ?
-                    WHERE test_id = ? AND user_id = ?
+                    SET conversion_events = %s, last_activity = %s
+                    WHERE test_id = %s AND user_id = %s
                 ''', (json.dumps(conversion_events), datetime.now(), test_id, user_id))
                 
                 conn.commit()
@@ -691,21 +709,22 @@ class RiskABTestFramework:
     async def measure_intervention_success_by_variant(self, test_id: str) -> Dict[str, Any]:
         """Compare success rates across A/B test variants"""
         try:
-            with sqlite3.connect(self.db_path) as conn:
+            conn = get_pg_connection()
+            with conn:
                 cursor = conn.cursor()
                 
                 # Get test configuration
                 cursor.execute('''
                     SELECT test_name, success_criteria FROM risk_ab_test_configs 
-                    WHERE test_id = ?
+                    WHERE test_id = %s
                 ''', (test_id,))
                 
                 test_info = cursor.fetchone()
                 if not test_info:
                     return {'error': 'Test not found'}
                 
-                test_name, success_criteria = test_info
-                success_criteria = json.loads(success_criteria)
+                test_name = test_info['test_name']
+                success_criteria = json.loads(test_info['success_criteria'])
                 
                 # Get variant performance data
                 cursor.execute('''
@@ -717,7 +736,7 @@ class RiskABTestFramework:
                         AVG(p.risk_score) as avg_risk_score,
                         p.conversion_events
                     FROM risk_ab_test_participants p
-                    WHERE p.test_id = ?
+                    WHERE p.test_id = %s
                     GROUP BY p.variant_id, p.risk_level
                 ''', (test_id,))
                 
@@ -726,7 +745,12 @@ class RiskABTestFramework:
                 # Analyze each variant
                 variant_results = {}
                 for row in variant_data:
-                    variant_id, risk_level, total_participants, risk_users, avg_risk_score, conversion_events = row
+                    variant_id = row['variant_id']
+                    risk_level = row['risk_level']
+                    total_participants = row['total_participants']
+                    risk_users = row['risk_users']
+                    avg_risk_score = row['avg_risk_score']
+                    conversion_events = row['conversion_events']
                     
                     if variant_id not in variant_results:
                         variant_results[variant_id] = {
@@ -767,14 +791,15 @@ class RiskABTestFramework:
     async def track_long_term_career_outcomes(self, test_id: str, months: int = 6) -> Dict[str, Any]:
         """Measure 6-month career protection success by test variant"""
         try:
-            with sqlite3.connect(self.db_path) as conn:
+            conn = get_pg_connection()
+            with conn:
                 cursor = conn.cursor()
                 
                 # Get participants from the test
                 cursor.execute('''
                     SELECT p.user_id, p.variant_id, p.risk_score, p.risk_level
                     FROM risk_ab_test_participants p
-                    WHERE p.test_id = ? AND p.assigned_at <= datetime('now', '-{} months')
+                    WHERE p.test_id = %s AND p.assigned_at <= NOW() - INTERVAL '{} months'
                 '''.format(months), (test_id,))
                 
                 participants = cursor.fetchall()
@@ -784,7 +809,11 @@ class RiskABTestFramework:
                 
                 # Get career outcomes for each participant
                 variant_outcomes = {}
-                for user_id, variant_id, risk_score, risk_level in participants:
+                for row in participants:
+                    user_id = row['user_id']
+                    variant_id = row['variant_id']
+                    risk_score = row['risk_score']
+                    risk_level = row['risk_level']
                     if variant_id not in variant_outcomes:
                         variant_outcomes[variant_id] = {
                             'participants': 0,
@@ -801,12 +830,16 @@ class RiskABTestFramework:
                         SELECT outcome_type, transition_success, salary_improvement_percentage, 
                                risk_mitigation_effectiveness
                         FROM career_protection_outcomes 
-                        WHERE user_id = ? AND outcome_timestamp >= datetime('now', '-{} months')
+                        WHERE user_id = %s AND outcome_timestamp >= NOW() - INTERVAL '{} months'
                     '''.format(months), (user_id,))
                     
                     outcomes = cursor.fetchall()
                     
-                    for outcome_type, success, salary_improvement, risk_mitigation in outcomes:
+                    for outcome in outcomes:
+                        outcome_type = outcome['outcome_type']
+                        success = outcome['transition_success']
+                        salary_improvement = outcome['salary_improvement_percentage']
+                        risk_mitigation = outcome['risk_mitigation_effectiveness']
                         if success:
                             variant_outcomes[variant_id]['successful_outcomes'] += 1
                         
@@ -847,7 +880,8 @@ class RiskABTestFramework:
     async def analyze_user_satisfaction_by_variant(self, test_id: str) -> Dict[str, Any]:
         """Compare user experience across risk communication approaches"""
         try:
-            with sqlite3.connect(self.db_path) as conn:
+            conn = get_pg_connection()
+            with conn:
                 cursor = conn.cursor()
                 
                 # Get user satisfaction data by variant
@@ -861,7 +895,7 @@ class RiskABTestFramework:
                         AVG(CASE WHEN c.time_to_action_hours IS NOT NULL THEN c.time_to_action_hours END) as avg_time_to_action
                     FROM risk_ab_test_participants p
                     LEFT JOIN risk_communication_effectiveness c ON p.user_id = c.user_id
-                    WHERE p.test_id = ?
+                    WHERE p.test_id = %s
                     GROUP BY p.variant_id
                 ''', (test_id,))
                 
@@ -869,7 +903,12 @@ class RiskABTestFramework:
                 
                 variant_satisfaction = {}
                 for row in satisfaction_data:
-                    variant_id, total_users, avg_clarity, avg_understanding, users_taking_action, avg_time_to_action = row
+                    variant_id = row['variant_id']
+                    total_users = row['total_users']
+                    avg_clarity = row['avg_clarity']
+                    avg_understanding = row['avg_understanding']
+                    users_taking_action = row['users_taking_action']
+                    avg_time_to_action = row['avg_time_to_action']
                     
                     variant_satisfaction[variant_id] = {
                         'total_users': total_users,
@@ -897,7 +936,8 @@ class RiskABTestFramework:
     async def calculate_roi_by_test_variant(self, test_id: str) -> Dict[str, Any]:
         """Measure business impact of different risk approaches"""
         try:
-            with sqlite3.connect(self.db_path) as conn:
+            conn = get_pg_connection()
+            with conn:
                 cursor = conn.cursor()
                 
                 # Get ROI data by variant
@@ -912,7 +952,7 @@ class RiskABTestFramework:
                         AVG(CASE WHEN o.risk_mitigation_effectiveness IS NOT NULL THEN o.risk_mitigation_effectiveness END) as avg_risk_mitigation
                     FROM risk_ab_test_participants p
                     LEFT JOIN career_protection_outcomes o ON p.user_id = o.user_id
-                    WHERE p.test_id = ?
+                    WHERE p.test_id = %s
                     GROUP BY p.variant_id
                 ''', (test_id,))
                 
@@ -920,7 +960,13 @@ class RiskABTestFramework:
                 
                 variant_roi = {}
                 for row in roi_data:
-                    variant_id, total_users, high_risk_users, avg_risk_score, successful_transitions, avg_salary_improvement, avg_risk_mitigation = row
+                    variant_id = row['variant_id']
+                    total_users = row['total_users']
+                    high_risk_users = row['high_risk_users']
+                    avg_risk_score = row['avg_risk_score']
+                    successful_transitions = row['successful_transitions']
+                    avg_salary_improvement = row['avg_salary_improvement']
+                    avg_risk_mitigation = row['avg_risk_mitigation']
                     
                     # Calculate ROI metrics
                     success_rate = successful_transitions / total_users if total_users > 0 else 0
@@ -1103,14 +1149,15 @@ class RiskABTestFramework:
                 threshold = float(best_variant.split('_')[1])
                 
                 # Record optimization
-                with sqlite3.connect(self.db_path) as conn:
+                conn = get_pg_connection()
+                with conn:
                     cursor = conn.cursor()
                     
                     cursor.execute('''
                         INSERT INTO risk_optimization_history 
                         (test_id, optimization_type, original_value, optimized_value, 
                          improvement_percentage, confidence_level, optimization_timestamp, test_results)
-                        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
                     ''', (
                         test_id,
                         'risk_threshold',
@@ -1143,14 +1190,15 @@ class RiskABTestFramework:
         """Use A/B test results to personalize risk communication"""
         try:
             # Get user's communication preferences based on past test results
-            with sqlite3.connect(self.db_path) as conn:
+            conn = get_pg_connection()
+            with conn:
                 cursor = conn.cursor()
                 
                 cursor.execute('''
                     SELECT p.variant_id, c.message_clarity_score, c.user_understanding_score, c.action_taken
                     FROM risk_ab_test_participants p
                     LEFT JOIN risk_communication_effectiveness c ON p.user_id = c.user_id
-                    WHERE p.user_id = ? AND p.test_id LIKE '%communication%'
+                    WHERE p.user_id = %s AND p.test_id LIKE '%communication%'
                     ORDER BY p.assigned_at DESC
                     LIMIT 1
                 ''', (user_id,))
@@ -1158,7 +1206,10 @@ class RiskABTestFramework:
                 result = cursor.fetchone()
                 
                 if result:
-                    variant_id, clarity, understanding, action_taken = result
+                    variant_id = result['variant_id']
+                    clarity = result['message_clarity_score']
+                    understanding = result['user_understanding_score']
+                    action_taken = result['action_taken']
                     
                     # Determine best communication approach for this user
                     if clarity and understanding and action_taken:
@@ -1193,13 +1244,14 @@ class RiskABTestFramework:
         """Optimize intervention timing based on user behavior patterns"""
         try:
             # Analyze user's response patterns
-            with sqlite3.connect(self.db_path) as conn:
+            conn = get_pg_connection()
+            with conn:
                 cursor = conn.cursor()
                 
                 cursor.execute('''
                     SELECT p.variant_id, p.assigned_at, p.last_activity, p.conversion_events
                     FROM risk_ab_test_participants p
-                    WHERE p.user_id = ? AND p.test_id LIKE '%timing%'
+                    WHERE p.user_id = %s AND p.test_id LIKE '%timing%'
                     ORDER BY p.assigned_at DESC
                     LIMIT 5
                 ''', (user_id,))
@@ -1209,13 +1261,17 @@ class RiskABTestFramework:
                 if timing_data:
                     # Analyze response times
                     response_times = []
-                    for variant_id, assigned_at, last_activity, conversion_events in timing_data:
+                    for row in timing_data:
+                        variant_id = row['variant_id']
+                        assigned_at = row['assigned_at']
+                        last_activity = row['last_activity']
+                        conversion_events = row['conversion_events']
                         if last_activity and conversion_events:
                             events = json.loads(conversion_events)
                             if events:
                                 # Calculate average response time
-                                assigned_dt = datetime.fromisoformat(assigned_at)
-                                last_dt = datetime.fromisoformat(last_activity)
+                                assigned_dt = assigned_at if isinstance(assigned_at, datetime) else datetime.fromisoformat(str(assigned_at))
+                                last_dt = last_activity if isinstance(last_activity, datetime) else datetime.fromisoformat(str(last_activity))
                                 response_time = (last_dt - assigned_dt).total_seconds() / 3600  # hours
                                 response_times.append(response_time)
                     

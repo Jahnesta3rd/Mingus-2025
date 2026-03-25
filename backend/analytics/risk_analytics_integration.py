@@ -18,7 +18,9 @@ Features:
 
 import asyncio
 import logging
-import sqlite3
+import psycopg2
+import psycopg2.extras
+import os
 import json
 import time
 from datetime import datetime, timedelta
@@ -37,6 +39,17 @@ from .risk_ab_testing_framework import RiskABTestFramework
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+def get_pg_connection():
+    """Get PostgreSQL database connection"""
+    db_url = os.environ.get('DATABASE_URL')
+    if not db_url:
+        raise RuntimeError(
+            "DATABASE_URL is required. SQLite is not supported."
+        )
+    conn = psycopg2.connect(db_url)
+    conn.cursor_factory = psycopg2.extras.RealDictCursor
+    return conn
 
 class RiskEventType(Enum):
     """Types of risk-related events to track"""
@@ -106,37 +119,37 @@ class RiskOutcomeData:
 class RiskAnalyticsTracker:
     """Specialized tracker for risk-related analytics events"""
     
-    def __init__(self, db_path: str):
+    def __init__(self, db_path: str = None):
         """Initialize the risk analytics tracker"""
-        self.db_path = db_path
         self._init_risk_tables()
     
     def _init_risk_tables(self):
         """Initialize risk-specific database tables"""
-        with sqlite3.connect(self.db_path) as conn:
+        conn = get_pg_connection()
+        with conn:
             cursor = conn.cursor()
             
             # Risk assessments table
             cursor.execute('''
                 CREATE TABLE IF NOT EXISTS risk_assessments (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    id SERIAL PRIMARY KEY,
                     user_id TEXT NOT NULL,
                     assessment_type TEXT NOT NULL,
                     overall_risk REAL NOT NULL,
                     risk_triggers TEXT NOT NULL,
                     risk_breakdown TEXT NOT NULL,
                     timeline_urgency TEXT NOT NULL,
-                    assessment_timestamp DATETIME NOT NULL,
+                    assessment_timestamp TIMESTAMP NOT NULL,
                     confidence_score REAL NOT NULL,
                     risk_factors TEXT NOT NULL,
-                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )
             ''')
             
             # Risk recommendations table
             cursor.execute('''
                 CREATE TABLE IF NOT EXISTS risk_recommendations (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    id SERIAL PRIMARY KEY,
                     user_id TEXT NOT NULL,
                     trigger_type TEXT NOT NULL,
                     risk_score REAL NOT NULL,
@@ -144,46 +157,46 @@ class RiskAnalyticsTracker:
                     recommendation_tiers TEXT NOT NULL,
                     emergency_unlock_granted BOOLEAN NOT NULL,
                     timeline_urgency TEXT NOT NULL,
-                    intervention_timestamp DATETIME NOT NULL,
+                    intervention_timestamp TIMESTAMP NOT NULL,
                     success_probability REAL NOT NULL,
-                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )
             ''')
             
             # Risk outcomes table
             cursor.execute('''
                 CREATE TABLE IF NOT EXISTS risk_outcomes (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    id SERIAL PRIMARY KEY,
                     user_id TEXT NOT NULL,
                     predicted_risk_score REAL NOT NULL,
                     predicted_timeline TEXT NOT NULL,
                     actual_outcome TEXT NOT NULL,
                     outcome_timeline_days INTEGER NOT NULL,
                     prediction_accuracy REAL NOT NULL,
-                    outcome_timestamp DATETIME NOT NULL,
+                    outcome_timestamp TIMESTAMP NOT NULL,
                     outcome_details TEXT NOT NULL,
-                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )
             ''')
             
             # Risk journey flow table
             cursor.execute('''
                 CREATE TABLE IF NOT EXISTS risk_journey_flow (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    id SERIAL PRIMARY KEY,
                     user_id TEXT NOT NULL,
                     session_id TEXT NOT NULL,
                     flow_step TEXT NOT NULL,
-                    step_timestamp DATETIME NOT NULL,
+                    step_timestamp TIMESTAMP NOT NULL,
                     step_data TEXT NOT NULL,
                     time_to_next_step INTEGER,
-                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )
             ''')
             
             # Risk A/B test results table
             cursor.execute('''
                 CREATE TABLE IF NOT EXISTS risk_ab_test_results (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    id SERIAL PRIMARY KEY,
                     test_id TEXT NOT NULL,
                     user_id TEXT NOT NULL,
                     variant_id TEXT NOT NULL,
@@ -191,8 +204,8 @@ class RiskAnalyticsTracker:
                     recommendation_timing TEXT NOT NULL,
                     user_response TEXT NOT NULL,
                     outcome_achieved TEXT,
-                    test_timestamp DATETIME NOT NULL,
-                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                    test_timestamp TIMESTAMP NOT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )
             ''')
             
@@ -201,7 +214,8 @@ class RiskAnalyticsTracker:
     async def log_risk_intervention(self, user_id: str, risk_data: RiskAssessmentData, recommendations: Dict[str, Any]) -> str:
         """Log a risk intervention event"""
         try:
-            with sqlite3.connect(self.db_path) as conn:
+            conn = get_pg_connection()
+            with conn:
                 cursor = conn.cursor()
                 
                 # Log risk assessment
@@ -209,7 +223,8 @@ class RiskAnalyticsTracker:
                     INSERT INTO risk_assessments 
                     (user_id, assessment_type, overall_risk, risk_triggers, risk_breakdown,
                      timeline_urgency, assessment_timestamp, confidence_score, risk_factors)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    RETURNING id
                 ''', (
                     user_id,
                     risk_data.assessment_type,
@@ -222,7 +237,7 @@ class RiskAnalyticsTracker:
                     json.dumps(risk_data.risk_factors)
                 ))
                 
-                assessment_id = cursor.lastrowid
+                assessment_id = cursor.fetchone()['id']
                 
                 # Log risk recommendation
                 cursor.execute('''
@@ -230,7 +245,7 @@ class RiskAnalyticsTracker:
                     (user_id, trigger_type, risk_score, recommendations_generated, 
                      recommendation_tiers, emergency_unlock_granted, timeline_urgency,
                      intervention_timestamp, success_probability)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
                 ''', (
                     user_id,
                     'risk_assessment',
@@ -254,14 +269,15 @@ class RiskAnalyticsTracker:
     async def log_prediction_accuracy(self, accuracy_data: RiskOutcomeData) -> bool:
         """Log risk prediction accuracy data"""
         try:
-            with sqlite3.connect(self.db_path) as conn:
+            conn = get_pg_connection()
+            with conn:
                 cursor = conn.cursor()
                 
                 cursor.execute('''
                     INSERT INTO risk_outcomes 
                     (user_id, predicted_risk_score, predicted_timeline, actual_outcome,
                      outcome_timeline_days, prediction_accuracy, outcome_timestamp, outcome_details)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
                 ''', (
                     accuracy_data.user_id,
                     accuracy_data.predicted_risk_score,
@@ -284,13 +300,14 @@ class RiskAnalyticsTracker:
     async def track_risk_journey_step(self, user_id: str, session_id: str, flow_step: str, step_data: Dict[str, Any], time_to_next: Optional[int] = None) -> bool:
         """Track a step in the risk-based user journey"""
         try:
-            with sqlite3.connect(self.db_path) as conn:
+            conn = get_pg_connection()
+            with conn:
                 cursor = conn.cursor()
                 
                 cursor.execute('''
                     INSERT INTO risk_journey_flow 
                     (user_id, session_id, flow_step, step_timestamp, step_data, time_to_next_step)
-                    VALUES (?, ?, ?, ?, ?, ?)
+                    VALUES (%s, %s, %s, %s, %s, %s)
                 ''', (
                     user_id,
                     session_id,
@@ -310,20 +327,20 @@ class RiskAnalyticsTracker:
 class RiskBasedSuccessMetrics:
     """Success metrics specifically for risk-based career protection outcomes"""
     
-    def __init__(self, db_path: str):
+    def __init__(self, db_path: str = None):
         """Initialize risk-based success metrics"""
-        self.db_path = db_path
         self._init_risk_success_tables()
     
     def _init_risk_success_tables(self):
         """Initialize risk-specific success metrics tables"""
-        with sqlite3.connect(self.db_path) as conn:
+        conn = get_pg_connection()
+        with conn:
             cursor = conn.cursor()
             
             # Career protection outcomes table
             cursor.execute('''
                 CREATE TABLE IF NOT EXISTS career_protection_outcomes (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    id SERIAL PRIMARY KEY,
                     user_id TEXT NOT NULL,
                     outcome_type TEXT NOT NULL,
                     risk_prediction_accuracy REAL NOT NULL,
@@ -332,39 +349,39 @@ class RiskBasedSuccessMetrics:
                     career_advancement_score REAL,
                     skills_improvement_score REAL,
                     network_expansion_score REAL,
-                    outcome_timestamp DATETIME NOT NULL,
+                    outcome_timestamp TIMESTAMP NOT NULL,
                     success_factors TEXT NOT NULL,
-                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )
             ''')
             
             # Early warning effectiveness table
             cursor.execute('''
                 CREATE TABLE IF NOT EXISTS early_warning_effectiveness (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    id SERIAL PRIMARY KEY,
                     user_id TEXT NOT NULL,
-                    warning_timestamp DATETIME NOT NULL,
+                    warning_timestamp TIMESTAMP NOT NULL,
                     warning_accuracy REAL NOT NULL,
                     advance_notice_days INTEGER NOT NULL,
                     user_response_time_hours INTEGER,
                     proactive_action_taken BOOLEAN NOT NULL,
                     outcome_improvement REAL,
-                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )
             ''')
             
             # Risk communication effectiveness table
             cursor.execute('''
                 CREATE TABLE IF NOT EXISTS risk_communication_effectiveness (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    id SERIAL PRIMARY KEY,
                     user_id TEXT NOT NULL,
                     communication_type TEXT NOT NULL,
                     message_clarity_score REAL NOT NULL,
                     user_understanding_score REAL NOT NULL,
                     action_taken BOOLEAN NOT NULL,
                     time_to_action_hours INTEGER,
-                    communication_timestamp DATETIME NOT NULL,
-                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                    communication_timestamp TIMESTAMP NOT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )
             ''')
             
@@ -373,7 +390,8 @@ class RiskBasedSuccessMetrics:
     async def track_career_protection_outcome(self, user_id: str, outcome_type: str, outcome_data: Dict[str, Any]) -> bool:
         """Track career protection outcomes"""
         try:
-            with sqlite3.connect(self.db_path) as conn:
+            conn = get_pg_connection()
+            with conn:
                 cursor = conn.cursor()
                 
                 cursor.execute('''
@@ -381,7 +399,7 @@ class RiskBasedSuccessMetrics:
                     (user_id, outcome_type, risk_prediction_accuracy, time_to_outcome_days,
                      salary_impact, career_advancement_score, skills_improvement_score,
                      network_expansion_score, outcome_timestamp, success_factors)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 ''', (
                     user_id,
                     outcome_type,
@@ -406,20 +424,20 @@ class RiskBasedSuccessMetrics:
 class RiskABTestFramework:
     """A/B testing framework for risk thresholds and recommendation timing"""
     
-    def __init__(self, db_path: str):
+    def __init__(self, db_path: str = None):
         """Initialize risk A/B testing framework"""
-        self.db_path = db_path
         self._init_risk_ab_tables()
     
     def _init_risk_ab_tables(self):
         """Initialize risk A/B testing tables"""
-        with sqlite3.connect(self.db_path) as conn:
+        conn = get_pg_connection()
+        with conn:
             cursor = conn.cursor()
             
             # Risk A/B tests table
             cursor.execute('''
                 CREATE TABLE IF NOT EXISTS risk_ab_tests (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    id SERIAL PRIMARY KEY,
                     test_id TEXT UNIQUE NOT NULL,
                     test_name TEXT NOT NULL,
                     test_type TEXT NOT NULL,
@@ -429,9 +447,9 @@ class RiskABTestFramework:
                     recommendation_timing_variants TEXT NOT NULL,
                     success_metrics TEXT NOT NULL,
                     status TEXT NOT NULL,
-                    start_date DATETIME NOT NULL,
-                    end_date DATETIME,
-                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                    start_date TIMESTAMP NOT NULL,
+                    end_date TIMESTAMP,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )
             ''')
             
@@ -442,7 +460,8 @@ class RiskABTestFramework:
         try:
             test_id = f"risk_threshold_{int(time.time())}"
             
-            with sqlite3.connect(self.db_path) as conn:
+            conn = get_pg_connection()
+            with conn:
                 cursor = conn.cursor()
                 
                 cursor.execute('''
@@ -450,7 +469,7 @@ class RiskABTestFramework:
                     (test_id, test_name, test_type, description, hypothesis,
                      risk_threshold_variants, recommendation_timing_variants, 
                      success_metrics, status, start_date)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 ''', (
                     test_id,
                     test_name,
@@ -475,14 +494,15 @@ class RiskABTestFramework:
     async def record_risk_threshold_test(self, user_id: str, risk_score: float, test_id: str, variant: str) -> bool:
         """Record a user's participation in a risk threshold test"""
         try:
-            with sqlite3.connect(self.db_path) as conn:
+            conn = get_pg_connection()
+            with conn:
                 cursor = conn.cursor()
                 
                 cursor.execute('''
                     INSERT INTO risk_ab_test_results 
                     (test_id, user_id, variant_id, risk_threshold, recommendation_timing,
                      user_response, test_timestamp)
-                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s)
                 ''', (
                     test_id,
                     user_id,
@@ -508,17 +528,16 @@ class RiskAnalyticsIntegration:
     risk assessment, recommendation triggering, and outcome tracking.
     """
     
-    def __init__(self, db_path: str = "backend/analytics/risk_analytics.db"):
+    def __init__(self, db_path: str = None):
         """Initialize the risk analytics integration system"""
-        self.db_path = db_path
         
         # Initialize base analytics
-        self.analytics = AnalyticsIntegration(db_path)
+        self.analytics = AnalyticsIntegration()
         
         # Initialize risk-specific components
-        self.risk_tracker = RiskAnalyticsTracker(db_path)
-        self.risk_success_metrics = RiskBasedSuccessMetrics(db_path)
-        self.risk_ab_testing = RiskABTestFramework(db_path)
+        self.risk_tracker = RiskAnalyticsTracker()
+        self.risk_success_metrics = RiskBasedSuccessMetrics()
+        self.risk_ab_testing = RiskABTestFramework()
         
         logger.info("RiskAnalyticsIntegration initialized successfully")
     
@@ -707,14 +726,15 @@ class RiskAnalyticsIntegration:
     async def analyze_risk_to_recommendation_flow(self, user_id: str, days: int = 30) -> Dict[str, Any]:
         """Analyze complete user journey from risk detection to job placement"""
         try:
-            with sqlite3.connect(self.db_path) as conn:
+            conn = get_pg_connection()
+            with conn:
                 cursor = conn.cursor()
                 
                 # Get risk journey flow data
                 cursor.execute('''
                     SELECT flow_step, step_timestamp, step_data, time_to_next_step
                     FROM risk_journey_flow 
-                    WHERE user_id = ? AND step_timestamp >= datetime('now', '-{} days')
+                    WHERE user_id = %s AND step_timestamp >= NOW() - INTERVAL '{} days'
                     ORDER BY step_timestamp
                 '''.format(days), (user_id,))
                 
@@ -739,14 +759,15 @@ class RiskAnalyticsIntegration:
     async def measure_early_warning_effectiveness(self, days: int = 30) -> Dict[str, Any]:
         """Calculate advance notice accuracy (3-6 months)"""
         try:
-            with sqlite3.connect(self.db_path) as conn:
+            conn = get_pg_connection()
+            with conn:
                 cursor = conn.cursor()
                 
                 # Get early warning data
                 cursor.execute('''
                     SELECT warning_accuracy, advance_notice_days, proactive_action_taken, outcome_improvement
                     FROM early_warning_effectiveness 
-                    WHERE warning_timestamp >= datetime('now', '-{} days')
+                    WHERE warning_timestamp >= NOW() - INTERVAL '{} days'
                 '''.format(days))
                 
                 warning_data = cursor.fetchall()
@@ -756,10 +777,10 @@ class RiskAnalyticsIntegration:
                 
                 # Calculate effectiveness metrics
                 total_warnings = len(warning_data)
-                accurate_warnings = sum(1 for w in warning_data if w[0] >= 0.7)
-                proactive_actions = sum(1 for w in warning_data if w[2])
-                avg_advance_notice = sum(w[1] for w in warning_data) / total_warnings
-                avg_improvement = sum(w[3] for w in warning_data if w[3] is not None) / max(1, sum(1 for w in warning_data if w[3] is not None))
+                accurate_warnings = sum(1 for w in warning_data if w['warning_accuracy'] >= 0.7)
+                proactive_actions = sum(1 for w in warning_data if w['proactive_action_taken'])
+                avg_advance_notice = sum(w['advance_notice_days'] for w in warning_data) / total_warnings
+                avg_improvement = sum(w['outcome_improvement'] for w in warning_data if w['outcome_improvement'] is not None) / max(1, sum(1 for w in warning_data if w['outcome_improvement'] is not None))
                 
                 return {
                     'analysis_period_days': days,
@@ -817,7 +838,7 @@ class RiskAnalyticsIntegration:
         if not flow_data:
             return {'error': 'No flow data available'}
         
-        steps = [row[0] for row in flow_data]
+        steps = [row['flow_step'] for row in flow_data]
         step_counts = {}
         for step in steps:
             step_counts[step] = step_counts.get(step, 0) + 1
@@ -834,8 +855,8 @@ class RiskAnalyticsIntegration:
         if len(flow_data) < 2:
             return 0.0
         
-        total_time = sum(row[3] for row in flow_data if row[3] is not None)
-        return total_time / max(1, len([row for row in flow_data if row[3] is not None]))
+        total_time = sum(row['time_to_next_step'] for row in flow_data if row['time_to_next_step'] is not None)
+        return total_time / max(1, len([row for row in flow_data if row['time_to_next_step'] is not None]))
     
     def _calculate_flow_completion_rate(self, flow_data: List[Tuple]) -> float:
         """Calculate flow completion rate"""
@@ -844,7 +865,7 @@ class RiskAnalyticsIntegration:
         
         # Define completion criteria
         completion_steps = ['recommendation_generated', 'application_started', 'outcome_achieved']
-        completed_steps = sum(1 for row in flow_data if row[0] in completion_steps)
+        completed_steps = sum(1 for row in flow_data if row['flow_step'] in completion_steps)
         
         return completed_steps / len(flow_data)
     
