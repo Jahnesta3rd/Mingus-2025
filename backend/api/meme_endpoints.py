@@ -4,7 +4,6 @@ Provides endpoints for fetching user memes and tracking analytics
 """
 
 import os
-import sqlite3
 import json
 import logging
 import psycopg2
@@ -19,14 +18,15 @@ logger = logging.getLogger(__name__)
 # Create blueprint
 meme_api = Blueprint('meme_api', __name__, url_prefix='/api')
 
-# Database path: allow override via env for deployment (e.g. /var/lib/mingus/mingus_memes.db)
-_DEFAULT_DB = os.path.join(os.path.dirname(__file__), '..', '..', 'mingus_memes.db')
-DB_PATH = os.environ.get('MINGUS_MEME_DB_PATH', _DEFAULT_DB)
-
 def get_db_connection():
-    """Get database connection"""
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row
+    """Get PostgreSQL database connection"""
+    db_url = os.environ.get('DATABASE_URL')
+    if not db_url:
+        raise RuntimeError(
+            "DATABASE_URL is required. SQLite is not supported."
+        )
+    conn = psycopg2.connect(db_url)
+    conn.cursor_factory = psycopg2.extras.RealDictCursor
     return conn
 
 
@@ -59,7 +59,7 @@ def get_user_meme(user_id=None, session_id=None):
             cursor.execute(
                 '''
                 SELECT * FROM memes
-                WHERE is_active = 1 AND day_of_week = ?
+                WHERE is_active = 1 AND day_of_week = %s
                 ORDER BY RANDOM()
                 LIMIT 1
                 ''',
@@ -69,8 +69,8 @@ def get_user_meme(user_id=None, session_id=None):
             if meme:
                 conn.close()
                 return dict(meme)
-        except sqlite3.OperationalError:
-            # Column day_of_week may not exist (migration 004 not applied)
+        except Exception:
+            # Column day_of_week may not exist
             pass
 
         # Fallback: random active meme (original behavior)
@@ -101,7 +101,7 @@ def track_meme_analytics(meme_id, action, user_id=None, session_id=None):
         # Create analytics table if it doesn't exist
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS meme_analytics (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                id SERIAL PRIMARY KEY,
                 meme_id INTEGER NOT NULL,
                 action TEXT NOT NULL CHECK (action IN ('view', 'continue', 'skip', 'auto_advance')),
                 user_id TEXT,
@@ -116,7 +116,7 @@ def track_meme_analytics(meme_id, action, user_id=None, session_id=None):
         # Insert analytics record
         cursor.execute('''
             INSERT INTO meme_analytics (meme_id, action, user_id, session_id, ip_address, user_agent)
-            VALUES (?, ?, ?, ?, ?, ?)
+            VALUES (%s, %s, %s, %s, %s, %s)
         ''', (
             meme_id,
             action,
@@ -276,7 +276,7 @@ def get_meme_stats():
                 COUNT(DISTINCT user_id) as unique_users,
                 COUNT(DISTINCT session_id) as unique_sessions
             FROM meme_analytics 
-            WHERE timestamp >= datetime('now', '-7 days')
+            WHERE timestamp >= NOW() - INTERVAL '7 days'
             GROUP BY action
         ''')
         
@@ -365,7 +365,7 @@ def track_meme_mood():
         cursor.execute("""
             INSERT INTO user_mood_data 
             (user_id, session_id, meme_id, mood_score, mood_label, meme_category, spending_context)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
         """, (
             user_id,
             session_id,
@@ -517,7 +517,7 @@ def generate_mood_insights(user_id):
         cursor.execute("""
             SELECT mood_label, mood_score, timestamp, meme_category
             FROM user_mood_data 
-            WHERE user_id = ?
+            WHERE user_id = %s
             ORDER BY timestamp DESC
             LIMIT 10
         """, (user_id,))
