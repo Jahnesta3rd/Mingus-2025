@@ -16,7 +16,9 @@ Features:
 import asyncio
 import json
 import logging
-import sqlite3
+import os
+import psycopg2
+import psycopg2.extras
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Any, Tuple
 from dataclasses import dataclass, asdict
@@ -47,6 +49,17 @@ class SuccessStory:
     impact_score: float
     story_text: str
 
+def get_pg_connection():
+    """Get PostgreSQL database connection"""
+    db_url = os.environ.get('DATABASE_URL')
+    if not db_url:
+        raise RuntimeError(
+            "DATABASE_URL is required. SQLite is not supported."
+        )
+    conn = psycopg2.connect(db_url)
+    conn.cursor_factory = psycopg2.extras.RealDictCursor
+    return conn
+
 class RiskSuccessDashboard:
     """
     Success dashboard for risk-based career protection.
@@ -55,63 +68,16 @@ class RiskSuccessDashboard:
     and generates comprehensive success metrics.
     """
     
-    def __init__(self, db_path: str = "backend/analytics/risk_success.db"):
+    def __init__(self, db_path: str = None):
         """Initialize the risk success dashboard"""
-        self.db_path = db_path
         self._init_database()
         logger.info("RiskSuccessDashboard initialized successfully")
     
     def _init_database(self):
-        """Initialize success tracking database"""
+        """Verify PostgreSQL database connection"""
         try:
-            conn = sqlite3.connect(self.db_path)
-            cursor = conn.cursor()
-            
-            # Success stories table
-            cursor.execute('''
-                CREATE TABLE IF NOT EXISTS success_stories (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    user_id TEXT NOT NULL,
-                    success_type TEXT NOT NULL,
-                    outcome_data TEXT NOT NULL, -- JSON
-                    original_risk_score REAL NOT NULL,
-                    intervention_date TIMESTAMP NOT NULL,
-                    success_date TIMESTAMP NOT NULL,
-                    impact_score REAL DEFAULT 0.0,
-                    story_text TEXT,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                )
-            ''')
-            
-            # Career protection metrics table
-            cursor.execute('''
-                CREATE TABLE IF NOT EXISTS career_protection_metrics (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    metric_name TEXT NOT NULL,
-                    metric_value REAL NOT NULL,
-                    calculation_date TIMESTAMP NOT NULL,
-                    period_days INTEGER NOT NULL,
-                    metadata TEXT -- JSON
-                )
-            ''')
-            
-            # ROI analysis table
-            cursor.execute('''
-                CREATE TABLE IF NOT EXISTS roi_analysis (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    analysis_date TIMESTAMP NOT NULL,
-                    total_interventions INTEGER NOT NULL,
-                    successful_interventions INTEGER NOT NULL,
-                    total_cost REAL NOT NULL,
-                    total_benefit REAL NOT NULL,
-                    roi_percentage REAL NOT NULL,
-                    period_days INTEGER NOT NULL
-                )
-            ''')
-            
-            conn.commit()
+            conn = get_pg_connection()
             conn.close()
-            
         except Exception as e:
             logger.error(f"Failed to initialize success dashboard database: {e}")
             raise
@@ -146,7 +112,7 @@ class RiskSuccessDashboard:
     async def track_user_success_story(self, user_id: str, success_type: str, outcome_data: Dict) -> Dict:
         """Track user success story"""
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             # Calculate impact score
@@ -159,7 +125,8 @@ class RiskSuccessDashboard:
                 INSERT INTO success_stories 
                 (user_id, success_type, outcome_data, original_risk_score, 
                  intervention_date, success_date, impact_score, story_text)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                RETURNING id
             ''', (
                 user_id,
                 success_type,
@@ -171,7 +138,7 @@ class RiskSuccessDashboard:
                 story_text
             ))
             
-            story_id = cursor.lastrowid
+            story_id = cursor.fetchone()['id']
             conn.commit()
             conn.close()
             
@@ -190,7 +157,7 @@ class RiskSuccessDashboard:
     async def generate_roi_analysis(self) -> Dict:
         """Generate ROI analysis for risk interventions"""
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             # Get intervention data
@@ -200,13 +167,13 @@ class RiskSuccessDashboard:
                     SUM(CASE WHEN impact_score > 0.5 THEN 1 ELSE 0 END) as successful_interventions,
                     AVG(impact_score) as avg_impact_score
                 FROM success_stories 
-                WHERE created_at > datetime('now', '-30 days')
+                WHERE created_at > NOW() - INTERVAL '30 days'
             ''')
             
             row = cursor.fetchone()
-            total_interventions = row[0] or 0
-            successful_interventions = row[1] or 0
-            avg_impact_score = row[2] or 0.0
+            total_interventions = row['total_interventions'] or 0
+            successful_interventions = row['successful_interventions'] or 0
+            avg_impact_score = row['avg_impact_score'] or 0.0
             
             # Calculate ROI (simplified calculation)
             success_rate = (successful_interventions / total_interventions * 100) if total_interventions > 0 else 0
@@ -222,7 +189,7 @@ class RiskSuccessDashboard:
                 INSERT INTO roi_analysis 
                 (analysis_date, total_interventions, successful_interventions, 
                  total_cost, total_benefit, roi_percentage, period_days)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
+                VALUES (%s, %s, %s, %s, %s, %s, %s)
             ''', (
                 datetime.utcnow().isoformat(),
                 total_interventions,
@@ -253,7 +220,7 @@ class RiskSuccessDashboard:
     async def get_recent_success_stories(self, limit: int = 10) -> List[Dict]:
         """Get recent success stories"""
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             cursor.execute('''
@@ -261,18 +228,18 @@ class RiskSuccessDashboard:
                        story_text, created_at
                 FROM success_stories 
                 ORDER BY created_at DESC 
-                LIMIT ?
+                LIMIT %s
             ''', (limit,))
             
             stories = []
             for row in cursor.fetchall():
                 stories.append({
-                    'user_id': row[0],
-                    'success_type': row[1],
-                    'outcome_data': json.loads(row[2]),
-                    'impact_score': row[3],
-                    'story_text': row[4],
-                    'created_at': row[5]
+                    'user_id': row['user_id'],
+                    'success_type': row['success_type'],
+                    'outcome_data': json.loads(row['outcome_data']) if row['outcome_data'] else {},
+                    'impact_score': row['impact_score'],
+                    'story_text': row['story_text'],
+                    'created_at': row['created_at']
                 })
             
             conn.close()
@@ -285,7 +252,7 @@ class RiskSuccessDashboard:
     async def _calculate_success_metrics(self) -> Dict:
         """Calculate success metrics"""
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             # Get overall success rate
@@ -295,27 +262,27 @@ class RiskSuccessDashboard:
                     AVG(impact_score) as avg_impact,
                     COUNT(DISTINCT user_id) as unique_users
                 FROM success_stories 
-                WHERE created_at > datetime('now', '-30 days')
+                WHERE created_at > NOW() - INTERVAL '30 days'
             ''')
             
             row = cursor.fetchone()
-            total_stories = row[0] or 0
-            avg_impact = row[1] or 0.0
-            unique_users = row[2] or 0
+            total_stories = row['total_stories'] or 0
+            avg_impact = row['avg_impact'] or 0.0
+            unique_users = row['unique_users'] or 0
             
             # Get success by type
             cursor.execute('''
                 SELECT success_type, COUNT(*) as count, AVG(impact_score) as avg_impact
                 FROM success_stories 
-                WHERE created_at > datetime('now', '-30 days')
+                WHERE created_at > NOW() - INTERVAL '30 days'
                 GROUP BY success_type
             ''')
             
             success_by_type = {}
             for row in cursor.fetchall():
-                success_by_type[row[0]] = {
-                    'count': row[1],
-                    'avg_impact': round(row[2], 2)
+                success_by_type[row['success_type']] = {
+                    'count': row['count'],
+                    'avg_impact': round(row['avg_impact'], 2)
                 }
             
             conn.close()
@@ -334,7 +301,7 @@ class RiskSuccessDashboard:
     async def _calculate_intervention_effectiveness(self) -> Dict:
         """Calculate intervention effectiveness metrics"""
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             # Get intervention effectiveness over time
@@ -344,7 +311,7 @@ class RiskSuccessDashboard:
                     COUNT(*) as interventions,
                     AVG(impact_score) as avg_impact
                 FROM success_stories 
-                WHERE created_at > datetime('now', '-30 days')
+                WHERE created_at > NOW() - INTERVAL '30 days'
                 GROUP BY DATE(created_at)
                 ORDER BY date DESC
             ''')
@@ -352,9 +319,9 @@ class RiskSuccessDashboard:
             daily_effectiveness = []
             for row in cursor.fetchall():
                 daily_effectiveness.append({
-                    'date': row[0],
-                    'interventions': row[1],
-                    'avg_impact': round(row[2], 2)
+                    'date': row['date'],
+                    'interventions': row['interventions'],
+                    'avg_impact': round(row['avg_impact'], 2)
                 })
             
             conn.close()
@@ -373,7 +340,7 @@ class RiskSuccessDashboard:
     async def _calculate_engagement_metrics(self) -> Dict:
         """Calculate user engagement metrics"""
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             # Get engagement metrics
@@ -383,13 +350,13 @@ class RiskSuccessDashboard:
                     COUNT(*) as total_activities,
                     AVG(impact_score) as avg_engagement
                 FROM success_stories 
-                WHERE created_at > datetime('now', '-7 days')
+                WHERE created_at > NOW() - INTERVAL '7 days'
             ''')
             
             row = cursor.fetchone()
-            active_users = row[0] or 0
-            total_activities = row[1] or 0
-            avg_engagement = row[2] or 0.0
+            active_users = row['active_users'] or 0
+            total_activities = row['total_activities'] or 0
+            avg_engagement = row['avg_engagement'] or 0.0
             
             conn.close()
             
@@ -406,7 +373,7 @@ class RiskSuccessDashboard:
     async def _calculate_risk_reduction_metrics(self) -> Dict:
         """Calculate risk reduction metrics"""
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             # Get risk reduction data
@@ -416,13 +383,13 @@ class RiskSuccessDashboard:
                     AVG(impact_score) as avg_risk_reduction,
                     COUNT(*) as interventions_count
                 FROM success_stories 
-                WHERE created_at > datetime('now', '-30 days')
+                WHERE created_at > NOW() - INTERVAL '30 days'
             ''')
             
             row = cursor.fetchone()
-            avg_original_risk = row[0] or 0.0
-            avg_risk_reduction = row[1] or 0.0
-            interventions_count = row[2] or 0
+            avg_original_risk = row['avg_original_risk'] or 0.0
+            avg_risk_reduction = row['avg_risk_reduction'] or 0.0
+            interventions_count = row['interventions_count'] or 0
             
             conn.close()
             

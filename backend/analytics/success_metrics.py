@@ -16,7 +16,9 @@ Features:
 - ROI analysis for recommendations
 """
 
-import sqlite3
+import psycopg2
+import psycopg2.extras
+import os
 import json
 import logging
 from datetime import datetime, timedelta
@@ -106,6 +108,17 @@ class GoalAchievement:
     recommendation_contribution: float = 0.0
     success_factors: str = ""
 
+def get_pg_connection():
+    """Get PostgreSQL database connection"""
+    db_url = os.environ.get('DATABASE_URL')
+    if not db_url:
+        raise RuntimeError(
+            "DATABASE_URL is required. SQLite is not supported."
+        )
+    conn = psycopg2.connect(db_url)
+    conn.cursor_factory = psycopg2.extras.RealDictCursor
+    return conn
+
 class SuccessMetrics:
     """
     Comprehensive success metrics system for job recommendation engine.
@@ -114,32 +127,22 @@ class SuccessMetrics:
     achievement to measure the real-world impact of job recommendations.
     """
     
-    def __init__(self, db_path: str = "backend/analytics/recommendation_analytics.db"):
+    def __init__(self, db_path: str = None):
         """Initialize the success metrics system"""
-        self.db_path = db_path
         self._init_database()
         
         # Initialize risk analytics components
-        self.risk_analytics = RiskAnalyticsTracker(db_path)
-        self.predictive_analytics = RiskPredictiveAnalytics(db_path)
+        self.risk_analytics = RiskAnalyticsTracker()
+        self.predictive_analytics = RiskPredictiveAnalytics()
         
         logger.info("SuccessMetrics initialized successfully")
     
     def _init_database(self):
-        """Initialize the analytics database with required tables"""
+        """Verify PostgreSQL database connection"""
         try:
-            conn = sqlite3.connect(self.db_path)
-            cursor = conn.cursor()
-            
-            # Read and execute the schema
-            with open('backend/analytics/recommendation_analytics_schema.sql', 'r') as f:
-                schema_sql = f.read()
-            
-            cursor.executescript(schema_sql)
-            conn.commit()
+            conn = get_pg_connection()
             conn.close()
             logger.info("Success metrics database initialized successfully")
-            
         except Exception as e:
             logger.error(f"Error initializing success metrics database: {e}")
             raise
@@ -187,14 +190,14 @@ class SuccessMetrics:
                 verified=verified
             )
             
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             cursor.execute('''
                 INSERT INTO income_tracking (
                     user_id, current_salary, target_salary, salary_increase,
                     increase_percentage, tracking_date, source, verified
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
             ''', (
                 income_tracking.user_id, income_tracking.current_salary,
                 income_tracking.target_salary, income_tracking.salary_increase,
@@ -252,7 +255,7 @@ class SuccessMetrics:
                 success_factors=json.dumps(success_factors or {})
             )
             
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             cursor.execute('''
@@ -260,7 +263,7 @@ class SuccessMetrics:
                     user_id, advancement_type, advancement_date, previous_role,
                     new_role, salary_change, skill_improvements,
                     recommendation_correlation, success_factors
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
             ''', (
                 advancement.user_id, advancement.advancement_type,
                 advancement.advancement_date, advancement.previous_role,
@@ -318,14 +321,14 @@ class SuccessMetrics:
                 success_factors=json.dumps(success_factors or {})
             )
             
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             cursor.execute('''
                 INSERT INTO goal_achievement (
                     user_id, goal_type, goal_value, target_date, achieved_date,
                     achievement_percentage, recommendation_contribution, success_factors
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
             ''', (
                 goal_achievement.user_id, goal_achievement.goal_type,
                 goal_achievement.goal_value, goal_achievement.target_date,
@@ -403,16 +406,28 @@ class SuccessMetrics:
                 lifetime_value=lifetime_value
             )
             
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             cursor.execute('''
-                INSERT OR REPLACE INTO user_retention (
+                INSERT INTO user_retention (
                     user_id, registration_date, last_activity, total_sessions,
                     total_time_spent, recommendations_received, applications_submitted,
                     successful_outcomes, satisfaction_avg, churn_risk_score,
                     engagement_score, lifetime_value
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                ON CONFLICT (user_id) DO UPDATE SET
+                    registration_date = EXCLUDED.registration_date,
+                    last_activity = EXCLUDED.last_activity,
+                    total_sessions = EXCLUDED.total_sessions,
+                    total_time_spent = EXCLUDED.total_time_spent,
+                    recommendations_received = EXCLUDED.recommendations_received,
+                    applications_submitted = EXCLUDED.applications_submitted,
+                    successful_outcomes = EXCLUDED.successful_outcomes,
+                    satisfaction_avg = EXCLUDED.satisfaction_avg,
+                    churn_risk_score = EXCLUDED.churn_risk_score,
+                    engagement_score = EXCLUDED.engagement_score,
+                    lifetime_value = EXCLUDED.lifetime_value
             ''', (
                 retention.user_id, retention.registration_date, retention.last_activity,
                 retention.total_sessions, retention.total_time_spent,
@@ -518,7 +533,7 @@ class SuccessMetrics:
             Dict containing success metrics
         """
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             start_date = datetime.now() - timedelta(days=days)
@@ -531,7 +546,7 @@ class SuccessMetrics:
                     increase_percentage,
                     tracking_date
                 FROM income_tracking 
-                WHERE user_id = ? AND tracking_date >= ?
+                WHERE user_id = %s AND tracking_date >= %s
                 ORDER BY tracking_date DESC
             ''', (user_id, start_date))
             
@@ -544,15 +559,15 @@ class SuccessMetrics:
                     COUNT(*) as count,
                     AVG(salary_change) as avg_salary_change
                 FROM career_advancement 
-                WHERE user_id = ? AND advancement_date >= ?
+                WHERE user_id = %s AND advancement_date >= %s
                 GROUP BY advancement_type
             ''', (user_id, start_date))
             
             advancement_data = {}
             for row in cursor.fetchall():
-                advancement_data[row[0]] = {
-                    'count': row[1],
-                    'avg_salary_change': row[2]
+                advancement_data[row['advancement_type']] = {
+                    'count': row['count'],
+                    'avg_salary_change': row['avg_salary_change']
                 }
             
             # Get goal achievement
@@ -563,16 +578,16 @@ class SuccessMetrics:
                     AVG(achievement_percentage) as avg_achievement,
                     COUNT(CASE WHEN achievement_percentage >= 100 THEN 1 END) as completed_goals
                 FROM goal_achievement 
-                WHERE user_id = ? AND created_at >= ?
+                WHERE user_id = %s AND created_at >= %s
                 GROUP BY goal_type
             ''', (user_id, start_date))
             
             goal_data = {}
             for row in cursor.fetchall():
-                goal_data[row[0]] = {
-                    'total_goals': row[1],
-                    'avg_achievement': round(row[2], 2),
-                    'completed_goals': row[3]
+                goal_data[row['goal_type']] = {
+                    'total_goals': row['total_goals'],
+                    'avg_achievement': round(row['avg_achievement'], 2),
+                    'completed_goals': row['completed_goals']
                 }
             
             # Get retention metrics
@@ -583,7 +598,7 @@ class SuccessMetrics:
                     successful_outcomes, satisfaction_avg, churn_risk_score,
                     engagement_score, lifetime_value
                 FROM user_retention 
-                WHERE user_id = ?
+                WHERE user_id = %s
             ''', (user_id,))
             
             retention_data = cursor.fetchone()
@@ -593,39 +608,39 @@ class SuccessMetrics:
             # Calculate income improvement
             income_improvement = 0
             if len(income_data) >= 2:
-                latest_salary = income_data[0][0]
-                previous_salary = income_data[1][0]
+                latest_salary = income_data[0]['current_salary']
+                previous_salary = income_data[1]['current_salary']
                 income_improvement = latest_salary - previous_salary
             
             # Calculate success rate
-            total_applications = retention_data[5] if retention_data else 0
-            successful_outcomes = retention_data[6] if retention_data else 0
+            total_applications = retention_data['applications_submitted'] if retention_data else 0
+            successful_outcomes = retention_data['successful_outcomes'] if retention_data else 0
             success_rate = (successful_outcomes / total_applications * 100) if total_applications > 0 else 0
             
             return {
                 'user_id': user_id,
                 'analysis_period_days': days,
                 'income_metrics': {
-                    'current_salary': income_data[0][0] if income_data else 0,
+                    'current_salary': income_data[0]['current_salary'] if income_data else 0,
                     'income_improvement': income_improvement,
-                    'latest_increase_percentage': income_data[0][2] if income_data else 0,
+                    'latest_increase_percentage': income_data[0]['increase_percentage'] if income_data else 0,
                     'salary_tracking_entries': len(income_data)
                 },
                 'career_advancement': advancement_data,
                 'goal_achievement': goal_data,
                 'retention_metrics': {
-                    'registration_date': retention_data[0] if retention_data else None,
-                    'last_activity': retention_data[1] if retention_data else None,
-                    'total_sessions': retention_data[2] if retention_data else 0,
-                    'total_time_spent_hours': round((retention_data[3] or 0) / 3600, 2),
-                    'recommendations_received': retention_data[4] if retention_data else 0,
+                    'registration_date': retention_data['registration_date'] if retention_data else None,
+                    'last_activity': retention_data['last_activity'] if retention_data else None,
+                    'total_sessions': retention_data['total_sessions'] if retention_data else 0,
+                    'total_time_spent_hours': round((retention_data['total_time_spent'] or 0) / 3600, 2) if retention_data else 0,
+                    'recommendations_received': retention_data['recommendations_received'] if retention_data else 0,
                     'applications_submitted': total_applications,
                     'successful_outcomes': successful_outcomes,
                     'success_rate': round(success_rate, 2),
-                    'satisfaction_avg': round(retention_data[7] or 0, 2),
-                    'churn_risk_score': round(retention_data[8] or 0, 2),
-                    'engagement_score': round(retention_data[9] or 0, 2),
-                    'lifetime_value': round(retention_data[10] or 0, 2)
+                    'satisfaction_avg': round(retention_data['satisfaction_avg'] or 0, 2) if retention_data else 0,
+                    'churn_risk_score': round(retention_data['churn_risk_score'] or 0, 2) if retention_data else 0,
+                    'engagement_score': round(retention_data['engagement_score'] or 0, 2) if retention_data else 0,
+                    'lifetime_value': round(retention_data['lifetime_value'] or 0, 2) if retention_data else 0
                 }
             }
             
@@ -647,7 +662,7 @@ class SuccessMetrics:
             Dict containing system success metrics
         """
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             start_date = datetime.now() - timedelta(days=days)
@@ -660,7 +675,7 @@ class SuccessMetrics:
                     AVG(increase_percentage) as avg_increase_percentage,
                     COUNT(CASE WHEN salary_increase > 0 THEN 1 END) as positive_changes
                 FROM income_tracking 
-                WHERE tracking_date >= ?
+                WHERE tracking_date >= %s
             ''', (start_date,))
             
             income_metrics = cursor.fetchone()
@@ -671,14 +686,14 @@ class SuccessMetrics:
                     advancement_type,
                     COUNT(*) as count
                 FROM career_advancement 
-                WHERE advancement_date >= ?
+                WHERE advancement_date >= %s
                 GROUP BY advancement_type
                 ORDER BY count DESC
             ''', (start_date,))
             
             advancement_summary = {}
             for row in cursor.fetchall():
-                advancement_summary[row[0]] = row[1]
+                advancement_summary[row['advancement_type']] = row['count']
             
             # Goal achievement summary
             cursor.execute('''
@@ -688,17 +703,17 @@ class SuccessMetrics:
                     AVG(achievement_percentage) as avg_achievement,
                     COUNT(CASE WHEN achievement_percentage >= 100 THEN 1 END) as completed_goals
                 FROM goal_achievement 
-                WHERE created_at >= ?
+                WHERE created_at >= %s
                 GROUP BY goal_type
             ''', (start_date,))
             
             goal_summary = {}
             for row in cursor.fetchall():
-                goal_summary[row[0]] = {
-                    'total_goals': row[1],
-                    'avg_achievement': round(row[2], 2),
-                    'completed_goals': row[3],
-                    'completion_rate': round((row[3] / row[1] * 100) if row[1] > 0 else 0, 2)
+                goal_summary[row['goal_type']] = {
+                    'total_goals': row['total_goals'],
+                    'avg_achievement': round(row['avg_achievement'], 2),
+                    'completed_goals': row['completed_goals'],
+                    'completion_rate': round((row['completed_goals'] / row['total_goals'] * 100) if row['total_goals'] > 0 else 0, 2)
                 }
             
             # User retention summary
@@ -737,12 +752,12 @@ class SuccessMetrics:
             success_stories = []
             for row in cursor.fetchall():
                 success_stories.append({
-                    'user_id': row[0],
-                    'successful_outcomes': row[1],
-                    'satisfaction_avg': round(row[2] or 0, 2),
-                    'current_salary': row[3] or 0,
-                    'salary_increase': row[4] or 0,
-                    'increase_percentage': round(row[5] or 0, 2)
+                    'user_id': row['user_id'],
+                    'successful_outcomes': row['successful_outcomes'],
+                    'satisfaction_avg': round(row['satisfaction_avg'] or 0, 2),
+                    'current_salary': row['current_salary'] or 0,
+                    'salary_increase': row['salary_increase'] or 0,
+                    'increase_percentage': round(row['increase_percentage'] or 0, 2)
                 })
             
             conn.close()
@@ -750,21 +765,21 @@ class SuccessMetrics:
             return {
                 'analysis_period_days': days,
                 'income_metrics': {
-                    'total_income_entries': income_metrics[0] or 0,
-                    'avg_salary_increase': round(income_metrics[1] or 0, 2),
-                    'avg_increase_percentage': round(income_metrics[2] or 0, 2),
-                    'positive_changes': income_metrics[3] or 0,
-                    'positive_change_rate': round((income_metrics[3] or 0) / max(income_metrics[0] or 1, 1) * 100, 2)
+                    'total_income_entries': income_metrics['total_income_entries'] or 0,
+                    'avg_salary_increase': round(income_metrics['avg_salary_increase'] or 0, 2),
+                    'avg_increase_percentage': round(income_metrics['avg_increase_percentage'] or 0, 2),
+                    'positive_changes': income_metrics['positive_changes'] or 0,
+                    'positive_change_rate': round((income_metrics['positive_changes'] or 0) / max(income_metrics['total_income_entries'] or 1, 1) * 100, 2)
                 },
                 'career_advancement': advancement_summary,
                 'goal_achievement': goal_summary,
                 'retention_metrics': {
-                    'total_users': retention_summary[0] or 0,
-                    'avg_engagement_score': round(retention_summary[1] or 0, 2),
-                    'avg_churn_risk_score': round(retention_summary[2] or 0, 2),
-                    'avg_lifetime_value': round(retention_summary[3] or 0, 2),
-                    'high_risk_users': retention_summary[4] or 0,
-                    'high_risk_percentage': round((retention_summary[4] or 0) / max(retention_summary[0] or 1, 1) * 100, 2)
+                    'total_users': retention_summary['total_users'] or 0,
+                    'avg_engagement_score': round(retention_summary['avg_engagement'] or 0, 2),
+                    'avg_churn_risk_score': round(retention_summary['avg_churn_risk'] or 0, 2),
+                    'avg_lifetime_value': round(retention_summary['avg_lifetime_value'] or 0, 2),
+                    'high_risk_users': retention_summary['high_risk_users'] or 0,
+                    'high_risk_percentage': round((retention_summary['high_risk_users'] or 0) / max(retention_summary['total_users'] or 1, 1) * 100, 2)
                 },
                 'success_stories': success_stories
             }
@@ -787,7 +802,7 @@ class SuccessMetrics:
             Dict containing ROI analysis
         """
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             start_date = datetime.now() - timedelta(days=days)
@@ -799,7 +814,7 @@ class SuccessMetrics:
                     COUNT(DISTINCT user_id) as users_with_increases,
                     AVG(salary_increase) as avg_salary_increase
                 FROM income_tracking 
-                WHERE tracking_date >= ? AND salary_increase > 0
+                WHERE tracking_date >= %s AND salary_increase > 0
             ''', (start_date,))
             
             salary_impact = cursor.fetchone()
@@ -810,18 +825,18 @@ class SuccessMetrics:
                     SUM(duration) as total_processing_time,
                     COUNT(*) as total_recommendations
                 FROM processing_metrics 
-                WHERE start_time >= ?
+                WHERE start_time >= %s
             ''', (start_date,))
             
             cost_data = cursor.fetchone()
             
             # Estimate costs (would be actual cloud costs in production)
-            total_processing_time = cost_data[0] or 0
-            total_recommendations = cost_data[1] or 0
+            total_processing_time = cost_data['total_processing_time'] or 0
+            total_recommendations = cost_data['total_recommendations'] or 0
             estimated_cost = total_processing_time * 0.001  # $0.001 per second
             
             # Calculate ROI
-            total_salary_increase = salary_impact[0] or 0
+            total_salary_increase = salary_impact['total_salary_increase'] or 0
             roi_percentage = ((total_salary_increase - estimated_cost) / estimated_cost * 100) if estimated_cost > 0 else 0
             
             # Calculate cost per successful outcome
@@ -831,7 +846,7 @@ class SuccessMetrics:
                 WHERE successful_outcomes > 0
             ''')
             
-            successful_outcomes = cursor.fetchone()[0] or 0
+            successful_outcomes = cursor.fetchone()['successful_outcomes'] or 0
             cost_per_success = estimated_cost / successful_outcomes if successful_outcomes > 0 else 0
             
             conn.close()
@@ -840,8 +855,8 @@ class SuccessMetrics:
                 'analysis_period_days': days,
                 'financial_impact': {
                     'total_salary_increase': round(total_salary_increase, 2),
-                    'users_with_increases': salary_impact[1] or 0,
-                    'avg_salary_increase': round(salary_impact[2] or 0, 2)
+                    'users_with_increases': salary_impact['users_with_increases'] or 0,
+                    'avg_salary_increase': round(salary_impact['avg_salary_increase'] or 0, 2)
                 },
                 'system_costs': {
                     'total_processing_time_hours': round(total_processing_time / 3600, 2),
@@ -893,7 +908,7 @@ class SuccessMetrics:
             float: Accuracy percentage
         """
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             # Calculate date range
@@ -912,14 +927,14 @@ class SuccessMetrics:
                     COUNT(*) as total_forecasts,
                     COUNT(CASE WHEN accuracy_score >= 0.8 THEN 1 END) as accurate_forecasts
                 FROM risk_forecasts 
-                WHERE forecast_date >= ? AND actual_outcome IS NOT NULL
+                WHERE forecast_date >= %s AND actual_outcome IS NOT NULL
             ''', (start_date,))
             
             result = cursor.fetchone()
             conn.close()
             
-            if result[0] > 0:
-                accuracy_rate = (result[1] / result[0]) * 100
+            if result['total_forecasts'] > 0:
+                accuracy_rate = (result['accurate_forecasts'] / result['total_forecasts']) * 100
                 return round(accuracy_rate, 2)
             else:
                 return 0.0
@@ -987,7 +1002,7 @@ class SuccessMetrics:
             float: Unemployment prevention percentage
         """
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             # Calculate date range
@@ -1007,14 +1022,14 @@ class SuccessMetrics:
                     COUNT(CASE WHEN cpo.outcome_type = 'unemployment_prevented' THEN 1 END) as unemployment_prevented
                 FROM user_risk_assessments ura
                 LEFT JOIN career_protection_outcomes cpo ON ura.id = cpo.risk_assessment_id
-                WHERE ura.assessment_date >= ? AND ura.risk_level IN ('high', 'critical')
+                WHERE ura.assessment_date >= %s AND ura.risk_level IN ('high', 'critical')
             ''', (start_date,))
             
             result = cursor.fetchone()
             conn.close()
             
-            if result[0] > 0:
-                prevention_rate = (result[1] / result[0]) * 100
+            if result['high_risk_users'] > 0:
+                prevention_rate = (result['unemployment_prevented'] / result['high_risk_users']) * 100
                 return round(prevention_rate, 2)
             else:
                 return 0.0
@@ -1034,7 +1049,7 @@ class SuccessMetrics:
             Dict containing funnel metrics
         """
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             # Calculate date range
@@ -1057,16 +1072,16 @@ class SuccessMetrics:
                 FROM user_risk_assessments ura
                 LEFT JOIN risk_interventions ri ON ura.id = ri.risk_assessment_id
                 LEFT JOIN career_protection_outcomes cpo ON ura.id = cpo.risk_assessment_id
-                WHERE ura.assessment_date >= ? AND ura.risk_level IN ('high', 'critical')
+                WHERE ura.assessment_date >= %s AND ura.risk_level IN ('high', 'critical')
             ''', (start_date,))
             
             result = cursor.fetchone()
             conn.close()
             
-            users_at_risk = result[0] or 0
-            users_with_interventions = result[1] or 0
-            users_with_successful_transitions = result[2] or 0
-            users_with_salary_increases = result[3] or 0
+            users_at_risk = result['users_at_risk'] or 0
+            users_with_interventions = result['users_with_interventions'] or 0
+            users_with_successful_transitions = result['users_with_successful_transitions'] or 0
+            users_with_salary_increases = result['users_with_salary_increases'] or 0
             
             return {
                 'time_period': time_period,
@@ -1099,7 +1114,7 @@ class SuccessMetrics:
             Dict containing comparison metrics
         """
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             # Calculate date range
@@ -1122,7 +1137,7 @@ class SuccessMetrics:
                 FROM user_risk_assessments ura
                 JOIN risk_interventions ri ON ura.id = ri.risk_assessment_id
                 LEFT JOIN career_protection_outcomes cpo ON ura.id = cpo.risk_assessment_id
-                WHERE ura.assessment_date >= ? 
+                WHERE ura.assessment_date >= %s 
                 AND ri.intervention_type = 'early_warning'
                 AND cpo.outcome_type = 'successful_transition'
             ''', (start_date,))
@@ -1139,7 +1154,7 @@ class SuccessMetrics:
                 FROM user_risk_assessments ura
                 LEFT JOIN risk_interventions ri ON ura.id = ri.risk_assessment_id
                 LEFT JOIN career_protection_outcomes cpo ON ura.id = cpo.risk_assessment_id
-                WHERE ura.assessment_date >= ? 
+                WHERE ura.assessment_date >= %s 
                 AND (ri.id IS NULL OR ri.intervention_type != 'early_warning')
                 AND cpo.outcome_type = 'successful_transition'
             ''', (start_date,))
@@ -1150,21 +1165,21 @@ class SuccessMetrics:
             return {
                 'time_period': time_period,
                 'proactive_users': {
-                    'count': proactive_result[0] or 0,
-                    'avg_salary_change': round(proactive_result[1] or 0, 2),
-                    'avg_time_to_role_days': round(proactive_result[2] or 0, 1),
-                    'avg_satisfaction': round(proactive_result[3] or 0, 2)
+                    'count': proactive_result['proactive_users'] or 0,
+                    'avg_salary_change': round(proactive_result['avg_salary_change_proactive'] or 0, 2),
+                    'avg_time_to_role_days': round(proactive_result['avg_time_to_role_proactive'] or 0, 1),
+                    'avg_satisfaction': round(proactive_result['avg_satisfaction_proactive'] or 0, 2)
                 },
                 'reactive_users': {
-                    'count': reactive_result[0] or 0,
-                    'avg_salary_change': round(reactive_result[1] or 0, 2),
-                    'avg_time_to_role_days': round(reactive_result[2] or 0, 1),
-                    'avg_satisfaction': round(reactive_result[3] or 0, 2)
+                    'count': reactive_result['reactive_users'] or 0,
+                    'avg_salary_change': round(reactive_result['avg_salary_change_reactive'] or 0, 2),
+                    'avg_time_to_role_days': round(reactive_result['avg_time_to_role_reactive'] or 0, 1),
+                    'avg_satisfaction': round(reactive_result['avg_satisfaction_reactive'] or 0, 2)
                 },
                 'comparison': {
-                    'salary_change_difference': round((proactive_result[1] or 0) - (reactive_result[1] or 0), 2),
-                    'time_difference_days': round((reactive_result[2] or 0) - (proactive_result[2] or 0), 1),
-                    'satisfaction_difference': round((proactive_result[3] or 0) - (reactive_result[3] or 0), 2)
+                    'salary_change_difference': round((proactive_result['avg_salary_change_proactive'] or 0) - (reactive_result['avg_salary_change_reactive'] or 0), 2),
+                    'time_difference_days': round((reactive_result['avg_time_to_role_reactive'] or 0) - (proactive_result['avg_time_to_role_proactive'] or 0), 1),
+                    'satisfaction_difference': round((proactive_result['avg_satisfaction_proactive'] or 0) - (reactive_result['avg_satisfaction_reactive'] or 0), 2)
                 }
             }
             
@@ -1183,7 +1198,7 @@ class SuccessMetrics:
             Dict containing communication effectiveness metrics
         """
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             # Calculate date range
@@ -1203,23 +1218,23 @@ class SuccessMetrics:
                     COUNT(CASE WHEN intervention_status = 'completed' THEN 1 END) as completed_interventions,
                     COUNT(CASE WHEN user_response IS NOT NULL THEN 1 END) as interventions_with_response,
                     AVG(CASE WHEN user_response IS NOT NULL THEN 
-                        json_extract(user_response, '$.understanding_score') 
+                        (user_response::jsonb->>'understanding_score')::double precision
                     END) as avg_understanding_score,
                     AVG(CASE WHEN user_response IS NOT NULL THEN 
-                        json_extract(user_response, '$.action_taken_score') 
+                        (user_response::jsonb->>'action_taken_score')::double precision
                     END) as avg_action_taken_score
                 FROM risk_interventions 
-                WHERE intervention_date >= ? AND intervention_type = 'early_warning'
+                WHERE intervention_date >= %s AND intervention_type = 'early_warning'
             ''', (start_date,))
             
             result = cursor.fetchone()
             conn.close()
             
-            total_interventions = result[0] or 0
-            completed_interventions = result[1] or 0
-            interventions_with_response = result[2] or 0
-            avg_understanding_score = result[3] or 0
-            avg_action_taken_score = result[4] or 0
+            total_interventions = result['total_interventions'] or 0
+            completed_interventions = result['completed_interventions'] or 0
+            interventions_with_response = result['interventions_with_response'] or 0
+            avg_understanding_score = result['avg_understanding_score'] or 0
+            avg_action_taken_score = result['avg_action_taken_score'] or 0
             
             return {
                 'time_period': time_period,
@@ -1249,7 +1264,7 @@ class SuccessMetrics:
             Dict containing emergency unlock conversion metrics
         """
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             # Calculate date range
@@ -1272,7 +1287,7 @@ class SuccessMetrics:
                     AVG(cpo.satisfaction_score) as avg_satisfaction
                 FROM risk_interventions ri
                 LEFT JOIN career_protection_outcomes cpo ON ri.user_id = cpo.user_id
-                WHERE ri.intervention_date >= ? 
+                WHERE ri.intervention_date >= %s 
                 AND ri.intervention_type = 'emergency_unlock'
                 AND (cpo.outcome_date >= ri.intervention_date OR cpo.outcome_date IS NULL)
             ''', (start_date,))
@@ -1280,11 +1295,11 @@ class SuccessMetrics:
             result = cursor.fetchone()
             conn.close()
             
-            users_with_emergency_unlock = result[0] or 0
-            successful_transitions = result[1] or 0
-            salary_increases = result[2] or 0
-            avg_time_to_role = result[3] or 0
-            avg_satisfaction = result[4] or 0
+            users_with_emergency_unlock = result['users_with_emergency_unlock'] or 0
+            successful_transitions = result['successful_transitions'] or 0
+            salary_increases = result['salary_increases'] or 0
+            avg_time_to_role = result['avg_time_to_role'] or 0
+            avg_satisfaction = result['avg_satisfaction'] or 0
             
             return {
                 'time_period': time_period,
