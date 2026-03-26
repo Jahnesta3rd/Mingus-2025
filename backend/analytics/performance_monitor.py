@@ -16,7 +16,9 @@ Features:
 - Cost per recommendation analysis
 """
 
-import sqlite3
+import psycopg2
+import psycopg2.extras
+import os
 import json
 import logging
 import time
@@ -92,6 +94,17 @@ class ErrorLog:
     resolved: bool = False
     resolved_at: Optional[datetime] = None
 
+def get_pg_connection():
+    """Get PostgreSQL database connection"""
+    db_url = os.environ.get('DATABASE_URL')
+    if not db_url:
+        raise RuntimeError(
+            "DATABASE_URL is required. SQLite is not supported."
+        )
+    conn = psycopg2.connect(db_url)
+    conn.cursor_factory = psycopg2.extras.RealDictCursor
+    return conn
+
 class PerformanceMonitor:
     """
     Comprehensive performance monitoring system for job recommendation engine.
@@ -100,9 +113,8 @@ class PerformanceMonitor:
     to provide insights for system optimization and health monitoring.
     """
     
-    def __init__(self, db_path: str = "backend/analytics/recommendation_analytics.db"):
+    def __init__(self, db_path: str = None):
         """Initialize the performance monitoring system"""
-        self.db_path = db_path
         self._init_database()
         self._monitoring_active = False
         self._monitor_thread = None
@@ -116,20 +128,11 @@ class PerformanceMonitor:
         logger.info("PerformanceMonitor initialized successfully")
     
     def _init_database(self):
-        """Initialize the analytics database with required tables"""
+        """Verify PostgreSQL database connection"""
         try:
-            conn = sqlite3.connect(self.db_path)
-            cursor = conn.cursor()
-            
-            # Read and execute the schema
-            with open('backend/analytics/recommendation_analytics_schema.sql', 'r') as f:
-                schema_sql = f.read()
-            
-            cursor.executescript(schema_sql)
-            conn.commit()
+            conn = get_pg_connection()
             conn.close()
             logger.info("Performance monitoring database initialized successfully")
-            
         except Exception as e:
             logger.error(f"Error initializing performance monitoring database: {e}")
             raise
@@ -176,14 +179,14 @@ class PerformanceMonitor:
                 error_message=error_message
             )
             
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             cursor.execute('''
                 INSERT INTO api_performance (
                     endpoint, method, response_time, status_code, request_size,
                     response_size, user_id, session_id, error_message
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
             ''', (
                 performance.endpoint, performance.method, performance.response_time,
                 performance.status_code, performance.request_size, performance.response_size,
@@ -260,14 +263,14 @@ class PerformanceMonitor:
     def _store_processing_metrics(self, metrics: ProcessingMetrics):
         """Store processing metrics in database"""
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             cursor.execute('''
                 INSERT INTO processing_metrics (
                     session_id, process_name, start_time, end_time, duration,
                     memory_usage, cpu_usage, success, error_message, metadata
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             ''', (
                 metrics.session_id, metrics.process_name, metrics.start_time,
                 metrics.end_time, metrics.duration, metrics.memory_usage,
@@ -319,14 +322,14 @@ class PerformanceMonitor:
                 severity=severity
             )
             
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             cursor.execute('''
                 INSERT INTO error_logs (
                     error_type, error_message, stack_trace, user_id, session_id,
                     endpoint, severity
-                ) VALUES (?, ?, ?, ?, ?, ?, ?)
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s)
             ''', (
                 error_log.error_type, error_log.error_message, error_log.stack_trace,
                 error_log.user_id, error_log.session_id, error_log.endpoint,
@@ -417,14 +420,14 @@ class PerformanceMonitor:
     def _store_system_resources(self, resources: SystemResources):
         """Store system resource metrics"""
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             cursor.execute('''
                 INSERT INTO system_resources (
                     timestamp, cpu_usage, memory_usage, disk_usage,
                     active_connections, queue_length, error_rate, response_time_avg
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
             ''', (
                 resources.timestamp, resources.cpu_usage, resources.memory_usage,
                 resources.disk_usage, resources.active_connections, resources.queue_length,
@@ -440,7 +443,7 @@ class PerformanceMonitor:
     def _calculate_recent_error_rate(self, minutes: int = 5) -> float:
         """Calculate error rate from recent API calls"""
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             cutoff_time = datetime.now() - timedelta(minutes=minutes)
@@ -450,14 +453,14 @@ class PerformanceMonitor:
                     COUNT(*) as total_requests,
                     COUNT(CASE WHEN status_code >= 400 THEN 1 END) as error_requests
                 FROM api_performance 
-                WHERE timestamp >= ?
+                WHERE timestamp >= %s
             ''', (cutoff_time,))
             
             result = cursor.fetchone()
             conn.close()
             
-            if result and result[0] > 0:
-                return (result[1] / result[0]) * 100
+            if result and result['total_requests'] > 0:
+                return (result['error_requests'] / result['total_requests']) * 100
             return 0.0
             
         except Exception as e:
@@ -467,7 +470,7 @@ class PerformanceMonitor:
     def _calculate_avg_response_time(self, minutes: int = 5) -> float:
         """Calculate average response time from recent API calls"""
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             cutoff_time = datetime.now() - timedelta(minutes=minutes)
@@ -475,13 +478,13 @@ class PerformanceMonitor:
             cursor.execute('''
                 SELECT AVG(response_time) as avg_response_time
                 FROM api_performance 
-                WHERE timestamp >= ?
+                WHERE timestamp >= %s
             ''', (cutoff_time,))
             
             result = cursor.fetchone()
             conn.close()
             
-            return result[0] if result[0] else 0.0
+            return result['avg_response_time'] if result['avg_response_time'] else 0.0
             
         except Exception as e:
             logger.error(f"Error calculating average response time: {e}")
@@ -549,7 +552,7 @@ class PerformanceMonitor:
             Dict containing performance summary
         """
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             start_time = datetime.now() - timedelta(hours=hours)
@@ -564,7 +567,7 @@ class PerformanceMonitor:
                     COUNT(CASE WHEN status_code >= 400 THEN 1 END) * 100.0 / COUNT(*) as error_rate,
                     COUNT(CASE WHEN response_time > 2000 THEN 1 END) * 100.0 / COUNT(*) as slow_request_rate
                 FROM api_performance 
-                WHERE timestamp >= ?
+                WHERE timestamp >= %s
             ''', (start_time,))
             
             api_metrics = cursor.fetchone()
@@ -578,7 +581,7 @@ class PerformanceMonitor:
                     MAX(duration) as max_duration,
                     COUNT(CASE WHEN success = 0 THEN 1 END) * 100.0 / COUNT(*) as failure_rate
                 FROM processing_metrics 
-                WHERE start_time >= ?
+                WHERE start_time >= %s
                 GROUP BY process_name
                 ORDER BY avg_duration DESC
             ''', (start_time,))
@@ -586,11 +589,11 @@ class PerformanceMonitor:
             processing_metrics = []
             for row in cursor.fetchall():
                 processing_metrics.append({
-                    'process_name': row[0],
-                    'total_processes': row[1],
-                    'avg_duration': round(row[2], 2),
-                    'max_duration': round(row[3], 2),
-                    'failure_rate': round(row[4], 2)
+                    'process_name': row['process_name'],
+                    'total_processes': row['total_processes'],
+                    'avg_duration': round(row['avg_duration'], 2),
+                    'max_duration': round(row['max_duration'], 2),
+                    'failure_rate': round(row['failure_rate'], 2)
                 })
             
             # Error metrics
@@ -599,12 +602,12 @@ class PerformanceMonitor:
                     severity,
                     COUNT(*) as count
                 FROM error_logs 
-                WHERE timestamp >= ?
+                WHERE timestamp >= %s
                 GROUP BY severity
                 ORDER BY count DESC
             ''', (start_time,))
             
-            error_metrics = dict(cursor.fetchall())
+            error_metrics = {row['severity']: row['count'] for row in cursor.fetchall()}
             
             # System resource metrics
             cursor.execute('''
@@ -615,7 +618,7 @@ class PerformanceMonitor:
                     MAX(memory_usage) as max_memory,
                     AVG(error_rate) as avg_error_rate
                 FROM system_resources 
-                WHERE timestamp >= ?
+                WHERE timestamp >= %s
             ''', (start_time,))
             
             resource_metrics = cursor.fetchone()
@@ -625,21 +628,21 @@ class PerformanceMonitor:
             return {
                 'analysis_period_hours': hours,
                 'api_metrics': {
-                    'total_requests': api_metrics[0] or 0,
-                    'avg_response_time': round(api_metrics[1] or 0, 2),
-                    'min_response_time': round(api_metrics[2] or 0, 2),
-                    'max_response_time': round(api_metrics[3] or 0, 2),
-                    'error_rate': round(api_metrics[4] or 0, 2),
-                    'slow_request_rate': round(api_metrics[5] or 0, 2)
+                    'total_requests': api_metrics['total_requests'] or 0,
+                    'avg_response_time': round(api_metrics['avg_response_time'] or 0, 2),
+                    'min_response_time': round(api_metrics['min_response_time'] or 0, 2),
+                    'max_response_time': round(api_metrics['max_response_time'] or 0, 2),
+                    'error_rate': round(api_metrics['error_rate'] or 0, 2),
+                    'slow_request_rate': round(api_metrics['slow_request_rate'] or 0, 2)
                 },
                 'processing_metrics': processing_metrics,
                 'error_metrics': error_metrics,
                 'resource_metrics': {
-                    'avg_cpu_usage': round(resource_metrics[0] or 0, 2),
-                    'max_cpu_usage': round(resource_metrics[1] or 0, 2),
-                    'avg_memory_usage': round(resource_metrics[2] or 0, 2),
-                    'max_memory_usage': round(resource_metrics[3] or 0, 2),
-                    'avg_error_rate': round(resource_metrics[4] or 0, 2)
+                    'avg_cpu_usage': round(resource_metrics['avg_cpu'] or 0, 2),
+                    'max_cpu_usage': round(resource_metrics['max_cpu'] or 0, 2),
+                    'avg_memory_usage': round(resource_metrics['avg_memory'] or 0, 2),
+                    'max_memory_usage': round(resource_metrics['max_memory'] or 0, 2),
+                    'avg_error_rate': round(resource_metrics['avg_error_rate'] or 0, 2)
                 }
             }
             
@@ -661,7 +664,7 @@ class PerformanceMonitor:
             Dict containing cost analysis
         """
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             start_date = datetime.now() - timedelta(days=days)
@@ -675,7 +678,7 @@ class PerformanceMonitor:
                     SUM(duration) as total_duration,
                     AVG(memory_usage) as avg_memory
                 FROM processing_metrics 
-                WHERE start_time >= ?
+                WHERE start_time >= %s
                 GROUP BY process_name
             ''', (start_date,))
             
@@ -683,7 +686,11 @@ class PerformanceMonitor:
             total_processing_time = 0
             
             for row in cursor.fetchall():
-                process_name, total_processes, avg_duration, total_duration, avg_memory = row
+                process_name = row['process_name']
+                total_processes = row['total_processes']
+                avg_duration = row['avg_duration']
+                total_duration = row['total_duration']
+                avg_memory = row['avg_memory']
                 total_processing_time += total_duration
                 
                 # Estimate costs (these would be actual cloud costs in production)
@@ -702,10 +709,10 @@ class PerformanceMonitor:
             cursor.execute('''
                 SELECT COUNT(*) as total_recommendations
                 FROM job_recommendations 
-                WHERE created_at >= ?
+                WHERE created_at >= %s
             ''', (start_date,))
             
-            total_recommendations = cursor.fetchone()[0] or 0
+            total_recommendations = list(cursor.fetchone().values())[0] or 0
             
             # Calculate cost per recommendation
             total_estimated_cost = sum(cost['estimated_cost'] for cost in processing_costs)
@@ -740,7 +747,7 @@ class PerformanceMonitor:
             disk = psutil.disk_usage('/')
             
             # Get recent performance metrics
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             # Recent API performance
@@ -749,7 +756,7 @@ class PerformanceMonitor:
                     AVG(response_time) as avg_response_time,
                     COUNT(*) as requests_last_minute
                 FROM api_performance 
-                WHERE timestamp >= datetime('now', '-1 minute')
+                WHERE timestamp >= NOW() - INTERVAL '1 minute'
             ''')
             
             api_result = cursor.fetchone()
@@ -760,7 +767,7 @@ class PerformanceMonitor:
                     COUNT(*) as total_requests,
                     COUNT(CASE WHEN status_code >= 400 THEN 1 END) as error_requests
                 FROM api_performance 
-                WHERE timestamp >= datetime('now', '-5 minutes')
+                WHERE timestamp >= NOW() - INTERVAL '5 minutes'
             ''')
             
             error_result = cursor.fetchone()
@@ -769,8 +776,8 @@ class PerformanceMonitor:
             cursor.execute('''
                 SELECT COUNT(DISTINCT session_id) as active_sessions
                 FROM user_sessions 
-                WHERE session_start >= datetime('now', '-30 minutes')
-                AND (session_end IS NULL OR session_end >= datetime('now', '-5 minutes'))
+                WHERE session_start >= NOW() - INTERVAL '30 minutes'
+                AND (session_end IS NULL OR session_end >= NOW() - INTERVAL '5 minutes')
             ''')
             
             session_result = cursor.fetchone()
@@ -779,8 +786,8 @@ class PerformanceMonitor:
             
             # Calculate error rate
             error_rate = 0
-            if error_result and error_result[0] > 0:
-                error_rate = (error_result[1] / error_result[0]) * 100
+            if error_result and error_result['total_requests'] > 0:
+                error_rate = (error_result['error_requests'] / error_result['total_requests']) * 100
             
             return {
                 'timestamp': datetime.now().isoformat(),
@@ -791,11 +798,11 @@ class PerformanceMonitor:
                     'available_memory_gb': round(memory.available / (1024**3), 2)
                 },
                 'api_performance': {
-                    'avg_response_time': round(api_result[0] or 0, 2),
-                    'requests_last_minute': api_result[1] or 0,
+                    'avg_response_time': round(api_result['avg_response_time'] or 0, 2),
+                    'requests_last_minute': api_result['requests_last_minute'] or 0,
                     'error_rate': round(error_rate, 2)
                 },
-                'active_sessions': session_result[0] or 0,
+                'active_sessions': session_result['active_sessions'] or 0,
                 'system_health': self._calculate_system_health(cpu_usage, memory.percent, error_rate)
             }
             

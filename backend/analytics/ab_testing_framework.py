@@ -7,7 +7,7 @@ job recommendations, including test design, user assignment, metrics tracking,
 and statistical analysis to improve recommendation effectiveness.
 
 Features:
-- A/B test design and management
+    10|- A/B test design and management
 - User assignment and traffic splitting
 - Conversion tracking and metrics collection
 - Statistical significance testing
@@ -16,7 +16,9 @@ Features:
 - Multi-variant testing support
 """
 
-import sqlite3
+import psycopg2
+import psycopg2.extras
+import os
 import json
 import logging
 import uuid
@@ -97,6 +99,17 @@ class TestResult:
     confidence_interval_upper: float
     statistical_significance: float
 
+def get_pg_connection():
+    """Get PostgreSQL database connection"""
+    db_url = os.environ.get('DATABASE_URL')
+    if not db_url:
+        raise RuntimeError(
+            "DATABASE_URL is required. SQLite is not supported."
+        )
+    conn = psycopg2.connect(db_url)
+    conn.cursor_factory = psycopg2.extras.RealDictCursor
+    return conn
+
 class ABTestFramework:
     """
     Comprehensive A/B testing framework for job recommendation optimization.
@@ -105,27 +118,17 @@ class ABTestFramework:
     analysis to continuously improve recommendation effectiveness.
     """
     
-    def __init__(self, db_path: str = "backend/analytics/recommendation_analytics.db"):
+    def __init__(self, db_path: str = None):
         """Initialize the A/B testing framework"""
-        self.db_path = db_path
         self._init_database()
         logger.info("ABTestFramework initialized successfully")
     
     def _init_database(self):
-        """Initialize the analytics database with required tables"""
+        """Verify PostgreSQL database connection"""
         try:
-            conn = sqlite3.connect(self.db_path)
-            cursor = conn.cursor()
-            
-            # Read and execute the schema
-            with open('backend/analytics/recommendation_analytics_schema.sql', 'r') as f:
-                schema_sql = f.read()
-            
-            cursor.executescript(schema_sql)
-            conn.commit()
+            conn = get_pg_connection()
             conn.close()
             logger.info("A/B testing database initialized successfully")
-            
         except Exception as e:
             logger.error(f"Error initializing A/B testing database: {e}")
             raise
@@ -176,14 +179,14 @@ class ABTestFramework:
                 created_by=created_by
             )
             
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             cursor.execute('''
                 INSERT INTO ab_tests (
                     test_id, test_name, description, hypothesis, start_date,
                     end_date, status, target_metric, success_threshold, minimum_sample_size, created_by
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             ''', (
                 test.test_id, test.test_name, test.description, test.hypothesis,
                 test.start_date, test.end_date, test.status, test.target_metric,
@@ -236,14 +239,14 @@ class ABTestFramework:
                 is_control=is_control
             )
             
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             cursor.execute('''
                 INSERT INTO ab_test_variants (
                     variant_id, test_id, variant_name, variant_description,
                     configuration, traffic_percentage, is_control
-                ) VALUES (?, ?, ?, ?, ?, ?, ?)
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s)
             ''', (
                 variant.variant_id, variant.test_id, variant.variant_name,
                 variant.variant_description, json.dumps(variant.configuration),
@@ -271,32 +274,32 @@ class ABTestFramework:
             bool: Success status
         """
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             # Validate test has variants
             cursor.execute('''
-                SELECT COUNT(*) FROM ab_test_variants WHERE test_id = ?
+                SELECT COUNT(*) FROM ab_test_variants WHERE test_id = %s
             ''', (test_id,))
             
-            variant_count = cursor.fetchone()[0]
+            variant_count = list(cursor.fetchone().values())[0]
             if variant_count < 2:
                 logger.error(f"Test {test_id} needs at least 2 variants")
                 return False
             
             # Validate traffic percentages sum to 100
             cursor.execute('''
-                SELECT SUM(traffic_percentage) FROM ab_test_variants WHERE test_id = ?
+                SELECT SUM(traffic_percentage) FROM ab_test_variants WHERE test_id = %s
             ''', (test_id,))
             
-            total_traffic = cursor.fetchone()[0]
+            total_traffic = list(cursor.fetchone().values())[0]
             if abs(total_traffic - 100.0) > 0.01:  # Allow small floating point errors
                 logger.error(f"Test {test_id} traffic percentages must sum to 100%")
                 return False
             
             # Start the test
             cursor.execute('''
-                UPDATE ab_tests SET status = ?, start_date = ? WHERE test_id = ?
+                UPDATE ab_tests SET status = %s, start_date = %s WHERE test_id = %s
             ''', (TestStatus.ACTIVE.value, datetime.now(), test_id))
             
             conn.commit()
@@ -325,35 +328,39 @@ class ABTestFramework:
             variant_id: Assigned variant identifier or None
         """
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             # Check if user is already assigned
             cursor.execute('''
                 SELECT variant_id FROM ab_test_assignments 
-                WHERE test_id = ? AND user_id = ?
+                WHERE test_id = %s AND user_id = %s
             ''', (test_id, user_id))
             
             existing_assignment = cursor.fetchone()
             if existing_assignment:
-                return existing_assignment[0]
+                return existing_assignment['variant_id']
             
             # Check if test is active
             cursor.execute('''
-                SELECT status, end_date FROM ab_tests WHERE test_id = ?
+                SELECT status, end_date FROM ab_tests WHERE test_id = %s
             ''', (test_id,))
             
             test_info = cursor.fetchone()
-            if not test_info or test_info[0] != TestStatus.ACTIVE.value:
+            if not test_info or test_info['status'] != TestStatus.ACTIVE.value:
                 return None
             
-            if test_info[1] and datetime.fromisoformat(test_info[1]) < datetime.now():
-                return None
+            end_date = test_info['end_date']
+            if end_date:
+                if isinstance(end_date, str):
+                    end_date = datetime.fromisoformat(end_date)
+                if end_date < datetime.now():
+                    return None
             
             # Get variants with traffic percentages
             cursor.execute('''
                 SELECT variant_id, traffic_percentage FROM ab_test_variants 
-                WHERE test_id = ? ORDER BY variant_id
+                WHERE test_id = %s ORDER BY variant_id
             ''', (test_id,))
             
             variants = cursor.fetchall()
@@ -366,7 +373,7 @@ class ABTestFramework:
             # Record assignment
             cursor.execute('''
                 INSERT INTO ab_test_assignments (test_id, user_id, variant_id, assigned_at)
-                VALUES (?, ?, ?, ?)
+                VALUES (%s, %s, %s, %s)
             ''', (test_id, user_id, variant_id, datetime.now()))
             
             conn.commit()
@@ -394,13 +401,13 @@ class ABTestFramework:
         
         # Find variant based on cumulative traffic percentage
         cumulative_percentage = 0
-        for variant_id, traffic_percentage in variants:
-            cumulative_percentage += traffic_percentage
+        for variant in variants:
+            cumulative_percentage += variant['traffic_percentage']
             if random_value <= cumulative_percentage:
-                return variant_id
+                return variant['variant_id']
         
         # Fallback to last variant
-        return variants[-1][0]
+        return variants[-1]['variant_id']
     
     def track_conversion(
         self,
@@ -424,13 +431,13 @@ class ABTestFramework:
             bool: Success status
         """
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             # Get user's current conversion events
             cursor.execute('''
                 SELECT conversion_events FROM ab_test_assignments 
-                WHERE test_id = ? AND user_id = ?
+                WHERE test_id = %s AND user_id = %s
             ''', (test_id, user_id))
             
             result = cursor.fetchone()
@@ -438,7 +445,7 @@ class ABTestFramework:
                 logger.warning(f"User {user_id} not assigned to test {test_id}")
                 return False
             
-            conversion_events = json.loads(result[0]) if result[0] else {}
+            conversion_events = json.loads(result['conversion_events']) if result['conversion_events'] else {}
             
             # Add new conversion event
             if conversion_event not in conversion_events:
@@ -453,8 +460,8 @@ class ABTestFramework:
             # Update conversion events
             cursor.execute('''
                 UPDATE ab_test_assignments 
-                SET conversion_events = ? 
-                WHERE test_id = ? AND user_id = ?
+                SET conversion_events = %s 
+                WHERE test_id = %s AND user_id = %s
             ''', (json.dumps(conversion_events), test_id, user_id))
             
             conn.commit()
@@ -483,25 +490,28 @@ class ABTestFramework:
             Dict containing test results and statistical analysis
         """
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             # Get test information
             cursor.execute('''
                 SELECT test_name, target_metric, success_threshold, minimum_sample_size
-                FROM ab_tests WHERE test_id = ?
+                FROM ab_tests WHERE test_id = %s
             ''', (test_id,))
             
             test_info = cursor.fetchone()
             if not test_info:
                 return {'error': 'Test not found'}
             
-            test_name, target_metric, success_threshold, minimum_sample_size = test_info
+            test_name = test_info['test_name']
+            target_metric = test_info['target_metric']
+            success_threshold = test_info['success_threshold']
+            minimum_sample_size = test_info['minimum_sample_size']
             
             # Get variants
             cursor.execute('''
                 SELECT variant_id, variant_name, is_control, traffic_percentage
-                FROM ab_test_variants WHERE test_id = ?
+                FROM ab_test_variants WHERE test_id = %s
                 ORDER BY is_control DESC, variant_name
             ''', (test_id,))
             
@@ -511,11 +521,15 @@ class ABTestFramework:
             variant_results = []
             control_variant = None
             
-            for variant_id, variant_name, is_control, traffic_percentage in variants:
+            for variant_row in variants:
+                variant_id = variant_row['variant_id']
+                variant_name = variant_row['variant_name']
+                is_control = variant_row['is_control']
+                traffic_percentage = variant_row['traffic_percentage']
                 # Get conversion data for this variant
                 cursor.execute('''
                     SELECT conversion_events FROM ab_test_assignments 
-                    WHERE test_id = ? AND variant_id = ?
+                    WHERE test_id = %s AND variant_id = %s
                 ''', (test_id, variant_id))
                 
                 conversion_data = cursor.fetchall()
@@ -586,7 +600,8 @@ class ABTestFramework:
         total_value = 0.0
         values = []
         
-        for conversion_events_json, in conversion_data:
+        for row in conversion_data:
+            conversion_events_json = row['conversion_events'] if isinstance(row, dict) else row[0]
             if not conversion_events_json:
                 continue
                 
@@ -757,12 +772,12 @@ class ABTestFramework:
             bool: Success status
         """
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             # Update test status
             cursor.execute('''
-                UPDATE ab_tests SET status = ?, end_date = ? WHERE test_id = ?
+                UPDATE ab_tests SET status = %s, end_date = %s WHERE test_id = %s
             ''', (TestStatus.COMPLETED.value, datetime.now(), test_id))
             
             # Store final results
@@ -774,7 +789,7 @@ class ABTestFramework:
                             test_id, variant_id, metric_name, metric_value,
                             sample_size, confidence_interval_lower,
                             confidence_interval_upper, statistical_significance
-                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                        ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
                     ''', (
                         test_id, variant['variant_id'], results['target_metric'],
                         variant['metrics']['conversion_rate'], variant['sample_size'],
@@ -799,7 +814,7 @@ class ABTestFramework:
     def get_active_tests(self) -> List[Dict[str, Any]]:
         """Get all active A/B tests"""
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             cursor.execute('''
@@ -811,7 +826,7 @@ class ABTestFramework:
                 FROM ab_tests t
                 LEFT JOIN ab_test_assignments a ON t.test_id = a.test_id
                 LEFT JOIN ab_test_variants v ON t.test_id = v.test_id
-                WHERE t.status = ?
+                WHERE t.status = %s
                 GROUP BY t.test_id
                 ORDER BY t.start_date DESC
             ''', (TestStatus.ACTIVE.value,))
@@ -819,15 +834,15 @@ class ABTestFramework:
             active_tests = []
             for row in cursor.fetchall():
                 active_tests.append({
-                    'test_id': row[0],
-                    'test_name': row[1],
-                    'description': row[2],
-                    'target_metric': row[3],
-                    'success_threshold': row[4],
-                    'minimum_sample_size': row[5],
-                    'start_date': row[6],
-                    'assigned_users': row[7],
-                    'variant_count': row[8]
+                    'test_id': row['test_id'],
+                    'test_name': row['test_name'],
+                    'description': row['description'],
+                    'target_metric': row['target_metric'],
+                    'success_threshold': row['success_threshold'],
+                    'minimum_sample_size': row['minimum_sample_size'],
+                    'start_date': row['start_date'],
+                    'assigned_users': row['assigned_users'],
+                    'variant_count': row['variant_count']
                 })
             
             conn.close()
@@ -840,7 +855,7 @@ class ABTestFramework:
     def get_test_history(self, limit: int = 20) -> List[Dict[str, Any]]:
         """Get A/B test history"""
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             cursor.execute('''
@@ -854,21 +869,21 @@ class ABTestFramework:
                 LEFT JOIN ab_test_variants v ON t.test_id = v.test_id
                 GROUP BY t.test_id
                 ORDER BY t.start_date DESC
-                LIMIT ?
+                LIMIT %s
             ''', (limit,))
             
             test_history = []
             for row in cursor.fetchall():
                 test_history.append({
-                    'test_id': row[0],
-                    'test_name': row[1],
-                    'status': row[2],
-                    'start_date': row[3],
-                    'end_date': row[4],
-                    'target_metric': row[5],
-                    'success_threshold': row[6],
-                    'total_users': row[7],
-                    'variant_count': row[8]
+                    'test_id': row['test_id'],
+                    'test_name': row['test_name'],
+                    'status': row['status'],
+                    'start_date': row['start_date'],
+                    'end_date': row['end_date'],
+                    'target_metric': row['target_metric'],
+                    'success_threshold': row['success_threshold'],
+                    'total_users': row['total_users'],
+                    'variant_count': row['variant_count']
                 })
             
             conn.close()

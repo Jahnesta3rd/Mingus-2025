@@ -19,7 +19,9 @@ Date: January 2025
 """
 
 import asyncio
-import sqlite3
+import psycopg2
+import psycopg2.extras
+import os
 import json
 import logging
 import time
@@ -112,11 +114,21 @@ class UserEngagementMetrics:
     engagement_score: float
     timestamp: str
 
+def get_pg_connection():
+    """Get PostgreSQL database connection"""
+    db_url = os.environ.get('DATABASE_URL')
+    if not db_url:
+        raise RuntimeError(
+            "DATABASE_URL is required. SQLite is not supported."
+        )
+    conn = psycopg2.connect(db_url)
+    conn.cursor_factory = psycopg2.extras.RealDictCursor
+    return conn
+
 class RiskModelDriftDetector:
     """Detects and monitors risk model drift"""
     
-    def __init__(self, db_path: str):
-        self.db_path = db_path
+    def __init__(self, db_path: str = None):
         self.drift_threshold = 0.1  # 10% drift threshold
         self.confidence_threshold = 0.8
         self.baseline_window_days = 30
@@ -153,21 +165,21 @@ class RiskModelDriftDetector:
     async def _get_baseline_data(self, model_name: str) -> Optional[Dict[str, Any]]:
         """Get baseline model performance data"""
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             # Get baseline performance data
             cursor.execute('''
                 SELECT accuracy, precision, recall, f1_score, inference_time
                 FROM risk_model_performance 
-                WHERE model_name = ? 
-                AND timestamp >= datetime('now', '-{} days')
-                AND timestamp < datetime('now', '-{} days')
+                WHERE model_name = %s
+                AND timestamp >= NOW() - INTERVAL '{} days'
+                AND timestamp < NOW() - INTERVAL '{} days'
                 ORDER BY timestamp DESC
             '''.format(
                 self.baseline_window_days + self.current_window_days,
                 self.current_window_days
-            ))
+            ), (model_name,))
             
             results = cursor.fetchall()
             conn.close()
@@ -176,11 +188,11 @@ class RiskModelDriftDetector:
                 return None
             
             # Calculate baseline metrics
-            accuracies = [r[0] for r in results]
-            precisions = [r[1] for r in results]
-            recalls = [r[2] for r in results]
-            f1_scores = [r[3] for r in results]
-            inference_times = [r[4] for r in results]
+            accuracies = [r['accuracy'] for r in results]
+            precisions = [r['precision'] for r in results]
+            recalls = [r['recall'] for r in results]
+            f1_scores = [r['f1_score'] for r in results]
+            inference_times = [r['inference_time'] for r in results]
             
             return {
                 'accuracy': statistics.mean(accuracies),
@@ -199,17 +211,17 @@ class RiskModelDriftDetector:
     async def _get_current_data(self, model_name: str) -> Optional[Dict[str, Any]]:
         """Get current model performance data"""
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             # Get current performance data
             cursor.execute('''
                 SELECT accuracy, precision, recall, f1_score, inference_time
                 FROM risk_model_performance 
-                WHERE model_name = ? 
-                AND timestamp >= datetime('now', '-{} days')
+                WHERE model_name = %s
+                AND timestamp >= NOW() - INTERVAL '{} days'
                 ORDER BY timestamp DESC
-            '''.format(self.current_window_days))
+            '''.format(self.current_window_days), (model_name,))
             
             results = cursor.fetchall()
             conn.close()
@@ -218,11 +230,11 @@ class RiskModelDriftDetector:
                 return None
             
             # Calculate current metrics
-            accuracies = [r[0] for r in results]
-            precisions = [r[1] for r in results]
-            recalls = [r[2] for r in results]
-            f1_scores = [r[3] for r in results]
-            inference_times = [r[4] for r in results]
+            accuracies = [r['accuracy'] for r in results]
+            precisions = [r['precision'] for r in results]
+            recalls = [r['recall'] for r in results]
+            f1_scores = [r['f1_score'] for r in results]
+            inference_times = [r['inference_time'] for r in results]
             
             return {
                 'accuracy': statistics.mean(accuracies),
@@ -297,14 +309,14 @@ class RiskModelDriftDetector:
     async def _log_drift_detection(self, drift_metrics: ModelDriftMetrics):
         """Log drift detection to database"""
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             cursor.execute('''
                 INSERT INTO risk_system_alerts (
                     alert_type, severity, message, metric_name, threshold_value,
                     actual_value, user_id
-                ) VALUES (?, ?, ?, ?, ?, ?, ?)
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s)
             ''', (
                 'MODEL_DRIFT_DETECTED',
                 drift_metrics.severity,
@@ -324,8 +336,7 @@ class RiskModelDriftDetector:
 class DataQualityValidator:
     """Validates data quality for risk assessments"""
     
-    def __init__(self, db_path: str):
-        self.db_path = db_path
+    def __init__(self, db_path: str = None):
         self.quality_thresholds = {
             'min_quality_score': 0.8,
             'max_missing_rate': 0.1,
@@ -336,7 +347,7 @@ class DataQualityValidator:
     async def validate_data_quality(self) -> DataQualityMetrics:
         """Validate data quality for risk assessments"""
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             # Get recent risk assessment data
@@ -344,7 +355,7 @@ class DataQualityValidator:
                 SELECT user_id, assessment_type, overall_risk, risk_triggers,
                        risk_breakdown, timeline_urgency, confidence_score, risk_factors
                 FROM risk_assessments 
-                WHERE assessment_timestamp >= datetime('now', '-7 days')
+                WHERE assessment_timestamp >= NOW() - INTERVAL '7 days'
             ''')
             
             records = cursor.fetchall()
@@ -378,7 +389,14 @@ class DataQualityValidator:
             seen_records = set()
             
             for record in records:
-                user_id, assessment_type, overall_risk, risk_triggers, risk_breakdown, timeline_urgency, confidence_score, risk_factors = record
+                user_id = record['user_id']
+                assessment_type = record['assessment_type']
+                overall_risk = record['overall_risk']
+                risk_triggers = record['risk_triggers']
+                risk_breakdown = record['risk_breakdown']
+                timeline_urgency = record['timeline_urgency']
+                confidence_score = record['confidence_score']
+                risk_factors = record['risk_factors']
                 
                 # Check for duplicates
                 record_key = (user_id, assessment_type, overall_risk)
@@ -492,8 +510,7 @@ class DataQualityValidator:
 class UserEngagementMonitor:
     """Monitors user engagement with risk alerts and recommendations"""
     
-    def __init__(self, db_path: str):
-        self.db_path = db_path
+    def __init__(self, db_path: str = None):
         self.engagement_thresholds = {
             'min_response_time': 300,  # 5 minutes
             'min_click_rate': 0.1,     # 10%
@@ -504,14 +521,14 @@ class UserEngagementMonitor:
     async def monitor_user_engagement(self, user_id: str) -> Optional[UserEngagementMetrics]:
         """Monitor engagement for a specific user"""
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             # Get user's risk assessment data
             cursor.execute('''
                 SELECT risk_level, assessment_timestamp
                 FROM risk_assessments 
-                WHERE user_id = ?
+                WHERE user_id = %s
                 ORDER BY assessment_timestamp DESC
                 LIMIT 1
             ''', (user_id,))
@@ -521,20 +538,21 @@ class UserEngagementMonitor:
                 conn.close()
                 return None
             
-            risk_level, assessment_timestamp = risk_data
+            risk_level = risk_data['risk_level']
+            assessment_timestamp = risk_data['assessment_timestamp']
             
             # Get user interaction data (simplified - would need actual interaction tracking)
             cursor.execute('''
                 SELECT COUNT(*) as total_interactions,
                        AVG(time_spent) as avg_time_spent
                 FROM user_sessions 
-                WHERE user_id = ? 
-                AND session_start >= datetime('now', '-30 days')
+                WHERE user_id = %s 
+                AND session_start >= NOW() - INTERVAL '30 days'
             ''', (user_id,))
             
             interaction_data = cursor.fetchone()
-            total_interactions = interaction_data[0] or 0
-            avg_time_spent = interaction_data[1] or 0
+            total_interactions = interaction_data['total_interactions'] or 0
+            avg_time_spent = interaction_data['avg_time_spent'] or 0
             
             conn.close()
             
@@ -601,14 +619,13 @@ class RiskSystemHealthMonitor:
     
     def __init__(self, config: Dict[str, Any]):
         self.config = config
-        self.db_path = config.get('database_path', 'risk_health.db')
         self.monitoring_active = False
         self.monitor_thread = None
         
         # Initialize components
-        self.drift_detector = RiskModelDriftDetector(self.db_path)
-        self.data_validator = DataQualityValidator(self.db_path)
-        self.engagement_monitor = UserEngagementMonitor(self.db_path)
+        self.drift_detector = RiskModelDriftDetector()
+        self.data_validator = DataQualityValidator()
+        self.engagement_monitor = UserEngagementMonitor()
         
         # Health thresholds
         self.health_thresholds = {
@@ -738,22 +755,22 @@ class RiskSystemHealthMonitor:
         """Check overall system performance"""
         try:
             # Get recent performance metrics
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             cursor.execute('''
                 SELECT AVG(value) as avg_performance
                 FROM risk_performance_metrics 
                 WHERE metric_type = 'risk_pipeline'
-                AND timestamp >= datetime('now', '-1 hour')
+                AND timestamp >= NOW() - INTERVAL '1 hour'
             ''')
             
             result = cursor.fetchone()
             conn.close()
             
-            if result and result[0]:
+            if result and result['avg_performance']:
                 # Normalize performance score (assuming lower values are better)
-                performance_score = max(0, 1 - (result[0] / 5.0))  # 5 seconds max
+                performance_score = max(0, 1 - (result['avg_performance'] / 5.0))  # 5 seconds max
                 return min(1.0, performance_score)
             
             return 0.8  # Default score
@@ -766,7 +783,7 @@ class RiskSystemHealthMonitor:
         """Check system reliability"""
         try:
             # Get recent error rates
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             cursor.execute('''
@@ -774,14 +791,14 @@ class RiskSystemHealthMonitor:
                     COUNT(*) as total_requests,
                     COUNT(CASE WHEN status = 'FAIL' THEN 1 END) as failed_requests
                 FROM risk_performance_metrics 
-                WHERE timestamp >= datetime('now', '-24 hours')
+                WHERE timestamp >= NOW() - INTERVAL '24 hours'
             ''')
             
             result = cursor.fetchone()
             conn.close()
             
-            if result and result[0] > 0:
-                error_rate = result[1] / result[0]
+            if result and result['total_requests'] > 0:
+                error_rate = result['failed_requests'] / result['total_requests']
                 reliability_score = max(0, 1 - (error_rate * 10))  # 10% error rate = 0 score
                 return min(1.0, reliability_score)
             
@@ -795,21 +812,21 @@ class RiskSystemHealthMonitor:
         """Check user engagement levels"""
         try:
             # Get recent user engagement data
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             cursor.execute('''
                 SELECT COUNT(DISTINCT user_id) as active_users
                 FROM risk_assessments 
-                WHERE assessment_timestamp >= datetime('now', '-7 days')
+                WHERE assessment_timestamp >= NOW() - INTERVAL '7 days'
             ''')
             
             result = cursor.fetchone()
             conn.close()
             
-            if result and result[0] > 0:
+            if result and result['active_users'] > 0:
                 # Simple engagement score based on active users
-                active_users = result[0]
+                active_users = result['active_users']
                 engagement_score = min(1.0, active_users / 100)  # 100 users = max score
                 return engagement_score
             
@@ -822,7 +839,7 @@ class RiskSystemHealthMonitor:
     async def _count_alerts(self) -> Tuple[int, int]:
         """Count critical and warning alerts"""
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             cursor.execute('''
@@ -831,13 +848,13 @@ class RiskSystemHealthMonitor:
                     COUNT(CASE WHEN severity = 'HIGH' OR severity = 'WARNING' THEN 1 END) as warning_alerts
                 FROM risk_system_alerts 
                 WHERE resolved = FALSE
-                AND created_at >= datetime('now', '-24 hours')
+                AND created_at >= NOW() - INTERVAL '24 hours'
             ''')
             
             result = cursor.fetchone()
             conn.close()
             
-            return result[0] or 0, result[1] or 0
+            return result['critical_alerts'] or 0, result['warning_alerts'] or 0
             
         except Exception as e:
             logger.error(f"Error counting alerts: {e}")
@@ -872,14 +889,14 @@ class RiskSystemHealthMonitor:
     async def _log_health_metrics(self, health_metrics: SystemHealthMetrics):
         """Log health metrics to database"""
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             # Create health metrics table if it doesn't exist
             cursor.execute('''
                 CREATE TABLE IF NOT EXISTS system_health_metrics (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    timestamp TEXT NOT NULL,
+                    id SERIAL PRIMARY KEY,
+                    "timestamp" TEXT NOT NULL,
                     overall_status TEXT NOT NULL,
                     component_status TEXT NOT NULL,
                     performance_score REAL NOT NULL,
@@ -891,17 +908,17 @@ class RiskSystemHealthMonitor:
                     warning_alerts INTEGER NOT NULL,
                     uptime_percentage REAL NOT NULL,
                     last_failure TEXT,
-                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )
             ''')
             
             cursor.execute('''
                 INSERT INTO system_health_metrics (
-                    timestamp, overall_status, component_status, performance_score,
+                    "timestamp", overall_status, component_status, performance_score,
                     reliability_score, data_quality_score, model_accuracy_score,
                     user_engagement_score, critical_alerts, warning_alerts,
                     uptime_percentage, last_failure
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             ''', (
                 health_metrics.timestamp, health_metrics.overall_status,
                 json.dumps(health_metrics.component_status), health_metrics.performance_score,
@@ -930,7 +947,7 @@ class RiskSystemHealthMonitor:
     async def get_health_summary(self, hours: int = 24) -> Dict[str, Any]:
         """Get health summary for specified time period"""
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             cursor.execute('''
@@ -943,8 +960,8 @@ class RiskSystemHealthMonitor:
                     critical_alerts,
                     warning_alerts
                 FROM system_health_metrics 
-                WHERE timestamp >= datetime('now', '-{} hours')
-                ORDER BY timestamp DESC
+                WHERE "timestamp" >= NOW() - INTERVAL '{} hours'
+                ORDER BY "timestamp" DESC
             '''.format(hours))
             
             results = cursor.fetchall()
@@ -954,13 +971,13 @@ class RiskSystemHealthMonitor:
                 return {'error': 'No health data available'}
             
             # Calculate summary statistics
-            statuses = [r[0] for r in results]
-            performance_scores = [r[1] for r in results]
-            reliability_scores = [r[2] for r in results]
-            data_quality_scores = [r[3] for r in results]
-            engagement_scores = [r[4] for r in results]
-            critical_alerts = [r[5] for r in results]
-            warning_alerts = [r[6] for r in results]
+            statuses = [r['overall_status'] for r in results]
+            performance_scores = [r['performance_score'] for r in results]
+            reliability_scores = [r['reliability_score'] for r in results]
+            data_quality_scores = [r['data_quality_score'] for r in results]
+            engagement_scores = [r['user_engagement_score'] for r in results]
+            critical_alerts = [r['critical_alerts'] for r in results]
+            warning_alerts = [r['warning_alerts'] for r in results]
             
             return {
                 'analysis_period_hours': hours,
