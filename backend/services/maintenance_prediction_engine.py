@@ -16,7 +16,9 @@ Features:
 
 import logging
 import math
-import sqlite3
+import psycopg2
+import psycopg2.extras
+import os
 from datetime import datetime, timedelta, date
 from typing import Dict, List, Optional, Any, Tuple
 from dataclasses import dataclass, asdict
@@ -79,6 +81,17 @@ class MaintenancePrediction:
     base_cost: float
     regional_adjustment: float
 
+def get_pg_connection():
+    """Get PostgreSQL database connection"""
+    db_url = os.environ.get('DATABASE_URL')
+    if not db_url:
+        raise RuntimeError(
+            "DATABASE_URL is required. SQLite is not supported."
+        )
+    conn = psycopg2.connect(db_url)
+    conn.cursor_factory = psycopg2.extras.RealDictCursor
+    return conn
+
 class MaintenancePredictionEngine:
     """
     Maintenance Prediction Engine for vehicle maintenance forecasting
@@ -91,9 +104,8 @@ class MaintenancePredictionEngine:
     - MaintenancePrediction model compatibility
     """
     
-    def __init__(self, db_path: str = "backend/mingus_vehicles.db"):
+    def __init__(self, db_path: str = None):
         """Initialize the maintenance prediction engine"""
-        self.db_path = db_path
         
         # MSA centers with 75-mile radius coverage
         self.msa_centers = [
@@ -145,53 +157,11 @@ class MaintenancePredictionEngine:
         logger.info("MaintenancePredictionEngine initialized successfully")
     
     def _init_database(self):
-        """Initialize database tables for maintenance predictions"""
+        """Verify PostgreSQL database connection"""
         try:
-            with sqlite3.connect(self.db_path) as conn:
-                cursor = conn.cursor()
-                
-                # Create maintenance predictions table if it doesn't exist
-                cursor.execute('''
-                    CREATE TABLE IF NOT EXISTS maintenance_predictions (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        vehicle_id INTEGER NOT NULL,
-                        service_type TEXT NOT NULL,
-                        description TEXT,
-                        predicted_date DATE NOT NULL,
-                        predicted_mileage INTEGER NOT NULL,
-                        estimated_cost DECIMAL(10,2) NOT NULL,
-                        probability REAL NOT NULL DEFAULT 0.0,
-                        is_routine BOOLEAN NOT NULL DEFAULT TRUE,
-                        maintenance_type TEXT NOT NULL,
-                        priority TEXT NOT NULL,
-                        msa_name TEXT,
-                        pricing_multiplier REAL,
-                        base_cost DECIMAL(10,2),
-                        regional_adjustment DECIMAL(10,2),
-                        created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                        FOREIGN KEY (vehicle_id) REFERENCES vehicles (id)
-                    )
-                ''')
-                
-                # Create indexes
-                cursor.execute('''
-                    CREATE INDEX IF NOT EXISTS idx_maintenance_vehicle_date 
-                    ON maintenance_predictions (vehicle_id, predicted_date)
-                ''')
-                
-                cursor.execute('''
-                    CREATE INDEX IF NOT EXISTS idx_maintenance_service_type 
-                    ON maintenance_predictions (service_type)
-                ''')
-                
-                cursor.execute('''
-                    CREATE INDEX IF NOT EXISTS idx_maintenance_routine 
-                    ON maintenance_predictions (is_routine)
-                ''')
-                
-                conn.commit()
-                logger.info("Maintenance prediction database initialized successfully")
-                
+            conn = get_pg_connection()
+            conn.close()
+            logger.info("Maintenance prediction database initialized successfully")
         except Exception as e:
             logger.error(f"Error initializing maintenance prediction database: {e}")
     
@@ -514,23 +484,24 @@ class MaintenancePredictionEngine:
     def _get_vehicle_info(self, vehicle_id: int) -> Optional[Dict[str, Any]]:
         """Get vehicle information from database"""
         try:
-            with sqlite3.connect(self.db_path) as conn:
-                cursor = conn.cursor()
-                cursor.execute('''
-                    SELECT year, make, model, user_zipcode 
-                    FROM vehicles 
-                    WHERE id = ?
-                ''', (vehicle_id,))
-                
-                result = cursor.fetchone()
-                if result:
-                    return {
-                        'year': result[0],
-                        'make': result[1],
-                        'model': result[2],
-                        'zipcode': result[3]
-                    }
-                return None
+            conn = get_pg_connection()
+            cursor = conn.cursor()
+            cursor.execute('''
+                SELECT year, make, model, user_zipcode 
+                FROM vehicles 
+                WHERE id = %s
+            ''', (vehicle_id,))
+            
+            result = cursor.fetchone()
+            conn.close()
+            if result:
+                return {
+                    'year': result['year'],
+                    'make': result['make'],
+                    'model': result['model'],
+                    'zipcode': result['user_zipcode']
+                }
+            return None
                 
         except Exception as e:
             logger.error(f"Error getting vehicle info for {vehicle_id}: {e}")
@@ -539,13 +510,14 @@ class MaintenancePredictionEngine:
     def _clear_vehicle_predictions(self, vehicle_id: int):
         """Clear existing predictions for a vehicle"""
         try:
-            with sqlite3.connect(self.db_path) as conn:
-                cursor = conn.cursor()
-                cursor.execute('''
-                    DELETE FROM maintenance_predictions 
-                    WHERE vehicle_id = ?
-                ''', (vehicle_id,))
-                conn.commit()
+            conn = get_pg_connection()
+            cursor = conn.cursor()
+            cursor.execute('''
+                DELETE FROM maintenance_predictions 
+                WHERE vehicle_id = %s
+            ''', (vehicle_id,))
+            conn.commit()
+            conn.close()
                 
         except Exception as e:
             logger.error(f"Error clearing predictions for vehicle {vehicle_id}: {e}")
@@ -553,36 +525,37 @@ class MaintenancePredictionEngine:
     def _save_predictions(self, predictions: List[MaintenancePrediction]):
         """Save predictions to database"""
         try:
-            with sqlite3.connect(self.db_path) as conn:
-                cursor = conn.cursor()
-                
-                for prediction in predictions:
-                    cursor.execute('''
-                        INSERT INTO maintenance_predictions (
-                            vehicle_id, service_type, description, predicted_date,
-                            predicted_mileage, estimated_cost, probability, is_routine,
-                            maintenance_type, priority, msa_name, pricing_multiplier,
-                            base_cost, regional_adjustment
-                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                    ''', (
-                        prediction.vehicle_id,
-                        prediction.service_type,
-                        prediction.description,
-                        prediction.predicted_date,
-                        prediction.predicted_mileage,
-                        prediction.estimated_cost,
-                        prediction.probability,
-                        prediction.is_routine,
-                        prediction.maintenance_type.value,
-                        prediction.priority.value,
-                        prediction.msa_name,
-                        prediction.pricing_multiplier,
-                        prediction.base_cost,
-                        prediction.regional_adjustment
-                    ))
-                
-                conn.commit()
-                logger.info(f"Saved {len(predictions)} maintenance predictions to database")
+            conn = get_pg_connection()
+            cursor = conn.cursor()
+            
+            for prediction in predictions:
+                cursor.execute('''
+                    INSERT INTO maintenance_predictions (
+                        vehicle_id, service_type, description, predicted_date,
+                        predicted_mileage, estimated_cost, probability, is_routine,
+                        maintenance_type, priority, msa_name, pricing_multiplier,
+                        base_cost, regional_adjustment
+                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                ''', (
+                    prediction.vehicle_id,
+                    prediction.service_type,
+                    prediction.description,
+                    prediction.predicted_date,
+                    prediction.predicted_mileage,
+                    prediction.estimated_cost,
+                    prediction.probability,
+                    prediction.is_routine,
+                    prediction.maintenance_type.value,
+                    prediction.priority.value,
+                    prediction.msa_name,
+                    prediction.pricing_multiplier,
+                    prediction.base_cost,
+                    prediction.regional_adjustment
+                ))
+            
+            conn.commit()
+            conn.close()
+            logger.info(f"Saved {len(predictions)} maintenance predictions to database")
                 
         except Exception as e:
             logger.error(f"Error saving predictions: {e}")
@@ -590,28 +563,27 @@ class MaintenancePredictionEngine:
     def get_predictions_for_vehicle(self, vehicle_id: int) -> List[Dict[str, Any]]:
         """Get maintenance predictions for a vehicle"""
         try:
-            with sqlite3.connect(self.db_path) as conn:
-                cursor = conn.cursor()
-                cursor.execute('''
-                    SELECT * FROM maintenance_predictions 
-                    WHERE vehicle_id = ? 
-                    ORDER BY predicted_date
-                ''', (vehicle_id,))
-                
-                columns = [description[0] for description in cursor.description]
-                results = cursor.fetchall()
-                
-                predictions = []
-                for row in results:
-                    prediction_dict = dict(zip(columns, row))
-                    # Convert date and decimal types
-                    if prediction_dict['predicted_date']:
-                        prediction_dict['predicted_date'] = datetime.strptime(
-                            prediction_dict['predicted_date'], '%Y-%m-%d'
-                        ).date()
-                    predictions.append(prediction_dict)
-                
-                return predictions
+            conn = get_pg_connection()
+            cursor = conn.cursor()
+            cursor.execute('''
+                SELECT * FROM maintenance_predictions 
+                WHERE vehicle_id = %s 
+                ORDER BY predicted_date
+            ''', (vehicle_id,))
+            
+            results = cursor.fetchall()
+            conn.close()
+            
+            predictions = []
+            for row in results:
+                prediction_dict = dict(row)
+                if prediction_dict['predicted_date'] and isinstance(prediction_dict['predicted_date'], str):
+                    prediction_dict['predicted_date'] = datetime.strptime(
+                        prediction_dict['predicted_date'], '%Y-%m-%d'
+                    ).date()
+                predictions.append(prediction_dict)
+            
+            return predictions
                 
         except Exception as e:
             logger.error(f"Error getting predictions for vehicle {vehicle_id}: {e}")
@@ -682,38 +654,36 @@ class MaintenancePredictionEngine:
     def get_service_status(self) -> Dict[str, Any]:
         """Get maintenance prediction service status"""
         try:
-            with sqlite3.connect(self.db_path) as conn:
-                cursor = conn.cursor()
+            conn = get_pg_connection()
+            cursor = conn.cursor()
+            
+            cursor.execute('SELECT COUNT(*) as count FROM maintenance_predictions')
+            total_predictions = cursor.fetchone()['count']
+            
+            cursor.execute('''
+                SELECT maintenance_type, COUNT(*) as count
+                FROM maintenance_predictions 
+                GROUP BY maintenance_type
+            ''')
+            predictions_by_type = {row['maintenance_type']: row['count'] for row in cursor.fetchall()}
+            
+            cursor.execute('''
+                SELECT msa_name, COUNT(*) as count
+                FROM maintenance_predictions 
+                GROUP BY msa_name
+            ''')
+            predictions_by_msa = {row['msa_name']: row['count'] for row in cursor.fetchall()}
+            conn.close()
                 
-                # Get total predictions count
-                cursor.execute('SELECT COUNT(*) FROM maintenance_predictions')
-                total_predictions = cursor.fetchone()[0]
-                
-                # Get predictions by type
-                cursor.execute('''
-                    SELECT maintenance_type, COUNT(*) 
-                    FROM maintenance_predictions 
-                    GROUP BY maintenance_type
-                ''')
-                predictions_by_type = dict(cursor.fetchall())
-                
-                # Get predictions by MSA
-                cursor.execute('''
-                    SELECT msa_name, COUNT(*) 
-                    FROM maintenance_predictions 
-                    GROUP BY msa_name
-                ''')
-                predictions_by_msa = dict(cursor.fetchall())
-                
-                return {
-                    'status': 'active',
-                    'total_predictions': total_predictions,
-                    'predictions_by_type': predictions_by_type,
-                    'predictions_by_msa': predictions_by_msa,
-                    'msa_centers_count': len(self.msa_centers),
-                    'maintenance_schedules_count': len(self.maintenance_schedules),
-                    'fallback_pricing_multiplier': self.fallback_pricing_multiplier
-                }
+            return {
+                'status': 'active',
+                'total_predictions': total_predictions,
+                'predictions_by_type': predictions_by_type,
+                'predictions_by_msa': predictions_by_msa,
+                'msa_centers_count': len(self.msa_centers),
+                'maintenance_schedules_count': len(self.maintenance_schedules),
+                'fallback_pricing_multiplier': self.fallback_pricing_multiplier
+            }
                 
         except Exception as e:
             logger.error(f"Error getting service status: {e}")

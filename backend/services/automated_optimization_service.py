@@ -21,7 +21,9 @@ from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Any, Tuple
 from dataclasses import dataclass
 from enum import Enum
-import sqlite3
+import psycopg2
+import psycopg2.extras
+import os
 from sqlalchemy import and_, or_, desc, func
 from sqlalchemy.orm import sessionmaker
 
@@ -79,15 +81,25 @@ class OptimizationRecommendation:
     risk_level: str
     created_at: datetime
 
+def get_pg_connection():
+    """Get PostgreSQL database connection"""
+    db_url = os.environ.get('DATABASE_URL')
+    if not db_url:
+        raise RuntimeError(
+            "DATABASE_URL is required. SQLite is not supported."
+        )
+    conn = psycopg2.connect(db_url)
+    conn.cursor_factory = psycopg2.extras.RealDictCursor
+    return conn
+
 class AutomatedOptimizationService:
     """
     Automated content optimization service with real-time monitoring
     """
     
-    def __init__(self, db_path: str = "content_optimization.db"):
+    def __init__(self, db_path: str = None):
         """Initialize the automated optimization service"""
-        self.db_path = db_path
-        self.content_optimization_service = ContentOptimizationService(db_path)
+        self.content_optimization_service = ContentOptimizationService()
         self.daily_outlook_service = DailyOutlookContentService()
         self.notification_service = NotificationService()
         
@@ -511,14 +523,14 @@ class AutomatedOptimizationService:
     def get_optimization_recommendations(self, test_id: Optional[str] = None) -> List[Dict[str, Any]]:
         """Get optimization recommendations"""
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             query = "SELECT * FROM optimization_recommendations"
             params = []
             
             if test_id:
-                query += " WHERE test_id = ?"
+                query += " WHERE test_id = %s"
                 params.append(test_id)
             
             query += " ORDER BY priority ASC, created_at DESC"
@@ -530,15 +542,15 @@ class AutomatedOptimizationService:
             recommendations = []
             for result in results:
                 recommendations.append({
-                    'recommendation_id': result[0],
-                    'test_id': result[1],
-                    'recommendation_type': result[2],
-                    'priority': result[3],
-                    'description': result[4],
-                    'expected_impact': result[5],
-                    'implementation_steps': json.loads(result[6]),
-                    'risk_level': result[7],
-                    'created_at': result[8]
+                    'recommendation_id': result['recommendation_id'],
+                    'test_id': result['test_id'],
+                    'recommendation_type': result['recommendation_type'],
+                    'priority': result['priority'],
+                    'description': result['description'],
+                    'expected_impact': result['expected_impact'],
+                    'implementation_steps': json.loads(result['implementation_steps']),
+                    'risk_level': result['risk_level'],
+                    'created_at': result['created_at']
                 })
             
             return recommendations
@@ -550,14 +562,14 @@ class AutomatedOptimizationService:
     def get_optimization_events(self, test_id: Optional[str] = None) -> List[Dict[str, Any]]:
         """Get optimization events"""
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             query = "SELECT * FROM optimization_events"
             params = []
             
             if test_id:
-                query += " WHERE test_id = ?"
+                query += " WHERE test_id = %s"
                 params.append(test_id)
             
             query += " ORDER BY timestamp DESC"
@@ -569,17 +581,17 @@ class AutomatedOptimizationService:
             events = []
             for result in results:
                 events.append({
-                    'event_id': result[0],
-                    'trigger_type': result[1],
-                    'test_id': result[2],
-                    'variant_id': result[3],
-                    'metric_value': result[4],
-                    'threshold_value': result[5],
-                    'action_required': result[6],
-                    'confidence_level': result[7],
-                    'timestamp': result[8],
-                    'metadata': json.loads(result[9]) if result[9] else {},
-                    'processed': result[10]
+                    'event_id': result['event_id'],
+                    'trigger_type': result['trigger_type'],
+                    'test_id': result['test_id'],
+                    'variant_id': result['variant_id'],
+                    'metric_value': result['metric_value'],
+                    'threshold_value': result['threshold_value'],
+                    'action_required': result['action_required'],
+                    'confidence_level': result['confidence_level'],
+                    'timestamp': result['timestamp'],
+                    'metadata': json.loads(result['metadata']) if result['metadata'] else {},
+                    'processed': result['processed']
                 })
             
             return events
@@ -649,12 +661,12 @@ class AutomatedOptimizationService:
     
     def _get_pending_optimization_events(self) -> List[OptimizationEvent]:
         """Get pending optimization events"""
-        conn = sqlite3.connect(self.db_path)
+        conn = get_pg_connection()
         cursor = conn.cursor()
         
         cursor.execute("""
             SELECT * FROM optimization_events 
-            WHERE processed = 0 
+            WHERE processed = FALSE 
             ORDER BY timestamp ASC
         """)
         
@@ -663,24 +675,27 @@ class AutomatedOptimizationService:
         
         events = []
         for result in results:
+            ts = result['timestamp']
+            if isinstance(ts, str):
+                ts = datetime.fromisoformat(ts)
             events.append(OptimizationEvent(
-                event_id=result[0],
-                trigger_type=OptimizationTrigger(result[1]),
-                test_id=result[2],
-                variant_id=result[3],
-                metric_value=result[4],
-                threshold_value=result[5],
-                action_required=OptimizationAction(result[6]),
-                confidence_level=result[7],
-                timestamp=datetime.fromisoformat(result[8]),
-                metadata=json.loads(result[9]) if result[9] else {}
+                event_id=result['event_id'],
+                trigger_type=OptimizationTrigger(result['trigger_type']),
+                test_id=result['test_id'],
+                variant_id=result['variant_id'],
+                metric_value=result['metric_value'],
+                threshold_value=result['threshold_value'],
+                action_required=OptimizationAction(result['action_required']),
+                confidence_level=result['confidence_level'],
+                timestamp=ts,
+                metadata=json.loads(result['metadata']) if result['metadata'] else {}
             ))
         
         return events
     
     def _save_optimization_event(self, event: OptimizationEvent):
         """Save optimization event to database"""
-        conn = sqlite3.connect(self.db_path)
+        conn = get_pg_connection()
         cursor = conn.cursor()
         
         cursor.execute("""
@@ -688,7 +703,7 @@ class AutomatedOptimizationService:
             (event_id, trigger_type, test_id, variant_id, metric_value, 
              threshold_value, action_required, confidence_level, timestamp, 
              metadata, processed)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """, (
             event.event_id,
             event.trigger_type.value,
@@ -708,14 +723,14 @@ class AutomatedOptimizationService:
     
     def _save_optimization_recommendation(self, recommendation: OptimizationRecommendation):
         """Save optimization recommendation to database"""
-        conn = sqlite3.connect(self.db_path)
+        conn = get_pg_connection()
         cursor = conn.cursor()
         
         cursor.execute("""
             INSERT INTO optimization_recommendations 
             (recommendation_id, test_id, recommendation_type, priority, 
              description, expected_impact, implementation_steps, risk_level, created_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
         """, (
             recommendation.recommendation_id,
             recommendation.test_id,
@@ -733,13 +748,13 @@ class AutomatedOptimizationService:
     
     def _mark_event_processed(self, event_id: str):
         """Mark optimization event as processed"""
-        conn = sqlite3.connect(self.db_path)
+        conn = get_pg_connection()
         cursor = conn.cursor()
         
         cursor.execute("""
             UPDATE optimization_events 
-            SET processed = 1 
-            WHERE event_id = ?
+            SET processed = TRUE 
+            WHERE event_id = %s
         """, (event_id,))
         
         conn.commit()
@@ -747,7 +762,7 @@ class AutomatedOptimizationService:
     
     def _initialize_optimization_tables(self):
         """Initialize optimization tables in database"""
-        conn = sqlite3.connect(self.db_path)
+        conn = get_pg_connection()
         cursor = conn.cursor()
         
         # Create optimization events table
@@ -763,7 +778,7 @@ class AutomatedOptimizationService:
                 confidence_level REAL NOT NULL,
                 timestamp TEXT NOT NULL,
                 metadata TEXT,
-                processed INTEGER DEFAULT 0
+                processed BOOLEAN DEFAULT FALSE
             )
         """)
         

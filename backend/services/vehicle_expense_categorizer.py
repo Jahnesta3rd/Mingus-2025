@@ -13,7 +13,9 @@ Features:
 
 import logging
 import re
-import sqlite3
+import psycopg2
+import psycopg2.extras
+import os
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Any, Tuple
 from dataclasses import dataclass, asdict
@@ -61,6 +63,17 @@ class MaintenanceComparison:
     prediction_accuracy: str
     recommendation: str
 
+def get_pg_connection():
+    """Get PostgreSQL database connection"""
+    db_url = os.environ.get('DATABASE_URL')
+    if not db_url:
+        raise RuntimeError(
+            "DATABASE_URL is required. SQLite is not supported."
+        )
+    conn = psycopg2.connect(db_url)
+    conn.cursor_factory = psycopg2.extras.RealDictCursor
+    return conn
+
 class VehicleExpenseCategorizer:
     """
     Advanced vehicle expense categorization system using ML and pattern matching
@@ -69,10 +82,8 @@ class VehicleExpenseCategorizer:
     compares actual costs to predictions, and updates maintenance forecasts.
     """
     
-    def __init__(self, db_path: str = "backend/mingus_vehicles.db", profile_db_path: str = "user_profiles.db"):
+    def __init__(self, db_path: str = None, profile_db_path: str = None):
         """Initialize the vehicle expense categorizer"""
-        self.db_path = db_path
-        self.profile_db_path = profile_db_path
         
         # Vehicle expense keywords and patterns
         self.expense_patterns = {
@@ -253,54 +264,11 @@ class VehicleExpenseCategorizer:
                 data['compiled_merchant_patterns'] = [re.compile(pattern, re.IGNORECASE) for pattern in data['merchant_patterns']]
     
     def _init_databases(self):
-        """Initialize database connections and create tables if needed"""
+        """Verify PostgreSQL database connection"""
         try:
-            # Initialize vehicle expense tracking table
-            conn = sqlite3.connect(self.db_path)
-            cursor = conn.cursor()
-            
-            cursor.execute('''
-                CREATE TABLE IF NOT EXISTS vehicle_expenses (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    user_email TEXT NOT NULL,
-                    expense_id TEXT UNIQUE NOT NULL,
-                    vehicle_id INTEGER,
-                    expense_type TEXT NOT NULL,
-                    amount REAL NOT NULL,
-                    description TEXT,
-                    merchant TEXT,
-                    date DATE NOT NULL,
-                    confidence_score REAL NOT NULL,
-                    matched_keywords TEXT,
-                    matched_patterns TEXT,
-                    is_maintenance_related BOOLEAN DEFAULT FALSE,
-                    predicted_cost_range TEXT,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    FOREIGN KEY (vehicle_id) REFERENCES vehicles (id)
-                )
-            ''')
-            
-            cursor.execute('''
-                CREATE TABLE IF NOT EXISTS maintenance_comparisons (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    vehicle_id INTEGER NOT NULL,
-                    expense_id TEXT NOT NULL,
-                    service_type TEXT NOT NULL,
-                    actual_cost REAL NOT NULL,
-                    predicted_cost REAL NOT NULL,
-                    variance_percentage REAL NOT NULL,
-                    prediction_accuracy TEXT NOT NULL,
-                    recommendation TEXT,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    FOREIGN KEY (vehicle_id) REFERENCES vehicles (id)
-                )
-            ''')
-            
-            conn.commit()
+            conn = get_pg_connection()
             conn.close()
-            
             logger.info("Vehicle expense categorizer database initialized")
-            
         except Exception as e:
             logger.error(f"Error initializing vehicle expense categorizer database: {e}")
             raise
@@ -442,15 +410,14 @@ class VehicleExpenseCategorizer:
             Tuple of (vehicle_id, suggested_vehicle_name)
         """
         try:
-            conn = sqlite3.connect(self.db_path)
-            conn.row_factory = sqlite3.Row
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             # Get user's vehicles
             cursor.execute('''
                 SELECT id, year, make, model, nickname, current_mileage
                 FROM vehicles 
-                WHERE user_email = ?
+                WHERE user_email = %s
                 ORDER BY created_date DESC
             ''', (user_email,))
             
@@ -503,16 +470,15 @@ class VehicleExpenseCategorizer:
             Tuple of (min_predicted, max_predicted) or None
         """
         try:
-            conn = sqlite3.connect(self.db_path)
-            conn.row_factory = sqlite3.Row
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             # Get recent maintenance predictions for this vehicle
             cursor.execute('''
                 SELECT service_type, estimated_cost, probability
                 FROM maintenance_predictions
-                WHERE vehicle_id = ? 
-                AND predicted_date >= date('now', '-30 days')
+                WHERE vehicle_id = %s 
+                AND predicted_date >= NOW() - INTERVAL '30 days'
                 ORDER BY predicted_date DESC
             ''', (vehicle_id,))
             
@@ -577,16 +543,20 @@ class VehicleExpenseCategorizer:
             True if saved successfully, False otherwise
         """
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             cursor.execute('''
-                INSERT OR REPLACE INTO vehicle_expenses (
+                INSERT INTO vehicle_expenses (
                     user_email, expense_id, vehicle_id, expense_type, amount,
                     description, merchant, date, confidence_score,
                     matched_keywords, matched_patterns, is_maintenance_related,
                     predicted_cost_range
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                ON CONFLICT (expense_id) DO UPDATE SET
+                    expense_type = EXCLUDED.expense_type,
+                    confidence_score = EXCLUDED.confidence_score,
+                    is_maintenance_related = EXCLUDED.is_maintenance_related
             ''', (
                 user_email,
                 match.expense_id,
@@ -628,17 +598,16 @@ class VehicleExpenseCategorizer:
             MaintenanceComparison object or None
         """
         try:
-            conn = sqlite3.connect(self.db_path)
-            conn.row_factory = sqlite3.Row
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             # Get most recent prediction for this service type
             cursor.execute('''
                 SELECT estimated_cost, probability
                 FROM maintenance_predictions
-                WHERE vehicle_id = ? 
-                AND service_type LIKE ?
-                AND predicted_date >= date('now', '-90 days')
+                WHERE vehicle_id = %s 
+                AND service_type LIKE %s
+                AND predicted_date >= NOW() - INTERVAL '90 days'
                 ORDER BY predicted_date DESC
                 LIMIT 1
             ''', (vehicle_id, f'%{service_type}%'))
@@ -692,7 +661,7 @@ class VehicleExpenseCategorizer:
     def _save_maintenance_comparison(self, comparison: MaintenanceComparison, expense_id: str):
         """Save maintenance comparison to database"""
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             cursor.execute('''
@@ -700,7 +669,7 @@ class VehicleExpenseCategorizer:
                     vehicle_id, expense_id, service_type, actual_cost,
                     predicted_cost, variance_percentage, prediction_accuracy,
                     recommendation
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
             ''', (
                 comparison.vehicle_id,
                 expense_id,
@@ -730,8 +699,7 @@ class VehicleExpenseCategorizer:
             Dictionary with expense summary and insights
         """
         try:
-            conn = sqlite3.connect(self.db_path)
-            conn.row_factory = sqlite3.Row
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             # Get vehicle expenses for the specified period
@@ -739,10 +707,10 @@ class VehicleExpenseCategorizer:
                 SELECT ve.*, v.year, v.make, v.model, v.nickname
                 FROM vehicle_expenses ve
                 LEFT JOIN vehicles v ON ve.vehicle_id = v.id
-                WHERE ve.user_email = ?
-                AND ve.date >= date('now', '-{} months')
+                WHERE ve.user_email = %s
+                AND ve.date >= NOW() - INTERVAL '{} months'
                 ORDER BY ve.date DESC
-            '''.format(months))
+            '''.format(months), (user_email,))
             
             expenses = cursor.fetchall()
             
@@ -751,10 +719,10 @@ class VehicleExpenseCategorizer:
                 SELECT mc.*, v.year, v.make, v.model
                 FROM maintenance_comparisons mc
                 JOIN vehicles v ON mc.vehicle_id = v.id
-                WHERE v.user_email = ?
-                AND mc.created_at >= date('now', '-{} months')
+                WHERE v.user_email = %s
+                AND mc.created_at >= NOW() - INTERVAL '{} months'
                 ORDER BY mc.created_at DESC
-            '''.format(months))
+            '''.format(months), (user_email,))
             
             comparisons = cursor.fetchall()
             conn.close()
