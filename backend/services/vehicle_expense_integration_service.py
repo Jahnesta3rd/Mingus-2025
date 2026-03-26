@@ -13,7 +13,9 @@ Features:
 """
 
 import logging
-import sqlite3
+import psycopg2
+import psycopg2.extras
+import os
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Any, Tuple
 from dataclasses import dataclass, asdict
@@ -58,6 +60,17 @@ class VehicleExpenseRecommendation:
     timeline: str
     supporting_data: Dict[str, Any]
 
+def get_pg_connection():
+    """Get PostgreSQL database connection"""
+    db_url = os.environ.get('DATABASE_URL')
+    if not db_url:
+        raise RuntimeError(
+            "DATABASE_URL is required. SQLite is not supported."
+        )
+    conn = psycopg2.connect(db_url)
+    conn.cursor_factory = psycopg2.extras.RealDictCursor
+    return conn
+
 class VehicleExpenseIntegrationService:
     """
     Integration service that combines all vehicle expense functionality
@@ -71,17 +84,15 @@ class VehicleExpenseIntegrationService:
     - Comprehensive financial health analysis
     """
     
-    def __init__(self, profile_db_path: str = "user_profiles.db", 
-                 vehicle_db_path: str = "backend/mingus_vehicles.db"):
+    def __init__(self, profile_db_path: str = None, 
+                 vehicle_db_path: str = None):
         """Initialize the integration service"""
-        self.profile_db_path = profile_db_path
-        self.vehicle_db_path = vehicle_db_path
         
         # Initialize all services
-        self.ml_engine = EnhancedVehicleExpenseMLEngine(vehicle_db_path, profile_db_path)
-        self.categorizer = VehicleExpenseCategorizer(vehicle_db_path, profile_db_path)
-        self.spending_analyzer = EnhancedSpendingAnalyzer(profile_db_path, vehicle_db_path)
-        self.maintenance_engine = MaintenancePredictionEngine(vehicle_db_path)
+        self.ml_engine = EnhancedVehicleExpenseMLEngine()
+        self.categorizer = VehicleExpenseCategorizer()
+        self.spending_analyzer = EnhancedSpendingAnalyzer()
+        self.maintenance_engine = MaintenancePredictionEngine()
         
         logger.info("Vehicle Expense Integration Service initialized successfully")
     
@@ -226,16 +237,21 @@ class VehicleExpenseIntegrationService:
     def _save_enhanced_categorization(self, ml_result, traditional_result, expense_data: Dict[str, Any], user_email: str):
         """Save enhanced categorization to database"""
         try:
-            conn = sqlite3.connect(self.vehicle_db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             cursor.execute('''
-                INSERT OR REPLACE INTO enhanced_vehicle_expenses (
+                INSERT INTO enhanced_vehicle_expenses (
                     user_email, expense_id, vehicle_id, expense_type, amount,
                     description, merchant, date, confidence_score, ml_confidence,
                     matched_keywords, matched_patterns, is_maintenance_related,
                     predicted_cost_range, ml_features, model_version
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                ON CONFLICT (expense_id) DO UPDATE SET
+                    expense_type = EXCLUDED.expense_type,
+                    confidence_score = EXCLUDED.confidence_score,
+                    ml_confidence = EXCLUDED.ml_confidence,
+                    updated_at = CURRENT_TIMESTAMP
             ''', (
                 user_email,
                 expense_data.get('id', str(datetime.now().timestamp())),
@@ -361,14 +377,13 @@ class VehicleExpenseIntegrationService:
         """Get maintenance forecast for user's vehicles"""
         try:
             # Get user's vehicles
-            conn = sqlite3.connect(self.vehicle_db_path)
-            conn.row_factory = sqlite3.Row
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             cursor.execute('''
                 SELECT id, year, make, model, current_mileage, user_zipcode
                 FROM vehicles 
-                WHERE user_email = ?
+                WHERE user_email = %s
             ''', (user_email,))
             
             vehicles = cursor.fetchall()
@@ -441,12 +456,11 @@ class VehicleExpenseIntegrationService:
         """Calculate budget impact of vehicle expenses"""
         try:
             # Get user's monthly income
-            conn = sqlite3.connect(self.profile_db_path)
-            conn.row_factory = sqlite3.Row
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             cursor.execute('''
-                SELECT financial_info FROM user_profiles WHERE email = ?
+                SELECT financial_info FROM user_profiles WHERE email = %s
             ''', (user_email,))
             
             profile = cursor.fetchone()

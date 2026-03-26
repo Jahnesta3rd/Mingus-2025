@@ -14,7 +14,9 @@ Features:
 """
 
 import logging
-import sqlite3
+import psycopg2
+import psycopg2.extras
+import os
 import json
 import requests
 from datetime import datetime, timedelta
@@ -32,6 +34,17 @@ from backend.utils.location_utils import LocationValidator, LocationData
 
 # Configure logging
 logger = logging.getLogger(__name__)
+
+def get_pg_connection():
+    """Get PostgreSQL database connection"""
+    db_url = os.environ.get('DATABASE_URL')
+    if not db_url:
+        raise RuntimeError(
+            "DATABASE_URL is required. SQLite is not supported."
+        )
+    conn = psycopg2.connect(db_url)
+    conn.cursor_factory = psycopg2.extras.RealDictCursor
+    return conn
 
 class AffordabilityTier(Enum):
     """Affordability scoring tiers"""
@@ -117,15 +130,13 @@ class OptimalLocationService:
     - Emergency fund protection validation
     """
     
-    def __init__(self, profile_db_path: str = "user_profiles.db", 
-                 vehicle_db_path: str = "backend/mingus_vehicles.db"):
+    def __init__(self, profile_db_path: str = None, 
+                 vehicle_db_path: str = None):
         """Initialize the optimal location service"""
-        self.profile_db_path = profile_db_path
-        self.vehicle_db_path = vehicle_db_path
         
         # Initialize services
         self.vehicle_analytics = VehicleAnalyticsService()
-        self.cash_forecast_engine = EnhancedCashFlowForecastEngine(profile_db_path, vehicle_db_path)
+        self.cash_forecast_engine = EnhancedCashFlowForecastEngine()
         self.feature_flag_service = FeatureFlagService()
         self.external_api_service = ExternalAPIService()
         self.location_validator = LocationValidator()
@@ -136,18 +147,11 @@ class OptimalLocationService:
         logger.info("OptimalLocationService initialized successfully")
     
     def _init_databases(self):
-        """Initialize required databases"""
+        """Verify PostgreSQL database connection"""
         try:
-            # Initialize profile database
-            conn = sqlite3.connect(self.profile_db_path)
+            conn = get_pg_connection()
             conn.close()
-            
-            # Initialize vehicle database
-            conn = sqlite3.connect(self.vehicle_db_path)
-            conn.close()
-            
             logger.info("OptimalLocationService databases initialized successfully")
-            
         except Exception as e:
             logger.error(f"Error initializing databases: {e}")
             raise
@@ -439,12 +443,11 @@ class OptimalLocationService:
     def _get_user_profile(self, user_id: int) -> Optional[Dict[str, Any]]:
         """Get user profile from database"""
         try:
-            conn = sqlite3.connect(self.profile_db_path)
-            conn.row_factory = sqlite3.Row
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             cursor.execute('''
-                SELECT * FROM user_profiles WHERE id = ?
+                SELECT * FROM user_profiles WHERE id = %s
             ''', (user_id,))
             
             profile_row = cursor.fetchone()
@@ -457,9 +460,9 @@ class OptimalLocationService:
                 'id': profile_row['id'],
                 'email': profile_row['email'],
                 'first_name': profile_row['first_name'],
-                'personal_info': json.loads(profile_row['personal_info']),
-                'financial_info': json.loads(profile_row['financial_info']),
-                'monthly_expenses': json.loads(profile_row['monthly_expenses']),
+                'personal_info': json.loads(profile_row['personal_info']) if profile_row['personal_info'] else {},
+                'financial_info': json.loads(profile_row['financial_info']) if profile_row['financial_info'] else {},
+                'monthly_expenses': json.loads(profile_row['monthly_expenses']) if profile_row['monthly_expenses'] else {},
                 'zip_code': profile_row.get('zip_code', '10001')
             }
             
@@ -470,18 +473,17 @@ class OptimalLocationService:
     def _get_user_vehicles(self, user_id: int) -> List[Dict[str, Any]]:
         """Get user's vehicles"""
         try:
-            conn = sqlite3.connect(self.vehicle_db_path)
-            conn.row_factory = sqlite3.Row
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             cursor.execute('''
-                SELECT * FROM vehicles WHERE user_id = ?
+                SELECT * FROM vehicles WHERE user_id = %s
             ''', (user_id,))
             
             vehicles = cursor.fetchall()
             conn.close()
             
-            return [dict(vehicle) for vehicle in vehicles]
+            return list(vehicles)
             
         except Exception as e:
             logger.error(f"Error getting user vehicles for user {user_id}: {e}")
@@ -780,7 +782,7 @@ class OptimalLocationService:
     def _save_housing_scenario(self, scenario: HousingScenario):
         """Save housing scenario to database"""
         try:
-            conn = sqlite3.connect(self.profile_db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             cursor.execute('''
@@ -797,9 +799,15 @@ class OptimalLocationService:
             ''')
             
             cursor.execute('''
-                INSERT OR REPLACE INTO housing_scenarios 
+                INSERT INTO housing_scenarios 
                 (scenario_id, user_id, housing_data, financial_impact, career_opportunities, projections, updated_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
+                VALUES (%s, %s, %s, %s, %s, %s, %s)
+                ON CONFLICT (scenario_id) DO UPDATE SET
+                    housing_data = EXCLUDED.housing_data,
+                    financial_impact = EXCLUDED.financial_impact,
+                    career_opportunities = EXCLUDED.career_opportunities,
+                    projections = EXCLUDED.projections,
+                    updated_at = EXCLUDED.updated_at
             ''', (
                 scenario.scenario_id,
                 scenario.user_id,
@@ -864,7 +872,10 @@ class OptimalLocationService:
         return R * c
 
 # Global service instance
-optimal_location_service = OptimalLocationService()
+try:
+    optimal_location_service = OptimalLocationService()
+except Exception:
+    optimal_location_service = None
 
 # Export service
 __all__ = ['optimal_location_service', 'OptimalLocationService', 'HousingOption', 'SearchCriteria', 'AffordabilityAnalysis', 'HousingScenario']

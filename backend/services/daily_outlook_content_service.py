@@ -5,7 +5,9 @@ Generates personalized daily content based on user tier, activity, and engagemen
 """
 
 import logging
-import sqlite3
+import psycopg2
+import psycopg2.extras
+import os
 import json
 import random
 from datetime import datetime, date, timedelta
@@ -48,6 +50,17 @@ class ContentTemplate:
     cultural_relevance: bool
     city_specific: Optional[str]
 
+def get_pg_connection():
+    """Get PostgreSQL database connection"""
+    db_url = os.environ.get('DATABASE_URL')
+    if not db_url:
+        raise RuntimeError(
+            "DATABASE_URL is required. SQLite is not supported."
+        )
+    conn = psycopg2.connect(db_url)
+    conn.cursor_factory = psycopg2.extras.RealDictCursor
+    return conn
+
 class DailyOutlookContentService:
     """
     Service for generating personalized daily outlook content
@@ -60,10 +73,9 @@ class DailyOutlookContentService:
     - Integration with existing user data systems
     """
     
-    def __init__(self, profile_db_path: str = "user_profiles.db"):
+    def __init__(self, profile_db_path: str = None):
         """Initialize the content generation service"""
-        self.profile_db_path = profile_db_path
-        self.daily_outlook_service = DailyOutlookService(profile_db_path)
+        self.daily_outlook_service = DailyOutlookService()
         self.feature_flag_service = FeatureFlagService()
         
         # Major metros for city-specific content
@@ -384,7 +396,7 @@ class DailyOutlookContentService:
     def _get_user_data(self, user_id: int) -> Optional[UserData]:
         """Get comprehensive user data for content generation"""
         try:
-            conn = sqlite3.connect(self.profile_db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             # Get user tier
@@ -394,7 +406,7 @@ class DailyOutlookContentService:
             cursor.execute("""
                 SELECT personal_info, financial_info, goals, location
                 FROM user_profiles 
-                WHERE email = (SELECT email FROM users WHERE id = ?)
+                WHERE email = (SELECT email FROM users WHERE id = %s)
             """, (user_id,))
             
             profile_result = cursor.fetchone()
@@ -402,21 +414,21 @@ class DailyOutlookContentService:
                 conn.close()
                 return None
             
-            personal_info = json.loads(profile_result[0]) if profile_result[0] else {}
-            financial_info = json.loads(profile_result[1]) if profile_result[1] else {}
-            goals = json.loads(profile_result[2]) if profile_result[2] else {}
-            location = profile_result[3] or "Unknown"
+            personal_info = json.loads(profile_result['personal_info']) if profile_result['personal_info'] else {}
+            financial_info = json.loads(profile_result['financial_info']) if profile_result['financial_info'] else {}
+            goals = json.loads(profile_result['goals']) if profile_result['goals'] else {}
+            location = profile_result['location'] or "Unknown"
             
             # Get relationship status
             cursor.execute("""
                 SELECT status FROM user_relationship_status 
-                WHERE user_id = ? 
+                WHERE user_id = %s 
                 ORDER BY updated_at DESC 
                 LIMIT 1
             """, (user_id,))
             
             relationship_result = cursor.fetchone()
-            relationship_status = relationship_result[0] if relationship_result else "single_career_focused"
+            relationship_status = relationship_result['status'] if relationship_result else "single_career_focused"
             
             # Get recent activity and spending patterns
             recent_activity = self._get_recent_activity(user_id, cursor)
@@ -431,13 +443,13 @@ class DailyOutlookContentService:
             # Get streak count
             cursor.execute("""
                 SELECT streak_count FROM daily_outlooks 
-                WHERE user_id = ? 
+                WHERE user_id = %s 
                 ORDER BY date DESC 
                 LIMIT 1
             """, (user_id,))
             
             streak_result = cursor.fetchone()
-            streak_count = streak_result[0] if streak_result else 0
+            streak_count = streak_result['streak_count'] if streak_result else 0
             
             conn.close()
             
@@ -466,21 +478,24 @@ class DailyOutlookContentService:
         try:
             # Get recent mood data
             cursor.execute("""
-                SELECT AVG(mood_score), COUNT(*) FROM user_mood_data 
-                WHERE user_id = ? 
-                AND timestamp >= datetime('now', '-7 days')
+                SELECT AVG(mood_score) as avg_mood, COUNT(*) as mood_entries 
+                FROM user_mood_data 
+                WHERE user_id = %s 
+                AND timestamp >= NOW() - INTERVAL '7 days'
             """, (user_id,))
             
             mood_result = cursor.fetchone()
-            avg_mood = mood_result[0] if mood_result[0] else 3.0
-            mood_entries = mood_result[1] if mood_result[1] else 0
+            avg_mood = mood_result['avg_mood'] if mood_result and mood_result['avg_mood'] else 3.0
+            mood_entries = mood_result['mood_entries'] if mood_result and mood_result['mood_entries'] else 0
             
             # Get recent check-ins
             cursor.execute("""
-                SELECT AVG(physical_activity), AVG(meditation_minutes), AVG(relationship_satisfaction)
+                SELECT AVG(physical_activity) as avg_physical, 
+                       AVG(meditation_minutes) as avg_meditation, 
+                       AVG(relationship_satisfaction) as avg_relationship
                 FROM weekly_checkins 
-                WHERE user_id = ? 
-                AND check_in_date >= date('now', '-14 days')
+                WHERE user_id = %s 
+                AND check_in_date >= NOW() - INTERVAL '14 days'
             """, (user_id,))
             
             wellness_result = cursor.fetchone()
@@ -488,9 +503,9 @@ class DailyOutlookContentService:
             return {
                 'avg_mood': avg_mood,
                 'mood_entries': mood_entries,
-                'physical_activity': wellness_result[0] if wellness_result[0] else 0,
-                'meditation_minutes': wellness_result[1] if wellness_result[1] else 0,
-                'relationship_satisfaction': wellness_result[2] if wellness_result[2] else 5
+                'physical_activity': wellness_result['avg_physical'] if wellness_result and wellness_result['avg_physical'] else 0,
+                'meditation_minutes': wellness_result['avg_meditation'] if wellness_result and wellness_result['avg_meditation'] else 0,
+                'relationship_satisfaction': wellness_result['avg_relationship'] if wellness_result and wellness_result['avg_relationship'] else 5
             }
             
         except Exception as e:
@@ -861,16 +876,28 @@ class DailyOutlookContentService:
     def _save_daily_outlook(self, daily_outlook: Dict[str, Any]) -> bool:
         """Save daily outlook to database"""
         try:
-            conn = sqlite3.connect(self.profile_db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             # Insert daily outlook
             cursor.execute("""
-                INSERT OR REPLACE INTO daily_outlooks 
+                INSERT INTO daily_outlooks 
                 (user_id, date, balance_score, financial_weight, wellness_weight, 
                  relationship_weight, career_weight, primary_insight, quick_actions,
                  encouragement_message, surprise_element, streak_count, created_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                ON CONFLICT (user_id, date) DO UPDATE SET
+                    balance_score = EXCLUDED.balance_score,
+                    financial_weight = EXCLUDED.financial_weight,
+                    wellness_weight = EXCLUDED.wellness_weight,
+                    relationship_weight = EXCLUDED.relationship_weight,
+                    career_weight = EXCLUDED.career_weight,
+                    primary_insight = EXCLUDED.primary_insight,
+                    quick_actions = EXCLUDED.quick_actions,
+                    encouragement_message = EXCLUDED.encouragement_message,
+                    surprise_element = EXCLUDED.surprise_element,
+                    streak_count = EXCLUDED.streak_count,
+                    created_at = EXCLUDED.created_at
             """, (
                 daily_outlook['user_id'],
                 daily_outlook['date'],
