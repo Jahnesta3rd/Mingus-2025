@@ -23,7 +23,9 @@ from datetime import datetime, date, timedelta
 from typing import Dict, List, Optional, Any, Tuple, Union
 from dataclasses import dataclass, asdict
 from enum import Enum
-import sqlite3
+import psycopg2
+import psycopg2.extras
+import os
 from scipy import stats
 import numpy as np
 
@@ -31,6 +33,17 @@ from backend.services.feature_flag_service import FeatureTier
 from backend.services.daily_outlook_content_service import DailyOutlookContentService
 
 logger = logging.getLogger(__name__)
+
+def get_pg_connection():
+    """Get PostgreSQL database connection"""
+    db_url = os.environ.get('DATABASE_URL')
+    if not db_url:
+        raise RuntimeError(
+            "DATABASE_URL is required. SQLite is not supported."
+        )
+    conn = psycopg2.connect(db_url)
+    conn.cursor_factory = psycopg2.extras.RealDictCursor
+    return conn
 
 class TestStatus(Enum):
     DRAFT = "draft"
@@ -108,9 +121,8 @@ class ContentOptimizationService:
     Comprehensive A/B testing and content optimization service
     """
     
-    def __init__(self, db_path: str = "content_optimization.db"):
+    def __init__(self, db_path: str = None):
         """Initialize the content optimization service"""
-        self.db_path = db_path
         self.daily_outlook_service = DailyOutlookContentService()
         self._initialize_database()
         
@@ -583,73 +595,12 @@ class ContentOptimizationService:
             return {}
     
     def _initialize_database(self):
-        """Initialize the content optimization database"""
+        """Verify PostgreSQL database connection"""
         try:
-            conn = sqlite3.connect(self.db_path)
-            cursor = conn.cursor()
-            
-            # Create tests table
-            cursor.execute("""
-                CREATE TABLE IF NOT EXISTS ab_tests (
-                    test_id TEXT PRIMARY KEY,
-                    test_name TEXT NOT NULL,
-                    test_type TEXT NOT NULL,
-                    description TEXT,
-                    status TEXT NOT NULL,
-                    variants TEXT NOT NULL,
-                    target_segments TEXT NOT NULL,
-                    success_metrics TEXT NOT NULL,
-                    duration_days INTEGER,
-                    traffic_allocation REAL,
-                    created_at TEXT NOT NULL,
-                    started_at TEXT,
-                    ended_at TEXT
-                )
-            """)
-            
-            # Create user assignments table
-            cursor.execute("""
-                CREATE TABLE IF NOT EXISTS user_assignments (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    user_id INTEGER NOT NULL,
-                    test_id TEXT NOT NULL,
-                    variant_id TEXT NOT NULL,
-                    assigned_at TEXT NOT NULL,
-                    UNIQUE(user_id, test_id)
-                )
-            """)
-            
-            # Create interactions table
-            cursor.execute("""
-                CREATE TABLE IF NOT EXISTS test_interactions (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    user_id INTEGER NOT NULL,
-                    test_id TEXT NOT NULL,
-                    variant_id TEXT NOT NULL,
-                    interaction_type TEXT NOT NULL,
-                    interaction_data TEXT,
-                    timestamp TEXT NOT NULL
-                )
-            """)
-            
-            # Create variant metrics table
-            cursor.execute("""
-                CREATE TABLE IF NOT EXISTS variant_metrics (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    test_id TEXT NOT NULL,
-                    variant_id TEXT NOT NULL,
-                    metric_type TEXT NOT NULL,
-                    metric_value REAL NOT NULL,
-                    updated_at TEXT NOT NULL,
-                    UNIQUE(test_id, variant_id, metric_type)
-                )
-            """)
-            
-            conn.commit()
+            conn = get_pg_connection()
             conn.close()
-            
+
             logger.info("Content optimization database initialized")
-            
         except Exception as e:
             logger.error(f"Error initializing database: {e}")
             raise
@@ -672,14 +623,14 @@ class ContentOptimizationService:
     
     def _save_test_configuration(self, test_data):
         """Save test configuration to database"""
-        conn = sqlite3.connect(self.db_path)
+        conn = get_pg_connection()
         cursor = conn.cursor()
         
         cursor.execute("""
             INSERT INTO ab_tests 
             (test_id, test_name, test_type, description, status, variants, 
              target_segments, success_metrics, duration_days, traffic_allocation, created_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """, (
             test_data['test_id'],
             test_data['test_name'],
@@ -699,27 +650,27 @@ class ContentOptimizationService:
     
     def _get_test_configuration(self, test_id):
         """Get test configuration from database"""
-        conn = sqlite3.connect(self.db_path)
+        conn = get_pg_connection()
         cursor = conn.cursor()
         
-        cursor.execute("SELECT * FROM ab_tests WHERE test_id = ?", (test_id,))
+        cursor.execute("SELECT * FROM ab_tests WHERE test_id = %s", (test_id,))
         result = cursor.fetchone()
         
         if result:
             test_data = {
-                'test_id': result[0],
-                'test_name': result[1],
-                'test_type': result[2],
-                'description': result[3],
-                'status': result[4],
-                'variants': json.loads(result[5]),
-                'target_segments': json.loads(result[6]),
-                'success_metrics': json.loads(result[7]),
-                'duration_days': result[8],
-                'traffic_allocation': result[9],
-                'created_at': result[10],
-                'started_at': result[11],
-                'ended_at': result[12]
+                'test_id': result['test_id'],
+                'test_name': result['test_name'],
+                'test_type': result['test_type'],
+                'description': result['description'],
+                'status': result['status'],
+                'variants': json.loads(result['variants']),
+                'target_segments': json.loads(result['target_segments']),
+                'success_metrics': json.loads(result['success_metrics']),
+                'duration_days': result['duration_days'],
+                'traffic_allocation': result['traffic_allocation'],
+                'created_at': result['created_at'],
+                'started_at': result['started_at'],
+                'ended_at': result['ended_at']
             }
         else:
             test_data = None
@@ -729,20 +680,20 @@ class ContentOptimizationService:
     
     def _update_test_status(self, test_id, status):
         """Update test status"""
-        conn = sqlite3.connect(self.db_path)
+        conn = get_pg_connection()
         cursor = conn.cursor()
         
-        cursor.execute("UPDATE ab_tests SET status = ? WHERE test_id = ?", (status, test_id))
+        cursor.execute("UPDATE ab_tests SET status = %s WHERE test_id = %s", (status, test_id))
         
         conn.commit()
         conn.close()
     
     def _update_test_start_time(self, test_id, start_time):
         """Update test start time"""
-        conn = sqlite3.connect(self.db_path)
+        conn = get_pg_connection()
         cursor = conn.cursor()
         
-        cursor.execute("UPDATE ab_tests SET started_at = ? WHERE test_id = ?", (start_time.isoformat(), test_id))
+        cursor.execute("UPDATE ab_tests SET started_at = %s WHERE test_id = %s", (start_time.isoformat(), test_id))
         
         conn.commit()
         conn.close()
@@ -776,13 +727,16 @@ class ContentOptimizationService:
     
     def _save_user_assignment(self, user_id, test_id, variant_id):
         """Save user assignment to database"""
-        conn = sqlite3.connect(self.db_path)
+        conn = get_pg_connection()
         cursor = conn.cursor()
         
         cursor.execute("""
-            INSERT OR REPLACE INTO user_assignments 
+            INSERT INTO user_assignments 
             (user_id, test_id, variant_id, assigned_at)
-            VALUES (?, ?, ?, ?)
+            VALUES (%s, %s, %s, %s)
+            ON CONFLICT (user_id, test_id) DO UPDATE SET
+                variant_id = EXCLUDED.variant_id,
+                assigned_at = EXCLUDED.assigned_at
         """, (user_id, test_id, variant_id, datetime.utcnow().isoformat()))
         
         conn.commit()
@@ -790,12 +744,12 @@ class ContentOptimizationService:
     
     def _get_user_assignment(self, user_id, test_id):
         """Get user's variant assignment"""
-        conn = sqlite3.connect(self.db_path)
+        conn = get_pg_connection()
         cursor = conn.cursor()
         
         cursor.execute("""
             SELECT variant_id, assigned_at FROM user_assignments 
-            WHERE user_id = ? AND test_id = ?
+            WHERE user_id = %s AND test_id = %s
         """, (user_id, test_id))
         
         result = cursor.fetchone()
@@ -803,20 +757,20 @@ class ContentOptimizationService:
         
         if result:
             return {
-                'variant_id': result[0],
-                'assigned_at': result[1]
+                'variant_id': result['variant_id'],
+                'assigned_at': result['assigned_at']
             }
         return None
     
     def _save_interaction_record(self, interaction_record):
         """Save interaction record to database"""
-        conn = sqlite3.connect(self.db_path)
+        conn = get_pg_connection()
         cursor = conn.cursor()
         
         cursor.execute("""
             INSERT INTO test_interactions 
             (user_id, test_id, variant_id, interaction_type, interaction_data, timestamp)
-            VALUES (?, ?, ?, ?, ?, ?)
+            VALUES (%s, %s, %s, %s, %s, %s)
         """, (
             interaction_record['user_id'],
             interaction_record['test_id'],
@@ -836,13 +790,13 @@ class ContentOptimizationService:
     
     def _get_variant_metrics(self, test_id):
         """Get metrics for all variants in a test"""
-        conn = sqlite3.connect(self.db_path)
+        conn = get_pg_connection()
         cursor = conn.cursor()
         
         cursor.execute("""
             SELECT variant_id, metric_type, metric_value, updated_at 
             FROM variant_metrics 
-            WHERE test_id = ?
+            WHERE test_id = %s
         """, (test_id,))
         
         results = cursor.fetchall()
@@ -851,10 +805,10 @@ class ContentOptimizationService:
         # Group metrics by variant
         variant_metrics = {}
         for result in results:
-            variant_id = result[0]
+            variant_id = result['variant_id']
             if variant_id not in variant_metrics:
                 variant_metrics[variant_id] = {}
-            variant_metrics[variant_id][result[1]] = result[2]
+            variant_metrics[variant_id][result['metric_type']] = result['metric_value']
         
         return variant_metrics
     
@@ -958,36 +912,36 @@ class ContentOptimizationService:
     
     def _get_test_user_assignments(self, test_id):
         """Get all user assignments for a test"""
-        conn = sqlite3.connect(self.db_path)
+        conn = get_pg_connection()
         cursor = conn.cursor()
         
         cursor.execute("""
             SELECT user_id, variant_id, assigned_at 
             FROM user_assignments 
-            WHERE test_id = ?
+            WHERE test_id = %s
         """, (test_id,))
         
         results = cursor.fetchall()
         conn.close()
         
-        return [{'user_id': r[0], 'variant_id': r[1], 'assigned_at': r[2]} for r in results]
+        return [{'user_id': r['user_id'], 'variant_id': r['variant_id'], 'assigned_at': r['assigned_at']} for r in results]
     
     def _get_test_interactions(self, test_id):
         """Get all interactions for a test"""
-        conn = sqlite3.connect(self.db_path)
+        conn = get_pg_connection()
         cursor = conn.cursor()
         
         cursor.execute("""
             SELECT user_id, variant_id, interaction_type, interaction_data, timestamp 
             FROM test_interactions 
-            WHERE test_id = ?
+            WHERE test_id = %s
         """, (test_id,))
         
         results = cursor.fetchall()
         conn.close()
         
-        return [{'user_id': r[0], 'variant_id': r[1], 'interaction_type': r[2], 
-                'interaction_data': r[3], 'timestamp': r[4]} for r in results]
+        return [{'user_id': r['user_id'], 'variant_id': r['variant_id'], 'interaction_type': r['interaction_type'],
+                'interaction_data': r['interaction_data'], 'timestamp': r['timestamp']} for r in results]
     
     def _calculate_performance_metrics(self, variant_metrics, interaction_data):
         """Calculate performance metrics"""
