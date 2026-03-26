@@ -13,7 +13,9 @@ Features:
 """
 
 import logging
-import sqlite3
+import psycopg2
+import psycopg2.extras
+import os
 from datetime import datetime, timedelta, date
 from typing import Dict, List, Optional, Any, Tuple
 from dataclasses import dataclass, asdict
@@ -60,6 +62,17 @@ class EnhancedCashFlowForecast:
     average_monthly_amount: float
     generated_date: datetime
 
+def get_pg_connection():
+    """Get PostgreSQL database connection"""
+    db_url = os.environ.get('DATABASE_URL')
+    if not db_url:
+        raise RuntimeError(
+            "DATABASE_URL is required. SQLite is not supported."
+        )
+    conn = psycopg2.connect(db_url)
+    conn.cursor_factory = psycopg2.extras.RealDictCursor
+    return conn
+
 class EnhancedCashFlowForecastEngine:
     """
     Enhanced Cash Flow Forecast Engine that integrates vehicle maintenance
@@ -69,26 +82,20 @@ class EnhancedCashFlowForecastEngine:
     vehicle maintenance predictions while maintaining full backward compatibility.
     """
     
-    def __init__(self, profile_db_path: str = "user_profiles.db", 
-                 vehicle_db_path: str = "backend/mingus_vehicles.db"):
+    def __init__(self, profile_db_path: str = None, 
+                 vehicle_db_path: str = None):
         """Initialize the enhanced cash flow forecast engine"""
-        self.profile_db_path = profile_db_path
-        self.vehicle_db_path = vehicle_db_path
-        self.maintenance_engine = MaintenancePredictionEngine(vehicle_db_path)
+        self.maintenance_engine = MaintenancePredictionEngine()
         
         # Initialize databases
         self._init_databases()
     
     def _init_databases(self):
-        """Initialize required databases"""
+        """Verify PostgreSQL database connection"""
         try:
-            # Initialize profile database
-            conn = sqlite3.connect(self.profile_db_path)
+            conn = get_pg_connection()
             conn.close()
-            
-            # Initialize vehicle database (handled by MaintenancePredictionEngine)
             logger.info("Enhanced cash flow forecast engine initialized successfully")
-            
         except Exception as e:
             logger.error(f"Error initializing databases: {e}")
             raise
@@ -104,8 +111,7 @@ class EnhancedCashFlowForecastEngine:
             List of vehicle information dictionaries
         """
         try:
-            conn = sqlite3.connect(self.vehicle_db_path)
-            conn.row_factory = sqlite3.Row
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             # Get vehicles for user (assuming user_email is stored in vehicles table)
@@ -113,7 +119,7 @@ class EnhancedCashFlowForecastEngine:
                 SELECT id, year, make, model, current_mileage, user_zipcode, 
                        user_email, created_date, updated_date
                 FROM vehicles 
-                WHERE user_email = ?
+                WHERE user_email = %s
                 ORDER BY created_date DESC
             ''', (user_email,))
             
@@ -151,13 +157,12 @@ class EnhancedCashFlowForecastEngine:
         """
         try:
             # Get vehicle information
-            conn = sqlite3.connect(self.vehicle_db_path)
-            conn.row_factory = sqlite3.Row
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             cursor.execute('''
                 SELECT id, year, make, model, current_mileage, user_zipcode, user_email
-                FROM vehicles WHERE id = ?
+                FROM vehicles WHERE id = %s
             ''', (vehicle_id,))
             
             vehicle_row = cursor.fetchone()
@@ -287,12 +292,11 @@ class EnhancedCashFlowForecastEngine:
             Dictionary of expense categories
         """
         try:
-            conn = sqlite3.connect(self.profile_db_path)
-            conn.row_factory = sqlite3.Row
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             cursor.execute('''
-                SELECT monthly_expenses FROM user_profiles WHERE email = ?
+                SELECT monthly_expenses FROM user_profiles WHERE email = %s
             ''', (user_email,))
             
             profile_row = cursor.fetchone()
@@ -566,13 +570,13 @@ class EnhancedCashFlowForecastEngine:
         """
         try:
             # Update mileage in database
-            conn = sqlite3.connect(self.vehicle_db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             cursor.execute('''
                 UPDATE vehicles 
-                SET current_mileage = ?, updated_date = CURRENT_TIMESTAMP
-                WHERE id = ?
+                SET current_mileage = %s, updated_date = CURRENT_TIMESTAMP
+                WHERE id = %s
             ''', (new_mileage, vehicle_id))
             
             conn.commit()
@@ -580,21 +584,20 @@ class EnhancedCashFlowForecastEngine:
             
             # Clear existing predictions for this vehicle
             try:
-                conn = sqlite3.connect(self.vehicle_db_path)
+                conn = get_pg_connection()
                 cursor = conn.cursor()
-                cursor.execute('DELETE FROM maintenance_predictions WHERE vehicle_id = ?', (vehicle_id,))
+                cursor.execute('DELETE FROM maintenance_predictions WHERE vehicle_id = %s', (vehicle_id,))
                 conn.commit()
                 conn.close()
             except Exception as e:
                 logger.warning(f"Could not clear existing predictions for vehicle {vehicle_id}: {e}")
             
             # Generate new predictions
-            conn = sqlite3.connect(self.vehicle_db_path)
-            conn.row_factory = sqlite3.Row
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             cursor.execute('''
-                SELECT year, make, model, user_zipcode FROM vehicles WHERE id = ?
+                SELECT year, make, model, user_zipcode FROM vehicles WHERE id = %s
             ''', (vehicle_id,))
             
             vehicle_row = cursor.fetchone()

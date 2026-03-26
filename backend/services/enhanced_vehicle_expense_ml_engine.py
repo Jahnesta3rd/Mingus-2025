@@ -14,7 +14,9 @@ Features:
 
 import logging
 import re
-import sqlite3
+import psycopg2
+import psycopg2.extras
+import os
 import json
 import math
 from datetime import datetime, timedelta
@@ -104,6 +106,17 @@ class VehicleExpenseInsight:
     ml_confidence: float
     supporting_data: Dict[str, Any]
 
+def get_pg_connection():
+    """Get PostgreSQL database connection"""
+    db_url = os.environ.get('DATABASE_URL')
+    if not db_url:
+        raise RuntimeError(
+            "DATABASE_URL is required. SQLite is not supported."
+        )
+    conn = psycopg2.connect(db_url)
+    conn.cursor_factory = psycopg2.extras.RealDictCursor
+    return conn
+
 class EnhancedVehicleExpenseMLEngine:
     """
     Enhanced ML-powered vehicle expense categorization and analysis engine
@@ -117,11 +130,9 @@ class EnhancedVehicleExpenseMLEngine:
     - Real-time pattern learning and adaptation
     """
     
-    def __init__(self, db_path: str = "backend/mingus_vehicles.db", 
-                 profile_db_path: str = "user_profiles.db"):
+    def __init__(self, db_path: str = None, 
+                 profile_db_path: str = None):
         """Initialize the enhanced ML engine (ML libs loaded on first use to avoid NumPy FPE at startup)."""
-        self.db_path = db_path
-        self.profile_db_path = profile_db_path
         self.ml_available = ML_AVAILABLE  # None until _ensure_ml() is called
         
         # ML Models
@@ -252,95 +263,11 @@ class EnhancedVehicleExpenseMLEngine:
         }
     
     def _init_databases(self):
-        """Initialize enhanced database tables"""
+        """Verify PostgreSQL database connection"""
         try:
-            conn = sqlite3.connect(self.db_path)
-            cursor = conn.cursor()
-            
-            # Enhanced vehicle expenses table
-            cursor.execute('''
-                CREATE TABLE IF NOT EXISTS enhanced_vehicle_expenses (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    user_email TEXT NOT NULL,
-                    expense_id TEXT UNIQUE NOT NULL,
-                    vehicle_id INTEGER,
-                    expense_type TEXT NOT NULL,
-                    amount REAL NOT NULL,
-                    description TEXT,
-                    merchant TEXT,
-                    date DATE NOT NULL,
-                    confidence_score REAL NOT NULL,
-                    ml_confidence REAL,
-                    matched_keywords TEXT,
-                    matched_patterns TEXT,
-                    is_maintenance_related BOOLEAN DEFAULT FALSE,
-                    predicted_cost_range TEXT,
-                    ml_features TEXT,
-                    model_version TEXT,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    FOREIGN KEY (vehicle_id) REFERENCES vehicles (id)
-                )
-            ''')
-            
-            # ML model training data
-            cursor.execute('''
-                CREATE TABLE IF NOT EXISTS ml_training_data (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    user_email TEXT NOT NULL,
-                    expense_id TEXT NOT NULL,
-                    description TEXT NOT NULL,
-                    merchant TEXT,
-                    amount REAL NOT NULL,
-                    actual_category TEXT NOT NULL,
-                    predicted_category TEXT,
-                    confidence_score REAL,
-                    features TEXT,
-                    is_training_data BOOLEAN DEFAULT TRUE,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                )
-            ''')
-            
-            # Model performance tracking
-            cursor.execute('''
-                CREATE TABLE IF NOT EXISTS model_performance (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    model_name TEXT NOT NULL,
-                    model_version TEXT NOT NULL,
-                    accuracy REAL NOT NULL,
-                    precision REAL,
-                    recall REAL,
-                    f1_score REAL,
-                    training_date TIMESTAMP NOT NULL,
-                    test_data_size INTEGER,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                )
-            ''')
-            
-            # Vehicle expense insights
-            cursor.execute('''
-                CREATE TABLE IF NOT EXISTS vehicle_expense_insights (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    user_email TEXT NOT NULL,
-                    insight_type TEXT NOT NULL,
-                    title TEXT NOT NULL,
-                    description TEXT NOT NULL,
-                    confidence REAL NOT NULL,
-                    impact_score REAL NOT NULL,
-                    recommendation TEXT,
-                    potential_savings REAL,
-                    category TEXT,
-                    ml_confidence REAL,
-                    supporting_data TEXT,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                )
-            ''')
-            
-            conn.commit()
+            conn = get_pg_connection()
             conn.close()
-            
             logger.info("Enhanced vehicle expense ML database initialized")
-            
         except Exception as e:
             logger.error(f"Error initializing enhanced ML database: {e}")
             raise
@@ -699,14 +626,13 @@ class EnhancedVehicleExpenseMLEngine:
     def _get_training_data(self, user_email: Optional[str] = None) -> List[Dict[str, Any]]:
         """Get training data from database"""
         try:
-            conn = sqlite3.connect(self.db_path)
-            conn.row_factory = sqlite3.Row
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             if user_email:
                 cursor.execute('''
                     SELECT * FROM ml_training_data 
-                    WHERE user_email = ? AND is_training_data = TRUE
+                    WHERE user_email = %s AND is_training_data = TRUE
                     ORDER BY created_at DESC
                 ''', (user_email,))
             else:
@@ -755,13 +681,13 @@ class EnhancedVehicleExpenseMLEngine:
     def _save_model_performance(self, model_name: str, accuracy: float, data_size: int):
         """Save model performance metrics"""
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             cursor.execute('''
                 INSERT INTO model_performance 
                 (model_name, model_version, accuracy, training_date, test_data_size)
-                VALUES (?, ?, ?, ?, ?)
+                VALUES (%s, %s, %s, %s, %s)
             ''', (model_name, self.model_version, accuracy, datetime.now(), data_size))
             
             conn.commit()
@@ -814,16 +740,15 @@ class EnhancedVehicleExpenseMLEngine:
     def _get_user_expense_data(self, user_email: str, months: int) -> List[Dict[str, Any]]:
         """Get user expense data for analysis"""
         try:
-            conn = sqlite3.connect(self.db_path)
-            conn.row_factory = sqlite3.Row
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             cursor.execute('''
                 SELECT * FROM enhanced_vehicle_expenses 
-                WHERE user_email = ? 
-                AND date >= date('now', '-{} months')
+                WHERE user_email = %s 
+                AND date >= CURRENT_DATE - INTERVAL '{} months'
                 ORDER BY date DESC
-            '''.format(months))
+            '''.format(months), (user_email,))
             
             results = cursor.fetchall()
             conn.close()
@@ -1017,7 +942,7 @@ class EnhancedVehicleExpenseMLEngine:
     def _save_insights(self, insights: List[VehicleExpenseInsight], user_email: str):
         """Save insights to database"""
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             for insight in insights:
@@ -1025,7 +950,7 @@ class EnhancedVehicleExpenseMLEngine:
                     INSERT INTO vehicle_expense_insights 
                     (user_email, insight_type, title, description, confidence, impact_score,
                      recommendation, potential_savings, category, ml_confidence, supporting_data)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 ''', (
                     user_email,
                     insight.insight_type,
@@ -1049,18 +974,18 @@ class EnhancedVehicleExpenseMLEngine:
     def get_service_status(self) -> Dict[str, Any]:
         """Get enhanced ML service status"""
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             # Get counts
-            cursor.execute('SELECT COUNT(*) FROM enhanced_vehicle_expenses')
-            total_expenses = cursor.fetchone()[0]
+            cursor.execute('SELECT COUNT(*) as count FROM enhanced_vehicle_expenses')
+            total_expenses = cursor.fetchone()['count']
             
-            cursor.execute('SELECT COUNT(*) FROM vehicle_expense_insights')
-            total_insights = cursor.fetchone()[0]
+            cursor.execute('SELECT COUNT(*) as count FROM vehicle_expense_insights')
+            total_insights = cursor.fetchone()['count']
             
-            cursor.execute('SELECT COUNT(*) FROM model_performance')
-            total_models = cursor.fetchone()[0]
+            cursor.execute('SELECT COUNT(*) as count FROM model_performance')
+            total_models = cursor.fetchone()['count']
             
             # Get latest model performance
             cursor.execute('''
@@ -1080,8 +1005,8 @@ class EnhancedVehicleExpenseMLEngine:
                 'total_expenses': total_expenses,
                 'total_insights': total_insights,
                 'total_models': total_models,
-                'latest_accuracy': latest_performance[1] if latest_performance else None,
-                'last_training': latest_performance[2] if latest_performance else None,
+                'latest_accuracy': latest_performance['accuracy'] if latest_performance else None,
+                'last_training': latest_performance['training_date'] if latest_performance else None,
                 'features': {
                     'ml_categorization': self.ml_available,
                     'cost_prediction': self.ml_available,

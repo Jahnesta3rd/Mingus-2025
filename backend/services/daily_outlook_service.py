@@ -5,7 +5,9 @@ Service for implementing dynamic weighting algorithm for Daily Outlook feature
 """
 
 import logging
-import sqlite3
+import psycopg2
+import psycopg2.extras
+import os
 from datetime import datetime, date, timedelta
 from decimal import Decimal
 from typing import Dict, Any, Optional, Tuple
@@ -51,6 +53,17 @@ class BalanceScores:
             'relationship_score': self.relationship_score,
             'career_score': self.career_score
         }
+
+def get_pg_connection():
+    """Get PostgreSQL database connection"""
+    db_url = os.environ.get('DATABASE_URL')
+    if not db_url:
+        raise RuntimeError(
+            "DATABASE_URL is required. SQLite is not supported."
+        )
+    conn = psycopg2.connect(db_url)
+    conn.cursor_factory = psycopg2.extras.RealDictCursor
+    return conn
 
 class DailyOutlookService:
     """
@@ -115,10 +128,9 @@ class DailyOutlookService:
         )
     }
     
-    def __init__(self, profile_db_path: str = "user_profiles.db"):
+    def __init__(self, profile_db_path: str = None):
         """Initialize the Daily Outlook service"""
-        self.profile_db_path = profile_db_path
-        
+
         logger.info("DailyOutlookService initialized successfully")
     
     def calculate_dynamic_weights(self, user_id: int) -> Dict[str, float]:
@@ -203,11 +215,11 @@ class DailyOutlookService:
         """
         try:
             # Query the database for user's relationship status
-            conn = sqlite3.connect(self.profile_db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             # First check if user exists in the main users table
-            cursor.execute("SELECT id FROM users WHERE id = ?", (user_id,))
+            cursor.execute("SELECT id FROM users WHERE id = %s", (user_id,))
             user_exists = cursor.fetchone()
             
             if not user_exists:
@@ -218,7 +230,7 @@ class DailyOutlookService:
             # Get relationship status from UserRelationshipStatus table
             cursor.execute("""
                 SELECT status FROM user_relationship_status 
-                WHERE user_id = ? 
+                WHERE user_id = %s 
                 ORDER BY updated_at DESC 
                 LIMIT 1
             """, (user_id,))
@@ -227,7 +239,7 @@ class DailyOutlookService:
             conn.close()
             
             if result:
-                status_value = result[0]
+                status_value = result['status']
                 # Convert string to enum
                 try:
                     status = RelationshipStatus(status_value)
@@ -263,11 +275,11 @@ class DailyOutlookService:
                 logger.error(f"Invalid satisfaction score {satisfaction_score}. Must be 1-10.")
                 return False
             
-            conn = sqlite3.connect(self.profile_db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             # Check if user exists
-            cursor.execute("SELECT id FROM users WHERE id = ?", (user_id,))
+            cursor.execute("SELECT id FROM users WHERE id = %s", (user_id,))
             if not cursor.fetchone():
                 logger.error(f"User {user_id} not found")
                 conn.close()
@@ -275,9 +287,14 @@ class DailyOutlookService:
             
             # Update or insert relationship status
             cursor.execute("""
-                INSERT OR REPLACE INTO user_relationship_status 
+                INSERT INTO user_relationship_status 
                 (user_id, status, satisfaction_score, financial_impact_score, updated_at)
-                VALUES (?, ?, ?, ?, ?)
+                VALUES (%s, %s, %s, %s, %s)
+                ON CONFLICT (user_id) DO UPDATE SET
+                    status = EXCLUDED.status,
+                    satisfaction_score = EXCLUDED.satisfaction_score,
+                    financial_impact_score = EXCLUDED.financial_impact_score,
+                    updated_at = EXCLUDED.updated_at
             """, (user_id, status.value, satisfaction_score, 5, datetime.utcnow()))
             
             conn.commit()
@@ -333,21 +350,21 @@ class DailyOutlookService:
     def _get_financial_score(self, user_id: int) -> float:
         """Get financial health score (0-100)"""
         try:
-            conn = sqlite3.connect(self.profile_db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             # Get financial data from user profiles
             cursor.execute("""
                 SELECT financial_info FROM user_profiles 
-                WHERE email = (SELECT email FROM users WHERE id = ?)
+                WHERE email = (SELECT email FROM users WHERE id = %s)
             """, (user_id,))
             
             result = cursor.fetchone()
             conn.close()
             
-            if result and result[0]:
+            if result and result['financial_info']:
                 import json
-                financial_info = json.loads(result[0])
+                financial_info = json.loads(result['financial_info'])
                 
                 # Calculate score based on financial health indicators
                 score = 50.0  # Base score
@@ -409,25 +426,27 @@ class DailyOutlookService:
     def _get_wellness_score(self, user_id: int) -> float:
         """Get wellness score (0-100) from mood tracking and activity data"""
         try:
-            conn = sqlite3.connect(self.profile_db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             # Get recent mood data
             cursor.execute("""
-                SELECT AVG(mood_score) FROM user_mood_data 
-                WHERE user_id = ? 
-                AND timestamp >= datetime('now', '-30 days')
+                SELECT AVG(mood_score) as avg_mood FROM user_mood_data 
+                WHERE user_id = %s 
+                AND timestamp >= NOW() - INTERVAL '30 days'
             """, (user_id,))
             
             mood_result = cursor.fetchone()
-            mood_score = mood_result[0] if mood_result[0] else 3.0  # Default neutral
+            mood_score = mood_result['avg_mood'] if mood_result['avg_mood'] else 3.0  # Default neutral
             
             # Get wellness data from weekly check-ins
             cursor.execute("""
-                SELECT AVG(physical_activity), AVG(meditation_minutes), AVG(relationship_satisfaction)
+                SELECT AVG(physical_activity) as avg_physical, 
+                       AVG(meditation_minutes) as avg_meditation, 
+                       AVG(relationship_satisfaction) as avg_relationship
                 FROM weekly_checkins 
-                WHERE user_id = ? 
-                AND check_in_date >= date('now', '-30 days')
+                WHERE user_id = %s 
+                AND check_in_date >= NOW() - INTERVAL '30 days'
             """, (user_id,))
             
             wellness_result = cursor.fetchone()
@@ -440,23 +459,23 @@ class DailyOutlookService:
             mood_contribution = (mood_score - 1) * 25  # Convert 1-5 to 0-100
             score += (mood_contribution - 50) * 0.4  # 40% weight
             
-            if wellness_result and wellness_result[0]:
+            if wellness_result and wellness_result['avg_physical']:
                 # Physical activity contribution
-                physical_activity = wellness_result[0] or 0
+                physical_activity = wellness_result['avg_physical'] or 0
                 if physical_activity >= 3:
                     score += 15
                 elif physical_activity >= 1:
                     score += 5
                 
                 # Meditation contribution
-                meditation_minutes = wellness_result[1] or 0
+                meditation_minutes = wellness_result['avg_meditation'] or 0
                 if meditation_minutes >= 60:
                     score += 10
                 elif meditation_minutes >= 30:
                     score += 5
                 
                 # Relationship satisfaction contribution
-                relationship_satisfaction = wellness_result[2] or 5
+                relationship_satisfaction = wellness_result['avg_relationship'] or 5
                 if relationship_satisfaction >= 8:
                     score += 10
                 elif relationship_satisfaction >= 6:
@@ -471,12 +490,12 @@ class DailyOutlookService:
     def _get_relationship_score(self, user_id: int) -> float:
         """Get relationship score (0-100) from relationship status and satisfaction"""
         try:
-            conn = sqlite3.connect(self.profile_db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             cursor.execute("""
                 SELECT satisfaction_score, status FROM user_relationship_status 
-                WHERE user_id = ? 
+                WHERE user_id = %s 
                 ORDER BY updated_at DESC 
                 LIMIT 1
             """, (user_id,))
@@ -485,8 +504,8 @@ class DailyOutlookService:
             conn.close()
             
             if result:
-                satisfaction_score = result[0]
-                status = result[1]
+                satisfaction_score = result['satisfaction_score']
+                status = result['status']
                 
                 # Base score from satisfaction (1-10 scale, convert to 0-100)
                 score = (satisfaction_score - 1) * 11.11  # Convert 1-10 to 0-100
@@ -508,21 +527,21 @@ class DailyOutlookService:
     def _get_career_score(self, user_id: int) -> float:
         """Get career score (0-100) from user goals and profile data"""
         try:
-            conn = sqlite3.connect(self.profile_db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             # Get career data from user profiles
             cursor.execute("""
                 SELECT goals FROM user_profiles 
-                WHERE email = (SELECT email FROM users WHERE id = ?)
+                WHERE email = (SELECT email FROM users WHERE id = %s)
             """, (user_id,))
             
             result = cursor.fetchone()
             conn.close()
             
-            if result and result[0]:
+            if result and result['goals']:
                 import json
-                goals = json.loads(result[0])
+                goals = json.loads(result['goals'])
                 
                 score = 50.0  # Base score
                 
