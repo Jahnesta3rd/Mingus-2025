@@ -42,12 +42,7 @@ logger = logging.getLogger(__name__)
 
 def get_pg_connection():
     """Get PostgreSQL database connection"""
-    db_url = os.environ.get('DATABASE_URL')
-    if not db_url:
-        raise RuntimeError(
-            "DATABASE_URL is required. SQLite is not supported."
-        )
-    conn = psycopg2.connect(db_url)
+    conn = psycopg2.connect(os.environ['DATABASE_URL'])
     conn.cursor_factory = psycopg2.extras.RealDictCursor
     return conn
 
@@ -124,205 +119,140 @@ class RiskAnalyticsTracker:
         self._init_risk_tables()
     
     def _init_risk_tables(self):
-        """Initialize risk-specific database tables"""
-        conn = get_pg_connection()
-        with conn:
-            cursor = conn.cursor()
-            
-            # Risk assessments table
-            cursor.execute('''
-                CREATE TABLE IF NOT EXISTS risk_assessments (
-                    id SERIAL PRIMARY KEY,
-                    user_id TEXT NOT NULL,
-                    assessment_type TEXT NOT NULL,
-                    overall_risk REAL NOT NULL,
-                    risk_triggers TEXT NOT NULL,
-                    risk_breakdown TEXT NOT NULL,
-                    timeline_urgency TEXT NOT NULL,
-                    assessment_timestamp TIMESTAMP NOT NULL,
-                    confidence_score REAL NOT NULL,
-                    risk_factors TEXT NOT NULL,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                )
-            ''')
-            
-            # Risk recommendations table
-            cursor.execute('''
-                CREATE TABLE IF NOT EXISTS risk_recommendations (
-                    id SERIAL PRIMARY KEY,
-                    user_id TEXT NOT NULL,
-                    trigger_type TEXT NOT NULL,
-                    risk_score REAL NOT NULL,
-                    recommendations_generated INTEGER NOT NULL,
-                    recommendation_tiers TEXT NOT NULL,
-                    emergency_unlock_granted BOOLEAN NOT NULL,
-                    timeline_urgency TEXT NOT NULL,
-                    intervention_timestamp TIMESTAMP NOT NULL,
-                    success_probability REAL NOT NULL,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                )
-            ''')
-            
-            # Risk outcomes table
-            cursor.execute('''
-                CREATE TABLE IF NOT EXISTS risk_outcomes (
-                    id SERIAL PRIMARY KEY,
-                    user_id TEXT NOT NULL,
-                    predicted_risk_score REAL NOT NULL,
-                    predicted_timeline TEXT NOT NULL,
-                    actual_outcome TEXT NOT NULL,
-                    outcome_timeline_days INTEGER NOT NULL,
-                    prediction_accuracy REAL NOT NULL,
-                    outcome_timestamp TIMESTAMP NOT NULL,
-                    outcome_details TEXT NOT NULL,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                )
-            ''')
-            
-            # Risk journey flow table
-            cursor.execute('''
-                CREATE TABLE IF NOT EXISTS risk_journey_flow (
-                    id SERIAL PRIMARY KEY,
-                    user_id TEXT NOT NULL,
-                    session_id TEXT NOT NULL,
-                    flow_step TEXT NOT NULL,
-                    step_timestamp TIMESTAMP NOT NULL,
-                    step_data TEXT NOT NULL,
-                    time_to_next_step INTEGER,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                )
-            ''')
-            
-            # Risk A/B test results table
-            cursor.execute('''
-                CREATE TABLE IF NOT EXISTS risk_ab_test_results (
-                    id SERIAL PRIMARY KEY,
-                    test_id TEXT NOT NULL,
-                    user_id TEXT NOT NULL,
-                    variant_id TEXT NOT NULL,
-                    risk_threshold REAL NOT NULL,
-                    recommendation_timing TEXT NOT NULL,
-                    user_response TEXT NOT NULL,
-                    outcome_achieved TEXT,
-                    test_timestamp TIMESTAMP NOT NULL,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                )
-            ''')
-            
-            conn.commit()
+        """Verify PostgreSQL database connection"""
+        try:
+            conn = get_pg_connection()
+            conn.close()
+        except Exception as e:
+            logger.error(f"Error initializing database: {e}")
     
     async def log_risk_intervention(self, user_id: str, risk_data: RiskAssessmentData, recommendations: Dict[str, Any]) -> str:
         """Log a risk intervention event"""
+        conn = None
         try:
             conn = get_pg_connection()
-            with conn:
-                cursor = conn.cursor()
-                
-                # Log risk assessment
-                cursor.execute('''
-                    INSERT INTO risk_assessments 
-                    (user_id, assessment_type, overall_risk, risk_triggers, risk_breakdown,
-                     timeline_urgency, assessment_timestamp, confidence_score, risk_factors)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-                    RETURNING id
-                ''', (
-                    user_id,
-                    risk_data.assessment_type,
-                    risk_data.overall_risk,
-                    json.dumps(risk_data.risk_triggers),
-                    json.dumps(risk_data.risk_breakdown),
-                    risk_data.timeline_urgency,
-                    risk_data.assessment_timestamp,
-                    risk_data.confidence_score,
-                    json.dumps(risk_data.risk_factors)
-                ))
-                
-                assessment_id = cursor.fetchone()['id']
-                
-                # Log risk recommendation
-                cursor.execute('''
-                    INSERT INTO risk_recommendations 
-                    (user_id, trigger_type, risk_score, recommendations_generated, 
-                     recommendation_tiers, emergency_unlock_granted, timeline_urgency,
-                     intervention_timestamp, success_probability)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-                ''', (
-                    user_id,
-                    'risk_assessment',
-                    risk_data.overall_risk,
-                    len(recommendations.get('jobs', [])),
-                    json.dumps([r.get('tier', 'optimal') for r in recommendations.get('jobs', [])]),
-                    risk_data.overall_risk >= 0.7,
-                    risk_data.timeline_urgency,
-                    datetime.now(),
-                    recommendations.get('success_probability', 0.0)
-                ))
-                
-                conn.commit()
-                logger.info(f"Logged risk intervention for user {user_id}")
-                return str(assessment_id)
-                
+            cursor = conn.cursor()
+            
+            # Log risk assessment
+            cursor.execute('''
+                INSERT INTO risk_assessments 
+                (user_id, assessment_type, overall_risk, risk_triggers, risk_breakdown,
+                 timeline_urgency, assessment_timestamp, confidence_score, risk_factors)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                RETURNING id
+            ''', (
+                user_id,
+                risk_data.assessment_type,
+                risk_data.overall_risk,
+                json.dumps(risk_data.risk_triggers),
+                json.dumps(risk_data.risk_breakdown),
+                risk_data.timeline_urgency,
+                risk_data.assessment_timestamp,
+                risk_data.confidence_score,
+                json.dumps(risk_data.risk_factors)
+            ))
+            
+            assessment_id = cursor.fetchone()['id']
+            
+            # Log risk recommendation
+            cursor.execute('''
+                INSERT INTO risk_recommendations 
+                (user_id, trigger_type, risk_score, recommendations_generated, 
+                 recommendation_tiers, emergency_unlock_granted, timeline_urgency,
+                 intervention_timestamp, success_probability)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+            ''', (
+                user_id,
+                'risk_assessment',
+                risk_data.overall_risk,
+                len(recommendations.get('jobs', [])),
+                json.dumps([r.get('tier', 'optimal') for r in recommendations.get('jobs', [])]),
+                risk_data.overall_risk >= 0.7,
+                risk_data.timeline_urgency,
+                datetime.now(),
+                recommendations.get('success_probability', 0.0)
+            ))
+            
+            conn.commit()
+            logger.info(f"Logged risk intervention for user {user_id}")
+            return str(assessment_id)
+            
         except Exception as e:
+            if conn is not None:
+                conn.rollback()
             logger.error(f"Error logging risk intervention: {e}")
             raise
+        finally:
+            if conn is not None:
+                conn.close()
     
     async def log_prediction_accuracy(self, accuracy_data: RiskOutcomeData) -> bool:
         """Log risk prediction accuracy data"""
+        conn = None
         try:
             conn = get_pg_connection()
-            with conn:
-                cursor = conn.cursor()
-                
-                cursor.execute('''
-                    INSERT INTO risk_outcomes 
-                    (user_id, predicted_risk_score, predicted_timeline, actual_outcome,
-                     outcome_timeline_days, prediction_accuracy, outcome_timestamp, outcome_details)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-                ''', (
-                    accuracy_data.user_id,
-                    accuracy_data.predicted_risk_score,
-                    accuracy_data.predicted_timeline,
-                    accuracy_data.actual_outcome,
-                    accuracy_data.outcome_timeline_days,
-                    accuracy_data.prediction_accuracy,
-                    accuracy_data.outcome_timestamp,
-                    json.dumps(accuracy_data.outcome_details)
-                ))
-                
-                conn.commit()
-                logger.info(f"Logged prediction accuracy for user {accuracy_data.user_id}")
-                return True
-                
+            cursor = conn.cursor()
+            
+            cursor.execute('''
+                INSERT INTO risk_outcomes 
+                (user_id, predicted_risk_score, predicted_timeline, actual_outcome,
+                 outcome_timeline_days, prediction_accuracy, outcome_timestamp, outcome_details)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+            ''', (
+                accuracy_data.user_id,
+                accuracy_data.predicted_risk_score,
+                accuracy_data.predicted_timeline,
+                accuracy_data.actual_outcome,
+                accuracy_data.outcome_timeline_days,
+                accuracy_data.prediction_accuracy,
+                accuracy_data.outcome_timestamp,
+                json.dumps(accuracy_data.outcome_details)
+            ))
+            
+            conn.commit()
+            logger.info(f"Logged prediction accuracy for user {accuracy_data.user_id}")
+            return True
+            
         except Exception as e:
+            if conn is not None:
+                conn.rollback()
             logger.error(f"Error logging prediction accuracy: {e}")
             return False
+        finally:
+            if conn is not None:
+                conn.close()
     
     async def track_risk_journey_step(self, user_id: str, session_id: str, flow_step: str, step_data: Dict[str, Any], time_to_next: Optional[int] = None) -> bool:
         """Track a step in the risk-based user journey"""
+        conn = None
         try:
             conn = get_pg_connection()
-            with conn:
-                cursor = conn.cursor()
-                
-                cursor.execute('''
-                    INSERT INTO risk_journey_flow 
-                    (user_id, session_id, flow_step, step_timestamp, step_data, time_to_next_step)
-                    VALUES (%s, %s, %s, %s, %s, %s)
-                ''', (
-                    user_id,
-                    session_id,
-                    flow_step,
-                    datetime.now(),
-                    json.dumps(step_data),
-                    time_to_next
-                ))
-                
-                conn.commit()
-                return True
-                
+            cursor = conn.cursor()
+            
+            cursor.execute('''
+                INSERT INTO risk_journey_flow 
+                (user_id, session_id, flow_step, step_timestamp, step_data, time_to_next_step)
+                VALUES (%s, %s, %s, %s, %s, %s)
+            ''', (
+                user_id,
+                session_id,
+                flow_step,
+                datetime.now(),
+                json.dumps(step_data),
+                time_to_next
+            ))
+            
+            conn.commit()
+            return True
+            
         except Exception as e:
+            if conn is not None:
+                conn.rollback()
             logger.error(f"Error tracking risk journey step: {e}")
             return False
+        finally:
+            if conn is not None:
+                conn.close()
 
 class RiskBasedSuccessMetrics:
     """Success metrics specifically for risk-based career protection outcomes"""
@@ -332,94 +262,51 @@ class RiskBasedSuccessMetrics:
         self._init_risk_success_tables()
     
     def _init_risk_success_tables(self):
-        """Initialize risk-specific success metrics tables"""
-        conn = get_pg_connection()
-        with conn:
-            cursor = conn.cursor()
-            
-            # Career protection outcomes table
-            cursor.execute('''
-                CREATE TABLE IF NOT EXISTS career_protection_outcomes (
-                    id SERIAL PRIMARY KEY,
-                    user_id TEXT NOT NULL,
-                    outcome_type TEXT NOT NULL,
-                    risk_prediction_accuracy REAL NOT NULL,
-                    time_to_outcome_days INTEGER NOT NULL,
-                    salary_impact REAL,
-                    career_advancement_score REAL,
-                    skills_improvement_score REAL,
-                    network_expansion_score REAL,
-                    outcome_timestamp TIMESTAMP NOT NULL,
-                    success_factors TEXT NOT NULL,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                )
-            ''')
-            
-            # Early warning effectiveness table
-            cursor.execute('''
-                CREATE TABLE IF NOT EXISTS early_warning_effectiveness (
-                    id SERIAL PRIMARY KEY,
-                    user_id TEXT NOT NULL,
-                    warning_timestamp TIMESTAMP NOT NULL,
-                    warning_accuracy REAL NOT NULL,
-                    advance_notice_days INTEGER NOT NULL,
-                    user_response_time_hours INTEGER,
-                    proactive_action_taken BOOLEAN NOT NULL,
-                    outcome_improvement REAL,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                )
-            ''')
-            
-            # Risk communication effectiveness table
-            cursor.execute('''
-                CREATE TABLE IF NOT EXISTS risk_communication_effectiveness (
-                    id SERIAL PRIMARY KEY,
-                    user_id TEXT NOT NULL,
-                    communication_type TEXT NOT NULL,
-                    message_clarity_score REAL NOT NULL,
-                    user_understanding_score REAL NOT NULL,
-                    action_taken BOOLEAN NOT NULL,
-                    time_to_action_hours INTEGER,
-                    communication_timestamp TIMESTAMP NOT NULL,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                )
-            ''')
-            
-            conn.commit()
+        """Verify PostgreSQL database connection"""
+        try:
+            conn = get_pg_connection()
+            conn.close()
+        except Exception as e:
+            logger.error(f"Error initializing database: {e}")
     
     async def track_career_protection_outcome(self, user_id: str, outcome_type: str, outcome_data: Dict[str, Any]) -> bool:
         """Track career protection outcomes"""
+        conn = None
         try:
             conn = get_pg_connection()
-            with conn:
-                cursor = conn.cursor()
-                
-                cursor.execute('''
-                    INSERT INTO career_protection_outcomes 
-                    (user_id, outcome_type, risk_prediction_accuracy, time_to_outcome_days,
-                     salary_impact, career_advancement_score, skills_improvement_score,
-                     network_expansion_score, outcome_timestamp, success_factors)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-                ''', (
-                    user_id,
-                    outcome_type,
-                    outcome_data.get('risk_prediction_accuracy', 0.0),
-                    outcome_data.get('time_to_outcome_days', 0),
-                    outcome_data.get('salary_impact', 0.0),
-                    outcome_data.get('career_advancement_score', 0.0),
-                    outcome_data.get('skills_improvement_score', 0.0),
-                    outcome_data.get('network_expansion_score', 0.0),
-                    datetime.now(),
-                    json.dumps(outcome_data.get('success_factors', {}))
-                ))
-                
-                conn.commit()
-                logger.info(f"Tracked career protection outcome for user {user_id}")
-                return True
-                
+            cursor = conn.cursor()
+            
+            cursor.execute('''
+                INSERT INTO career_protection_outcomes 
+                (user_id, outcome_type, risk_prediction_accuracy, time_to_outcome_days,
+                 salary_impact, career_advancement_score, skills_improvement_score,
+                 network_expansion_score, outcome_timestamp, success_factors)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            ''', (
+                user_id,
+                outcome_type,
+                outcome_data.get('risk_prediction_accuracy', 0.0),
+                outcome_data.get('time_to_outcome_days', 0),
+                outcome_data.get('salary_impact', 0.0),
+                outcome_data.get('career_advancement_score', 0.0),
+                outcome_data.get('skills_improvement_score', 0.0),
+                outcome_data.get('network_expansion_score', 0.0),
+                datetime.now(),
+                json.dumps(outcome_data.get('success_factors', {}))
+            ))
+            
+            conn.commit()
+            logger.info(f"Tracked career protection outcome for user {user_id}")
+            return True
+            
         except Exception as e:
+            if conn is not None:
+                conn.rollback()
             logger.error(f"Error tracking career protection outcome: {e}")
             return False
+        finally:
+            if conn is not None:
+                conn.close()
 
 class RiskABTestFramework:
     """A/B testing framework for risk thresholds and recommendation timing"""
@@ -429,96 +316,87 @@ class RiskABTestFramework:
         self._init_risk_ab_tables()
     
     def _init_risk_ab_tables(self):
-        """Initialize risk A/B testing tables"""
-        conn = get_pg_connection()
-        with conn:
-            cursor = conn.cursor()
-            
-            # Risk A/B tests table
-            cursor.execute('''
-                CREATE TABLE IF NOT EXISTS risk_ab_tests (
-                    id SERIAL PRIMARY KEY,
-                    test_id TEXT UNIQUE NOT NULL,
-                    test_name TEXT NOT NULL,
-                    test_type TEXT NOT NULL,
-                    description TEXT NOT NULL,
-                    hypothesis TEXT NOT NULL,
-                    risk_threshold_variants TEXT NOT NULL,
-                    recommendation_timing_variants TEXT NOT NULL,
-                    success_metrics TEXT NOT NULL,
-                    status TEXT NOT NULL,
-                    start_date TIMESTAMP NOT NULL,
-                    end_date TIMESTAMP,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                )
-            ''')
-            
-            conn.commit()
+        """Verify PostgreSQL database connection"""
+        try:
+            conn = get_pg_connection()
+            conn.close()
+        except Exception as e:
+            logger.error(f"Error initializing database: {e}")
     
     async def create_risk_threshold_test(self, test_name: str, threshold_variants: List[float], success_metrics: List[str]) -> str:
         """Create an A/B test for risk thresholds"""
+        conn = None
         try:
             test_id = f"risk_threshold_{int(time.time())}"
             
             conn = get_pg_connection()
-            with conn:
-                cursor = conn.cursor()
-                
-                cursor.execute('''
-                    INSERT INTO risk_ab_tests 
-                    (test_id, test_name, test_type, description, hypothesis,
-                     risk_threshold_variants, recommendation_timing_variants, 
-                     success_metrics, status, start_date)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-                ''', (
-                    test_id,
-                    test_name,
-                    'risk_threshold',
-                    f'A/B test for risk threshold optimization: {test_name}',
-                    'Different risk thresholds will optimize recommendation timing and user outcomes',
-                    json.dumps(threshold_variants),
-                    json.dumps(['immediate', 'delayed_24h', 'delayed_48h']),
-                    json.dumps(success_metrics),
-                    'active',
-                    datetime.now()
-                ))
-                
-                conn.commit()
-                logger.info(f"Created risk threshold A/B test: {test_id}")
-                return test_id
-                
+            cursor = conn.cursor()
+            
+            cursor.execute('''
+                INSERT INTO risk_ab_tests 
+                (test_id, test_name, test_type, description, hypothesis,
+                 risk_threshold_variants, recommendation_timing_variants, 
+                 success_metrics, status, start_date)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            ''', (
+                test_id,
+                test_name,
+                'risk_threshold',
+                f'A/B test for risk threshold optimization: {test_name}',
+                'Different risk thresholds will optimize recommendation timing and user outcomes',
+                json.dumps(threshold_variants),
+                json.dumps(['immediate', 'delayed_24h', 'delayed_48h']),
+                json.dumps(success_metrics),
+                'active',
+                datetime.now()
+            ))
+            
+            conn.commit()
+            logger.info(f"Created risk threshold A/B test: {test_id}")
+            return test_id
+            
         except Exception as e:
+            if conn is not None:
+                conn.rollback()
             logger.error(f"Error creating risk threshold test: {e}")
             raise
+        finally:
+            if conn is not None:
+                conn.close()
     
     async def record_risk_threshold_test(self, user_id: str, risk_score: float, test_id: str, variant: str) -> bool:
         """Record a user's participation in a risk threshold test"""
+        conn = None
         try:
             conn = get_pg_connection()
-            with conn:
-                cursor = conn.cursor()
-                
-                cursor.execute('''
-                    INSERT INTO risk_ab_test_results 
-                    (test_id, user_id, variant_id, risk_threshold, recommendation_timing,
-                     user_response, test_timestamp)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s)
-                ''', (
-                    test_id,
-                    user_id,
-                    variant,
-                    risk_score,
-                    'immediate',  # Default timing
-                    'pending',
-                    datetime.now()
-                ))
-                
-                conn.commit()
-                return True
-                
+            cursor = conn.cursor()
+            
+            cursor.execute('''
+                INSERT INTO risk_ab_test_results 
+                (test_id, user_id, variant_id, risk_threshold, recommendation_timing,
+                 user_response, test_timestamp)
+                VALUES (%s, %s, %s, %s, %s, %s, %s)
+            ''', (
+                test_id,
+                user_id,
+                variant,
+                risk_score,
+                'immediate',  # Default timing
+                'pending',
+                datetime.now()
+            ))
+            
+            conn.commit()
+            return True
+            
         except Exception as e:
+            if conn is not None:
+                conn.rollback()
             logger.error(f"Error recording risk threshold test: {e}")
             return False
+        finally:
+            if conn is not None:
+                conn.close()
 
 class RiskAnalyticsIntegration:
     """
@@ -725,76 +603,86 @@ class RiskAnalyticsIntegration:
     
     async def analyze_risk_to_recommendation_flow(self, user_id: str, days: int = 30) -> Dict[str, Any]:
         """Analyze complete user journey from risk detection to job placement"""
+        conn = None
         try:
             conn = get_pg_connection()
-            with conn:
-                cursor = conn.cursor()
-                
-                # Get risk journey flow data
-                cursor.execute('''
-                    SELECT flow_step, step_timestamp, step_data, time_to_next_step
-                    FROM risk_journey_flow 
-                    WHERE user_id = %s AND step_timestamp >= NOW() - INTERVAL '{} days'
-                    ORDER BY step_timestamp
-                '''.format(days), (user_id,))
-                
-                flow_data = cursor.fetchall()
-                
-                # Analyze flow patterns
-                flow_analysis = self._analyze_flow_patterns(flow_data)
-                
-                return {
-                    'user_id': user_id,
-                    'analysis_period_days': days,
-                    'flow_steps': len(flow_data),
-                    'flow_analysis': flow_analysis,
-                    'average_time_between_steps': self._calculate_average_step_time(flow_data),
-                    'completion_rate': self._calculate_flow_completion_rate(flow_data)
-                }
-                
+            cursor = conn.cursor()
+            
+            # Get risk journey flow data
+            cursor.execute('''
+                SELECT flow_step, step_timestamp, step_data, time_to_next_step
+                FROM risk_journey_flow 
+                WHERE user_id = %s AND step_timestamp >= NOW() - INTERVAL '{} days'
+                ORDER BY step_timestamp
+            '''.format(days), (user_id,))
+            
+            flow_data = cursor.fetchall()
+            
+            # Analyze flow patterns
+            flow_analysis = self._analyze_flow_patterns(flow_data)
+            
+            return {
+                'user_id': user_id,
+                'analysis_period_days': days,
+                'flow_steps': len(flow_data),
+                'flow_analysis': flow_analysis,
+                'average_time_between_steps': self._calculate_average_step_time(flow_data),
+                'completion_rate': self._calculate_flow_completion_rate(flow_data)
+            }
+            
         except Exception as e:
+            if conn is not None:
+                conn.rollback()
             logger.error(f"Error analyzing risk to recommendation flow: {e}")
             return {'error': str(e)}
+        finally:
+            if conn is not None:
+                conn.close()
     
     async def measure_early_warning_effectiveness(self, days: int = 30) -> Dict[str, Any]:
         """Calculate advance notice accuracy (3-6 months)"""
+        conn = None
         try:
             conn = get_pg_connection()
-            with conn:
-                cursor = conn.cursor()
-                
-                # Get early warning data
-                cursor.execute('''
-                    SELECT warning_accuracy, advance_notice_days, proactive_action_taken, outcome_improvement
-                    FROM early_warning_effectiveness 
-                    WHERE warning_timestamp >= NOW() - INTERVAL '{} days'
-                '''.format(days))
-                
-                warning_data = cursor.fetchall()
-                
-                if not warning_data:
-                    return {'error': 'No early warning data available'}
-                
-                # Calculate effectiveness metrics
-                total_warnings = len(warning_data)
-                accurate_warnings = sum(1 for w in warning_data if w['warning_accuracy'] >= 0.7)
-                proactive_actions = sum(1 for w in warning_data if w['proactive_action_taken'])
-                avg_advance_notice = sum(w['advance_notice_days'] for w in warning_data) / total_warnings
-                avg_improvement = sum(w['outcome_improvement'] for w in warning_data if w['outcome_improvement'] is not None) / max(1, sum(1 for w in warning_data if w['outcome_improvement'] is not None))
-                
-                return {
-                    'analysis_period_days': days,
-                    'total_warnings': total_warnings,
-                    'accuracy_rate': accurate_warnings / total_warnings,
-                    'proactive_action_rate': proactive_actions / total_warnings,
-                    'average_advance_notice_days': avg_advance_notice,
-                    'average_outcome_improvement': avg_improvement,
-                    'early_warning_effectiveness_score': (accurate_warnings / total_warnings) * (proactive_actions / total_warnings) * 100
-                }
-                
+            cursor = conn.cursor()
+            
+            # Get early warning data
+            cursor.execute('''
+                SELECT warning_accuracy, advance_notice_days, proactive_action_taken, outcome_improvement
+                FROM early_warning_effectiveness 
+                WHERE warning_timestamp >= NOW() - INTERVAL '{} days'
+            '''.format(days))
+            
+            warning_data = cursor.fetchall()
+            
+            if not warning_data:
+                return {'error': 'No early warning data available'}
+            
+            # Calculate effectiveness metrics
+            total_warnings = len(warning_data)
+            accurate_warnings = sum(1 for w in warning_data if w['warning_accuracy'] >= 0.7)
+            proactive_actions = sum(1 for w in warning_data if w['proactive_action_taken'])
+            avg_advance_notice = sum(w['advance_notice_days'] for w in warning_data) / total_warnings
+            avg_improvement = sum(w['outcome_improvement'] for w in warning_data if w['outcome_improvement'] is not None) / max(1, sum(1 for w in warning_data if w['outcome_improvement'] is not None))
+            
+            return {
+                'analysis_period_days': days,
+                'total_warnings': total_warnings,
+                'accuracy_rate': accurate_warnings / total_warnings,
+                'proactive_action_rate': proactive_actions / total_warnings,
+                'average_advance_notice_days': avg_advance_notice,
+                'average_outcome_improvement': avg_improvement,
+                'early_warning_effectiveness_score': (accurate_warnings / total_warnings) * (proactive_actions / total_warnings) * 100
+            }
+            
         except Exception as e:
+            if conn is not None:
+                conn.rollback()
             logger.error(f"Error measuring early warning effectiveness: {e}")
             return {'error': str(e)}
+        finally:
+            if conn is not None:
+                conn.close()
     
     async def optimize_risk_trigger_thresholds(self, test_name: str, threshold_variants: List[float]) -> str:
         """A/B test different risk scores for recommendation activation"""
@@ -902,7 +790,7 @@ class RiskAnalyticsIntegration:
             test_id = await self.risk_ab_testing.create_risk_threshold_test(
                 test_name=test_name,
                 threshold_variants=threshold_variants,
-                success_criteria=success_criteria
+                success_metrics=success_criteria
             )
             
             logger.info(f"Created risk threshold optimization test: {test_id}")

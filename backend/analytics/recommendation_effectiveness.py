@@ -16,7 +16,9 @@ Features:
 - A/B testing support for recommendation improvements
 """
 
-import sqlite3
+import psycopg2
+import psycopg2.extras
+import os
 import json
 import logging
 import uuid
@@ -107,6 +109,12 @@ class UserFeedback:
     feedback_text: str = ""
     recommendation_id: Optional[str] = None
 
+def get_pg_connection():
+    """Get PostgreSQL database connection"""
+    conn = psycopg2.connect(os.environ['DATABASE_URL'])
+    conn.cursor_factory = psycopg2.extras.RealDictCursor
+    return conn
+
 class RecommendationEffectiveness:
     """
     Comprehensive recommendation effectiveness analytics system.
@@ -115,30 +123,18 @@ class RecommendationEffectiveness:
     and success rates to measure and improve recommendation quality.
     """
     
-    def __init__(self, db_path: str = "backend/analytics/recommendation_analytics.db"):
+    def __init__(self, db_path: str = None):
         """Initialize the recommendation effectiveness system"""
-        self.db_path = db_path
         self._init_database()
         logger.info("RecommendationEffectiveness initialized successfully")
     
     def _init_database(self):
-        """Initialize the analytics database with required tables"""
+        """Verify PostgreSQL database connection"""
         try:
-            conn = sqlite3.connect(self.db_path)
-            cursor = conn.cursor()
-            
-            # Read and execute the schema
-            with open('backend/analytics/recommendation_analytics_schema.sql', 'r') as f:
-                schema_sql = f.read()
-            
-            cursor.executescript(schema_sql)
-            conn.commit()
+            conn = get_pg_connection()
             conn.close()
-            logger.info("Recommendation effectiveness database initialized successfully")
-            
         except Exception as e:
-            logger.error(f"Error initializing recommendation effectiveness database: {e}")
-            raise
+            logger.error(f"Error initializing database: {e}")
     
     def track_recommendation(
         self,
@@ -187,7 +183,7 @@ class RecommendationEffectiveness:
                 career_advancement_potential=career_advancement_potential
             )
             
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             cursor.execute('''
@@ -195,7 +191,7 @@ class RecommendationEffectiveness:
                     recommendation_id, session_id, user_id, job_id, tier,
                     recommendation_score, salary_increase_potential, success_probability,
                     skills_gap_score, company_culture_fit, career_advancement_potential
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             ''', (
                 recommendation.recommendation_id, recommendation.session_id,
                 recommendation.user_id, recommendation.job_id, recommendation.tier,
@@ -241,13 +237,13 @@ class RecommendationEffectiveness:
                 engagement_time=engagement_time
             )
             
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             cursor.execute('''
                 INSERT INTO recommendation_engagement (
                     recommendation_id, user_id, engagement_type, engagement_time
-                ) VALUES (?, ?, ?, ?)
+                ) VALUES (%s, %s, %s, %s)
             ''', (
                 engagement.recommendation_id, engagement.user_id,
                 engagement.engagement_type, engagement.engagement_time
@@ -317,15 +313,27 @@ class RecommendationEffectiveness:
                 success_factors=json.dumps(success_factors or {})
             )
             
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             cursor.execute('''
-                INSERT OR REPLACE INTO application_outcomes (
+                INSERT INTO application_outcomes (
                     recommendation_id, user_id, application_id, application_status,
                     application_date, outcome_date, salary_offered, salary_negotiated,
                     final_salary, interview_rounds, feedback_received, success_factors
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                ON CONFLICT (application_id) DO UPDATE SET
+                    recommendation_id = EXCLUDED.recommendation_id,
+                    user_id = EXCLUDED.user_id,
+                    application_status = EXCLUDED.application_status,
+                    application_date = EXCLUDED.application_date,
+                    outcome_date = EXCLUDED.outcome_date,
+                    salary_offered = EXCLUDED.salary_offered,
+                    salary_negotiated = EXCLUDED.salary_negotiated,
+                    final_salary = EXCLUDED.final_salary,
+                    interview_rounds = EXCLUDED.interview_rounds,
+                    feedback_received = EXCLUDED.feedback_received,
+                    success_factors = EXCLUDED.success_factors
             ''', (
                 outcome.recommendation_id, outcome.user_id, outcome.application_id,
                 outcome.application_status, outcome.application_date, outcome.outcome_date,
@@ -376,13 +384,13 @@ class RecommendationEffectiveness:
                 recommendation_id=recommendation_id
             )
             
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             cursor.execute('''
                 INSERT INTO user_feedback (
                     user_id, session_id, feedback_type, rating, feedback_text, recommendation_id
-                ) VALUES (?, ?, ?, ?, ?, ?)
+                ) VALUES (%s, %s, %s, %s, %s, %s)
             ''', (
                 feedback.user_id, feedback.session_id, feedback.feedback_type,
                 feedback.rating, feedback.feedback_text, feedback.recommendation_id
@@ -412,7 +420,7 @@ class RecommendationEffectiveness:
             Dict containing effectiveness metrics by tier
         """
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             start_date = datetime.now() - timedelta(days=days)
@@ -436,7 +444,7 @@ class RecommendationEffectiveness:
                 FROM job_recommendations jr
                 LEFT JOIN recommendation_engagement re ON jr.recommendation_id = re.recommendation_id
                 LEFT JOIN application_outcomes ao ON jr.recommendation_id = ao.recommendation_id
-                WHERE jr.created_at >= ?
+                WHERE jr.created_at >= %s
                 GROUP BY jr.tier
                 ORDER BY jr.tier
             ''', (start_date,))
@@ -449,19 +457,19 @@ class RecommendationEffectiveness:
                     logger.error(f"Row has only {len(row)} columns, expected 13: {row}")
                     continue
                     
-                tier = row[0]
-                total_recommendations = row[1]
-                unique_users = row[2]
-                avg_recommendation_score = row[3] or 0
-                avg_salary_potential = row[4] or 0
-                avg_success_probability = row[5] or 0
-                total_engagements = row[6] or 0
-                engaged_recommendations = row[7] or 0
-                applications_started = row[8] or 0
-                successful_applications = row[9] or 0
-                offers_accepted = row[10] or 0
-                avg_final_salary = row[11] or 0
-                avg_interview_rounds = row[12] or 0
+                tier = row['tier']
+                total_recommendations = row['total_recommendations']
+                unique_users = row['unique_users']
+                avg_recommendation_score = row['avg_recommendation_score'] or 0
+                avg_salary_potential = row['avg_salary_potential'] or 0
+                avg_success_probability = row['avg_success_probability'] or 0
+                total_engagements = row['total_engagements'] or 0
+                engaged_recommendations = row['engaged_recommendations'] or 0
+                applications_started = row['applications_started'] or 0
+                successful_applications = row['successful_applications'] or 0
+                offers_accepted = row['offers_accepted'] or 0
+                avg_final_salary = row['avg_final_salary'] or 0
+                avg_interview_rounds = row['avg_interview_rounds'] or 0
                 
                 # Calculate rates
                 engagement_rate = (engaged_recommendations / total_recommendations * 100) if total_recommendations > 0 else 0
@@ -529,7 +537,7 @@ class RecommendationEffectiveness:
             Dict containing user performance metrics
         """
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             start_date = datetime.now() - timedelta(days=days)
@@ -548,14 +556,21 @@ class RecommendationEffectiveness:
                 FROM job_recommendations jr
                 LEFT JOIN recommendation_engagement re ON jr.recommendation_id = re.recommendation_id
                 LEFT JOIN application_outcomes ao ON jr.recommendation_id = ao.recommendation_id
-                WHERE jr.user_id = ? AND jr.created_at >= ?
+                WHERE jr.user_id = %s AND jr.created_at >= %s
             ''', (user_id, start_date))
             
             result = cursor.fetchone()
             if not result:
                 return {'user_id': user_id, 'message': 'No recommendations found'}
             
-            total_recommendations, tiers_used, avg_recommendation_score, total_engagements, applications_started, successful_applications, offers_accepted, avg_final_salary = result
+            total_recommendations = result['total_recommendations']
+            tiers_used = result['tiers_used']
+            avg_recommendation_score = result['avg_recommendation_score']
+            total_engagements = result['total_engagements']
+            applications_started = result['applications_started']
+            successful_applications = result['successful_applications']
+            offers_accepted = result['offers_accepted']
+            avg_final_salary = result['avg_final_salary']
             
             # Get user feedback
             cursor.execute('''
@@ -563,12 +578,12 @@ class RecommendationEffectiveness:
                     AVG(rating) as avg_rating,
                     COUNT(*) as feedback_count
                 FROM user_feedback 
-                WHERE user_id = ? AND timestamp >= ?
+                WHERE user_id = %s AND timestamp >= %s
             ''', (user_id, start_date))
             
             feedback_result = cursor.fetchone()
-            avg_rating = feedback_result[0] if feedback_result[0] else 0
-            feedback_count = feedback_result[1] if feedback_result[1] else 0
+            avg_rating = feedback_result['avg_rating'] if feedback_result and feedback_result['avg_rating'] else 0
+            feedback_count = feedback_result['feedback_count'] if feedback_result and feedback_result['feedback_count'] else 0
             
             # Calculate rates
             engagement_rate = (total_engagements / total_recommendations * 100) if total_recommendations > 0 else 0
@@ -611,7 +626,7 @@ class RecommendationEffectiveness:
             Dict containing quality metrics
         """
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             start_date = datetime.now() - timedelta(days=days)
@@ -631,7 +646,7 @@ class RecommendationEffectiveness:
                     COUNT(CASE WHEN jr.recommendation_score >= 8.0 THEN 1 END) as high_quality_recommendations,
                     COUNT(CASE WHEN jr.recommendation_score < 5.0 THEN 1 END) as low_quality_recommendations
                 FROM job_recommendations jr
-                WHERE jr.created_at >= ?
+                WHERE jr.created_at >= %s
             ''', (start_date,))
             
             quality_result = cursor.fetchone()
@@ -645,7 +660,7 @@ class RecommendationEffectiveness:
                 FROM job_recommendations jr
                 LEFT JOIN recommendation_engagement re ON jr.recommendation_id = re.recommendation_id
                 LEFT JOIN application_outcomes ao ON jr.recommendation_id = ao.recommendation_id
-                WHERE jr.created_at >= ?
+                WHERE jr.created_at >= %s
                 GROUP BY jr.recommendation_id
                 ORDER BY jr.recommendation_score
             ''', (start_date,))
@@ -653,9 +668,9 @@ class RecommendationEffectiveness:
             score_engagement_data = cursor.fetchall()
             
             # Calculate correlation between score and engagement
-            scores = [row[0] for row in score_engagement_data]
-            engagements = [row[1] for row in score_engagement_data]
-            applications = [row[2] for row in score_engagement_data]
+            scores = [row['recommendation_score'] for row in score_engagement_data]
+            engagements = [row['engagement_count'] for row in score_engagement_data]
+            applications = [row['application_count'] for row in score_engagement_data]
             
             score_engagement_correlation = self._calculate_correlation(scores, engagements)
             score_application_correlation = self._calculate_correlation(scores, applications)
@@ -663,25 +678,25 @@ class RecommendationEffectiveness:
             conn.close()
             
             if quality_result:
-                total_recommendations = quality_result[8]
-                high_quality = quality_result[9]
-                low_quality = quality_result[10]
+                total_recommendations = quality_result['total_recommendations']
+                high_quality = quality_result['high_quality_recommendations']
+                low_quality = quality_result['low_quality_recommendations']
                 
                 return {
                     'analysis_period_days': days,
                     'score_metrics': {
-                        'avg_score': round(quality_result[0] or 0, 2),
-                        'min_score': round(quality_result[1] or 0, 2),
-                        'max_score': round(quality_result[2] or 0, 2),
+                        'avg_score': round(quality_result['avg_score'] or 0, 2),
+                        'min_score': round(quality_result['min_score'] or 0, 2),
+                        'max_score': round(quality_result['max_score'] or 0, 2),
                         'high_quality_percentage': round((high_quality / total_recommendations * 100) if total_recommendations > 0 else 0, 2),
                         'low_quality_percentage': round((low_quality / total_recommendations * 100) if total_recommendations > 0 else 0, 2)
                     },
                     'potential_metrics': {
-                        'avg_salary_potential': round(quality_result[3] or 0, 2),
-                        'avg_success_probability': round(quality_result[4] or 0, 2),
-                        'avg_skills_gap': round(quality_result[5] or 0, 2),
-                        'avg_culture_fit': round(quality_result[6] or 0, 2),
-                        'avg_advancement_potential': round(quality_result[7] or 0, 2)
+                        'avg_salary_potential': round(quality_result['avg_salary_potential'] or 0, 2),
+                        'avg_success_probability': round(quality_result['avg_success_probability'] or 0, 2),
+                        'avg_skills_gap': round(quality_result['avg_skills_gap'] or 0, 2),
+                        'avg_culture_fit': round(quality_result['avg_culture_fit'] or 0, 2),
+                        'avg_advancement_potential': round(quality_result['avg_advancement_potential'] or 0, 2)
                     },
                     'correlation_metrics': {
                         'score_engagement_correlation': round(score_engagement_correlation, 3),
@@ -735,7 +750,7 @@ class RecommendationEffectiveness:
             List of top performing recommendations
         """
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             start_date = datetime.now() - timedelta(days=days)
@@ -754,28 +769,28 @@ class RecommendationEffectiveness:
                 FROM job_recommendations jr
                 LEFT JOIN recommendation_engagement re ON jr.recommendation_id = re.recommendation_id
                 LEFT JOIN application_outcomes ao ON jr.recommendation_id = ao.recommendation_id
-                WHERE jr.created_at >= ?
+                WHERE jr.created_at >= %s
                 GROUP BY jr.recommendation_id
                 ORDER BY 
                     (COUNT(re.recommendation_id) * 0.3 + 
                      COUNT(ao.application_id) * 0.4 + 
                      COUNT(CASE WHEN ao.application_status = 'offer_accepted' THEN 1 END) * 0.3) DESC,
                     jr.recommendation_score DESC
-                LIMIT ?
+                LIMIT %s
             ''', (start_date, limit))
             
             top_recommendations = []
             for row in cursor.fetchall():
                 top_recommendations.append({
-                    'recommendation_id': row[0],
-                    'job_id': row[1],
-                    'tier': row[2],
-                    'recommendation_score': round(row[3], 2),
-                    'salary_increase_potential': round(row[4], 2),
-                    'engagement_count': row[5],
-                    'application_count': row[6],
-                    'success_count': row[7],
-                    'avg_final_salary': round(row[8] or 0, 2)
+                    'recommendation_id': row['recommendation_id'],
+                    'job_id': row['job_id'],
+                    'tier': row['tier'],
+                    'recommendation_score': round(row['recommendation_score'], 2),
+                    'salary_increase_potential': round(row['salary_increase_potential'], 2),
+                    'engagement_count': row['engagement_count'],
+                    'application_count': row['application_count'],
+                    'success_count': row['success_count'],
+                    'avg_final_salary': round(row['avg_final_salary'] or 0, 2)
                 })
             
             conn.close()

@@ -84,12 +84,7 @@ class RiskPattern:
 
 def get_pg_connection():
     """Get PostgreSQL database connection"""
-    db_url = os.environ.get('DATABASE_URL')
-    if not db_url:
-        raise RuntimeError(
-            "DATABASE_URL is required. SQLite is not supported."
-        )
-    conn = psycopg2.connect(db_url)
+    conn = psycopg2.connect(os.environ['DATABASE_URL'])
     conn.cursor_factory = psycopg2.extras.RealDictCursor
     return conn
 
@@ -124,10 +119,8 @@ class RiskPredictiveAnalytics:
         try:
             conn = get_pg_connection()
             conn.close()
-            logger.info("Risk predictive analytics database schema ensured.")
         except Exception as e:
-            logger.error(f"Error initializing risk predictive analytics database: {e}")
-            raise
+            logger.error(f"Error initializing database: {e}")
     
     def _init_models(self):
         """Initialize predictive models"""

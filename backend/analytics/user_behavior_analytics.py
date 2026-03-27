@@ -126,12 +126,7 @@ class FeatureUsage:
 
 def get_pg_connection():
     """Get PostgreSQL database connection"""
-    db_url = os.environ.get('DATABASE_URL')
-    if not db_url:
-        raise RuntimeError(
-            "DATABASE_URL is required. SQLite is not supported."
-        )
-    conn = psycopg2.connect(db_url)
+    conn = psycopg2.connect(os.environ['DATABASE_URL'])
     conn.cursor_factory = psycopg2.extras.RealDictCursor
     return conn
 
@@ -152,11 +147,8 @@ class UserBehaviorAnalytics:
         try:
             conn = get_pg_connection()
             conn.close()
-            
-            logger.info("Analytics database initialized successfully")
         except Exception as e:
-            logger.error(f"Error initializing analytics database: {e}")
-            raise
+            logger.error(f"Error initializing database: {e}")
     
     def start_user_session(
         self,
@@ -416,6 +408,7 @@ class UserBehaviorAnalytics:
                         logger.debug(f"Tracked interaction: {interaction_type} for session {session_id}")
                         return True
                     except Exception as oe:
+                        conn.rollback()
                         if attempt < 2:
                             time.sleep(0.2 * (attempt + 1))
                             continue
@@ -559,7 +552,10 @@ class UserBehaviorAnalytics:
                 ORDER BY count DESC
             ''', (user_id, start_date))
             
-            interaction_metrics = dict(cursor.fetchall())
+            interaction_metrics = {
+                row['interaction_type']: row['count']
+                for row in cursor.fetchall()
+            }
             
             # Feature usage metrics
             cursor.execute('''
@@ -689,7 +685,10 @@ class UserBehaviorAnalytics:
                 ORDER BY count DESC
             ''', (start_date,))
             
-            device_breakdown = dict(cursor.fetchall())
+            device_breakdown = {
+                row['device_type']: row['count']
+                for row in cursor.fetchall()
+            }
             
             conn.close()
             

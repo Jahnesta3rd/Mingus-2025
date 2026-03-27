@@ -16,9 +16,9 @@ Features:
 import asyncio
 import json
 import logging
-import os
 import psycopg2
 import psycopg2.extras
+import os
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Any, Tuple
 from dataclasses import dataclass, asdict
@@ -51,12 +51,7 @@ class SuccessStory:
 
 def get_pg_connection():
     """Get PostgreSQL database connection"""
-    db_url = os.environ.get('DATABASE_URL')
-    if not db_url:
-        raise RuntimeError(
-            "DATABASE_URL is required. SQLite is not supported."
-        )
-    conn = psycopg2.connect(db_url)
+    conn = psycopg2.connect(os.environ['DATABASE_URL'])
     conn.cursor_factory = psycopg2.extras.RealDictCursor
     return conn
 
@@ -79,8 +74,7 @@ class RiskSuccessDashboard:
             conn = get_pg_connection()
             conn.close()
         except Exception as e:
-            logger.error(f"Failed to initialize success dashboard database: {e}")
-            raise
+            logger.error(f"Error initializing database: {e}")
     
     async def generate_career_protection_report(self) -> Dict:
         """Generate comprehensive career protection effectiveness report"""

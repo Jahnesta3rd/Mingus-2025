@@ -101,12 +101,7 @@ class TestResult:
 
 def get_pg_connection():
     """Get PostgreSQL database connection"""
-    db_url = os.environ.get('DATABASE_URL')
-    if not db_url:
-        raise RuntimeError(
-            "DATABASE_URL is required. SQLite is not supported."
-        )
-    conn = psycopg2.connect(db_url)
+    conn = psycopg2.connect(os.environ['DATABASE_URL'])
     conn.cursor_factory = psycopg2.extras.RealDictCursor
     return conn
 
@@ -128,10 +123,8 @@ class ABTestFramework:
         try:
             conn = get_pg_connection()
             conn.close()
-            logger.info("A/B testing database initialized successfully")
         except Exception as e:
-            logger.error(f"Error initializing A/B testing database: {e}")
-            raise
+            logger.error(f"Error initializing database: {e}")
     
     def create_test(
         self,
@@ -601,7 +594,7 @@ class ABTestFramework:
         values = []
         
         for row in conversion_data:
-            conversion_events_json = row['conversion_events'] if isinstance(row, dict) else row[0]
+            conversion_events_json = row['conversion_events']
             if not conversion_events_json:
                 continue
                 
