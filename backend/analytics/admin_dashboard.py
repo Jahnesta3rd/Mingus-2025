@@ -16,7 +16,9 @@ Features:
 - Export capabilities for reports
 """
 
-import sqlite3
+import psycopg2
+import psycopg2.extras
+import os
 import json
 import logging
 from datetime import datetime, timedelta
@@ -53,6 +55,12 @@ class Alert:
     resolved: bool = False
     resolved_at: Optional[datetime] = None
 
+def get_pg_connection():
+    """Get PostgreSQL database connection"""
+    conn = psycopg2.connect(os.environ['DATABASE_URL'])
+    conn.cursor_factory = psycopg2.extras.RealDictCursor
+    return conn
+
 class AdminDashboard:
     """
     Comprehensive admin dashboard for job recommendation analytics.
@@ -61,9 +69,8 @@ class AdminDashboard:
     metrics, and comprehensive reporting capabilities for administrators.
     """
     
-    def __init__(self, db_path: str = "backend/analytics/recommendation_analytics.db"):
+    def __init__(self, db_path: str = None):
         """Initialize the admin dashboard"""
-        self.db_path = db_path
         self._init_database()
         self._dashboard_cache = {}
         self._cache_ttl = 60  # 1 minute cache TTL
@@ -71,23 +78,12 @@ class AdminDashboard:
         logger.info("AdminDashboard initialized successfully")
     
     def _init_database(self):
-        """Initialize the analytics database with required tables"""
+        """Verify PostgreSQL database connection"""
         try:
-            conn = sqlite3.connect(self.db_path)
-            cursor = conn.cursor()
-            
-            # Read and execute the schema
-            with open('backend/analytics/recommendation_analytics_schema.sql', 'r') as f:
-                schema_sql = f.read()
-            
-            cursor.executescript(schema_sql)
-            conn.commit()
+            conn = get_pg_connection()
             conn.close()
-            logger.info("Admin dashboard database initialized successfully")
-            
         except Exception as e:
-            logger.error(f"Error initializing admin dashboard database: {e}")
-            raise
+            logger.error(f"Error initializing database: {e}")
     
     def get_dashboard_overview(self) -> Dict[str, Any]:
         """
@@ -102,7 +98,7 @@ class AdminDashboard:
             if (current_time - self._last_cache_update) < self._cache_ttl and 'overview' in self._dashboard_cache:
                 return self._dashboard_cache['overview']
             
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             # System health metrics
@@ -171,10 +167,10 @@ class AdminDashboard:
             api_data = cursor.fetchone()
             
             # Determine overall health
-            cpu_usage = resource_data[0] if resource_data else 0
-            memory_usage = resource_data[1] if resource_data else 0
-            error_rate = api_data[1] if api_data and api_data[1] else 0
-            response_time = api_data[0] if api_data and api_data[0] else 0
+            cpu_usage = resource_data['cpu_usage'] if resource_data else 0
+            memory_usage = resource_data['memory_usage'] if resource_data else 0
+            error_rate = api_data['error_rate'] if api_data and api_data['error_rate'] else 0
+            response_time = api_data['avg_response_time'] if api_data and api_data['avg_response_time'] else 0
             
             if cpu_usage > 90 or memory_usage > 95 or error_rate > 10:
                 health_status = "critical"
@@ -207,7 +203,8 @@ class AdminDashboard:
                 WHERE session_start >= datetime('now', '-24 hours')
             ''')
             
-            active_users = cursor.fetchone()[0] or 0
+            row_au = cursor.fetchone()
+            active_users = row_au['active_users'] or 0 if row_au else 0
             
             # New users (last 24 hours)
             cursor.execute('''
@@ -220,7 +217,8 @@ class AdminDashboard:
                 )
             ''')
             
-            new_users = cursor.fetchone()[0] or 0
+            row_nu = cursor.fetchone()
+            new_users = row_nu['new_users'] or 0 if row_nu else 0
             
             # Total users
             cursor.execute('''
@@ -228,7 +226,8 @@ class AdminDashboard:
                 FROM user_sessions
             ''')
             
-            total_users = cursor.fetchone()[0] or 0
+            row_tu = cursor.fetchone()
+            total_users = row_tu['total_users'] or 0 if row_tu else 0
             
             # User engagement score
             cursor.execute('''
@@ -236,7 +235,8 @@ class AdminDashboard:
                 FROM user_retention
             ''')
             
-            avg_engagement = cursor.fetchone()[0] or 0
+            row_ae = cursor.fetchone()
+            avg_engagement = row_ae['avg_engagement'] or 0 if row_ae else 0
             
             return {
                 'active_users_24h': active_users,
@@ -259,7 +259,8 @@ class AdminDashboard:
                 WHERE created_at >= datetime('now', '-24 hours')
             ''')
             
-            recommendations_24h = cursor.fetchone()[0] or 0
+            row_r24 = cursor.fetchone()
+            recommendations_24h = row_r24['recommendations_24h'] or 0 if row_r24 else 0
             
             # Total recommendations
             cursor.execute('''
@@ -267,7 +268,8 @@ class AdminDashboard:
                 FROM job_recommendations
             ''')
             
-            total_recommendations = cursor.fetchone()[0] or 0
+            row_tr = cursor.fetchone()
+            total_recommendations = row_tr['total_recommendations'] or 0 if row_tr else 0
             
             # Success rate (applications to offers)
             cursor.execute('''
@@ -279,8 +281,8 @@ class AdminDashboard:
             ''')
             
             app_data = cursor.fetchone()
-            total_applications = app_data[0] or 0
-            successful_applications = app_data[1] or 0
+            total_applications = app_data['total_applications'] or 0 if app_data else 0
+            successful_applications = app_data['successful_applications'] or 0 if app_data else 0
             success_rate = (successful_applications / total_applications * 100) if total_applications > 0 else 0
             
             # Average recommendation score
@@ -290,7 +292,8 @@ class AdminDashboard:
                 WHERE created_at >= datetime('now', '-7 days')
             ''')
             
-            avg_score = cursor.fetchone()[0] or 0
+            row_as = cursor.fetchone()
+            avg_score = row_as['avg_score'] or 0 if row_as else 0
             
             return {
                 'recommendations_24h': recommendations_24h,
@@ -333,14 +336,14 @@ class AdminDashboard:
             processing_data = cursor.fetchall()
             
             return {
-                'avg_response_time': round(api_data[0] or 0, 2),
-                'max_response_time': round(api_data[1] or 0, 2),
-                'total_requests_1h': api_data[2] or 0,
+                'avg_response_time': round((api_data['avg_response_time'] or 0), 2) if api_data else 0,
+                'max_response_time': round((api_data['max_response_time'] or 0), 2) if api_data else 0,
+                'total_requests_1h': (api_data['total_requests'] or 0) if api_data else 0,
                 'processing_metrics': [
                     {
-                        'process_name': row[0],
-                        'avg_duration': round(row[1], 2),
-                        'total_processes': row[2]
+                        'process_name': row['process_name'],
+                        'avg_duration': round(row['avg_duration'], 2),
+                        'total_processes': row['total_processes']
                     }
                     for row in processing_data
                 ]
@@ -367,9 +370,9 @@ class AdminDashboard:
             for row in cursor.fetchall():
                 activities.append({
                     'type': 'user_session',
-                    'user_id': row[0],
-                    'timestamp': row[1],
-                    'description': f"User session on {row[2]} ({row[3]}s)",
+                    'user_id': row['user_id'],
+                    'timestamp': row['session_start'],
+                    'description': f"User session on {row['device_type']} ({row['session_duration']}s)",
                     'icon': 'user'
                 })
             
@@ -385,9 +388,9 @@ class AdminDashboard:
             for row in cursor.fetchall():
                 activities.append({
                     'type': 'recommendation',
-                    'user_id': row[0],
-                    'timestamp': row[3],
-                    'description': f"{row[1].title()} tier recommendation (score: {row[2]:.1f})",
+                    'user_id': row['user_id'],
+                    'timestamp': row['created_at'],
+                    'description': f"{row['tier'].title()} tier recommendation (score: {row['recommendation_score']:.1f})",
                     'icon': 'recommendation'
                 })
             
@@ -403,9 +406,9 @@ class AdminDashboard:
             for row in cursor.fetchall():
                 activities.append({
                     'type': 'application',
-                    'user_id': row[0],
-                    'timestamp': row[2],
-                    'description': f"Application status: {row[1].replace('_', ' ').title()}",
+                    'user_id': row['user_id'],
+                    'timestamp': row['application_date'],
+                    'description': f"Application status: {row['application_status'].replace('_', ' ').title()}",
                     'icon': 'application'
                 })
             
@@ -433,13 +436,13 @@ class AdminDashboard:
             alerts = []
             for row in cursor.fetchall():
                 alerts.append({
-                    'alert_id': row[0],
-                    'alert_name': row[1],
-                    'severity': row[2],
-                    'triggered_at': row[3],
-                    'current_value': row[4],
-                    'threshold_value': row[5],
-                    'message': f"{row[1]}: {row[4]} (threshold: {row[5]})"
+                    'alert_id': row['alert_id'],
+                    'alert_name': row['alert_name'],
+                    'severity': row['severity'],
+                    'triggered_at': row['triggered_at'],
+                    'current_value': row['metric_value'],
+                    'threshold_value': row['threshold_value'],
+                    'message': f"{row['alert_name']}: {row['metric_value']} (threshold: {row['threshold_value']})"
                 })
             
             return alerts
@@ -459,7 +462,7 @@ class AdminDashboard:
             List of success stories
         """
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             cursor.execute('''
@@ -487,12 +490,21 @@ class AdminDashboard:
                 ) ca ON ur.user_id = ca.user_id AND ca.rn = 1
                 WHERE ur.successful_outcomes > 0
                 ORDER BY ur.successful_outcomes DESC, it.increase_percentage DESC
-                LIMIT ?
+                LIMIT %s
             ''', (limit,))
             
             success_stories = []
             for row in cursor.fetchall():
-                user_id, successful_outcomes, satisfaction_avg, engagement_score, current_salary, salary_increase, increase_percentage, advancement_type, new_role, salary_change = row
+                user_id = row['user_id']
+                successful_outcomes = row['successful_outcomes']
+                satisfaction_avg = row['satisfaction_avg']
+                engagement_score = row['engagement_score']
+                current_salary = row['current_salary']
+                salary_increase = row['salary_increase']
+                increase_percentage = row['increase_percentage']
+                advancement_type = row['advancement_type']
+                new_role = row['new_role']
+                salary_change = row['salary_change']
                 
                 story = {
                     'user_id': user_id,
@@ -550,7 +562,7 @@ class AdminDashboard:
             Dict containing quality report
         """
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             start_date = datetime.now() - timedelta(days=days)
@@ -566,14 +578,20 @@ class AdminDashboard:
                     AVG(salary_increase_potential) as avg_salary_potential,
                     AVG(success_probability) as avg_success_probability
                 FROM job_recommendations 
-                WHERE created_at >= ?
+                WHERE created_at >= %s
                 GROUP BY tier
                 ORDER BY tier
             ''', (start_date,))
             
             tier_quality = {}
             for row in cursor.fetchall():
-                tier, total, avg_score, high_quality, low_quality, avg_salary_potential, avg_success_probability = row
+                tier = row['tier']
+                total = row['total_recommendations']
+                avg_score = row['avg_score']
+                high_quality = row['high_quality']
+                low_quality = row['low_quality']
+                avg_salary_potential = row['avg_salary_potential']
+                avg_success_probability = row['avg_success_probability']
                 
                 tier_quality[tier] = {
                     'total_recommendations': total,
@@ -595,16 +613,16 @@ class AdminDashboard:
                 FROM job_recommendations jr
                 LEFT JOIN recommendation_engagement re ON jr.recommendation_id = re.recommendation_id
                 LEFT JOIN application_outcomes ao ON jr.recommendation_id = ao.recommendation_id
-                WHERE jr.created_at >= ?
+                WHERE jr.created_at >= %s
                 GROUP BY jr.recommendation_id
             ''', (start_date,))
             
             score_engagement_data = cursor.fetchall()
             
             # Calculate correlation
-            scores = [row[0] for row in score_engagement_data]
-            engagements = [row[1] for row in score_engagement_data]
-            applications = [row[2] for row in score_engagement_data]
+            scores = [row['recommendation_score'] for row in score_engagement_data]
+            engagements = [row['engagement_count'] for row in score_engagement_data]
+            applications = [row['application_count'] for row in score_engagement_data]
             
             score_engagement_correlation = self._calculate_correlation(scores, engagements)
             score_application_correlation = self._calculate_correlation(scores, applications)
@@ -668,7 +686,7 @@ class AdminDashboard:
     def get_ab_test_dashboard(self) -> Dict[str, Any]:
         """Get A/B test dashboard data"""
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             # Active tests
@@ -688,12 +706,12 @@ class AdminDashboard:
             active_tests = []
             for row in cursor.fetchall():
                 active_tests.append({
-                    'test_id': row[0],
-                    'test_name': row[1],
-                    'target_metric': row[2],
-                    'start_date': row[3],
-                    'assigned_users': row[4],
-                    'variant_count': row[5]
+                    'test_id': row['test_id'],
+                    'test_name': row['test_name'],
+                    'target_metric': row['target_metric'],
+                    'start_date': row['start_date'],
+                    'assigned_users': row['assigned_users'],
+                    'variant_count': row['variant_count']
                 })
             
             # Recent test results
@@ -712,11 +730,11 @@ class AdminDashboard:
             recent_tests = []
             for row in cursor.fetchall():
                 recent_tests.append({
-                    'test_id': row[0],
-                    'test_name': row[1],
-                    'status': row[2],
-                    'end_date': row[3],
-                    'total_users': row[4]
+                    'test_id': row['test_id'],
+                    'test_name': row['test_name'],
+                    'status': row['status'],
+                    'end_date': row['end_date'],
+                    'total_users': row['total_users']
                 })
             
             conn.close()
@@ -751,13 +769,13 @@ class AdminDashboard:
             Dict containing exported data
         """
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             if data_type == "user_behavior":
                 cursor.execute('''
                     SELECT * FROM user_sessions 
-                    WHERE session_start >= ? AND session_start <= ?
+                    WHERE session_start >= %s AND session_start <= %s
                     ORDER BY session_start DESC
                 ''', (start_date, end_date))
                 
@@ -767,7 +785,7 @@ class AdminDashboard:
             elif data_type == "recommendations":
                 cursor.execute('''
                     SELECT * FROM job_recommendations 
-                    WHERE created_at >= ? AND created_at <= ?
+                    WHERE created_at >= %s AND created_at <= %s
                     ORDER BY created_at DESC
                 ''', (start_date, end_date))
                 
@@ -777,7 +795,7 @@ class AdminDashboard:
             elif data_type == "performance":
                 cursor.execute('''
                     SELECT * FROM api_performance 
-                    WHERE timestamp >= ? AND timestamp <= ?
+                    WHERE timestamp >= %s AND timestamp <= %s
                     ORDER BY timestamp DESC
                 ''', (start_date, end_date))
                 
@@ -792,7 +810,7 @@ class AdminDashboard:
             # Convert to requested format
             if format == "json":
                 export_data = [
-                    dict(zip(columns, row)) for row in data
+                    dict(row) for row in data
                 ]
             else:  # CSV
                 export_data = {

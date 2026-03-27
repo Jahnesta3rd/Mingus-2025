@@ -14,7 +14,9 @@ Key Metrics:
 - proactive_vs_reactive_outcomes: Career outcome comparison based on risk response timing
 """
 
-import sqlite3
+import psycopg2
+import psycopg2.extras
+import os
 import json
 import logging
 from datetime import datetime, timedelta
@@ -58,12 +60,26 @@ class CareerProtectionOutcome:
     risk_mitigation_effectiveness: float
     outcome_timestamp: datetime
 
+def get_pg_connection():
+    """Get PostgreSQL database connection"""
+    conn = psycopg2.connect(os.environ['DATABASE_URL'])
+    conn.cursor_factory = psycopg2.extras.RealDictCursor
+    return conn
+
 class RiskSuccessMetricsCalculator:
     """Calculator for risk-based success metrics"""
     
-    def __init__(self, db_path: str):
+    def __init__(self, db_path: str = None):
         """Initialize the success metrics calculator"""
-        self.db_path = db_path
+        self._init_database()
+    
+    def _init_database(self):
+        """Verify PostgreSQL database connection"""
+        try:
+            conn = get_pg_connection()
+            conn.close()
+        except Exception as e:
+            logger.error(f"Error initializing database: {e}")
     
     async def calculate_all_metrics(self, days: int = 30) -> RiskSuccessMetrics:
         """Calculate all risk-based success metrics"""
@@ -96,9 +112,9 @@ class RiskSuccessMetricsCalculator:
         Target: 70%+ successful transitions
         """
         try:
-            with sqlite3.connect(self.db_path) as conn:
-                cursor = conn.cursor()
-                
+            conn = get_pg_connection()
+            cursor = conn.cursor()
+            try:
                 # Get high-risk users (risk score >= 0.6) from the analysis period
                 cursor.execute('''
                     SELECT COUNT(DISTINCT ra.user_id) as high_risk_users
@@ -107,7 +123,7 @@ class RiskSuccessMetricsCalculator:
                     AND ra.assessment_timestamp >= datetime('now', '-{} days')
                 '''.format(days))
                 
-                high_risk_users = cursor.fetchone()[0]
+                high_risk_users = cursor.fetchone()['high_risk_users']
                 
                 if high_risk_users == 0:
                     return 0.0
@@ -123,12 +139,14 @@ class RiskSuccessMetricsCalculator:
                     AND cpo.outcome_timestamp >= datetime('now', '-{} days')
                 '''.format(days))
                 
-                successful_transitions = cursor.fetchone()[0]
+                successful_transitions = cursor.fetchone()['successful_transitions']
                 
                 success_rate = successful_transitions / high_risk_users
                 
                 logger.info(f"Career protection success rate: {success_rate:.2%} ({successful_transitions}/{high_risk_users})")
                 return success_rate
+            finally:
+                conn.close()
                 
         except Exception as e:
             logger.error(f"Error calculating career protection success rate: {e}")
@@ -141,9 +159,9 @@ class RiskSuccessMetricsCalculator:
         Target: 75%+ accuracy with 3-6 month advance notice
         """
         try:
-            with sqlite3.connect(self.db_path) as conn:
-                cursor = conn.cursor()
-                
+            conn = get_pg_connection()
+            cursor = conn.cursor()
+            try:
                 # Get early warning data with advance notice
                 cursor.execute('''
                     SELECT 
@@ -157,9 +175,9 @@ class RiskSuccessMetricsCalculator:
                 '''.format(days))
                 
                 result = cursor.fetchone()
-                avg_accuracy = result[0] or 0.0
-                avg_advance_notice = result[1] or 0.0
-                total_warnings = result[2] or 0
+                avg_accuracy = result['avg_accuracy'] or 0.0
+                avg_advance_notice = result['avg_advance_notice'] or 0.0
+                total_warnings = result['total_warnings'] or 0
                 
                 # Calculate effectiveness score (accuracy weighted by advance notice quality)
                 if total_warnings == 0:
@@ -173,6 +191,8 @@ class RiskSuccessMetricsCalculator:
                 
                 logger.info(f"Early warning effectiveness: {effectiveness:.2%} (accuracy: {avg_accuracy:.2%}, advance notice: {avg_advance_notice:.0f} days)")
                 return effectiveness
+            finally:
+                conn.close()
                 
         except Exception as e:
             logger.error(f"Error calculating early warning effectiveness: {e}")
@@ -185,9 +205,9 @@ class RiskSuccessMetricsCalculator:
         Target: 40%+ conversion rate
         """
         try:
-            with sqlite3.connect(self.db_path) as conn:
-                cursor = conn.cursor()
-                
+            conn = get_pg_connection()
+            cursor = conn.cursor()
+            try:
                 # Get total risk-triggered recommendations
                 cursor.execute('''
                     SELECT COUNT(*) as total_recommendations
@@ -195,7 +215,7 @@ class RiskSuccessMetricsCalculator:
                     WHERE rtr.trigger_timestamp >= datetime('now', '-{} days')
                 '''.format(days))
                 
-                total_recommendations = cursor.fetchone()[0]
+                total_recommendations = cursor.fetchone()['total_recommendations']
                 
                 if total_recommendations == 0:
                     return 0.0
@@ -208,12 +228,14 @@ class RiskSuccessMetricsCalculator:
                     AND rtr.trigger_timestamp >= datetime('now', '-{} days')
                 '''.format(days))
                 
-                applications_generated = cursor.fetchone()[0]
+                applications_generated = cursor.fetchone()['applications_generated']
                 
                 conversion_rate = applications_generated / total_recommendations
                 
                 logger.info(f"Risk recommendation conversion: {conversion_rate:.2%} ({applications_generated}/{total_recommendations})")
                 return conversion_rate
+            finally:
+                conn.close()
                 
         except Exception as e:
             logger.error(f"Error calculating risk recommendation conversion: {e}")
@@ -226,9 +248,9 @@ class RiskSuccessMetricsCalculator:
         Returns detailed utilization metrics
         """
         try:
-            with sqlite3.connect(self.db_path) as conn:
-                cursor = conn.cursor()
-                
+            conn = get_pg_connection()
+            cursor = conn.cursor()
+            try:
                 # Get emergency unlock usage data
                 cursor.execute('''
                     SELECT 
@@ -243,11 +265,11 @@ class RiskSuccessMetricsCalculator:
                 '''.format(days))
                 
                 result = cursor.fetchone()
-                total_unlocks = result[0] or 0
-                unique_users = result[1] or 0
-                avg_time_spent = result[2] or 0
-                premium_unlocks = result[3] or 0
-                support_unlocks = result[4] or 0
+                total_unlocks = result['total_unlocks'] or 0
+                unique_users = result['unique_users'] or 0
+                avg_time_spent = result['avg_time_spent'] or 0
+                premium_unlocks = result['premium_unlocks'] or 0
+                support_unlocks = result['support_unlocks'] or 0
                 
                 # Calculate utilization metrics
                 utilization_metrics = {
@@ -262,6 +284,8 @@ class RiskSuccessMetricsCalculator:
                 
                 logger.info(f"Emergency unlock utilization: {utilization_metrics['utilization_score']:.2%}")
                 return utilization_metrics
+            finally:
+                conn.close()
                 
         except Exception as e:
             logger.error(f"Error calculating emergency unlock utilization: {e}")
@@ -274,9 +298,9 @@ class RiskSuccessMetricsCalculator:
         Compares outcomes for users who act on early warnings vs those who don't
         """
         try:
-            with sqlite3.connect(self.db_path) as conn:
-                cursor = conn.cursor()
-                
+            conn = get_pg_connection()
+            cursor = conn.cursor()
+            try:
                 # Get proactive outcomes (users who acted on early warnings)
                 cursor.execute('''
                     SELECT 
@@ -292,10 +316,10 @@ class RiskSuccessMetricsCalculator:
                 '''.format(days))
                 
                 proactive_result = cursor.fetchone()
-                proactive_count = proactive_result[0] or 0
-                proactive_salary_improvement = proactive_result[1] or 0
-                proactive_mitigation_effectiveness = proactive_result[2] or 0
-                proactive_transition_time = proactive_result[3] or 0
+                proactive_count = proactive_result['proactive_count'] or 0
+                proactive_salary_improvement = proactive_result['avg_salary_improvement'] or 0
+                proactive_mitigation_effectiveness = proactive_result['avg_mitigation_effectiveness'] or 0
+                proactive_transition_time = proactive_result['avg_transition_time'] or 0
                 
                 # Get reactive outcomes (users who didn't act on early warnings)
                 cursor.execute('''
@@ -312,10 +336,10 @@ class RiskSuccessMetricsCalculator:
                 '''.format(days))
                 
                 reactive_result = cursor.fetchone()
-                reactive_count = reactive_result[0] or 0
-                reactive_salary_improvement = reactive_result[1] or 0
-                reactive_mitigation_effectiveness = reactive_result[2] or 0
-                reactive_transition_time = reactive_result[3] or 0
+                reactive_count = reactive_result['reactive_count'] or 0
+                reactive_salary_improvement = reactive_result['avg_salary_improvement'] or 0
+                reactive_mitigation_effectiveness = reactive_result['avg_mitigation_effectiveness'] or 0
+                reactive_transition_time = reactive_result['avg_transition_time'] or 0
                 
                 # Calculate comparison metrics
                 comparison_metrics = {
@@ -341,6 +365,8 @@ class RiskSuccessMetricsCalculator:
                 
                 logger.info(f"Proactive vs reactive outcomes calculated: {comparison_metrics['comparison']['proactive_success_rate']:.2%} proactive success rate")
                 return comparison_metrics
+            finally:
+                conn.close()
                 
         except Exception as e:
             logger.error(f"Error calculating proactive vs reactive outcomes: {e}")
@@ -352,10 +378,9 @@ class RiskSuccessMetricsCalculator:
             # Calculate all metrics
             metrics = await self.calculate_all_metrics(days)
             
-            # Get additional dashboard data
-            with sqlite3.connect(self.db_path) as conn:
-                cursor = conn.cursor()
-                
+            conn = get_pg_connection()
+            cursor = conn.cursor()
+            try:
                 # Get risk assessment trends
                 cursor.execute('''
                     SELECT 
@@ -369,9 +394,9 @@ class RiskSuccessMetricsCalculator:
                 
                 risk_trends = {}
                 for row in cursor.fetchall():
-                    risk_trends[row[0]] = {
-                        'avg_risk': round(row[1], 3),
-                        'count': row[2]
+                    risk_trends[row['assessment_type']] = {
+                        'avg_risk': round(row['avg_risk'], 3),
+                        'count': row['count']
                     }
                 
                 # Get user segment distribution
@@ -386,7 +411,7 @@ class RiskSuccessMetricsCalculator:
                 
                 user_segments = {}
                 for row in cursor.fetchall():
-                    user_segments[row[0]] = row[1]
+                    user_segments[row['segment_name']] = row['count']
                 
                 # Get A/B test performance
                 cursor.execute('''
@@ -402,13 +427,15 @@ class RiskSuccessMetricsCalculator:
                 
                 ab_test_performance = {}
                 for row in cursor.fetchall():
-                    test_id = row[0]
+                    test_id = row['test_id']
                     if test_id not in ab_test_performance:
                         ab_test_performance[test_id] = {}
-                    ab_test_performance[test_id][row[1]] = {
-                        'success_rate': round(row[2], 3),
-                        'participants': row[3]
+                    ab_test_performance[test_id][row['variant_id']] = {
+                        'success_rate': round(row['success_rate'], 3),
+                        'participants': row['participants']
                     }
+            finally:
+                conn.close()
             
             return {
                 'metrics': {
@@ -437,14 +464,15 @@ class RiskSuccessMetricsCalculator:
                                                 success_probability: float) -> int:
         """Track a risk-triggered recommendation"""
         try:
-            with sqlite3.connect(self.db_path) as conn:
-                cursor = conn.cursor()
-                
+            conn = get_pg_connection()
+            cursor = conn.cursor()
+            try:
                 cursor.execute('''
                     INSERT INTO risk_triggered_recommendations 
                     (risk_assessment_id, recommendation_id, trigger_risk_score, 
                      trigger_timestamp, recommendation_tier, success_probability)
-                    VALUES (?, ?, ?, ?, ?, ?)
+                    VALUES (%s, %s, %s, %s, %s, %s)
+                    RETURNING id
                 ''', (
                     risk_assessment_id,
                     recommendation_id,
@@ -454,11 +482,13 @@ class RiskSuccessMetricsCalculator:
                     success_probability
                 ))
                 
-                recommendation_tracking_id = cursor.lastrowid
+                recommendation_tracking_id = cursor.fetchone()['id']
                 conn.commit()
                 
                 logger.info(f"Tracked risk-triggered recommendation: {recommendation_tracking_id}")
                 return recommendation_tracking_id
+            finally:
+                conn.close()
                 
         except Exception as e:
             logger.error(f"Error tracking risk-triggered recommendation: {e}")
@@ -470,22 +500,22 @@ class RiskSuccessMetricsCalculator:
                                           outcome_achieved: str = None) -> bool:
         """Update recommendation outcome when user takes action"""
         try:
-            with sqlite3.connect(self.db_path) as conn:
-                cursor = conn.cursor()
-                
+            conn = get_pg_connection()
+            cursor = conn.cursor()
+            try:
                 update_fields = []
                 update_values = []
                 
                 if application_generated:
-                    update_fields.append("application_generated = ?")
+                    update_fields.append("application_generated = %s")
                     update_values.append(True)
-                    update_fields.append("application_timestamp = ?")
+                    update_fields.append("application_timestamp = %s")
                     update_values.append(datetime.now())
                 
                 if outcome_achieved:
-                    update_fields.append("outcome_achieved = ?")
+                    update_fields.append("outcome_achieved = %s")
                     update_values.append(outcome_achieved)
-                    update_fields.append("outcome_timestamp = ?")
+                    update_fields.append("outcome_timestamp = %s")
                     update_values.append(datetime.now())
                 
                 if update_fields:
@@ -494,13 +524,15 @@ class RiskSuccessMetricsCalculator:
                     cursor.execute(f'''
                         UPDATE risk_triggered_recommendations 
                         SET {', '.join(update_fields)}
-                        WHERE id = ?
+                        WHERE id = %s
                     ''', update_values)
                     
                     conn.commit()
                 
                 logger.info(f"Updated recommendation outcome: {recommendation_tracking_id}")
                 return True
+            finally:
+                conn.close()
                 
         except Exception as e:
             logger.error(f"Error updating recommendation outcome: {e}")

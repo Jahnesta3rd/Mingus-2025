@@ -20,6 +20,10 @@ from datetime import datetime
 from typing import Dict, Any, Optional, List
 from contextlib import contextmanager
 
+import psycopg2
+import psycopg2.extras
+import os
+
 # Import analytics components
 from .user_behavior_analytics import UserBehaviorAnalytics
 from .recommendation_effectiveness import RecommendationEffectiveness
@@ -40,9 +44,8 @@ class AnalyticsIntegration:
     existing Mingus system components.
     """
     
-    def __init__(self, db_path: str = "backend/analytics/recommendation_analytics.db"):
+    def __init__(self, db_path: str = None):
         """Initialize the analytics integration system"""
-        self.db_path = db_path
         
         # Initialize analytics components
         self.user_behavior = UserBehaviorAnalytics(db_path)
@@ -456,33 +459,33 @@ class AnalyticsIntegration:
             Dict containing cleanup results
         """
         try:
-            import sqlite3
             from datetime import datetime, timedelta
             
             cutoff_date = datetime.now() - timedelta(days=days_to_keep)
             cleanup_results = {}
             
-            conn = sqlite3.connect(self.db_path)
+            conn = psycopg2.connect(os.environ['DATABASE_URL'])
+            conn.cursor_factory = psycopg2.extras.RealDictCursor
             cursor = conn.cursor()
             
             # Clean up old user sessions
             cursor.execute('''
                 DELETE FROM user_sessions 
-                WHERE session_start < ?
+                WHERE session_start < %s
             ''', (cutoff_date,))
             cleanup_results['user_sessions'] = cursor.rowcount
             
             # Clean up old API performance data
             cursor.execute('''
                 DELETE FROM api_performance 
-                WHERE timestamp < ?
+                WHERE timestamp < %s
             ''', (cutoff_date,))
             cleanup_results['api_performance'] = cursor.rowcount
             
             # Clean up old processing metrics
             cursor.execute('''
                 DELETE FROM processing_metrics 
-                WHERE start_time < ?
+                WHERE start_time < %s
             ''', (cutoff_date,))
             cleanup_results['processing_metrics'] = cursor.rowcount
             
@@ -490,7 +493,7 @@ class AnalyticsIntegration:
             recent_cutoff = datetime.now() - timedelta(days=30)
             cursor.execute('''
                 DELETE FROM system_resources 
-                WHERE timestamp < ?
+                WHERE timestamp < %s
             ''', (recent_cutoff,))
             cleanup_results['system_resources'] = cursor.rowcount
             
