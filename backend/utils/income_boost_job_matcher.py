@@ -15,7 +15,9 @@ This module provides comprehensive job matching functionality that focuses on:
 import json
 import logging
 import requests
-import sqlite3
+import psycopg2
+import psycopg2.extras
+import os
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Tuple, Any, Union
 from dataclasses import dataclass, asdict
@@ -133,14 +135,24 @@ class SearchCriteria:
     equity_required: bool
     min_company_rating: float = 3.0
 
+def get_pg_connection():
+    """Get PostgreSQL database connection"""
+    db_url = os.environ.get('DATABASE_URL')
+    if not db_url:
+        raise RuntimeError(
+            "DATABASE_URL is required. SQLite is not supported."
+        )
+    conn = psycopg2.connect(db_url)
+    conn.cursor_factory = psycopg2.extras.RealDictCursor
+    return conn
+
 class IncomeBoostJobMatcher:
     """
     Main class for income-focused job matching system
     Prioritizes salary improvement opportunities for African American professionals
     """
     
-    def __init__(self, db_path: str = "backend/job_matching.db"):
-        self.db_path = db_path
+    def __init__(self, db_path: str = None):
         self.session = None
         self.executor = ThreadPoolExecutor(max_workers=10)
         
@@ -212,84 +224,12 @@ class IncomeBoostJobMatcher:
         self._init_database()
     
     def _init_database(self):
-        """Initialize the job matching database"""
-        conn = sqlite3.connect(self.db_path)
-        cursor = conn.cursor()
-        
-        # Create jobs table
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS job_opportunities (
-                job_id TEXT PRIMARY KEY,
-                title TEXT NOT NULL,
-                company TEXT NOT NULL,
-                location TEXT NOT NULL,
-                msa TEXT,
-                salary_min INTEGER,
-                salary_max INTEGER,
-                salary_median INTEGER,
-                salary_increase_potential REAL,
-                remote_friendly BOOLEAN,
-                job_board TEXT,
-                url TEXT,
-                description TEXT,
-                requirements TEXT,
-                benefits TEXT,
-                diversity_score REAL,
-                growth_score REAL,
-                culture_score REAL,
-                overall_score REAL,
-                field TEXT,
-                experience_level TEXT,
-                posted_date TIMESTAMP,
-                application_deadline TIMESTAMP,
-                company_size TEXT,
-                company_industry TEXT,
-                equity_offered BOOLEAN,
-                bonus_potential INTEGER,
-                career_advancement_score REAL,
-                work_life_balance_score REAL,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        ''')
-        
-        # Create companies table
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS company_profiles (
-                company_id TEXT PRIMARY KEY,
-                name TEXT NOT NULL,
-                industry TEXT,
-                size TEXT,
-                diversity_score REAL,
-                growth_score REAL,
-                culture_score REAL,
-                benefits_score REAL,
-                leadership_diversity REAL,
-                employee_retention REAL,
-                glassdoor_rating REAL,
-                indeed_rating REAL,
-                remote_friendly BOOLEAN,
-                headquarters TEXT,
-                founded_year INTEGER,
-                funding_stage TEXT,
-                revenue TEXT,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        ''')
-        
-        # Create search history table
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS search_history (
-                search_id TEXT PRIMARY KEY,
-                user_email TEXT,
-                search_criteria TEXT,
-                results_count INTEGER,
-                search_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        ''')
-        
-        conn.commit()
-        conn.close()
+        """Verify PostgreSQL database connection"""
+        try:
+            conn = get_pg_connection()
+            conn.close()
+        except Exception as e:
+            logger.error(f"Error initializing database: {e}")
     
     async def salary_focused_search(self, criteria: SearchCriteria) -> List[JobOpportunity]:
         """
@@ -428,11 +368,11 @@ class IncomeBoostJobMatcher:
         Integrates with multiple data sources
         """
         # Check if company exists in database
-        conn = sqlite3.connect(self.db_path)
+        conn = get_pg_connection()
         cursor = conn.cursor()
         
         cursor.execute('''
-            SELECT * FROM company_profiles WHERE name = ?
+            SELECT * FROM company_profiles WHERE name = %s
         ''', (company_name,))
         
         existing_profile = cursor.fetchone()
@@ -497,8 +437,8 @@ class IncomeBoostJobMatcher:
             logger.error(f"Error gathering company data for {company_name}: {e}")
         
         # Store in database
-        self._store_company_profile(profile)
         conn.close()
+        self._store_company_profile(profile)
         
         return profile
     
@@ -692,15 +632,20 @@ class IncomeBoostJobMatcher:
     
     def _store_company_profile(self, profile: CompanyProfile):
         """Store company profile in database"""
-        conn = sqlite3.connect(self.db_path)
+        conn = get_pg_connection()
         cursor = conn.cursor()
         
         cursor.execute('''
-            INSERT OR REPLACE INTO company_profiles 
+            INSERT INTO company_profiles 
             (company_id, name, industry, size, diversity_score, growth_score, culture_score,
              benefits_score, leadership_diversity, employee_retention, glassdoor_rating,
              indeed_rating, remote_friendly, headquarters, founded_year, funding_stage, revenue)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            ON CONFLICT (company_id) DO UPDATE SET
+                name = EXCLUDED.name,
+                diversity_score = EXCLUDED.diversity_score,
+                growth_score = EXCLUDED.growth_score,
+                culture_score = EXCLUDED.culture_score
         ''', (
             profile.company_id, profile.name, profile.industry, profile.size,
             profile.diversity_score, profile.growth_score, profile.culture_score,
@@ -714,19 +659,22 @@ class IncomeBoostJobMatcher:
     
     def _store_search_results(self, criteria: SearchCriteria, jobs: List[JobOpportunity]):
         """Store search results in database"""
-        conn = sqlite3.connect(self.db_path)
+        conn = get_pg_connection()
         cursor = conn.cursor()
         
         for job in jobs:
             cursor.execute('''
-                INSERT OR REPLACE INTO job_opportunities 
+                INSERT INTO job_opportunities 
                 (job_id, title, company, location, msa, salary_min, salary_max, salary_median,
                  salary_increase_potential, remote_friendly, job_board, url, description,
                  requirements, benefits, diversity_score, growth_score, culture_score,
                  overall_score, field, experience_level, posted_date, application_deadline,
                  company_size, company_industry, equity_offered, bonus_potential,
                  career_advancement_score, work_life_balance_score)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                ON CONFLICT (job_id) DO UPDATE SET
+                    overall_score = EXCLUDED.overall_score,
+                    salary_increase_potential = EXCLUDED.salary_increase_potential
             ''', (
                 job.job_id, job.title, job.company, job.location, job.msa,
                 job.salary_min, job.salary_max, job.salary_median, job.salary_increase_potential,
@@ -744,28 +692,28 @@ class IncomeBoostJobMatcher:
     def _row_to_company_profile(self, row) -> CompanyProfile:
         """Convert database row to CompanyProfile object"""
         return CompanyProfile(
-            company_id=row[0],
-            name=row[1],
-            industry=row[2],
-            size=row[3],
-            diversity_score=row[4],
-            growth_score=row[5],
-            culture_score=row[6],
-            benefits_score=row[7],
-            leadership_diversity=row[8],
-            employee_retention=row[9],
-            glassdoor_rating=row[10],
-            indeed_rating=row[11],
-            remote_friendly=bool(row[12]),
-            headquarters=row[13],
-            founded_year=row[14],
-            funding_stage=row[15],
-            revenue=row[16]
+            company_id=row['company_id'],
+            name=row['name'],
+            industry=row['industry'],
+            size=row['size'],
+            diversity_score=row['diversity_score'],
+            growth_score=row['growth_score'],
+            culture_score=row['culture_score'],
+            benefits_score=row['benefits_score'],
+            leadership_diversity=row['leadership_diversity'],
+            employee_retention=row['employee_retention'],
+            glassdoor_rating=row['glassdoor_rating'],
+            indeed_rating=row['indeed_rating'],
+            remote_friendly=bool(row['remote_friendly']),
+            headquarters=row['headquarters'],
+            founded_year=row['founded_year'],
+            funding_stage=row['funding_stage'],
+            revenue=row['revenue']
         )
     
     async def _store_search_results(self, criteria: SearchCriteria, jobs: List[JobOpportunity]):
         """Store search results in database"""
-        conn = sqlite3.connect(self.db_path)
+        conn = get_pg_connection()
         cursor = conn.cursor()
         
         search_id = f"search_{hash(str(criteria)) % 1000000}"
@@ -773,20 +721,24 @@ class IncomeBoostJobMatcher:
         # Store search criteria
         cursor.execute('''
             INSERT INTO search_history (search_id, search_criteria, results_count)
-            VALUES (?, ?, ?)
+            VALUES (%s, %s, %s)
+            ON CONFLICT (search_id) DO NOTHING
         ''', (search_id, json.dumps(asdict(criteria)), len(jobs)))
         
         # Store job opportunities
         for job in jobs:
             cursor.execute('''
-                INSERT OR REPLACE INTO job_opportunities 
+                INSERT INTO job_opportunities 
                 (job_id, title, company, location, msa, salary_min, salary_max, salary_median,
                  salary_increase_potential, remote_friendly, job_board, url, description,
                  requirements, benefits, diversity_score, growth_score, culture_score,
                  overall_score, field, experience_level, posted_date, application_deadline,
                  company_size, company_industry, equity_offered, bonus_potential,
                  career_advancement_score, work_life_balance_score)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                ON CONFLICT (job_id) DO UPDATE SET
+                    overall_score = EXCLUDED.overall_score,
+                    salary_increase_potential = EXCLUDED.salary_increase_potential
             ''', (
                 job.job_id, job.title, job.company, job.location, job.msa,
                 job.salary_min, job.salary_max, job.salary_median, job.salary_increase_potential,

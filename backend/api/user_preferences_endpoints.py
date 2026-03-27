@@ -20,12 +20,7 @@ user_preferences_api = Blueprint('user_preferences_api', __name__, url_prefix='/
 
 def get_db_connection():
     """Get PostgreSQL database connection"""
-    db_url = os.environ.get('DATABASE_URL')
-    if not db_url:
-        raise RuntimeError(
-            "DATABASE_URL is required. SQLite is not supported."
-        )
-    conn = psycopg2.connect(db_url)
+    conn = psycopg2.connect(os.environ['DATABASE_URL'])
     conn.cursor_factory = psycopg2.extras.RealDictCursor
     return conn
 
@@ -107,7 +102,7 @@ def save_user_meme_preferences(user_id, preferences):
             VALUES (%s, %s, CURRENT_TIMESTAMP)
             ON CONFLICT (user_id) DO UPDATE SET
                 preferences = EXCLUDED.preferences,
-                updated_at = CURRENT_TIMESTAMP
+                updated_at = EXCLUDED.updated_at
         ''', (user_id, preferences_json))
         
         conn.commit()

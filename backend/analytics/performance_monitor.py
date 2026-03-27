@@ -414,7 +414,7 @@ class PerformanceMonitor:
                 time.sleep(interval)
                 
             except Exception as e:
-                logger.error(f"Error in system monitoring: {e}")
+                logger.error("Error in system monitoring:", exc_info=True)
                 time.sleep(interval)
     
     def _store_system_resources(self, resources: SystemResources):

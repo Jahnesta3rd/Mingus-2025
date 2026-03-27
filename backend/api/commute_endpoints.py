@@ -55,7 +55,7 @@ def init_commute_database():
         db_url = os.environ.get('DATABASE_URL')
         if not db_url:
             raise RuntimeError("DATABASE_URL is required.")
-        conn = psycopg2.connect(db_url)
+        conn = psycopg2.connect(os.environ['DATABASE_URL'])
         conn.cursor_factory = psycopg2.extras.RealDictCursor
         cursor = conn.cursor()
         
@@ -124,7 +124,7 @@ def get_scenarios():
         db_url = os.environ.get('DATABASE_URL')
         if not db_url:
             raise RuntimeError("DATABASE_URL is required.")
-        conn = psycopg2.connect(db_url)
+        conn = psycopg2.connect(os.environ['DATABASE_URL'])
         conn.cursor_factory = psycopg2.extras.RealDictCursor
         cursor = conn.cursor()
         
@@ -191,7 +191,7 @@ def save_scenario():
         db_url = os.environ.get('DATABASE_URL')
         if not db_url:
             raise RuntimeError("DATABASE_URL is required.")
-        conn = psycopg2.connect(db_url)
+        conn = psycopg2.connect(os.environ['DATABASE_URL'])
         conn.cursor_factory = psycopg2.extras.RealDictCursor
         cursor = conn.cursor()
         
@@ -246,7 +246,7 @@ def delete_scenario(scenario_id):
         db_url = os.environ.get('DATABASE_URL')
         if not db_url:
             raise RuntimeError("DATABASE_URL is required.")
-        conn = psycopg2.connect(db_url)
+        conn = psycopg2.connect(os.environ['DATABASE_URL'])
         conn.cursor_factory = psycopg2.extras.RealDictCursor
         cursor = conn.cursor()
         
@@ -283,7 +283,7 @@ def get_vehicles():
         db_url = os.environ.get('DATABASE_URL')
         if not db_url:
             raise RuntimeError("DATABASE_URL is required.")
-        conn = psycopg2.connect(db_url)
+        conn = psycopg2.connect(os.environ['DATABASE_URL'])
         conn.cursor_factory = psycopg2.extras.RealDictCursor
         cursor = conn.cursor()
         

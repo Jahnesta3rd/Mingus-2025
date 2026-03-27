@@ -466,7 +466,8 @@ def get_job_matching_analytics():
         matcher = IncomeBoostJobMatcher()
         
         # Get analytics from database
-        conn = get_pg_connection()
+        conn = psycopg2.connect(os.environ['DATABASE_URL'])
+        conn.cursor_factory = psycopg2.extras.RealDictCursor
         cursor = conn.cursor()
         
         # Get job count by field
@@ -476,7 +477,7 @@ def get_job_matching_analytics():
             GROUP BY field 
             ORDER BY count DESC
         ''')
-        field_counts = dict(cursor.fetchall())
+        field_counts = {row['field']: row['count'] for row in cursor.fetchall()}
         
         # Get average scores by field
         cursor.execute('''
@@ -485,7 +486,7 @@ def get_job_matching_analytics():
             GROUP BY field 
             ORDER BY avg_score DESC
         ''')
-        field_scores = dict(cursor.fetchall())
+        field_scores = {row['field']: row['avg_score'] for row in cursor.fetchall()}
         
         # Get top companies by job count
         cursor.execute('''
@@ -495,7 +496,7 @@ def get_job_matching_analytics():
             ORDER BY count DESC 
             LIMIT 10
         ''')
-        top_companies = dict(cursor.fetchall())
+        top_companies = {row['company']: row['count'] for row in cursor.fetchall()}
         
         # Get remote job percentage
         cursor.execute('''
@@ -539,7 +540,8 @@ def health_check():
         matcher = IncomeBoostJobMatcher()
         
         # Check database connection
-        conn = get_pg_connection()
+        conn = psycopg2.connect(os.environ['DATABASE_URL'])
+        conn.cursor_factory = psycopg2.extras.RealDictCursor
         cursor = conn.cursor()
         cursor.execute('SELECT COUNT(*) as count FROM job_opportunities')
         job_count = cursor.fetchone()['count']

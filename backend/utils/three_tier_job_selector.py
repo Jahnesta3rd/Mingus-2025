@@ -12,7 +12,9 @@ opportunities into three distinct tiers based on risk/reward profiles:
 
 import json
 import logging
-import sqlite3
+import psycopg2
+import psycopg2.extras
+import os
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Tuple, Any, Union
 from dataclasses import dataclass, asdict
@@ -33,6 +35,12 @@ from .income_boost_job_matcher import (
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+def get_pg_connection():
+    """Get PostgreSQL database connection"""
+    conn = psycopg2.connect(os.environ['DATABASE_URL'])
+    conn.cursor_factory = psycopg2.extras.RealDictCursor
+    return conn
 
 class JobTier(Enum):
     """Job recommendation tiers based on risk/reward profile"""
@@ -107,8 +115,7 @@ class ThreeTierJobSelector:
     at different risk/reward levels for career advancement
     """
     
-    def __init__(self, db_path: str = "backend/job_matching.db"):
-        self.db_path = db_path
+    def __init__(self, db_path: str = None):
         self.job_matcher = IncomeBoostJobMatcher(db_path)
         self.session = None
         self.executor = ThreadPoolExecutor(max_workers=10)
@@ -173,49 +180,12 @@ class ThreeTierJobSelector:
         self._init_database()
     
     def _init_database(self):
-        """Initialize the three-tier job recommendation database"""
-        conn = sqlite3.connect(self.db_path)
-        cursor = conn.cursor()
-        
-        # Create tiered recommendations table
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS tiered_recommendations (
-                recommendation_id TEXT PRIMARY KEY,
-                job_id TEXT NOT NULL,
-                tier TEXT NOT NULL,
-                success_probability REAL,
-                salary_increase_potential REAL,
-                skills_gap_analysis TEXT,
-                application_strategy TEXT,
-                preparation_roadmap TEXT,
-                diversity_analysis TEXT,
-                company_culture_fit REAL,
-                career_advancement_potential REAL,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (job_id) REFERENCES job_opportunities (job_id)
-            )
-        ''')
-        
-        # Create skills gap analysis table
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS skills_gap_analysis (
-                gap_id TEXT PRIMARY KEY,
-                job_id TEXT NOT NULL,
-                skill TEXT NOT NULL,
-                category TEXT NOT NULL,
-                current_level REAL,
-                required_level REAL,
-                gap_size REAL,
-                priority TEXT,
-                learning_time_estimate TEXT,
-                resources TEXT,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (job_id) REFERENCES job_opportunities (job_id)
-            )
-        ''')
-        
-        conn.commit()
-        conn.close()
+        """Verify PostgreSQL database connection"""
+        try:
+            conn = get_pg_connection()
+            conn.close()
+        except Exception as e:
+            logger.error(f"Error initializing database: {e}")
     
     async def generate_tiered_recommendations(
         self, 
@@ -1137,7 +1107,7 @@ class ThreeTierJobSelector:
     ):
         """Store tiered recommendations in database"""
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             for tier, tier_recommendations in recommendations.items():
@@ -1145,13 +1115,19 @@ class ThreeTierJobSelector:
                     recommendation_id = f"{rec.job.job_id}_{tier.value}_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
                     
                     cursor.execute('''
-                        INSERT OR REPLACE INTO tiered_recommendations (
+                        INSERT INTO tiered_recommendations (
                             recommendation_id, job_id, tier, success_probability,
                             salary_increase_potential, skills_gap_analysis,
                             application_strategy, preparation_roadmap,
                             diversity_analysis, company_culture_fit,
                             career_advancement_potential
-                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                        ON CONFLICT (recommendation_id) DO UPDATE SET
+                            success_probability = EXCLUDED.success_probability,
+                            salary_increase_potential = EXCLUDED.salary_increase_potential,
+                            skills_gap_analysis = EXCLUDED.skills_gap_analysis,
+                            application_strategy = EXCLUDED.application_strategy,
+                            preparation_roadmap = EXCLUDED.preparation_roadmap
                     ''', (
                         recommendation_id,
                         rec.job.job_id,

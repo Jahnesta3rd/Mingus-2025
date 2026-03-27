@@ -22,7 +22,9 @@ Performance targets:
 import asyncio
 import json
 import logging
-import sqlite3
+import psycopg2
+import psycopg2.extras
+import os
 import time
 import hashlib
 from datetime import datetime, timedelta
@@ -97,6 +99,12 @@ class UserAnalytics:
     satisfaction_score: Optional[float]
     conversion_events: List[Dict[str, Any]]
 
+def get_pg_connection():
+    """Get PostgreSQL database connection"""
+    conn = psycopg2.connect(os.environ['DATABASE_URL'])
+    conn.cursor_factory = psycopg2.extras.RealDictCursor
+    return conn
+
 class MingusJobRecommendationEngine:
     """
     Central orchestration engine for the complete resume-to-recommendation workflow.
@@ -105,9 +113,8 @@ class MingusJobRecommendationEngine:
     with comprehensive error handling, performance optimization, and analytics tracking.
     """
     
-    def __init__(self, db_path: str = "backend/mingus_recommendations.db"):
+    def __init__(self, db_path: str = None):
         """Initialize the recommendation engine"""
-        self.db_path = db_path
         self.cache = {}
         self.cache_ttl = 3600  # 1 hour cache TTL
         self.max_processing_time = 8.0  # 8 seconds max processing time
@@ -119,8 +126,8 @@ class MingusJobRecommendationEngine:
         
         # Initialize components
         self.resume_parser = AdvancedResumeParserWithFormats()
-        self.job_matcher = IncomeBoostJobMatcher(db_path)
-        self.three_tier_selector = ThreeTierJobSelector(db_path)
+        self.job_matcher = IncomeBoostJobMatcher()
+        self.three_tier_selector = ThreeTierJobSelector()
         self.basic_parser = ResumeParser()
         
         # Initialize database
@@ -143,93 +150,12 @@ class MingusJobRecommendationEngine:
         logger.info("MingusJobRecommendationEngine initialized successfully")
     
     def _init_database(self):
-        """Initialize the recommendation engine database"""
+        """Verify PostgreSQL database connection"""
         try:
-            conn = sqlite3.connect(self.db_path)
-            cursor = conn.cursor()
-            
-            # Create workflow tracking table
-            cursor.execute('''
-                CREATE TABLE IF NOT EXISTS workflow_sessions (
-                    session_id TEXT PRIMARY KEY,
-                    user_id TEXT NOT NULL,
-                    resume_content_hash TEXT,
-                    status TEXT NOT NULL,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    completed_at TIMESTAMP,
-                    total_processing_time REAL,
-                    error_message TEXT,
-                    result_data TEXT
-                )
-            ''')
-            
-            # Create step tracking table
-            cursor.execute('''
-                CREATE TABLE IF NOT EXISTS workflow_steps (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    session_id TEXT NOT NULL,
-                    step_name TEXT NOT NULL,
-                    status TEXT NOT NULL,
-                    start_time TIMESTAMP,
-                    end_time TIMESTAMP,
-                    duration REAL,
-                    error_message TEXT,
-                    result_data TEXT,
-                    FOREIGN KEY (session_id) REFERENCES workflow_sessions (session_id)
-                )
-            ''')
-            
-            # Create analytics tracking table
-            cursor.execute('''
-                CREATE TABLE IF NOT EXISTS user_analytics (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    user_id TEXT NOT NULL,
-                    session_id TEXT NOT NULL,
-                    event_type TEXT NOT NULL,
-                    event_data TEXT,
-                    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    FOREIGN KEY (session_id) REFERENCES workflow_sessions (session_id)
-                )
-            ''')
-            
-            # Create performance metrics table
-            cursor.execute('''
-                CREATE TABLE IF NOT EXISTS performance_metrics (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    session_id TEXT NOT NULL,
-                    total_time REAL NOT NULL,
-                    resume_parsing_time REAL,
-                    market_research_time REAL,
-                    job_search_time REAL,
-                    recommendation_generation_time REAL,
-                    formatting_time REAL,
-                    cache_hits INTEGER DEFAULT 0,
-                    cache_misses INTEGER DEFAULT 0,
-                    errors_count INTEGER DEFAULT 0,
-                    warnings_count INTEGER DEFAULT 0,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    FOREIGN KEY (session_id) REFERENCES workflow_sessions (session_id)
-                )
-            ''')
-            
-            # Create cache table
-            cursor.execute('''
-                CREATE TABLE IF NOT EXISTS recommendation_cache (
-                    cache_key TEXT PRIMARY KEY,
-                    result_data TEXT NOT NULL,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    expires_at TIMESTAMP NOT NULL,
-                    hit_count INTEGER DEFAULT 0
-                )
-            ''')
-            
-            conn.commit()
+            conn = get_pg_connection()
             conn.close()
-            logger.info("Recommendation engine database initialized")
-            
         except Exception as e:
             logger.error(f"Error initializing database: {e}")
-            raise
     
     async def process_resume_completely(
         self, 
@@ -702,31 +628,28 @@ class MingusJobRecommendationEngine:
     async def _get_cached_result(self, cache_key: str) -> Optional[Dict[str, Any]]:
         """Get cached result if available and not expired"""
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             cursor.execute('''
                 SELECT result_data, expires_at FROM recommendation_cache 
-                WHERE cache_key = ? AND expires_at > CURRENT_TIMESTAMP
+                WHERE cache_key = %s AND expires_at > CURRENT_TIMESTAMP
             ''', (cache_key,))
             
             result = cursor.fetchone()
-            conn.close()
             
             if result:
-                # Update hit count
-                conn = sqlite3.connect(self.db_path)
-                cursor = conn.cursor()
                 cursor.execute('''
                     UPDATE recommendation_cache 
                     SET hit_count = hit_count + 1 
-                    WHERE cache_key = ?
+                    WHERE cache_key = %s
                 ''', (cache_key,))
                 conn.commit()
                 conn.close()
                 
-                return json.loads(result[0])
+                return json.loads(result['result_data'])
             
+            conn.close()
             return None
             
         except Exception as e:
@@ -738,13 +661,17 @@ class MingusJobRecommendationEngine:
         try:
             expires_at = datetime.now() + timedelta(seconds=self.cache_ttl)
             
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             cursor.execute('''
-                INSERT OR REPLACE INTO recommendation_cache 
+                INSERT INTO recommendation_cache 
                 (cache_key, result_data, expires_at) 
-                VALUES (?, ?, ?)
+                VALUES (%s, %s, %s)
+                ON CONFLICT (cache_key) DO UPDATE SET
+                    result_data = EXCLUDED.result_data,
+                    expires_at = EXCLUDED.expires_at,
+                    hit_count = recommendation_cache.hit_count
             ''', (cache_key, json.dumps(result), expires_at))
             
             conn.commit()
@@ -949,13 +876,13 @@ class MingusJobRecommendationEngine:
         """Track workflow start"""
         try:
             content_hash = hashlib.md5(content.encode('utf-8')).hexdigest()
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             cursor.execute('''
                 INSERT INTO workflow_sessions 
                 (session_id, user_id, resume_content_hash, status) 
-                VALUES (?, ?, ?, ?)
+                VALUES (%s, %s, %s, %s)
             ''', (session_id, user_id, content_hash, ProcessingStatus.IN_PROGRESS.value))
             
             conn.commit()
@@ -967,14 +894,14 @@ class MingusJobRecommendationEngine:
     def _track_workflow_completion(self, session_id: str, total_time: float, result_data: Dict[str, Any]):
         """Track workflow completion"""
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             cursor.execute('''
                 UPDATE workflow_sessions 
-                SET status = ?, completed_at = CURRENT_TIMESTAMP, 
-                    total_processing_time = ?, result_data = ?
-                WHERE session_id = ?
+                SET status = %s, completed_at = CURRENT_TIMESTAMP, 
+                    total_processing_time = %s, result_data = %s
+                WHERE session_id = %s
             ''', (ProcessingStatus.COMPLETED.value, total_time, json.dumps(result_data), session_id))
             
             conn.commit()
@@ -986,13 +913,13 @@ class MingusJobRecommendationEngine:
     def _track_workflow_error(self, session_id: str, error_message: str):
         """Track workflow error"""
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             cursor.execute('''
                 UPDATE workflow_sessions 
-                SET status = ?, error_message = ?
-                WHERE session_id = ?
+                SET status = %s, error_message = %s
+                WHERE session_id = %s
             ''', (ProcessingStatus.FAILED.value, error_message, session_id))
             
             conn.commit()
@@ -1004,13 +931,13 @@ class MingusJobRecommendationEngine:
     async def _track_analytics(self, user_id: str, session_id: str, event_type: str, event_data: Dict[str, Any]):
         """Track user analytics"""
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             cursor.execute('''
                 INSERT INTO user_analytics 
                 (user_id, session_id, event_type, event_data) 
-                VALUES (?, ?, ?, ?)
+                VALUES (%s, %s, %s, %s)
             ''', (user_id, session_id, event_type, json.dumps(event_data)))
             
             conn.commit()

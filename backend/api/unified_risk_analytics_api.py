@@ -68,8 +68,9 @@ class RiskAnalyticsAPI:
     assessment, monitoring, recommendations, and analytics tracking.
     """
     
-    def __init__(self):
+    def __init__(self, db_path: str = None):
         """Initialize the unified risk analytics API"""
+        self.db_path = db_path
         
         # Initialize core risk analytics components
         self.risk_analyzer = RiskAnalyticsIntegration()
@@ -89,85 +90,12 @@ class RiskAnalyticsAPI:
         logger.info("RiskAnalyticsAPI initialized successfully")
     
     def _init_database(self):
-        """Initialize database tables for risk analytics API"""
+        """Verify PostgreSQL database connection"""
         try:
-            db_url = os.environ.get('DATABASE_URL')
-            if not db_url:
-                logger.warning("DATABASE_URL not set — skipping risk analytics table init")
-                return
-            conn = psycopg2.connect(db_url)
-            conn.cursor_factory = psycopg2.extras.RealDictCursor
-            cursor = conn.cursor()
-            
-            cursor.execute('''
-                CREATE TABLE IF NOT EXISTS risk_assessment_history (
-                    id SERIAL PRIMARY KEY,
-                    user_id TEXT NOT NULL,
-                    overall_risk_score REAL NOT NULL,
-                    ai_replacement_risk REAL,
-                    layoff_risk REAL,
-                    industry_risk REAL,
-                    primary_risk_factor TEXT,
-                    risk_triggers TEXT,
-                    assessment_type TEXT DEFAULT 'user_requested',
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                )
-            ''')
-            
-            cursor.execute('''
-                CREATE TABLE IF NOT EXISTS risk_triggered_recommendations (
-                    id SERIAL PRIMARY KEY,
-                    user_id TEXT NOT NULL,
-                    risk_assessment_id INTEGER,
-                    recommendation_id TEXT NOT NULL,
-                    trigger_type TEXT NOT NULL,
-                    risk_score REAL NOT NULL,
-                    recommendation_tier TEXT,
-                    success_probability REAL,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    FOREIGN KEY (risk_assessment_id) REFERENCES risk_assessment_history (id)
-                )
-            ''')
-            
-            cursor.execute('''
-                CREATE TABLE IF NOT EXISTS risk_monitoring_alerts (
-                    id SERIAL PRIMARY KEY,
-                    user_id TEXT NOT NULL,
-                    alert_type TEXT NOT NULL,
-                    risk_level TEXT NOT NULL,
-                    message TEXT NOT NULL,
-                    acknowledged BOOLEAN DEFAULT FALSE,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    acknowledged_at TIMESTAMP
-                )
-            ''')
-            
-            cursor.execute('''
-                CREATE TABLE IF NOT EXISTS risk_ab_test_assignments (
-                    id SERIAL PRIMARY KEY,
-                    user_id TEXT NOT NULL,
-                    test_id TEXT NOT NULL,
-                    variant TEXT NOT NULL,
-                    assigned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    UNIQUE(user_id, test_id)
-                )
-            ''')
-            
-            cursor.execute('CREATE INDEX IF NOT EXISTS idx_risk_assessment_user_id ON risk_assessment_history(user_id)')
-            cursor.execute('CREATE INDEX IF NOT EXISTS idx_risk_assessment_created_at ON risk_assessment_history(created_at)')
-            cursor.execute('CREATE INDEX IF NOT EXISTS idx_risk_recommendations_user_id ON risk_triggered_recommendations(user_id)')
-            cursor.execute('CREATE INDEX IF NOT EXISTS idx_risk_alerts_user_id ON risk_monitoring_alerts(user_id)')
-            cursor.execute('CREATE INDEX IF NOT EXISTS idx_risk_alerts_acknowledged ON risk_monitoring_alerts(acknowledged)')
-            
-            conn.commit()
+            conn = psycopg2.connect(os.environ['DATABASE_URL'])
             conn.close()
-            
         except Exception as e:
-            if 'conn' in locals():
-                conn.rollback()
-            logger.error(f"Failed to initialize risk analytics database: {e}")
-            raise
+            logger.error(f"Error initializing database: {e}")
 
 # Initialize the API instance
 risk_api = RiskAnalyticsAPI()

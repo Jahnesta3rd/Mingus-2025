@@ -4,7 +4,9 @@ Referral System Database Models
 Handles referral tracking, unlock progress, and feature access control
 """
 
-import sqlite3
+import psycopg2
+import psycopg2.extras
+import os
 import json
 import secrets
 import hashlib
@@ -14,150 +16,38 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+def get_pg_connection():
+    """Get PostgreSQL database connection"""
+    conn = psycopg2.connect(os.environ['DATABASE_URL'])
+    conn.cursor_factory = psycopg2.extras.RealDictCursor
+    return conn
+
 class ReferralSystem:
     """Manages referral tracking and feature unlock system"""
     
-    def __init__(self, db_path: str = 'referral_system.db'):
-        self.db_path = db_path
+    def __init__(self, db_path: str = None):
         self.init_database()
     
     def init_database(self):
-        """Initialize referral system database tables"""
+        """Verify PostgreSQL database connection"""
         try:
-            conn = sqlite3.connect(self.db_path)
-            cursor = conn.cursor()
-            
-            # Users table with referral tracking
-            cursor.execute('''
-                CREATE TABLE IF NOT EXISTS users (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    user_id TEXT UNIQUE NOT NULL,
-                    email TEXT UNIQUE NOT NULL,
-                    first_name TEXT,
-                    last_name TEXT,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    referral_code TEXT UNIQUE,
-                    referred_by TEXT,
-                    referral_count INTEGER DEFAULT 0,
-                    successful_referrals INTEGER DEFAULT 0,
-                    feature_unlocked BOOLEAN DEFAULT FALSE,
-                    unlock_date TIMESTAMP,
-                    last_activity TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                )
-            ''')
-            
-            # Referrals table
-            cursor.execute('''
-                CREATE TABLE IF NOT EXISTS referrals (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    referrer_user_id TEXT NOT NULL,
-                    referred_email TEXT NOT NULL,
-                    referral_code TEXT NOT NULL,
-                    status TEXT DEFAULT 'pending',
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    completed_at TIMESTAMP,
-                    validated_at TIMESTAMP,
-                    notes TEXT,
-                    FOREIGN KEY (referrer_user_id) REFERENCES users (user_id)
-                )
-            ''')
-            
-            # Feature access table
-            cursor.execute('''
-                CREATE TABLE IF NOT EXISTS feature_access (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    user_id TEXT NOT NULL,
-                    feature_name TEXT NOT NULL,
-                    unlocked BOOLEAN DEFAULT FALSE,
-                    unlock_method TEXT,
-                    unlock_date TIMESTAMP,
-                    expires_at TIMESTAMP,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    FOREIGN KEY (user_id) REFERENCES users (user_id),
-                    UNIQUE(user_id, feature_name)
-                )
-            ''')
-            
-            # Unlock attempts tracking
-            cursor.execute('''
-                CREATE TABLE IF NOT EXISTS unlock_attempts (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    user_id TEXT NOT NULL,
-                    feature_name TEXT NOT NULL,
-                    attempt_type TEXT NOT NULL,
-                    ip_address TEXT,
-                    user_agent TEXT,
-                    success BOOLEAN DEFAULT FALSE,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    FOREIGN KEY (user_id) REFERENCES users (user_id)
-                )
-            ''')
-            
-            # Location preferences (for unlocked users)
-            cursor.execute('''
-                CREATE TABLE IF NOT EXISTS location_preferences (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    user_id TEXT NOT NULL,
-                    zipcode TEXT NOT NULL,
-                    city TEXT,
-                    state TEXT,
-                    latitude REAL,
-                    longitude REAL,
-                    search_radius INTEGER DEFAULT 25,
-                    commute_preference TEXT DEFAULT 'flexible',
-                    remote_ok BOOLEAN DEFAULT TRUE,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    FOREIGN KEY (user_id) REFERENCES users (user_id)
-                )
-            ''')
-            
-            # Resume uploads (for unlocked users)
-            cursor.execute('''
-                CREATE TABLE IF NOT EXISTS resume_uploads (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    user_id TEXT NOT NULL,
-                    filename TEXT NOT NULL,
-                    file_path TEXT NOT NULL,
-                    file_size INTEGER,
-                    file_type TEXT,
-                    upload_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    processed BOOLEAN DEFAULT FALSE,
-                    processing_status TEXT DEFAULT 'pending',
-                    analysis_results TEXT,
-                    FOREIGN KEY (user_id) REFERENCES users (user_id)
-                )
-            ''')
-            
-            # Create indexes for performance
-            cursor.execute('CREATE INDEX IF NOT EXISTS idx_users_referral_code ON users(referral_code)')
-            cursor.execute('CREATE INDEX IF NOT EXISTS idx_users_referred_by ON users(referred_by)')
-            cursor.execute('CREATE INDEX IF NOT EXISTS idx_referrals_code ON referrals(referral_code)')
-            cursor.execute('CREATE INDEX IF NOT EXISTS idx_referrals_status ON referrals(status)')
-            cursor.execute('CREATE INDEX IF NOT EXISTS idx_feature_access_user ON feature_access(user_id)')
-            cursor.execute('CREATE INDEX IF NOT EXISTS idx_unlock_attempts_user ON unlock_attempts(user_id)')
-            
-            conn.commit()
+            conn = get_pg_connection()
             conn.close()
-            logger.info("Referral system database initialized successfully")
-            
         except Exception as e:
-            logger.error(f"Error initializing referral database: {e}")
-            raise
+            logger.error(f"Error initializing database: {e}")
     
     def create_user(self, user_id: str, email: str, first_name: str = None, 
                    last_name: str = None, referred_by: str = None) -> Dict:
         """Create a new user with referral code"""
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             # Generate unique referral code
             referral_code = self._generate_referral_code()
             
             # Check if user already exists
-            cursor.execute('SELECT user_id FROM users WHERE user_id = ? OR email = ?', 
+            cursor.execute('SELECT user_id FROM users WHERE user_id = %s OR email = %s', 
                          (user_id, email))
             if cursor.fetchone():
                 conn.close()
@@ -166,20 +56,20 @@ class ReferralSystem:
             # Create user
             cursor.execute('''
                 INSERT INTO users (user_id, email, first_name, last_name, referral_code, referred_by)
-                VALUES (?, ?, ?, ?, ?, ?)
+                VALUES (%s, %s, %s, %s, %s, %s)
             ''', (user_id, email, first_name, last_name, referral_code, referred_by))
             
             # If referred by someone, create referral record
             if referred_by:
                 cursor.execute('''
                     INSERT INTO referrals (referrer_user_id, referred_email, referral_code)
-                    VALUES (?, ?, ?)
+                    VALUES (%s, %s, %s)
                 ''', (referred_by, email, referral_code))
                 
                 # Update referrer's count
                 cursor.execute('''
                     UPDATE users SET referral_count = referral_count + 1
-                    WHERE user_id = ?
+                    WHERE user_id = %s
                 ''', (referred_by,))
             
             conn.commit()
@@ -199,7 +89,7 @@ class ReferralSystem:
     def validate_referral(self, referral_code: str, referred_email: str) -> Dict:
         """Validate and complete a referral"""
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             # Find the referral
@@ -207,7 +97,7 @@ class ReferralSystem:
                 SELECT r.*, u.referral_code as referrer_code
                 FROM referrals r
                 JOIN users u ON r.referrer_user_id = u.user_id
-                WHERE r.referral_code = ? AND r.referred_email = ?
+                WHERE r.referral_code = %s AND r.referred_email = %s
             ''', (referral_code, referred_email))
             
             referral = cursor.fetchone()
@@ -215,7 +105,7 @@ class ReferralSystem:
                 conn.close()
                 return {'success': False, 'error': 'Invalid referral code or email'}
             
-            if referral[4] != 'pending':  # status column
+            if referral['status'] != 'pending':  # status column
                 conn.close()
                 return {'success': False, 'error': 'Referral already processed'}
             
@@ -223,24 +113,24 @@ class ReferralSystem:
             cursor.execute('''
                 UPDATE referrals 
                 SET status = 'completed', completed_at = CURRENT_TIMESTAMP, validated_at = CURRENT_TIMESTAMP
-                WHERE id = ?
-            ''', (referral[0],))
+                WHERE id = %s
+            ''', (referral['id'],))
             
             # Update referrer's successful referrals count
             cursor.execute('''
                 UPDATE users 
                 SET successful_referrals = successful_referrals + 1
-                WHERE user_id = ?
-            ''', (referral[1],))
+                WHERE user_id = %s
+            ''', (referral['referrer_user_id'],))
             
             # Check if referrer should unlock features
             cursor.execute('''
-                SELECT successful_referrals FROM users WHERE user_id = ?
-            ''', (referral[1],))
+                SELECT successful_referrals FROM users WHERE user_id = %s
+            ''', (referral['referrer_user_id'],))
             
             referrer_data = cursor.fetchone()
-            if referrer_data and referrer_data[0] >= 3:
-                self._unlock_features(referral[1], 'referral_program')
+            if referrer_data and referrer_data['successful_referrals'] >= 3:
+                self._unlock_features(referral['referrer_user_id'], 'referral_program')
             
             conn.commit()
             conn.close()
@@ -248,7 +138,7 @@ class ReferralSystem:
             return {
                 'success': True,
                 'message': 'Referral validated successfully',
-                'referrer_code': referral[7]
+                'referrer_code': referral['referrer_code']
             }
             
         except Exception as e:
@@ -258,7 +148,7 @@ class ReferralSystem:
     def check_feature_access(self, user_id: str, feature_name: str = 'job_recommendations') -> Dict:
         """Check if user has access to a specific feature"""
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             # Check feature access
@@ -266,7 +156,7 @@ class ReferralSystem:
                 SELECT fa.unlocked, fa.unlock_date, fa.expires_at, u.successful_referrals
                 FROM feature_access fa
                 JOIN users u ON fa.user_id = u.user_id
-                WHERE fa.user_id = ? AND fa.feature_name = ?
+                WHERE fa.user_id = %s AND fa.feature_name = %s
             ''', (user_id, feature_name))
             
             access = cursor.fetchone()
@@ -274,45 +164,45 @@ class ReferralSystem:
             if not access:
                 # Check if user has enough referrals for automatic unlock
                 cursor.execute('''
-                    SELECT successful_referrals FROM users WHERE user_id = ?
+                    SELECT successful_referrals FROM users WHERE user_id = %s
                 ''', (user_id,))
                 
                 user_data = cursor.fetchone()
-                if user_data and user_data[0] >= 3:
+                if user_data and user_data['successful_referrals'] >= 3:
                     self._unlock_features(user_id, 'referral_program')
                     conn.close()
                     return {
                         'success': True,
                         'unlocked': True,
                         'unlock_method': 'referral_program',
-                        'referral_count': user_data[0]
+                        'referral_count': user_data['successful_referrals']
                     }
                 
                 conn.close()
                 return {
                     'success': True,
                     'unlocked': False,
-                    'referral_count': user_data[0] if user_data else 0,
-                    'referrals_needed': 3 - (user_data[0] if user_data else 0)
+                    'referral_count': user_data['successful_referrals'] if user_data else 0,
+                    'referrals_needed': 3 - (user_data['successful_referrals'] if user_data else 0)
                 }
             
             # Check if access has expired
-            if access[2] and datetime.now() > datetime.fromisoformat(access[2]):
+            if access['expires_at'] and datetime.now() > datetime.fromisoformat(access['expires_at']):
                 conn.close()
                 return {
                     'success': True,
                     'unlocked': False,
                     'expired': True,
-                    'referral_count': access[3]
+                    'referral_count': access['successful_referrals']
                 }
             
             conn.close()
             return {
                 'success': True,
-                'unlocked': bool(access[0]),
-                'unlock_date': access[1],
+                'unlocked': bool(access['unlocked']),
+                'unlock_date': access['unlock_date'],
                 'unlock_method': 'referral_program',
-                'referral_count': access[3]
+                'referral_count': access['successful_referrals']
             }
             
         except Exception as e:
@@ -322,12 +212,12 @@ class ReferralSystem:
     def get_referral_progress(self, user_id: str) -> Dict:
         """Get user's referral progress toward feature unlock"""
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             cursor.execute('''
                 SELECT successful_referrals, referral_count, feature_unlocked
-                FROM users WHERE user_id = ?
+                FROM users WHERE user_id = %s
             ''', (user_id,))
             
             user_data = cursor.fetchone()
@@ -335,15 +225,15 @@ class ReferralSystem:
                 conn.close()
                 return {'success': False, 'error': 'User not found'}
             
-            successful_referrals = user_data[0]
-            total_referrals = user_data[1]
-            feature_unlocked = bool(user_data[2])
+            successful_referrals = user_data['successful_referrals']
+            total_referrals = user_data['referral_count']
+            feature_unlocked = bool(user_data['feature_unlocked'])
             
             # Get pending referrals
             cursor.execute('''
                 SELECT referred_email, created_at, status
                 FROM referrals 
-                WHERE referrer_user_id = ?
+                WHERE referrer_user_id = %s
                 ORDER BY created_at DESC
             ''', (user_id,))
             
@@ -361,9 +251,9 @@ class ReferralSystem:
                     'progress_percentage': min(100, (successful_referrals / 3) * 100),
                     'referrals': [
                         {
-                            'email': ref[0],
-                            'created_at': ref[1],
-                            'status': ref[2]
+                            'email': ref['referred_email'],
+                            'created_at': ref['created_at'],
+                            'status': ref['status']
                         } for ref in referrals
                     ]
                 }
@@ -378,13 +268,13 @@ class ReferralSystem:
                            user_agent: str = None) -> Dict:
         """Track user attempts to access locked features"""
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             cursor.execute('''
                 INSERT INTO unlock_attempts 
                 (user_id, feature_name, attempt_type, ip_address, user_agent)
-                VALUES (?, ?, ?, ?, ?)
+                VALUES (%s, %s, %s, %s, %s)
             ''', (user_id, feature_name, attempt_type, ip_address, user_agent))
             
             conn.commit()
@@ -408,15 +298,24 @@ class ReferralSystem:
             if not access_check['success'] or not access_check['unlocked']:
                 return {'success': False, 'error': 'Feature access required'}
             
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
-            # Use INSERT OR REPLACE to handle updates
             cursor.execute('''
-                INSERT OR REPLACE INTO location_preferences 
+                INSERT INTO location_preferences 
                 (user_id, zipcode, city, state, latitude, longitude, 
                  search_radius, commute_preference, remote_ok, updated_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, CURRENT_TIMESTAMP)
+                ON CONFLICT (user_id) DO UPDATE SET
+                    zipcode = EXCLUDED.zipcode,
+                    city = EXCLUDED.city,
+                    state = EXCLUDED.state,
+                    latitude = EXCLUDED.latitude,
+                    longitude = EXCLUDED.longitude,
+                    search_radius = EXCLUDED.search_radius,
+                    commute_preference = EXCLUDED.commute_preference,
+                    remote_ok = EXCLUDED.remote_ok,
+                    updated_at = CURRENT_TIMESTAMP
             ''', (user_id, zipcode, city, state, latitude, longitude, 
                   search_radius, commute_preference, remote_ok))
             
@@ -438,13 +337,13 @@ class ReferralSystem:
             if not access_check['success'] or not access_check['unlocked']:
                 return {'success': False, 'error': 'Feature access required'}
             
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             cursor.execute('''
                 INSERT INTO resume_uploads 
                 (user_id, filename, file_path, file_size, file_type)
-                VALUES (?, ?, ?, ?, ?)
+                VALUES (%s, %s, %s, %s, %s)
             ''', (user_id, filename, file_path, file_size, file_type))
             
             conn.commit()
@@ -460,9 +359,9 @@ class ReferralSystem:
         """Generate a unique referral code"""
         while True:
             code = secrets.token_urlsafe(8).upper()
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
-            cursor.execute('SELECT id FROM users WHERE referral_code = ?', (code,))
+            cursor.execute('SELECT id FROM users WHERE referral_code = %s', (code,))
             if not cursor.fetchone():
                 conn.close()
                 return code
@@ -471,21 +370,25 @@ class ReferralSystem:
     def _unlock_features(self, user_id: str, unlock_method: str):
         """Unlock features for user"""
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             # Update user's feature unlock status
             cursor.execute('''
                 UPDATE users 
                 SET feature_unlocked = TRUE, unlock_date = CURRENT_TIMESTAMP
-                WHERE user_id = ?
+                WHERE user_id = %s
             ''', (user_id,))
             
             # Add feature access record
             cursor.execute('''
-                INSERT OR REPLACE INTO feature_access 
+                INSERT INTO feature_access 
                 (user_id, feature_name, unlocked, unlock_method, unlock_date)
-                VALUES (?, 'job_recommendations', TRUE, ?, CURRENT_TIMESTAMP)
+                VALUES (%s, 'job_recommendations', TRUE, %s, CURRENT_TIMESTAMP)
+                ON CONFLICT (user_id, feature_name) DO UPDATE SET
+                    unlocked = TRUE,
+                    unlock_method = EXCLUDED.unlock_method,
+                    unlock_date = CURRENT_TIMESTAMP
             ''', (user_id, unlock_method))
             
             conn.commit()

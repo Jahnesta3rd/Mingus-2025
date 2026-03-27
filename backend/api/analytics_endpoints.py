@@ -22,6 +22,7 @@ import logging
 import traceback
 import psycopg2
 import psycopg2.extras
+import os
 from datetime import datetime, timedelta
 from typing import Dict, Any, Optional
 from dataclasses import asdict
@@ -42,7 +43,6 @@ logger = logging.getLogger(__name__)
 
 def get_pg_connection():
     """Get PostgreSQL database connection"""
-    import os
     db_url = os.environ.get('DATABASE_URL')
     if not db_url:
         raise RuntimeError(
@@ -898,7 +898,8 @@ def get_risk_success_stories():
         limit = request.args.get('limit', 10, type=int)
         story_type = request.args.get('story_type')
         
-        conn = get_pg_connection()
+        conn = psycopg2.connect(os.environ['DATABASE_URL'])
+        conn.cursor_factory = psycopg2.extras.RealDictCursor
         cursor = conn.cursor()
         
         query = '''

@@ -26,12 +26,7 @@ assessment_api = Blueprint('assessment_api', __name__, url_prefix='/api')
 
 def get_db_connection():
     """Get PostgreSQL database connection"""
-    db_url = os.environ.get('DATABASE_URL')
-    if not db_url:
-        raise RuntimeError(
-            "DATABASE_URL is required. SQLite is not supported."
-        )
-    conn = psycopg2.connect(db_url)
+    conn = psycopg2.connect(os.environ['DATABASE_URL'])
     conn.cursor_factory = psycopg2.extras.RealDictCursor
     return conn
 
@@ -403,15 +398,19 @@ def sync_assessments_to_profile(email):
         if atype in ('ai-risk', 'income-comparison', 'layoff-risk', 'vehicle-financial-health') and r.get('score') is not None:
             scores_by_type[atype] = r.get('score')
     fri = compute_financial_readiness_index(scores_by_type) if len(scores_by_type) >= 2 else None
+    profile_db_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'user_profiles.db'))
+    if not os.path.exists(profile_db_path):
+        return
     try:
-        pconn = get_db_connection()
+        sqlite3 = __import__('sqlite3')
+        pconn = sqlite3.connect(profile_db_path)
         pc = pconn.cursor()
         pc.execute(
             '''UPDATE user_profiles 
-               SET assessment_results = %s, 
-                   financial_readiness_index = %s, 
-                   updated_at = %s 
-               WHERE email = %s''',
+               SET assessment_results = ?, 
+                   financial_readiness_index = ?, 
+                   updated_at = ? 
+               WHERE email = ?''',
             (json.dumps(assessment_results), fri,
              datetime.now().isoformat(), email.lower().strip())
         )

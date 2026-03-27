@@ -11,6 +11,8 @@ import logging
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Any
 import sqlite3
+import psycopg2
+import psycopg2.extras
 
 # Add backend modules to path
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
@@ -509,20 +511,21 @@ class MingusIntegrationManager:
     def _calculate_time_to_unlock(self, user_id: str) -> Optional[str]:
         """Calculate time taken to unlock feature"""
         try:
-            conn = sqlite3.connect(self.referral_system.db_path)
+            conn = psycopg2.connect(os.environ['DATABASE_URL'])
+            conn.cursor_factory = psycopg2.extras.RealDictCursor
             cursor = conn.cursor()
             
             cursor.execute('''
                 SELECT created_at, unlock_date FROM users 
-                WHERE user_id = ? AND unlock_date IS NOT NULL
+                WHERE user_id = %s AND unlock_date IS NOT NULL
             ''', (user_id,))
             
             result = cursor.fetchone()
             conn.close()
             
             if result:
-                created_at = datetime.fromisoformat(result[0])
-                unlock_date = datetime.fromisoformat(result[1])
+                created_at = datetime.fromisoformat(result['created_at'])
+                unlock_date = datetime.fromisoformat(result['unlock_date'])
                 time_diff = unlock_date - created_at
                 return str(time_diff)
             
@@ -535,12 +538,13 @@ class MingusIntegrationManager:
     def _save_analytics_event(self, event_type: str, data: Dict):
         """Save analytics event to database"""
         try:
-            conn = sqlite3.connect(self.app_db)
+            conn = psycopg2.connect(os.environ['DATABASE_URL'])
+            conn.cursor_factory = psycopg2.extras.RealDictCursor
             cursor = conn.cursor()
             
             cursor.execute('''
                 CREATE TABLE IF NOT EXISTS analytics_events (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    id SERIAL PRIMARY KEY,
                     event_type TEXT NOT NULL,
                     data TEXT NOT NULL,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -549,7 +553,7 @@ class MingusIntegrationManager:
             
             cursor.execute('''
                 INSERT INTO analytics_events (event_type, data)
-                VALUES (?, ?)
+                VALUES (%s, %s)
             ''', (event_type, json.dumps(data)))
             
             conn.commit()
@@ -561,7 +565,8 @@ class MingusIntegrationManager:
     def _update_engagement_metrics(self, user_id: str, event_type: str):
         """Update user engagement metrics"""
         try:
-            conn = sqlite3.connect(self.app_db)
+            conn = psycopg2.connect(os.environ['DATABASE_URL'])
+            conn.cursor_factory = psycopg2.extras.RealDictCursor
             cursor = conn.cursor()
             
             cursor.execute('''
@@ -575,20 +580,19 @@ class MingusIntegrationManager:
             ''')
             
             cursor.execute('''
-                INSERT OR REPLACE INTO user_engagement 
+                INSERT INTO user_engagement 
                 (user_id, total_events, last_activity, feature_unlocks, referral_activity)
-                VALUES (
-                    ?, 
-                    COALESCE((SELECT total_events FROM user_engagement WHERE user_id = ?), 0) + 1,
-                    CURRENT_TIMESTAMP,
-                    CASE WHEN ? = 'feature_unlock' THEN 
-                        COALESCE((SELECT feature_unlocks FROM user_engagement WHERE user_id = ?), 0) + 1
-                    ELSE COALESCE((SELECT feature_unlocks FROM user_engagement WHERE user_id = ?), 0) END,
-                    CASE WHEN ? LIKE 'referral_%' THEN 
-                        COALESCE((SELECT referral_activity FROM user_engagement WHERE user_id = ?), 0) + 1
-                    ELSE COALESCE((SELECT referral_activity FROM user_engagement WHERE user_id = ?), 0) END
-                )
-            ''', (user_id, user_id, event_type, user_id, user_id, event_type, user_id, user_id))
+                VALUES (%s, 1, CURRENT_TIMESTAMP, 0, 0)
+                ON CONFLICT (user_id) DO UPDATE SET
+                    total_events = user_engagement.total_events + 1,
+                    last_activity = CURRENT_TIMESTAMP,
+                    feature_unlocks = CASE WHEN %s = 'feature_unlock'
+                        THEN user_engagement.feature_unlocks + 1
+                        ELSE user_engagement.feature_unlocks END,
+                    referral_activity = CASE WHEN %s LIKE 'referral_%%'
+                        THEN user_engagement.referral_activity + 1
+                        ELSE user_engagement.referral_activity END
+            ''', (user_id, event_type, event_type))
             
             conn.commit()
             conn.close()

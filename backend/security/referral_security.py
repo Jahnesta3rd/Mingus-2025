@@ -9,114 +9,58 @@ import hmac
 import time
 import re
 import logging
+import os
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Tuple
 from functools import wraps
-import sqlite3
+import psycopg2
+import psycopg2.extras
 import ipaddress
 
 logger = logging.getLogger(__name__)
 
+def get_pg_connection():
+    """Get PostgreSQL database connection"""
+    conn = psycopg2.connect(os.environ['DATABASE_URL'])
+    conn.cursor_factory = psycopg2.extras.RealDictCursor
+    return conn
+
 class ReferralSecurityManager:
     """Manages security for referral system and feature access"""
     
-    def __init__(self, db_path: str = 'referral_system.db'):
-        self.db_path = db_path
+    def __init__(self, db_path: str = None):
         self.rate_limits = {}
         self.suspicious_ips = set()
-        self.init_security_tables()
+        self._init_database()
     
-    def init_security_tables(self):
-        """Initialize security-related database tables"""
+    def _init_database(self):
+        """Verify PostgreSQL database connection"""
         try:
-            conn = sqlite3.connect(self.db_path)
-            cursor = conn.cursor()
-            
-            # Security events table
-            cursor.execute('''
-                CREATE TABLE IF NOT EXISTS security_events (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    event_type TEXT NOT NULL,
-                    user_id TEXT,
-                    ip_address TEXT,
-                    user_agent TEXT,
-                    details TEXT,
-                    severity TEXT DEFAULT 'low',
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                )
-            ''')
-            
-            # Rate limiting table
-            cursor.execute('''
-                CREATE TABLE IF NOT EXISTS rate_limits (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    identifier TEXT NOT NULL,
-                    action TEXT NOT NULL,
-                    count INTEGER DEFAULT 1,
-                    window_start TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                )
-            ''')
-            
-            # Fraud detection table
-            cursor.execute('''
-                CREATE TABLE IF NOT EXISTS fraud_indicators (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    user_id TEXT,
-                    ip_address TEXT,
-                    indicator_type TEXT NOT NULL,
-                    details TEXT,
-                    confidence_score REAL DEFAULT 0.0,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                )
-            ''')
-            
-            # Blocked users/IPs table
-            cursor.execute('''
-                CREATE TABLE IF NOT EXISTS blocked_entities (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    entity_type TEXT NOT NULL,
-                    entity_value TEXT NOT NULL,
-                    reason TEXT,
-                    blocked_until TIMESTAMP,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                )
-            ''')
-            
-            # Create indexes
-            cursor.execute('CREATE INDEX IF NOT EXISTS idx_security_events_type ON security_events(event_type)')
-            cursor.execute('CREATE INDEX IF NOT EXISTS idx_security_events_user ON security_events(user_id)')
-            cursor.execute('CREATE INDEX IF NOT EXISTS idx_rate_limits_identifier ON rate_limits(identifier)')
-            cursor.execute('CREATE INDEX IF NOT EXISTS idx_fraud_indicators_user ON fraud_indicators(user_id)')
-            cursor.execute('CREATE INDEX IF NOT EXISTS idx_blocked_entities_value ON blocked_entities(entity_value)')
-            
-            conn.commit()
+            conn = get_pg_connection()
             conn.close()
-            
         except Exception as e:
-            logger.error(f"Error initializing security tables: {e}")
-            raise
+            logger.error(f"Error initializing database: {e}")
     
     def check_rate_limit(self, identifier: str, action: str, limit: int, window_minutes: int = 60) -> bool:
         """Check if action is within rate limit"""
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             # Clean old entries
             cutoff_time = datetime.now() - timedelta(minutes=window_minutes)
             cursor.execute('''
                 DELETE FROM rate_limits 
-                WHERE window_start < ?
+                WHERE window_start < %s
             ''', (cutoff_time,))
             
             # Check current count
             cursor.execute('''
                 SELECT COUNT(*) FROM rate_limits 
-                WHERE identifier = ? AND action = ? AND window_start >= ?
+                WHERE identifier = %s AND action = %s AND window_start >= %s
             ''', (identifier, action, cutoff_time))
             
-            current_count = cursor.fetchone()[0]
+            current_count = cursor.fetchone()['count']
             
             if current_count >= limit:
                 conn.close()
@@ -125,7 +69,7 @@ class ReferralSecurityManager:
             # Add current request
             cursor.execute('''
                 INSERT INTO rate_limits (identifier, action)
-                VALUES (?, ?)
+                VALUES (%s, %s)
             ''', (identifier, action))
             
             conn.commit()
@@ -141,13 +85,13 @@ class ReferralSecurityManager:
                           details: str = None, severity: str = 'low'):
         """Log security events for monitoring"""
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             cursor.execute('''
                 INSERT INTO security_events 
                 (event_type, user_id, ip_address, user_agent, details, severity)
-                VALUES (?, ?, ?, ?, ?, ?)
+                VALUES (%s, %s, %s, %s, %s, %s)
             ''', (event_type, user_id, ip_address, user_agent, details, severity))
             
             conn.commit()
@@ -166,7 +110,7 @@ class ReferralSecurityManager:
             fraud_indicators = []
             confidence_score = 0.0
             
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             # Check for duplicate referrals from same IP
@@ -174,10 +118,10 @@ class ReferralSecurityManager:
                 cursor.execute('''
                     SELECT COUNT(*) FROM referrals r
                     JOIN security_events se ON r.referrer_user_id = se.user_id
-                    WHERE se.ip_address = ? AND r.created_at > datetime('now', '-24 hours')
+                    WHERE se.ip_address = %s AND r.created_at > datetime('now', '-24 hours')
                 ''', (ip_address,))
                 
-                duplicate_count = cursor.fetchone()[0]
+                duplicate_count = cursor.fetchone()['count']
                 if duplicate_count > 5:
                     fraud_indicators.append({
                         'type': 'duplicate_ip_referrals',
@@ -189,10 +133,10 @@ class ReferralSecurityManager:
             # Check for rapid referrals
             cursor.execute('''
                 SELECT COUNT(*) FROM referrals 
-                WHERE referrer_user_id = ? AND created_at > datetime('now', '-1 hour')
+                WHERE referrer_user_id = %s AND created_at > datetime('now', '-1 hour')
             ''', (referrer_user_id,))
             
-            rapid_count = cursor.fetchone()[0]
+            rapid_count = cursor.fetchone()['count']
             if rapid_count > 3:
                 fraud_indicators.append({
                     'type': 'rapid_referrals',
@@ -212,11 +156,11 @@ class ReferralSecurityManager:
             
             # Check for self-referral attempts
             cursor.execute('''
-                SELECT email FROM users WHERE user_id = ?
+                SELECT email FROM users WHERE user_id = %s
             ''', (referrer_user_id,))
             
             referrer_email = cursor.fetchone()
-            if referrer_email and referrer_email[0].lower() == referred_email.lower():
+            if referrer_email and referrer_email['email'].lower() == referred_email.lower():
                 fraud_indicators.append({
                     'type': 'self_referral',
                     'details': 'Attempted self-referral',
@@ -229,7 +173,7 @@ class ReferralSecurityManager:
                 cursor.execute('''
                     INSERT INTO fraud_indicators 
                     (user_id, ip_address, indicator_type, details, confidence_score)
-                    VALUES (?, ?, ?, ?, ?)
+                    VALUES (%s, %s, %s, %s, %s)
                 ''', (referrer_user_id, ip_address, indicator['type'], 
                       indicator['details'], indicator['confidence']))
             
@@ -272,11 +216,11 @@ class ReferralSecurityManager:
             return False
         
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             cursor.execute('''
-                SELECT id FROM users WHERE referral_code = ?
+                SELECT id FROM users WHERE referral_code = %s
             ''', (referral_code,))
             
             exists = cursor.fetchone() is not None
@@ -292,13 +236,18 @@ class ReferralSecurityManager:
                     reason: str, blocked_until: datetime = None):
         """Block user or IP address"""
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             cursor.execute('''
-                INSERT OR REPLACE INTO blocked_entities 
+                INSERT INTO blocked_entities 
                 (entity_type, entity_value, reason, blocked_until)
-                VALUES (?, ?, ?, ?)
+                VALUES (%s, %s, %s, %s)
+                ON CONFLICT (id) DO UPDATE SET
+                    entity_type = EXCLUDED.entity_type,
+                    entity_value = EXCLUDED.entity_value,
+                    reason = EXCLUDED.reason,
+                    blocked_until = EXCLUDED.blocked_until
             ''', (entity_type, entity_value, reason, blocked_until))
             
             conn.commit()
@@ -316,12 +265,12 @@ class ReferralSecurityManager:
     def is_entity_blocked(self, entity_type: str, entity_value: str) -> bool:
         """Check if entity is currently blocked"""
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = get_pg_connection()
             cursor = conn.cursor()
             
             cursor.execute('''
                 SELECT id FROM blocked_entities 
-                WHERE entity_type = ? AND entity_value = ? 
+                WHERE entity_type = %s AND entity_value = %s 
                 AND (blocked_until IS NULL OR blocked_until > CURRENT_TIMESTAMP)
             ''', (entity_type, entity_value))
             
