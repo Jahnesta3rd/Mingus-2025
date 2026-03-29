@@ -19,7 +19,12 @@ def init_database(app: Flask):
         app: Flask application instance
     """
     # Database configuration
-    database_url = os.environ.get('DATABASE_URL', 'sqlite:///mingus_vehicles.db')
+    _db_url = os.environ.get('DATABASE_URL')
+    if not _db_url:
+        raise RuntimeError(
+            "DATABASE_URL is required. SQLite is not supported."
+        )
+    database_url = _db_url
     
     app.config.update({
         'SQLALCHEMY_DATABASE_URI': database_url,
@@ -53,4 +58,9 @@ def init_database(app: Flask):
 
 def get_database_url():
     """Get the configured database URL"""
-    return os.environ.get('DATABASE_URL', 'sqlite:///mingus_vehicles.db')
+    _db_url = os.environ.get('DATABASE_URL')
+    if not _db_url:
+        raise RuntimeError(
+            "DATABASE_URL is required. SQLite is not supported."
+        )
+    return _db_url

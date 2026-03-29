@@ -1,0 +1,5 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`CheckinReminderBanner snapshot matches snapshot for due state 1`] = `<div />`;
+
+exports[`CheckinReminderBanner snapshot matches snapshot for never state 1`] = `<div />`;

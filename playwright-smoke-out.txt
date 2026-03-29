@@ -1,0 +1,1 @@
+sh: /Users/johnniewatsoniii/Desktop/Mingus Application - Cursor/node_modules/.bin/playwright: Operation timed out

@@ -22,7 +22,12 @@ def create_app():
     app = Flask(__name__)
     
     # Configure database
-    database_url = os.environ.get('DATABASE_URL', 'sqlite:///mingus_vehicles.db')
+    _db_url = os.environ.get('DATABASE_URL')
+    if not _db_url:
+        raise RuntimeError(
+            "DATABASE_URL is required. SQLite is not supported."
+        )
+    database_url = _db_url
     app.config.update({
         'SQLALCHEMY_DATABASE_URI': database_url,
         'SQLALCHEMY_TRACK_MODIFICATIONS': False,

@@ -26,8 +26,11 @@ from flask_limiter.util import get_remote_address
 from dotenv import load_dotenv
 import stripe
 
-# Load environment variables
+# Load environment variables (CWD .env, then backend/.env overrides)
 load_dotenv()
+_backend_dotenv = os.path.join(_REPO_ROOT, 'backend', '.env')
+if os.path.isfile(_backend_dotenv):
+    load_dotenv(_backend_dotenv, override=True)
 
 # Configure Stripe
 stripe.api_key = os.getenv("STRIPE_SECRET_KEY")

@@ -1,0 +1,1013 @@
+/* MINGUS Mobile-First Responsive Design System */
+/* Comprehensive fixes for all identified mobile responsive issues */
+
+/* ===== MOBILE-FIRST BREAKPOINT SYSTEM ===== */
+/* 320px (iPhone SE) -> 375px (iPhone 14) -> 768px (iPad) -> 1024px+ (Desktop) */
+
+/* ===== CRITICAL MOBILE FIXES ===== */
+
+/* Import touch target optimizations */
+@import url('touch_target_optimization.css');
+
+/* 1. NAVIGATION MENU OVERFLOW FIXES - iPhone SE (320px) */
+@media (max-width: 375px) {
+    .nav-container {
+        padding: 0.75rem 1rem;
+        flex-wrap: wrap;
+        position: relative;
+    }
+    
+    .nav-links {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: var(--surface-color);
+        flex-direction: column;
+        width: 100%;
+        padding: 1rem;
+        box-shadow: var(--shadow-medium);
+        z-index: var(--z-dropdown);
+        border-top: 1px solid var(--border-color);
+    }
+    
+    .nav-links.active {
+        display: flex;
+    }
+    
+    .nav-links li {
+        width: 100%;
+        text-align: center;
+        margin: 0.5rem 0;
+    }
+    
+    .nav-links a {
+        display: block;
+        padding: 0.75rem 1rem;
+        width: 100%;
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        border-radius: var(--border-radius);
+        transition: var(--transition);
+    }
+    
+    .nav-links a:hover,
+    .nav-links a:focus {
+        background: var(--background-color);
+        color: var(--primary-color);
+    }
+    
+    .mobile-menu-btn {
+        display: block !important;
+        padding: 0.5rem;
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        color: var(--text-color);
+        cursor: pointer;
+        min-height: 44px;
+        min-width: 44px;
+        border-radius: var(--border-radius);
+        transition: var(--transition);
+    }
+    
+    .mobile-menu-btn:hover,
+    .mobile-menu-btn:focus {
+        background: var(--background-color);
+        color: var(--primary-color);
+    }
+    
+    .mobile-menu-btn.active {
+        background: var(--primary-color);
+        color: white;
+    }
+    
+    .user-menu {
+        display: none;
+    }
+    
+    .logo {
+        font-size: 1.5rem;
+    }
+}
+
+/* 2. SUBSCRIPTION MODAL MOBILE OPTIMIZATION */
+@media (max-width: 768px) {
+    .modal-container {
+        padding: 0;
+        align-items: flex-start;
+        background: rgba(0, 0, 0, 0.8);
+    }
+    
+    .modal-content {
+        width: 100%;
+        height: 100%;
+        max-width: none;
+        max-height: none;
+        border-radius: 0;
+        margin: 0;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        position: relative;
+    }
+    
+    .modal-body {
+        padding: 1rem;
+        padding-top: 3rem;
+    }
+    
+    .modal-close {
+        position: fixed;
+        top: 1rem;
+        right: 1rem;
+        z-index: 1001;
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 50%;
+        width: 44px;
+        height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+        box-shadow: var(--shadow-medium);
+        transition: var(--transition);
+    }
+    
+    .modal-close:hover,
+    .modal-close:focus {
+        background: white;
+        transform: scale(1.1);
+    }
+    
+    /* Subscription tiers mobile layout */
+    .subscription-tiers {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1rem 0;
+    }
+    
+    .tier-card {
+        width: 100%;
+        padding: 1.5rem;
+        border-radius: var(--border-radius);
+        border: 2px solid var(--border-color);
+        text-align: center;
+        transition: var(--transition);
+    }
+    
+    .tier-card:hover {
+        border-color: var(--primary-color);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-medium);
+    }
+    
+    .tier-card.selected {
+        border-color: var(--primary-color);
+        background: var(--primary-color);
+        color: white;
+    }
+    
+    .tier-card button {
+        width: 100%;
+        min-height: 48px;
+        font-size: 16px;
+        padding: 0.75rem 1rem;
+        border-radius: var(--border-radius);
+        border: none;
+        background: var(--primary-color);
+        color: white;
+        cursor: pointer;
+        transition: var(--transition);
+        margin-top: 1rem;
+    }
+    
+    .tier-card button:hover,
+    .tier-card button:focus {
+        background: var(--primary-dark);
+        transform: translateY(-1px);
+    }
+    
+    .tier-card.selected button {
+        background: white;
+        color: var(--primary-color);
+    }
+}
+
+/* 3. FORM INPUT MOBILE OPTIMIZATION */
+@media (max-width: 768px) {
+    .form-container {
+        padding: 1rem;
+    }
+    
+    .form-control {
+        width: 100%;
+        font-size: 16px; /* Prevents zoom on iOS */
+        min-height: 44px;
+        padding: 12px 16px;
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius);
+        background: var(--surface-color);
+        transition: var(--transition);
+    }
+    
+    .form-control:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
+    .form-group {
+        margin-bottom: 1rem;
+    }
+    
+    .form-label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        font-size: 16px;
+    }
+    
+    .form-error {
+        font-size: 14px;
+        color: var(--error-color);
+        margin-top: 0.5rem;
+        display: block;
+    }
+    
+    .form-success {
+        font-size: 14px;
+        color: var(--success-color);
+        margin-top: 0.5rem;
+        display: block;
+    }
+    
+    /* Dropdown optimization */
+    select.form-control {
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+        background-position: right 0.5rem center;
+        background-repeat: no-repeat;
+        background-size: 1.5em 1.5em;
+        padding-right: 2.5rem;
+    }
+}
+
+/* 4. LAYOUT CONTAINER FIXES */
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem;
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+    
+    .container-fluid {
+        padding: 1rem;
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+    
+    /* Grid system for mobile */
+    .grid {
+        display: grid;
+        gap: 1rem;
+        grid-template-columns: 1fr;
+    }
+    
+    .grid-2 {
+        grid-template-columns: 1fr;
+    }
+    
+    .grid-3 {
+        grid-template-columns: 1fr;
+    }
+    
+    .grid-4 {
+        grid-template-columns: 1fr;
+    }
+    
+    /* Flexbox fixes */
+    .flex {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .flex-row {
+        flex-direction: column;
+    }
+    
+    .flex-row > * {
+        width: 100%;
+    }
+}
+
+/* 5. TYPOGRAPHY SCALING */
+@media (max-width: 768px) {
+    html {
+        font-size: 16px;
+    }
+    
+    body {
+        font-size: 16px;
+        line-height: 1.5;
+        -webkit-text-size-adjust: 100%;
+        -ms-text-size-adjust: 100%;
+    }
+    
+    h1 {
+        font-size: 1.75rem;
+        line-height: 1.2;
+        margin-bottom: 1rem;
+    }
+    
+    h2 {
+        font-size: 1.5rem;
+        line-height: 1.3;
+        margin-bottom: 0.75rem;
+    }
+    
+    h3 {
+        font-size: 1.25rem;
+        line-height: 1.4;
+        margin-bottom: 0.5rem;
+    }
+    
+    h4 {
+        font-size: 1.125rem;
+        line-height: 1.4;
+        margin-bottom: 0.5rem;
+    }
+    
+    p {
+        font-size: 16px;
+        line-height: 1.6;
+        margin-bottom: 1rem;
+    }
+    
+    .text-sm {
+        font-size: 14px;
+    }
+    
+    .text-lg {
+        font-size: 18px;
+    }
+    
+    .text-xl {
+        font-size: 20px;
+    }
+}
+
+/* 6. BUTTON AND INTERACTIVE ELEMENT FIXES */
+@media (max-width: 768px) {
+    .btn {
+        min-height: 48px !important;
+        min-width: 48px !important;
+        padding: 14px 18px !important;
+        font-size: 16px !important;
+        border-radius: var(--border-radius);
+        border: none;
+        cursor: pointer;
+        transition: var(--transition);
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        text-decoration: none;
+        font-weight: 500;
+        gap: 8px !important;
+    }
+    
+    .btn-primary {
+        background: var(--primary-color);
+        color: white;
+    }
+    
+    .btn-primary:hover,
+    .btn-primary:focus {
+        background: var(--primary-dark);
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-medium);
+    }
+    
+    .btn-secondary {
+        background: var(--secondary-color);
+        color: white;
+    }
+    
+    .btn-secondary:hover,
+    .btn-secondary:focus {
+        background: var(--secondary-dark);
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-medium);
+    }
+    
+    .btn-outline {
+        background: transparent;
+        color: var(--primary-color);
+        border: 2px solid var(--primary-color);
+    }
+    
+    .btn-outline:hover,
+    .btn-outline:focus {
+        background: var(--primary-color);
+        color: white;
+        transform: translateY(-1px);
+    }
+    
+    /* Touch-friendly spacing */
+    .btn + .btn {
+        margin-left: 8px !important;
+    }
+    
+    .btn-group {
+        display: flex !important;
+        flex-direction: column;
+        gap: 12px !important;
+    }
+    
+    .btn-group .btn {
+        width: 100%;
+        min-height: 48px !important;
+        min-width: 48px !important;
+    }
+}
+
+/* 7. CARD AND COMPONENT FIXES */
+@media (max-width: 768px) {
+    .card {
+        padding: 1rem;
+        border-radius: var(--border-radius);
+        background: var(--surface-color);
+        box-shadow: var(--shadow-light);
+        margin-bottom: 1rem;
+    }
+    
+    .card-header {
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--border-color);
+        margin-bottom: 1rem;
+    }
+    
+    .card-body {
+        padding: 0;
+    }
+    
+    .card-footer {
+        padding-top: 1rem;
+        border-top: 1px solid var(--border-color);
+        margin-top: 1rem;
+    }
+    
+    /* Assessment cards */
+    .assessment-card {
+        padding: 1rem;
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius);
+        background: var(--surface-color);
+        transition: var(--transition);
+    }
+    
+    .assessment-card:hover {
+        border-color: var(--primary-color);
+        box-shadow: var(--shadow-medium);
+    }
+    
+    .assessment-card h3 {
+        margin-bottom: 0.5rem;
+        font-size: 1.125rem;
+    }
+    
+    .assessment-card p {
+        margin-bottom: 1rem;
+        color: var(--text-light);
+    }
+}
+
+/* 8. DATA VISUALIZATION FIXES */
+@media (max-width: 768px) {
+    .chart-container {
+        height: 250px;
+        margin: 1rem 0;
+        overflow: hidden;
+    }
+    
+    .data-table {
+        font-size: 14px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .data-table table {
+        min-width: 100%;
+        border-collapse: collapse;
+    }
+    
+    .data-table th,
+    .data-table td {
+        padding: 0.5rem;
+        text-align: left;
+        border-bottom: 1px solid var(--border-color);
+        white-space: nowrap;
+    }
+    
+    .data-table th {
+        background: var(--background-color);
+        font-weight: 600;
+    }
+    
+    /* Responsive table */
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow-light);
+    }
+}
+
+/* 9. UTILITY CLASSES FOR MOBILE */
+@media (max-width: 768px) {
+    .hidden-mobile {
+        display: none !important;
+    }
+    
+    .visible-mobile {
+        display: block !important;
+    }
+    
+    .text-center-mobile {
+        text-align: center !important;
+    }
+    
+    .text-left-mobile {
+        text-align: left !important;
+    }
+    
+    .text-right-mobile {
+        text-align: right !important;
+    }
+    
+    .w-full-mobile {
+        width: 100% !important;
+    }
+    
+    .h-auto-mobile {
+        height: auto !important;
+    }
+    
+    .p-0-mobile {
+        padding: 0 !important;
+    }
+    
+    .m-0-mobile {
+        margin: 0 !important;
+    }
+    
+    .mb-1-mobile {
+        margin-bottom: 0.5rem !important;
+    }
+    
+    .mb-2-mobile {
+        margin-bottom: 1rem !important;
+    }
+    
+    .mt-1-mobile {
+        margin-top: 0.5rem !important;
+    }
+    
+    .mt-2-mobile {
+        margin-top: 1rem !important;
+    }
+}
+
+/* 10. ACCESSIBILITY IMPROVEMENTS */
+@media (max-width: 768px) {
+    /* Focus indicators */
+    *:focus {
+        outline: 2px solid var(--primary-color);
+        outline-offset: 2px;
+    }
+    
+    /* Skip links */
+    .skip-link {
+        position: absolute;
+        top: -40px;
+        left: 6px;
+        background: var(--primary-color);
+        color: white;
+        padding: 8px 16px;
+        text-decoration: none;
+        border-radius: var(--border-radius);
+        z-index: 10000;
+        transition: var(--transition);
+    }
+    
+    .skip-link:focus {
+        top: 6px;
+    }
+    
+    /* Screen reader only */
+    .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+    }
+}
+
+/* 11. PERFORMANCE OPTIMIZATIONS */
+@media (max-width: 768px) {
+    /* Reduce animations for better performance */
+    * {
+        animation-duration: 0.2s !important;
+        transition-duration: 0.2s !important;
+    }
+    
+    /* Optimize scrolling */
+    .modal-content,
+    .nav-links {
+        -webkit-overflow-scrolling: touch;
+        scroll-behavior: smooth;
+    }
+    
+    /* Reduce box shadows for better performance */
+    .card,
+    .btn,
+    .modal-content {
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+}
+
+/* 12. SPECIFIC COMPONENT FIXES */
+
+/* Progress indicators */
+@media (max-width: 768px) {
+    .progress-indicator {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        margin: 1rem 0;
+    }
+    
+    .progress-step {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem;
+        border-radius: var(--border-radius);
+        background: var(--background-color);
+    }
+    
+    .progress-step.active {
+        background: var(--primary-color);
+        color: white;
+    }
+    
+    .progress-step.completed {
+        background: var(--success-color);
+        color: white;
+    }
+}
+
+/* Check-in forms */
+@media (max-width: 768px) {
+    .check-in-form {
+        padding: 1rem;
+    }
+    
+    .check-in-section {
+        margin-bottom: 2rem;
+        padding: 1rem;
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius);
+        background: var(--surface-color);
+    }
+    
+    .check-in-section h3 {
+        margin-bottom: 1rem;
+        font-size: 1.125rem;
+    }
+    
+    .rating-scale {
+        display: flex;
+        justify-content: space-between;
+        gap: 0.5rem;
+        margin: 1rem 0;
+    }
+    
+    .rating-option {
+        flex: 1;
+        padding: 0.75rem;
+        text-align: center;
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius);
+        background: var(--surface-color);
+        cursor: pointer;
+        transition: var(--transition);
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .rating-option:hover,
+    .rating-option:focus {
+        border-color: var(--primary-color);
+        background: var(--primary-color);
+        color: white;
+    }
+    
+    .rating-option.selected {
+        border-color: var(--primary-color);
+        background: var(--primary-color);
+        color: white;
+    }
+}
+
+/* Career recommendation cards */
+@media (max-width: 768px) {
+    .recommendation-card {
+        padding: 1rem;
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius);
+        background: var(--surface-color);
+        margin-bottom: 1rem;
+        transition: var(--transition);
+    }
+    
+    .recommendation-card:hover {
+        border-color: var(--primary-color);
+        box-shadow: var(--shadow-medium);
+    }
+    
+    .recommendation-card h4 {
+        margin-bottom: 0.5rem;
+        font-size: 1.125rem;
+    }
+    
+    .recommendation-card p {
+        margin-bottom: 1rem;
+        color: var(--text-light);
+    }
+    
+    .recommendation-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .recommendation-actions .btn {
+        width: 100%;
+    }
+}
+
+/* Financial forecast components */
+@media (max-width: 768px) {
+    .forecast-container {
+        padding: 1rem;
+    }
+    
+    .forecast-chart {
+        height: 200px;
+        margin: 1rem 0;
+    }
+    
+    .forecast-summary {
+        padding: 1rem;
+        background: var(--surface-color);
+        border-radius: var(--border-radius);
+        margin: 1rem 0;
+    }
+    
+    .forecast-summary h3 {
+        margin-bottom: 0.5rem;
+        font-size: 1.125rem;
+    }
+    
+    .forecast-metrics {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin: 1rem 0;
+    }
+    
+    .forecast-metric {
+        text-align: center;
+        padding: 1rem;
+        background: var(--background-color);
+        border-radius: var(--border-radius);
+    }
+    
+    .forecast-metric .value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--primary-color);
+    }
+    
+    .forecast-metric .label {
+        font-size: 14px;
+        color: var(--text-light);
+        margin-top: 0.25rem;
+    }
+}
+
+/* 13. PRINT STYLES */
+@media print {
+    .nav-container,
+    .mobile-menu-btn,
+    .modal-container,
+    .btn {
+        display: none !important;
+    }
+    
+    .container {
+        max-width: none;
+        padding: 0;
+    }
+    
+    body {
+        font-size: 12pt;
+        line-height: 1.4;
+        color: black;
+        background: white;
+    }
+    
+    h1, h2, h3, h4, h5, h6 {
+        color: black;
+        page-break-after: avoid;
+    }
+    
+    .card {
+        border: 1px solid #ccc;
+        box-shadow: none;
+        page-break-inside: avoid;
+    }
+}
+
+/* 14. HIGH CONTRAST MODE */
+@media (prefers-contrast: high) {
+    :root {
+        --text-color: #000000;
+        --background-color: #ffffff;
+        --surface-color: #ffffff;
+        --border-color: #000000;
+        --primary-color: #0000ff;
+        --secondary-color: #800080;
+        --accent-color: #008000;
+    }
+    
+    .btn {
+        border: 2px solid currentColor;
+    }
+    
+    .card {
+        border: 2px solid var(--border-color);
+    }
+}
+
+/* 15. REDUCED MOTION */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* 16. DARK MODE SUPPORT */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --text-color: #ffffff;
+        --text-light: #cccccc;
+        --background-color: #000000;
+        --surface-color: #111111;
+        --border-color: #333333;
+    }
+}
+
+/* 17. LANDSCAPE ORIENTATION FIXES */
+@media (max-width: 768px) and (orientation: landscape) {
+    .modal-content {
+        height: 90vh;
+        margin: 5vh auto;
+        border-radius: var(--border-radius);
+    }
+    
+    .nav-links {
+        max-height: 60vh;
+        overflow-y: auto;
+    }
+    
+    .form-container {
+        max-height: 80vh;
+        overflow-y: auto;
+    }
+}
+
+/* 18. VERY SMALL SCREENS (iPhone SE) */
+@media (max-width: 320px) {
+    .container {
+        padding: 0.5rem;
+    }
+    
+    .nav-container {
+        padding: 0.5rem;
+    }
+    
+    .modal-body {
+        padding: 0.5rem;
+        padding-top: 2.5rem;
+    }
+    
+    .card {
+        padding: 0.75rem;
+    }
+    
+    .btn {
+        padding: 0.5rem 0.75rem;
+        font-size: 14px;
+    }
+    
+    h1 {
+        font-size: 1.5rem;
+    }
+    
+    h2 {
+        font-size: 1.25rem;
+    }
+    
+    h3 {
+        font-size: 1.125rem;
+    }
+}
+
+/* 19. TABLET OPTIMIZATIONS */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .container {
+        padding: 1.5rem;
+    }
+    
+    .grid-2 {
+        grid-template-columns: 1fr 1fr;
+    }
+    
+    .grid-3 {
+        grid-template-columns: 1fr 1fr;
+    }
+    
+    .grid-4 {
+        grid-template-columns: 1fr 1fr;
+    }
+    
+    .flex-row {
+        flex-direction: row;
+    }
+    
+    .flex-row > * {
+        width: auto;
+    }
+}
+
+/* 20. DESKTOP ENHANCEMENTS */
+@media (min-width: 1025px) {
+    .grid-2 {
+        grid-template-columns: 1fr 1fr;
+    }
+    
+    .grid-3 {
+        grid-template-columns: 1fr 1fr 1fr;
+    }
+    
+    .grid-4 {
+        grid-template-columns: 1fr 1fr 1fr 1fr;
+    }
+    
+    .flex-row {
+        flex-direction: row;
+    }
+    
+    .flex-row > * {
+        width: auto;
+    }
+    
+    .btn-group {
+        flex-direction: row;
+    }
+    
+    .btn-group .btn {
+        width: auto;
+    }
+}
