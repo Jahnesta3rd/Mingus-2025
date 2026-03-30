@@ -30,6 +30,10 @@ class User(db.Model):
     first_name = db.Column(db.String(100), nullable=True)
     last_name = db.Column(db.String(100), nullable=True)
     tier = db.Column(db.String(50), default='budget', nullable=False)
+    is_beta = db.Column(db.Boolean, default=False, nullable=False)
+    beta_batch = db.Column(db.String(30), nullable=True)
+    is_admin = db.Column(db.Boolean, default=False, nullable=False)
+    role = db.Column(db.String(32), nullable=True)
     
     # Referral system fields (from existing structure)
     referral_code = db.Column(db.String(50), unique=True, nullable=True)

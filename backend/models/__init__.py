@@ -6,6 +6,7 @@ SQLAlchemy models for the Mingus financial application
 
 from .database import db
 from .user_models import User
+from .beta_code import BetaCode
 from .vehicle_models import Vehicle, MaintenancePrediction, CommuteScenario, MSAGasPrice
 from .housing_models import HousingSearch, HousingScenario, UserHousingPreferences, CommuteRouteCache, HousingType
 from .daily_outlook import DailyOutlook, UserRelationshipStatus, DailyOutlookTemplate, RelationshipStatus, TemplateTier, TemplateCategory
@@ -33,6 +34,7 @@ from .financial_setup import RecurringExpense, UserIncome
 __all__ = [
     'db',
     'User',
+    'BetaCode',
     'Vehicle',
     'MaintenancePrediction',
     'CommuteScenario',

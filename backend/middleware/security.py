@@ -38,6 +38,8 @@ class SecurityMiddleware:
             '/api/assessments',
             # Stripe webhooks must be callable by Stripe without CSRF/auth
             '/api/stripe/webhook',
+            # Beta code validation before signup (no auth; Flask-Limiter on route)
+            '/api/beta/validate',
         ]
         if path in public_endpoints or request.path in public_endpoints:
             return True

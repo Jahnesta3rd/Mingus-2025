@@ -21,8 +21,7 @@ import time
 import threading
 from datetime import datetime
 from flask_cors import CORS
-from flask_limiter import Limiter
-from flask_limiter.util import get_remote_address
+from backend.middleware.limiter_ext import limiter
 from dotenv import load_dotenv
 import stripe
 
@@ -70,6 +69,7 @@ from backend.api.analytics_endpoints import analytics_bp
 from backend.api.activity_endpoints import activity_bp
 from backend.api.user_endpoints import user_bp
 from backend.api.career_endpoints import career_bp
+from backend.app import register_backend_blueprints
 
 # Import security middleware
 from backend.middleware.security import SecurityMiddleware
@@ -122,6 +122,10 @@ app.config.update(
     MAX_CONTENT_LENGTH=int(os.environ.get('MAX_CONTENT_LENGTH', '16777216')),  # 16MB
     SEND_FILE_MAX_AGE_DEFAULT=int(os.environ.get('SEND_FILE_MAX_AGE_DEFAULT', '31536000')),  # 1 year
     PERMANENT_SESSION_LIFETIME=int(os.environ.get('PERMANENT_SESSION_LIFETIME', '86400')),  # 24 hours
+    # Flask-Limiter (flask-limiter >= 3 reads limits from config in init_app)
+    RATELIMIT_DEFAULT=[f"{int(os.environ.get('RATE_LIMIT_PER_MINUTE', '100'))} per minute"],
+    RATELIMIT_STORAGE_URI=os.environ.get('RATE_LIMIT_STORAGE_URL', 'memory://'),
+    RATELIMIT_HEADERS_ENABLED=True,
     # Database connection pool settings
     SQLALCHEMY_ENGINE_OPTIONS={
         'pool_size': int(os.environ.get('DB_POOL_SIZE', '10')),
@@ -218,14 +222,8 @@ except (redis.ConnectionError, redis.TimeoutError, OSError, ConnectionError, Exc
     app.query_cache_manager = None
     # Continue without caching - app will work fine
 
-# Configure rate limiting
-limiter = Limiter(
-    app=app,
-    key_func=get_remote_address,
-    default_limits=[f"{app.config['RATE_LIMIT_PER_MINUTE']} per minute"],
-    storage_uri=os.environ.get('RATE_LIMIT_STORAGE_URL', 'memory://'),
-    headers_enabled=True  # Enable rate limit headers (X-RateLimit-*)
-)
+# Configure rate limiting (shared instance for blueprints — see backend/middleware/limiter_ext.py)
+limiter.init_app(app)
 
 # Register API blueprints
 app.register_blueprint(auth_api)
@@ -283,6 +281,7 @@ app.register_blueprint(analytics_bp)
 app.register_blueprint(activity_bp)
 app.register_blueprint(user_bp)
 app.register_blueprint(career_bp)
+register_backend_blueprints(app)
 
 # Initialize SQLAlchemy database
 init_database(app)
