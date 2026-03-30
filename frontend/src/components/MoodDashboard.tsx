@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useFeatureTrack } from '../hooks/useFeatureTrack';
 
 // Types
 interface MoodStatistics {
@@ -287,6 +288,7 @@ const MoodDashboard: React.FC<MoodDashboardProps> = ({
   sessionId, 
   className = '' 
 }) => {
+  useFeatureTrack('mood_dashboard');
   const [analytics, setAnalytics] = useState<MoodAnalytics | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

@@ -5,6 +5,7 @@ import { InputValidator } from '../utils/validation';
 import { Sanitizer } from '../utils/sanitize';
 import { calculateAssessmentScore } from '../utils/assessmentScoring';
 import AssessmentResults from './AssessmentResults';
+import { trackEvent } from '../utils/trackEvent';
 
 // Types
 export interface AssessmentData {
@@ -770,6 +771,20 @@ const AssessmentModal: React.FC<AssessmentModalProps> = ({
       setIsVisible(false);
     }
   }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen || !assessmentType) return;
+    const featureByType: Partial<Record<AssessmentType, string>> = {
+      'ai-risk': 'assessment_ai_risk',
+      'income-comparison': 'assessment_income_comparison',
+      'layoff-risk': 'assessment_layoff_risk',
+      'cuffing-season': 'assessment_cuffing_season',
+    };
+    const featureName = featureByType[assessmentType];
+    if (featureName) {
+      void trackEvent(featureName, 'click');
+    }
+  }, [isOpen, assessmentType]);
 
   // Handle escape key
   useEffect(() => {

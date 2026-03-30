@@ -3,6 +3,7 @@ import { Box, CircularProgress, Alert } from '@mui/material';
 import VehicleAnalyticsDashboard from './VehicleAnalyticsDashboard';
 import BudgetVehicleAnalytics from './BudgetVehicleAnalytics';
 import ProfessionalVehicleAnalytics from './ProfessionalVehicleAnalytics';
+import { useFeatureTrack } from '../hooks/useFeatureTrack';
 
 interface VehicleAnalyticsRouterProps {
   className?: string;
@@ -23,6 +24,7 @@ interface UserTier {
 const VehicleAnalyticsRouter: React.FC<VehicleAnalyticsRouterProps> = ({
   className
 }) => {
+  useFeatureTrack('vehicle_analytics_dashboard');
   const [loading, setLoading] = useState(true);
   const [userTier, setUserTier] = useState<UserTier | null>(null);
   const [error, setError] = useState<string | null>(null);

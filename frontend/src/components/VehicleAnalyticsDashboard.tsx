@@ -73,6 +73,7 @@ import {
   Scatter,
   ComposedChart
 } from 'recharts';
+import { trackEvent } from '../utils/trackEvent';
 
 interface VehicleAnalyticsDashboardProps {
   className?: string;
@@ -209,6 +210,7 @@ const VehicleAnalyticsDashboard: React.FC<VehicleAnalyticsDashboardProps> = ({
   };
 
   const handleExport = () => {
+    void trackEvent('vehicle_analytics_export', 'export');
     if (userTier !== 'professional') {
       alert('Export functionality is only available for Professional tier users');
       return;

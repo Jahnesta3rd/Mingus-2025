@@ -1,4 +1,5 @@
 import React, { useState, useCallback } from 'react';
+import { useFeatureTrack } from '../hooks/useFeatureTrack';
 import {
   CheckinReminderBanner,
   WellnessScoreCard,
@@ -22,6 +23,7 @@ export interface DashboardWellnessSectionProps {
 export const DashboardWellnessSection: React.FC<DashboardWellnessSectionProps> = ({
   className = '',
 }) => {
+  useFeatureTrack('wellness_finance_correlation');
   const {
     scores: scoresRaw,
     insights,

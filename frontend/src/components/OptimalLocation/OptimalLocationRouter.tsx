@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { useAnalytics } from '../../hooks/useAnalytics';
+import { useFeatureTrack } from '../../hooks/useFeatureTrack';
 import DashboardErrorBoundary from '../DashboardErrorBoundary';
 
 // ========================================
@@ -151,6 +152,7 @@ const OptimalLocationRouter: React.FC<OptimalLocationRouterProps> = ({ className
   const navigate = useNavigate();
   const { user, isAuthenticated, loading: authLoading } = useAuth();
   const { trackPageView, trackInteraction, trackError } = useAnalytics();
+  useFeatureTrack('housing_intelligence');
 
   // State management
   const [userTier, setUserTier] = useState<UserTier | null>(null);

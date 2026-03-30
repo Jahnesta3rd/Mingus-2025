@@ -82,6 +82,7 @@ import {
   ComposedChart,
   Heatmap
 } from 'recharts';
+import { trackEvent } from '../utils/trackEvent';
 
 interface ProfessionalVehicleAnalyticsProps {
   className?: string;
@@ -276,6 +277,7 @@ const ProfessionalVehicleAnalytics: React.FC<ProfessionalVehicleAnalyticsProps> 
   };
 
   const handleExport = () => {
+    void trackEvent('vehicle_analytics_export', 'export');
     setExportDialogOpen(true);
   };
 
