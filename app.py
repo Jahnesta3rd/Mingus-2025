@@ -123,7 +123,7 @@ app.config.update(
     SEND_FILE_MAX_AGE_DEFAULT=int(os.environ.get('SEND_FILE_MAX_AGE_DEFAULT', '31536000')),  # 1 year
     PERMANENT_SESSION_LIFETIME=int(os.environ.get('PERMANENT_SESSION_LIFETIME', '86400')),  # 24 hours
     # Flask-Limiter (flask-limiter >= 3 reads limits from config in init_app)
-    RATELIMIT_DEFAULT=[f"{int(os.environ.get('RATE_LIMIT_PER_MINUTE', '100'))} per minute"],
+    RATELIMIT_DEFAULT=f"{int(os.environ.get('RATE_LIMIT_PER_MINUTE', '100'))} per minute",
     RATELIMIT_STORAGE_URI=os.environ.get('RATE_LIMIT_STORAGE_URL', 'memory://'),
     RATELIMIT_HEADERS_ENABLED=True,
     # Database connection pool settings
