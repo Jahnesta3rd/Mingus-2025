@@ -72,14 +72,14 @@ def require_auth(f):
                     'message': 'Authentication token is malformed or invalid'
                 }), 401
             
-            return f(*args, **kwargs)
-            
         except Exception as e:
             logger.error(f"Authentication error: {e}")
             return jsonify({
                 'error': 'Authentication failed',
                 'message': 'An error occurred during authentication'
             }), 500
+
+        return f(*args, **kwargs)
     
     return decorated_function
 
