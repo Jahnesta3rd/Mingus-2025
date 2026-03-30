@@ -170,6 +170,8 @@ def register():
             'user_id': user_id,
             'email': email,
             'name': first_name,
+            'is_beta': False,
+            'tier': 'budget',
             'message': 'Registration successful'
         })
         
@@ -260,6 +262,8 @@ def login():
             'user_id': user.user_id,
             'email': user.email,
             'name': user.first_name or user.email,
+            'tier': user.tier,
+            'is_beta': bool(getattr(user, 'is_beta', False)),
             'message': 'Login successful'
         })
         
@@ -318,7 +322,9 @@ def verify_token():
                 'success': True,
                 'user_id': user.user_id,
                 'email': user.email,
-                'name': user.first_name or user.email
+                'name': user.first_name or user.email,
+                'tier': user.tier,
+                'is_beta': bool(getattr(user, 'is_beta', False)),
             }), 200
             
         except jwt.ExpiredSignatureError:

@@ -68,9 +68,19 @@ interface UserProfileProps {
   onSave: (data: UserProfileData) => void;
   onComplete: () => void;
   className?: string;
+  /** Shown in the modal header next to the beta pill (defaults to legacy placeholder if omitted). */
+  headerDisplayName?: string;
+  /** When true, shows the “BETA” badge with tooltip (e.g. from auth context `user.is_beta`). */
+  showBetaBadge?: boolean;
 }
 
-const UserProfile: React.FC<UserProfileProps> = ({ onSave, onComplete, className = '' }) => {
+const UserProfile: React.FC<UserProfileProps> = ({
+  onSave,
+  onComplete,
+  className = '',
+  headerDisplayName,
+  showBetaBadge = false,
+}) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [profileData, setProfileData] = useState<UserProfileData>({
     personalInfo: {
@@ -721,7 +731,17 @@ const UserProfile: React.FC<UserProfileProps> = ({ onSave, onComplete, className
             <p className="text-violet-100 text-sm">Step {currentStep + 1} of {steps.length}</p>
           </div>
           <div className="text-right">
-            <div className="text-sm text-violet-200">Jordan Washington</div>
+            <div className="text-sm text-violet-200 flex items-center justify-end gap-2 flex-wrap">
+              <span>{headerDisplayName ?? 'Jordan Washington'}</span>
+              {showBetaBadge && (
+                <span
+                  title="Beta tester — Professional tier access"
+                  className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-purple-100 text-purple-800 ml-2"
+                >
+                  BETA
+                </span>
+              )}
+            </div>
             <div className="text-xs text-violet-300">Profile Completion</div>
           </div>
         </div>

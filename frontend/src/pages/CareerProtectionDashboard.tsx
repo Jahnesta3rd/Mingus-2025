@@ -636,6 +636,8 @@ const CareerProtectionDashboard: React.FC = () => {
               ×
             </button>
             <UserProfile
+              headerDisplayName={user?.name}
+              showBetaBadge={user?.is_beta === true}
               onSave={(data) => {
                 console.log('Profile updated:', data);
                 setShowProfileModal(false);

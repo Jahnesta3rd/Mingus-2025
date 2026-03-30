@@ -1,18 +1,37 @@
 import { useState, useEffect, createContext, useContext } from 'react';
 
+function csrfHeaders(): Record<string, string> {
+  const token =
+    document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || 'test-token';
+  return { 'X-CSRF-Token': token };
+}
+
 interface User {
   id: string;
   email: string;
   name: string;
   isAuthenticated: boolean;
   tier?: string;
+  is_beta?: boolean;
+}
+
+export interface RegisterOptions {
+  beta_code?: string | null;
+  /** When set without beta, server still creates budget-tier user; client may redirect to checkout. */
+  selected_tier?: string | null;
 }
 
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   login: (email: string, password: string, rememberMe?: boolean) => Promise<void>;
-  register: (email: string, password: string, firstName: string, lastName?: string) => Promise<void>;
+  register: (
+    email: string,
+    password: string,
+    firstName: string,
+    lastName?: string,
+    options?: RegisterOptions
+  ) => Promise<{ isBeta: boolean }>;
   logout: () => void;
   loading: boolean;
 }
@@ -32,14 +51,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check for existing session on mount
     const checkAuth = async () => {
       try {
-        // Verify token with backend (token is in httpOnly cookie)
         const response = await fetch('/api/auth/verify', {
-          credentials: 'include'
+          credentials: 'include',
         });
-        
+
         if (response.ok) {
           const userData = await response.json();
           if (userData.authenticated !== false && userData.user_id) {
@@ -49,6 +66,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               name: userData.name,
               isAuthenticated: true,
               ...(userData.tier != null && { tier: userData.tier }),
+              is_beta: userData.is_beta === true,
             });
           }
         }
@@ -69,6 +87,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          ...csrfHeaders(),
         },
         credentials: 'include',
         body: JSON.stringify({ email, password, rememberMe }),
@@ -80,27 +99,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           const errorData = await response.json();
           errorMessage = errorData.error || errorData.message || errorMessage;
         } catch {
-          // If response is not JSON, use status text
           errorMessage = response.statusText || errorMessage;
         }
         throw new Error(errorMessage);
       }
 
       const data = await response.json();
-      // Token is now in httpOnly cookie, not in response
-      const userData = {
+      const userData: User = {
         id: data.user_id,
         email: data.email,
         name: data.name,
         isAuthenticated: true,
         ...(data.tier != null && { tier: data.tier }),
+        is_beta: data.is_beta === true,
       };
 
       setUser(userData);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Login error:', error);
-      // Re-throw with better error message if it's a network error
-      if (error.name === 'TypeError' && error.message.includes('fetch')) {
+      if (error instanceof Error && error.name === 'TypeError' && error.message.includes('fetch')) {
         throw new Error('Unable to connect to server. Please check your connection.');
       }
       throw error;
@@ -109,20 +126,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const register = async (email: string, password: string, firstName: string, lastName?: string) => {
+  const register = async (
+    email: string,
+    password: string,
+    firstName: string,
+    lastName?: string,
+    options?: RegisterOptions
+  ): Promise<{ isBeta: boolean }> => {
     try {
       setLoading(true);
+      const betaCode = options?.beta_code?.trim() || '';
       const response = await fetch('/api/auth/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          ...csrfHeaders(),
         },
         credentials: 'include',
-        body: JSON.stringify({ 
-          email, 
-          password, 
+        body: JSON.stringify({
+          email,
+          password,
           first_name: firstName,
-          last_name: lastName || ''
+          last_name: lastName || '',
+          ...(betaCode ? { beta_code: betaCode } : {}),
+          ...(options?.selected_tier ? { selected_tier: options.selected_tier } : {}),
         }),
       });
 
@@ -130,30 +157,56 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         let errorMessage = 'Registration failed';
         try {
           const errorData = await response.json();
-          // Backend returns 'error' field, not 'message'
           errorMessage = errorData.error || errorData.message || errorMessage;
         } catch {
-          // If response is not JSON, use status text
           errorMessage = response.statusText || errorMessage;
         }
         throw new Error(errorMessage);
       }
 
       const data = await response.json();
-      // Token is now in httpOnly cookie, not in response
-      const userData = {
+      const token = data.token as string | undefined;
+
+      let isBeta = false;
+      if (betaCode && token) {
+        const redeemRes = await fetch('/api/beta/redeem', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+            ...csrfHeaders(),
+          },
+          credentials: 'include',
+          body: JSON.stringify({ code: betaCode.toUpperCase() }),
+        });
+        if (!redeemRes.ok) {
+          let redeemErr = 'Could not activate your beta code. Please contact support.';
+          try {
+            const errJson = await redeemRes.json();
+            redeemErr = errJson.error || errJson.message || redeemErr;
+          } catch {
+            /* ignore */
+          }
+          throw new Error(redeemErr);
+        }
+        isBeta = true;
+      }
+
+      const userData: User = {
         id: data.user_id,
         email: data.email,
         name: data.name || firstName,
-        isAuthenticated: true
+        isAuthenticated: true,
+        tier: isBeta ? 'professional' : data.tier ?? 'budget',
+        is_beta: isBeta,
       };
 
       setUser(userData);
-    } catch (error: any) {
+      return { isBeta };
+    } catch (error: unknown) {
       console.error('Registration error:', error);
-      // Re-throw with better error message if it's a network error
-      if (error.name === 'TypeError' && error.message.includes('fetch')) {
-        throw new Error('Unable to connect to server. Please check your connection.');
+      if (error instanceof Error && error.name === 'TypeError' && error.message.includes('fetch')) {
+        throw new Error('Unable to connect to the server. Please check your connection.');
       }
       throw error;
     } finally {
@@ -163,10 +216,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = async () => {
     try {
-      // Call logout endpoint to clear cookie
       await fetch('/api/auth/logout', {
         method: 'POST',
-        credentials: 'include'
+        credentials: 'include',
+        headers: { ...csrfHeaders() },
       });
     } catch (error) {
       console.error('Logout error:', error);
@@ -181,12 +234,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     login,
     register,
     logout,
-    loading
+    loading,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

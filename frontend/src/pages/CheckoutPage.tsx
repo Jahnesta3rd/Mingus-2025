@@ -16,7 +16,7 @@ export interface TierOption {
   features: string[];
 }
 
-const TIERS: TierOption[] = [
+export const TIERS: TierOption[] = [
   {
     id: 'budget',
     name: 'Budget',
@@ -55,16 +55,19 @@ const TIERS: TierOption[] = [
   },
 ];
 
-function TierSelectionStep({
+export function TierSelectionStep({
   selectedTier,
   onSelectTier,
   onContinue,
   loading,
+  hideContinue = false,
 }: {
   selectedTier: TierOption | null;
   onSelectTier: (tier: TierOption) => void;
   onContinue: () => void;
   loading?: boolean;
+  /** When true, only tier cards are shown (e.g. embedded in a larger form). */
+  hideContinue?: boolean;
 }) {
   return (
     <div className="space-y-8">
@@ -104,17 +107,19 @@ function TierSelectionStep({
           );
         })}
       </div>
-      <div className="flex justify-end">
-        <button
-          type="button"
-          data-testid="checkout-continue"
-          onClick={onContinue}
-          disabled={loading}
-          className="px-6 py-3 rounded-md font-medium text-white bg-violet-600 hover:bg-violet-700 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-violet-400"
-        >
-          Continue
-        </button>
-      </div>
+      {!hideContinue && (
+        <div className="flex justify-end">
+          <button
+            type="button"
+            data-testid="checkout-continue"
+            onClick={onContinue}
+            disabled={loading}
+            className="px-6 py-3 rounded-md font-medium text-white bg-violet-600 hover:bg-violet-700 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-violet-400"
+          >
+            Continue
+          </button>
+        </div>
+      )}
     </div>
   );
 }

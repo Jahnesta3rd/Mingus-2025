@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
+import BetaCodeInput from '../BetaCodeInput';
+import { TierSelectionStep, type TierOption } from '../../pages/CheckoutPage';
 
 const RegisterPage: React.FC = () => {
   const { register, loading, isAuthenticated } = useAuth();
@@ -13,43 +15,97 @@ const RegisterPage: React.FC = () => {
   });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+  const [registrationBeta, setRegistrationBeta] = useState(false);
+  const [betaCode, setBetaCode] = useState<string | null>(null);
+  const [selectedTier, setSelectedTier] = useState<TierOption | null>(null);
+  const [isRegistering, setIsRegistering] = useState(false);
 
   useEffect(() => {
-    if (isAuthenticated) {
-      localStorage.setItem('auth_token', 'ok');
-      sessionStorage.removeItem('prefetched_vibe');
-      sessionStorage.removeItem('last_vibe_date');
+    if (!loading && isAuthenticated && !success && !isRegistering) {
       navigate('/welcome', { replace: true });
     }
-  }, [isAuthenticated, navigate]);
+  }, [loading, isAuthenticated, success, isRegistering, navigate]);
+
+  useEffect(() => {
+    if (!success) return;
+    if (registrationBeta) {
+      const t = window.setTimeout(() => navigate('/welcome', { replace: true }), 4000);
+      return () => window.clearTimeout(t);
+    }
+    if (selectedTier && selectedTier.id !== 'budget') {
+      const t = window.setTimeout(() => navigate('/checkout', { replace: true }), 2000);
+      return () => window.clearTimeout(t);
+    }
+    const t = window.setTimeout(() => navigate('/welcome', { replace: true }), 2000);
+    return () => window.clearTimeout(t);
+  }, [success, registrationBeta, selectedTier, navigate]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
     setError('');
   };
 
+  const handleBetaCode = useCallback((code: string) => {
+    setBetaCode(code);
+  }, []);
+
+  const handleBetaClear = useCallback(() => {
+    setBetaCode(null);
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+
+    if (!betaCode && !selectedTier) {
+      setError('Please choose a plan or verify a beta invite code.');
+      return;
+    }
+
+    setIsRegistering(true);
     try {
-      await register(
+      const { isBeta } = await register(
         formData.email,
         formData.password,
         formData.firstName,
-        formData.lastName
+        formData.lastName,
+        {
+          beta_code: betaCode,
+          selected_tier: betaCode ? 'professional' : selectedTier?.id ?? null,
+        }
       );
+      setRegistrationBeta(isBeta);
       setSuccess(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Registration failed. Please try again.');
+    } finally {
+      setIsRegistering(false);
     }
   };
 
   if (success) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4">
-        <div className="rounded-md bg-green-50 p-4 max-w-md">
-          <h3 className="text-sm font-medium text-green-800">Account created successfully!</h3>
-          <p className="mt-2 text-sm text-green-700">Redirecting to welcome...</p>
+        <div className="rounded-md bg-green-50 p-6 max-w-md border border-green-200 shadow-sm">
+          {registrationBeta ? (
+            <>
+              <h3 className="text-base font-semibold text-green-900">Welcome to the Mingus Beta!</h3>
+              <p className="mt-3 text-sm text-green-800 leading-relaxed">
+                You have been granted full Professional access. Your feedback helps shape the future of
+                Mingus.
+              </p>
+              <p className="mt-4 text-xs text-green-700">Taking you to your dashboard…</p>
+            </>
+          ) : (
+            <>
+              <h3 className="text-sm font-medium text-green-800">Account created successfully!</h3>
+              <p className="mt-2 text-sm text-green-700">
+                {selectedTier && selectedTier.id !== 'budget'
+                  ? 'Redirecting to checkout…'
+                  : 'Redirecting to welcome…'}
+              </p>
+            </>
+          )}
         </div>
       </div>
     );
@@ -72,7 +128,9 @@ const RegisterPage: React.FC = () => {
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="rounded-md shadow-sm space-y-4">
             <div>
-              <label htmlFor="firstName" className="sr-only">First name</label>
+              <label htmlFor="firstName" className="sr-only">
+                First name
+              </label>
               <input
                 id="firstName"
                 name="firstName"
@@ -86,7 +144,9 @@ const RegisterPage: React.FC = () => {
               />
             </div>
             <div>
-              <label htmlFor="lastName" className="sr-only">Last name</label>
+              <label htmlFor="lastName" className="sr-only">
+                Last name
+              </label>
               <input
                 id="lastName"
                 name="lastName"
@@ -99,7 +159,9 @@ const RegisterPage: React.FC = () => {
               />
             </div>
             <div>
-              <label htmlFor="email" className="sr-only">Email address</label>
+              <label htmlFor="email" className="sr-only">
+                Email address
+              </label>
               <input
                 id="email"
                 name="email"
@@ -113,7 +175,9 @@ const RegisterPage: React.FC = () => {
               />
             </div>
             <div>
-              <label htmlFor="password" className="sr-only">Password</label>
+              <label htmlFor="password" className="sr-only">
+                Password
+              </label>
               <input
                 id="password"
                 name="password"
@@ -128,6 +192,28 @@ const RegisterPage: React.FC = () => {
               />
             </div>
           </div>
+
+          <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm space-y-3">
+            <p className="text-sm font-medium text-gray-800">
+              Have a beta invite code? Enter it here to get free Professional access.
+            </p>
+            <BetaCodeInput onValidCode={handleBetaCode} onClear={handleBetaClear} />
+          </div>
+
+          {betaCode ? (
+            <div className="rounded-lg border border-violet-200 bg-violet-50 px-4 py-3 text-sm text-violet-900">
+              You are registering as a Beta user with full Professional access. No payment required.
+            </div>
+          ) : (
+            <TierSelectionStep
+              selectedTier={selectedTier}
+              onSelectTier={setSelectedTier}
+              onContinue={() => {}}
+              loading={loading}
+              hideContinue
+            />
+          )}
+
           {error && <div className="text-red-600 text-sm text-center">{error}</div>}
           <div>
             <button

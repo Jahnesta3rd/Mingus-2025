@@ -1,0 +1,340 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`ExpenseQuickTagModal accessibility and snapshot matches snapshot when open 1`] = `
+<div>
+  <div
+    aria-describedby="expense-quick-tag-desc"
+    aria-labelledby="expense-quick-tag-title"
+    aria-modal="true"
+    class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4"
+    role="dialog"
+  >
+    <div
+      aria-hidden="true"
+      class="absolute inset-0 bg-slate-900/70 backdrop-blur-sm animate-fade-in"
+    />
+    <div
+      class="
+          relative w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl
+          bg-slate-800 border border-slate-700 shadow-xl
+          max-h-[90vh] overflow-y-auto
+          animate-slide-up-sheet sm:animate-scale-in
+          
+        "
+    >
+      <div
+        class="sticky top-0 flex items-center justify-between p-4 border-b border-slate-700 bg-slate-800 z-10"
+      >
+        <h2
+          class="text-lg font-bold text-slate-100"
+          id="expense-quick-tag-title"
+        >
+          Quick tag? 🏷️
+        </h2>
+        <button
+          aria-label="Close and skip"
+          class="p-2 rounded-lg text-slate-400 hover:text-slate-100 hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-violet-500"
+          type="button"
+        >
+          <svg
+            aria-hidden="true"
+            class="w-5 h-5"
+            fill="none"
+            height="24"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+            width="24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M18 6 6 18"
+            />
+            <path
+              d="m6 6 12 12"
+            />
+          </svg>
+        </button>
+      </div>
+      <div
+        class="p-4 space-y-6"
+        id="expense-quick-tag-desc"
+      >
+        <div
+          class="flex items-center gap-3 p-3 rounded-xl bg-slate-700/50 border border-slate-600"
+        >
+          <div
+            class="flex items-center justify-center w-10 h-10 rounded-lg bg-violet-500/20 text-violet-400 shrink-0"
+          >
+            <svg
+              aria-hidden="true"
+              class="w-5 h-5"
+              fill="none"
+              height="24"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              width="24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="m16 2-2.3 2.3a3 3 0 0 0 0 4.2l1.8 1.8a3 3 0 0 0 4.2 0L22 8"
+              />
+              <path
+                d="M15 15 3.3 3.3a4.2 4.2 0 0 0 0 6l7.3 7.3c.7.7 2 .7 2.8 0L15 15Zm0 0 7 7"
+              />
+              <path
+                d="m2.1 21.8 6.4-6.3"
+              />
+              <path
+                d="m19 5-7 7"
+              />
+            </svg>
+          </div>
+          <div
+            class="min-w-0"
+          >
+            <p
+              class="font-semibold text-slate-100 tabular-nums"
+            >
+              $45.00
+               at 
+              Coffee Shop
+            </p>
+            <p
+              class="text-sm text-slate-400 capitalize"
+            >
+              dining
+            </p>
+          </div>
+        </div>
+        <section
+          aria-labelledby="trigger-label"
+        >
+          <h3
+            class="text-sm font-semibold text-slate-300 mb-3"
+            id="trigger-label"
+          >
+            Why did you buy this?
+          </h3>
+          <div
+            class="grid grid-cols-3 gap-2"
+          >
+            <button
+              aria-label="Planned"
+              aria-pressed="false"
+              class="
+        min-h-[44px] px-4 py-2.5 rounded-full text-sm font-semibold
+        transition-all duration-200
+        focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 focus:ring-offset-slate-900
+        active:scale-[0.98]
+        bg-slate-700 text-slate-300 hover:bg-slate-600 hover:text-slate-100
+        
+      "
+              type="button"
+              value="planned"
+            >
+              Planned
+            </button>
+            <button
+              aria-label="Needed"
+              aria-pressed="false"
+              class="
+        min-h-[44px] px-4 py-2.5 rounded-full text-sm font-semibold
+        transition-all duration-200
+        focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 focus:ring-offset-slate-900
+        active:scale-[0.98]
+        bg-slate-700 text-slate-300 hover:bg-slate-600 hover:text-slate-100
+        
+      "
+              type="button"
+              value="needed"
+            >
+              Needed
+            </button>
+            <button
+              aria-label="Impulse"
+              aria-pressed="false"
+              class="
+        min-h-[44px] px-4 py-2.5 rounded-full text-sm font-semibold
+        transition-all duration-200
+        focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 focus:ring-offset-slate-900
+        active:scale-[0.98]
+        bg-slate-700 text-slate-300 hover:bg-slate-600 hover:text-slate-100
+        
+      "
+              type="button"
+              value="impulse"
+            >
+              Impulse
+            </button>
+            <button
+              aria-label="Treat"
+              aria-pressed="false"
+              class="
+        min-h-[44px] px-4 py-2.5 rounded-full text-sm font-semibold
+        transition-all duration-200
+        focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 focus:ring-offset-slate-900
+        active:scale-[0.98]
+        bg-slate-700 text-slate-300 hover:bg-slate-600 hover:text-slate-100
+        
+      "
+              type="button"
+              value="treat"
+            >
+              Treat
+            </button>
+            <button
+              aria-label="Stressed"
+              aria-pressed="false"
+              class="
+        min-h-[44px] px-4 py-2.5 rounded-full text-sm font-semibold
+        transition-all duration-200
+        focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 focus:ring-offset-slate-900
+        active:scale-[0.98]
+        bg-slate-700 text-slate-300 hover:bg-slate-600 hover:text-slate-100
+        
+      "
+              type="button"
+              value="stressed"
+            >
+              Stressed
+            </button>
+            <button
+              aria-label="Bored"
+              aria-pressed="false"
+              class="
+        min-h-[44px] px-4 py-2.5 rounded-full text-sm font-semibold
+        transition-all duration-200
+        focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 focus:ring-offset-slate-900
+        active:scale-[0.98]
+        bg-slate-700 text-slate-300 hover:bg-slate-600 hover:text-slate-100
+        
+      "
+              type="button"
+              value="bored"
+            >
+              Bored
+            </button>
+          </div>
+        </section>
+        <section
+          aria-labelledby="mood-label"
+        >
+          <h3
+            class="text-sm font-semibold text-slate-300 mb-3"
+            id="mood-label"
+          >
+            How do you feel about it?
+          </h3>
+          <div
+            class="flex gap-3 flex-wrap"
+          >
+            <button
+              aria-label="😊 Great"
+              aria-pressed="false"
+              class="
+        min-h-[48px] min-w-[80px] px-4 py-3 rounded-xl
+        flex flex-col items-center justify-center gap-1
+        text-base font-semibold
+        transition-all duration-200
+        focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 focus:ring-offset-slate-900
+        active:scale-[0.98]
+        bg-slate-700 text-slate-300 hover:bg-slate-600 hover:text-slate-100
+        
+      "
+              type="button"
+              value="great"
+            >
+              <span
+                aria-hidden="true"
+                class="text-2xl leading-none"
+              >
+                😊
+              </span>
+              <span>
+                Great
+              </span>
+            </button>
+            <button
+              aria-label="😐 Okay"
+              aria-pressed="false"
+              class="
+        min-h-[48px] min-w-[80px] px-4 py-3 rounded-xl
+        flex flex-col items-center justify-center gap-1
+        text-base font-semibold
+        transition-all duration-200
+        focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 focus:ring-offset-slate-900
+        active:scale-[0.98]
+        bg-slate-700 text-slate-300 hover:bg-slate-600 hover:text-slate-100
+        
+      "
+              type="button"
+              value="okay"
+            >
+              <span
+                aria-hidden="true"
+                class="text-2xl leading-none"
+              >
+                😐
+              </span>
+              <span>
+                Okay
+              </span>
+            </button>
+            <button
+              aria-label="😬 Meh"
+              aria-pressed="false"
+              class="
+        min-h-[48px] min-w-[80px] px-4 py-3 rounded-xl
+        flex flex-col items-center justify-center gap-1
+        text-base font-semibold
+        transition-all duration-200
+        focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 focus:ring-offset-slate-900
+        active:scale-[0.98]
+        bg-slate-700 text-slate-300 hover:bg-slate-600 hover:text-slate-100
+        
+      "
+              type="button"
+              value="meh"
+            >
+              <span
+                aria-hidden="true"
+                class="text-2xl leading-none"
+              >
+                😬
+              </span>
+              <span>
+                Meh
+              </span>
+            </button>
+          </div>
+        </section>
+      </div>
+      <div
+        class="sticky bottom-0 flex gap-3 p-4 border-t border-slate-700 bg-slate-800"
+      >
+        <button
+          aria-label="Skip tagging"
+          class="min-h-[48px] flex-1 rounded-xl font-semibold bg-slate-700 text-slate-200 hover:bg-slate-600 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 focus:ring-offset-slate-800 active:scale-[0.98]"
+          type="button"
+        >
+          Skip
+        </button>
+        <button
+          aria-label="Save tag"
+          class="min-h-[48px] flex-1 rounded-xl font-semibold bg-violet-600 text-white hover:bg-violet-500 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 focus:ring-offset-slate-800 active:scale-[0.98] transition-transform"
+          disabled=""
+          type="button"
+        >
+          Save
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+`;
