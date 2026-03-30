@@ -16,6 +16,7 @@ from backend.models.vehicle_models import Vehicle, MaintenancePrediction, Commut
 from backend.models.housing_models import HousingSearch, HousingScenario, UserHousingPreferences, CommuteRouteCache, HousingType
 from backend.models.wellness import WeeklyCheckin, WellnessScore, WellnessFinanceCorrelation, WellnessCheckinStreak, UserSpendingBaseline
 from backend.models.financial_setup import RecurringExpense, UserIncome
+from backend.models.feedback import FeatureRating, NPSSurvey
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

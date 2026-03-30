@@ -30,6 +30,7 @@ from .wellness import (
     UserAchievement,
 )
 from .financial_setup import RecurringExpense, UserIncome
+from .feedback import FeatureRating, NPSSurvey
 
 __all__ = [
     'db',
@@ -67,4 +68,6 @@ __all__ = [
     'UserAchievement',
     'RecurringExpense',
     'UserIncome',
+    'FeatureRating',
+    'NPSSurvey',
 ]

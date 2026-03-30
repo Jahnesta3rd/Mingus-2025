@@ -1,10 +1,18 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
 import PageWrapper from '../PageWrapper';
+import NPSSurvey from '../NPSSurvey';
 import { useAuth } from '../../hooks/useAuth';
+import { useNPSSurvey } from '../../hooks/useNPSSurvey';
 
 const DashboardLayout: React.FC = () => {
   const { user } = useAuth();
+  const { shouldShow, markShown, reloadStatus } = useNPSSurvey();
+
+  const dismissNpsSurvey = () => {
+    void reloadStatus();
+    markShown();
+  };
 
   return (
     <PageWrapper>
@@ -26,6 +34,9 @@ const DashboardLayout: React.FC = () => {
         </div>
         <Outlet />
       </div>
+      {user?.isAuthenticated && shouldShow ? (
+        <NPSSurvey onDismiss={dismissNpsSurvey} />
+      ) : null}
     </PageWrapper>
   );
 };

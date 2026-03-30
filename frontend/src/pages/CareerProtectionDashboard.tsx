@@ -20,6 +20,7 @@ import SpendingMilestonesWidget from '../components/SpendingMilestonesWidget';
 import SpecialDatesWidget from '../components/SpecialDatesWidget';
 import FinancialForecastTab from '../components/FinancialForecastTab';
 import UserProfile from '../components/UserProfile';
+import FeatureRating from '../components/FeatureRating';
 import { useAuth } from '../hooks/useAuth';
 import { useAnalytics } from '../hooks/useAnalytics';
 import { useDashboardStore, useDashboardSelectors } from '../stores/dashboardStore';
@@ -580,7 +581,10 @@ const CareerProtectionDashboard: React.FC = () => {
               <AnalyticsDashboard />
             )}
           </div>
-          
+
+          <div className="mt-8 pt-4 border-t border-gray-100">
+            <FeatureRating featureName="test_feature" />
+          </div>
         </div>
       </div>
 
