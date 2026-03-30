@@ -13,6 +13,7 @@ interface User {
   isAuthenticated: boolean;
   tier?: string;
   is_beta?: boolean;
+  is_admin?: boolean;
 }
 
 export interface RegisterOptions {
@@ -70,6 +71,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               isAuthenticated: true,
               ...(userData.tier != null && { tier: userData.tier }),
               is_beta: userData.is_beta === true,
+              is_admin: userData.is_admin === true,
             });
           }
         }
@@ -115,6 +117,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isAuthenticated: true,
         ...(data.tier != null && { tier: data.tier }),
         is_beta: data.is_beta === true,
+        is_admin: data.is_admin === true,
       };
 
       setUser(userData);
@@ -208,6 +211,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isAuthenticated: true,
         tier: isBeta ? 'professional' : data.tier ?? 'budget',
         is_beta: isBeta,
+        is_admin: data.is_admin === true,
       };
 
       setUser(userData);

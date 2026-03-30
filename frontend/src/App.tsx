@@ -20,6 +20,8 @@ import CheckoutPage from './pages/CheckoutPage';
 import PreLaunchTracker from './pages/PreLaunchTracker';
 import BetaLanding from './pages/BetaLanding';
 import BetaWelcome from './pages/BetaWelcome';
+import AdminRoute from './components/AdminRoute';
+import BetaAdminDashboard from './pages/BetaAdminDashboard';
 
 const VibeCheckMemeWrapper: React.FC = () => {
   const navigate = useNavigate();
@@ -40,6 +42,15 @@ const router = createBrowserRouter([
 
   // Pre-launch fix tracker (internal)
   { path: '/pre-launch', element: <PreLaunchTracker /> },
+
+  {
+    path: '/admin/beta',
+    element: (
+      <AdminRoute>
+        <BetaAdminDashboard />
+      </AdminRoute>
+    ),
+  },
 
   // Logo splash (first stop after login)
   {
