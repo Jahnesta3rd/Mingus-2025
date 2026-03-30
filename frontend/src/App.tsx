@@ -18,6 +18,8 @@ import LandingPage from './components/LandingPage';
 import SignUpPage from './pages/SignUpPage';
 import CheckoutPage from './pages/CheckoutPage';
 import PreLaunchTracker from './pages/PreLaunchTracker';
+import BetaLanding from './pages/BetaLanding';
+import BetaWelcome from './pages/BetaWelcome';
 
 const VibeCheckMemeWrapper: React.FC = () => {
   const navigate = useNavigate();
@@ -33,6 +35,8 @@ const router = createBrowserRouter([
   { path: '/forgot-password', element: <ForgotPasswordPage /> },
   { path: '/reset-password', element: <ResetPasswordPage /> },
   { path: '/checkout', element: <CheckoutPage /> },
+  { path: '/beta', element: <BetaLanding /> },
+  { path: '/beta/welcome', element: <BetaWelcome /> },
 
   // Pre-launch fix tracker (internal)
   { path: '/pre-launch', element: <PreLaunchTracker /> },

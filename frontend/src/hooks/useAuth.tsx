@@ -19,6 +19,9 @@ export interface RegisterOptions {
   beta_code?: string | null;
   /** When set without beta, server still creates budget-tier user; client may redirect to checkout. */
   selected_tier?: string | null;
+  /** Explicit tier key for beta / streamlined flows (e.g. professional). */
+  tier?: string | null;
+  is_beta?: boolean;
 }
 
 interface AuthContextType {
@@ -150,6 +153,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           last_name: lastName || '',
           ...(betaCode ? { beta_code: betaCode } : {}),
           ...(options?.selected_tier ? { selected_tier: options.selected_tier } : {}),
+          ...(options?.tier ? { tier: options.tier } : {}),
+          ...(options?.is_beta === true ? { is_beta: true } : {}),
         }),
       });
 
@@ -166,6 +171,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       const data = await response.json();
       const token = data.token as string | undefined;
+
+      if (token) {
+        localStorage.setItem('auth_token', token);
+      }
 
       let isBeta = false;
       if (betaCode && token) {

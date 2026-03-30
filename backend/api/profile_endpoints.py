@@ -16,6 +16,7 @@ from flask_cors import cross_origin
 from werkzeug.exceptions import BadRequest, InternalServerError
 from ..utils.validation import APIValidator
 from ..auth.decorators import require_auth
+from ..models.user_models import User
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -456,17 +457,24 @@ def get_setup_status():
         # Remove any CSRF validation code for this GET endpoint
         # CSRF protection is not needed for GET requests
         
-        user_id = g.get('user_id') or g.get('current_user_id')
-        
+        uid = getattr(g, 'current_user_id', None) or getattr(g, 'user_id', None)
+        is_beta_flag = False
+        if uid:
+            user = User.query.filter_by(user_id=str(uid)).first()
+            if user is not None:
+                is_beta_flag = bool(getattr(user, 'is_beta', False))
+
         # For now, return default completed status
         # In production, this would check the database for actual setup completion
         return jsonify({
             'success': True,
             'setupCompleted': True,
+            'is_beta': is_beta_flag,
             'data': {
                 'is_complete': True,
                 'steps_completed': ['profile', 'preferences'],
-                'current_step': None
+                'current_step': None,
+                'is_beta': is_beta_flag,
             }
         }), 200
         
@@ -476,10 +484,12 @@ def get_setup_status():
         return jsonify({
             'success': True,
             'setupCompleted': True,
+            'is_beta': False,
             'data': {
                 'is_complete': True,
                 'steps_completed': [],
-                'current_step': None
+                'current_step': None,
+                'is_beta': False,
             }
         }), 200
 
