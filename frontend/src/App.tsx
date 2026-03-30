@@ -65,18 +65,19 @@ const router = createBrowserRouter([
     ),
   },
 
-  // Dashboard with vibe guard
+  // Dashboard with vibe guard (layout provides global nav + user row with beta badge)
   {
     path: '/dashboard',
     element: (
       <AuthGuard>
         <VibeGuard>
           <MCIProvider>
-            <CareerProtectionDashboard />
+            <DashboardLayout />
           </MCIProvider>
         </VibeGuard>
       </AuthGuard>
     ),
+    children: [{ index: true, element: <CareerProtectionDashboard /> }],
   },
 
   // Redirects
