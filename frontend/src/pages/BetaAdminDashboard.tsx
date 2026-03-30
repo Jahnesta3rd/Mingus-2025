@@ -4,7 +4,7 @@ import {
   BarChart3,
   KeyRound,
   LineChart,
-  MessageSquareHeart,
+  MessageSquare,
   RefreshCw,
   Users,
 } from 'lucide-react';
@@ -282,7 +282,7 @@ const BetaAdminDashboard: React.FC = () => {
                 className="flex h-12 w-12 items-center justify-center rounded-lg shrink-0"
                 style={{ backgroundColor: `${HEADER_PURPLE}18` }}
               >
-                <MessageSquareHeart className="w-6 h-6" style={{ color: HEADER_PURPLE }} />
+                <MessageSquare className="w-6 h-6" style={{ color: HEADER_PURPLE }} />
               </div>
               <div>
                 <p className="text-sm text-gray-500 font-medium">Avg NPS score</p>
