@@ -1,0 +1,111 @@
+                      List of relations
+ Schema |               Name               | Type  |  Owner  
+--------+----------------------------------+-------+---------
+ public | alembic_version                  | table | doadmin
+ public | api_performance                  | table | doadmin
+ public | beta_codes                       | table | doadmin
+ public | career_protection_outcomes       | table | doadmin
+ public | early_warning_effectiveness      | table | doadmin
+ public | feature_ratings                  | table | doadmin
+ public | nps_surveys                      | table | doadmin
+ public | profile_analytics                | table | doadmin
+ public | resume_analytics                 | table | doadmin
+ public | resume_parsing_results           | table | doadmin
+ public | risk_ab_test_assignments         | table | doadmin
+ public | risk_ab_test_configs             | table | doadmin
+ public | risk_ab_test_outcomes            | table | doadmin
+ public | risk_ab_test_participants        | table | doadmin
+ public | risk_ab_test_results             | table | doadmin
+ public | risk_ab_tests                    | table | doadmin
+ public | risk_assessment_history          | table | doadmin
+ public | risk_assessments                 | table | doadmin
+ public | risk_communication_effectiveness | table | doadmin
+ public | risk_journey_flow                | table | doadmin
+ public | risk_monitoring_alerts           | table | doadmin
+ public | risk_optimization_history        | table | doadmin
+ public | risk_outcomes                    | table | doadmin
+ public | risk_recommendations             | table | doadmin
+ public | risk_triggered_recommendations   | table | doadmin
+ public | system_resources                 | table | doadmin
+ public | user_profiles                    | table | doadmin
+ public | users                            | table | doadmin
+(28 rows)
+
+                                              Table "public.users"
+         Column         |            Type             | Collation | Nullable |              Default              
+------------------------+-----------------------------+-----------+----------+-----------------------------------
+ id                     | integer                     |           | not null | nextval('users_id_seq'::regclass)
+ user_id                | character varying(36)       |           |          | 
+ email                  | character varying(255)      |           | not null | 
+ password_hash          | character varying(255)      |           |          | 
+ password_reset_token   | character varying(255)      |           |          | 
+ password_reset_expires | timestamp without time zone |           |          | 
+ first_name             | character varying(100)      |           |          | 
+ last_name              | character varying(100)      |           |          | 
+ tier                   | character varying(20)       |           |          | 'budget'::character varying
+ is_beta                | boolean                     |           | not null | false
+ beta_batch             | character varying(30)       |           |          | 
+ is_admin               | boolean                     |           | not null | false
+ role                   | character varying(32)       |           |          | 
+ referral_code          | character varying(50)       |           |          | 
+ referred_by            | character varying(50)       |           |          | 
+ referral_count         | integer                     |           |          | 0
+ successful_referrals   | integer                     |           |          | 0
+ feature_unlocked       | boolean                     |           |          | false
+ unlock_date            | timestamp without time zone |           |          | 
+ last_activity          | timestamp without time zone |           |          | 
+ created_at             | timestamp without time zone |           |          | CURRENT_TIMESTAMP
+ updated_at             | timestamp without time zone |           |          | CURRENT_TIMESTAMP
+Indexes:
+    "users_pkey" PRIMARY KEY, btree (id)
+    "users_email_key" UNIQUE CONSTRAINT, btree (email)
+    "users_user_id_key" UNIQUE CONSTRAINT, btree (user_id)
+
+                                             Table "public.beta_codes"
+       Column        |            Type             | Collation | Nullable |                Default                 
+---------------------+-----------------------------+-----------+----------+----------------------------------------
+ id                  | integer                     |           | not null | nextval('beta_codes_id_seq'::regclass)
+ code                | character varying(20)       |           | not null | 
+ status              | character varying(10)       |           | not null | 'available'::character varying
+ created_at          | timestamp without time zone |           | not null | CURRENT_TIMESTAMP
+ redeemed_at         | timestamp without time zone |           |          | 
+ redeemed_by_user_id | integer                     |           |          | 
+ batch               | character varying(30)       |           |          | 
+Indexes:
+    "beta_codes_pkey" PRIMARY KEY, btree (id)
+    "ix_beta_codes_code" UNIQUE, btree (code)
+
+                                         Table "public.feature_ratings"
+    Column    |            Type             | Collation | Nullable |                   Default                   
+--------------+-----------------------------+-----------+----------+---------------------------------------------
+ id           | integer                     |           | not null | nextval('feature_ratings_id_seq'::regclass)
+ user_id      | integer                     |           | not null | 
+ feature_name | character varying(100)      |           | not null | 
+ rating       | character varying(10)       |           | not null | 
+ user_tier    | character varying(20)       |           |          | 
+ created_at   | timestamp without time zone |           |          | CURRENT_TIMESTAMP
+ updated_at   | timestamp without time zone |           |          | CURRENT_TIMESTAMP
+ comment      | text                        |           |          | 
+Indexes:
+    "feature_ratings_pkey" PRIMARY KEY, btree (id)
+
+                                                Table "public.nps_surveys"
+          Column           |            Type             | Collation | Nullable |                 Default                 
+---------------------------+-----------------------------+-----------+----------+-----------------------------------------
+ id                        | integer                     |           | not null | nextval('nps_surveys_id_seq'::regclass)
+ user_id                   | integer                     |           | not null | 
+ score                     | integer                     |           | not null | 
+ most_valuable_feature_old | character varying(500)      |           |          | 
+ improvement               | character varying(500)      |           |          | 
+ would_pay                 | character varying(20)       |           |          | 
+ price_point               | character varying(50)       |           |          | 
+ created_at                | timestamp without time zone |           |          | CURRENT_TIMESTAMP
+ most_valuable_feature     | character varying(500)      |           |          | 
+ least_valuable_feature    | character varying(500)      |           |          | 
+ price_willing             | character varying(50)       |           |          | 
+ additional_comments       | character varying(1000)     |           |          | 
+ submitted_at              | timestamp without time zone |           |          | CURRENT_TIMESTAMP
+Indexes:
+    "nps_surveys_pkey" PRIMARY KEY, btree (id)
+    "nps_surveys_user_id_key" UNIQUE CONSTRAINT, btree (user_id)
+
