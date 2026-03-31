@@ -8,15 +8,17 @@ import sqlite3
 from collections import defaultdict
 from datetime import datetime, timedelta, timezone
 
-from flask import Blueprint, g, jsonify
+from flask import Blueprint, g, jsonify, request
 from sqlalchemy import func
 
 from backend.auth.decorators import require_auth
 from backend.models.beta_code import BetaCode
+from backend.models.beta_invite_log import BetaInviteLog
 from backend.models.database import db
 from backend.models.feedback import FeatureRating, NPSSurvey
 from backend.models.user_models import User
 from backend.services.business_intelligence_log import _db_path as _bi_db_path
+from backend.services.beta_invite_service import BetaInviteService
 
 admin_beta_bp = Blueprint("admin_beta", __name__, url_prefix="/api/admin/beta")
 
@@ -149,6 +151,11 @@ def overview():
                     "redeemed": redeemed,
                     "available": available,
                     "redemption_rate": redemption_rate,
+                },
+                "beta_invites": {
+                    "sent": BetaInviteLog.query.filter_by(status="sent").count(),
+                    "queued": BetaInviteLog.query.filter_by(status="queued").count(),
+                    "failed": BetaInviteLog.query.filter_by(status="failed").count(),
                 },
                 "users": {
                     "total_beta": total_beta,
@@ -370,3 +377,46 @@ def feature_engagement():
 
     rows.sort(key=lambda r: r["total_views"], reverse=True)
     return jsonify(rows), 200
+
+
+@admin_beta_bp.route("/send-wave", methods=["POST"])
+@require_auth
+def send_wave():
+    """Queue beta invites from JSON payload; optionally dispatch Celery sends."""
+    user = _user_for_jwt()
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+    if not _is_admin_user(user):
+        return _admin_forbidden()
+
+    body = request.get_json(silent=True) or {}
+    wave_label = (body.get("wave_label") or "").strip()
+    recipients = body.get("recipients")
+    beta_url = (body.get("beta_url") or "https://mingusapp.com/beta").strip()
+    dry_run = bool(body.get("dry_run"))
+
+    if not wave_label:
+        return jsonify({"error": "wave_label is required"}), 400
+    if not isinstance(recipients, list):
+        return jsonify({"error": "recipients must be a list"}), 400
+
+    svc = BetaInviteService()
+    prep = svc.prepare_wave(wave_label, recipients, dry_run=dry_run)
+    skipped = len(prep["skipped"])
+    dispatched = 0
+
+    if not dry_run:
+        send = svc.send_wave(wave_label, beta_url)
+        dispatched = send["dispatched"]
+
+    return (
+        jsonify(
+            {
+                "dispatched": dispatched,
+                "skipped": skipped,
+                "wave": wave_label,
+                "dry_run": dry_run,
+            }
+        ),
+        200,
+    )

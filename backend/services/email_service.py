@@ -25,6 +25,50 @@ ASSESSMENT_LABELS = {
 
 class EmailService:
 
+    def send_email(
+        self,
+        to: str,
+        subject: str,
+        html_body: str,
+        text_body: Optional[str] = None,
+    ) -> bool:
+        """Send a transactional HTML email via Resend (shared by Celery tasks and services)."""
+        try:
+            if resend is None:
+                logger.warning("Resend dependency not installed; skipping email send.")
+                return False
+
+            payload: dict = {
+                "from": f"{FROM_NAME} <{FROM_EMAIL}>",
+                "to": [to],
+                "subject": subject,
+                "html": html_body,
+            }
+            if text_body:
+                payload["text"] = text_body
+
+            resend.Emails.send(payload)
+            return True
+
+        except Exception as e:
+            logger.exception("Resend error sending email to %s: %s", to, e)
+            return False
+
+    def _send_email(
+        self,
+        to_email: str,
+        subject: str,
+        html_content: str,
+        text_content: str,
+    ) -> bool:
+        """Compatibility wrapper used by notification and check-in services."""
+        return self.send_email(
+            to_email,
+            subject,
+            html_content,
+            text_body=text_content or None,
+        )
+
     def send_assessment_results(
         self,
         email: str,

@@ -7,6 +7,7 @@ SQLAlchemy models for the Mingus financial application
 from .database import db
 from .user_models import User
 from .beta_code import BetaCode
+from .beta_invite_log import BetaInviteLog
 from .vehicle_models import Vehicle, MaintenancePrediction, CommuteScenario, MSAGasPrice
 from .housing_models import HousingSearch, HousingScenario, UserHousingPreferences, CommuteRouteCache, HousingType
 from .daily_outlook import DailyOutlook, UserRelationshipStatus, DailyOutlookTemplate, RelationshipStatus, TemplateTier, TemplateCategory
@@ -36,6 +37,7 @@ __all__ = [
     'db',
     'User',
     'BetaCode',
+    'BetaInviteLog',
     'Vehicle',
     'MaintenancePrediction',
     'CommuteScenario',
