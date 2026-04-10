@@ -2,7 +2,15 @@ import { useCallback, useEffect, useState } from 'react';
 import { useAuth } from './useAuth';
 import { csrfHeaders } from '../utils/csrfHeaders';
 
-export const ONBOARDING_STEP_KEYS = ['personal', 'income', 'expenses', 'position', 'goals'] as const;
+export const ONBOARDING_STEP_KEYS = [
+  'personal',
+  'income',
+  'income_schedule',
+  'expense_schedule',
+  'expenses',
+  'position',
+  'goals',
+] as const;
 
 function buildHeaders(getAccessToken: () => string | null, json = false): HeadersInit {
   const h: Record<string, string> = {
@@ -24,7 +32,7 @@ function firstIncompleteStep(completed: string[]): number {
       return i + 1;
     }
   }
-  return 5;
+  return ONBOARDING_STEP_KEYS.length;
 }
 
 async function readErrorMessage(res: Response): Promise<string> {
@@ -190,13 +198,13 @@ export function useOnboarding() {
   }, [user?.email, getAccessToken]);
 
   const goToStep = useCallback((n: number) => {
-    if (n >= 1 && n <= 5) {
+    if (n >= 1 && n <= ONBOARDING_STEP_KEYS.length) {
       setCurrentStep(n);
     }
   }, []);
 
   const skipStep = useCallback(() => {
-    setCurrentStep((s) => Math.min(s + 1, 5));
+    setCurrentStep((s) => Math.min(s + 1, ONBOARDING_STEP_KEYS.length));
   }, []);
 
   const savePersonal = useCallback(

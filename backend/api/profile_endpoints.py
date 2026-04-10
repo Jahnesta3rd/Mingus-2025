@@ -18,13 +18,22 @@ from ..utils.validation import APIValidator
 from ..auth.decorators import require_auth
 from ..models.user_models import User
 from ..models.financial_setup import UserIncome, RecurringExpense
+from ..models.transaction_schedule import IncomeStream, ScheduledExpense
 from loguru import logger as loguru_logger
 
 # Configure logging
 logger = logging.getLogger(__name__)
 
 
-ALL_ONBOARDING_STEPS = ['personal', 'income', 'expenses', 'position', 'goals']
+ALL_ONBOARDING_STEPS = [
+    'personal',
+    'income',
+    'income_schedule',
+    'expense_schedule',
+    'expenses',
+    'position',
+    'goals',
+]
 
 
 def _goals_column_nonempty(goals_raw) -> bool:
@@ -99,6 +108,12 @@ def _compute_onboarding_steps(user, email: str):
 
     if UserIncome.query.filter_by(user_id=uid, is_active=True).first() is not None:
         completed.append('income')
+
+    if IncomeStream.query.filter_by(user_id=uid, is_active=True).first() is not None:
+        completed.append('income_schedule')
+
+    if ScheduledExpense.query.filter_by(user_id=uid, is_active=True).first() is not None:
+        completed.append('expense_schedule')
 
     if RecurringExpense.query.filter_by(user_id=uid, is_active=True).first() is not None:
         completed.append('expenses')

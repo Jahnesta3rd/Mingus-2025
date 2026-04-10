@@ -2,17 +2,17 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Check, X } from 'lucide-react';
 import { useOnboarding } from '../hooks/useOnboarding';
-
-const BG = '#0d0a08';
-const GOLD = '#C4A064';
-const TEXT = '#F0E8D8';
+import IncomeScheduleStep from '../components/onboarding/IncomeScheduleStep';
+import ExpenseScheduleStep from '../components/onboarding/ExpenseScheduleStep';
 
 const STEP_META = [
   { step: 1, key: 'personal' as const, label: 'About You' },
   { step: 2, key: 'income' as const, label: 'Income' },
-  { step: 3, key: 'expenses' as const, label: 'Expenses' },
-  { step: 4, key: 'position' as const, label: 'Financial Position' },
-  { step: 5, key: 'goals' as const, label: 'Goals' },
+  { step: 3, key: 'income_schedule' as const, label: 'Paydays' },
+  { step: 4, key: 'expense_schedule' as const, label: 'Bills' },
+  { step: 5, key: 'expenses' as const, label: 'Expenses' },
+  { step: 6, key: 'position' as const, label: 'Position' },
+  { step: 7, key: 'goals' as const, label: 'Goals' },
 ];
 
 const EXPENSE_DB_CATEGORIES = [
@@ -52,9 +52,9 @@ const PRESET_EXPENSES: Omit<ExpenseRow, 'id' | 'amount'>[] = [
 ];
 
 const inputClass =
-  'w-full rounded-lg border border-stone-600 bg-[#1a1512] px-3 py-2.5 text-[#F0E8D8] placeholder:text-stone-500 focus:border-[#C4A064] focus:outline-none focus:ring-1 focus:ring-[#C4A064]';
+  'w-full min-h-11 rounded-lg border border-[#E2E8F0] bg-white px-3 py-2.5 text-[#1E293B] placeholder:text-[#64748B] focus:border-[#5B2D8E] focus:outline-none focus:ring-1 focus:ring-[#5B2D8E]';
 
-const labelClass = 'mb-1.5 block text-sm font-medium text-[#F0E8D8]/90';
+const labelClass = 'mb-1.5 block text-sm font-medium text-[#1E293B]';
 
 export default function OnboardingPage() {
   const navigate = useNavigate();
@@ -72,9 +72,9 @@ export default function OnboardingPage() {
     saveGoals,
     goToStep,
     skipStep,
+    refreshSetupStatus,
   } = useOnboarding();
 
-  /* Step 1 */
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [city, setCity] = useState('');
@@ -86,23 +86,19 @@ export default function OnboardingPage() {
   const [occupation, setOccupation] = useState('');
   const [employer, setEmployer] = useState('');
 
-  /* Step 2 */
   const [incomeRows, setIncomeRows] = useState<IncomeRow[]>([
     { id: newId(), name: '', amount: '', frequency: 'monthly' },
   ]);
 
-  /* Step 3 */
   const [expenseRows, setExpenseRows] = useState<ExpenseRow[]>(() =>
     PRESET_EXPENSES.map((p) => ({ ...p, id: newId(), amount: '0' }))
   );
 
-  /* Step 4 */
   const [emergencyFund, setEmergencyFund] = useState('');
   const [creditScore, setCreditScore] = useState('');
   const [totalDebt, setTotalDebt] = useState('');
   const [savingsBalance, setSavingsBalance] = useState('');
 
-  /* Step 5 */
   const [primaryGoal, setPrimaryGoal] = useState('');
   const [targetSavings, setTargetSavings] = useState('');
   const [stressLevel, setStressLevel] = useState<number | ''>('');
@@ -251,7 +247,7 @@ export default function OnboardingPage() {
     const hasAny = Object.keys(payload).length > 0;
     const ok = await savePosition(payload);
     if (ok && !hasAny) {
-      goToStep(5);
+      goToStep(7);
     }
   };
 
@@ -282,22 +278,21 @@ export default function OnboardingPage() {
         const done = stepsCompleted.includes(key);
         const active = currentStep === step;
         return (
-          <div key={key} className="flex flex-1 flex-col items-center gap-2 text-center">
+          <div key={key} className="flex flex-1 flex-col items-center gap-2 text-center min-w-[2.75rem]">
             <div
-              className={`flex h-10 w-10 items-center justify-center rounded-full border-2 text-sm font-semibold transition-colors ${
+              className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 text-xs font-semibold transition-colors sm:text-sm ${
                 done
-                  ? 'border-emerald-500 bg-emerald-500/20 text-emerald-400'
+                  ? 'border-[#059669] bg-emerald-50 text-[#059669]'
                   : active
-                    ? 'border-[#C4A064] bg-[#C4A064]/10 text-[#C4A064]'
-                    : 'border-stone-600 bg-[#1a1512] text-stone-500'
+                    ? 'border-[#5B2D8E] bg-[#EDE9FE] text-[#5B2D8E]'
+                    : 'border-[#E2E8F0] bg-white text-[#64748B]'
               }`}
-              style={active ? { boxShadow: `0 0 0 1px ${GOLD}` } : undefined}
             >
               {done ? <Check className="h-5 w-5" strokeWidth={2.5} /> : step}
             </div>
             <span
-              className={`max-w-[4.5rem] text-[10px] font-medium leading-tight sm:text-xs ${
-                active ? 'text-[#C4A064]' : done ? 'text-stone-500' : 'text-stone-600'
+              className={`max-w-[3.5rem] text-[9px] font-medium leading-tight sm:max-w-[4.5rem] sm:text-[10px] ${
+                active ? 'text-[#5B2D8E]' : done ? 'text-[#64748B]' : 'text-[#94A3B8]'
               }`}
             >
               {label}
@@ -310,43 +305,43 @@ export default function OnboardingPage() {
 
   if (isLoading) {
     return (
-      <div
-        className="flex min-h-screen items-center justify-center"
-        style={{ backgroundColor: BG }}
-      >
-        <p className="text-[#F0E8D8]/70">Loading…</p>
+      <div className="flex min-h-screen items-center justify-center bg-[#F8FAFC]">
+        <div className="w-full max-w-md space-y-3 rounded-xl border border-[#E2E8F0] bg-white p-8 shadow-sm">
+          <div className="h-4 w-3/4 animate-pulse rounded bg-[#E2E8F0]" />
+          <div className="h-4 w-1/2 animate-pulse rounded bg-[#E2E8F0]" />
+          <div className="h-10 w-full animate-pulse rounded-lg bg-[#E2E8F0]" />
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen px-4 py-8" style={{ backgroundColor: BG }}>
-      <div className="mx-auto max-w-2xl rounded-2xl bg-[#0f172a] p-6 shadow-xl sm:p-8">
+    <div className="min-h-screen bg-[#F8FAFC] px-4 py-8">
+      <div className="mx-auto max-w-2xl rounded-2xl border border-[#E2E8F0] bg-white p-6 shadow-sm sm:p-8">
         {currentStep > 1 && (
           <button
             type="button"
             onClick={() => goToStep(currentStep - 1)}
-            className="mb-6 text-sm text-stone-400 transition hover:text-[#F0E8D8]"
+            className="mb-6 min-h-11 text-sm text-[#64748B] transition hover:text-[#1E293B]"
           >
             ← Back
           </button>
         )}
 
-        <div className="mb-10 flex justify-between gap-1 sm:gap-2">{progressNodes}</div>
+        <div className="mb-10 flex flex-wrap justify-between gap-2 sm:gap-1">{progressNodes}</div>
 
         {error && (
           <div
-            className="mb-6 rounded-lg border border-red-500/40 bg-red-950/40 px-4 py-3 text-sm text-red-200"
+            className="mb-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-[#DC2626]"
             role="alert"
           >
             {error}
           </div>
         )}
 
-        {/* Step 1 */}
         {currentStep === 1 && (
           <form onSubmit={onSubmitPersonal} className="space-y-4">
-            <h1 className="font-serif text-2xl font-semibold sm:text-3xl" style={{ color: TEXT }}>
+            <h1 className="font-serif text-2xl font-semibold text-[#1E293B] sm:text-3xl">
               Tell us about yourself
             </h1>
             <div className="grid gap-4 sm:grid-cols-2">
@@ -395,7 +390,7 @@ export default function OnboardingPage() {
                   required
                 />
                 {!zipValid && zip.length > 0 && (
-                  <p className="mt-1 text-xs text-red-400">Use exactly 5 digits.</p>
+                  <p className="mt-1 text-xs text-[#DC2626]">Use exactly 5 digits.</p>
                 )}
               </div>
             </div>
@@ -435,51 +430,43 @@ export default function OnboardingPage() {
             <button
               type="submit"
               disabled={isSaving}
-              className="mt-4 w-full rounded-xl bg-gradient-to-r from-[#C4A064] to-amber-600 py-3 font-semibold text-[#0d0a08] transition hover:opacity-95 disabled:opacity-50"
+              className="mt-4 min-h-11 w-full rounded-xl bg-[#5B2D8E] py-3 font-semibold text-white transition hover:opacity-95 disabled:opacity-50"
             >
               {isSaving ? 'Saving…' : 'Save & Continue'}
             </button>
-            {currentStep < 5 && (
-              <button
-                type="button"
-                onClick={() => {
-                  setError(null);
-                  skipStep();
-                }}
-                className="mt-3 w-full text-center text-sm text-stone-500 hover:text-stone-400"
-              >
-                Skip this step →
-              </button>
-            )}
+            <button
+              type="button"
+              onClick={() => {
+                setError(null);
+                skipStep();
+              }}
+              className="min-h-11 w-full text-center text-sm text-[#64748B] hover:text-[#1E293B]"
+            >
+              Skip this step →
+            </button>
           </form>
         )}
 
-        {/* Step 2 */}
         {currentStep === 2 && (
           <form onSubmit={onSubmitIncome} className="space-y-4">
-            <h1 className="font-serif text-2xl font-semibold sm:text-3xl" style={{ color: TEXT }}>
-              Your income
-            </h1>
-            <p className="text-sm text-stone-400">
+            <h1 className="font-serif text-2xl font-semibold text-[#1E293B] sm:text-3xl">Your income</h1>
+            <p className="text-sm text-[#64748B]">
               This helps us calculate your savings rate and financial health score. Monthly take-home after tax.
             </p>
             <div className="space-y-4">
               {incomeRows.map((row, idx) => (
-                <div
-                  key={row.id}
-                  className="relative rounded-xl border border-stone-700 bg-[#1a1512]/80 p-4"
-                >
+                <div key={row.id} className="relative rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] p-4">
                   {incomeRows.length > 1 && (
                     <button
                       type="button"
                       onClick={() => removeIncomeRow(row.id)}
-                      className="absolute right-2 top-2 rounded p-1 text-stone-500 hover:bg-stone-800 hover:text-red-400"
+                      className="absolute right-2 top-2 min-h-11 min-w-11 rounded p-1 text-[#64748B] hover:bg-[#E2E8F0] hover:text-[#DC2626]"
                       aria-label="Remove income source"
                     >
-                      <X className="h-4 w-4" />
+                      <X className="mx-auto h-4 w-4" />
                     </button>
                   )}
-                  <p className="mb-2 text-xs font-medium text-stone-500">Source {idx + 1}</p>
+                  <p className="mb-2 text-xs font-medium text-[#64748B]">Source {idx + 1}</p>
                   <div className="grid gap-3 sm:grid-cols-2">
                     <div className="sm:col-span-2">
                       <label className={labelClass}>Source Name</label>
@@ -533,14 +520,14 @@ export default function OnboardingPage() {
             <button
               type="button"
               onClick={addIncomeRow}
-              className="text-sm font-medium text-[#C4A064] hover:underline"
+              className="min-h-11 text-sm font-medium text-[#6D28D9] hover:underline"
             >
               + Add another income source
             </button>
             <button
               type="submit"
               disabled={isSaving}
-              className="mt-4 w-full rounded-xl bg-gradient-to-r from-[#C4A064] to-amber-600 py-3 font-semibold text-[#0d0a08] transition hover:opacity-95 disabled:opacity-50"
+              className="mt-4 min-h-11 w-full rounded-xl bg-[#5B2D8E] py-3 font-semibold text-white transition hover:opacity-95 disabled:opacity-50"
             >
               {isSaving ? 'Saving…' : 'Save & Continue'}
             </button>
@@ -550,23 +537,46 @@ export default function OnboardingPage() {
                 setError(null);
                 skipStep();
               }}
-              className="mt-3 w-full text-center text-sm text-stone-500 hover:text-stone-400"
+              className="min-h-11 w-full text-center text-sm text-[#64748B] hover:text-[#1E293B]"
             >
               Skip this step →
             </button>
           </form>
         )}
 
-        {/* Step 3 */}
         {currentStep === 3 && (
+          <IncomeScheduleStep
+            onContinue={() => goToStep(4)}
+            onSkip={() => {
+              setError(null);
+              skipStep();
+            }}
+            onRefreshSetup={refreshSetupStatus}
+            setPageError={setError}
+          />
+        )}
+
+        {currentStep === 4 && (
+          <ExpenseScheduleStep
+            onContinue={() => goToStep(5)}
+            onSkip={() => {
+              setError(null);
+              skipStep();
+            }}
+            onRefreshSetup={refreshSetupStatus}
+            setPageError={setError}
+          />
+        )}
+
+        {currentStep === 5 && (
           <form onSubmit={onSubmitExpenses} className="space-y-4">
-            <h1 className="font-serif text-2xl font-semibold sm:text-3xl" style={{ color: TEXT }}>
+            <h1 className="font-serif text-2xl font-semibold text-[#1E293B] sm:text-3xl">
               Your monthly expenses
             </h1>
-            <p className="text-sm text-stone-400">Estimates are fine — you can update these anytime.</p>
+            <p className="text-sm text-[#64748B]">Estimates are fine — you can update these anytime.</p>
             <div className="space-y-4">
               {expenseRows.map((row) => (
-                <div key={row.id} className="rounded-xl border border-stone-700 bg-[#1a1512]/80 p-4">
+                <div key={row.id} className="rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] p-4">
                   <div className="flex items-start justify-between gap-2">
                     <div className="grid flex-1 gap-3 sm:grid-cols-2">
                       <div className="sm:col-span-2">
@@ -638,10 +648,10 @@ export default function OnboardingPage() {
                       <button
                         type="button"
                         onClick={() => removeExpenseRow(row.id)}
-                        className="rounded p-1 text-stone-500 hover:bg-stone-800 hover:text-red-400"
+                        className="min-h-11 min-w-11 rounded p-1 text-[#64748B] hover:bg-[#E2E8F0] hover:text-[#DC2626]"
                         aria-label="Remove expense"
                       >
-                        <X className="h-4 w-4" />
+                        <X className="mx-auto h-4 w-4" />
                       </button>
                     )}
                   </div>
@@ -651,14 +661,14 @@ export default function OnboardingPage() {
             <button
               type="button"
               onClick={addCustomExpense}
-              className="text-sm font-medium text-[#C4A064] hover:underline"
+              className="min-h-11 text-sm font-medium text-[#6D28D9] hover:underline"
             >
               + Add custom expense
             </button>
             <button
               type="submit"
               disabled={isSaving}
-              className="mt-4 w-full rounded-xl bg-gradient-to-r from-[#C4A064] to-amber-600 py-3 font-semibold text-[#0d0a08] transition hover:opacity-95 disabled:opacity-50"
+              className="mt-4 min-h-11 w-full rounded-xl bg-[#5B2D8E] py-3 font-semibold text-white transition hover:opacity-95 disabled:opacity-50"
             >
               {isSaving ? 'Saving…' : 'Save & Continue'}
             </button>
@@ -668,25 +678,24 @@ export default function OnboardingPage() {
                 setError(null);
                 skipStep();
               }}
-              className="mt-3 w-full text-center text-sm text-stone-500 hover:text-stone-400"
+              className="min-h-11 w-full text-center text-sm text-[#64748B] hover:text-[#1E293B]"
             >
               Skip this step →
             </button>
           </form>
         )}
 
-        {/* Step 4 */}
-        {currentStep === 4 && (
+        {currentStep === 6 && (
           <form onSubmit={onSubmitPosition} className="space-y-4">
-            <h1 className="font-serif text-2xl font-semibold sm:text-3xl" style={{ color: TEXT }}>
+            <h1 className="font-serif text-2xl font-semibold text-[#1E293B] sm:text-3xl">
               Where do you stand today?
             </h1>
-            <p className="text-sm text-stone-400">
+            <p className="text-sm text-[#64748B]">
               A snapshot of your current financial position. All fields are optional — enter what you know.
             </p>
             <div>
               <label className={labelClass}>Emergency Fund Balance ($)</label>
-              <p className="mb-1 text-xs text-stone-500">Total savings you could access in an emergency</p>
+              <p className="mb-1 text-xs text-[#64748B]">Total savings you could access in an emergency</p>
               <input
                 className={inputClass}
                 type="number"
@@ -698,7 +707,7 @@ export default function OnboardingPage() {
             </div>
             <div>
               <label className={labelClass}>Credit Score (optional)</label>
-              <p className="mb-1 text-xs text-stone-500">Approximate is fine (300–850)</p>
+              <p className="mb-1 text-xs text-[#64748B]">Approximate is fine (300–850)</p>
               <input
                 className={inputClass}
                 type="number"
@@ -710,7 +719,7 @@ export default function OnboardingPage() {
             </div>
             <div>
               <label className={labelClass}>Total Debt ($) (optional)</label>
-              <p className="mb-1 text-xs text-stone-500">
+              <p className="mb-1 text-xs text-[#64748B]">
                 Credit cards, student loans, car loans, etc. (excluding mortgage)
               </p>
               <input
@@ -735,7 +744,7 @@ export default function OnboardingPage() {
             <button
               type="submit"
               disabled={isSaving}
-              className="mt-4 w-full rounded-xl bg-gradient-to-r from-[#C4A064] to-amber-600 py-3 font-semibold text-[#0d0a08] transition hover:opacity-95 disabled:opacity-50"
+              className="mt-4 min-h-11 w-full rounded-xl bg-[#5B2D8E] py-3 font-semibold text-white transition hover:opacity-95 disabled:opacity-50"
             >
               {isSaving ? 'Saving…' : 'Save & Continue'}
             </button>
@@ -745,17 +754,16 @@ export default function OnboardingPage() {
                 setError(null);
                 skipStep();
               }}
-              className="mt-3 w-full text-center text-sm text-stone-500 hover:text-stone-400"
+              className="min-h-11 w-full text-center text-sm text-[#64748B] hover:text-[#1E293B]"
             >
               Skip this step →
             </button>
           </form>
         )}
 
-        {/* Step 5 */}
-        {currentStep === 5 && (
+        {currentStep === 7 && (
           <form onSubmit={onSubmitGoals} className="space-y-4">
-            <h1 className="font-serif text-2xl font-semibold sm:text-3xl" style={{ color: TEXT }}>
+            <h1 className="font-serif text-2xl font-semibold text-[#1E293B] sm:text-3xl">
               What are you working toward?
             </h1>
             <div>
@@ -778,7 +786,7 @@ export default function OnboardingPage() {
             </div>
             <div>
               <label className={labelClass}>Target Monthly Savings ($) (optional)</label>
-              <p className="mb-1 text-xs text-stone-500">How much do you want to save each month?</p>
+              <p className="mb-1 text-xs text-[#64748B]">How much do you want to save each month?</p>
               <input
                 className={inputClass}
                 type="number"
@@ -791,13 +799,11 @@ export default function OnboardingPage() {
             <div>
               <label className={labelClass}>
                 Financial stress level (optional){' '}
-                {stressLevel !== '' && (
-                  <span className="text-[#C4A064]">({stressLevel} / 10)</span>
-                )}
+                {stressLevel !== '' && <span className="text-[#5B2D8E]">({stressLevel} / 10)</span>}
               </label>
-              <p className="mb-1 text-xs text-stone-500">How stressed do you feel about money right now?</p>
+              <p className="mb-1 text-xs text-[#64748B]">How stressed do you feel about money right now?</p>
               <input
-                className="mt-2 w-full accent-[#C4A064]"
+                className="mt-2 h-11 w-full accent-[#5B2D8E]"
                 type="range"
                 min={1}
                 max={10}
@@ -809,14 +815,14 @@ export default function OnboardingPage() {
             <button
               type="submit"
               disabled={isSaving}
-              className="mt-4 w-full rounded-xl bg-gradient-to-r from-[#C4A064] to-amber-600 py-3 font-semibold text-[#0d0a08] transition hover:opacity-95 disabled:opacity-50"
+              className="mt-4 min-h-11 w-full rounded-xl bg-[#5B2D8E] py-3 font-semibold text-white transition hover:opacity-95 disabled:opacity-50"
             >
               {isSaving ? 'Saving…' : 'Complete Setup'}
             </button>
             <button
               type="button"
               onClick={() => navigate('/dashboard')}
-              className="mt-3 w-full text-center text-sm text-stone-500 hover:text-stone-400"
+              className="min-h-11 w-full text-center text-sm text-[#64748B] hover:text-[#1E293B]"
             >
               Go straight to dashboard
             </button>
