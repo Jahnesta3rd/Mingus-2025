@@ -5,38 +5,20 @@ Integrates vehicle maintenance predictions with existing financial forecasting
 
 import logging
 from datetime import datetime
-from flask import Blueprint, request, jsonify
+
+from flask import Blueprint, jsonify, request
+from sqlalchemy import func
 from werkzeug.exceptions import BadRequest, InternalServerError
+
+from ..models.user_models import User
+from ..services.cash_forecast_service import build_forecast_for_user
 from ..services.enhanced_cash_flow_forecast_engine import (
     EnhancedCashFlowForecastEngine,
-    get_pg_connection,
 )
 from ..utils.validation import APIValidator
 
 # Configure logging
 logger = logging.getLogger(__name__)
-
-
-def get_user_balance(user_email: str) -> float:
-    """Resolve opening balance from user_profiles; fall back to 5000.0."""
-    try:
-        conn = get_pg_connection()
-        cursor = conn.cursor()
-        cursor.execute(
-            'SELECT current_balance FROM user_profiles WHERE email = %s',
-            (user_email,),
-        )
-        row = cursor.fetchone()
-        conn.close()
-        if not row:
-            return 5000.0
-        cb = row.get('current_balance')
-        if cb is not None and float(cb) > 0:
-            return float(cb)
-        return 5000.0
-    except Exception as e:
-        logger.warning(f"get_user_balance failed for {user_email}: {e}")
-        return 5000.0
 
 
 # Create blueprint
@@ -90,21 +72,21 @@ def get_enhanced_cash_flow_forecast(user_email):
         
         if not forecast:
             return jsonify({'success': False, 'error': 'Failed to generate forecast'}), 500
-        
-        # Build daily_cashflow for FinancialForecastTab (90 days)
-        initial_balance = get_user_balance(user_email)
-        daily_cashflow = forecast_engine.build_daily_cashflow(
-            forecast, initial_balance=initial_balance, days=90
-        )
-        monthly_summaries = [
-            {'month_key': k, 'total': v}
-            for k, v in forecast.total_monthly_forecast.items()
-        ]
-        vehicle_expense_totals = {'total': 0.0, 'routine': 0.0, 'repair': 0.0}
-        if forecast.vehicle_expenses:
-            vehicle_expense_totals['total'] = sum(ve.total_forecast_cost for ve in forecast.vehicle_expenses)
-            vehicle_expense_totals['routine'] = sum(sum(ve.routine_costs.values()) for ve in forecast.vehicle_expenses)
-            vehicle_expense_totals['repair'] = sum(sum(ve.repair_costs.values()) for ve in forecast.vehicle_expenses)
+
+        mingus_user = User.query.filter(
+            func.lower(User.email) == user_email.strip().lower()
+        ).first()
+        if mingus_user:
+            daily_cashflow, monthly_summaries = build_forecast_for_user(
+                mingus_user.id, days=90
+            )
+        else:
+            logger.warning(
+                "No users row for email %s; daily cash forecast empty", user_email
+            )
+            daily_cashflow, monthly_summaries = [], []
+
+        vehicle_expense_totals = {}
 
         # Convert forecast to JSON-serializable format
         forecast_data = {
@@ -391,21 +373,21 @@ def get_backward_compatible_forecast(user_email):
         
         if not forecast:
             return jsonify({'success': False, 'error': 'Failed to generate forecast'}), 500
-        
-        # Build daily_cashflow for FinancialForecastTab (90 days)
-        initial_balance = get_user_balance(user_email)
-        daily_cashflow = forecast_engine.build_daily_cashflow(
-            forecast, initial_balance=initial_balance, days=90
-        )
-        monthly_summaries = [
-            {'month_key': k, 'total': v}
-            for k, v in forecast.total_monthly_forecast.items()
-        ]
-        vehicle_expense_totals = {'total': 0.0, 'routine': 0.0, 'repair': 0.0}
-        if forecast.vehicle_expenses:
-            vehicle_expense_totals['total'] = sum(ve.total_forecast_cost for ve in forecast.vehicle_expenses)
-            vehicle_expense_totals['routine'] = sum(sum(ve.routine_costs.values()) for ve in forecast.vehicle_expenses)
-            vehicle_expense_totals['repair'] = sum(sum(ve.repair_costs.values()) for ve in forecast.vehicle_expenses)
+
+        mingus_user = User.query.filter(
+            func.lower(User.email) == user_email.strip().lower()
+        ).first()
+        if mingus_user:
+            daily_cashflow, monthly_summaries = build_forecast_for_user(
+                mingus_user.id, days=90
+            )
+        else:
+            logger.warning(
+                "No users row for email %s; daily cash forecast empty", user_email
+            )
+            daily_cashflow, monthly_summaries = [], []
+
+        vehicle_expense_totals = {}
 
         # Convert to backward-compatible format
         compatible_forecast = {
