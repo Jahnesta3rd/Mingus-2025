@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Menu, X, User, LogOut, Shield, Home } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 interface NavigationBarProps {
   className?: string;
@@ -13,7 +13,7 @@ const NavigationBar: React.FC<NavigationBarProps> = ({ className = '' }) => {
   const [focusedIndex, setFocusedIndex] = useState(-1);
   const [showUserMenu, setShowUserMenu] = useState(false);
   // const menuRef = useRef<HTMLDivElement>(null);
-  const menuItemsRef = useRef<(HTMLButtonElement | null)[]>([]);
+  const menuItemsRef = useRef<(HTMLButtonElement | HTMLAnchorElement | null)[]>([]);
   const userMenuRef = useRef<HTMLDivElement>(null);
   const { user, isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
@@ -243,13 +243,22 @@ const NavigationBar: React.FC<NavigationBarProps> = ({ className = '' }) => {
                 )}
               </div>
             ) : (
-              <button 
-                onClick={() => navigate('/signup?source=cta')}
-                className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white px-6 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-violet-500/25 hover:-translate-y-0.5 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-900"
-                aria-label="Get started with Mingus"
-              >
-                Get Started
-              </button>
+              <div className="flex items-center gap-4">
+                <Link
+                  to="/login"
+                  className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white px-6 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-violet-500/25 hover:-translate-y-0.5 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-900"
+                  aria-label="Log in to Mingus"
+                >
+                  Log In
+                </Link>
+                <button 
+                  onClick={() => navigate('/signup?source=cta')}
+                  className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white px-6 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-violet-500/25 hover:-translate-y-0.5 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-900"
+                  aria-label="Get started with Mingus"
+                >
+                  Get Started
+                </button>
+              </div>
             )}
           </div>
 
@@ -272,7 +281,7 @@ const NavigationBar: React.FC<NavigationBarProps> = ({ className = '' }) => {
           id="mobile-menu"
           className={`md:hidden transition-all duration-300 ease-in-out ${
             isMenuOpen 
-              ? 'max-h-64 opacity-100' 
+              ? 'max-h-96 opacity-100' 
               : 'max-h-0 opacity-0 overflow-hidden'
           }`}
           role="menu"
@@ -344,15 +353,27 @@ const NavigationBar: React.FC<NavigationBarProps> = ({ className = '' }) => {
                   </button>
                 </>
               ) : (
-                <button 
-                  ref={el => menuItemsRef.current[3] = el}
-                  onClick={() => navigate('/signup?source=cta')}
-                  className="w-full bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 transform hover:scale-105 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-800"
-                  role="menuitem"
-                  aria-label="Get started with Mingus"
-                >
-                  Get Started
-                </button>
+                <div className="space-y-2">
+                  <Link
+                    ref={el => { menuItemsRef.current[3] = el; }}
+                    to="/login"
+                    className="block w-full text-center bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 transform hover:scale-105 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-800"
+                    role="menuitem"
+                    aria-label="Log in to Mingus"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Log In
+                  </Link>
+                  <button 
+                    ref={el => menuItemsRef.current[4] = el}
+                    onClick={() => navigate('/signup?source=cta')}
+                    className="w-full bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 transform hover:scale-105 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-800"
+                    role="menuitem"
+                    aria-label="Get started with Mingus"
+                  >
+                    Get Started
+                  </button>
+                </div>
               )}
             </div>
           </div>

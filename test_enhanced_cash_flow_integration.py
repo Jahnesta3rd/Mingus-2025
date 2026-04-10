@@ -251,7 +251,7 @@ def test_backward_compatibility():
     
     # Test that we can still get profile expenses without vehicles
     print("Testing profile expenses without vehicle integration...")
-    profile_categories = engine.get_user_profile_expenses(user_email)
+    profile_categories, _opening = engine.get_user_profile_expenses(user_email)
     
     print(f"📋 Profile Categories Found: {len(profile_categories)}")
     for key, category in profile_categories.items():

@@ -66,6 +66,17 @@ async function addDashboardMocks(p: Page) {
       body: JSON.stringify({ daily_cashflow: [], monthly_summaries: [], vehicle_expense_totals: {} }),
     });
   });
+  await p.route('**/api/user/profile**', async (route) => {
+    if (route.request().method() !== 'GET') return route.fallback();
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        current_balance: 5000,
+        balance_last_updated: new Date().toISOString(),
+      }),
+    });
+  });
   await p.route('**/api/notifications**', async (route) => {
     await route.fulfill({
       status: 200, contentType: 'application/json',

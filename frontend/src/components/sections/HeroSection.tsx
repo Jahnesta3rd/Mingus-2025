@@ -1,5 +1,6 @@
 import React from 'react';
 import { Heart, TrendingUp, Calendar, Star, Check } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { AssessmentType } from '../../types/assessments';
 
 interface HeroSectionProps {
@@ -225,6 +226,12 @@ const HeroSection: React.FC<HeroSectionProps> = ({
                   >
                     Get Started
                   </button>
+                  <p className="text-sm text-gray-500 mt-3 text-center">
+                    Already have an account?{' '}
+                    <Link to="/login" className="text-purple-700 font-medium hover:underline">
+                      Log in
+                    </Link>
+                  </p>
                 </div>
               </div>
               

@@ -6,6 +6,7 @@ import {
   LineChart,
   MessageSquare,
   RefreshCw,
+  Sparkles,
   Users,
 } from 'lucide-react';
 import { csrfHeaders } from '../utils/csrfHeaders';
@@ -68,6 +69,109 @@ type UserSortKey = 'joined' | 'events' | 'nps';
 
 const PAGE_SIZE = 25;
 
+interface VibeCheckupsWindowMetrics {
+  quiz_sessions_started: number;
+  quiz_sessions_completed: number;
+  completion_rate: number;
+  leads_captured: number;
+  email_capture_rate: number;
+  projection_unlocks: number;
+  projection_unlock_rate: number;
+  mingus_cta_clicks: number;
+  mingus_cta_click_rate: number;
+  mingus_converted: number;
+  mingus_conversion_rate: number;
+  mingus_conversion_of_cta_rate: number;
+}
+
+interface SpiritMetricsPayload {
+  total_checkins_all_time: number;
+  checkins_last_30_days: number;
+  active_users_last_30_days: number;
+  avg_streak_active_users: number;
+  avg_practice_score: number;
+  practice_type_breakdown: Record<string, number>;
+  avg_corr_practice_savings: number;
+  avg_corr_practice_stress: number;
+  pct_users_with_positive_savings_corr: number;
+}
+
+function formatTopPractice(breakdown: Record<string, number>): string {
+  const entries = Object.entries(breakdown || {});
+  if (!entries.length) return '—';
+  const [topKey, topCount] = entries.reduce<[string, number]>(
+    (best, cur) => (cur[1] > best[1] ? [cur[0], cur[1]] : best),
+    entries[0]
+  );
+  if (!topCount) return '—';
+  const labels: Record<string, string> = {
+    prayer: 'Prayer',
+    meditation: 'Meditation',
+    gratitude: 'Gratitude',
+    affirmation: 'Affirmation',
+  };
+  return labels[topKey] || topKey;
+}
+
+interface VibeCheckupsAnalyticsPayload {
+  windows: {
+    last_7d: VibeCheckupsWindowMetrics;
+    last_30d: VibeCheckupsWindowMetrics;
+    all_time: VibeCheckupsWindowMetrics;
+  };
+  top_utm_breakdown_30d: {
+    utm_source: string;
+    utm_medium: string;
+    count: number;
+    lead_count: number;
+    conversion_rate: number;
+  }[];
+  verdict_distribution: { verdict_label: string; count: number; pct: number }[];
+}
+
+const VERDICT_PIE_COLORS = ['#5B2D8E', '#C4A064', '#0d9488', '#ea580c', '#be123c', '#64748b'];
+
+function VerdictPieChart({
+  slices,
+}: {
+  slices: { verdict_label: string; count: number; pct: number }[];
+}) {
+  if (!slices.length) {
+    return <p className="text-sm text-gray-500">No verdict data yet.</p>;
+  }
+  let deg = 0;
+  const parts = slices.map((s, i) => {
+    const span = Math.max(0, s.pct) * 360;
+    const from = deg;
+    deg += span;
+    const color = VERDICT_PIE_COLORS[i % VERDICT_PIE_COLORS.length];
+    return `${color} ${from}deg ${deg}deg`;
+  });
+  return (
+    <div className="flex flex-col sm:flex-row gap-6 items-center">
+      <div
+        className="h-44 w-44 shrink-0 rounded-full border border-gray-200 shadow-inner"
+        style={{ background: `conic-gradient(${parts.join(', ')})` }}
+        aria-hidden
+      />
+      <ul className="text-sm space-y-2 flex-1 min-w-0">
+        {slices.map((s, i) => (
+          <li key={s.verdict_label} className="flex items-center gap-2">
+            <span
+              className="h-3 w-3 rounded-sm shrink-0"
+              style={{ backgroundColor: VERDICT_PIE_COLORS[i % VERDICT_PIE_COLORS.length] }}
+            />
+            <span className="text-gray-800 truncate">{s.verdict_label}</span>
+            <span className="text-gray-500 ml-auto tabular-nums">
+              {(s.pct * 100).toFixed(1)}% ({s.count})
+            </span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 const BetaAdminDashboard: React.FC = () => {
   const [overview, setOverview] = useState<OverviewPayload | null>(null);
   const [feedbackInsights, setFeedbackInsights] = useState<FeedbackInsightsPayload | null>(null);
@@ -80,6 +184,8 @@ const BetaAdminDashboard: React.FC = () => {
     dir: 'desc',
   });
   const [userPage, setUserPage] = useState(0);
+  const [vibeAnalytics, setVibeAnalytics] = useState<VibeCheckupsAnalyticsPayload | null>(null);
+  const [spiritMetrics, setSpiritMetrics] = useState<SpiritMetricsPayload | null>(null);
 
   const load = useCallback(async () => {
     setError(null);
@@ -108,6 +214,34 @@ const BetaAdminDashboard: React.FC = () => {
       setFeedbackInsights(await fi.json());
       setUsers(await u.json());
       setFeatures(await f.json());
+
+      try {
+        const sm = await fetch('/api/admin/spirit-metrics', {
+          credentials: 'include',
+          headers: { ...csrfHeaders() },
+        });
+        if (sm.ok) {
+          setSpiritMetrics((await sm.json()) as SpiritMetricsPayload);
+        } else {
+          setSpiritMetrics(null);
+        }
+      } catch {
+        setSpiritMetrics(null);
+      }
+
+      try {
+        const vc = await fetch('/api/vibe-checkups/analytics/summary', {
+          credentials: 'include',
+          headers: { ...csrfHeaders() },
+        });
+        if (vc.ok) {
+          setVibeAnalytics((await vc.json()) as VibeCheckupsAnalyticsPayload);
+        } else {
+          setVibeAnalytics(null);
+        }
+      } catch {
+        setVibeAnalytics(null);
+      }
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Load failed');
     } finally {
@@ -294,6 +428,169 @@ const BetaAdminDashboard: React.FC = () => {
             </div>
           </div>
         </section>
+
+        {/* Spirit & Finance aggregate metrics */}
+        <section
+          aria-label="Spirit and finance metrics"
+          className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden"
+        >
+          <div className="px-5 py-4 border-b border-gray-100 flex items-center gap-2">
+            <Sparkles className="w-5 h-5" style={{ color: HEADER_PURPLE }} />
+            <h2 className="text-lg font-semibold text-gray-900">Spirit &amp; Finance Metrics</h2>
+          </div>
+          <div className="p-5">
+            {!spiritMetrics ? (
+              <p className="text-sm text-gray-500">
+                Metrics unavailable (requires admin access and spirit check-in data).
+              </p>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 text-sm">
+                <div className="flex justify-between gap-4 border-b border-gray-100 pb-3 sm:border-0 sm:pb-0">
+                  <span className="text-gray-500 font-medium">Check-Ins (Last 30 Days)</span>
+                  <span className="text-gray-900 font-semibold tabular-nums">
+                    {spiritMetrics.checkins_last_30_days}
+                  </span>
+                </div>
+                <div className="flex justify-between gap-4 border-b border-gray-100 pb-3 sm:border-0 sm:pb-0">
+                  <span className="text-gray-500 font-medium">Active Users</span>
+                  <span className="text-gray-900 font-semibold tabular-nums">
+                    {spiritMetrics.active_users_last_30_days}
+                  </span>
+                </div>
+                <div className="flex justify-between gap-4 border-b border-gray-100 pb-3 sm:border-0 sm:pb-0">
+                  <span className="text-gray-500 font-medium">Avg Streak</span>
+                  <span className="text-gray-900 font-semibold tabular-nums">
+                    {spiritMetrics.avg_streak_active_users.toFixed(1)}
+                  </span>
+                </div>
+                <div className="flex justify-between gap-4 border-b border-gray-100 pb-3 sm:border-0 sm:pb-0">
+                  <span className="text-gray-500 font-medium">Avg Practice Score</span>
+                  <span className="text-gray-900 font-semibold tabular-nums">
+                    {spiritMetrics.avg_practice_score.toFixed(1)}
+                  </span>
+                </div>
+                <div className="flex justify-between gap-4 border-b border-gray-100 pb-3 sm:border-0 sm:pb-0">
+                  <span className="text-gray-500 font-medium">Most Popular Practice</span>
+                  <span className="text-gray-900 font-semibold text-right">
+                    {formatTopPractice(spiritMetrics.practice_type_breakdown)}
+                  </span>
+                </div>
+                <div className="flex justify-between gap-4">
+                  <span className="text-gray-500 font-medium">% Users with Positive Savings Correlation</span>
+                  <span className="text-gray-900 font-semibold tabular-nums">
+                    {spiritMetrics.pct_users_with_positive_savings_corr.toFixed(1)}%
+                  </span>
+                </div>
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* Vibe Checkups funnel */}
+        {vibeAnalytics && (
+          <section
+            aria-label="Vibe Checkups analytics"
+            className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden space-y-0"
+          >
+            <div className="px-5 py-4 border-b border-gray-100">
+              <h2 className="text-lg font-semibold text-gray-900">Vibe Checkups</h2>
+              <p className="text-sm text-gray-500 mt-1">
+                Love Ledger funnel — sessions, capture, projection unlock, and Mingus upsell
+              </p>
+            </div>
+            <div className="p-5 overflow-x-auto">
+              <h3 className="text-sm font-medium text-gray-700 mb-3">Funnel metrics by window</h3>
+              <table className="min-w-full text-sm text-left border-collapse">
+                <thead>
+                  <tr className="text-gray-600 border-b border-gray-200">
+                    <th className="py-2 pr-4 font-medium">Metric</th>
+                    <th className="py-2 pr-4 font-medium text-right">Last 7d</th>
+                    <th className="py-2 pr-4 font-medium text-right">Last 30d</th>
+                    <th className="py-2 font-medium text-right">All time</th>
+                  </tr>
+                </thead>
+                <tbody className="text-gray-800">
+                  {(
+                    [
+                      ['Quiz sessions started', 'quiz_sessions_started', false],
+                      ['Quiz sessions completed', 'quiz_sessions_completed', false],
+                      ['Completion rate', 'completion_rate', true],
+                      ['Leads (email captured)', 'leads_captured', false],
+                      ['Email capture rate', 'email_capture_rate', true],
+                      ['Projection unlocks', 'projection_unlocks', false],
+                      ['Projection unlock rate', 'projection_unlock_rate', true],
+                      ['Mingus CTA clicks (distinct leads)', 'mingus_cta_clicks', false],
+                      ['Mingus CTA click rate', 'mingus_cta_click_rate', true],
+                      ['Mingus conversions', 'mingus_converted', false],
+                      ['Mingus conversion rate (of leads)', 'mingus_conversion_rate', true],
+                      ['Mingus conversion of CTA', 'mingus_conversion_of_cta_rate', true],
+                    ] as const
+                  ).map(([label, key, isRate]) => {
+                    const w7 = vibeAnalytics.windows.last_7d[key];
+                    const w30 = vibeAnalytics.windows.last_30d[key];
+                    const wa = vibeAnalytics.windows.all_time[key];
+                    const fmt = (v: number) =>
+                      isRate ? `${(Number(v) * 100).toFixed(1)}%` : String(v);
+                    return (
+                      <tr key={key} className="border-b border-gray-100">
+                        <td className="py-2 pr-4">{label}</td>
+                        <td className="py-2 pr-4 text-right tabular-nums">{fmt(w7)}</td>
+                        <td className="py-2 pr-4 text-right tabular-nums">{fmt(w30)}</td>
+                        <td className="py-2 text-right tabular-nums">{fmt(wa)}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+            <div className="px-5 pb-5">
+              <h3 className="text-sm font-medium text-gray-700 mb-3">
+                Top UTM sources (last 30 days)
+              </h3>
+              <div className="overflow-x-auto rounded-lg border border-gray-100">
+                <table className="min-w-full text-sm">
+                  <thead>
+                    <tr className="bg-gray-50 text-left text-gray-600">
+                      <th className="px-4 py-2 font-medium">utm_source</th>
+                      <th className="px-4 py-2 font-medium">utm_medium</th>
+                      <th className="px-4 py-2 font-medium text-right">Sessions</th>
+                      <th className="px-4 py-2 font-medium text-right">Leads</th>
+                      <th className="px-4 py-2 font-medium text-right">Mingus conv. rate</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {vibeAnalytics.top_utm_breakdown_30d.length === 0 ? (
+                      <tr>
+                        <td colSpan={5} className="px-4 py-6 text-center text-gray-500">
+                          No UTM-tagged sessions in the last 30 days.
+                        </td>
+                      </tr>
+                    ) : (
+                      vibeAnalytics.top_utm_breakdown_30d.map((row, idx) => (
+                        <tr
+                          key={`${row.utm_source}-${row.utm_medium}-${idx}`}
+                          className="border-t border-gray-100"
+                        >
+                          <td className="px-4 py-2 text-gray-900">{row.utm_source}</td>
+                          <td className="px-4 py-2 text-gray-700">{row.utm_medium}</td>
+                          <td className="px-4 py-2 text-right tabular-nums">{row.count}</td>
+                          <td className="px-4 py-2 text-right tabular-nums">{row.lead_count}</td>
+                          <td className="px-4 py-2 text-right tabular-nums">
+                            {(row.conversion_rate * 100).toFixed(1)}%
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div className="px-5 pb-6">
+              <h3 className="text-sm font-medium text-gray-700 mb-3">Verdict distribution</h3>
+              <VerdictPieChart slices={vibeAnalytics.verdict_distribution} />
+            </div>
+          </section>
+        )}
 
         {/* Section 2 — Beta users */}
         <section aria-label="Beta users" className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">

@@ -64,7 +64,7 @@ export interface HousingLocationState {
 }
 
 export interface DashboardState {
-  activeTab: 'daily-outlook' | 'financial-forecast' | 'overview' | 'recommendations' | 'vehicles' | 'location' | 'analytics' | 'housing';
+  activeTab: 'daily-outlook' | 'financial-forecast' | 'overview' | 'recommendations' | 'vehicles' | 'location' | 'analytics' | 'housing' | 'life-ledger';
   riskLevel: 'secure' | 'watchful' | 'action_needed' | 'urgent';
   hasUnlockedRecommendations: boolean;
   emergencyMode: boolean;

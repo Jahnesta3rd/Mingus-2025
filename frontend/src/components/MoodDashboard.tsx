@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Component, type ErrorInfo, type ReactNode } from 'react';
+import CorrelationWidget from './LifeLedger/CorrelationWidget';
 import { useFeatureTrack } from '../hooks/useFeatureTrack';
 
 // Types
@@ -43,6 +44,32 @@ interface MoodDashboardProps {
   userId: string;
   sessionId?: string;
   className?: string;
+}
+
+class CorrelationSectionErrorBoundary extends Component<
+  { children: ReactNode },
+  { hasError: boolean }
+> {
+  state = { hasError: false };
+
+  static getDerivedStateFromError(): { hasError: boolean } {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    console.error('CorrelationSectionErrorBoundary', error, errorInfo.componentStack);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="mt-6 w-full rounded-lg border border-[#C4A064]/30 bg-[#0d0a08] px-4 py-3 text-sm text-[#9a8f7e]">
+          Life Correlation could not be loaded.
+        </div>
+      );
+    }
+    return this.props.children;
+  }
 }
 
 // Mood Chart Component
@@ -407,6 +434,12 @@ const MoodDashboard: React.FC<MoodDashboardProps> = ({
         >
           Refresh Analytics
         </button>
+      </div>
+
+      <div className="mt-6 w-full">
+        <CorrelationSectionErrorBoundary>
+          <CorrelationWidget />
+        </CorrelationSectionErrorBoundary>
       </div>
     </div>
   );

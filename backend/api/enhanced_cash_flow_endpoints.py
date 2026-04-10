@@ -7,11 +7,37 @@ import logging
 from datetime import datetime
 from flask import Blueprint, request, jsonify
 from werkzeug.exceptions import BadRequest, InternalServerError
-from ..services.enhanced_cash_flow_forecast_engine import EnhancedCashFlowForecastEngine
+from ..services.enhanced_cash_flow_forecast_engine import (
+    EnhancedCashFlowForecastEngine,
+    get_pg_connection,
+)
 from ..utils.validation import APIValidator
 
 # Configure logging
 logger = logging.getLogger(__name__)
+
+
+def get_user_balance(user_email: str) -> float:
+    """Resolve opening balance from user_profiles; fall back to 5000.0."""
+    try:
+        conn = get_pg_connection()
+        cursor = conn.cursor()
+        cursor.execute(
+            'SELECT current_balance FROM user_profiles WHERE email = %s',
+            (user_email,),
+        )
+        row = cursor.fetchone()
+        conn.close()
+        if not row:
+            return 5000.0
+        cb = row.get('current_balance')
+        if cb is not None and float(cb) > 0:
+            return float(cb)
+        return 5000.0
+    except Exception as e:
+        logger.warning(f"get_user_balance failed for {user_email}: {e}")
+        return 5000.0
+
 
 # Create blueprint
 enhanced_cash_flow_api = Blueprint('enhanced_cash_flow_api', __name__)
@@ -51,7 +77,7 @@ def get_enhanced_cash_flow_forecast(user_email):
             return jsonify({'success': False, 'error': 'Invalid CSRF token'}), 403
         
         # Validate email
-        if not APIValidator.sanitize_email(user_email):
+        if not APIValidator.sanitize_string(user_email):
             return jsonify({'success': False, 'error': 'Invalid email address'}), 400
         
         # Get months parameter
@@ -66,7 +92,10 @@ def get_enhanced_cash_flow_forecast(user_email):
             return jsonify({'success': False, 'error': 'Failed to generate forecast'}), 500
         
         # Build daily_cashflow for FinancialForecastTab (90 days)
-        daily_cashflow = forecast_engine.build_daily_cashflow(forecast, initial_balance=5000.0, days=90)
+        initial_balance = get_user_balance(user_email)
+        daily_cashflow = forecast_engine.build_daily_cashflow(
+            forecast, initial_balance=initial_balance, days=90
+        )
         monthly_summaries = [
             {'month_key': k, 'total': v}
             for k, v in forecast.total_monthly_forecast.items()
@@ -152,7 +181,7 @@ def get_vehicle_expense_details(user_email, month_key):
             return jsonify({'success': False, 'error': 'Invalid CSRF token'}), 403
         
         # Validate email
-        if not APIValidator.sanitize_email(user_email):
+        if not APIValidator.sanitize_string(user_email):
             return jsonify({'success': False, 'error': 'Invalid email address'}), 400
         
         # Validate month format
@@ -261,7 +290,7 @@ def get_vehicle_expense_summary(user_email):
             return jsonify({'success': False, 'error': 'Invalid CSRF token'}), 403
         
         # Validate email
-        if not APIValidator.sanitize_email(user_email):
+        if not APIValidator.sanitize_string(user_email):
             return jsonify({'success': False, 'error': 'Invalid email address'}), 400
         
         # Get months parameter
@@ -349,7 +378,7 @@ def get_backward_compatible_forecast(user_email):
             return jsonify({'success': False, 'error': 'Invalid CSRF token'}), 403
         
         # Validate email
-        if not APIValidator.sanitize_email(user_email):
+        if not APIValidator.sanitize_string(user_email):
             return jsonify({'success': False, 'error': 'Invalid email address'}), 400
         
         # Get months parameter
@@ -364,7 +393,10 @@ def get_backward_compatible_forecast(user_email):
             return jsonify({'success': False, 'error': 'Failed to generate forecast'}), 500
         
         # Build daily_cashflow for FinancialForecastTab (90 days)
-        daily_cashflow = forecast_engine.build_daily_cashflow(forecast, initial_balance=5000.0, days=90)
+        initial_balance = get_user_balance(user_email)
+        daily_cashflow = forecast_engine.build_daily_cashflow(
+            forecast, initial_balance=initial_balance, days=90
+        )
         monthly_summaries = [
             {'month_key': k, 'total': v}
             for k, v in forecast.total_monthly_forecast.items()

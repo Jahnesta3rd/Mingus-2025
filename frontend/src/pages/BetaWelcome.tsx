@@ -86,7 +86,7 @@ const BetaWelcomeContent: React.FC = () => {
           >
             Take Me to My Dashboard
           </Link>
-          <Link to="/profile/setup" className="text-sm text-violet-700 hover:text-violet-900 font-medium">
+          <Link to="/onboarding" className="text-sm text-violet-700 hover:text-violet-900 font-medium">
             Complete Your Profile First
           </Link>
         </div>

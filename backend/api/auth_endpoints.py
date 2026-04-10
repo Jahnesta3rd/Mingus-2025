@@ -15,7 +15,10 @@ import logging
 
 from backend.models.database import db
 from backend.models.user_models import User
+from backend.models.vibe_checkups import VibeCheckupsLead
+from backend.services import life_ledger_service as life_ledger_svc
 from backend.utils.password import hash_password, check_password, verify_password_strength
+from loguru import logger as loguru_logger
 
  # Simple rate limiting (in-memory)
  # TODO PRE-LAUNCH: Replace with Redis-backed rate limiting via flask-limiter.
@@ -155,6 +158,46 @@ def register():
         
         db.session.add(new_user)
         db.session.commit()
+
+        vc_lead_id = (data.get("vc_lead_id") or data.get("vcLeadId") or "").strip()
+        if not vc_lead_id:
+            vc_lead_id = (request.args.get("vc_lead_id") or request.args.get("vcLeadId") or "").strip()
+        if vc_lead_id:
+            # Mark converted on the server before import so import_vibe_lead's security check
+            # passes (avoids a race with the client's POST .../mingus-converted ping).
+            try:
+                lead_uuid = uuid.UUID(str(vc_lead_id).strip())
+                lead_row = db.session.get(VibeCheckupsLead, lead_uuid)
+                if (
+                    lead_row
+                    and (lead_row.email or "").strip().lower() == email
+                    and not lead_row.mingus_converted
+                ):
+                    lead_row.mingus_converted = True
+                    db.session.commit()
+            except ValueError:
+                pass
+            except Exception as mark_err:
+                loguru_logger.warning(
+                    "Could not mark Vibe Checkups lead mingus_converted before import: {}",
+                    mark_err,
+                )
+                db.session.rollback()
+
+            try:
+                life_ledger_svc.import_vibe_lead(new_user.id, vc_lead_id)
+                loguru_logger.info(
+                    "Life Ledger Vibe import succeeded for user_id={} vc_lead_id={}",
+                    new_user.id,
+                    vc_lead_id,
+                )
+            except Exception as import_err:
+                loguru_logger.warning(
+                    "Life Ledger Vibe import failed for user_id={} vc_lead_id={}: {}",
+                    new_user.id,
+                    vc_lead_id,
+                    import_err,
+                )
         
         # Generate JWT token (default 24 hours for new registrations)
         expiry = timedelta(hours=24)

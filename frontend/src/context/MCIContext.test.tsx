@@ -8,6 +8,7 @@ jest.mock("../hooks/useAuth", () => ({
   useAuth: () => ({
     user: null,
     isAuthenticated: true,
+    getAccessToken: () => null,
     loading: false,
     login: async () => undefined,
     register: async () => undefined,

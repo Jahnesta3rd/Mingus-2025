@@ -25,10 +25,11 @@ class RecurringExpense(db.Model):
 
     name = db.Column(db.String(100), nullable=False)
     amount = db.Column(db.Numeric(10, 2), nullable=False)
-    category = db.Column(db.String(50), nullable=False)  # housing, transportation, insurance, debt, subscription, utilities, other
+    category = db.Column(db.String(50), nullable=False)  # housing, transportation, insurance, debt, subscription, utilities, other, relationship
     due_day = db.Column(db.Integer, nullable=True)  # 1-31
     frequency = db.Column(db.String(20), nullable=False)  # monthly, biweekly, weekly, quarterly, annual
     is_active = db.Column(db.Boolean, default=True, nullable=False)
+    source = db.Column(db.String(64), nullable=True)  # e.g. vibe_checkups_import
 
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
@@ -38,8 +39,9 @@ class RecurringExpense(db.Model):
     __table_args__ = (
         Index('idx_recurring_expenses_user_id', 'user_id'),
         Index('idx_recurring_expenses_user_active', 'user_id', 'is_active'),
+        Index('ix_recurring_expenses_user_source', 'user_id', 'source'),
         CheckConstraint(
-            "category IN ('housing', 'transportation', 'insurance', 'debt', 'subscription', 'utilities', 'other')",
+            "category IN ('housing', 'transportation', 'insurance', 'debt', 'subscription', 'utilities', 'other', 'relationship')",
             name='ck_recurring_expenses_category'
         ),
         CheckConstraint(

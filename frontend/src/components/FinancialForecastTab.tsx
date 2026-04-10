@@ -13,6 +13,8 @@ import {
 import { useMCI } from '../context/MCIContext';
 import type { MCIDirection, MCIConstituent, MCISeverity } from '../types/mci';
 
+import BalanceEntryWidget from './BalanceEntryWidget';
+
 // ========================================
 // TYPES
 // ========================================
@@ -361,6 +363,9 @@ export default function FinancialForecastTab({
   );
   const [vehicleDetails, setVehicleDetails] = useState<VehicleExpenseDetails | null>(null);
   const [vehicleDetailsLoading, setVehicleDetailsLoading] = useState(false);
+  const [currentBalance, setCurrentBalance] = useState<number>(5000);
+  const [balanceLastUpdated, setBalanceLastUpdated] = useState<string | null>(null);
+  const [profileLoading, setProfileLoading] = useState<boolean>(true);
 
   const fetchForecast = useCallback(async () => {
     if (!userEmail) return;
@@ -398,8 +403,66 @@ export default function FinancialForecastTab({
   }, [userEmail]);
 
   useEffect(() => {
+    if (!userEmail) {
+      setProfileLoading(false);
+      return;
+    }
+    let cancelled = false;
+    setProfileLoading(true);
+    (async () => {
+      try {
+        const token = localStorage.getItem('mingus_token');
+        const headers: HeadersInit = {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': token || 'test-token',
+        };
+        if (token) headers['Authorization'] = `Bearer ${token}`;
+
+        const res = await fetch('/api/user/profile', { credentials: 'include', headers });
+        if (!res.ok) throw new Error('profile fetch failed');
+        const data = (await res.json()) as {
+          profile?: { current_balance?: unknown; balance_last_updated?: unknown };
+          current_balance?: unknown;
+          balance_last_updated?: unknown;
+        };
+        const prof = data.profile ?? data;
+        const rawBal = prof.current_balance;
+        const tsRaw = prof.balance_last_updated;
+
+        if (cancelled) return;
+
+        if (typeof rawBal === 'number' && Number.isFinite(rawBal)) {
+          setCurrentBalance(rawBal);
+        } else {
+          setCurrentBalance(5000);
+        }
+        setBalanceLastUpdated(typeof tsRaw === 'string' && tsRaw ? tsRaw : null);
+      } catch {
+        if (!cancelled) {
+          setCurrentBalance(5000);
+          setBalanceLastUpdated(null);
+        }
+      } finally {
+        if (!cancelled) setProfileLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [userEmail]);
+
+  useEffect(() => {
     fetchForecast();
   }, [fetchForecast]);
+
+  const handleBalanceSaved = useCallback(
+    (newBalance: number) => {
+      setCurrentBalance(newBalance);
+      setBalanceLastUpdated(new Date().toISOString());
+      void fetchForecast();
+    },
+    [fetchForecast]
+  );
 
   useEffect(() => {
     if (userTier !== 'professional' || !userEmail) return;
@@ -514,6 +577,14 @@ export default function FinancialForecastTab({
 
   return (
     <div className={`space-y-6 ${className}`}>
+      <BalanceEntryWidget
+        userEmail={userEmail}
+        initialBalance={currentBalance}
+        lastUpdated={balanceLastUpdated}
+        onBalanceSaved={handleBalanceSaved}
+        isLoading={profileLoading}
+        className="mb-6"
+      />
       <MCIForecastPanel userTier={userTier} />
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         {/* Card 1 — Today's Balance */}

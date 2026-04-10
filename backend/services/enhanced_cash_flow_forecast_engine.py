@@ -61,6 +61,7 @@ class EnhancedCashFlowForecast:
     total_forecast_amount: float
     average_monthly_amount: float
     generated_date: datetime
+    opening_balance: float = 5000.0
 
 def get_pg_connection():
     """Get PostgreSQL database connection"""
@@ -281,29 +282,37 @@ class EnhancedCashFlowForecastEngine:
             logger.error(f"Error generating vehicle expense forecast for vehicle {vehicle_id}: {e}")
             return None
     
-    def get_user_profile_expenses(self, user_email: str) -> Dict[str, MonthlyForecastCategory]:
+    def get_user_profile_expenses(self, user_email: str) -> Tuple[Dict[str, MonthlyForecastCategory], float]:
         """
-        Get existing monthly expenses from user profile
-        
+        Get existing monthly expenses from user profile and resolved opening balance.
+
         Args:
             user_email: User's email address
-            
+
         Returns:
-            Dictionary of expense categories
+            Tuple of (expense categories dict, initial_balance for cashflow).
+            initial_balance uses current_balance when present and > 0, else 5000.0.
         """
         try:
             conn = get_pg_connection()
             cursor = conn.cursor()
             
             cursor.execute('''
-                SELECT monthly_expenses FROM user_profiles WHERE email = %s
+                SELECT monthly_expenses, current_balance, balance_last_updated
+                FROM user_profiles WHERE email = %s
             ''', (user_email,))
             
             profile_row = cursor.fetchone()
             conn.close()
+
+            initial_balance = 5000.0
+            if profile_row:
+                cb = profile_row.get('current_balance')
+                if cb is not None and float(cb) > 0:
+                    initial_balance = float(cb)
             
             if not profile_row or not profile_row['monthly_expenses']:
-                return {}
+                return {}, initial_balance
             
             monthly_expenses = json.loads(profile_row['monthly_expenses'])
             
@@ -338,11 +347,11 @@ class EnhancedCashFlowForecastEngine:
                         details={'source': 'profile', 'category_key': key}
                     )
             
-            return categories
+            return categories, initial_balance
             
         except Exception as e:
             logger.error(f"Error getting user profile expenses for {user_email}: {e}")
-            return {}
+            return {}, 5000.0
     
     def generate_enhanced_cash_flow_forecast(self, user_email: str, months: int = 12) -> Optional[EnhancedCashFlowForecast]:
         """
@@ -356,8 +365,8 @@ class EnhancedCashFlowForecastEngine:
             EnhancedCashFlowForecast object or None if error
         """
         try:
-            # Get user profile expenses
-            profile_categories = self.get_user_profile_expenses(user_email)
+            # Get user profile expenses and DB-backed opening balance
+            profile_categories, profile_opening_balance = self.get_user_profile_expenses(user_email)
             
             # Get user vehicles
             vehicles = self.get_user_vehicles(user_email)
@@ -447,7 +456,8 @@ class EnhancedCashFlowForecastEngine:
                 total_monthly_forecast=total_monthly_forecast,
                 total_forecast_amount=total_forecast_amount,
                 average_monthly_amount=average_monthly_amount,
-                generated_date=datetime.now()
+                generated_date=datetime.now(),
+                opening_balance=profile_opening_balance,
             )
             
         except Exception as e:

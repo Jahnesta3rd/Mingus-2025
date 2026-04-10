@@ -37,6 +37,10 @@ class Vehicle(db.Model):
     user_zipcode = db.Column(db.String(10), nullable=False, index=True)
     assigned_msa = db.Column(db.String(100), nullable=True, index=True)
     
+    # Assessment / analytics extras
+    notes = db.Column(db.Text, nullable=True)
+    estimated_annual_cost = db.Column(db.Integer, nullable=True)
+
     # Timestamps
     created_date = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     updated_date = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
@@ -69,6 +73,8 @@ class Vehicle(db.Model):
             'monthly_miles': self.monthly_miles,
             'user_zipcode': self.user_zipcode,
             'assigned_msa': self.assigned_msa,
+            'notes': self.notes,
+            'estimated_annual_cost': self.estimated_annual_cost,
             'created_date': self.created_date.isoformat(),
             'updated_date': self.updated_date.isoformat()
         }

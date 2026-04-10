@@ -1,4 +1,4 @@
-import { useState, useEffect, createContext, useContext } from 'react';
+import { useState, useEffect, useCallback, createContext, useContext } from 'react';
 
 function csrfHeaders(): Record<string, string> {
   const token =
@@ -23,11 +23,15 @@ export interface RegisterOptions {
   /** Explicit tier key for beta / streamlined flows (e.g. professional). */
   tier?: string | null;
   is_beta?: boolean;
+  /** Vibe Checkups lead UUID for Life Ledger import after registration. */
+  vc_lead_id?: string | null;
 }
 
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
+  /** JWT for Bearer APIs when present (mirrors `mingus_token` / `auth_token` storage). Cookie auth still works without this. */
+  getAccessToken: () => string | null;
   login: (email: string, password: string, rememberMe?: boolean) => Promise<void>;
   register: (
     email: string,
@@ -53,6 +57,14 @@ export const useAuth = () => {
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+
+  const getAccessToken = useCallback((): string | null => {
+    try {
+      return localStorage.getItem('auth_token') ?? localStorage.getItem('mingus_token');
+    } catch {
+      return null;
+    }
+  }, []);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -158,6 +170,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           ...(options?.selected_tier ? { selected_tier: options.selected_tier } : {}),
           ...(options?.tier ? { tier: options.tier } : {}),
           ...(options?.is_beta === true ? { is_beta: true } : {}),
+          ...(options?.vc_lead_id ? { vc_lead_id: options.vc_lead_id } : {}),
         }),
       });
 
@@ -244,6 +257,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const value = {
     user,
     isAuthenticated: !!user?.isAuthenticated,
+    getAccessToken,
     login,
     register,
     logout,

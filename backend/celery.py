@@ -7,12 +7,19 @@ Run worker (includes beta invite emails):
 import os
 
 from celery import Celery
+from celery.schedules import crontab
 
 celery = Celery(
     "mingus",
     broker=os.environ.get("CELERY_BROKER_URL", "redis://localhost:6379/2"),
     backend=os.environ.get("CELERY_RESULT_BACKEND", "redis://localhost:6379/2"),
-    include=["backend.tasks.email_tasks"],
+    include=[
+        "backend.tasks.email_tasks",
+        "backend.tasks.vibe_checkups_emails",
+        "backend.tasks.life_correlation_tasks",
+        "backend.tasks.spirit_tasks",
+        "backend.tasks.spirit_reminder",
+    ],
 )
 
 celery.conf.update(
@@ -27,6 +34,14 @@ celery.conf.update(
     worker_prefetch_multiplier=1,
     task_acks_late=True,
 )
+
+celery.conf.beat_schedule = {
+    **(celery.conf.beat_schedule or {}),
+    "spirit-practice-reminders": {
+        "task": "backend.tasks.spirit_reminder.send_spirit_reminders",
+        "schedule": crontab(minute="*/15"),
+    },
+}
 
 # Alias for tooling that expects `app`
 app = celery

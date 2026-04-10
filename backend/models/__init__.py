@@ -32,6 +32,30 @@ from .wellness import (
 )
 from .financial_setup import RecurringExpense, UserIncome
 from .feedback import FeatureRating, NPSSurvey
+from .vibe_checkups import (
+    VibeCheckupsSession,
+    VibeCheckupsLead,
+    VibeCheckupsFunnelEvent,
+)
+from .life_ledger import (
+    LifeLedgerProfile,
+    LifeLedgerModuleAnswer,
+    LifeLedgerInsight,
+)
+from .vibe_tracker import (
+    VibeTrackedPerson,
+    VibePersonAssessment,
+    VibePersonTrend,
+)
+from .life_correlation import LifeScoreSnapshot
+from .spirit_checkin import (
+    SpiritCheckin,
+    SpiritCheckinStreak,
+    SpiritFinanceCorrelation,
+)
+from .spirit_prefs import SpiritNotificationPrefs, DEFAULT_REMINDER_DAYS
+from .in_app_notification import InAppNotification
+from .transaction_schedule import IncomeStream, ScheduledExpense
 
 __all__ = [
     'db',
@@ -72,4 +96,22 @@ __all__ = [
     'UserIncome',
     'FeatureRating',
     'NPSSurvey',
+    'VibeCheckupsSession',
+    'VibeCheckupsLead',
+    'VibeCheckupsFunnelEvent',
+    'LifeLedgerProfile',
+    'LifeLedgerModuleAnswer',
+    'LifeLedgerInsight',
+    'VibeTrackedPerson',
+    'VibePersonAssessment',
+    'VibePersonTrend',
+    'LifeScoreSnapshot',
+    'SpiritCheckin',
+    'SpiritCheckinStreak',
+    'SpiritFinanceCorrelation',
+    'SpiritNotificationPrefs',
+    'DEFAULT_REMINDER_DAYS',
+    'InAppNotification',
+    'IncomeStream',
+    'ScheduledExpense',
 ]

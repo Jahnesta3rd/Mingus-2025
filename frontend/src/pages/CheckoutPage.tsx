@@ -70,12 +70,12 @@ export function TierSelectionStep({
   hideContinue?: boolean;
 }) {
   return (
-    <div className="space-y-8">
-      <div>
+    <div className="min-w-0 space-y-8">
+      <div className="min-w-0">
         <h2 className="text-xl font-semibold text-gray-900 mb-1">Step 1 — Tier Selection</h2>
         <p className="text-gray-600 text-sm">Choose your plan.</p>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {TIERS.map((tier) => {
           const isSelected = selectedTier?.id === tier.id;
           return (
@@ -85,21 +85,21 @@ export function TierSelectionStep({
               data-testid={`tier-${tier.id}`}
               onClick={() => onSelectTier(tier)}
               disabled={loading}
-              className={`text-left p-5 rounded-xl border-2 transition-all disabled:opacity-70 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:ring-offset-2 ${
+              className={`min-w-0 overflow-hidden text-left p-5 rounded-xl border-2 transition-all disabled:opacity-70 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:ring-offset-2 ${
                 isSelected
                   ? 'border-violet-500 bg-violet-50 shadow-md ring-2 ring-violet-500/30'
                   : 'border-gray-300 bg-white hover:border-violet-400/50'
               }`}
             >
-              <div className="font-semibold text-gray-900">{tier.name}</div>
-              <div className="mt-2 text-2xl font-bold text-violet-600">
+              <div className="min-w-0 font-semibold text-gray-900 break-words">{tier.name}</div>
+              <div className="mt-2 min-w-0 text-2xl font-bold text-violet-600 break-words tabular-nums">
                 ${tier.priceMonthly}/month
               </div>
               <ul className="mt-4 space-y-2 text-sm text-gray-600">
                 {tier.features.map((f, i) => (
-                  <li key={i} className="flex items-start gap-2">
-                    <span className="text-violet-500 mt-0.5">•</span>
-                    <span>{f}</span>
+                  <li key={i} className="flex min-w-0 items-start gap-2">
+                    <span className="shrink-0 text-violet-500 mt-0.5">•</span>
+                    <span className="min-w-0 break-words">{f}</span>
                   </li>
                 ))}
               </ul>

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../hooks/useAuth';
 import { getDailyVibe } from '../../services/vibeService';
 import type { VibeResponse } from '../../services/vibeService';
 
@@ -7,6 +8,7 @@ const delay = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 const LogoSplash: React.FC = () => {
   const navigate = useNavigate();
+  const { getAccessToken } = useAuth();
   const [phase, setPhase] = useState<'enter' | 'hold' | 'exit'>('enter');
   const [enterDone, setEnterDone] = useState(false);
 
@@ -36,14 +38,51 @@ const LogoSplash: React.FC = () => {
       await delay(200);
       if (!mounted) return;
 
-      navigate('/vibe-check-meme', { replace: true });
+      const checkSetupAndNavigate = async () => {
+        try {
+          const token = getAccessToken ? getAccessToken() : null;
+          const headers: Record<string, string> = {
+            'Content-Type': 'application/json',
+          };
+          if (token) headers.Authorization = `Bearer ${token}`;
+
+          const res = await fetch('/api/profile/setup-status', {
+            method: 'GET',
+            credentials: 'include',
+            headers,
+          });
+
+          if (res.ok) {
+            const data = await res.json();
+            const steps = Array.isArray(data.steps_completed)
+              ? data.steps_completed
+              : Array.isArray(data.data?.steps_completed)
+                ? data.data.steps_completed
+                : [];
+            const isComplete =
+              data.setupCompleted === true ||
+              data.onboarding_complete === true ||
+              steps.length >= 3;
+
+            if (!isComplete) {
+              if (mounted) navigate('/onboarding', { replace: true });
+              return;
+            }
+          }
+        } catch {
+          // silent — fall through to vibe-check-meme on any error
+        }
+        if (mounted) navigate('/vibe-check-meme', { replace: true });
+      };
+
+      checkSetupAndNavigate();
     };
 
     runFlow();
     return () => {
       mounted = false;
     };
-  }, [navigate]);
+  }, [navigate, getAccessToken]);
 
   const isEnter = phase === 'enter';
   const isExit = phase === 'exit';

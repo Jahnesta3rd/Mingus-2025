@@ -38,6 +38,34 @@ const LoginPage: React.FC = () => {
 
       // Full page redirect so the app loads fresh and AuthGuard sees the token.
       // Cache-bust so we don't get a cached HTML/JS bundle.
+      try {
+        const statusRes = await fetch('/api/profile/setup-status', {
+          method: 'GET',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('mingus_token') || ''}`,
+          },
+        });
+        if (statusRes.ok) {
+          const statusData = await statusRes.json();
+          const steps = Array.isArray(statusData.steps_completed)
+            ? statusData.steps_completed
+            : Array.isArray(statusData.data?.steps_completed)
+              ? statusData.data.steps_completed
+              : [];
+          const isComplete =
+            statusData.setupCompleted === true ||
+            statusData.onboarding_complete === true ||
+            steps.length >= 3;
+          if (!isComplete) {
+            window.location.replace('/onboarding');
+            return;
+          }
+        }
+      } catch {
+        // silent — fall through to vibe-check-meme
+      }
       window.location.replace('/vibe-check-meme?t=' + Date.now());
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Invalid email or password');

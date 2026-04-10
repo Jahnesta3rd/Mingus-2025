@@ -661,7 +661,8 @@ def scheduled_analytics_precompute(self):
         logger.error(f"Analytics pre-computation task failed: {e}")
         raise self.retry(countdown=60, exc=e)
 
-# Celery beat schedule for automated background processing
+# Celery beat schedule for automated background processing.
+# Spirit practice reminders are scheduled on the main Mingus Celery app (backend.celery).
 celery_app.conf.beat_schedule = {
     'daily-cache-warming': {
         'task': 'backend.tasks.background_processing.scheduled_cache_warming',

@@ -144,3 +144,4 @@ node_modules
 # MCI file cache artifacts
 backend/cache/*.json
 *.bak
+alembic.ini

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import MemeSettings, { MemePreferences } from '../components/MemeSettings';
 import NotificationSettings from '../components/NotificationSettings';
+import NotificationPrefsForm from '../components/spirit/NotificationPrefsForm';
 
 export interface SettingsPageProps {
   userId?: string;
@@ -97,7 +98,16 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
             )}
 
             {activeTab === 'notifications' && (
-              <NotificationSettings userId={userId} />
+              <div className="space-y-10">
+                <NotificationSettings userId={userId} />
+                <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+                  <h2 className="mb-2 text-xl font-semibold text-gray-900">Practice Reminders</h2>
+                  <p className="mb-6 text-sm text-gray-600">
+                    Spirit &amp; Finance daily check-in reminders (email and in-app).
+                  </p>
+                  <NotificationPrefsForm />
+                </div>
+              </div>
             )}
 
             {activeTab === 'privacy' && (

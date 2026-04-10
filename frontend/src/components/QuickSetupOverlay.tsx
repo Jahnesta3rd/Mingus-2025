@@ -1,5 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { X, DollarSign, Target } from 'lucide-react';
+import { useAuth } from '../hooks/useAuth';
+import { csrfHeaders } from '../utils/csrfHeaders';
 
 interface QuickSetupOverlayProps {
   isOpen: boolean;
@@ -7,10 +10,71 @@ interface QuickSetupOverlayProps {
   onComplete: (data: { incomeRange: string; primaryGoal: string }) => void;
 }
 
+type OverlayGate = 'off' | 'loading' | 'show' | 'hide';
+
 const QuickSetupOverlay: React.FC<QuickSetupOverlayProps> = ({ isOpen, onClose, onComplete }) => {
+  const navigate = useNavigate();
+  const { getAccessToken } = useAuth();
+  const [gate, setGate] = useState<OverlayGate>('off');
   const [incomeRange, setIncomeRange] = useState('');
   const [primaryGoal, setPrimaryGoal] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (!isOpen) {
+      setGate('off');
+      return;
+    }
+    let cancelled = false;
+    setGate('loading');
+    (async () => {
+      try {
+        const headers: Record<string, string> = {
+          ...csrfHeaders(),
+        };
+        const token = getAccessToken();
+        if (token) headers.Authorization = `Bearer ${token}`;
+
+        const res = await fetch('/api/profile/setup-status', {
+          method: 'GET',
+          credentials: 'include',
+          headers,
+        });
+
+        if (cancelled) return;
+
+        if (!res.ok) {
+          setGate('show');
+          return;
+        }
+
+        const data = await res.json();
+        const stepsCompleted: unknown[] = Array.isArray(data.steps_completed)
+          ? data.steps_completed
+          : Array.isArray(data.data?.steps_completed)
+            ? data.data.steps_completed
+            : [];
+        const setupCompleted =
+          data.setupCompleted === true || data.onboarding_complete === true;
+
+        if (stepsCompleted.length === 0) {
+          navigate('/onboarding', { replace: true });
+          setGate('hide');
+          return;
+        }
+        if (setupCompleted) {
+          setGate('hide');
+          return;
+        }
+        setGate('show');
+      } catch {
+        if (!cancelled) setGate('show');
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [isOpen, getAccessToken, navigate]);
 
   const incomeRanges = [
     { value: '30-50k', label: '$30,000 - $50,000' },
@@ -56,6 +120,7 @@ const QuickSetupOverlay: React.FC<QuickSetupOverlayProps> = ({ isOpen, onClose, 
   };
 
   if (!isOpen) return null;
+  if (gate === 'loading' || gate === 'hide' || gate === 'off') return null;
 
   return (
     <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">

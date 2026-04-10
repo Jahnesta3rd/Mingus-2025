@@ -248,6 +248,18 @@ async function addAllMocks(p: Page) {
     });
   });
 
+  await p.route('**/api/user/profile**', async (route) => {
+    if (route.request().method() !== 'GET') return route.fallback();
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        current_balance: 3400,
+        balance_last_updated: new Date().toISOString(),
+      }),
+    });
+  });
+
   // Daily outlook
   await p.route('**/api/daily-outlook**', async (route) => {
     if (route.request().method() !== 'GET') return route.fallback();

@@ -17,9 +17,96 @@ from werkzeug.exceptions import BadRequest, InternalServerError
 from ..utils.validation import APIValidator
 from ..auth.decorators import require_auth
 from ..models.user_models import User
+from ..models.financial_setup import UserIncome, RecurringExpense
+from loguru import logger as loguru_logger
 
 # Configure logging
 logger = logging.getLogger(__name__)
+
+
+ALL_ONBOARDING_STEPS = ['personal', 'income', 'expenses', 'position', 'goals']
+
+
+def _goals_column_nonempty(goals_raw) -> bool:
+    if goals_raw is None:
+        return False
+    s = str(goals_raw).strip()
+    if not s:
+        return False
+    try:
+        obj = json.loads(s)
+        if isinstance(obj, dict) and len(obj) == 0:
+            return False
+        if isinstance(obj, list) and len(obj) == 0:
+            return False
+    except (TypeError, ValueError):
+        return True
+    return True
+
+
+def _compute_onboarding_steps(user, email: str):
+    """Return (steps_completed, steps_remaining)."""
+    completed: list[str] = []
+    if not user or not email:
+        remaining = [s for s in ALL_ONBOARDING_STEPS if s not in completed]
+        return completed, remaining
+
+    uid = user.id
+    em = email.strip().lower()
+
+    # personal + position + goals: user_profiles row
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute(
+            '''
+            SELECT personal_info, financial_info, goals
+            FROM user_profiles WHERE email = %s
+            ''',
+            (em,),
+        )
+        prow = cursor.fetchone()
+        conn.close()
+    except Exception as e:
+        loguru_logger.error("get_setup_status profile query failed: {}", e)
+        prow = None
+
+    if prow:
+        pi_raw = prow.get('personal_info')
+        personal_ok = False
+        if pi_raw:
+            try:
+                pi = json.loads(pi_raw) if isinstance(pi_raw, str) else pi_raw
+                if isinstance(pi, dict):
+                    fn = (pi.get('firstName') or pi.get('first_name') or '')
+                    personal_ok = bool(str(fn).strip())
+            except (TypeError, ValueError):
+                personal_ok = False
+        if personal_ok:
+            completed.append('personal')
+
+        fi_raw = prow.get('financial_info')
+        if fi_raw:
+            try:
+                fi = json.loads(fi_raw) if isinstance(fi_raw, str) else fi_raw
+                if isinstance(fi, dict) and 'emergency_fund' in fi and fi.get('emergency_fund') is not None:
+                    completed.append('position')
+            except (TypeError, ValueError):
+                pass
+
+        if _goals_column_nonempty(prow.get('goals')):
+            completed.append('goals')
+
+    if UserIncome.query.filter_by(user_id=uid, is_active=True).first() is not None:
+        completed.append('income')
+
+    if RecurringExpense.query.filter_by(user_id=uid, is_active=True).first() is not None:
+        completed.append('expenses')
+
+    # Preserve stable order for steps_completed
+    ordered_done = [s for s in ALL_ONBOARDING_STEPS if s in completed]
+    remaining = [s for s in ALL_ONBOARDING_STEPS if s not in ordered_done]
+    return ordered_done, remaining
 
 # Create blueprint
 profile_api = Blueprint('profile_api', __name__, url_prefix='/api')
@@ -134,7 +221,7 @@ def save_profile():
         
         # Sanitize and validate data
         sanitized_data = {
-            'email': APIValidator.sanitize_email(data['email']),
+            'email': str(data['email']).strip().lower(),
             'first_name': APIValidator.sanitize_string(data.get('firstName', '')),
             'personal_info': json.dumps(data['personalInfo']),
             'financial_info': json.dumps(data['financialInfo']),
@@ -454,41 +541,48 @@ def get_setup_status():
         return jsonify({}), 200
     
     try:
-        # Remove any CSRF validation code for this GET endpoint
-        # CSRF protection is not needed for GET requests
-        
         uid = getattr(g, 'current_user_id', None) or getattr(g, 'user_id', None)
         is_beta_flag = False
+        user = None
+        email = ''
         if uid:
             user = User.query.filter_by(user_id=str(uid)).first()
             if user is not None:
                 is_beta_flag = bool(getattr(user, 'is_beta', False))
+                email = (user.email or '').strip()
 
-        # For now, return default completed status
-        # In production, this would check the database for actual setup completion
+        steps_completed, steps_remaining = _compute_onboarding_steps(user, email)
+        setup_completed = len(steps_completed) >= 3
+        onboarding_complete = setup_completed
+
         return jsonify({
             'success': True,
-            'setupCompleted': True,
+            'setupCompleted': setup_completed,
             'is_beta': is_beta_flag,
+            'onboarding_complete': onboarding_complete,
+            'steps_completed': steps_completed,
+            'steps_remaining': steps_remaining,
             'data': {
-                'is_complete': True,
-                'steps_completed': ['profile', 'preferences'],
-                'current_step': None,
+                'is_complete': setup_completed,
+                'steps_completed': steps_completed,
+                'current_step': steps_remaining[0] if steps_remaining else None,
                 'is_beta': is_beta_flag,
             }
         }), 200
         
     except Exception as e:
-        print(f"Error in get_setup_status: {e}")
-        logger.error(f"Error in get_setup_status: {e}")
+        loguru_logger.error("Error in get_setup_status: {}", e)
         return jsonify({
             'success': True,
-            'setupCompleted': True,
+            'setupCompleted': False,
             'is_beta': False,
+            'onboarding_complete': False,
+            'steps_completed': [],
+            'steps_remaining': list(ALL_ONBOARDING_STEPS),
             'data': {
-                'is_complete': True,
+                'is_complete': False,
                 'steps_completed': [],
-                'current_step': None,
+                'current_step': ALL_ONBOARDING_STEPS[0],
                 'is_beta': False,
             }
         }), 200

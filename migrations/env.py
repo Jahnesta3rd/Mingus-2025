@@ -18,6 +18,21 @@ from backend.models.housing_models import HousingSearch, HousingScenario, UserHo
 from backend.models.wellness import WeeklyCheckin, WellnessScore, WellnessFinanceCorrelation, WellnessCheckinStreak, UserSpendingBaseline
 from backend.models.financial_setup import RecurringExpense, UserIncome
 from backend.models.feedback import FeatureRating, NPSSurvey
+from backend.models.vibe_checkups import (
+    VibeCheckupsSession,
+    VibeCheckupsLead,
+    VibeCheckupsFunnelEvent,
+)
+from backend.models.vibe_tracker import (
+    VibeTrackedPerson,
+    VibePersonAssessment,
+    VibePersonTrend,
+)
+from backend.models.spirit_checkin import (
+    SpiritCheckin,
+    SpiritCheckinStreak,
+    SpiritFinanceCorrelation,
+)
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

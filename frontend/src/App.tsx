@@ -1,3 +1,4 @@
+import { HelmetProvider } from 'react-helmet-async';
 import React from 'react';
 import { createBrowserRouter, RouterProvider, Navigate, useNavigate } from 'react-router-dom';
 import { AuthProvider } from './hooks/useAuth';
@@ -22,6 +23,14 @@ import BetaLanding from './pages/BetaLanding';
 import BetaWelcome from './pages/BetaWelcome';
 import AdminRoute from './components/AdminRoute';
 import BetaAdminDashboard from './pages/BetaAdminDashboard';
+import VibeCheckupsPage from './pages/VibeCheckupsPage';
+import BodyCheckPage from './pages/BodyCheckPage';
+import RoofCheckPage from './pages/RoofCheckPage';
+import VehicleCheckPage from './pages/VehicleCheckPage';
+import VibeTrackerPage from './pages/VibeTrackerPage';
+import SpiritFinance from './pages/SpiritFinance';
+import SettingsPage from './pages/SettingsPage';
+import OnboardingPage from './pages/OnboardingPage';
 
 const VibeCheckMemeWrapper: React.FC = () => {
   const navigate = useNavigate();
@@ -39,6 +48,10 @@ const router = createBrowserRouter([
   { path: '/checkout', element: <CheckoutPage /> },
   { path: '/beta', element: <BetaLanding /> },
   { path: '/beta/welcome', element: <BetaWelcome /> },
+  { path: '/vibe-checkups', element: <VibeCheckupsPage /> },
+  { path: '/body-check', element: <BodyCheckPage /> },
+  { path: '/roof-check', element: <RoofCheckPage /> },
+  { path: '/vehicle-check', element: <VehicleCheckPage /> },
 
   // Pre-launch fix tracker (internal)
   { path: '/pre-launch', element: <PreLaunchTracker /> },
@@ -92,7 +105,29 @@ const router = createBrowserRouter([
         </VibeGuard>
       </AuthGuard>
     ),
-    children: [{ index: true, element: <CareerProtectionDashboard /> }],
+    children: [
+      { index: true, element: <CareerProtectionDashboard /> },
+      { path: 'vibe-tracker', element: <VibeTrackerPage /> },
+      { path: 'spirit', element: <SpiritFinance /> },
+    ],
+  },
+
+  {
+    path: '/onboarding',
+    element: (
+      <AuthGuard>
+        <OnboardingPage />
+      </AuthGuard>
+    ),
+  },
+
+  {
+    path: '/settings',
+    element: (
+      <AuthGuard>
+        <SettingsPage />
+      </AuthGuard>
+    ),
   },
 
   // Redirects
@@ -102,9 +137,11 @@ const router = createBrowserRouter([
 
 function App() {
   return (
-    <AuthProvider>
+    <HelmetProvider>
+      <AuthProvider>
       <RouterProvider router={router} />
     </AuthProvider>
+    </HelmetProvider>
   );
 }
 

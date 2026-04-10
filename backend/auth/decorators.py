@@ -10,8 +10,22 @@ from functools import wraps
 from flask import request, jsonify, g
 from datetime import datetime, timedelta
 import logging
+from werkzeug.local import LocalProxy
 
 logger = logging.getLogger(__name__)
+
+
+def get_current_jwt_user():
+    """Resolve ``User`` from JWT claim ``g.current_user_id`` (external string ``user_id``)."""
+    ext = getattr(g, "current_user_id", None)
+    if ext is None:
+        return None
+    from backend.models.user_models import User
+
+    return User.query.filter_by(user_id=str(ext)).first()
+
+
+current_user = LocalProxy(get_current_jwt_user)
 
 # JWT Configuration
 JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY', 'your-jwt-secret-key')
@@ -89,8 +103,8 @@ def require_csrf(f):
     """
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        # Skip CSRF for GET requests
-        if request.method == 'GET':
+        # Skip CSRF for safe / preflight methods
+        if request.method in ('GET', 'HEAD', 'OPTIONS'):
             return f(*args, **kwargs)
         
         # Check for CSRF token in headers or form data
@@ -127,7 +141,7 @@ def validate_csrf_token(token: str) -> bool:
     
     # In production, implement proper CSRF token validation
     # This should use a secret key and time-based validation
-    expected_token = os.environ.get('CSRF_SECRET_KEY', 'default-csrf-secret')
+    expected_token = os.environ.get('CSRF_SECRET_KEY', 'your-csrf-secret-key')
     return token == expected_token
 
 def require_admin(f):

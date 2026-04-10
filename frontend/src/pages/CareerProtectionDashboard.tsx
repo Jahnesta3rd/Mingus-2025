@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, lazy, Suspense } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import RiskStatusHero from '../components/RiskStatusHero';
 import RecommendationTiers from '../components/RecommendationTiers';
 import LocationIntelligenceMap from '../components/LocationIntelligenceMap';
@@ -19,6 +19,9 @@ import QuickSetupOverlay from '../components/QuickSetupOverlay';
 import SpendingMilestonesWidget from '../components/SpendingMilestonesWidget';
 import SpecialDatesWidget from '../components/SpecialDatesWidget';
 import FinancialForecastTab from '../components/FinancialForecastTab';
+import LifeLedgerErrorBoundary from '../components/LifeLedger/LifeLedgerErrorBoundary';
+import LifeLedgerWidget from '../components/LifeLedger/LifeLedgerWidget';
+import CorrelationWidget from '../components/LifeLedger/CorrelationWidget';
 import UserProfile from '../components/UserProfile';
 import FeatureRating from '../components/FeatureRating';
 import { useAuth } from '../hooks/useAuth';
@@ -30,7 +33,7 @@ const DailyOutlook = lazy(() => import('../components/DailyOutlook'));
 const MobileDailyOutlook = lazy(() => import('../components/MobileDailyOutlook'));
 
 interface DashboardState {
-  activeTab: 'daily-outlook' | 'financial-forecast' | 'overview' | 'recommendations' | 'location' | 'analytics' | 'housing' | 'vehicle';
+  activeTab: 'daily-outlook' | 'financial-forecast' | 'overview' | 'recommendations' | 'location' | 'analytics' | 'housing' | 'vehicle' | 'life-ledger';
   riskLevel: 'secure' | 'watchful' | 'action_needed' | 'urgent';
   hasUnlockedRecommendations: boolean;
   emergencyMode: boolean;
@@ -41,6 +44,7 @@ interface DashboardState {
 
 const CareerProtectionDashboard: React.FC = () => {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { user, isAuthenticated, loading: authLoading } = useAuth();
   const { trackPageView, trackInteraction } = useAnalytics();
   const [showProfileModal, setShowProfileModal] = useState(false);
@@ -196,6 +200,25 @@ const CareerProtectionDashboard: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authLoading, isAuthenticated]); // Run when auth is ready, then once (ref guards re-run)
   
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab === 'life-ledger') {
+      setDashboardState((prev) => ({ ...prev, activeTab: 'life-ledger' }));
+      setActiveTab('life-ledger');
+    } else if (tab === 'housing') {
+      setDashboardState((prev) => ({ ...prev, activeTab: 'housing' }));
+      setActiveTab('housing');
+    } else if (tab === 'vehicle' || tab === 'vehicles') {
+      setDashboardState((prev) => ({ ...prev, activeTab: 'vehicle' }));
+      setActiveTab('vehicles');
+    } else {
+      return;
+    }
+    const next = new URLSearchParams(searchParams);
+    next.delete('tab');
+    setSearchParams(next, { replace: true });
+  }, [searchParams, setActiveTab, setSearchParams]);
+
   const handleTabChange = async (tab: DashboardState['activeTab']) => {
     setDashboardState(prev => ({ ...prev, activeTab: tab }));
     setActiveTab(tab === 'vehicle' ? 'vehicles' : tab);
@@ -309,6 +332,18 @@ const CareerProtectionDashboard: React.FC = () => {
               
               <div className="flex items-center gap-2 sm:gap-4">
                 <HousingNotificationSystem />
+                <Link
+                  to="/dashboard/vibe-tracker"
+                  className="text-xs sm:text-sm text-purple-600 hover:text-purple-700 font-medium px-2 py-1 rounded hover:bg-purple-50 transition-colors whitespace-nowrap"
+                >
+                  Vibe Tracker
+                </Link>
+                <Link
+                  to="/dashboard/spirit"
+                  className="text-xs sm:text-sm text-purple-600 hover:text-purple-700 font-medium px-2 py-1 rounded hover:bg-purple-50 transition-colors whitespace-nowrap"
+                >
+                  Spirit &amp; Finance
+                </Link>
                 <button
                   onClick={() => setShowProfileModal(true)}
                   className="text-sm text-purple-600 hover:text-purple-700 font-medium px-2 py-1 rounded hover:bg-purple-50 transition-colors"
@@ -351,6 +386,12 @@ const CareerProtectionDashboard: React.FC = () => {
             onRiskLevelChange={handleRiskLevelChange}
           />
 
+          <LifeLedgerErrorBoundary>
+            <LifeLedgerWidget />
+          </LifeLedgerErrorBoundary>
+
+          <CorrelationWidget />
+
           {/* Wellness Section - Check-in reminder, score card, impact card */}
           <DashboardWellnessSection />
           
@@ -360,6 +401,7 @@ const CareerProtectionDashboard: React.FC = () => {
               {[
                 { id: 'daily-outlook', label: 'Daily Outlook', icon: '🌅', shortLabel: 'Outlook' },
                 { id: 'financial-forecast', label: 'Financial Forecast', icon: '📈', shortLabel: 'Forecast' },
+                { id: 'life-ledger', label: 'Life Ledger', icon: '💛', shortLabel: 'Ledger' },
                 { id: 'overview', label: 'Overview', icon: '📊', shortLabel: 'Overview' },
                 { 
                   id: 'recommendations', 
@@ -445,6 +487,12 @@ const CareerProtectionDashboard: React.FC = () => {
                 userTier={(user as { tier?: string })?.tier === 'professional' ? 'professional' : (user as { tier?: string })?.tier === 'mid_tier' ? 'mid' : 'budget'}
                 className="mt-4"
               />
+            )}
+
+            {dashboardState.activeTab === 'life-ledger' && (
+              <LifeLedgerErrorBoundary>
+                <LifeLedgerWidget className="mt-4" anchorSectionId={false} />
+              </LifeLedgerErrorBoundary>
             )}
 
             {dashboardState.activeTab === 'overview' && (

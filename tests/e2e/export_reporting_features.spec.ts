@@ -144,6 +144,18 @@ async function addExportMocks(p: Page, tier: 'budget' | 'mid' | 'pro') {
       body: JSON.stringify({ setup_complete: true, tier: tier === 'mid' ? 'mid_tier' : tier === 'pro' ? 'professional' : 'budget', email: user.email }) });
   });
 
+  await p.route('**/api/user/profile**', async (route) => {
+    if (route.request().method() !== 'GET') return route.fallback();
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        current_balance: 8500,
+        balance_last_updated: new Date().toISOString(),
+      }),
+    });
+  });
+
   // Export endpoints — gated by tier
   await p.route('**/api/export/financial', async (route) => {
     if (route.request().method() !== 'POST') return route.fallback();

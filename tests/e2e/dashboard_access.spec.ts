@@ -198,6 +198,19 @@ async function addDashboardMocks(p: Page, data: typeof MAYA_DASHBOARD_DATA) {
     });
   });
 
+  await p.route(`**/api/user/profile**`, async (route) => {
+    if (route.request().method() !== 'GET') return route.fallback();
+    const openingBalance = data.cashFlow.daily_cashflow[0]?.opening_balance ?? 5000;
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        current_balance: openingBalance,
+        balance_last_updated: new Date().toISOString(),
+      }),
+    });
+  });
+
   await p.route(`**/api/wellness/**`, async (route) => {
     await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({}) });
   });
@@ -362,7 +375,7 @@ test.describe.serial('Dashboard Access', () => {
   test.setTimeout(90000);
 
   test.beforeEach(async () => {
-    browser = await chromium.launch({ headless: false });
+    browser = await chromium.launch({ headless: true });
     context = await browser.newContext({ storageState: '.auth/marcus.json' });
     page = await context.newPage();
   });
