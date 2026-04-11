@@ -8,10 +8,12 @@ import uuid
 from datetime import date, datetime, timedelta
 
 from flask import Blueprint, g, jsonify, request
+from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError
 
 from backend.auth.decorators import require_auth, require_csrf
 from backend.middleware.limiter_ext import limiter
+from backend.models.connection_trend import ConnectionTrendAssessment
 from backend.models.database import db
 from backend.models.user_models import User
 from backend.models.vibe_checkups import VibeCheckupsLead
@@ -21,6 +23,7 @@ from backend.models.vibe_tracker import (
     VibeTrackedPerson,
 )
 from backend.services import vibe_tracker_service as vts
+from backend.services.connection_trend_service import compute_fade_tier
 from backend.services.cash_forecast_service import (
     _load_profile_balance_and_dates,
     generate_daily_forecast,
@@ -99,6 +102,32 @@ def _assessment_full(a: VibePersonAssessment) -> dict:
         }
     )
     return d
+
+
+def _latest_archived_connection_trend_for_nickname(
+    user_id: int, nickname: str
+) -> ConnectionTrendAssessment | None:
+    """
+    Most recent Connection Trend row for this user and nickname (case-insensitive)
+    on an archived roster person. Rows tied to deleted people are CASCADE-deleted,
+    so true post-delete re-entry cannot be detected without additional storage.
+    """
+    nick_lower = nickname.strip().lower()
+    if not nick_lower:
+        return None
+    return (
+        ConnectionTrendAssessment.query.join(
+            VibeTrackedPerson,
+            ConnectionTrendAssessment.person_id == VibeTrackedPerson.id,
+        )
+        .filter(
+            ConnectionTrendAssessment.user_id == user_id,
+            func.lower(VibeTrackedPerson.nickname) == nick_lower,
+            VibeTrackedPerson.is_archived.is_(True),
+        )
+        .order_by(ConnectionTrendAssessment.assessed_at.desc())
+        .first()
+    )
 
 
 def _person_core(p: VibeTrackedPerson) -> dict:
@@ -446,6 +475,8 @@ def create_person():
     if card_type not in ("person", "kids", "social"):
         return jsonify({"error": "card_type must be person, kids, or social"}), 400
 
+    prior_ct = _latest_archived_connection_trend_for_nickname(user.id, nickname)
+
     person = VibeTrackedPerson(
         user_id=user.id,
         nickname=nickname,
@@ -459,7 +490,39 @@ def create_person():
         db.session.rollback()
         return jsonify({"error": "A tracked person with this nickname already exists"}), 409
 
-    return jsonify(_person_core(person)), 201
+    payload: dict = {
+        "person": _person_core(person),
+        "re_entry_detected": False,
+        "re_entry_type": None,
+        "previous_fade_tier": None,
+        "previous_score": None,
+        "days_since_last": None,
+    }
+
+    if prior_ct is not None:
+        assessed = prior_ct.assessed_at
+        today = datetime.utcnow().date()
+        assessed_day = assessed.date() if assessed else today
+        days_since = max(0, (today - assessed_day).days)
+        prev_tier = prior_ct.fade_tier
+        if (not prev_tier) and prior_ct.normalized_score is not None:
+            prev_tier = compute_fade_tier(int(prior_ct.normalized_score))
+        prev_score = (
+            int(prior_ct.normalized_score)
+            if prior_ct.normalized_score is not None
+            else None
+        )
+        payload.update(
+            {
+                "re_entry_detected": True,
+                "re_entry_type": "zombie" if days_since >= 60 else "submarine",
+                "previous_fade_tier": prev_tier,
+                "previous_score": prev_score,
+                "days_since_last": days_since,
+            }
+        )
+
+    return jsonify(payload), 201
 
 
 @vibe_tracker_bp.route("/people/<uuid:person_id>", methods=["GET"])

@@ -34,10 +34,10 @@ export function TrackThisPersonCard({ leadId, onTracked, onSkip }: TrackThisPers
     if (!nick || actionBusy) return;
     setActionBusy(true);
     try {
-      const person = await createPerson(nick, effectiveEmoji);
-      await linkAssessment(person.id, leadId);
-      setSuccessNickname(person.nickname);
-      onTracked(person.id);
+      const created = await createPerson(nick, effectiveEmoji);
+      await linkAssessment(created.person.id, leadId);
+      setSuccessNickname(created.person.nickname);
+      onTracked(created.person.id);
     } catch {
       /* error on hook */
     } finally {

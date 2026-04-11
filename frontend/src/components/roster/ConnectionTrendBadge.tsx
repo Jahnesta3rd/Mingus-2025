@@ -57,6 +57,11 @@ function tierConfig(fadeTier: string) {
   };
 }
 
+/** Human-readable Fade Scale label for Connection Trend (e.g. roster banners). */
+export function connectionTrendFadeTierLabel(fadeTier: string): string {
+  return tierConfig(fadeTier).label;
+}
+
 export default function ConnectionTrendBadge({
   fadeTier,
   patternType,

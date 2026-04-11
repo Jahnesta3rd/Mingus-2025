@@ -70,6 +70,15 @@ export interface TrackedPersonDetail extends VibeTrackedPerson {
   assessments: VibePersonAssessment[];
 }
 
+export interface CreatePersonResult {
+  person: VibeTrackedPerson;
+  re_entry_detected: boolean;
+  re_entry_type: 'zombie' | 'submarine' | null;
+  previous_fade_tier: string | null;
+  previous_score: number | null;
+  days_since_last: number | null;
+}
+
 export interface UseVibeTrackerResult {
   data: TrackedPersonListItem[] | null;
   archivedData: TrackedPersonListItem[] | null;
@@ -82,7 +91,7 @@ export interface UseVibeTrackerResult {
     nickname: string,
     emoji: string | null,
     cardType?: VibeCardType
-  ) => Promise<VibeTrackedPerson>;
+  ) => Promise<CreatePersonResult>;
   linkAssessment: (personId: string, leadId: string, notes?: string) => Promise<unknown>;
   archivePerson: (personId: string) => Promise<void>;
   unarchivePerson: (personId: string) => Promise<void>;
@@ -229,17 +238,20 @@ export function useVibeTracker(): UseVibeTrackerResult {
       if (!res.ok) {
         throw new Error(await readError(res));
       }
-      const person = (await res.json()) as VibeTrackedPerson;
+      const json = (await res.json()) as CreatePersonResult;
       const normalized: VibeTrackedPerson = {
-        ...person,
+        ...json.person,
         card_type:
-          person.card_type === 'kids' || person.card_type === 'social'
-            ? person.card_type
+          json.person.card_type === 'kids' || json.person.card_type === 'social'
+            ? json.person.card_type
             : 'person',
       };
       const row = listItemFromPerson(normalized);
       setData((prev) => (prev ? [...prev, row] : [row]));
-      return normalized;
+      return {
+        ...json,
+        person: normalized,
+      };
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'Could not create tracked person';
       setError(msg);

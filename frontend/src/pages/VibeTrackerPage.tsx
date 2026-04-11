@@ -13,6 +13,7 @@ import { AssessmentTimeline } from '../components/vibe-checkups/AssessmentTimeli
 import { StayOrGoSignal } from '../components/vibe-checkups/StayOrGoSignal';
 import SelfCard from '../components/roster/SelfCard';
 import { RosterSection } from '../components/roster/RosterSection';
+import ReEntryBanner from '../components/roster/ReEntryBanner';
 
 export default function VibeTrackerPage() {
   const { user } = useAuth();
@@ -44,6 +45,18 @@ export default function VibeTrackerPage() {
   const [addEmoji, setAddEmoji] = useState('');
   const [addBusy, setAddBusy] = useState(false);
   const [addError, setAddError] = useState<string | null>(null);
+  const [reEntryByPersonId, setReEntryByPersonId] = useState<
+    Record<
+      string,
+      {
+        nickname: string;
+        reEntryType: 'zombie' | 'submarine';
+        previousFadeTier: string;
+        previousScore: number | null;
+        daysSinceLast: number;
+      }
+    >
+  >({});
   const detailRequestSeq = useRef(0);
 
   const people = data ?? [];
@@ -101,6 +114,15 @@ export default function VibeTrackerPage() {
     setAddOpen(false);
   }, [addBusy]);
 
+  const dismissReEntryBanner = useCallback((personId: string) => {
+    setReEntryByPersonId((prev) => {
+      if (!(personId in prev)) return prev;
+      const next = { ...prev };
+      delete next[personId];
+      return next;
+    });
+  }, []);
+
   const submitAddPerson = useCallback(async () => {
     const nick = addNickname.trim();
     if (!addCardType || !nick || addBusy) return;
@@ -111,7 +133,19 @@ export default function VibeTrackerPage() {
         ? '👶'
         : addEmoji.trim().slice(0, 8) || null;
     try {
-      await createPerson(nick, emoji, addCardType);
+      const result = await createPerson(nick, emoji, addCardType);
+      if (result.re_entry_detected && result.re_entry_type) {
+        setReEntryByPersonId((prev) => ({
+          ...prev,
+          [result.person.id]: {
+            nickname: result.person.nickname,
+            reEntryType: result.re_entry_type,
+            previousFadeTier: result.previous_fade_tier ?? '',
+            previousScore: result.previous_score,
+            daysSinceLast: result.days_since_last ?? 0,
+          },
+        }));
+      }
       setAddOpen(false);
       await getPeople().catch(() => {});
     } catch (e) {
@@ -129,6 +163,12 @@ export default function VibeTrackerPage() {
       await deletePerson(id);
       setDeleteTarget(null);
       setDeleteConfirm('');
+      setReEntryByPersonId((prev) => {
+        if (!(id in prev)) return prev;
+        const next = { ...prev };
+        delete next[id];
+        return next;
+      });
       if (expandedId === id) {
         setExpandedId(null);
         setExpandedDetail(null);
@@ -219,6 +259,16 @@ export default function VibeTrackerPage() {
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               {people.map((row) => (
                 <div key={row.id} className={expandedId === row.id ? 'md:col-span-2' : undefined}>
+                  {reEntryByPersonId[row.id] ? (
+                    <ReEntryBanner
+                      nickname={reEntryByPersonId[row.id].nickname}
+                      reEntryType={reEntryByPersonId[row.id].reEntryType}
+                      previousFadeTier={reEntryByPersonId[row.id].previousFadeTier}
+                      previousScore={reEntryByPersonId[row.id].previousScore}
+                      daysSinceLast={reEntryByPersonId[row.id].daysSinceLast}
+                      onDismiss={() => dismissReEntryBanner(row.id)}
+                    />
+                  ) : null}
                   <PersonCard
                     person={row}
                     trend={row.trend}
