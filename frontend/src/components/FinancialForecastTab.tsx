@@ -14,6 +14,7 @@ import { useMCI } from '../context/MCIContext';
 import type { MCIDirection, MCIConstituent, MCISeverity } from '../types/mci';
 
 import BalanceEntryWidget from './BalanceEntryWidget';
+import PeopleCostSummary from './roster/PeopleCostSummary';
 
 // ========================================
 // TYPES
@@ -628,6 +629,8 @@ export default function FinancialForecastTab({
           )}
         </div>
       </div>
+
+      <PeopleCostSummary userEmail={userEmail} />
 
       {/* 90-day balance chart — mid & professional only */}
       {(userTier === 'mid' || userTier === 'professional') && chartData90.length > 0 && (

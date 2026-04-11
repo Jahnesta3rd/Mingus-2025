@@ -8,6 +8,7 @@ Uses JWT auth; all spending data from user-provided check-in estimates (no bank 
 OpenAPI tag: wellness
 """
 
+import json
 import logging
 from datetime import date, datetime, timedelta
 from decimal import Decimal
@@ -16,7 +17,7 @@ from collections import defaultdict
 
 from flask import Blueprint, request, jsonify, g
 from marshmallow import Schema, fields, validate, ValidationError
-from sqlalchemy import func, desc
+from sqlalchemy import func, desc, text
 from werkzeug.exceptions import BadRequest, NotFound, Conflict
 
 from backend.auth.decorators import require_auth, get_current_user_id
@@ -40,6 +41,7 @@ from backend.services.insight_generator_service import (
     WellnessInsight,
     InsightType,
 )
+from backend.services.cash_forecast_service import generate_daily_forecast
 
 logger = logging.getLogger(__name__)
 
@@ -699,6 +701,96 @@ def refresh_correlations():
     _refresh_correlations_and_baselines(user_id)
     db.session.commit()
     return get_correlations()
+
+
+def _parse_health_wellness_json(raw: object) -> Dict[str, Any]:
+    if raw is None:
+        return {}
+    if isinstance(raw, dict):
+        return raw
+    if isinstance(raw, (bytes, bytearray)):
+        s = raw.decode("utf-8", errors="replace")
+    else:
+        s = str(raw)
+    s = s.strip()
+    if not s:
+        return {}
+    try:
+        d = json.loads(s)
+        return d if isinstance(d, dict) else {}
+    except json.JSONDecodeError:
+        return {}
+
+
+def _parenting_line_amount(node: object, key: str) -> float:
+    if not isinstance(node, dict):
+        return 0.0
+    v = node.get(key)
+    if v is None:
+        return 0.0
+    try:
+        return float(v)
+    except (TypeError, ValueError):
+        return 0.0
+
+
+@wellness_checkin_bp.route('/parenting-costs', methods=['GET'])
+@require_auth
+def get_parenting_costs():
+    """
+    GET /api/wellness/parenting-costs
+    Monthly parenting line items from user_profiles.health_wellness JSON
+    (parentingCosts or parenting_costs: childcare, healthcare, education, activities).
+    Includes forecast coverage vs minimum projected balance over the next ~30 days.
+    """
+    user_id = _resolve_user_id()
+    user = User.query.get(user_id)
+    if not user or not (user.email or "").strip():
+        return jsonify({"error": "User not found"}), 404
+    email = (user.email or "").strip()
+
+    row = db.session.execute(
+        text(
+            "SELECT health_wellness FROM user_profiles "
+            "WHERE LOWER(TRIM(email)) = LOWER(TRIM(:em))"
+        ),
+        {"em": email},
+    ).fetchone()
+    hw = _parse_health_wellness_json(row[0] if row else None)
+    pc = hw.get("parentingCosts") or hw.get("parenting_costs")
+    childcare = _parenting_line_amount(pc, "childcare")
+    healthcare = _parenting_line_amount(pc, "healthcare")
+    education = _parenting_line_amount(pc, "education")
+    activities = _parenting_line_amount(pc, "activities")
+    total_monthly = round(childcare + healthcare + education + activities, 2)
+
+    coverage_status = None
+    balance_after_parenting = None
+    if total_monthly > 0:
+        daily = generate_daily_forecast(user_id, days=31)
+        if daily:
+            slice_rows = daily[:31]
+            if slice_rows:
+                mins = min(float(r.get("closing_balance") or 0) for r in slice_rows)
+                balance_after_parenting = round(mins - total_monthly, 2)
+                if balance_after_parenting > 500:
+                    coverage_status = "covered"
+                elif balance_after_parenting >= 0:
+                    coverage_status = "tight"
+                else:
+                    coverage_status = "shortfall"
+
+    return jsonify(
+        {
+            "childcare": round(childcare, 2),
+            "healthcare": round(healthcare, 2),
+            "education": round(education, 2),
+            "activities": round(activities, 2),
+            "total_monthly": total_monthly,
+            "coverage_status": coverage_status,
+            "balance_after_parenting": balance_after_parenting,
+        }
+    )
 
 
 @wellness_checkin_bp.route('/streak', methods=['GET'])

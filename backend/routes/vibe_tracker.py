@@ -105,6 +105,7 @@ def _person_core(p: VibeTrackedPerson) -> dict:
     return {
         "id": str(p.id),
         "nickname": p.nickname,
+        "card_type": getattr(p, "card_type", None) or "person",
         "emoji": p.emoji,
         "created_at": p.created_at.isoformat() + "Z" if p.created_at else None,
         "last_assessed_at": p.last_assessed_at.isoformat() + "Z"
@@ -438,9 +439,17 @@ def create_person():
     else:
         emoji = None
 
+    card_type_raw = body.get("card_type", "person")
+    if not isinstance(card_type_raw, str):
+        return jsonify({"error": "card_type must be a string"}), 400
+    card_type = card_type_raw.strip().lower()
+    if card_type not in ("person", "kids", "social"):
+        return jsonify({"error": "card_type must be person, kids, or social"}), 400
+
     person = VibeTrackedPerson(
         user_id=user.id,
         nickname=nickname,
+        card_type=card_type,
         emoji=emoji,
     )
     db.session.add(person)

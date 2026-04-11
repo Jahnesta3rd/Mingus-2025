@@ -35,6 +35,11 @@ class VibeTrackedPerson(db.Model):
         index=True,
     )
     nickname = db.Column(db.String(30), nullable=False)
+    card_type = db.Column(
+        db.String(20),
+        nullable=False,
+        default="person",
+    )
     emoji = db.Column(db.String(8), nullable=True)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     last_assessed_at = db.Column(db.DateTime, nullable=True)

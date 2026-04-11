@@ -7,7 +7,12 @@ import {
   MinusSmallIcon,
   ClockIcon,
 } from '@heroicons/react/24/outline';
-import type { VibePersonAssessment, VibePersonTrend, VibeTrackedPerson } from '../../hooks/useVibeTracker';
+import type {
+  VibeCardType,
+  VibePersonAssessment,
+  VibePersonTrend,
+  VibeTrackedPerson,
+} from '../../hooks/useVibeTracker';
 import EventRail from '../roster/EventRail';
 
 function formatRelativePast(iso: string | null): string {
@@ -100,6 +105,122 @@ interface PersonEventsApiResponse {
   thirty_day_cost_total: number;
 }
 
+interface ParentingCostsApiResponse {
+  childcare: number;
+  healthcare: number;
+  education: number;
+  activities: number;
+  total_monthly: number;
+  coverage_status: 'covered' | 'tight' | 'shortfall' | null;
+  balance_after_parenting: number | null;
+}
+
+function formatUsdWhole(value: number): string {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(value);
+}
+
+function KidsParentingCosts() {
+  const [data, setData] = useState<ParentingCostsApiResponse | null>(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    const token = localStorage.getItem('mingus_token') ?? '';
+    fetch('/api/wellness/parenting-costs', {
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error('parenting-costs');
+        return res.json() as Promise<ParentingCostsApiResponse>;
+      })
+      .then((json) => {
+        if (!cancelled) {
+          setData(json);
+          setVisible(true);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setVisible(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  if (!visible) {
+    return (
+      <div className="mt-4 space-y-2" aria-hidden>
+        <div className="h-4 w-[75%] max-w-full animate-pulse rounded bg-[#2a2030]" />
+        <div className="h-4 w-1/2 max-w-full animate-pulse rounded bg-[#2a2030]" />
+        <div className="h-4 w-[66%] max-w-full animate-pulse rounded bg-[#2a2030]" />
+      </div>
+    );
+  }
+
+  if (!data) return null;
+
+  const lines: { label: string; amount: number }[] = [
+    { label: 'Childcare', amount: data.childcare },
+    { label: 'Healthcare', amount: data.healthcare },
+    { label: 'Education', amount: data.education },
+    { label: 'Activities', amount: data.activities },
+  ];
+
+  const coverageLabel = (() => {
+    if (!data.coverage_status) return null;
+    if (data.coverage_status === 'covered') return 'Covered in forecast';
+    if (data.coverage_status === 'tight') return 'Tight in forecast';
+    return 'Shortfall risk in forecast';
+  })();
+
+  const coverageClass =
+    data.coverage_status === 'covered'
+      ? 'text-[#059669]'
+      : data.coverage_status === 'tight'
+        ? 'text-[#D97706]'
+        : 'text-[#DC2626]';
+
+  return (
+    <div className="mt-4 space-y-3">
+      <p className="text-[10px] font-medium uppercase tracking-wide text-[#9a8f7e]">
+        Monthly parenting costs
+      </p>
+      <ul className="space-y-2">
+        {lines.map((row) => (
+          <li key={row.label} className="flex justify-between gap-2 text-sm text-[#F0E8D8]">
+            <span className="text-[#9a8f7e]">{row.label}</span>
+            <span className="tabular-nums font-medium text-[#F0E8D8]">
+              {formatUsdWhole(row.amount)}
+            </span>
+          </li>
+        ))}
+      </ul>
+      <div className="border-t border-[#2a2030] pt-3">
+        <div className="flex justify-between gap-2 text-sm font-semibold text-[#F0E8D8]">
+          <span>Total / month</span>
+          <span className="tabular-nums text-[#059669]">{formatUsdWhole(data.total_monthly)}</span>
+        </div>
+        {coverageLabel ? (
+          <p className={`mt-2 text-xs font-medium ${coverageClass}`}>{coverageLabel}</p>
+        ) : data.total_monthly <= 0 ? (
+          <p className="mt-2 text-xs text-[#9a8f7e]">
+            Set parenting cost categories in your profile (Health &amp; Wellness) to see coverage.
+          </p>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
 function CollapsedThirtyDayCost({ personId }: { personId: string }) {
   const [total, setTotal] = useState<number | null>(null);
   const [linkedCount, setLinkedCount] = useState<number | null>(null);
@@ -180,6 +301,13 @@ export function PersonCard({
   const emo = latestAssessment?.emotional_score ?? 0;
   const fin = latestAssessment?.financial_score ?? 0;
   const hasScores = Boolean(latestAssessment);
+  const cardType: VibeCardType =
+    person.card_type === 'kids' || person.card_type === 'social' ? person.card_type : 'person';
+  const isKids = cardType === 'kids';
+
+  const cardBorderClass = isKids
+    ? 'border-[#059669]/35 hover:border-[#059669]/55 focus-visible:ring-[#059669]/35'
+    : 'border-[#2a2030] hover:border-[#A78BFA]/35 focus-visible:ring-[#A78BFA]/30';
 
   return (
     <div
@@ -192,19 +320,23 @@ export function PersonCard({
           onClick();
         }
       }}
-      className="relative cursor-pointer rounded-2xl border border-[#2a2030] bg-[#1a1520]/90 p-4 text-left shadow-lg outline-none ring-[#A78BFA]/30 transition hover:border-[#A78BFA]/35 focus-visible:ring-2"
+      className={`relative cursor-pointer rounded-2xl border bg-[#1a1520]/90 p-4 text-left shadow-lg outline-none ring-offset-0 transition focus-visible:ring-2 ${cardBorderClass}`}
     >
       <div className="flex items-start gap-3">
         <div
           className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#0d0a08] text-2xl"
           aria-hidden
         >
-          {person.emoji || '·'}
+          {isKids ? '👶' : person.emoji || '·'}
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
             <h3 className="truncate font-display text-base font-semibold text-[#F0E8D8]">{person.nickname}</h3>
-            <span className="shrink-0 rounded-full border border-[#2a2030] bg-[#0d0a08] px-2 py-0.5 text-[10px] font-medium tabular-nums text-[#A78BFA]">
+            <span
+              className={`shrink-0 rounded-full border border-[#2a2030] bg-[#0d0a08] px-2 py-0.5 text-[10px] font-medium tabular-nums ${
+                isKids ? 'text-[#059669]' : 'text-[#A78BFA]'
+              }`}
+            >
               {person.assessment_count} checkup{person.assessment_count === 1 ? '' : 's'}
             </span>
           </div>
@@ -216,11 +348,15 @@ export function PersonCard({
               {latestAssessment?.verdict_label ?? 'No checkups yet'}
             </span>
           </div>
-          {!isExpanded ? <CollapsedThirtyDayCost personId={person.id} /> : null}
+          {!isExpanded && !isKids ? <CollapsedThirtyDayCost personId={person.id} /> : null}
         </div>
       </div>
 
-      {hasScores ? (
+      {isKids ? (
+        <div className="mt-1" onClick={(e) => e.stopPropagation()}>
+          <KidsParentingCosts />
+        </div>
+      ) : hasScores ? (
         <div className="mt-4 space-y-2" onClick={(e) => e.stopPropagation()}>
           <MiniBar value={emo} label="Emotional" />
           <MiniBar value={fin} label="Financial" />
@@ -245,6 +381,13 @@ export function PersonCard({
           >
             Restore
           </button>
+        ) : isKids ? (
+          <Link
+            to="/dashboard/profile"
+            className="flex-1 min-h-11 rounded-xl border border-[#059669]/60 bg-transparent px-3 py-2.5 text-center text-sm font-semibold text-[#059669] transition hover:border-[#059669] hover:bg-[#059669]/10"
+          >
+            Update costs →
+          </Link>
         ) : (
           <Link
             to="/dashboard/vibe-checkups"

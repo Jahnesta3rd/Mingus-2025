@@ -19,9 +19,12 @@ function jsonAuthHeaders(): Record<string, string> {
   };
 }
 
+export type VibeCardType = 'person' | 'kids' | 'social';
+
 export interface VibeTrackedPerson {
   id: string;
   nickname: string;
+  card_type?: VibeCardType;
   emoji: string | null;
   created_at: string | null;
   last_assessed_at: string | null;
@@ -75,7 +78,11 @@ export interface UseVibeTrackerResult {
   getPeople: () => Promise<TrackedPersonListItem[]>;
   getArchivedPeople: () => Promise<TrackedPersonListItem[]>;
   getPerson: (personId: string, options?: { trackLoading?: boolean }) => Promise<TrackedPersonDetail>;
-  createPerson: (nickname: string, emoji: string | null) => Promise<VibeTrackedPerson>;
+  createPerson: (
+    nickname: string,
+    emoji: string | null,
+    cardType?: VibeCardType
+  ) => Promise<VibeTrackedPerson>;
   linkAssessment: (personId: string, leadId: string, notes?: string) => Promise<unknown>;
   archivePerson: (personId: string) => Promise<void>;
   unarchivePerson: (personId: string) => Promise<void>;
@@ -125,7 +132,11 @@ export function useVibeTracker(): UseVibeTrackerResult {
         throw new Error(await readError(res));
       }
       const json = (await res.json()) as { people?: TrackedPersonListItem[] };
-      const people = json.people ?? [];
+      const people = (json.people ?? []).map((p) => ({
+        ...p,
+        card_type:
+          p.card_type === 'kids' || p.card_type === 'social' ? p.card_type : 'person',
+      }));
       setData(people);
       return people;
     } catch (e) {
@@ -154,7 +165,11 @@ export function useVibeTracker(): UseVibeTrackerResult {
         throw new Error(await readError(res));
       }
       const json = (await res.json()) as { people?: TrackedPersonListItem[] };
-      const people = json.people ?? [];
+      const people = (json.people ?? []).map((p) => ({
+        ...p,
+        card_type:
+          p.card_type === 'kids' || p.card_type === 'social' ? p.card_type : 'person',
+      }));
       setArchivedData(people);
       return people;
     } catch (e) {
@@ -196,7 +211,8 @@ export function useVibeTracker(): UseVibeTrackerResult {
     }
   }, []);
 
-  const createPerson = useCallback(async (nickname: string, emoji: string | null) => {
+  const createPerson = useCallback(
+    async (nickname: string, emoji: string | null, cardType: VibeCardType = 'person') => {
     setLoading(true);
     setError(null);
     try {
@@ -206,6 +222,7 @@ export function useVibeTracker(): UseVibeTrackerResult {
         headers: jsonAuthHeaders(),
         body: JSON.stringify({
           nickname,
+          card_type: cardType,
           ...(emoji != null && emoji !== '' ? { emoji } : {}),
         }),
       });
@@ -213,9 +230,16 @@ export function useVibeTracker(): UseVibeTrackerResult {
         throw new Error(await readError(res));
       }
       const person = (await res.json()) as VibeTrackedPerson;
-      const row = listItemFromPerson(person);
+      const normalized: VibeTrackedPerson = {
+        ...person,
+        card_type:
+          person.card_type === 'kids' || person.card_type === 'social'
+            ? person.card_type
+            : 'person',
+      };
+      const row = listItemFromPerson(normalized);
       setData((prev) => (prev ? [...prev, row] : [row]));
-      return person;
+      return normalized;
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'Could not create tracked person';
       setError(msg);
@@ -223,7 +247,9 @@ export function useVibeTracker(): UseVibeTrackerResult {
     } finally {
       setLoading(false);
     }
-  }, []);
+  },
+  []
+);
 
   const linkAssessment = useCallback(async (personId: string, leadId: string, notes?: string) => {
     setLoading(true);
