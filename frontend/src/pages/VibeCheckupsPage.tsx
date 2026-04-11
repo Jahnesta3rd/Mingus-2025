@@ -1,6 +1,7 @@
 import { Helmet } from "react-helmet-async";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
+import SelfStateContextBanner from "../components/SelfStateContextBanner";
 import { FinalCta } from "../components/vibe-checkups/FinalCta";
 import { HowItWorks } from "../components/vibe-checkups/HowItWorks";
 import { LandingHero } from "../components/vibe-checkups/LandingHero";
@@ -20,6 +21,32 @@ const OG_DESCRIPTION =
 const STORAGE_LEAD = "vibe_checkups_lead_id";
 const STORAGE_VERDICT = "vibe_checkups_verdict_json";
 const STORAGE_PROJECTION = "vibe_checkups_projection_json";
+
+interface SelfCardBannerPayload {
+  self_score: number;
+  mind_score: number | null;
+  mind_trend: string;
+}
+
+function parseSelfCardForBanner(json: unknown): SelfCardBannerPayload | null {
+  if (!json || typeof json !== "object") return null;
+  const o = json as Record<string, unknown>;
+  if ("error" in o) return null;
+  const trendRaw = o.mind_trend;
+  const mindTrend =
+    trendRaw === "up" || trendRaw === "down" || trendRaw === "flat" || trendRaw === "declining"
+      ? trendRaw
+      : "flat";
+  const selfScore = typeof o.self_score === "number" ? o.self_score : 0;
+  const mindScore = typeof o.mind_score === "number" ? o.mind_score : null;
+  return { self_score: selfScore, mind_score: mindScore, mind_trend: mindTrend };
+}
+
+function shouldShowSelfContextBanner(data: SelfCardBannerPayload): boolean {
+  const declining = data.mind_trend === "declining" || data.mind_trend === "down";
+  const lowMind = data.mind_score !== null && data.mind_score < 50;
+  return declining || lowMind;
+}
 
 function scrollToQuizEl() {
   const el = document.getElementById("quiz");
@@ -71,6 +98,32 @@ export function VibeCheckupsPage() {
   );
   const [flowError, setFlowError] = useState<string | null>(null);
   const [unlockBusy, setUnlockBusy] = useState(false);
+  const [selfCardBanner, setSelfCardBanner] = useState<SelfCardBannerPayload | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const token = localStorage.getItem("mingus_token");
+        const headers: HeadersInit = {
+          "Content-Type": "application/json",
+          "X-CSRF-Token": token || "test-token",
+        };
+        if (token) headers.Authorization = `Bearer ${token}`;
+
+        const res = await fetch("/api/self-card", { credentials: "include", headers });
+        if (!res.ok || cancelled) return;
+        const json: unknown = await res.json();
+        const parsed = parseSelfCardForBanner(json);
+        if (!cancelled) setSelfCardBanner(parsed);
+      } catch {
+        if (!cancelled) setSelfCardBanner(null);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const onCta = useCallback(() => {
     setFunnelPhase("outcomes");
@@ -179,10 +232,17 @@ export function VibeCheckupsPage() {
                     <p className="mt-3 text-sm leading-relaxed text-[#9a8f7e]">
                       Take the checkup below, or scroll back up to read how it works first.
                     </p>
+                    {selfCardBanner && shouldShowSelfContextBanner(selfCardBanner) && (
+                      <SelfStateContextBanner
+                        selfScore={selfCardBanner.self_score}
+                        mindScore={selfCardBanner.mind_score ?? 50}
+                        mindTrend={selfCardBanner.mind_trend}
+                      />
+                    )}
                     <button
                       type="button"
                       onClick={onCta}
-                      className="mt-6 w-full rounded-xl bg-[#C4A064] py-3.5 text-sm font-semibold text-[#0d0a08] transition hover:bg-[#d4b074]"
+                      className="mt-6 flex min-h-11 w-full items-center justify-center rounded-xl bg-[#5B2D8E] px-4 py-3.5 text-sm font-semibold text-white transition hover:bg-[#4a2673]"
                     >
                       Start the checkup
                     </button>
