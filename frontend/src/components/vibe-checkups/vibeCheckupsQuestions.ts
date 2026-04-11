@@ -212,3 +212,12 @@ export const VIBE_CHECKUPS_QUESTIONS: QuestionDef[] = [
     labels: ['Stays flat', 'Slow drift', 'Noticeable', 'Fast upgrade'],
   },
 ];
+
+/** Five-question subset for Mingus onboarding Quick Vibe (3 emotional + 2 money). */
+export const QUICK_ONBOARDING_VIBE_QUESTIONS: QuestionDef[] = [
+  VIBE_CHECKUPS_QUESTIONS[0],
+  VIBE_CHECKUPS_QUESTIONS[1],
+  VIBE_CHECKUPS_QUESTIONS[2],
+  VIBE_CHECKUPS_QUESTIONS[10],
+  VIBE_CHECKUPS_QUESTIONS[11],
+];

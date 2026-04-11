@@ -4,6 +4,8 @@ import { csrfHeaders } from '../utils/csrfHeaders';
 
 export const ONBOARDING_STEP_KEYS = [
   'personal',
+  'roster_seed',
+  'quick_vibe',
   'income',
   'income_schedule',
   'expense_schedule',
@@ -78,6 +80,11 @@ export interface SavePositionPayload {
 export interface SaveGoalsPayload {
   /** Object or JSON string (string is parsed before merge) */
   goals: Record<string, unknown> | string;
+}
+
+export interface OnboardingFlagsPatch {
+  roster_seed_skipped?: boolean;
+  quick_vibe_skipped?: boolean;
 }
 
 interface ProfileBundle {
@@ -206,6 +213,60 @@ export function useOnboarding() {
   const skipStep = useCallback(() => {
     setCurrentStep((s) => Math.min(s + 1, ONBOARDING_STEP_KEYS.length));
   }, []);
+
+  const saveOnboardingFlags = useCallback(
+    async (flags: OnboardingFlagsPatch): Promise<boolean> => {
+      const email = user?.email;
+      if (!email) {
+        setError('Not signed in');
+        return false;
+      }
+      setIsSaving(true);
+      setError(null);
+      try {
+        const bundle = await fetchProfileBundle();
+        const prevRaw = bundle.personalInfo.onboarding;
+        const prevOnboarding =
+          prevRaw !== null && typeof prevRaw === 'object' && !Array.isArray(prevRaw)
+            ? { ...(prevRaw as Record<string, boolean>) }
+            : {};
+        const mergedPersonal = {
+          ...bundle.personalInfo,
+          onboarding: { ...prevOnboarding, ...flags },
+        };
+        const firstName =
+          String(mergedPersonal.firstName || mergedPersonal.first_name || bundle.firstNameTop || '');
+        const body = {
+          email,
+          firstName,
+          personalInfo: mergedPersonal,
+          financialInfo: bundle.financialInfo,
+          monthlyExpenses: bundle.monthlyExpenses,
+          importantDates: bundle.importantDates,
+          healthWellness: bundle.healthWellness,
+          goals: bundle.goals,
+        };
+        const res = await fetch('/api/profile', {
+          method: 'POST',
+          credentials: 'include',
+          headers: buildHeaders(getAccessToken, true),
+          body: JSON.stringify(body),
+        });
+        if (res.status !== 200 && res.status !== 201) {
+          setError(await readErrorMessage(res));
+          return false;
+        }
+        await refreshSetupStatus();
+        return true;
+      } catch (e) {
+        setError(e instanceof Error ? e.message : 'Save failed');
+        return false;
+      } finally {
+        setIsSaving(false);
+      }
+    },
+    [user?.email, getAccessToken, fetchProfileBundle, refreshSetupStatus]
+  );
 
   const savePersonal = useCallback(
     async (payload: SavePersonalPayload): Promise<boolean> => {
@@ -402,5 +463,6 @@ export function useOnboarding() {
     goToStep,
     skipStep,
     refreshSetupStatus,
+    saveOnboardingFlags,
   };
 }

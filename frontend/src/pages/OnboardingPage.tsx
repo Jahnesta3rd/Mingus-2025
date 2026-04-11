@@ -1,18 +1,24 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Check, X } from 'lucide-react';
+import { useAuth } from '../hooks/useAuth';
 import { useOnboarding } from '../hooks/useOnboarding';
 import IncomeScheduleStep from '../components/onboarding/IncomeScheduleStep';
 import ExpenseScheduleStep from '../components/onboarding/ExpenseScheduleStep';
+import RosterSeedStep from '../components/onboarding/RosterSeedStep';
+import QuickVibeStep from '../components/onboarding/QuickVibeStep';
+import { csrfHeaders } from '../utils/csrfHeaders';
 
 const STEP_META = [
   { step: 1, key: 'personal' as const, label: 'About You' },
-  { step: 2, key: 'income' as const, label: 'Income' },
-  { step: 3, key: 'income_schedule' as const, label: 'Paydays' },
-  { step: 4, key: 'expense_schedule' as const, label: 'Bills' },
-  { step: 5, key: 'expenses' as const, label: 'Expenses' },
-  { step: 6, key: 'position' as const, label: 'Position' },
-  { step: 7, key: 'goals' as const, label: 'Goals' },
+  { step: 2, key: 'roster_seed' as const, label: 'Roster' },
+  { step: 3, key: 'quick_vibe' as const, label: 'Vibe' },
+  { step: 4, key: 'income' as const, label: 'Income' },
+  { step: 5, key: 'income_schedule' as const, label: 'Paydays' },
+  { step: 6, key: 'expense_schedule' as const, label: 'Bills' },
+  { step: 7, key: 'expenses' as const, label: 'Expenses' },
+  { step: 8, key: 'position' as const, label: 'Position' },
+  { step: 9, key: 'goals' as const, label: 'Goals' },
 ];
 
 const EXPENSE_DB_CATEGORIES = [
@@ -58,6 +64,7 @@ const labelClass = 'mb-1.5 block text-sm font-medium text-[#1E293B]';
 
 export default function OnboardingPage() {
   const navigate = useNavigate();
+  const { getAccessToken } = useAuth();
   const {
     currentStep,
     stepsCompleted,
@@ -73,7 +80,44 @@ export default function OnboardingPage() {
     goToStep,
     skipStep,
     refreshSetupStatus,
+    saveOnboardingFlags,
   } = useOnboarding();
+
+  const [rosterFirstPerson, setRosterFirstPerson] = useState<{ id: string; nickname: string } | null>(
+    null
+  );
+
+  useEffect(() => {
+    if (currentStep !== 3) return;
+    if (rosterFirstPerson) return;
+
+    let cancelled = false;
+    (async () => {
+      const h: Record<string, string> = { ...csrfHeaders(), 'Content-Type': 'application/json' };
+      const token = getAccessToken();
+      if (token) h.Authorization = `Bearer ${token}`;
+      const res = await fetch('/api/vibe-tracker/people', {
+        method: 'GET',
+        credentials: 'include',
+        headers: h,
+      });
+      if (cancelled) return;
+      if (!res.ok) {
+        goToStep(4);
+        return;
+      }
+      const data = (await res.json()) as { people?: { id: string; nickname: string }[] };
+      const list = data.people;
+      if (Array.isArray(list) && list.length > 0) {
+        setRosterFirstPerson({ id: list[0].id, nickname: list[0].nickname });
+      } else {
+        goToStep(4);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [currentStep, rosterFirstPerson, goToStep, getAccessToken]);
 
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -247,7 +291,7 @@ export default function OnboardingPage() {
     const hasAny = Object.keys(payload).length > 0;
     const ok = await savePosition(payload);
     if (ok && !hasAny) {
-      goToStep(7);
+      goToStep(9);
     }
   };
 
@@ -448,6 +492,47 @@ export default function OnboardingPage() {
         )}
 
         {currentStep === 2 && (
+          <RosterSeedStep
+            onSubmitted={async (first) => {
+              setRosterFirstPerson(first);
+              await refreshSetupStatus();
+              goToStep(3);
+            }}
+            onSkip={async () => {
+              setError(null);
+              const ok = await saveOnboardingFlags({
+                roster_seed_skipped: true,
+                quick_vibe_skipped: true,
+              });
+              if (ok) goToStep(4);
+            }}
+            setPageError={setError}
+          />
+        )}
+
+        {currentStep === 3 && rosterFirstPerson && (
+          <QuickVibeStep
+            personId={rosterFirstPerson.id}
+            nickname={rosterFirstPerson.nickname}
+            onAdvance={() => goToStep(4)}
+            onSkip={async () => {
+              setError(null);
+              const ok = await saveOnboardingFlags({ quick_vibe_skipped: true });
+              if (ok) goToStep(4);
+            }}
+            setPageError={setError}
+            onRefreshSetup={refreshSetupStatus}
+          />
+        )}
+
+        {currentStep === 3 && !rosterFirstPerson && (
+          <div className="rounded-xl border border-[#E2E8F0] bg-white p-8 shadow-sm">
+            <div className="h-5 w-2/3 animate-pulse rounded bg-[#E2E8F0]" />
+            <div className="mt-4 h-24 animate-pulse rounded-xl bg-[#F8FAFC]" />
+          </div>
+        )}
+
+        {currentStep === 4 && (
           <form onSubmit={onSubmitIncome} className="space-y-4">
             <h1 className="font-serif text-2xl font-semibold text-[#1E293B] sm:text-3xl">Your income</h1>
             <p className="text-sm text-[#64748B]">
@@ -544,31 +629,31 @@ export default function OnboardingPage() {
           </form>
         )}
 
-        {currentStep === 3 && (
-          <IncomeScheduleStep
-            onContinue={() => goToStep(4)}
-            onSkip={() => {
-              setError(null);
-              skipStep();
-            }}
-            onRefreshSetup={refreshSetupStatus}
-            setPageError={setError}
-          />
-        )}
-
-        {currentStep === 4 && (
-          <ExpenseScheduleStep
-            onContinue={() => goToStep(5)}
-            onSkip={() => {
-              setError(null);
-              skipStep();
-            }}
-            onRefreshSetup={refreshSetupStatus}
-            setPageError={setError}
-          />
-        )}
-
         {currentStep === 5 && (
+          <IncomeScheduleStep
+            onContinue={() => goToStep(6)}
+            onSkip={() => {
+              setError(null);
+              skipStep();
+            }}
+            onRefreshSetup={refreshSetupStatus}
+            setPageError={setError}
+          />
+        )}
+
+        {currentStep === 6 && (
+          <ExpenseScheduleStep
+            onContinue={() => goToStep(7)}
+            onSkip={() => {
+              setError(null);
+              skipStep();
+            }}
+            onRefreshSetup={refreshSetupStatus}
+            setPageError={setError}
+          />
+        )}
+
+        {currentStep === 7 && (
           <form onSubmit={onSubmitExpenses} className="space-y-4">
             <h1 className="font-serif text-2xl font-semibold text-[#1E293B] sm:text-3xl">
               Your monthly expenses
@@ -685,7 +770,7 @@ export default function OnboardingPage() {
           </form>
         )}
 
-        {currentStep === 6 && (
+        {currentStep === 8 && (
           <form onSubmit={onSubmitPosition} className="space-y-4">
             <h1 className="font-serif text-2xl font-semibold text-[#1E293B] sm:text-3xl">
               Where do you stand today?
@@ -761,7 +846,7 @@ export default function OnboardingPage() {
           </form>
         )}
 
-        {currentStep === 7 && (
+        {currentStep === 9 && (
           <form onSubmit={onSubmitGoals} className="space-y-4">
             <h1 className="font-serif text-2xl font-semibold text-[#1E293B] sm:text-3xl">
               What are you working toward?

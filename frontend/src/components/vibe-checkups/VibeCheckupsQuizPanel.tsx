@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { VIBE_CHECKUPS_QUESTIONS, type QuestionDef } from "./vibeCheckupsQuestions";
 import type { Verdict } from "./vibeCheckupsTypes";
 
@@ -10,13 +10,21 @@ type Utm = {
   utm_campaign?: string;
 };
 
-const STORAGE_TOKEN = "vibe_checkups_session_token";
+const DEFAULT_STORAGE_KEY = "vibe_checkups_session_token";
 
-type VibeCheckupsQuizPanelProps = {
+export type VibeCheckupsQuizPanelProps = {
   utm: Utm;
   vcPost: VcPost;
   onCompleteSession: (verdict: Verdict, sessionToken: string) => void;
   onError: (msg: string | null) => void;
+  /** Defaults to full Vibe Checkups question set. */
+  questions?: QuestionDef[];
+  /** Isolate session token when embedding (e.g. onboarding). */
+  sessionStorageKey?: string;
+  /** Skip the intro screen and start the session immediately. */
+  autoStart?: boolean;
+  /** Override intro copy when there is no active session yet. */
+  introHint?: string;
 };
 
 export function VibeCheckupsQuizPanel({
@@ -24,15 +32,20 @@ export function VibeCheckupsQuizPanel({
   vcPost,
   onCompleteSession,
   onError,
+  questions: questionsProp,
+  sessionStorageKey = DEFAULT_STORAGE_KEY,
+  autoStart = false,
+  introHint,
 }: VibeCheckupsQuizPanelProps) {
+  const questions = questionsProp ?? VIBE_CHECKUPS_QUESTIONS;
   const [qIndex, setQIndex] = useState(0);
   const [sessionToken, setSessionToken] = useState<string | null>(() =>
-    typeof sessionStorage !== "undefined" ? sessionStorage.getItem(STORAGE_TOKEN) : null
+    typeof sessionStorage !== "undefined" ? sessionStorage.getItem(sessionStorageKey) : null
   );
   const [busy, setBusy] = useState(false);
 
-  const totalQs = VIBE_CHECKUPS_QUESTIONS.length;
-  const currentQ: QuestionDef | undefined = VIBE_CHECKUPS_QUESTIONS[qIndex];
+  const totalQs = questions.length;
+  const currentQ: QuestionDef | undefined = questions[qIndex];
   const progressPct = Math.round(((qIndex + 1) / totalQs) * 100);
 
   const startSession = useCallback(async () => {
@@ -40,7 +53,7 @@ export function VibeCheckupsQuizPanel({
     onError(null);
     try {
       const res = await vcPost<{ session_token: string }>("/session/start", { ...utm });
-      sessionStorage.setItem(STORAGE_TOKEN, res.session_token);
+      sessionStorage.setItem(sessionStorageKey, res.session_token);
       setSessionToken(res.session_token);
       setQIndex(0);
     } catch (e) {
@@ -48,7 +61,12 @@ export function VibeCheckupsQuizPanel({
     } finally {
       setBusy(false);
     }
-  }, [onError, utm, vcPost]);
+  }, [onError, sessionStorageKey, utm, vcPost]);
+
+  useEffect(() => {
+    if (!autoStart || sessionToken || busy) return;
+    void startSession();
+  }, [autoStart, busy, sessionToken, startSession]);
 
   const submitAnswer = useCallback(
     async (choice: number) => {
@@ -88,17 +106,28 @@ export function VibeCheckupsQuizPanel({
     return "Projection tuning";
   }, [currentQ]);
 
+  const defaultIntro =
+    introHint ??
+    `${totalQs} questions. Your answers stay in this session until you choose to share your email for results.`;
+
   if (!sessionToken) {
+    if (autoStart) {
+      return (
+        <div className="space-y-4" aria-busy="true">
+          <div className="h-4 w-3/4 animate-pulse rounded bg-[#2a2030]" />
+          <div className="h-1.5 animate-pulse rounded-full bg-[#2a2030]" />
+          <div className="h-24 animate-pulse rounded-xl bg-[#2a2030]/80" />
+        </div>
+      );
+    }
     return (
       <div className="space-y-6 text-center">
-        <p className="text-sm leading-relaxed text-[#9a8f7e]">
-          25 questions. Your answers stay in this session until you choose to share your email for results.
-        </p>
+        <p className="text-sm leading-relaxed text-[#9A8F7E]">{defaultIntro}</p>
         <button
           type="button"
           onClick={() => void startSession()}
           disabled={busy}
-          className="w-full rounded-xl bg-[#C4A064] py-3.5 text-sm font-semibold text-[#0d0a08] shadow-landing-card transition hover:bg-[#d4b074] disabled:opacity-45"
+          className="min-h-11 w-full rounded-xl bg-[#5B2D8E] py-3.5 text-sm font-semibold text-white shadow-sm transition hover:opacity-95 disabled:opacity-45"
         >
           {busy ? "Starting…" : "Begin the checkup"}
         </button>
@@ -110,7 +139,7 @@ export function VibeCheckupsQuizPanel({
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between text-xs uppercase tracking-wider text-[#9a8f7e]">
+      <div className="flex justify-between text-xs uppercase tracking-wider text-[#9A8F7E]">
         <span>{sectionLabel}</span>
         <span>
           {qIndex + 1} / {totalQs}
@@ -118,12 +147,12 @@ export function VibeCheckupsQuizPanel({
       </div>
       <div className="h-1.5 overflow-hidden rounded-full bg-[#2a2030]">
         <div
-          className="h-full rounded-full bg-[#C4A064] transition-all duration-300"
+          className="h-full rounded-full bg-[#7C3AED] transition-all duration-300"
           style={{ width: `${Math.min(100, progressPct)}%` }}
         />
       </div>
-      <h3 className="font-display text-xl font-semibold text-[#f0e8d8] sm:text-2xl">{currentQ.title}</h3>
-      <p className="text-sm leading-relaxed text-[#f0e8d8]/90 sm:text-base">{currentQ.hint}</p>
+      <h3 className="font-display text-xl font-semibold text-[#FFFFFF] sm:text-2xl">{currentQ.title}</h3>
+      <p className="text-sm leading-relaxed text-[#FFFFFF]/90 sm:text-base">{currentQ.hint}</p>
       <div className="grid gap-3">
         {currentQ.labels.map((label, idx) => (
           <button
@@ -131,9 +160,9 @@ export function VibeCheckupsQuizPanel({
             type="button"
             disabled={busy}
             onClick={() => void submitAnswer(idx)}
-            className="rounded-xl border border-[#2a2030] bg-[#1a1520] px-4 py-3.5 text-left text-sm text-[#f0e8d8] transition hover:border-[#C4A064]/50 disabled:opacity-45"
+            className="min-h-11 rounded-xl border border-[#A78BFA]/40 bg-[#1a1520] px-4 py-3.5 text-left text-sm text-[#FFFFFF] transition hover:border-[#A78BFA] disabled:opacity-45"
           >
-            <span className="mr-2 font-mono text-xs text-[#C4A064]">{idx}</span>
+            <span className="mr-2 font-mono text-xs text-[#A78BFA]">{idx}</span>
             {label}
           </button>
         ))}

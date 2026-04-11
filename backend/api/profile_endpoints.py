@@ -19,6 +19,8 @@ from ..auth.decorators import require_auth
 from ..models.user_models import User
 from ..models.financial_setup import UserIncome, RecurringExpense
 from ..models.transaction_schedule import IncomeStream, ScheduledExpense
+from ..models.database import db
+from ..models.vibe_tracker import VibePersonAssessment, VibeTrackedPerson
 from loguru import logger as loguru_logger
 
 # Configure logging
@@ -27,6 +29,8 @@ logger = logging.getLogger(__name__)
 
 ALL_ONBOARDING_STEPS = [
     'personal',
+    'roster_seed',
+    'quick_vibe',
     'income',
     'income_schedule',
     'expense_schedule',
@@ -80,6 +84,7 @@ def _compute_onboarding_steps(user, email: str):
         loguru_logger.error("get_setup_status profile query failed: {}", e)
         prow = None
 
+    onboarding_flags: dict = {}
     if prow:
         pi_raw = prow.get('personal_info')
         personal_ok = False
@@ -89,6 +94,9 @@ def _compute_onboarding_steps(user, email: str):
                 if isinstance(pi, dict):
                     fn = (pi.get('firstName') or pi.get('first_name') or '')
                     personal_ok = bool(str(fn).strip())
+                    ob = pi.get('onboarding')
+                    if isinstance(ob, dict):
+                        onboarding_flags = ob
             except (TypeError, ValueError):
                 personal_ok = False
         if personal_ok:
@@ -117,6 +125,33 @@ def _compute_onboarding_steps(user, email: str):
 
     if RecurringExpense.query.filter_by(user_id=uid, is_active=True).first() is not None:
         completed.append('expenses')
+
+    if VibeTrackedPerson.query.filter_by(user_id=uid, is_archived=False).first() is not None:
+        completed.append('roster_seed')
+
+    has_linked_assessment = (
+        db.session.query(VibePersonAssessment.id)
+        .join(VibeTrackedPerson, VibePersonAssessment.tracked_person_id == VibeTrackedPerson.id)
+        .filter(VibeTrackedPerson.user_id == uid, VibeTrackedPerson.is_archived == False)  # noqa: E712
+        .first()
+        is not None
+    )
+    if has_linked_assessment:
+        completed.append('quick_vibe')
+
+    if onboarding_flags.get('roster_seed_skipped'):
+        completed.append('roster_seed')
+    if onboarding_flags.get('quick_vibe_skipped'):
+        completed.append('quick_vibe')
+
+    # Accounts that already progressed past the new roster/vibe steps
+    legacy_financial = any(
+        s in completed
+        for s in ('income', 'income_schedule', 'expense_schedule', 'expenses', 'goals')
+    )
+    if legacy_financial:
+        completed.append('roster_seed')
+        completed.append('quick_vibe')
 
     # Preserve stable order for steps_completed
     ordered_done = [s for s in ALL_ONBOARDING_STEPS if s in completed]
@@ -567,7 +602,7 @@ def get_setup_status():
                 email = (user.email or '').strip()
 
         steps_completed, steps_remaining = _compute_onboarding_steps(user, email)
-        setup_completed = len(steps_completed) >= 3
+        setup_completed = len(steps_remaining) == 0
         onboarding_complete = setup_completed
 
         return jsonify({
