@@ -6,6 +6,8 @@ import { useVibeTracker, type TrackedPersonDetail, type TrackedPersonListItem } 
 import { PersonCard } from '../components/vibe-checkups/PersonCard';
 import { AssessmentTimeline } from '../components/vibe-checkups/AssessmentTimeline';
 import { StayOrGoSignal } from '../components/vibe-checkups/StayOrGoSignal';
+import SelfCard from '../components/roster/SelfCard';
+import { RosterSection } from '../components/roster/RosterSection';
 
 export default function VibeTrackerPage() {
   const { user } = useAuth();
@@ -95,10 +97,8 @@ export default function VibeTrackerPage() {
     <div className="min-h-[calc(100vh-5rem)] bg-[#0d0a08] px-4 py-8 text-[#F0E8D8] sm:px-6 lg:px-8">
       <div className="mx-auto max-w-5xl">
         <header className="mb-8 text-center sm:text-left">
-          <h1 className="font-display text-2xl font-semibold text-[#F0E8D8] sm:text-3xl">Your Vibe Tracker</h1>
-          <p className="mt-1 text-sm text-[#9a8f7e]">
-            {activeCount} {activeCount === 1 ? 'person' : 'people'} tracked
-          </p>
+          <h1 className="font-display text-2xl font-semibold text-[#F0E8D8] sm:text-3xl">Your Roster</h1>
+          <p className="mt-1 text-sm text-[#9a8f7e]">How you show up — and who you show up for.</p>
         </header>
 
         {showMidLimitBanner ? (
@@ -114,132 +114,149 @@ export default function VibeTrackerPage() {
           </div>
         ) : null}
 
-        {error && !loading ? (
-          <p className="mb-6 rounded-xl border border-rose-900/50 bg-rose-950/30 px-4 py-3 text-sm text-rose-200">{error}</p>
-        ) : null}
+        <RosterSection title="Your inner life" titleClassName="text-[#A78BFA]/90">
+          <SelfCard />
+        </RosterSection>
 
-        {loading && people.length === 0 && archived.length === 0 ? (
-          <p className="text-center text-sm text-[#9a8f7e]">Loading…</p>
-        ) : null}
+        <div className="mt-6 mb-6">
+          <div className="flex items-center gap-3">
+            <div className="h-px min-w-0 flex-1 bg-[#2a2030]" aria-hidden />
+            <span className="shrink-0 text-center text-[10px] leading-none text-[#9a8f7e]">— relationship to others —</span>
+            <div className="h-px min-w-0 flex-1 bg-[#2a2030]" aria-hidden />
+          </div>
+        </div>
 
-        {!loading && people.length === 0 ? (
-          <div className="mx-auto max-w-md rounded-2xl border border-[#2a2030] bg-[#1a1520]/80 px-8 py-12 text-center shadow-lg">
-            <div
-              className="mx-auto mb-6 flex h-28 w-28 items-center justify-center rounded-2xl border border-dashed border-[#2a2030] bg-[#0d0a08] text-5xl opacity-90"
-              aria-hidden
-            >
-              💞
+        <RosterSection
+          title="Your outer circle"
+          subtitle={`${activeCount} ${activeCount === 1 ? 'person' : 'people'} tracked`}
+        >
+          {error && !loading ? (
+            <p className="mb-6 rounded-xl border border-rose-900/50 bg-rose-950/30 px-4 py-3 text-sm text-rose-200">{error}</p>
+          ) : null}
+
+          {loading && people.length === 0 && archived.length === 0 ? (
+            <p className="text-center text-sm text-[#9a8f7e]">Loading…</p>
+          ) : null}
+
+          {!loading && people.length === 0 ? (
+            <div className="mx-auto max-w-md rounded-2xl border border-[#2a2030] bg-[#1a1520]/80 px-8 py-12 text-center shadow-lg">
+              <div
+                className="mx-auto mb-6 flex h-28 w-28 items-center justify-center rounded-2xl border border-dashed border-[#2a2030] bg-[#0d0a08] text-5xl opacity-90"
+                aria-hidden
+              >
+                💞
+              </div>
+              <p className="text-sm leading-relaxed text-[#F0E8D8]/90">
+                Start tracking someone — take a checkup and give them a nickname.
+              </p>
+              <Link
+                to="/dashboard/vibe-checkups"
+                className="mt-6 inline-flex w-full items-center justify-center rounded-xl bg-[#C4A064] py-3.5 text-sm font-semibold text-[#0d0a08] transition hover:bg-[#d4b074] sm:w-auto sm:px-8"
+              >
+                Take a Checkup
+              </Link>
             </div>
-            <p className="text-sm leading-relaxed text-[#F0E8D8]/90">
-              Start tracking someone — take a checkup and give them a nickname.
-            </p>
-            <Link
-              to="/dashboard/vibe-checkups"
-              className="mt-6 inline-flex w-full items-center justify-center rounded-xl bg-[#C4A064] py-3.5 text-sm font-semibold text-[#0d0a08] transition hover:bg-[#d4b074] sm:w-auto sm:px-8"
-            >
-              Take a Checkup
-            </Link>
-          </div>
-        ) : null}
+          ) : null}
 
-        {people.length > 0 ? (
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            {people.map((row) => (
-              <div key={row.id} className={expandedId === row.id ? 'md:col-span-2' : undefined}>
-                <PersonCard
-                  person={row}
-                  trend={row.trend}
-                  latestAssessment={row.latest_assessment}
-                  onClick={() => void toggleExpand(row.id)}
-                  onArchive={() => void archivePerson(row.id)}
-                  onDelete={() => setDeleteTarget(row)}
-                />
-                {expandedId === row.id ? (
-                  <div className="mt-4 rounded-2xl border border-[#2a2030] bg-[#1a1520]/60 p-4 sm:p-6">
-                    {detailLoading ? (
-                      <p className="text-center text-sm text-[#9a8f7e]">Loading history…</p>
-                    ) : expandedDetail && expandedDetail.id === row.id ? (
-                      <>
-                        <AssessmentTimeline assessments={expandedDetail.assessments} />
-                        {expandedDetail.trend ? <StayOrGoSignal trend={expandedDetail.trend} /> : null}
-                        <div className="mt-6 text-center">
-                          <Link
-                            to="/dashboard/vibe-checkups"
-                            className="inline-flex rounded-xl border border-[#C4A064]/60 bg-transparent px-6 py-3 text-sm font-semibold text-[#C4A064] transition hover:border-[#C4A064] hover:bg-[#C4A064]/10"
-                          >
-                            Re-assess this person
-                          </Link>
-                        </div>
-                      </>
-                    ) : (
-                      <p className="text-center text-sm text-[#9a8f7e]">Could not load checkup history.</p>
-                    )}
-                  </div>
-                ) : null}
-              </div>
-            ))}
-          </div>
-        ) : null}
-
-        {archivedData !== null ? (
-          <div className="mt-12 border-t border-[#2a2030] pt-8">
-            <button
-              type="button"
-              onClick={() => setArchivedOpen((o) => !o)}
-              className="flex w-full items-center justify-between rounded-xl border border-[#2a2030] bg-[#1a1520]/50 px-4 py-3 text-left text-sm font-medium text-[#F0E8D8] transition hover:border-[#C4A064]/30"
-            >
-              <span>Archived ({archived.length})</span>
-              {archivedOpen ? (
-                <ChevronDownIcon className="h-5 w-5 text-[#9a8f7e]" />
-              ) : (
-                <ChevronRightIcon className="h-5 w-5 text-[#9a8f7e]" />
-              )}
-            </button>
-            {archivedOpen ? (
-              <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
-                {archived.length === 0 ? (
-                  <p className="text-sm text-[#9a8f7e]">No archived people.</p>
-                ) : (
-                  archived.map((row) => (
-                    <div key={row.id}>
-                      <PersonCard
-                        person={row}
-                        trend={row.trend}
-                        latestAssessment={row.latest_assessment}
-                        onClick={() => void toggleExpand(row.id)}
-                        isArchived
-                        onRestore={() => void unarchivePerson(row.id)}
-                        onDelete={() => setDeleteTarget(row)}
-                      />
-                      {expandedId === row.id ? (
-                        <div className="mt-4 rounded-2xl border border-[#2a2030] bg-[#1a1520]/60 p-4 sm:p-6">
-                          {detailLoading ? (
-                            <p className="text-center text-sm text-[#9a8f7e]">Loading history…</p>
-                          ) : expandedDetail && expandedDetail.id === row.id ? (
-                            <>
-                              <AssessmentTimeline assessments={expandedDetail.assessments} />
-                              {expandedDetail.trend ? <StayOrGoSignal trend={expandedDetail.trend} /> : null}
-                              <div className="mt-6 text-center">
-                                <Link
-                                  to="/dashboard/vibe-checkups"
-                                  className="inline-flex rounded-xl border border-[#C4A064]/60 bg-transparent px-6 py-3 text-sm font-semibold text-[#C4A064] transition hover:border-[#C4A064] hover:bg-[#C4A064]/10"
-                                >
-                                  Re-assess this person
-                                </Link>
-                              </div>
-                            </>
-                          ) : (
-                            <p className="text-center text-sm text-[#9a8f7e]">Could not load checkup history.</p>
-                          )}
-                        </div>
-                      ) : null}
+          {people.length > 0 ? (
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              {people.map((row) => (
+                <div key={row.id} className={expandedId === row.id ? 'md:col-span-2' : undefined}>
+                  <PersonCard
+                    person={row}
+                    trend={row.trend}
+                    latestAssessment={row.latest_assessment}
+                    onClick={() => void toggleExpand(row.id)}
+                    onArchive={() => void archivePerson(row.id)}
+                    onDelete={() => setDeleteTarget(row)}
+                  />
+                  {expandedId === row.id ? (
+                    <div className="mt-4 rounded-2xl border border-[#2a2030] bg-[#1a1520]/60 p-4 sm:p-6">
+                      {detailLoading ? (
+                        <p className="text-center text-sm text-[#9a8f7e]">Loading history…</p>
+                      ) : expandedDetail && expandedDetail.id === row.id ? (
+                        <>
+                          <AssessmentTimeline assessments={expandedDetail.assessments} />
+                          {expandedDetail.trend ? <StayOrGoSignal trend={expandedDetail.trend} /> : null}
+                          <div className="mt-6 text-center">
+                            <Link
+                              to="/dashboard/vibe-checkups"
+                              className="inline-flex rounded-xl border border-[#C4A064]/60 bg-transparent px-6 py-3 text-sm font-semibold text-[#C4A064] transition hover:border-[#C4A064] hover:bg-[#C4A064]/10"
+                            >
+                              Re-assess this person
+                            </Link>
+                          </div>
+                        </>
+                      ) : (
+                        <p className="text-center text-sm text-[#9a8f7e]">Could not load checkup history.</p>
+                      )}
                     </div>
-                  ))
+                  ) : null}
+                </div>
+              ))}
+            </div>
+          ) : null}
+
+          {archivedData !== null ? (
+            <div className="mt-12 border-t border-[#2a2030] pt-8">
+              <button
+                type="button"
+                onClick={() => setArchivedOpen((o) => !o)}
+                className="flex w-full items-center justify-between rounded-xl border border-[#2a2030] bg-[#1a1520]/50 px-4 py-3 text-left text-sm font-medium text-[#F0E8D8] transition hover:border-[#C4A064]/30"
+              >
+                <span>Archived ({archived.length})</span>
+                {archivedOpen ? (
+                  <ChevronDownIcon className="h-5 w-5 text-[#9a8f7e]" />
+                ) : (
+                  <ChevronRightIcon className="h-5 w-5 text-[#9a8f7e]" />
                 )}
-              </div>
-            ) : null}
-          </div>
-        ) : null}
+              </button>
+              {archivedOpen ? (
+                <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
+                  {archived.length === 0 ? (
+                    <p className="text-sm text-[#9a8f7e]">No archived people.</p>
+                  ) : (
+                    archived.map((row) => (
+                      <div key={row.id}>
+                        <PersonCard
+                          person={row}
+                          trend={row.trend}
+                          latestAssessment={row.latest_assessment}
+                          onClick={() => void toggleExpand(row.id)}
+                          isArchived
+                          onRestore={() => void unarchivePerson(row.id)}
+                          onDelete={() => setDeleteTarget(row)}
+                        />
+                        {expandedId === row.id ? (
+                          <div className="mt-4 rounded-2xl border border-[#2a2030] bg-[#1a1520]/60 p-4 sm:p-6">
+                            {detailLoading ? (
+                              <p className="text-center text-sm text-[#9a8f7e]">Loading history…</p>
+                            ) : expandedDetail && expandedDetail.id === row.id ? (
+                              <>
+                                <AssessmentTimeline assessments={expandedDetail.assessments} />
+                                {expandedDetail.trend ? <StayOrGoSignal trend={expandedDetail.trend} /> : null}
+                                <div className="mt-6 text-center">
+                                  <Link
+                                    to="/dashboard/vibe-checkups"
+                                    className="inline-flex rounded-xl border border-[#C4A064]/60 bg-transparent px-6 py-3 text-sm font-semibold text-[#C4A064] transition hover:border-[#C4A064] hover:bg-[#C4A064]/10"
+                                  >
+                                    Re-assess this person
+                                  </Link>
+                                </div>
+                              </>
+                            ) : (
+                              <p className="text-center text-sm text-[#9a8f7e]">Could not load checkup history.</p>
+                            )}
+                          </div>
+                        ) : null}
+                      </div>
+                    ))
+                  )}
+                </div>
+              ) : null}
+            </div>
+          ) : null}
+        </RosterSection>
       </div>
 
       {deleteTarget ? (
