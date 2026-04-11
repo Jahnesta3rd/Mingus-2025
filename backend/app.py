@@ -8,6 +8,7 @@ from backend.routes.feedback import feedback_bp
 from backend.routes.life_correlation import life_correlation_bp
 from backend.routes.life_ledger import life_ledger_bp
 from backend.routes.life_ready_score import life_ready_score_bp
+from backend.routes.self_card import self_card_bp
 from backend.routes.telemetry import telemetry_bp
 from backend.routes.vibe_tracker import vibe_tracker_bp
 from backend.routes.spirit_finance import spirit_finance_bp
@@ -23,6 +24,7 @@ def register_backend_blueprints(app):
     app.register_blueprint(telemetry_bp)
     app.register_blueprint(life_ledger_bp, url_prefix="/api/life-ledger")
     app.register_blueprint(life_ready_score_bp)
+    app.register_blueprint(self_card_bp, url_prefix="/api")
     app.register_blueprint(
         life_correlation_bp, url_prefix="/api/life-correlation"
     )

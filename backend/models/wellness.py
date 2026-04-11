@@ -40,6 +40,7 @@ class WeeklyCheckin(db.Model):
     exercise_days = db.Column(db.Integer, nullable=True)  # 0-7
     exercise_intensity = db.Column(db.String(10), nullable=True)  # light, moderate, intense, null
     sleep_quality = db.Column(db.Integer, nullable=True)  # 1-10
+    sleep_hours = db.Column(db.Float, nullable=True)
 
     # --- MENTAL WELLNESS ---
     meditation_minutes = db.Column(db.Integer, nullable=True)  # 0-999
