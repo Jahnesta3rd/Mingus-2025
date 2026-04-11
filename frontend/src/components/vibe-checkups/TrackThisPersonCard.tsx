@@ -62,13 +62,13 @@ export function TrackThisPersonCard({ leadId, onTracked, onSkip }: TrackThisPers
 
   if (successNickname) {
     return (
-      <div className="rounded-2xl border border-[#C4A064]/55 bg-[#C4A064]/12 px-5 py-6 text-center shadow-[0_0_28px_rgba(196,160,100,0.12)]">
+      <div className="rounded-2xl border border-[#A78BFA]/55 bg-[#A78BFA]/12 px-5 py-6 text-center shadow-[0_0_28px_rgba(167,139,250,0.12)]">
         <p className="font-display text-base font-medium text-[#f0e8d8]">
           Added to {successNickname}&apos;s checkup history ✓
         </p>
         <a
-          href="/dashboard/vibe-tracker"
-          className="mt-4 inline-block text-sm font-semibold text-[#C4A064] underline-offset-2 hover:underline"
+          href="/dashboard/roster"
+          className="mt-4 inline-block text-sm font-semibold text-[#A78BFA] underline-offset-2 hover:underline"
         >
           View their tracker
         </a>

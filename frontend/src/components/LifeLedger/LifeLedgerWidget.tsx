@@ -115,7 +115,7 @@ const LifeLedgerWidget: React.FC<LifeLedgerWidgetProps> = ({
               label="Vibe"
               icon="💑"
               score={profile.vibe_score}
-              actionUrl="/vibe-checkups"
+              actionUrl="/dashboard/vibe-checkups"
             />
             <ModuleScoreCard
               module="body"

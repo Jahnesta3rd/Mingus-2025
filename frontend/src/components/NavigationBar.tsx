@@ -333,7 +333,7 @@ const NavigationBar: React.FC<NavigationBarProps> = ({ className = '' }) => {
                   </button>
                   <button 
                     ref={el => menuItemsRef.current[4] = el}
-                    onClick={() => navigate('/dashboard?tab=housing')}
+                    onClick={() => navigate('/dashboard/tools?tab=housing')}
                     className="w-full flex items-center justify-center gap-2 bg-slate-700 hover:bg-slate-600 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-800 mt-2"
                     role="menuitem"
                     aria-label="Housing Location"

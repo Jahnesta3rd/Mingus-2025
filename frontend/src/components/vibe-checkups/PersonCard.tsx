@@ -184,7 +184,7 @@ export function PersonCard({
           </button>
         ) : (
           <Link
-            to="/vibe-checkups"
+            to="/dashboard/vibe-checkups"
             className="flex-1 rounded-xl border border-[#C4A064]/60 bg-transparent py-2.5 text-center text-sm font-semibold text-[#C4A064] transition hover:border-[#C4A064] hover:bg-[#C4A064]/10"
           >
             Re-assess

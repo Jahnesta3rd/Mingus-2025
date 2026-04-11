@@ -18,7 +18,6 @@ import DailyOutlookCard from '../components/DailyOutlookCard';
 import QuickSetupOverlay from '../components/QuickSetupOverlay';
 import SpendingMilestonesWidget from '../components/SpendingMilestonesWidget';
 import SpecialDatesWidget from '../components/SpecialDatesWidget';
-import FinancialForecastTab from '../components/FinancialForecastTab';
 import LifeLedgerErrorBoundary from '../components/LifeLedger/LifeLedgerErrorBoundary';
 import LifeLedgerWidget from '../components/LifeLedger/LifeLedgerWidget';
 import CorrelationWidget from '../components/LifeLedger/CorrelationWidget';
@@ -33,7 +32,7 @@ const DailyOutlook = lazy(() => import('../components/DailyOutlook'));
 const MobileDailyOutlook = lazy(() => import('../components/MobileDailyOutlook'));
 
 interface DashboardState {
-  activeTab: 'daily-outlook' | 'financial-forecast' | 'overview' | 'recommendations' | 'location' | 'analytics' | 'housing' | 'vehicle' | 'life-ledger';
+  activeTab: 'daily-outlook' | 'overview' | 'recommendations' | 'location' | 'analytics' | 'housing' | 'vehicle' | 'life-ledger';
   riskLevel: 'secure' | 'watchful' | 'action_needed' | 'urgent';
   hasUnlockedRecommendations: boolean;
   emergencyMode: boolean;
@@ -91,7 +90,10 @@ const CareerProtectionDashboard: React.FC = () => {
 
   // Sync local state with store when store changes (non-data-fetching, safe)
   useEffect(() => {
-    const localTab = storeActiveTab === 'vehicles' ? 'vehicle' : storeActiveTab;
+    let localTab = storeActiveTab === 'vehicles' ? 'vehicle' : storeActiveTab;
+    if (localTab === 'financial-forecast') {
+      localTab = 'daily-outlook';
+    }
     if (localTab !== dashboardState.activeTab) {
       setDashboardState(prev => ({ ...prev, activeTab: localTab as DashboardState['activeTab'] }));
     }
@@ -202,6 +204,10 @@ const CareerProtectionDashboard: React.FC = () => {
   
   useEffect(() => {
     const tab = searchParams.get('tab');
+    if (tab === 'financial-forecast') {
+      navigate('/dashboard/forecast', { replace: true });
+      return;
+    }
     if (tab === 'life-ledger') {
       setDashboardState((prev) => ({ ...prev, activeTab: 'life-ledger' }));
       setActiveTab('life-ledger');
@@ -217,7 +223,7 @@ const CareerProtectionDashboard: React.FC = () => {
     const next = new URLSearchParams(searchParams);
     next.delete('tab');
     setSearchParams(next, { replace: true });
-  }, [searchParams, setActiveTab, setSearchParams]);
+  }, [searchParams, setActiveTab, setSearchParams, navigate]);
 
   const handleTabChange = async (tab: DashboardState['activeTab']) => {
     setDashboardState(prev => ({ ...prev, activeTab: tab }));
@@ -333,10 +339,10 @@ const CareerProtectionDashboard: React.FC = () => {
               <div className="flex items-center gap-2 sm:gap-4">
                 <HousingNotificationSystem />
                 <Link
-                  to="/dashboard/vibe-tracker"
-                  className="text-xs sm:text-sm text-purple-600 hover:text-purple-700 font-medium px-2 py-1 rounded hover:bg-purple-50 transition-colors whitespace-nowrap"
+                  to="/dashboard/roster"
+                  className="text-xs sm:text-sm text-[#6D28D9] hover:opacity-90 font-medium px-2 py-1 rounded hover:bg-[#EDE9FE] transition-colors whitespace-nowrap"
                 >
-                  Vibe Tracker
+                  My Roster
                 </Link>
                 <Link
                   to="/dashboard/spirit"
@@ -395,56 +401,78 @@ const CareerProtectionDashboard: React.FC = () => {
           {/* Wellness Section - Check-in reminder, score card, impact card */}
           <DashboardWellnessSection />
           
-          {/* Tab Navigation */}
-          <div className="border-b border-gray-200">
-            <nav className="-mb-px flex space-x-2 sm:space-x-8 overflow-x-auto">
+          {/* Tools sections (secondary to app shell navigation) */}
+          <div className="flex flex-col gap-6 lg:flex-row lg:gap-8">
+            <nav
+              className="flex w-full flex-shrink-0 flex-col gap-1 lg:w-52 lg:border-r lg:border-[#E2E8F0] lg:pr-4"
+              aria-label="Financial tools sections"
+            >
               {[
-                { id: 'daily-outlook', label: 'Daily Outlook', icon: '🌅', shortLabel: 'Outlook' },
-                { id: 'financial-forecast', label: 'Financial Forecast', icon: '📈', shortLabel: 'Forecast' },
-                { id: 'life-ledger', label: 'Life Ledger', icon: '💛', shortLabel: 'Ledger' },
-                { id: 'overview', label: 'Overview', icon: '📊', shortLabel: 'Overview' },
-                { 
-                  id: 'recommendations', 
-                  label: 'Job Recommendations', 
-                  shortLabel: 'Jobs',
+                { id: 'daily-outlook', label: 'Daily Outlook', icon: '🌅' },
+                { id: 'life-ledger', label: 'Life Ledger', icon: '💛' },
+                { id: 'overview', label: 'Overview', icon: '📊' },
+                {
+                  id: 'recommendations',
+                  label: 'Job Recommendations',
                   icon: '🎯',
                   locked: false,
-                  badge: null
+                  badge: null,
                 },
-                { id: 'location', label: 'Location Intelligence', shortLabel: 'Location', icon: '🗺️' },
-                { id: 'housing', label: 'Housing Location', shortLabel: 'Housing', icon: '🏠', badge: unreadAlerts.length > 0 ? unreadAlerts.length.toString() : null },
-                { id: 'vehicle', label: 'Vehicle Status', shortLabel: 'Vehicle', icon: '🚗' },
-                { id: 'analytics', label: 'Career Analytics', shortLabel: 'Analytics', icon: '📈' }
+                { id: 'location', label: 'Location Intelligence', icon: '🗺️' },
+                {
+                  id: 'housing',
+                  label: 'Housing Location',
+                  icon: '🏠',
+                  badge: unreadAlerts.length > 0 ? unreadAlerts.length.toString() : null,
+                },
+                { id: 'vehicle', label: 'Vehicle Status', icon: '🚗' },
+                { id: 'analytics', label: 'Career Analytics', icon: '📈' },
               ].map((tab) => (
                 <button
                   key={tab.id}
-                  onClick={() => tab.locked ? null : handleTabChange(tab.id as any)}
-                  className={`
-                    relative py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap flex items-center gap-1 sm:gap-2 flex-shrink-0
-                    ${dashboardState.activeTab === tab.id
-                      ? 'border-blue-500 text-blue-600'
-                      : tab.locked
-                        ? 'border-transparent text-gray-400 cursor-not-allowed'
-                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                    }
-                  `}
-                  disabled={tab.locked}
+                  type="button"
+                  onClick={() =>
+                    'locked' in tab && tab.locked
+                      ? null
+                      : handleTabChange(tab.id as DashboardState['activeTab'])
+                  }
+                  className={[
+                    'flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-left text-sm font-medium transition-colors',
+                    dashboardState.activeTab === tab.id
+                      ? 'bg-[#5B2D8E] text-white'
+                      : 'locked' in tab && tab.locked
+                        ? 'cursor-not-allowed text-[#64748B] opacity-50'
+                        : 'bg-transparent text-[#64748B] hover:bg-[#F8FAFC] hover:text-[#1E293B]',
+                  ].join(' ')}
+                  disabled={'locked' in tab ? tab.locked : false}
                 >
-                  <span className="text-base sm:text-sm">{tab.icon}</span>
-                  <span className="hidden sm:inline">{tab.label}</span>
-                  <span className="sm:hidden">{tab.shortLabel}</span>
-                  {tab.badge && (
-                    <span className="ml-1 sm:ml-2 bg-gray-200 text-gray-600 text-xs px-1 sm:px-2 py-0.5 rounded-full">
+                  <span className="text-base" aria-hidden>
+                    {tab.icon}
+                  </span>
+                  <span className="min-w-0 flex-1">{tab.label}</span>
+                  {tab.badge ? (
+                    <span
+                      className={
+                        dashboardState.activeTab === tab.id
+                          ? 'rounded-full bg-white/20 px-2 py-0.5 text-xs text-white tabular-nums'
+                          : 'rounded-full bg-[#E2E8F0] px-2 py-0.5 text-xs font-medium text-[#64748B] tabular-nums'
+                      }
+                    >
                       {tab.badge}
                     </span>
-                  )}
+                  ) : null}
                 </button>
               ))}
+              <p className="mt-2 px-3 text-xs text-[#64748B]">
+                Full cash forecast lives under{' '}
+                <Link to="/dashboard/forecast" className="font-medium text-[#6D28D9] hover:underline">
+                  Forecast
+                </Link>
+                .
+              </p>
             </nav>
-          </div>
-          
-          {/* Tab Content */}
-          <div className="min-h-[600px]">
+
+            <div className="min-h-[600px] min-w-0 flex-1">
             {dashboardState.activeTab === 'daily-outlook' && (
               <div className="space-y-6">
                 {/* Daily Outlook Card for Dashboard Overview */}
@@ -481,14 +509,6 @@ const CareerProtectionDashboard: React.FC = () => {
               </div>
             )}
 
-            {dashboardState.activeTab === 'financial-forecast' && (
-              <FinancialForecastTab
-                userEmail={user?.email ?? ''}
-                userTier={(user as { tier?: string })?.tier === 'professional' ? 'professional' : (user as { tier?: string })?.tier === 'mid_tier' ? 'mid' : 'budget'}
-                className="mt-4"
-              />
-            )}
-
             {dashboardState.activeTab === 'life-ledger' && (
               <LifeLedgerErrorBoundary>
                 <LifeLedgerWidget className="mt-4" anchorSectionId={false} />
@@ -516,7 +536,7 @@ const CareerProtectionDashboard: React.FC = () => {
                 <SpecialDatesWidget
                   userId={user?.id ?? ''}
                   userEmail={user?.email ?? ''}
-                  onNavigateToForecast={() => handleTabChange('financial-forecast')}
+                  onNavigateToForecast={() => navigate('/dashboard/forecast')}
                   className="mt-6"
                 />
                 
@@ -628,6 +648,7 @@ const CareerProtectionDashboard: React.FC = () => {
             {dashboardState.activeTab === 'analytics' && (
               <AnalyticsDashboard />
             )}
+            </div>
           </div>
 
           <div className="mt-8 pt-4 border-t border-gray-100">

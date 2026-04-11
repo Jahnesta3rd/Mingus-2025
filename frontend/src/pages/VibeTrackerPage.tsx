@@ -134,7 +134,7 @@ export default function VibeTrackerPage() {
               Start tracking someone — take a checkup and give them a nickname.
             </p>
             <Link
-              to="/vibe-checkups"
+              to="/dashboard/vibe-checkups"
               className="mt-6 inline-flex w-full items-center justify-center rounded-xl bg-[#C4A064] py-3.5 text-sm font-semibold text-[#0d0a08] transition hover:bg-[#d4b074] sm:w-auto sm:px-8"
             >
               Take a Checkup
@@ -164,7 +164,7 @@ export default function VibeTrackerPage() {
                         {expandedDetail.trend ? <StayOrGoSignal trend={expandedDetail.trend} /> : null}
                         <div className="mt-6 text-center">
                           <Link
-                            to="/vibe-checkups"
+                            to="/dashboard/vibe-checkups"
                             className="inline-flex rounded-xl border border-[#C4A064]/60 bg-transparent px-6 py-3 text-sm font-semibold text-[#C4A064] transition hover:border-[#C4A064] hover:bg-[#C4A064]/10"
                           >
                             Re-assess this person
@@ -221,7 +221,7 @@ export default function VibeTrackerPage() {
                               {expandedDetail.trend ? <StayOrGoSignal trend={expandedDetail.trend} /> : null}
                               <div className="mt-6 text-center">
                                 <Link
-                                  to="/vibe-checkups"
+                                  to="/dashboard/vibe-checkups"
                                   className="inline-flex rounded-xl border border-[#C4A064]/60 bg-transparent px-6 py-3 text-sm font-semibold text-[#C4A064] transition hover:border-[#C4A064] hover:bg-[#C4A064]/10"
                                 >
                                   Re-assess this person

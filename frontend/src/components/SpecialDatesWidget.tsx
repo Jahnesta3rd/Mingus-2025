@@ -433,7 +433,7 @@ export default function SpecialDatesWidget({
                               </button>
                             ) : (
                               <a
-                                href="/dashboard#financial-forecast"
+                                href="/dashboard/forecast"
                                 className="mt-1 block rounded bg-white/20 py-1 text-center font-medium hover:bg-white/30"
                                 onClick={() => setTooltipIndex(null)}
                               >

@@ -32,6 +32,8 @@ import VibeTrackerPage from './pages/VibeTrackerPage';
 import SpiritFinance from './pages/SpiritFinance';
 import SettingsPage from './pages/SettingsPage';
 import OnboardingPage from './pages/OnboardingPage';
+import FinancialForecastPage from './pages/FinancialForecastPage';
+import DashboardProfilePage from './pages/DashboardProfilePage';
 
 const VibeCheckMemeWrapper: React.FC = () => {
   const navigate = useNavigate();
@@ -108,9 +110,13 @@ const router = createBrowserRouter([
     ),
     children: [
       { index: true, element: <HomeScreen /> },
+      { path: 'roster', element: <VibeTrackerPage /> },
+      { path: 'forecast', element: <FinancialForecastPage /> },
       { path: 'tools', element: <CareerProtectionDashboard /> },
-      { path: 'vibe-tracker', element: <VibeTrackerPage /> },
+      { path: 'profile', element: <DashboardProfilePage /> },
+      { path: 'vibe-checkups', element: <VibeCheckupsPage /> },
       { path: 'spirit', element: <SpiritFinance /> },
+      { path: 'vibe-tracker', element: <Navigate to="/dashboard/roster" replace /> },
     ],
   },
 

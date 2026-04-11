@@ -130,7 +130,7 @@ export default function VehicleCheckPage() {
     setPanelKey((k) => k + 1);
   }, []);
 
-  const dashboardHref = isAuthenticated ? "/dashboard?tab=vehicle" : "/register";
+  const dashboardHref = isAuthenticated ? "/dashboard/tools?tab=vehicle" : "/register";
   const dashboardLabel = isAuthenticated
     ? "See your full Vehicle Analytics dashboard in Mingus"
     : "Track your vehicle costs in Mingus — Start free";

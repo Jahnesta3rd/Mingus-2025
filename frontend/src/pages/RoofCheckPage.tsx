@@ -242,7 +242,7 @@ export default function RoofCheckPage() {
                     <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:justify-center">
                       {isAuthenticated ? (
                         <Link
-                          to="/dashboard?tab=housing"
+                          to="/dashboard/tools?tab=housing"
                           className="inline-flex items-center justify-center rounded-xl bg-[#C4A064] px-5 py-3.5 text-center text-sm font-semibold text-[#0d0a08] transition hover:bg-[#d4b074]"
                         >
                           See your personalized home buying plan in Mingus Housing Intelligence

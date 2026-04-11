@@ -3,7 +3,6 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import LifeReadyScoreCard from './LifeReadyScoreCard';
 import { useAuth } from '../hooks/useAuth';
 import { useLifeLedger } from '../hooks/useLifeLedger';
-import { useDashboardStore } from '../stores/dashboardStore';
 
 interface DailyCashflowEntry {
   date: string;
@@ -91,7 +90,6 @@ export default function HomeScreen() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { user, isAuthenticated } = useAuth();
-  const setActiveTab = useDashboardStore((s) => s.setActiveTab);
   const { profile, loading: profileLoading, error: profileError, refetch: refetchProfile } =
     useLifeLedger(isAuthenticated);
 
@@ -112,10 +110,9 @@ export default function HomeScreen() {
       return;
     }
     if (tab === 'financial-forecast') {
-      setActiveTab('financial-forecast');
-      navigate('/dashboard/tools', { replace: true });
+      navigate('/dashboard/forecast', { replace: true });
     }
-  }, [searchParams, navigate, setActiveTab]);
+  }, [searchParams, navigate]);
 
   const fetchRoster = useCallback(async () => {
     if (!isAuthenticated) {
@@ -181,8 +178,7 @@ export default function HomeScreen() {
   }, [fetchCashPreview]);
 
   const goToForecastTools = () => {
-    setActiveTab('financial-forecast');
-    navigate('/dashboard/tools');
+    navigate('/dashboard/forecast');
   };
 
   return (
@@ -227,7 +223,7 @@ export default function HomeScreen() {
             ) : null}
             <div className="mt-6">
               <Link
-                to="/vibe-checkups"
+                to="/dashboard/vibe-checkups"
                 className="inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-[#5B2D8E] px-4 text-center text-sm font-medium text-white hover:opacity-95 sm:w-auto"
               >
                 Run a Checkup →
@@ -287,7 +283,7 @@ export default function HomeScreen() {
         )}
         <div className="mt-4">
           <Link
-            to="/dashboard/vibe-tracker"
+            to="/dashboard/roster"
             className="inline-flex min-h-11 items-center text-sm font-medium text-[#6D28D9] hover:underline"
           >
             View full Roster →
