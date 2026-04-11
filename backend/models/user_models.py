@@ -11,6 +11,13 @@ class User(db.Model):
     """
     User model for the Mingus financial application
     Based on existing user table structure from referral_models.py
+
+    user_profiles.important_dates JSON may include:
+    - birthday (YYYY-MM-DD string), optional birthday_person_nickname
+    - plannedVacation | vacation: { date, cost, optional person_nickname }
+    - carInspection | car_inspection, sistersWedding | sisters_wedding: same shape
+    - customEvents | custom_events: [{ name, date, cost, optional person_nickname }, ...]
+    person_nickname links an event to a VibeTrackedPerson.nickname when set.
     """
     __tablename__ = 'users'
     

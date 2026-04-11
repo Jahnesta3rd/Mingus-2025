@@ -3,8 +3,9 @@
 
 from __future__ import annotations
 
+import calendar
 import uuid
-from datetime import datetime
+from datetime import date, datetime, timedelta
 
 from flask import Blueprint, g, jsonify, request
 from sqlalchemy.exc import IntegrityError
@@ -20,6 +21,10 @@ from backend.models.vibe_tracker import (
     VibeTrackedPerson,
 )
 from backend.services import vibe_tracker_service as vts
+from backend.services.cash_forecast_service import (
+    _load_profile_balance_and_dates,
+    generate_daily_forecast,
+)
 from backend.tasks.life_correlation_tasks import record_life_snapshot
 
 vibe_tracker_bp = Blueprint("vibe_tracker", __name__)
@@ -109,6 +114,254 @@ def _person_core(p: VibeTrackedPerson) -> dict:
         "archived_at": p.archived_at.isoformat() + "Z" if p.archived_at else None,
         "assessment_count": p.assessment_count,
     }
+
+
+def _nick_from_event_node(node: object) -> str:
+    if not isinstance(node, dict):
+        return ""
+    raw = node.get("person_nickname")
+    if raw is None:
+        raw = node.get("personNickname")
+    if raw is None:
+        return ""
+    return str(raw).strip()
+
+
+def _format_label_key(key: str) -> str:
+    return " ".join(w[:1].upper() + w[1:].lower() for w in key.split("_") if w)
+
+
+def _next_birthday_occurrence(birthday_iso: str, today: date) -> date | None:
+    s = (birthday_iso or "").strip()[:10]
+    if len(s) < 10:
+        return None
+    try:
+        _y, m_str, d_str = s.split("-")
+        m, d = int(m_str), int(d_str)
+    except (ValueError, AttributeError):
+        return None
+    try:
+        cand = date(today.year, m, d)
+    except ValueError:
+        last = calendar.monthrange(today.year, m)[1]
+        cand = date(today.year, m, min(d, last))
+    if cand < today:
+        try:
+            cand = date(today.year + 1, m, d)
+        except ValueError:
+            last = calendar.monthrange(today.year + 1, m)[1]
+            cand = date(today.year + 1, m, min(d, last))
+    return cand
+
+
+def _get_nested_important(obj: dict, *keys: str) -> object | None:
+    for k in keys:
+        if k in obj:
+            return obj[k]
+    return None
+
+
+def _iter_normalized_important_events(important: dict) -> list[dict]:
+    """Flatten important_dates into {name, date, cost, person_nickname, emoji}."""
+    out: list[dict] = []
+    today = date.today()
+
+    bd_raw = important.get("birthday")
+    bd_nick = important.get("birthday_person_nickname") or important.get(
+        "birthdayPersonNickname"
+    )
+    if isinstance(bd_nick, str):
+        bd_nick = bd_nick.strip()
+    else:
+        bd_nick = ""
+    if bd_raw:
+        if isinstance(bd_raw, dict):
+            ds = str(bd_raw.get("date") or bd_raw.get("birthday") or "")[:10]
+            if not bd_nick:
+                bd_nick = _nick_from_event_node(bd_raw)
+        else:
+            ds = str(bd_raw).strip()[:10]
+        if len(ds) >= 10:
+            nxt = _next_birthday_occurrence(ds, today)
+            if nxt:
+                out.append(
+                    {
+                        "name": "Birthday",
+                        "date": nxt.isoformat(),
+                        "cost": 0.0,
+                        "person_nickname": bd_nick,
+                        "emoji": "🎂",
+                    }
+                )
+
+    pairs = [
+        ("plannedVacation", "vacation", "Vacation", "✈️"),
+        ("carInspection", "car_inspection", "car_inspection", "🚗"),
+        ("sistersWedding", "sisters_wedding", "sisters_wedding", "💍"),
+    ]
+    for a, b, label_key, emo in pairs:
+        node = _get_nested_important(important, a, b)
+        if not isinstance(node, dict):
+            continue
+        raw_d = node.get("date") or node.get("Date")
+        if not raw_d:
+            continue
+        ds = str(raw_d)[:10]
+        try:
+            evd = date.fromisoformat(ds)
+        except ValueError:
+            continue
+        c = node.get("cost", node.get("Cost", 0))
+        try:
+            cost = float(c)
+        except (TypeError, ValueError):
+            cost = 0.0
+        name = _format_label_key(label_key) if "_" in label_key else label_key
+        out.append(
+            {
+                "name": name,
+                "date": evd.isoformat(),
+                "cost": cost,
+                "person_nickname": _nick_from_event_node(node),
+                "emoji": emo,
+            }
+        )
+
+    customs = important.get("customEvents") or important.get("custom_events")
+    if isinstance(customs, list):
+        for item in customs:
+            if not isinstance(item, dict):
+                continue
+            raw_d = item.get("date") or item.get("Date")
+            if not raw_d:
+                continue
+            ds = str(raw_d)[:10]
+            try:
+                evd = date.fromisoformat(ds)
+            except ValueError:
+                continue
+            c = item.get("cost", item.get("Cost", 0))
+            try:
+                cost = float(c)
+            except (TypeError, ValueError):
+                cost = 0.0
+            nm = item.get("name") or item.get("Name") or "Event"
+            nm = str(nm).strip() or "Event"
+            title = nm[:1].upper() + nm[1:] if nm else "Event"
+            out.append(
+                {
+                    "name": title,
+                    "date": evd.isoformat(),
+                    "cost": cost,
+                    "person_nickname": _nick_from_event_node(item),
+                    "emoji": "📅",
+                }
+            )
+
+    return out
+
+
+def _coverage_from_daily(
+    daily: list[dict], event_date: str, cost: float
+) -> tuple[float | None, str | None]:
+    if cost == 0:
+        return None, None
+    row = next((r for r in daily if r.get("date") == event_date), None)
+    if not row:
+        return None, None
+    try:
+        closing = float(row.get("closing_balance", 0))
+    except (TypeError, ValueError):
+        return None, None
+    after = closing - cost
+    if after > 500:
+        return round(after, 2), "covered"
+    if after >= 0:
+        return round(after, 2), "tight"
+    return round(after, 2), "shortfall"
+
+
+@vibe_tracker_bp.route("/people/<uuid:person_id>/events", methods=["GET"])
+@require_auth
+def list_person_linked_events(person_id: uuid.UUID):
+    user = _user_for_jwt()
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    p = _person_for_user(person_id, user)
+    if not p:
+        return jsonify({"error": "Not found"}), 404
+
+    email = (user.email or "").strip().lower()
+    _bal, important = _load_profile_balance_and_dates(email)
+    if not isinstance(important, dict):
+        important = {}
+
+    nick = (p.nickname or "").strip()
+    today = date.today()
+    horizon_end = today + timedelta(days=30)
+
+    raw_events = _iter_normalized_important_events(important)
+    linked = []
+    for ev in raw_events:
+        pn = (ev.get("person_nickname") or "").strip()
+        if not nick or pn != nick:
+            continue
+        try:
+            evd = date.fromisoformat(str(ev["date"])[:10])
+        except ValueError:
+            continue
+        if evd < today:
+            continue
+        linked.append(ev)
+
+    linked.sort(key=lambda x: x["date"])
+
+    thirty_day_total = 0.0
+    for ev in linked:
+        try:
+            evd = date.fromisoformat(str(ev["date"])[:10])
+        except ValueError:
+            continue
+        if evd <= horizon_end:
+            thirty_day_total += float(ev.get("cost") or 0)
+
+    forecast_days = 90
+    if linked:
+        last_ev = max(date.fromisoformat(str(x["date"])[:10]) for x in linked)
+        span = (last_ev - today).days + 1
+        forecast_days = min(366, max(90, span))
+
+    daily = generate_daily_forecast(user.id, days=forecast_days)
+
+    payload_events = []
+    for ev in linked:
+        ds = str(ev["date"])[:10]
+        cost = float(ev.get("cost") or 0)
+        try:
+            evd = date.fromisoformat(ds)
+        except ValueError:
+            continue
+        days_until = (evd - today).days
+        after_event, coverage_status = _coverage_from_daily(daily, ds, cost)
+        payload_events.append(
+            {
+                "name": ev["name"],
+                "date": ds,
+                "cost": cost,
+                "emoji": ev.get("emoji") or "📅",
+                "days_until": days_until,
+                "after_event": after_event,
+                "coverage_status": coverage_status,
+            }
+        )
+
+    return jsonify(
+        {
+            "events": payload_events,
+            "thirty_day_cost_total": round(thirty_day_total, 2),
+        }
+    )
 
 
 @vibe_tracker_bp.route("/people/archived", methods=["GET"])

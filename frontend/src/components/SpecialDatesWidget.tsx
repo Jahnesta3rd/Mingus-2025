@@ -7,16 +7,20 @@ import React, { useState, useEffect, useCallback } from 'react';
 interface DatedCost {
   date: string;
   cost: number;
+  person_nickname?: string;
 }
 
 interface CustomEvent {
   name: string;
   date: string;
   cost: number;
+  person_nickname?: string;
 }
 
 interface ImportantDatesData {
   birthday: string | null;
+  /** When set, links the birthday milestone to a roster nickname (profile JSON). */
+  birthday_person_nickname?: string;
   vacation: DatedCost | null;
   car_inspection: DatedCost | null;
   sisters_wedding: DatedCost | null;

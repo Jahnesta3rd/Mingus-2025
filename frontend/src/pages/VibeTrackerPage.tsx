@@ -167,6 +167,7 @@ export default function VibeTrackerPage() {
                     trend={row.trend}
                     latestAssessment={row.latest_assessment}
                     onClick={() => void toggleExpand(row.id)}
+                    isExpanded={expandedId === row.id}
                     onArchive={() => void archivePerson(row.id)}
                     onDelete={() => setDeleteTarget(row)}
                   />
@@ -223,6 +224,7 @@ export default function VibeTrackerPage() {
                           trend={row.trend}
                           latestAssessment={row.latest_assessment}
                           onClick={() => void toggleExpand(row.id)}
+                          isExpanded={expandedId === row.id}
                           isArchived
                           onRestore={() => void unarchivePerson(row.id)}
                           onDelete={() => setDeleteTarget(row)}

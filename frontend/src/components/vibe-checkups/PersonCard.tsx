@@ -8,6 +8,7 @@ import {
   ClockIcon,
 } from '@heroicons/react/24/outline';
 import type { VibePersonAssessment, VibePersonTrend, VibeTrackedPerson } from '../../hooks/useVibeTracker';
+import EventRail from '../roster/EventRail';
 
 function formatRelativePast(iso: string | null): string {
   if (!iso) return '—';
@@ -74,7 +75,7 @@ function MiniBar({ value, label }: { value: number; label: string }) {
       </div>
       <div className="h-1.5 overflow-hidden rounded-full bg-[#2a2030]">
         <div
-          className="h-full rounded-full bg-[#C4A064]"
+          className="h-full rounded-full bg-[#A78BFA]"
           style={{ width: `${pct}%` }}
         />
       </div>
@@ -87,17 +88,76 @@ export type PersonCardProps = {
   trend: VibePersonTrend | null;
   latestAssessment: VibePersonAssessment | null;
   onClick: () => void;
+  isExpanded?: boolean;
   isArchived?: boolean;
   onArchive?: () => void;
   onDelete?: () => void;
   onRestore?: () => void;
 };
 
+interface PersonEventsApiResponse {
+  events: unknown[];
+  thirty_day_cost_total: number;
+}
+
+function CollapsedThirtyDayCost({ personId }: { personId: string }) {
+  const [total, setTotal] = useState<number | null>(null);
+  const [linkedCount, setLinkedCount] = useState<number | null>(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    const token = localStorage.getItem('mingus_token') ?? '';
+    fetch(`/api/vibe-tracker/people/${encodeURIComponent(personId)}/events`, {
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error('events');
+        return res.json() as Promise<PersonEventsApiResponse>;
+      })
+      .then((json) => {
+        if (!cancelled) {
+          const evs = Array.isArray(json.events) ? json.events : [];
+          const t =
+            typeof json.thirty_day_cost_total === 'number' ? json.thirty_day_cost_total : 0;
+          setLinkedCount(evs.length);
+          setTotal(t);
+          setVisible(true);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setVisible(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [personId]);
+
+  if (!visible || total === null || linkedCount === null) return null;
+
+  const label =
+    linkedCount === 0
+      ? 'No costs linked'
+      : `30d: ${new Intl.NumberFormat('en-US', {
+          style: 'currency',
+          currency: 'USD',
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 0,
+        }).format(total)}`;
+
+  return <p className="mt-1.5 text-xs text-[#9a8f7e]">{label}</p>;
+}
+
 export function PersonCard({
   person,
   trend,
   latestAssessment,
   onClick,
+  isExpanded = false,
   isArchived = false,
   onArchive,
   onDelete,
@@ -132,7 +192,7 @@ export function PersonCard({
           onClick();
         }
       }}
-      className="relative cursor-pointer rounded-2xl border border-[#2a2030] bg-[#1a1520]/90 p-4 text-left shadow-lg outline-none ring-[#C4A064]/30 transition hover:border-[#C4A064]/35 focus-visible:ring-2"
+      className="relative cursor-pointer rounded-2xl border border-[#2a2030] bg-[#1a1520]/90 p-4 text-left shadow-lg outline-none ring-[#A78BFA]/30 transition hover:border-[#A78BFA]/35 focus-visible:ring-2"
     >
       <div className="flex items-start gap-3">
         <div
@@ -144,7 +204,7 @@ export function PersonCard({
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
             <h3 className="truncate font-display text-base font-semibold text-[#F0E8D8]">{person.nickname}</h3>
-            <span className="shrink-0 rounded-full border border-[#2a2030] bg-[#0d0a08] px-2 py-0.5 text-[10px] font-medium tabular-nums text-[#C4A064]">
+            <span className="shrink-0 rounded-full border border-[#2a2030] bg-[#0d0a08] px-2 py-0.5 text-[10px] font-medium tabular-nums text-[#A78BFA]">
               {person.assessment_count} checkup{person.assessment_count === 1 ? '' : 's'}
             </span>
           </div>
@@ -156,6 +216,7 @@ export function PersonCard({
               {latestAssessment?.verdict_label ?? 'No checkups yet'}
             </span>
           </div>
+          {!isExpanded ? <CollapsedThirtyDayCost personId={person.id} /> : null}
         </div>
       </div>
 
@@ -168,6 +229,8 @@ export function PersonCard({
         <p className="mt-3 text-xs text-[#9a8f7e]">Complete a checkup to see scores here.</p>
       )}
 
+      {isExpanded ? <EventRail personId={person.id} nickname={person.nickname} /> : null}
+
       <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-[#2a2030]/80 pt-3">
         <TrendGlyph trend={trend} />
         <span className="text-xs text-[#9a8f7e]">Last assessed: {formatRelativePast(person.last_assessed_at)}</span>
@@ -178,14 +241,14 @@ export function PersonCard({
           <button
             type="button"
             onClick={() => onRestore?.()}
-            className="flex-1 rounded-xl border border-[#C4A064] bg-transparent py-2.5 text-sm font-semibold text-[#C4A064] transition hover:bg-[#C4A064]/10"
+            className="flex-1 min-h-11 rounded-xl border border-[#A78BFA] bg-transparent px-3 py-2.5 text-sm font-semibold text-[#A78BFA] transition hover:bg-[#A78BFA]/10"
           >
             Restore
           </button>
         ) : (
           <Link
             to="/dashboard/vibe-checkups"
-            className="flex-1 rounded-xl border border-[#C4A064]/60 bg-transparent py-2.5 text-center text-sm font-semibold text-[#C4A064] transition hover:border-[#C4A064] hover:bg-[#C4A064]/10"
+            className="flex-1 min-h-11 rounded-xl border border-[#A78BFA]/60 bg-transparent px-3 py-2.5 text-center text-sm font-semibold text-[#A78BFA] transition hover:border-[#A78BFA] hover:bg-[#A78BFA]/10"
           >
             Re-assess
           </Link>
@@ -200,7 +263,7 @@ export function PersonCard({
               e.stopPropagation();
               setMenuOpen((o) => !o);
             }}
-            className="rounded-lg border border-[#2a2030] p-2 text-[#F0E8D8] transition hover:border-[#C4A064]/40 hover:bg-[#0d0a08]"
+            className="rounded-lg border border-[#2a2030] p-2 text-[#F0E8D8] transition hover:border-[#A78BFA]/40 hover:bg-[#0d0a08]"
           >
             <EllipsisVerticalIcon className="h-5 w-5" />
           </button>

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { User, MapPin, GraduationCap, Briefcase, DollarSign, Calendar, Target, TrendingUp, AlertCircle, CheckCircle, Car } from 'lucide-react';
+import { useAuth } from '../hooks/useAuth';
 
 // Types
 interface PersonalInfo {
@@ -27,11 +28,19 @@ interface MonthlyExpenses {
   creditCardMinimum: number;
 }
 
+interface ImportantDateCostEvent {
+  date: string;
+  cost: number;
+  person_nickname?: string;
+}
+
 interface ImportantDates {
   birthday: string;
-  plannedVacation: { date: string; cost: number };
-  carInspection: { date: string; cost: number };
-  sistersWedding: { date: string; cost: number };
+  /** Optional link to a roster person for the birthday event (stored on profile JSON). */
+  birthday_person_nickname?: string;
+  plannedVacation: ImportantDateCostEvent;
+  carInspection: ImportantDateCostEvent;
+  sistersWedding: ImportantDateCostEvent;
 }
 
 interface HealthWellness {
@@ -81,6 +90,8 @@ const UserProfile: React.FC<UserProfileProps> = ({
   headerDisplayName,
   showBetaBadge = false,
 }) => {
+  const { getAccessToken } = useAuth();
+  const [rosterNicknames, setRosterNicknames] = useState<string[]>([]);
   const [currentStep, setCurrentStep] = useState(0);
   const [profileData, setProfileData] = useState<UserProfileData>({
     personalInfo: {
@@ -107,9 +118,10 @@ const UserProfile: React.FC<UserProfileProps> = ({
     },
     importantDates: {
       birthday: '',
-      plannedVacation: { date: '', cost: 0 },
-      carInspection: { date: '', cost: 0 },
-      sistersWedding: { date: '', cost: 0 }
+      birthday_person_nickname: '',
+      plannedVacation: { date: '', cost: 0, person_nickname: '' },
+      carInspection: { date: '', cost: 0, person_nickname: '' },
+      sistersWedding: { date: '', cost: 0, person_nickname: '' },
     },
     healthWellness: {
       physicalActivity: 0,
@@ -129,6 +141,26 @@ const UserProfile: React.FC<UserProfileProps> = ({
       monthlySavings: 0
     }
   });
+
+  useEffect(() => {
+    if (currentStep !== 3) return;
+    const token = getAccessToken();
+    fetch('/api/vibe-tracker/people', {
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+    })
+      .then((res) => (res.ok ? res.json() : Promise.reject(new Error('roster'))))
+      .then((data: { people?: Array<{ nickname?: string }> }) => {
+        const names = (data.people ?? [])
+          .map((p) => (typeof p.nickname === 'string' ? p.nickname.trim() : ''))
+          .filter((n) => n.length > 0);
+        setRosterNicknames(names);
+      })
+      .catch(() => setRosterNicknames([]));
+  }, [currentStep, getAccessToken]);
 
   const steps = [
     { title: 'Personal Info', icon: User },
@@ -451,7 +483,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
   );
 
   const renderImportantDates = () => (
-    <div className="space-y-6">
+    <div id="important-dates" className="space-y-6 scroll-mt-8">
       <div className="text-center mb-8">
         <Calendar className="w-12 h-12 text-violet-500 mx-auto mb-4" />
         <h2 className="text-2xl font-bold text-white mb-2">Important Dates</h2>
@@ -465,8 +497,27 @@ const UserProfile: React.FC<UserProfileProps> = ({
             type="date"
             value={profileData.importantDates.birthday}
             onChange={(e) => handleInputChange('importantDates', 'birthday', e.target.value)}
-            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-400"
+            className="w-full min-h-11 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-400"
           />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-white mb-2">Link to Roster person</label>
+          <select
+            value={profileData.importantDates.birthday_person_nickname ?? ''}
+            onChange={(e) =>
+              handleInputChange('importantDates', 'birthday_person_nickname', e.target.value)
+            }
+            className="w-full min-h-11 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-400"
+          >
+            <option value="">Just me</option>
+            {rosterNicknames.map((n) => (
+              <option key={n} value={n}>
+                {n}
+              </option>
+            ))}
+          </select>
+          <p className="mt-1 text-xs text-gray-500">Optional — for whose birthday you are planning.</p>
         </div>
 
         <div>
@@ -475,7 +526,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
             type="date"
             value={profileData.importantDates.plannedVacation.date}
             onChange={(e) => handleNestedInputChange('importantDates', 'plannedVacation', 'date', e.target.value)}
-            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-400"
+            className="w-full min-h-11 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-400"
           />
         </div>
 
@@ -485,9 +536,27 @@ const UserProfile: React.FC<UserProfileProps> = ({
             type="number"
             value={profileData.importantDates.plannedVacation.cost || ''}
             onChange={(e) => handleNestedInputChange('importantDates', 'plannedVacation', 'cost', parseInt(e.target.value) || 0)}
-            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-400"
+            className="w-full min-h-11 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-400"
             placeholder="2000"
           />
+        </div>
+
+        <div className="md:col-span-2">
+          <label className="block text-sm font-medium text-white mb-2">Link vacation to Roster person</label>
+          <select
+            value={profileData.importantDates.plannedVacation.person_nickname ?? ''}
+            onChange={(e) =>
+              handleNestedInputChange('importantDates', 'plannedVacation', 'person_nickname', e.target.value)
+            }
+            className="w-full min-h-11 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-400"
+          >
+            <option value="">Just me</option>
+            {rosterNicknames.map((n) => (
+              <option key={`vac-${n}`} value={n}>
+                {n}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div>
@@ -496,7 +565,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
             type="date"
             value={profileData.importantDates.carInspection.date}
             onChange={(e) => handleNestedInputChange('importantDates', 'carInspection', 'date', e.target.value)}
-            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-400"
+            className="w-full min-h-11 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-400"
           />
         </div>
 
@@ -506,9 +575,27 @@ const UserProfile: React.FC<UserProfileProps> = ({
             type="number"
             value={profileData.importantDates.carInspection.cost || ''}
             onChange={(e) => handleNestedInputChange('importantDates', 'carInspection', 'cost', parseInt(e.target.value) || 0)}
-            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-400"
+            className="w-full min-h-11 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-400"
             placeholder="150"
           />
+        </div>
+
+        <div className="md:col-span-2">
+          <label className="block text-sm font-medium text-white mb-2">Link inspection to Roster person</label>
+          <select
+            value={profileData.importantDates.carInspection.person_nickname ?? ''}
+            onChange={(e) =>
+              handleNestedInputChange('importantDates', 'carInspection', 'person_nickname', e.target.value)
+            }
+            className="w-full min-h-11 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-400"
+          >
+            <option value="">Just me</option>
+            {rosterNicknames.map((n) => (
+              <option key={`car-${n}`} value={n}>
+                {n}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div>
@@ -517,7 +604,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
             type="date"
             value={profileData.importantDates.sistersWedding.date}
             onChange={(e) => handleNestedInputChange('importantDates', 'sistersWedding', 'date', e.target.value)}
-            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-400"
+            className="w-full min-h-11 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-400"
           />
         </div>
 
@@ -527,9 +614,27 @@ const UserProfile: React.FC<UserProfileProps> = ({
             type="number"
             value={profileData.importantDates.sistersWedding.cost || ''}
             onChange={(e) => handleNestedInputChange('importantDates', 'sistersWedding', 'cost', parseInt(e.target.value) || 0)}
-            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-400"
+            className="w-full min-h-11 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-400"
             placeholder="800"
           />
+        </div>
+
+        <div className="md:col-span-2">
+          <label className="block text-sm font-medium text-white mb-2">Link wedding event to Roster person</label>
+          <select
+            value={profileData.importantDates.sistersWedding.person_nickname ?? ''}
+            onChange={(e) =>
+              handleNestedInputChange('importantDates', 'sistersWedding', 'person_nickname', e.target.value)
+            }
+            className="w-full min-h-11 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-400"
+          >
+            <option value="">Just me</option>
+            {rosterNicknames.map((n) => (
+              <option key={`wed-${n}`} value={n}>
+                {n}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
     </div>
