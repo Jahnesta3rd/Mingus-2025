@@ -28,6 +28,7 @@ from backend.models.vibe_tracker import (
     VibePersonAssessment,
     VibePersonTrend,
 )
+from backend.models.connection_trend import ConnectionTrendAssessment  # noqa: F401
 from backend.models.spirit_checkin import (
     SpiritCheckin,
     SpiritCheckinStreak,

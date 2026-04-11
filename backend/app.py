@@ -11,6 +11,7 @@ from backend.routes.life_ready_score import life_ready_score_bp
 from backend.routes.self_card import self_card_bp
 from backend.routes.telemetry import telemetry_bp
 from backend.routes.vibe_tracker import vibe_tracker_bp
+from backend.routes.connection_trend import connection_trend_bp
 from backend.routes.spirit_finance import spirit_finance_bp
 from backend.routes.transaction_schedule import transaction_schedule_bp
 
@@ -29,6 +30,9 @@ def register_backend_blueprints(app):
         life_correlation_bp, url_prefix="/api/life-correlation"
     )
     app.register_blueprint(vibe_tracker_bp, url_prefix="/api/vibe-tracker")
+    app.register_blueprint(
+        connection_trend_bp, url_prefix="/api/connection-trend"
+    )
     app.register_blueprint(spirit_finance_bp, url_prefix="/api/spirit")
     app.register_blueprint(
         transaction_schedule_bp, url_prefix="/api/transaction-schedule"
