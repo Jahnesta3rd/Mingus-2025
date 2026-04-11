@@ -13,7 +13,7 @@ from backend.models.database import db
 from backend.models.financial_setup import RecurringExpense
 from backend.models.life_correlation import LifeScoreSnapshot
 from backend.models.life_ledger import LifeLedgerProfile
-from backend.models.transaction_schedule import IncomeStream
+from backend.models.transaction_schedule import IncomeStream, ScheduledExpense
 from backend.models.user_models import User
 from backend.models.wellness import WeeklyCheckin, WellnessScore
 
@@ -133,10 +133,15 @@ def _stability_score(user_id: int) -> float:
     has_income = (
         IncomeStream.query.filter_by(user_id=user_id, is_active=True).first() is not None
     )
-    has_expense = (
+    has_recurring_expense = (
         RecurringExpense.query.filter_by(user_id=user_id, is_active=True).first()
         is not None
     )
+    has_scheduled_expense = (
+        ScheduledExpense.query.filter_by(user_id=user_id, is_active=True).first()
+        is not None
+    )
+    has_expense = has_recurring_expense or has_scheduled_expense
     return 100.0 if (has_income and has_expense) else 10.0
 
 
