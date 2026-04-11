@@ -3,6 +3,8 @@ export interface CheckinPayload {
   exercise_days: number;
   exercise_intensity: 'light' | 'moderate' | 'intense' | null;
   sleep_quality: number;
+  /** Average hours per night (3–10); omit from JSON when not tracked this week. */
+  sleep_hours?: number;
   meditation_minutes: number;
   stress_level: number;
   overall_mood: number;

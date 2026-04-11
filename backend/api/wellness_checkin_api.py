@@ -16,7 +16,7 @@ from typing import Any, Dict, List, Optional
 from collections import defaultdict
 
 from flask import Blueprint, request, jsonify, g
-from marshmallow import Schema, fields, validate, ValidationError
+from marshmallow import Schema, fields, validate, validates, ValidationError
 from sqlalchemy import func, desc, text
 from werkzeug.exceptions import BadRequest, NotFound, Conflict
 
@@ -112,6 +112,7 @@ def _checkin_to_dict(c: WeeklyCheckin, include_scores: bool = False) -> Dict[str
         'exercise_days': c.exercise_days,
         'exercise_intensity': c.exercise_intensity,
         'sleep_quality': c.sleep_quality,
+        'sleep_hours': dec(c.sleep_hours) if c.sleep_hours is not None else None,
         'meditation_minutes': c.meditation_minutes,
         'stress_level': c.stress_level,
         'overall_mood': c.overall_mood,
@@ -258,6 +259,7 @@ class CheckinRequestSchema(Schema):
     exercise_days = fields.Integer(required=True, validate=validate.Range(min=0, max=7))
     exercise_intensity = fields.String(allow_none=True, validate=validate.OneOf(['light', 'moderate', 'intense']))
     sleep_quality = fields.Integer(required=True, validate=validate.Range(min=1, max=10))
+    sleep_hours = fields.Float(allow_none=True, load_default=None)
     meditation_minutes = fields.Integer(required=True, validate=validate.Range(min=0, max=999))
     stress_level = fields.Integer(required=True, validate=validate.Range(min=1, max=10))
     overall_mood = fields.Integer(required=True, validate=validate.Range(min=1, max=10))
@@ -286,6 +288,13 @@ class CheckinRequestSchema(Schema):
     challenges = fields.String(allow_none=True)
 
     completion_time_seconds = fields.Integer(allow_none=True)
+
+    @validates('sleep_hours')
+    def validate_sleep_hours(self, value):
+        if value is None:
+            return
+        if not (3 <= value <= 10):
+            raise ValidationError('sleep_hours must be between 3 and 10')
 
 
 # =============================================================================
@@ -331,6 +340,7 @@ def submit_checkin():
         exercise_days=data['exercise_days'],
         exercise_intensity=data.get('exercise_intensity'),
         sleep_quality=data['sleep_quality'],
+        sleep_hours=data.get('sleep_hours'),
         meditation_minutes=data['meditation_minutes'],
         stress_level=data['stress_level'],
         overall_mood=data['overall_mood'],

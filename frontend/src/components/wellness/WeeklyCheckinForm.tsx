@@ -29,16 +29,31 @@ const SOCIAL_OPTIONS = [
 
 const MEDITATION_OPTIONS = [0, 15, 30, 45, 60, 90, 120];
 
+const SLEEP_HOURS_MIN = 3;
+const SLEEP_HOURS_MAX = 10;
+const SLEEP_HOURS_STEP = 0.5;
+
+function sleepHoursFeedback(hours: number): { text: string; className: string } {
+  if (hours >= 8) return { text: 'Well rested 🌙', className: 'text-[#059669]' };
+  if (hours >= 7) return { text: 'Good sleep 👍', className: 'text-[#059669]' };
+  if (hours >= 6) return { text: 'Slightly short ⚠️', className: 'text-[#D97706]' };
+  return { text: 'Running low 😴', className: 'text-[#DC2626]' };
+}
+
+/** Draft state: sleep_hours null means user skipped tracking sleep this week (omit from POST). */
+type WeeklyCheckinFormState = Partial<CheckinPayload> & { sleep_hours?: number | null };
+
 const INTENSITY_OPTIONS = [
   { emoji: '🚶', value: 'light', label: 'Light' },
   { emoji: '🏃', value: 'moderate', label: 'Moderate' },
   { emoji: '💪', value: 'intense', label: 'Intense' },
 ] as const;
 
-const defaultPayload = (): Partial<CheckinPayload> => ({
+const defaultPayload = (): WeeklyCheckinFormState => ({
   exercise_days: 0,
   exercise_intensity: null,
   sleep_quality: 5,
+  sleep_hours: null,
   meditation_minutes: 0,
   stress_level: 5,
   overall_mood: 6,
@@ -76,7 +91,7 @@ export const WeeklyCheckinForm: React.FC<WeeklyCheckinFormProps> = ({
   className = '',
 }) => {
   const [step, setStep] = useState(1);
-  const [form, setForm] = useState<Partial<CheckinPayload>>(defaultPayload);
+  const [form, setForm] = useState<WeeklyCheckinFormState>(defaultPayload);
   const [startTime] = useState(() => Date.now());
   const [baselines, setBaselines] = useState<SpendingBaselines | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -121,9 +136,12 @@ export const WeeklyCheckinForm: React.FC<WeeklyCheckinFormProps> = ({
     return () => { cancelled = true; };
   }, []);
 
-  const update = useCallback(<K extends keyof CheckinPayload>(key: K, value: CheckinPayload[K]) => {
-    setForm((prev) => ({ ...prev, [key]: value }));
-  }, []);
+  const update = useCallback(
+    <K extends keyof WeeklyCheckinFormState>(key: K, value: WeeklyCheckinFormState[K]) => {
+      setForm((prev) => ({ ...prev, [key]: value }));
+    },
+    []
+  );
 
   const canProceedStep1 = form.exercise_days != null && form.sleep_quality != null &&
     (form.exercise_days === 0 || form.exercise_intensity != null);
@@ -156,6 +174,9 @@ export const WeeklyCheckinForm: React.FC<WeeklyCheckinFormProps> = ({
       exercise_days: form.exercise_days ?? 0,
       exercise_intensity: form.exercise_days === 0 ? null : (form.exercise_intensity ?? null),
       sleep_quality: form.sleep_quality ?? 5,
+      ...(form.sleep_hours != null && !Number.isNaN(form.sleep_hours)
+        ? { sleep_hours: form.sleep_hours }
+        : {}),
       meditation_minutes: form.meditation_minutes ?? 0,
       stress_level: form.stress_level ?? 5,
       overall_mood: form.overall_mood ?? 6,
@@ -180,7 +201,7 @@ export const WeeklyCheckinForm: React.FC<WeeklyCheckinFormProps> = ({
       wins: form.wins && form.wins.trim() ? form.wins.trim().slice(0, 200) : null,
       challenges: form.challenges && form.challenges.trim() ? form.challenges.trim().slice(0, 200) : null,
       completion_time_seconds: completionTime,
-    };
+    } as CheckinPayload;
   }, [form, startTime]);
 
   const handleSubmit = useCallback(async () => {
@@ -293,6 +314,13 @@ export const WeeklyCheckinForm: React.FC<WeeklyCheckinFormProps> = ({
     );
   }
 
+  const sleepSliderDisplayHours = form.sleep_hours ?? 7;
+  const sleepSliderFeedback = sleepHoursFeedback(sleepSliderDisplayHours);
+  const sleepHoursShown =
+    sleepSliderDisplayHours % 1 === 0
+      ? String(sleepSliderDisplayHours)
+      : sleepSliderDisplayHours.toFixed(1);
+
   return (
     <div className={`rounded-2xl bg-slate-800/80 p-6 text-slate-100 ${className}`}>
       <form
@@ -365,6 +393,64 @@ export const WeeklyCheckinForm: React.FC<WeeklyCheckinFormProps> = ({
               label="Minutes of meditation/prayer/mindfulness?"
               id="meditation_minutes"
             />
+            <div className="space-y-4 rounded-xl border border-slate-600/80 bg-slate-700/30 p-4">
+              <div>
+                <div id="sleep_hours_heading" className="text-slate-200 font-medium">
+                  How did you sleep this past week?
+                </div>
+                <p className="text-slate-400 text-sm mt-1">On average, how many hours per night?</p>
+              </div>
+              <div className="flex flex-col items-center gap-1">
+                <p
+                  className="text-4xl font-bold tabular-nums text-slate-100"
+                  aria-live="polite"
+                  aria-atomic="true"
+                >
+                  {sleepHoursShown}
+                  <span className="text-lg font-semibold text-slate-400 ml-1.5">hrs</span>
+                </p>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="text-slate-400 text-xs tabular-nums w-7 shrink-0">{SLEEP_HOURS_MIN}</span>
+                <input
+                  type="range"
+                  min={SLEEP_HOURS_MIN}
+                  max={SLEEP_HOURS_MAX}
+                  step={SLEEP_HOURS_STEP}
+                  value={sleepSliderDisplayHours}
+                  onChange={(e) => {
+                    const raw = parseFloat(e.target.value);
+                    if (Number.isNaN(raw)) return;
+                    const snapped = Math.round(raw / SLEEP_HOURS_STEP) * SLEEP_HOURS_STEP;
+                    const clamped = Math.min(SLEEP_HOURS_MAX, Math.max(SLEEP_HOURS_MIN, snapped));
+                    update('sleep_hours', clamped);
+                    triggerHaptic();
+                  }}
+                  className="flex-1 h-12 min-w-0 accent-violet-500 touch-none"
+                  style={{ minHeight: '44px' }}
+                  aria-valuemin={SLEEP_HOURS_MIN}
+                  aria-valuemax={SLEEP_HOURS_MAX}
+                  aria-valuenow={sleepSliderDisplayHours}
+                  aria-labelledby="sleep_hours_heading"
+                  aria-label="Average hours of sleep per night this past week"
+                  id="sleep_hours"
+                />
+                <span className="text-slate-400 text-xs tabular-nums w-7 shrink-0 text-right">{SLEEP_HOURS_MAX}</span>
+              </div>
+              <p
+                className={`text-center text-sm font-medium ${sleepSliderFeedback.className}`}
+                aria-live="polite"
+              >
+                {sleepSliderFeedback.text}
+              </p>
+              <button
+                type="button"
+                onClick={() => { update('sleep_hours', null); triggerHaptic(); }}
+                className="min-h-[44px] w-full rounded-xl text-sm font-semibold text-slate-400 hover:text-slate-200 hover:bg-slate-600/40 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 focus:ring-offset-slate-900"
+              >
+                Don&apos;t track sleep this week
+              </button>
+            </div>
             <SliderInput
               id="stress_level"
               label="What was your average stress level?"
