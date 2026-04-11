@@ -14,6 +14,11 @@ from backend.models.connection_trend import ConnectionTrendAssessment
 from backend.models.database import db
 from backend.models.user_models import User
 from backend.models.vibe_tracker import VibeTrackedPerson
+from backend.services.connection_trend_service import (
+    compute_fade_tier,
+    compute_pattern_type,
+    get_pattern_insight,
+)
 
 connection_trend_bp = Blueprint("connection_trend", __name__)
 
@@ -123,60 +128,8 @@ def _person_for_user(person_id: uuid.UUID, user: User) -> VibeTrackedPerson | No
     return p
 
 
-def _fade_tier_from_normalized(n: int) -> str:
-    if n <= 15:
-        return "locked_in"
-    if n <= 30:
-        return "breadcrumbing"
-    if n <= 50:
-        return "orbiting"
-    if n <= 68:
-        return "fading"
-    if n <= 84:
-        return "dipping"
-    return "cloaking"
-
-
-def _compute_pattern_type(answers: list[int]) -> str:
-    """
-    P5-B-style pattern label from the seven answers (each 0–2).
-    First matching rule wins (specific combinations before broad buckets).
-    """
-    q1, q2, q3, q4, q5, q6, q7 = answers
-    twos = sum(1 for x in answers if x == 2)
-
-    if q7 == 2 and (q1 == 2 or q3 == 2 or q4 == 2):
-        return "signal_stack"
-    if q2 == 2 and q6 == 2:
-        return "effort_asymmetry"
-    if q3 == 2 and q4 == 2:
-        return "plans_and_future"
-    if q1 == 2 and q4 == 2:
-        return "pace_and_horizon"
-    if q5 == 2:
-        return "visibility_gap"
-    if q6 == 2:
-        return "reciprocity_shift"
-    if q3 == 2:
-        return "reliability_dip"
-    if q2 == 2:
-        return "initiative_skew"
-    if q1 == 2:
-        return "response_shift"
-    if q4 == 2:
-        return "future_reference_fade"
-    if q7 == 2:
-        return "intuition_flag"
-    if twos == 0 and sum(1 for x in answers if x == 1) <= 2:
-        return "steady"
-    if twos == 0:
-        return "soft_ambiguity"
-    if twos >= 4:
-        return "wide_band_shift"
-    return "mixed_signals"
-
-
 def _assessment_dict(row: ConnectionTrendAssessment) -> dict:
+    insight = get_pattern_insight(row.pattern_type, row.fade_tier)
     return {
         "id": str(row.id),
         "user_id": row.user_id,
@@ -195,6 +148,7 @@ def _assessment_dict(row: ConnectionTrendAssessment) -> dict:
         "normalized_score": row.normalized_score,
         "fade_tier": row.fade_tier,
         "pattern_type": row.pattern_type,
+        "pattern_insight": insight,
     }
 
 
@@ -234,8 +188,8 @@ def post_assess(person_id: uuid.UUID):
 
     raw_score = sum(values)
     normalized_score = int(round(raw_score / 14.0 * 100.0))
-    fade_tier = _fade_tier_from_normalized(normalized_score)
-    pattern_type = _compute_pattern_type(values)
+    fade_tier = compute_fade_tier(normalized_score)
+    pattern_type = compute_pattern_type(*values)
 
     row = ConnectionTrendAssessment(
         user_id=user.id,
