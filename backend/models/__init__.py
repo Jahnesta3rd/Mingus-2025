@@ -48,6 +48,7 @@ from .vibe_tracker import (
     VibePersonTrend,
 )
 from .connection_trend import ConnectionTrendAssessment
+from .alerts import UserAlert
 from .life_correlation import LifeScoreSnapshot
 from .spirit_checkin import (
     SpiritCheckin,
@@ -107,6 +108,7 @@ __all__ = [
     'VibePersonAssessment',
     'VibePersonTrend',
     'ConnectionTrendAssessment',
+    'UserAlert',
     'LifeScoreSnapshot',
     'SpiritCheckin',
     'SpiritCheckinStreak',

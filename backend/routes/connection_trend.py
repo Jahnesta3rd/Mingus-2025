@@ -19,6 +19,7 @@ from backend.services.connection_trend_service import (
     compute_pattern_type,
     get_pattern_insight,
 )
+from backend.tasks.vibe_financial_alert_tasks import check_for_alerts
 
 connection_trend_bp = Blueprint("connection_trend", __name__)
 
@@ -210,6 +211,7 @@ def post_assess(person_id: uuid.UUID):
     db.session.add(row)
     db.session.commit()
 
+    check_for_alerts.delay(user.id, str(person.id))
     return jsonify({"assessment": _assessment_dict(row)}), 201
 
 

@@ -1,6 +1,9 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import LifeReadyScoreCard from './LifeReadyScoreCard';
+import VibeFinancialAlert, {
+  type VibeFinancialAlertData,
+} from './alerts/VibeFinancialAlert';
 import { useAuth } from '../hooks/useAuth';
 import { useLifeLedger } from '../hooks/useLifeLedger';
 
@@ -34,6 +37,10 @@ interface RosterPerson {
 
 interface RosterPeopleResponse {
   people: RosterPerson[];
+}
+
+interface UnreadAlertsResponse {
+  alerts: VibeFinancialAlertData[];
 }
 
 function forecastAuthHeaders(): HeadersInit {
@@ -100,6 +107,9 @@ export default function HomeScreen() {
   const [cashRow, setCashRow] = useState<DailyCashflowEntry | null>(null);
   const [cashLoading, setCashLoading] = useState(true);
   const [cashError, setCashError] = useState(false);
+
+  const [financialAlerts, setFinancialAlerts] = useState<VibeFinancialAlertData[]>([]);
+  const [alertsLoading, setAlertsLoading] = useState(true);
 
   useEffect(() => {
     const tab = searchParams.get('tab');
@@ -177,12 +187,60 @@ export default function HomeScreen() {
     void fetchCashPreview();
   }, [fetchCashPreview]);
 
+  useEffect(() => {
+    const loadAlerts = async () => {
+      if (!isAuthenticated) {
+        setAlertsLoading(false);
+        return;
+      }
+      setAlertsLoading(true);
+      try {
+        const token =
+          localStorage.getItem('mingus_token') ?? localStorage.getItem('auth_token') ?? '';
+        const headers: HeadersInit = {};
+        if (token) headers.Authorization = `Bearer ${token}`;
+        const res = await fetch('/api/alerts/unread', {
+          credentials: 'include',
+          headers,
+        });
+        if (!res.ok) throw new Error('alerts');
+        const data = (await res.json()) as UnreadAlertsResponse;
+        const list = Array.isArray(data.alerts) ? data.alerts : [];
+        setFinancialAlerts(list.slice(0, 2));
+      } catch {
+        setFinancialAlerts([]);
+      } finally {
+        setAlertsLoading(false);
+      }
+    };
+    void loadAlerts();
+  }, [isAuthenticated]);
+
   const goToForecastTools = () => {
     navigate('/dashboard/forecast');
   };
 
   return (
     <div className="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6 lg:px-8">
+      {alertsLoading ? (
+        <div className="space-y-3">
+          <div className="h-24 animate-pulse rounded-xl bg-white shadow-sm" />
+          <div className="h-24 animate-pulse rounded-xl bg-white shadow-sm" />
+        </div>
+      ) : financialAlerts.length > 0 ? (
+        <div className="space-y-3">
+          {financialAlerts.map((a) => (
+            <VibeFinancialAlert
+              key={a.id}
+              alert={a}
+              onDismissed={(id) =>
+                setFinancialAlerts((prev) => prev.filter((x) => x.id !== id))
+              }
+            />
+          ))}
+        </div>
+      ) : null}
+
       <LifeReadyScoreCard />
 
       <section className="rounded-2xl border border-[#A78BFA] bg-[#0D0A08] p-6 shadow-md">

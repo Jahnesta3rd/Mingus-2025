@@ -29,6 +29,7 @@ from backend.services.cash_forecast_service import (
     generate_daily_forecast,
 )
 from backend.tasks.life_correlation_tasks import record_life_snapshot
+from backend.tasks.vibe_financial_alert_tasks import check_for_alerts
 
 vibe_tracker_bp = Blueprint("vibe_tracker", __name__)
 
@@ -676,6 +677,7 @@ def add_assessment(person_id: uuid.UUID):
     payload["latest_assessment"] = _assessment_summary(row)
     db.session.commit()
     record_life_snapshot.delay(str(user.id), "vibe_assessment")
+    check_for_alerts.delay(user.id, str(p.id))
     return jsonify(payload), 201
 
 

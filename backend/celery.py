@@ -19,6 +19,7 @@ celery = Celery(
         "backend.tasks.life_correlation_tasks",
         "backend.tasks.spirit_tasks",
         "backend.tasks.spirit_reminder",
+        "backend.tasks.vibe_financial_alert_tasks",
     ],
 )
 

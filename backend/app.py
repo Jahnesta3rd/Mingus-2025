@@ -12,6 +12,7 @@ from backend.routes.self_card import self_card_bp
 from backend.routes.telemetry import telemetry_bp
 from backend.routes.vibe_tracker import vibe_tracker_bp
 from backend.routes.connection_trend import connection_trend_bp
+from backend.routes.alerts import alerts_bp
 from backend.routes.spirit_finance import spirit_finance_bp
 from backend.routes.transaction_schedule import transaction_schedule_bp
 
@@ -33,6 +34,7 @@ def register_backend_blueprints(app):
     app.register_blueprint(
         connection_trend_bp, url_prefix="/api/connection-trend"
     )
+    app.register_blueprint(alerts_bp, url_prefix="/api/alerts")
     app.register_blueprint(spirit_finance_bp, url_prefix="/api/spirit")
     app.register_blueprint(
         transaction_schedule_bp, url_prefix="/api/transaction-schedule"
