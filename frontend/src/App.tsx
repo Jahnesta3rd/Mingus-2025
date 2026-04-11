@@ -10,6 +10,7 @@ import VibeCheckMeme from './components/vibe/VibeCheckMeme';
 import DashboardLayout from './components/dashboard/DashboardLayout';
 import MoodDashboard from './components/MoodDashboard';
 import CareerProtectionDashboard from './pages/CareerProtectionDashboard';
+import HomeScreen from './components/HomeScreen';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
 import AuthGuard from './guards/AuthGuard';
@@ -106,7 +107,8 @@ const router = createBrowserRouter([
       </AuthGuard>
     ),
     children: [
-      { index: true, element: <CareerProtectionDashboard /> },
+      { index: true, element: <HomeScreen /> },
+      { path: 'tools', element: <CareerProtectionDashboard /> },
       { path: 'vibe-tracker', element: <VibeTrackerPage /> },
       { path: 'spirit', element: <SpiritFinance /> },
     ],
