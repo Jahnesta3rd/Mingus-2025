@@ -26,6 +26,8 @@ from backend.models.database import db
 from backend.models.financial_setup import RecurringExpense
 from backend.models.transaction_schedule import IncomeStream, ScheduledExpense
 from backend.models.user_models import User
+from backend.models.vibe_checkups import VibeCheckupsLead
+from backend.models.vibe_tracker import VibePersonAssessment, VibeTrackedPerson
 
 logger = logging.getLogger(__name__)
 
@@ -319,6 +321,229 @@ def iter_special_date_outflows(
     return events
 
 
+def _nick_from_event_node(node: Any) -> str:
+    if not isinstance(node, dict):
+        return ""
+    raw = node.get("person_nickname")
+    if raw is None:
+        raw = node.get("personNickname")
+    if raw is None:
+        return ""
+    return str(raw).strip()
+
+
+def _format_label_key(key: str) -> str:
+    return " ".join(w[:1].upper() + w[1:].lower() for w in key.split("_") if w)
+
+
+def _next_birthday_occurrence(birthday_iso: str, today: date) -> date | None:
+    s = (birthday_iso or "").strip()[:10]
+    if len(s) < 10:
+        return None
+    try:
+        _y, m_str, d_str = s.split("-")
+        m, d = int(m_str), int(d_str)
+    except (ValueError, AttributeError):
+        return None
+    try:
+        cand = date(today.year, m, d)
+    except ValueError:
+        last = calendar.monthrange(today.year, m)[1]
+        cand = date(today.year, m, min(d, last))
+    if cand < today:
+        try:
+            cand = date(today.year + 1, m, d)
+        except ValueError:
+            last = calendar.monthrange(today.year + 1, m)[1]
+            cand = date(today.year + 1, m, min(d, last))
+    return cand
+
+
+def _get_nested_important(obj: dict, *keys: str) -> Any:
+    for k in keys:
+        if k in obj:
+            return obj[k]
+    return None
+
+
+def _iter_normalized_important_events(important: dict) -> list[dict[str, Any]]:
+    """Flatten important_dates (same shape as vibe_tracker list_person_linked_events)."""
+    out: list[dict[str, Any]] = []
+    today = date.today()
+
+    bd_raw = important.get("birthday")
+    bd_nick = important.get("birthday_person_nickname") or important.get(
+        "birthdayPersonNickname"
+    )
+    if isinstance(bd_nick, str):
+        bd_nick = bd_nick.strip()
+    else:
+        bd_nick = ""
+    if bd_raw:
+        if isinstance(bd_raw, dict):
+            ds = str(bd_raw.get("date") or bd_raw.get("birthday") or "")[:10]
+            if not bd_nick:
+                bd_nick = _nick_from_event_node(bd_raw)
+        else:
+            ds = str(bd_raw).strip()[:10]
+        if len(ds) >= 10:
+            nxt = _next_birthday_occurrence(ds, today)
+            if nxt:
+                out.append(
+                    {
+                        "name": "Birthday",
+                        "date": nxt.isoformat(),
+                        "cost": 0.0,
+                        "person_nickname": bd_nick,
+                        "emoji": "🎂",
+                    }
+                )
+
+    pairs = [
+        ("plannedVacation", "vacation", "Vacation", "✈️"),
+        ("carInspection", "car_inspection", "car_inspection", "🚗"),
+        ("sistersWedding", "sisters_wedding", "sisters_wedding", "💍"),
+    ]
+    for a, b, label_key, emo in pairs:
+        node = _get_nested_important(important, a, b)
+        if not isinstance(node, dict):
+            continue
+        raw_d = node.get("date") or node.get("Date")
+        if not raw_d:
+            continue
+        ds = str(raw_d)[:10]
+        try:
+            evd = date.fromisoformat(ds)
+        except ValueError:
+            continue
+        c = node.get("cost", node.get("Cost", 0))
+        try:
+            cost = float(c)
+        except (TypeError, ValueError):
+            cost = 0.0
+        name = _format_label_key(label_key) if "_" in label_key else label_key
+        out.append(
+            {
+                "name": name,
+                "date": evd.isoformat(),
+                "cost": cost,
+                "person_nickname": _nick_from_event_node(node),
+                "emoji": emo,
+            }
+        )
+
+    customs = important.get("customEvents") or important.get("custom_events")
+    if isinstance(customs, list):
+        for item in customs:
+            if not isinstance(item, dict):
+                continue
+            raw_d = item.get("date") or item.get("Date")
+            if not raw_d:
+                continue
+            ds = str(raw_d)[:10]
+            try:
+                evd = date.fromisoformat(ds)
+            except ValueError:
+                continue
+            c = item.get("cost", item.get("Cost", 0))
+            try:
+                cost = float(c)
+            except (TypeError, ValueError):
+                cost = 0.0
+            nm = item.get("name") or item.get("Name") or "Event"
+            nm = str(nm).strip() or "Event"
+            title = nm[:1].upper() + nm[1:] if nm else "Event"
+            out.append(
+                {
+                    "name": title,
+                    "date": evd.isoformat(),
+                    "cost": cost,
+                    "person_nickname": _nick_from_event_node(item),
+                    "emoji": "📅",
+                }
+            )
+
+    return out
+
+
+def _linked_thirty_day_cost_total(nickname: str, important: dict[str, Any]) -> Decimal:
+    """Sum linked event costs from today through +30 days (roster /events parity)."""
+    if not isinstance(important, dict):
+        return Decimal("0")
+    nick = (nickname or "").strip()
+    if not nick:
+        return Decimal("0")
+    today = date.today()
+    horizon_end = today + timedelta(days=30)
+    total = Decimal("0")
+    for ev in _iter_normalized_important_events(important):
+        pn = (ev.get("person_nickname") or "").strip()
+        if pn != nick:
+            continue
+        try:
+            evd = date.fromisoformat(str(ev["date"])[:10])
+        except ValueError:
+            continue
+        if evd < today:
+            continue
+        if evd <= horizon_end:
+            total += _money(_d(ev.get("cost") or 0))
+    return total
+
+
+def _monthly_from_checkup_lead(lead: VibeCheckupsLead) -> Decimal:
+    try:
+        ann = int(lead.total_annual_projection)
+    except (TypeError, ValueError):
+        return Decimal("0")
+    if ann <= 0:
+        return Decimal("0")
+    return _money(_d(Decimal(ann) / Decimal(12)))
+
+
+def _relationship_cost_rows_for_user(
+    user_id: int, important_dates: dict[str, Any]
+) -> list[dict[str, Any]]:
+    """
+    Per active VibeTrackedPerson: monthly cost from latest checkup lead (annual/12),
+    else linked important_dates costs in the next 30 days (same basis as roster API).
+    """
+    people = (
+        VibeTrackedPerson.query.filter_by(user_id=user_id, is_archived=False)
+        .order_by(VibeTrackedPerson.created_at.asc())
+        .all()
+    )
+    rows: list[dict[str, Any]] = []
+    for person in people:
+        monthly = Decimal("0")
+        assn = (
+            VibePersonAssessment.query.filter(
+                VibePersonAssessment.tracked_person_id == person.id,
+                VibePersonAssessment.lead_id.isnot(None),
+            )
+            .order_by(VibePersonAssessment.completed_at.desc())
+            .first()
+        )
+        if assn is not None and assn.lead_id is not None:
+            lead = db.session.get(VibeCheckupsLead, assn.lead_id)
+            if lead is not None:
+                monthly = _monthly_from_checkup_lead(lead)
+        if monthly <= 0:
+            monthly = _linked_thirty_day_cost_total(person.nickname, important_dates)
+        monthly = _money(monthly)
+        rows.append(
+            {
+                "nickname": person.nickname,
+                "monthly_cost": _money_float(monthly),
+                "monthly_dec": monthly,
+                "card_type": (person.card_type or "person").strip() or "person",
+                "emoji": (person.emoji or "").strip() or None,
+            }
+        )
+    rows.sort(key=lambda r: r["monthly_dec"], reverse=True)
+    return rows
+
+
 def classify_status(closing: Decimal) -> str:
     if closing >= Decimal("1000"):
         return "healthy"
@@ -333,16 +558,20 @@ def _forecast_bundle(
     list[dict[str, Any]],
     dict[str, Decimal],
     dict[str, Decimal],
+    list[dict[str, Any]],
 ]:
     """
     Build daily rows plus per-month gross income and expense totals (from flows).
+
+    Relationship costs (roster / Vibe Checkups) are added as a flat daily outflow:
+    sum per person of (monthly_estimate / 30) on every forecast day.
     """
     if days < 1:
-        return [], {}, {}
+        return [], {}, {}, []
 
     user = db.session.get(User, user_id)
     if not user:
-        return [], {}, {}
+        return [], {}, {}, []
 
     email = (user.email or "").strip().lower()
     current_balance, important_dates = _load_profile_balance_and_dates(email)
@@ -398,11 +627,25 @@ def _forecast_bundle(
     ):
         flows_out[evd.isoformat()] += cost
 
+    rel_rows = _relationship_cost_rows_for_user(user_id, important_dates)
+    rel_per_day = Decimal("0")
+    for r in rel_rows:
+        mdec = r["monthly_dec"]
+        if mdec > 0:
+            rel_per_day += _money(mdec / Decimal("30"))
+    rel_per_day = _money(rel_per_day)
+
+    for i in range(days):
+        d0 = today + timedelta(days=i)
+        key = d0.isoformat()
+        flows_out[key] = _money(flows_out.get(key, Decimal("0")) + rel_per_day)
+
     month_in: dict[str, Decimal] = defaultdict(lambda: Decimal("0"))
     month_out: dict[str, Decimal] = defaultdict(lambda: Decimal("0"))
 
     result: list[dict[str, Any]] = []
     prev_close = current_balance
+    sum_out_all_days = Decimal("0")
 
     for i in range(days):
         d0 = today + timedelta(days=i)
@@ -413,6 +656,7 @@ def _forecast_bundle(
         out = _money(flows_out.get(key, Decimal("0")))
         month_in[month_key] += inc
         month_out[month_key] += out
+        sum_out_all_days += out
 
         opening = prev_close
         net = _money(inc - out)
@@ -430,28 +674,50 @@ def _forecast_bundle(
         )
         prev_close = closing
 
-    return result, dict(month_in), dict(month_out)
+    avg_daily_out = _money(sum_out_all_days / Decimal(days)) if days else Decimal("0")
+    monthly_expense_run_rate = _money(avg_daily_out * Decimal("30"))
+
+    relationship_cost_breakdown: list[dict[str, Any]] = []
+    for r in rel_rows:
+        mdec = r["monthly_dec"]
+        pct = 0.0
+        if monthly_expense_run_rate > 0 and mdec > 0:
+            pct = float(_money((mdec / monthly_expense_run_rate) * Decimal("100")))
+        relationship_cost_breakdown.append(
+            {
+                "nickname": r["nickname"],
+                "monthly_cost": r["monthly_cost"],
+                "card_type": r["card_type"],
+                "emoji": r["emoji"],
+                "pct_of_total_expenses": round(pct, 1),
+            }
+        )
+
+    return result, dict(month_in), dict(month_out), relationship_cost_breakdown
 
 
 def build_forecast_for_user(
     user_id: int, days: int = 90
-) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
-    """Run schedule expansion and return (daily_cashflow, monthly_summaries)."""
-    daily, mi, mo = _forecast_bundle(user_id, days)
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]], list[dict[str, Any]]]:
+    """Run schedule expansion and return (daily_cashflow, monthly_summaries, relationship_cost_breakdown)."""
+    daily, mi, mo, rel_bd = _forecast_bundle(user_id, days)
     summaries = generate_monthly_summaries(
         daily, month_income_by_month=mi, month_expense_by_month=mo
     )
-    return daily, summaries
+    return daily, summaries, rel_bd
 
 
 def generate_daily_forecast(user_id: int, days: int = 90) -> list[dict[str, Any]]:
     """
     Build per-day opening/closing balance from scheduled inflows/outflows.
 
+    Includes roster relationship costs as a smooth daily outflow (monthly/30 per person).
+    For the per-person breakdown, use build_forecast_for_user (API) instead.
+
     Returns dicts: date, opening_balance, closing_balance, net_change, balance_status
     (numeric values as floats rounded to 2 decimals).
     """
-    daily, _, _ = _forecast_bundle(user_id, days)
+    daily, _, _, _ = _forecast_bundle(user_id, days)
     return daily
 
 

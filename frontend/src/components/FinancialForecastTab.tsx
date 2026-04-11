@@ -28,12 +28,21 @@ interface DailyCashflowEntry {
   balance_status: 'healthy' | 'warning' | 'danger';
 }
 
+interface RelationshipCostBreakdownRow {
+  nickname: string;
+  monthly_cost: number;
+  card_type: string;
+  emoji?: string | null;
+  pct_of_total_expenses?: number;
+}
+
 interface ForecastResponse {
   success: boolean;
   forecast?: {
     daily_cashflow?: DailyCashflowEntry[];
     monthly_summaries?: { month_key: string; total: number }[];
     vehicle_expense_totals?: { total: number; routine: number; repair: number };
+    relationship_cost_breakdown?: RelationshipCostBreakdownRow[];
     [key: string]: unknown;
   };
 }
@@ -205,6 +214,21 @@ function getDirectionArrow(direction: MCIDirection): string {
   }
 }
 
+function formatCardTypeLabel(cardType: string): string {
+  const t = (cardType || '').trim().toLowerCase();
+  if (t === 'kids') return 'Kids';
+  if (t === 'person') return 'Person';
+  if (!t) return 'Person';
+  return t.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+function relationshipRowEmoji(row: RelationshipCostBreakdownRow): string {
+  const e = row.emoji?.trim();
+  if (e) return e;
+  if (row.card_type === 'kids') return '👶';
+  return '·';
+}
+
 interface MCIForecastPanelProps {
   userTier: 'budget' | 'mid' | 'professional';
 }
@@ -356,9 +380,13 @@ export default function FinancialForecastTab({
     routine: number;
     repair: number;
   } | null>(null);
+  const [relationshipCostBreakdown, setRelationshipCostBreakdown] = useState<
+    RelationshipCostBreakdownRow[]
+  >([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [tableExpanded, setTableExpanded] = useState(false);
+  const [relationshipBreakdownExpanded, setRelationshipBreakdownExpanded] = useState(false);
   const [selectedMonthKey, setSelectedMonthKey] = useState(() =>
     new Date().toISOString().slice(0, 7)
   );
@@ -396,6 +424,8 @@ export default function FinancialForecastTab({
       setDailyCashflow(forecast.daily_cashflow ?? []);
       setMonthlySummaries(forecast.monthly_summaries ?? []);
       setVehicleExpenseTotals(forecast.vehicle_expense_totals ?? null);
+      const relRaw = forecast.relationship_cost_breakdown;
+      setRelationshipCostBreakdown(Array.isArray(relRaw) ? relRaw : []);
     } catch {
       setError('Unable to load your forecast. Please try again.');
     } finally {
@@ -631,6 +661,73 @@ export default function FinancialForecastTab({
       </div>
 
       <PeopleCostSummary userEmail={userEmail} />
+
+      {relationshipCostBreakdown.length > 0 && (
+        <div className="rounded-xl bg-white p-4 shadow-sm">
+          <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
+            <h3 className="text-base font-semibold text-[#1E293B]">People in this forecast</h3>
+            <button
+              type="button"
+              onClick={() => setRelationshipBreakdownExpanded((e) => !e)}
+              className="shrink-0 text-left text-sm font-medium text-[#6D28D9] hover:underline sm:text-right"
+              aria-expanded={relationshipBreakdownExpanded}
+            >
+              {relationshipBreakdownExpanded ? 'Hide breakdown ▲' : 'Show breakdown ▼'}
+            </button>
+          </div>
+          <div
+            className="overflow-hidden transition-all duration-300"
+            style={{ maxHeight: relationshipBreakdownExpanded ? 2000 : 0 }}
+          >
+            <div className="mt-4 overflow-x-auto">
+              <table className="w-full min-w-[280px] border-collapse text-sm">
+                <thead>
+                  <tr className="border-b border-[#E2E8F0] text-left">
+                    <th className="py-2 pr-2 font-semibold text-[#1E293B]">Person</th>
+                    <th className="py-2 pr-2 font-semibold text-[#1E293B]">Card type</th>
+                    <th className="py-2 pr-2 text-right font-semibold text-[#1E293B]">Per month</th>
+                    <th className="py-2 text-right font-semibold text-[#1E293B]">% of total expenses</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {relationshipCostBreakdown.map((row, idx) => (
+                    <tr key={`${row.nickname}-${idx}`} className="border-b border-[#E2E8F0]">
+                      <td className="py-2 pr-2 text-[#1E293B]">
+                        <span className="mr-2 text-lg leading-none align-middle" aria-hidden>
+                          {relationshipRowEmoji(row)}
+                        </span>
+                        <span className="align-middle font-medium">{row.nickname}</span>
+                      </td>
+                      <td className="py-2 pr-2 text-[#64748B]">{formatCardTypeLabel(row.card_type)}</td>
+                      <td className="py-2 pr-2 text-right tabular-nums text-[#1E293B]">
+                        {formatUsd(row.monthly_cost)}
+                      </td>
+                      <td className="py-2 text-right tabular-nums text-[#64748B]">
+                        {typeof row.pct_of_total_expenses === 'number'
+                          ? `${row.pct_of_total_expenses.toFixed(1)}%`
+                          : '—'}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+                <tfoot>
+                  <tr className="border-t border-[#E2E8F0] font-semibold text-[#1E293B]">
+                    <td className="pt-3" colSpan={4}>
+                      Total relationship costs:{' '}
+                      <span className="tabular-nums">
+                        {formatUsd(
+                          relationshipCostBreakdown.reduce((s, r) => s + (r.monthly_cost || 0), 0)
+                        )}
+                        /month
+                      </span>
+                    </td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* 90-day balance chart — mid & professional only */}
       {(userTier === 'mid' || userTier === 'professional') && chartData90.length > 0 && (

@@ -77,14 +77,15 @@ def get_enhanced_cash_flow_forecast(user_email):
             func.lower(User.email) == user_email.strip().lower()
         ).first()
         if mingus_user:
-            daily_cashflow, monthly_summaries = build_forecast_for_user(
-                mingus_user.id, days=90
+            daily_cashflow, monthly_summaries, relationship_cost_breakdown = (
+                build_forecast_for_user(mingus_user.id, days=90)
             )
         else:
             logger.warning(
                 "No users row for email %s; daily cash forecast empty", user_email
             )
             daily_cashflow, monthly_summaries = [], []
+            relationship_cost_breakdown = []
 
         vehicle_expense_totals = {}
 
@@ -103,6 +104,7 @@ def get_enhanced_cash_flow_forecast(user_email):
             'daily_cashflow': daily_cashflow,
             'monthly_summaries': monthly_summaries,
             'vehicle_expense_totals': vehicle_expense_totals,
+            'relationship_cost_breakdown': relationship_cost_breakdown,
         }
         
         # Convert categories
@@ -378,14 +380,15 @@ def get_backward_compatible_forecast(user_email):
             func.lower(User.email) == user_email.strip().lower()
         ).first()
         if mingus_user:
-            daily_cashflow, monthly_summaries = build_forecast_for_user(
-                mingus_user.id, days=90
+            daily_cashflow, monthly_summaries, relationship_cost_breakdown = (
+                build_forecast_for_user(mingus_user.id, days=90)
             )
         else:
             logger.warning(
                 "No users row for email %s; daily cash forecast empty", user_email
             )
             daily_cashflow, monthly_summaries = [], []
+            relationship_cost_breakdown = []
 
         vehicle_expense_totals = {}
 
@@ -407,6 +410,7 @@ def get_backward_compatible_forecast(user_email):
             'daily_cashflow': daily_cashflow,
             'monthly_summaries': monthly_summaries,
             'vehicle_expense_totals': vehicle_expense_totals,
+            'relationship_cost_breakdown': relationship_cost_breakdown,
         }
         
         # Convert monthly breakdown
