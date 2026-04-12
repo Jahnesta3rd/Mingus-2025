@@ -117,11 +117,11 @@ export default function PeopleCostSummary({ userEmail }: PeopleCostSummaryProps)
     return (
       <div className="rounded-xl bg-white p-6 shadow-sm" aria-busy="true" aria-label="Loading people costs">
         <div className="mb-3 h-4 w-56 animate-pulse rounded bg-gray-200" />
-        <div className="flex gap-2 overflow-x-auto pb-1">
+        <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
           {[1, 2, 3].map((i) => (
             <div
               key={i}
-              className="h-11 min-w-[10rem] shrink-0 animate-pulse rounded-full bg-gray-100"
+              className="h-11 w-full max-w-xs animate-pulse rounded-full bg-gray-100 sm:w-40"
             />
           ))}
         </div>
@@ -136,13 +136,14 @@ export default function PeopleCostSummary({ userEmail }: PeopleCostSummaryProps)
   return (
     <div className="rounded-xl bg-white p-6 shadow-sm">
       <p className="text-sm font-medium text-[#1E293B]">Who&apos;s in your forecast this month:</p>
-      <div className="mt-3 flex gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
         {chips.map((c) => (
           <button
             key={c.id}
             type="button"
             onClick={() => navigate('/dashboard/roster')}
-            className={`inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full border px-4 py-2 text-left text-sm transition ${
+            aria-label={`Open roster: ${c.nickname}, about ${formatUsdMo(c.monthlyApprox)} in the next 30 days`}
+            className={`inline-flex min-h-11 w-full max-w-full items-center gap-2 rounded-full border px-4 py-2 text-left text-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5B2D8E] focus-visible:ring-offset-2 sm:w-auto sm:max-w-none ${
               c.isKids
                 ? 'border-[#059669]/40 bg-[#ECFDF5] text-[#047857]'
                 : 'border-[#5B2D8E]/25 bg-[#EDE9FE] text-[#5B2D8E]'

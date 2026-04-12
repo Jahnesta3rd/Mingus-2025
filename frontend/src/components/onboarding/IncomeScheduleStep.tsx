@@ -300,10 +300,12 @@ export default function IncomeScheduleStep({
   };
 
   const freqSelect = (
+    id: string,
     value: ScheduleFrequency,
     onChange: (v: ScheduleFrequency) => void
   ) => (
     <select
+      id={id}
       className={inputClass}
       value={value}
       onChange={(e) => onChange(e.target.value as ScheduleFrequency)}
@@ -331,11 +333,14 @@ export default function IncomeScheduleStep({
               key={row.id}
               className="rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] p-4"
             >
-              <p className="mb-3 text-xs font-medium text-[#64748B]">Income {idx + 1}</p>
+              <p className="mb-3 text-sm font-medium text-[#64748B]">Income {idx + 1}</p>
               <div className="grid gap-3 sm:grid-cols-2">
                 <div className="sm:col-span-2">
-                  <label className={labelClass}>Label</label>
+                  <label className={labelClass} htmlFor={`${row.id}-label`}>
+                    Label
+                  </label>
                   <input
+                    id={`${row.id}-label`}
                     className={inputClass}
                     placeholder="e.g. Main Job, Side Hustle"
                     value={row.label}
@@ -343,8 +348,11 @@ export default function IncomeScheduleStep({
                   />
                 </div>
                 <div>
-                  <label className={labelClass}>Amount</label>
+                  <label className={labelClass} htmlFor={`${row.id}-amount`}>
+                    Amount
+                  </label>
                   <input
+                    id={`${row.id}-amount`}
                     className={inputClass}
                     type="number"
                     min={0}
@@ -355,13 +363,20 @@ export default function IncomeScheduleStep({
                   />
                 </div>
                 <div>
-                  <label className={labelClass}>Frequency</label>
-                  {freqSelect(row.frequency, (v) => updateEarned(row.id, { frequency: v }))}
+                  <label className={labelClass} htmlFor={`${row.id}-frequency`}>
+                    Frequency
+                  </label>
+                  {freqSelect(`${row.id}-frequency`, row.frequency, (v) =>
+                    updateEarned(row.id, { frequency: v })
+                  )}
                 </div>
                 {(row.frequency === 'weekly' || row.frequency === 'biweekly') && (
                   <div className="sm:col-span-2">
-                    <label className={labelClass}>Next pay date</label>
+                    <label className={labelClass} htmlFor={`${row.id}-next-pay`}>
+                      Next pay date
+                    </label>
                     <input
+                      id={`${row.id}-next-pay`}
                       className={inputClass}
                       type="date"
                       value={row.nextDateIso}
@@ -371,8 +386,11 @@ export default function IncomeScheduleStep({
                 )}
                 {row.frequency === 'monthly' && (
                   <div className="sm:col-span-2">
-                    <label className={labelClass}>Day of month you get paid</label>
+                    <label className={labelClass} htmlFor={`${row.id}-month-day`}>
+                      Day of month you get paid
+                    </label>
                     <input
+                      id={`${row.id}-month-day`}
                       className={inputClass}
                       type="number"
                       min={1}
@@ -386,8 +404,11 @@ export default function IncomeScheduleStep({
                 {row.frequency === 'semimonthly' && (
                   <div className="grid gap-3 sm:col-span-2 sm:grid-cols-2">
                     <div>
-                      <label className={labelClass}>First pay day (1–31)</label>
+                      <label className={labelClass} htmlFor={`${row.id}-semi-1`}>
+                        First pay day (1–31)
+                      </label>
                       <input
+                        id={`${row.id}-semi-1`}
                         className={inputClass}
                         type="number"
                         min={1}
@@ -397,8 +418,11 @@ export default function IncomeScheduleStep({
                       />
                     </div>
                     <div>
-                      <label className={labelClass}>Second pay day (1–31)</label>
+                      <label className={labelClass} htmlFor={`${row.id}-semi-2`}>
+                        Second pay day (1–31)
+                      </label>
                       <input
+                        id={`${row.id}-semi-2`}
                         className={inputClass}
                         type="number"
                         min={1}
@@ -418,7 +442,7 @@ export default function IncomeScheduleStep({
           <button
             type="button"
             onClick={addEarned}
-            className="mt-4 min-h-11 text-sm font-medium text-[#6D28D9] hover:underline"
+            className="mt-4 min-h-11 rounded-lg text-sm font-medium text-[#6D28D9] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5B2D8E] focus-visible:ring-offset-2"
           >
             Add another income source
           </button>
@@ -429,13 +453,14 @@ export default function IncomeScheduleStep({
         <button
           type="button"
           onClick={() => setSupportSectionOpen((o) => !o)}
-          className="flex min-h-11 w-full items-center justify-between gap-2 px-6 py-4 text-left text-[#1E293B]"
+          aria-expanded={supportSectionOpen}
+          className="flex min-h-11 w-full items-center justify-between gap-2 px-6 py-4 text-left text-[#1E293B] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#5B2D8E]"
         >
           <span className="font-medium">Do you receive support payments regularly?</span>
           {supportSectionOpen ? (
-            <ChevronDown className="h-5 w-5 shrink-0 text-[#64748B]" />
+            <ChevronDown className="h-5 w-5 shrink-0 text-[#64748B]" aria-hidden />
           ) : (
-            <ChevronRight className="h-5 w-5 shrink-0 text-[#64748B]" />
+            <ChevronRight className="h-5 w-5 shrink-0 text-[#64748B]" aria-hidden />
           )}
         </button>
         {supportSectionOpen && (
@@ -444,16 +469,24 @@ export default function IncomeScheduleStep({
               <button
                 type="button"
                 onClick={() => setChildRecv((s) => ({ ...s, open: !s.open }))}
-                className="flex min-h-11 w-full items-center justify-between px-4 py-3 text-left text-sm font-medium text-[#1E293B]"
+                aria-expanded={childRecv.open}
+                className="flex min-h-11 w-full items-center justify-between px-4 py-3 text-left text-sm font-medium text-[#1E293B] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#5B2D8E]"
               >
                 Child support I receive
-                {childRecv.open ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                {childRecv.open ? (
+                  <ChevronDown className="h-4 w-4 shrink-0" aria-hidden />
+                ) : (
+                  <ChevronRight className="h-4 w-4 shrink-0" aria-hidden />
+                )}
               </button>
               {childRecv.open && (
                 <div className="grid gap-3 border-t border-[#E2E8F0] p-4 sm:grid-cols-2">
                   <div>
-                    <label className={labelClass}>Amount</label>
+                    <label className={labelClass} htmlFor="income-child-amount">
+                      Amount
+                    </label>
                     <input
+                      id="income-child-amount"
                       className={inputClass}
                       type="number"
                       min={0}
@@ -463,15 +496,20 @@ export default function IncomeScheduleStep({
                     />
                   </div>
                   <div>
-                    <label className={labelClass}>Frequency</label>
-                    {freqSelect(childRecv.frequency, (v) =>
+                    <label className={labelClass} htmlFor="income-child-frequency">
+                      Frequency
+                    </label>
+                    {freqSelect('income-child-frequency', childRecv.frequency, (v) =>
                       setChildRecv((s) => ({ ...s, frequency: v }))
                     )}
                   </div>
                   {(childRecv.frequency === 'weekly' || childRecv.frequency === 'biweekly') && (
                     <div className="sm:col-span-2">
-                      <label className={labelClass}>Next payment date</label>
+                      <label className={labelClass} htmlFor="income-child-next">
+                        Next payment date
+                      </label>
                       <input
+                        id="income-child-next"
                         className={inputClass}
                         type="date"
                         value={childRecv.nextDateIso}
@@ -481,8 +519,11 @@ export default function IncomeScheduleStep({
                   )}
                   {childRecv.frequency === 'monthly' && (
                     <div className="sm:col-span-2">
-                      <label className={labelClass}>Day of month</label>
+                      <label className={labelClass} htmlFor="income-child-month-day">
+                        Day of month
+                      </label>
                       <input
+                        id="income-child-month-day"
                         className={inputClass}
                         type="number"
                         min={1}
@@ -500,16 +541,24 @@ export default function IncomeScheduleStep({
               <button
                 type="button"
                 onClick={() => setAlimonyRecv((s) => ({ ...s, open: !s.open }))}
-                className="flex min-h-11 w-full items-center justify-between px-4 py-3 text-left text-sm font-medium text-[#1E293B]"
+                aria-expanded={alimonyRecv.open}
+                className="flex min-h-11 w-full items-center justify-between px-4 py-3 text-left text-sm font-medium text-[#1E293B] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#5B2D8E]"
               >
                 Alimony I receive
-                {alimonyRecv.open ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                {alimonyRecv.open ? (
+                  <ChevronDown className="h-4 w-4 shrink-0" aria-hidden />
+                ) : (
+                  <ChevronRight className="h-4 w-4 shrink-0" aria-hidden />
+                )}
               </button>
               {alimonyRecv.open && (
                 <div className="grid gap-3 border-t border-[#E2E8F0] p-4 sm:grid-cols-2">
                   <div>
-                    <label className={labelClass}>Amount</label>
+                    <label className={labelClass} htmlFor="income-alimony-amount">
+                      Amount
+                    </label>
                     <input
+                      id="income-alimony-amount"
                       className={inputClass}
                       type="number"
                       min={0}
@@ -519,15 +568,20 @@ export default function IncomeScheduleStep({
                     />
                   </div>
                   <div>
-                    <label className={labelClass}>Frequency</label>
-                    {freqSelect(alimonyRecv.frequency, (v) =>
+                    <label className={labelClass} htmlFor="income-alimony-frequency">
+                      Frequency
+                    </label>
+                    {freqSelect('income-alimony-frequency', alimonyRecv.frequency, (v) =>
                       setAlimonyRecv((s) => ({ ...s, frequency: v }))
                     )}
                   </div>
                   {(alimonyRecv.frequency === 'weekly' || alimonyRecv.frequency === 'biweekly') && (
                     <div className="sm:col-span-2">
-                      <label className={labelClass}>Next payment date</label>
+                      <label className={labelClass} htmlFor="income-alimony-next">
+                        Next payment date
+                      </label>
                       <input
+                        id="income-alimony-next"
                         className={inputClass}
                         type="date"
                         value={alimonyRecv.nextDateIso}
@@ -537,8 +591,11 @@ export default function IncomeScheduleStep({
                   )}
                   {alimonyRecv.frequency === 'monthly' && (
                     <div className="sm:col-span-2">
-                      <label className={labelClass}>Day of month</label>
+                      <label className={labelClass} htmlFor="income-alimony-month-day">
+                        Day of month
+                      </label>
                       <input
+                        id="income-alimony-month-day"
                         className={inputClass}
                         type="number"
                         min={1}
@@ -567,7 +624,7 @@ export default function IncomeScheduleStep({
       <button
         type="submit"
         disabled={saving}
-        className="min-h-11 w-full rounded-xl bg-[#5B2D8E] py-3 font-semibold text-white transition hover:opacity-95 disabled:opacity-50"
+        className="min-h-11 w-full rounded-xl bg-[#5B2D8E] py-3 font-semibold text-white transition hover:opacity-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5B2D8E] focus-visible:ring-offset-2 disabled:opacity-50"
       >
         {saving ? 'Saving…' : 'Save & Continue'}
       </button>
@@ -578,7 +635,7 @@ export default function IncomeScheduleStep({
           setPageError(null);
           onSkip();
         }}
-        className="min-h-11 w-full text-center text-sm text-[#64748B] hover:text-[#1E293B]"
+        className="min-h-11 w-full rounded-lg text-center text-sm text-[#64748B] hover:text-[#1E293B] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5B2D8E] focus-visible:ring-offset-2"
       >
         I&apos;ll set this up later
       </button>

@@ -206,8 +206,13 @@ export default function ExpenseScheduleStep({
     [getAccessToken]
   );
 
-  const freqSelect = (value: ScheduleFrequency, onChange: (v: ScheduleFrequency) => void) => (
+  const freqSelect = (
+    id: string,
+    value: ScheduleFrequency,
+    onChange: (v: ScheduleFrequency) => void
+  ) => (
     <select
+      id={id}
       className={inputClass}
       value={value}
       onChange={(e) => onChange(e.target.value as ScheduleFrequency)}
@@ -226,8 +231,11 @@ export default function ExpenseScheduleStep({
       <div className="grid gap-3 border-t border-[#E2E8F0] p-4 sm:grid-cols-2">
         {editableLabel && (
           <div className="sm:col-span-2">
-            <label className={labelClass}>Label</label>
+            <label className={labelClass} htmlFor={`expense-fam-${key}-label`}>
+              Label
+            </label>
             <input
+              id={`expense-fam-${key}-label`}
               className={inputClass}
               value={s.label}
               onChange={(e) => updateFam(key, { label: e.target.value })}
@@ -237,8 +245,11 @@ export default function ExpenseScheduleStep({
         {monthlyOnly ? (
           <>
             <div>
-              <label className={labelClass}>Amount</label>
+              <label className={labelClass} htmlFor={`expense-fam-${key}-amount`}>
+                Amount
+              </label>
               <input
+                id={`expense-fam-${key}-amount`}
                 className={inputClass}
                 type="number"
                 min={0}
@@ -248,8 +259,11 @@ export default function ExpenseScheduleStep({
               />
             </div>
             <div>
-              <label className={labelClass}>Due day (1–31)</label>
+              <label className={labelClass} htmlFor={`expense-fam-${key}-due`}>
+                Due day (1–31)
+              </label>
               <input
+                id={`expense-fam-${key}-due`}
                 className={inputClass}
                 type="number"
                 min={1}
@@ -262,8 +276,11 @@ export default function ExpenseScheduleStep({
         ) : (
           <>
             <div>
-              <label className={labelClass}>Amount</label>
+              <label className={labelClass} htmlFor={`expense-fam-${key}-amount`}>
+                Amount
+              </label>
               <input
+                id={`expense-fam-${key}-amount`}
                 className={inputClass}
                 type="number"
                 min={0}
@@ -273,15 +290,22 @@ export default function ExpenseScheduleStep({
               />
             </div>
             <div>
-              <label className={labelClass}>Frequency</label>
-              {freqSelect(s.frequency, (v) => updateFam(key, { frequency: v }))}
+              <label className={labelClass} htmlFor={`expense-fam-${key}-frequency`}>
+                Frequency
+              </label>
+              {freqSelect(`expense-fam-${key}-frequency`, s.frequency, (v) =>
+                updateFam(key, { frequency: v })
+              )}
             </div>
           </>
         )}
         {!monthlyOnly && (s.frequency === 'weekly' || s.frequency === 'biweekly') && (
           <div className="sm:col-span-2">
-            <label className={labelClass}>Next payment date</label>
+            <label className={labelClass} htmlFor={`expense-fam-${key}-next`}>
+              Next payment date
+            </label>
             <input
+              id={`expense-fam-${key}-next`}
               className={inputClass}
               type="date"
               value={s.nextDateIso}
@@ -291,8 +315,11 @@ export default function ExpenseScheduleStep({
         )}
         {!monthlyOnly && s.frequency === 'monthly' && (
           <div className="sm:col-span-2">
-            <label className={labelClass}>Due day (1–31)</label>
+            <label className={labelClass} htmlFor={`expense-fam-${key}-due-m`}>
+              Due day (1–31)
+            </label>
             <input
+              id={`expense-fam-${key}-due-m`}
               className={inputClass}
               type="number"
               min={1}
@@ -305,8 +332,11 @@ export default function ExpenseScheduleStep({
         {!monthlyOnly && s.frequency === 'semimonthly' && (
           <div className="grid gap-3 sm:col-span-2 sm:grid-cols-2">
             <div>
-              <label className={labelClass}>First due day (1–31)</label>
+              <label className={labelClass} htmlFor={`expense-fam-${key}-semi-1`}>
+                First due day (1–31)
+              </label>
               <input
+                id={`expense-fam-${key}-semi-1`}
                 className={inputClass}
                 type="number"
                 min={1}
@@ -316,8 +346,11 @@ export default function ExpenseScheduleStep({
               />
             </div>
             <div>
-              <label className={labelClass}>Second due day (1–31)</label>
+              <label className={labelClass} htmlFor={`expense-fam-${key}-semi-2`}>
+                Second due day (1–31)
+              </label>
               <input
+                id={`expense-fam-${key}-semi-2`}
                 className={inputClass}
                 type="number"
                 min={1}
@@ -433,16 +466,22 @@ export default function ExpenseScheduleStep({
             <div key={row.id} className="rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] p-4">
               <div className="grid gap-3 sm:grid-cols-2">
                 <div className="sm:col-span-2">
-                  <label className={labelClass}>Label</label>
+                  <label className={labelClass} htmlFor={`${row.id}-label`}>
+                    Label
+                  </label>
                   <input
+                    id={`${row.id}-label`}
                     className={inputClass}
                     value={row.label}
                     onChange={(e) => updateBill(row.id, { label: e.target.value })}
                   />
                 </div>
                 <div>
-                  <label className={labelClass}>Amount</label>
+                  <label className={labelClass} htmlFor={`${row.id}-amount`}>
+                    Amount
+                  </label>
                   <input
+                    id={`${row.id}-amount`}
                     className={inputClass}
                     type="number"
                     min={0}
@@ -453,8 +492,11 @@ export default function ExpenseScheduleStep({
                   />
                 </div>
                 <div>
-                  <label className={labelClass}>Category</label>
+                  <label className={labelClass} htmlFor={`${row.id}-category`}>
+                    Category
+                  </label>
                   <select
+                    id={`${row.id}-category`}
                     className={inputClass}
                     value={row.category}
                     onChange={(e) =>
@@ -469,8 +511,11 @@ export default function ExpenseScheduleStep({
                   </select>
                 </div>
                 <div className="sm:col-span-2">
-                  <label className={labelClass}>Due day of month (1–31)</label>
+                  <label className={labelClass} htmlFor={`${row.id}-due`}>
+                    Due day of month (1–31)
+                  </label>
                   <input
+                    id={`${row.id}-due`}
                     className={inputClass}
                     type="number"
                     min={1}
@@ -488,7 +533,7 @@ export default function ExpenseScheduleStep({
           <button
             type="button"
             onClick={addBill}
-            className="mt-4 min-h-11 text-sm font-medium text-[#6D28D9] hover:underline"
+            className="mt-4 min-h-11 rounded-lg text-sm font-medium text-[#6D28D9] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5B2D8E] focus-visible:ring-offset-2"
           >
             Add another bill
           </button>
@@ -499,14 +544,15 @@ export default function ExpenseScheduleStep({
         <button
           type="button"
           onClick={() => setFamilySectionOpen((o) => !o)}
-          className="flex min-h-11 w-full flex-col items-stretch gap-1 px-6 py-4 text-left"
+          aria-expanded={familySectionOpen}
+          className="flex min-h-11 w-full flex-col items-stretch gap-1 px-6 py-4 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#5B2D8E]"
         >
           <span className="flex w-full items-center justify-between gap-2 text-[#1E293B]">
             <span className="font-medium">Do you have any family or legal financial obligations?</span>
             {familySectionOpen ? (
-              <ChevronDown className="h-5 w-5 shrink-0 text-[#64748B]" />
+              <ChevronDown className="h-5 w-5 shrink-0 text-[#64748B]" aria-hidden />
             ) : (
-              <ChevronRight className="h-5 w-5 shrink-0 text-[#64748B]" />
+              <ChevronRight className="h-5 w-5 shrink-0 text-[#64748B]" aria-hidden />
             )}
           </span>
           <span className="text-sm text-[#64748B]">
@@ -519,10 +565,15 @@ export default function ExpenseScheduleStep({
               <button
                 type="button"
                 onClick={() => updateFam('child_pay', { open: !fam.child_pay.open })}
-                className="flex min-h-11 w-full items-center justify-between px-4 py-3 text-left text-sm font-medium text-[#1E293B]"
+                aria-expanded={fam.child_pay.open}
+                className="flex min-h-11 w-full items-center justify-between px-4 py-3 text-left text-sm font-medium text-[#1E293B] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#5B2D8E]"
               >
                 Child support I pay
-                {fam.child_pay.open ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                {fam.child_pay.open ? (
+                  <ChevronDown className="h-4 w-4 shrink-0" aria-hidden />
+                ) : (
+                  <ChevronRight className="h-4 w-4 shrink-0" aria-hidden />
+                )}
               </button>
               {fam.child_pay.open && renderFamFields('child_pay', false)}
             </div>
@@ -531,10 +582,15 @@ export default function ExpenseScheduleStep({
               <button
                 type="button"
                 onClick={() => updateFam('alimony_pay', { open: !fam.alimony_pay.open })}
-                className="flex min-h-11 w-full items-center justify-between px-4 py-3 text-left text-sm font-medium text-[#1E293B]"
+                aria-expanded={fam.alimony_pay.open}
+                className="flex min-h-11 w-full items-center justify-between px-4 py-3 text-left text-sm font-medium text-[#1E293B] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#5B2D8E]"
               >
                 Alimony I pay
-                {fam.alimony_pay.open ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                {fam.alimony_pay.open ? (
+                  <ChevronDown className="h-4 w-4 shrink-0" aria-hidden />
+                ) : (
+                  <ChevronRight className="h-4 w-4 shrink-0" aria-hidden />
+                )}
               </button>
               {fam.alimony_pay.open && renderFamFields('alimony_pay', false)}
             </div>
@@ -543,10 +599,15 @@ export default function ExpenseScheduleStep({
               <button
                 type="button"
                 onClick={() => updateFam('family_send', { open: !fam.family_send.open })}
-                className="flex min-h-11 w-full items-center justify-between px-4 py-3 text-left text-sm font-medium text-[#1E293B]"
+                aria-expanded={fam.family_send.open}
+                className="flex min-h-11 w-full items-center justify-between px-4 py-3 text-left text-sm font-medium text-[#1E293B] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#5B2D8E]"
               >
                 Money I send to family
-                {fam.family_send.open ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                {fam.family_send.open ? (
+                  <ChevronDown className="h-4 w-4 shrink-0" aria-hidden />
+                ) : (
+                  <ChevronRight className="h-4 w-4 shrink-0" aria-hidden />
+                )}
               </button>
               {fam.family_send.open && renderFamFields('family_send', true)}
             </div>
@@ -555,10 +616,15 @@ export default function ExpenseScheduleStep({
               <button
                 type="button"
                 onClick={() => updateFam('caregiving', { open: !fam.caregiving.open })}
-                className="flex min-h-11 w-full items-center justify-between px-4 py-3 text-left text-sm font-medium text-[#1E293B]"
+                aria-expanded={fam.caregiving.open}
+                className="flex min-h-11 w-full items-center justify-between px-4 py-3 text-left text-sm font-medium text-[#1E293B] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#5B2D8E]"
               >
                 Caregiving costs
-                {fam.caregiving.open ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                {fam.caregiving.open ? (
+                  <ChevronDown className="h-4 w-4 shrink-0" aria-hidden />
+                ) : (
+                  <ChevronRight className="h-4 w-4 shrink-0" aria-hidden />
+                )}
               </button>
               {fam.caregiving.open && renderFamFields('caregiving', true)}
             </div>
@@ -578,7 +644,7 @@ export default function ExpenseScheduleStep({
       <button
         type="submit"
         disabled={saving}
-        className="min-h-11 w-full rounded-xl bg-[#5B2D8E] py-3 font-semibold text-white transition hover:opacity-95 disabled:opacity-50"
+        className="min-h-11 w-full rounded-xl bg-[#5B2D8E] py-3 font-semibold text-white transition hover:opacity-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5B2D8E] focus-visible:ring-offset-2 disabled:opacity-50"
       >
         {saving ? 'Saving…' : 'Save & Continue'}
       </button>
@@ -589,7 +655,7 @@ export default function ExpenseScheduleStep({
           setPageError(null);
           onSkip();
         }}
-        className="min-h-11 w-full text-center text-sm text-[#64748B] hover:text-[#1E293B]"
+        className="min-h-11 w-full rounded-lg text-center text-sm text-[#64748B] hover:text-[#1E293B] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5B2D8E] focus-visible:ring-offset-2"
       >
         I&apos;ll set this up later
       </button>

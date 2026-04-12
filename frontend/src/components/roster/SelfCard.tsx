@@ -193,7 +193,7 @@ export default function SelfCard({ className = '' }: SelfCardProps) {
         <button
           type="button"
           onClick={() => void load()}
-          className="mt-3 inline-flex min-h-11 items-center rounded-lg px-3 text-sm font-medium text-[#6D28D9] underline decoration-[#6D28D9]/40 underline-offset-2 hover:decoration-[#6D28D9]"
+          className="mt-3 inline-flex min-h-11 items-center rounded-lg px-3 text-sm font-medium text-[#6D28D9] underline decoration-[#6D28D9]/40 underline-offset-2 hover:decoration-[#6D28D9] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5B2D8E] focus-visible:ring-offset-2"
         >
           Retry
         </button>
@@ -210,7 +210,9 @@ export default function SelfCard({ className = '' }: SelfCardProps) {
       className={`rounded-2xl border border-[#E2E8F0] border-l-4 border-l-[#5B2D8E] bg-white p-5 shadow-md ${className}`}
     >
       <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
-        <h2 className="font-display text-xl font-bold text-[#1E293B]">👤 You</h2>
+        <h2 className="font-display text-xl font-bold text-[#1E293B]">
+          <span aria-hidden>👤 </span>You
+        </h2>
         <div className="flex flex-col items-end gap-1">
           <div
             className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[#5B2D8E] text-lg font-bold tabular-nums text-white"
@@ -220,7 +222,7 @@ export default function SelfCard({ className = '' }: SelfCardProps) {
           </div>
           <div className="flex items-center gap-1.5">
             <TrendArrow trend={innerTrend} className="text-sm" />
-            <span className="text-[10px] font-semibold uppercase tracking-wide text-[#64748B]">
+            <span className="text-sm font-semibold uppercase tracking-wide text-[#64748B]">
               Your inner life
             </span>
           </div>
@@ -231,13 +233,23 @@ export default function SelfCard({ className = '' }: SelfCardProps) {
         {/* Body */}
         <div>
           <div className="mb-1.5 flex items-center justify-between gap-2">
-            <span className="text-sm font-semibold text-[#1E293B]">💪 Body</span>
+            <span className="text-sm font-semibold text-[#1E293B]">
+              <span aria-hidden>💪 </span>Body
+            </span>
             <span className="flex items-center gap-2">
               <span className="text-sm tabular-nums text-[#64748B]">
                 {data.body_score != null ? `${data.body_score} / 100` : '— / 100'}
               </span>
               <span className="flex items-center gap-0.5" title="Body trend">
                 <TrendArrow trend={data.body_trend} className="text-xs" />
+                <span className="sr-only">
+                  Body trend:{' '}
+                  {data.body_trend === 'up'
+                    ? 'improving'
+                    : data.body_trend === 'down'
+                      ? 'declining'
+                      : 'steady'}
+                </span>
               </span>
             </span>
           </div>
@@ -252,13 +264,23 @@ export default function SelfCard({ className = '' }: SelfCardProps) {
         {/* Mind */}
         <div>
           <div className="mb-1.5 flex items-center justify-between gap-2">
-            <span className="text-sm font-semibold text-[#1E293B]">🧠 Mind</span>
+            <span className="text-sm font-semibold text-[#1E293B]">
+              <span aria-hidden>🧠 </span>Mind
+            </span>
             <span className="flex items-center gap-2">
               <span className="text-sm tabular-nums text-[#64748B]">
                 {data.mind_score != null ? `${data.mind_score} / 100` : '— / 100'}
               </span>
               <span className="flex items-center gap-0.5" title="Mind trend">
                 <TrendArrow trend={data.mind_trend} className="text-xs" />
+                <span className="sr-only">
+                  Mind trend:{' '}
+                  {data.mind_trend === 'up'
+                    ? 'improving'
+                    : data.mind_trend === 'down'
+                      ? 'declining'
+                      : 'steady'}
+                </span>
               </span>
             </span>
           </div>
@@ -268,14 +290,19 @@ export default function SelfCard({ className = '' }: SelfCardProps) {
               style={{ width: `${mindPct}%` }}
             />
           </div>
-          <p className="mt-1.5 text-xs text-[#64748B]">
+          <p className="mt-1.5 text-sm text-[#64748B]">
             {data.mindfulness_days_this_month} day
             {data.mindfulness_days_this_month === 1 ? '' : 's'} mindfulness this month ·{' '}
             {data.mindfulness_streak}-week streak
           </p>
           {data.sleep_avg != null && (
-            <p className={`mt-0.5 text-xs font-medium ${sleepAvgColorClass(data.sleep_avg)}`}>
+            <p className={`mt-0.5 text-sm font-medium ${sleepAvgColorClass(data.sleep_avg)}`}>
               Avg sleep: {data.sleep_avg.toFixed(1)} hrs
+              {data.sleep_avg >= 7
+                ? ' (well rested)'
+                : data.sleep_avg >= 6
+                  ? ' (a bit short)'
+                  : ' (low)'}
             </p>
           )}
         </div>
@@ -283,7 +310,9 @@ export default function SelfCard({ className = '' }: SelfCardProps) {
         {/* Financial self */}
         <div>
           <div className="mb-1.5 flex items-center justify-between gap-2">
-            <span className="text-sm font-semibold text-[#1E293B]">💰 Financial Self</span>
+            <span className="text-sm font-semibold text-[#1E293B]">
+              <span aria-hidden>💰 </span>Financial Self
+            </span>
           </div>
           {data.stress_spend_monthly != null ? (
             <div className="space-y-2">
@@ -308,7 +337,7 @@ export default function SelfCard({ className = '' }: SelfCardProps) {
       <div className="mt-5 border-t border-[#E2E8F0] pt-4">
         <Link
           to="/daily-outlook"
-          className="inline-flex min-h-11 items-center text-sm font-medium text-[#6D28D9] underline decoration-[#6D28D9]/40 underline-offset-2 hover:decoration-[#6D28D9]"
+          className="inline-flex min-h-11 items-center rounded-lg text-sm font-medium text-[#6D28D9] underline decoration-[#6D28D9]/40 underline-offset-2 hover:decoration-[#6D28D9] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5B2D8E] focus-visible:ring-offset-2"
         >
           Update your check-in →
         </Link>

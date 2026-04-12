@@ -63,7 +63,8 @@ function CardTypeRow({
             key={opt.type}
             type="button"
             onClick={() => onChange(opt.type)}
-            className={`min-h-11 flex-1 rounded-xl border px-3 py-2 text-left text-xs font-medium transition sm:text-sm ${
+            aria-pressed={active}
+            className={`min-h-11 min-w-0 flex-1 rounded-xl border px-3 py-2 text-left text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5B2D8E] focus-visible:ring-offset-2 ${
               active
                 ? 'border-[#5B2D8E] bg-[#EDE9FE] text-[#5B2D8E]'
                 : 'border-[#E2E8F0] bg-white text-[#64748B] hover:border-[#CBD5E1]'
@@ -178,7 +179,7 @@ export default function RosterSeedStep({ onSubmitted, onSkip, setPageError }: Ro
       <button
         type="submit"
         disabled={submitting}
-        className="min-h-11 w-full rounded-xl bg-[#5B2D8E] py-3 font-semibold text-white transition hover:opacity-95 disabled:opacity-50"
+        className="min-h-11 w-full rounded-xl bg-[#5B2D8E] py-3 font-semibold text-white transition hover:opacity-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5B2D8E] focus-visible:ring-offset-2 disabled:opacity-50"
       >
         {submitting ? 'Adding…' : 'Add to my Roster →'}
       </button>
@@ -189,7 +190,7 @@ export default function RosterSeedStep({ onSubmitted, onSkip, setPageError }: Ro
           setPageError(null);
           onSkip();
         }}
-        className="min-h-11 w-full text-center text-sm text-[#64748B] hover:text-[#1E293B]"
+        className="min-h-11 w-full rounded-lg text-center text-sm text-[#64748B] hover:text-[#1E293B] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5B2D8E] focus-visible:ring-offset-2"
       >
         Skip for now
       </button>

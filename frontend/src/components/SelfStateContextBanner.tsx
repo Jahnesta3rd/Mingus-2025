@@ -64,7 +64,7 @@ export default function SelfStateContextBanner({
           <button
             type="button"
             onClick={onDismiss}
-            className="mt-3 min-h-11 rounded-lg font-medium underline underline-offset-2 transition hover:opacity-80"
+            className="mt-3 min-h-11 rounded-lg font-medium underline underline-offset-2 transition hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5B2D8E] focus-visible:ring-offset-2"
           >
             Got it
           </button>

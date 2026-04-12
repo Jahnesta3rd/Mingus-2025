@@ -73,7 +73,7 @@ export default function VibeFinancialAlert({ alert, onDismissed }: VibeFinancial
         <button
           type="button"
           onClick={handleAction}
-          className="inline-flex min-h-11 items-center justify-center rounded-lg bg-[#5B2D8E] px-4 text-sm font-medium text-white hover:opacity-95"
+          className="inline-flex min-h-11 items-center justify-center rounded-lg bg-[#5B2D8E] px-4 text-sm font-medium text-white hover:opacity-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5B2D8E] focus-visible:ring-offset-2"
         >
           {alert.action_label}
         </button>
@@ -82,7 +82,7 @@ export default function VibeFinancialAlert({ alert, onDismissed }: VibeFinancial
         type="button"
         onClick={() => void handleDismiss()}
         disabled={dismissing}
-        className="absolute right-2 top-2 inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg text-lg leading-none hover:bg-black/5 disabled:opacity-50"
+        className="absolute right-2 top-2 inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg text-lg leading-none hover:bg-black/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5B2D8E] focus-visible:ring-offset-2 disabled:opacity-50"
         aria-label="Dismiss alert"
       >
         ×

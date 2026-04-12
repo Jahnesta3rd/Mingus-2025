@@ -257,7 +257,7 @@ export default function HomeScreen() {
             <button
               type="button"
               onClick={() => void refetchProfile()}
-              className="inline-flex min-h-11 w-fit items-center justify-center rounded-xl border border-[#A78BFA] px-4 text-sm font-medium text-[#A78BFA] hover:bg-white/5"
+              className="inline-flex min-h-11 w-fit items-center justify-center rounded-xl border border-[#A78BFA] px-4 text-sm font-medium text-[#A78BFA] hover:bg-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A78BFA] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0D0A08]"
             >
               Retry
             </button>
@@ -282,7 +282,7 @@ export default function HomeScreen() {
             <div className="mt-6">
               <Link
                 to="/dashboard/vibe-checkups"
-                className="inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-[#5B2D8E] px-4 text-center text-sm font-medium text-white hover:opacity-95 sm:w-auto"
+                className="inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-[#5B2D8E] px-4 text-center text-sm font-medium text-white hover:opacity-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A78BFA] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0D0A08] sm:w-auto"
               >
                 Run a Checkup →
               </Link>
@@ -342,7 +342,7 @@ export default function HomeScreen() {
         <div className="mt-4">
           <Link
             to="/dashboard/roster"
-            className="inline-flex min-h-11 items-center text-sm font-medium text-[#6D28D9] hover:underline"
+            className="inline-flex min-h-11 items-center rounded-lg text-sm font-medium text-[#6D28D9] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5B2D8E] focus-visible:ring-offset-2"
           >
             View full Roster →
           </Link>
@@ -380,7 +380,7 @@ export default function HomeScreen() {
           <button
             type="button"
             onClick={goToForecastTools}
-            className="inline-flex min-h-11 items-center text-sm font-medium text-[#6D28D9] hover:underline"
+            className="inline-flex min-h-11 items-center rounded-lg text-sm font-medium text-[#6D28D9] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5B2D8E] focus-visible:ring-offset-2"
           >
             View Forecast →
           </button>

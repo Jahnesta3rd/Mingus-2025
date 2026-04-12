@@ -74,6 +74,9 @@ export default function ConnectionTrendBadge({
   const patternLabel =
     patternType && PATTERN_LABELS[patternType] ? PATTERN_LABELS[patternType] : null;
   const hasTip = Boolean(insightMessage);
+  const tipToggleLabel = hasTip
+    ? `${cfg.label}${patternLabel ? `, ${patternLabel}` : ''}. Show insight.`
+    : undefined;
 
   useEffect(() => {
     if (!mobileTipOpen) return;
@@ -93,11 +96,12 @@ export default function ConnectionTrendBadge({
   };
 
   return (
-    <div ref={wrapRef} className="group relative">
+    <div ref={wrapRef} className="group relative min-w-0 max-w-full">
       <div
         role={hasTip ? 'button' : undefined}
         tabIndex={hasTip ? 0 : undefined}
-        className={`inline-flex max-w-full flex-col rounded-lg px-2.5 py-1.5 text-left text-xs font-semibold outline-none focus-visible:ring-2 focus-visible:ring-[#A78BFA] ${cfg.className} ${hasTip ? 'min-h-11 cursor-pointer sm:min-h-0 sm:cursor-default' : ''}`}
+        aria-label={tipToggleLabel}
+        className={`inline-flex max-w-full flex-col rounded-lg px-2.5 py-1.5 text-left text-sm font-semibold outline-none focus-visible:ring-2 focus-visible:ring-[#A78BFA] focus-visible:ring-offset-2 focus-visible:ring-offset-white ${cfg.className} ${hasTip ? 'min-h-11 min-w-[44px] cursor-pointer sm:min-h-0 sm:min-w-0 sm:cursor-default' : ''}`}
         onClick={(e) => {
           if (typeof window !== 'undefined' && window.matchMedia('(max-width: 639px)').matches) {
             toggleMobileTip(e);
@@ -117,14 +121,14 @@ export default function ConnectionTrendBadge({
       >
         <span className="leading-snug">{cfg.label}</span>
         {patternLabel ? (
-          <span className="mt-0.5 text-[10px] font-medium opacity-90">{patternLabel}</span>
+          <span className="mt-0.5 text-sm font-medium opacity-90">{patternLabel}</span>
         ) : null}
       </div>
       {hasTip && insightMessage ? (
         <div
           id={tipId}
           role="tooltip"
-          className={`absolute left-0 top-full z-30 mt-1 max-w-xs rounded-lg border border-[#E2E8F0] bg-white p-3 text-sm text-[#1E293B] shadow-lg sm:pointer-events-none sm:opacity-0 sm:transition-opacity sm:group-hover:pointer-events-auto sm:group-hover:opacity-100 ${
+          className={`absolute left-0 top-full z-30 mt-1 max-w-[min(20rem,calc(100vw-2rem))] break-words rounded-lg border border-[#E2E8F0] bg-white p-3 text-sm leading-snug text-[#1E293B] shadow-lg sm:pointer-events-none sm:opacity-0 sm:transition-opacity sm:group-hover:pointer-events-auto sm:group-hover:opacity-100 ${
             mobileTipOpen ? 'block' : 'hidden'
           } sm:block`}
         >

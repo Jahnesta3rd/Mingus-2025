@@ -82,7 +82,9 @@ function ScoreRing({ score }: { score: number }) {
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-4xl font-bold tabular-nums text-[#1E293B]">{clamped}</span>
+        <span className="text-4xl font-bold tabular-nums text-[#1E293B]" aria-label={`Life ready score ${clamped} out of 100`}>
+          {clamped}
+        </span>
       </div>
     </div>
   );
@@ -146,7 +148,7 @@ export default function LifeReadyScoreCard() {
           <button
             type="button"
             onClick={() => void load()}
-            className="inline-flex min-h-11 items-center justify-center rounded-xl bg-[#5B2D8E] px-5 text-sm font-medium text-white hover:opacity-95"
+            className="inline-flex min-h-11 items-center justify-center rounded-xl bg-[#5B2D8E] px-5 text-sm font-medium text-white hover:opacity-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5B2D8E] focus-visible:ring-offset-2"
           >
             Retry
           </button>
@@ -165,7 +167,7 @@ export default function LifeReadyScoreCard() {
               const pct = weightedBarPercent(comp.score, comp.weight);
               return (
                 <div key={key}>
-                  <div className="mb-1 flex justify-between text-xs text-[#1E293B]">
+                  <div className="mb-1 flex justify-between text-sm text-[#1E293B]">
                     <span>{LABELS[key]}</span>
                     <span className="text-[#64748B]">{Math.round(comp.weight * 100)}% weight</span>
                   </div>

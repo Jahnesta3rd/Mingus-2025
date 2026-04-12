@@ -170,7 +170,7 @@ export default function ConnectionTrendAssessmentModal({
       }}
     >
       <div
-        className="flex max-h-[100dvh] w-full max-w-lg flex-col rounded-t-2xl border border-[#2a2030] bg-[#0d0a08] shadow-2xl sm:max-h-[90vh] sm:rounded-2xl"
+        className="flex h-[100dvh] max-h-[100dvh] w-full max-w-none flex-col rounded-none border-0 border-t border-[#2a2030] bg-[#0d0a08] shadow-2xl sm:h-auto sm:max-h-[90vh] sm:max-w-lg sm:rounded-2xl sm:border"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex shrink-0 items-center justify-between gap-2 border-b border-[#2a2030] px-4 py-3">
@@ -184,7 +184,7 @@ export default function ConnectionTrendAssessmentModal({
           <button
             type="button"
             onClick={handleClose}
-            className="min-h-11 min-w-11 shrink-0 rounded-lg border border-[#2a2030] p-2 text-[#F0E8D8] transition hover:border-[#A78BFA]/40 hover:bg-[#1a1520]"
+            className="min-h-11 min-w-11 shrink-0 rounded-lg border border-[#2a2030] p-2 text-[#F0E8D8] transition hover:border-[#A78BFA]/40 hover:bg-[#1a1520] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A78BFA] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0d0a08]"
             aria-label="Close"
           >
             <XMarkIcon className="mx-auto h-6 w-6" />
@@ -205,7 +205,7 @@ export default function ConnectionTrendAssessmentModal({
               <button
                 type="button"
                 onClick={() => loadQuestions()}
-                className="min-h-11 w-full rounded-xl border border-[#A78BFA] bg-transparent px-4 py-3 text-sm font-semibold text-[#A78BFA] transition hover:bg-[#A78BFA]/10"
+                className="min-h-11 w-full rounded-xl border border-[#A78BFA] bg-transparent px-4 py-3 text-sm font-semibold text-[#A78BFA] transition hover:bg-[#A78BFA]/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A78BFA] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0d0a08]"
               >
                 Retry
               </button>
@@ -222,19 +222,24 @@ export default function ConnectionTrendAssessmentModal({
                   Answer honestly. This is just for you.
                 </p>
               </div>
-              <div className="flex justify-center gap-1.5 py-1" aria-hidden>
-                {questions.map((q, i) => (
-                  <span
-                    key={q.id}
-                    className={`h-2 w-2 rounded-full ${
-                      i === stepIndex
-                        ? 'bg-[#A78BFA]'
-                        : i < stepIndex
-                          ? 'bg-[#A78BFA]/50'
-                          : 'bg-[#2a2030]'
-                    }`}
-                  />
-                ))}
+              <div className="flex flex-col items-center gap-1 py-1">
+                <span className="sr-only">
+                  Question {stepIndex + 1} of {total}
+                </span>
+                <div className="flex justify-center gap-1.5" aria-hidden>
+                  {questions.map((q, i) => (
+                    <span
+                      key={q.id}
+                      className={`h-2 w-2 rounded-full ${
+                        i === stepIndex
+                          ? 'bg-[#A78BFA]'
+                          : i < stepIndex
+                            ? 'bg-[#A78BFA]/50'
+                            : 'bg-[#2a2030]'
+                      }`}
+                    />
+                  ))}
+                </div>
               </div>
               <p className="text-base leading-relaxed text-[#F0E8D8]">{currentQuestion.text}</p>
               <div className="flex flex-col gap-3">
@@ -243,7 +248,7 @@ export default function ConnectionTrendAssessmentModal({
                     key={idx}
                     type="button"
                     onClick={() => pickAnswer(idx as 0 | 1 | 2)}
-                    className="min-h-11 w-full rounded-xl border border-[#A78BFA]/35 bg-[#1a1520] px-4 py-3 text-left text-sm font-medium text-[#F0E8D8] transition hover:border-[#A78BFA] hover:bg-[#A78BFA]/10"
+                    className="min-h-11 w-full rounded-xl border border-[#A78BFA]/35 bg-[#1a1520] px-4 py-3 text-left text-sm font-medium text-[#F0E8D8] transition hover:border-[#A78BFA] hover:bg-[#A78BFA]/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A78BFA] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0d0a08]"
                   >
                     {label}
                   </button>
@@ -287,7 +292,7 @@ export default function ConnectionTrendAssessmentModal({
               <button
                 type="button"
                 onClick={handleClose}
-                className="min-h-11 w-full rounded-xl border border-[#A78BFA] bg-[#A78BFA] px-4 py-3 text-sm font-semibold text-[#0d0a08] transition hover:opacity-95"
+                className="min-h-11 w-full rounded-xl border border-[#A78BFA] bg-[#A78BFA] px-4 py-3 text-sm font-semibold text-[#0d0a08] transition hover:opacity-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#0d0a08]"
               >
                 Close
               </button>

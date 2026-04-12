@@ -179,7 +179,7 @@ export default function QuickVibeStep({
           </div>
           <h2 className="mt-3 font-display text-xl font-semibold text-[#FFFFFF]">{verdict.verdict_label}</h2>
           <p className="mt-2 text-sm leading-relaxed text-[#9A8F7E]">{verdict.verdict_description}</p>
-          <p className="mt-4 text-xs text-[#9A8F7E]">Continuing in a moment…</p>
+          <p className="mt-4 text-sm text-[#9A8F7E]">Continuing in a moment…</p>
         </div>
       )}
 
@@ -194,7 +194,7 @@ export default function QuickVibeStep({
               sessionStorage.removeItem(ONBOARDING_VC_STORAGE_KEY);
               setQuizRemountKey((k) => k + 1);
             }}
-            className="mt-3 min-h-11 w-full rounded-lg border border-[#E2E8F0] bg-white text-[#1E293B] transition hover:bg-[#F8FAFC]"
+            className="mt-3 min-h-11 w-full rounded-lg border border-[#E2E8F0] bg-white text-[#1E293B] transition hover:bg-[#F8FAFC] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5B2D8E] focus-visible:ring-offset-2"
           >
             Try again
           </button>
@@ -209,7 +209,7 @@ export default function QuickVibeStep({
             setQuizError(null);
             onSkip();
           }}
-          className="min-h-11 w-full text-center text-sm text-[#64748B] hover:text-[#1E293B]"
+          className="min-h-11 w-full rounded-lg text-center text-sm text-[#64748B] hover:text-[#1E293B] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5B2D8E] focus-visible:ring-offset-2"
         >
           Skip the checkup
         </button>

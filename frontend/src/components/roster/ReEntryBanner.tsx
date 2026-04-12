@@ -56,7 +56,7 @@ export default function ReEntryBanner({
         <button
           type="button"
           onClick={dismiss}
-          className="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-lg text-lg text-white/80 transition hover:bg-white/10 hover:text-white"
+          className="absolute right-2 top-2 flex min-h-11 min-w-11 items-center justify-center rounded-lg text-lg leading-none text-white/80 transition hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#1F2937]"
           aria-label="Dismiss"
         >
           ×
@@ -67,7 +67,7 @@ export default function ReEntryBanner({
         <p className="mt-1 text-white/90">
           Their last Connection Trend score was {tierLabel}. Worth noting where things pick up.
         </p>
-        <p className="mt-2 text-xs text-white/70">{closing.trim()}</p>
+        <p className="mt-2 text-sm text-white/70">{closing.trim()}</p>
       </div>
     );
   }
@@ -81,7 +81,7 @@ export default function ReEntryBanner({
       <button
         type="button"
         onClick={dismiss}
-        className="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-lg text-lg text-[#1e3a8a]/70 transition hover:bg-blue-200/60 hover:text-[#1e3a8a]"
+        className="absolute right-2 top-2 flex min-h-11 min-w-11 items-center justify-center rounded-lg text-lg leading-none text-[#1e3a8a]/70 transition hover:bg-blue-200/60 hover:text-[#1e3a8a] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5B2D8E] focus-visible:ring-offset-2"
         aria-label="Dismiss"
       >
         ×
@@ -91,7 +91,7 @@ export default function ReEntryBanner({
         They were at {tierLabel} last time. This round starts fresh — but the pattern is in your
         history.
       </p>
-      <p className="mt-2 text-xs opacity-90">{closing.trim()}</p>
+      <p className="mt-2 text-sm opacity-90">{closing.trim()}</p>
     </div>
   );
 }
