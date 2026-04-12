@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { Link } from 'react-router-dom';
 import {
   AreaChart,
   Area,
@@ -660,7 +661,23 @@ export default function FinancialForecastTab({
         </div>
       </div>
 
-      <PeopleCostSummary userEmail={userEmail} />
+      {userTier === 'budget' ? (
+        <div className="rounded-xl border border-[#E2E8F0] bg-white p-6 shadow-sm">
+          <p className="text-sm font-medium text-[#1E293B]">Who&apos;s in your forecast this month</p>
+          <p className="mt-2 text-sm text-[#64748B]">
+            See who&apos;s in your forecast and their approximate 30-day costs — included with Mid-tier and
+            Professional.
+          </p>
+          <Link
+            to="/settings/upgrade"
+            className="mt-4 inline-flex min-h-11 items-center justify-center rounded-lg bg-[#5B2D8E] px-4 text-sm font-semibold text-white hover:opacity-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5B2D8E] focus-visible:ring-offset-2"
+          >
+            View upgrade options
+          </Link>
+        </div>
+      ) : (
+        <PeopleCostSummary userEmail={userEmail} />
+      )}
 
       {relationshipCostBreakdown.length > 0 && (
         <div className="rounded-xl bg-white p-4 shadow-sm">

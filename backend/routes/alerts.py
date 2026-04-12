@@ -41,13 +41,18 @@ def list_unread():
     if not user:
         return jsonify({"error": "User not found"}), 404
 
+    limit = 50
+    tier = (user.tier or "budget").strip().lower()
+    if tier == "budget":
+        limit = 1
+
     rows = (
         UserAlert.query.filter(
             UserAlert.user_id == user.id,
             UserAlert.read_at.is_(None),
         )
         .order_by(UserAlert.created_at.desc())
-        .limit(50)
+        .limit(limit)
         .all()
     )
     return jsonify({"alerts": [_alert_json(r) for r in rows]})

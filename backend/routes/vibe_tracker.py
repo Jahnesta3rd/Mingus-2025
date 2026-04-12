@@ -387,6 +387,11 @@ def list_person_linked_events(person_id: uuid.UUID):
             }
         )
 
+    tier = (user.tier or "budget").strip().lower()
+    if tier == "budget":
+        payload_events = payload_events[:2]
+        thirty_day_total = sum(float(e["cost"]) for e in payload_events)
+
     return jsonify(
         {
             "events": payload_events,

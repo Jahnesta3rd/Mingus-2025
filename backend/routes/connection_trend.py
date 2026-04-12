@@ -23,6 +23,24 @@ from backend.tasks.vibe_financial_alert_tasks import check_for_alerts
 
 connection_trend_bp = Blueprint("connection_trend", __name__)
 
+_TIER_PROFESSIONAL = "professional"
+_TIER_MID = "mid_tier"
+_TIER_BUDGET = "budget"
+
+_UPGRADE_CONNECTION_TREND_HISTORY = (
+    "Connection Trend history is available on Mid-tier and above. "
+    "Upgrade to track trends over time."
+)
+
+
+def _normalize_tier(tier: str | None) -> str:
+    return (tier or _TIER_BUDGET).strip().lower()
+
+
+def _tier_is_mid_plus(tier: str) -> bool:
+    return tier in (_TIER_MID, _TIER_PROFESSIONAL)
+
+
 _STATIC_QUESTIONS = [
     {
         "id": "q1",
@@ -153,6 +171,15 @@ def _assessment_dict(row: ConnectionTrendAssessment) -> dict:
     }
 
 
+def _assessment_dict_for_user(row: ConnectionTrendAssessment, user: User) -> dict:
+    """Budget tier: fade tier + scores only (no Fade Scale pattern label or insight copy)."""
+    data = _assessment_dict(row)
+    if _normalize_tier(user.tier) == _TIER_BUDGET:
+        data["pattern_type"] = None
+        data["pattern_insight"] = None
+    return data
+
+
 @connection_trend_bp.route("/questions", methods=["GET"])
 @require_auth
 def get_questions():
@@ -212,7 +239,7 @@ def post_assess(person_id: uuid.UUID):
     db.session.commit()
 
     check_for_alerts.delay(user.id, str(person.id))
-    return jsonify({"assessment": _assessment_dict(row)}), 201
+    return jsonify({"assessment": _assessment_dict_for_user(row, user)}), 201
 
 
 @connection_trend_bp.route("/people/<uuid:person_id>/history", methods=["GET"])
@@ -225,6 +252,18 @@ def get_history(person_id: uuid.UUID):
     person = _person_for_user(person_id, user)
     if not person:
         return jsonify({"error": "Person not found"}), 404
+
+    tier = _normalize_tier(user.tier)
+    if not _tier_is_mid_plus(tier):
+        return (
+            jsonify(
+                {
+                    "error": "forbidden",
+                    "message": _UPGRADE_CONNECTION_TREND_HISTORY,
+                }
+            ),
+            403,
+        )
 
     rows = (
         ConnectionTrendAssessment.query.filter_by(
@@ -258,4 +297,4 @@ def get_latest(person_id: uuid.UUID):
     )
     if not row:
         return jsonify({"assessment": None})
-    return jsonify({"assessment": _assessment_dict(row)})
+    return jsonify({"assessment": _assessment_dict_for_user(row, user)})

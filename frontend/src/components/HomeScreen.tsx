@@ -206,7 +206,13 @@ export default function HomeScreen() {
         if (!res.ok) throw new Error('alerts');
         const data = (await res.json()) as UnreadAlertsResponse;
         const list = Array.isArray(data.alerts) ? data.alerts : [];
-        setFinancialAlerts(list.slice(0, 2));
+        const rawTier = (user as { tier?: string } | null)?.tier;
+        const isMidPlus =
+          (user as { is_beta?: boolean } | null)?.is_beta === true ||
+          rawTier === 'professional' ||
+          rawTier === 'mid_tier';
+        const cap = isMidPlus ? 2 : 1;
+        setFinancialAlerts(list.slice(0, cap));
       } catch {
         setFinancialAlerts([]);
       } finally {
@@ -214,7 +220,7 @@ export default function HomeScreen() {
       }
     };
     void loadAlerts();
-  }, [isAuthenticated]);
+  }, [isAuthenticated, user]);
 
   const goToForecastTools = () => {
     navigate('/dashboard/forecast');

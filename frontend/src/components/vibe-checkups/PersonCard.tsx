@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../../hooks/useAuth';
 import {
   EllipsisVerticalIcon,
   ArrowTrendingUpIcon,
@@ -147,6 +148,13 @@ interface ConnectionTrendLatestResponse {
 }
 
 type ConnectionTrendFetchStatus = 'loading' | 'ok' | 'empty' | 'hidden';
+
+function effectiveUserTier(user: ReturnType<typeof useAuth>['user']): 'budget' | 'mid_tier' | 'professional' {
+  if (!user) return 'budget';
+  if (user.is_beta === true || user.tier === 'professional') return 'professional';
+  if (user.tier === 'mid_tier') return 'mid_tier';
+  return 'budget';
+}
 
 function formatUsdWhole(value: number): string {
   return new Intl.NumberFormat('en-US', {
@@ -317,6 +325,10 @@ export function PersonCard({
   onDelete,
   onRestore,
 }: PersonCardProps) {
+  const { user } = useAuth();
+  const userTier = effectiveUserTier(user);
+  const showConnectionPatternInsight = userTier !== 'budget';
+
   const cardType: VibeCardType =
     person.card_type === 'kids' || person.card_type === 'social' ? person.card_type : 'person';
   const isKids = cardType === 'kids';
@@ -454,14 +466,29 @@ export function PersonCard({
             <>
               <ConnectionTrendBadge
                 fadeTier={connectionTrendLatest.fade_tier}
-                patternType={connectionTrendLatest.pattern_type}
+                patternType={
+                  showConnectionPatternInsight ? connectionTrendLatest.pattern_type : null
+                }
                 insightMessage={
-                  connectionTrendLatest.pattern_insight?.insight_message ?? null
+                  showConnectionPatternInsight
+                    ? connectionTrendLatest.pattern_insight?.insight_message ?? null
+                    : null
                 }
               />
               <p className="text-[10px] text-[#9a8f7e]">
                 Last assessed: {formatConnectionDaysAgo(connectionTrendLatest.assessed_at)}
               </p>
+              {!showConnectionPatternInsight ? (
+                <p className="text-sm text-[#9a8f7e]">
+                  <Link
+                    to="/settings/upgrade"
+                    className="font-semibold text-[#A78BFA] underline underline-offset-2 hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A78BFA] focus-visible:ring-offset-2 focus-visible:ring-offset-[#1a1520]"
+                  >
+                    Upgrade to Mid-tier
+                  </Link>{' '}
+                  to track connection trends over time and see Fade Scale pattern insights.
+                </p>
+              ) : null}
             </>
           ) : null}
           {connectionTrendStatus === 'empty' ? (
