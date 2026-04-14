@@ -34,10 +34,36 @@ import SettingsPage from './pages/SettingsPage';
 import OnboardingPage from './pages/OnboardingPage';
 import FinancialForecastPage from './pages/FinancialForecastPage';
 import DashboardProfilePage from './pages/DashboardProfilePage';
+import SnapshotPage from './pages/SnapshotPage';
+import { useAuth } from './hooks/useAuth';
+
+function localCalendarDateYmd(): string {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
 
 const VibeCheckMemeWrapper: React.FC = () => {
   const navigate = useNavigate();
-  return <VibeCheckMeme onContinue={() => navigate('/dashboard', { replace: true })} />;
+  const { user } = useAuth();
+  const goToDashboard = () => {
+    const userId = user?.id;
+    if (!userId) {
+      navigate('/dashboard', { replace: true });
+      return;
+    }
+    const today = localCalendarDateYmd();
+    const seenKey = `mingus_snapshot_seen_${userId}_${today}`;
+    const seenToday = localStorage.getItem(seenKey) === '1';
+    if (!seenToday) {
+      navigate('/snapshot?returnTo=dashboard', { replace: true });
+    } else {
+      navigate('/dashboard', { replace: true });
+    }
+  };
+  return <VibeCheckMeme onContinue={goToDashboard} />;
 };
 
 const router = createBrowserRouter([
@@ -125,6 +151,15 @@ const router = createBrowserRouter([
     element: (
       <AuthGuard>
         <OnboardingPage />
+      </AuthGuard>
+    ),
+  },
+
+  {
+    path: '/snapshot',
+    element: (
+      <AuthGuard>
+        <SnapshotPage />
       </AuthGuard>
     ),
   },

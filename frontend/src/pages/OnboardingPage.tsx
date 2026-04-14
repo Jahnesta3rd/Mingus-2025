@@ -312,7 +312,7 @@ export default function OnboardingPage() {
     }
     const ok = await saveGoals({ goals: goalsObj });
     if (ok) {
-      navigate('/dashboard');
+      navigate('/snapshot?returnTo=dashboard');
     }
   };
 
