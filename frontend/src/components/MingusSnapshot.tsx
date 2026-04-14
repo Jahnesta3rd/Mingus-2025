@@ -1,7 +1,9 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { ReactNode, TouchEvent } from 'react';
 import { useSnapshotData } from '../hooks/useSnapshotData';
 import type {
+  ActionData,
+  CareerData,
   CashNowData,
   MilestonesData,
   RosterData,
@@ -138,12 +140,15 @@ function CardFrame({
   tag,
   title,
   showSwipeHint,
+  swipeHintText,
   children,
 }: {
   index: number;
   tag: string;
   title: string;
   showSwipeHint: boolean;
+  /** When set with showSwipeHint, replaces default gray hint (purple styling). */
+  swipeHintText?: string;
   children: ReactNode;
 }) {
   return (
@@ -161,9 +166,14 @@ function CardFrame({
         {title}
       </h2>
       {children}
-      {showSwipeHint && (
-        <p className="mt-10 text-center text-[12px] text-slate-500">Swipe to continue →</p>
-      )}
+      {showSwipeHint &&
+        (swipeHintText ? (
+          <p className="mt-10 text-center text-[12px]" style={{ color: '#5B2D8E' }}>
+            {swipeHintText}
+          </p>
+        ) : (
+          <p className="mt-10 text-center text-[12px] text-slate-500">Swipe to continue →</p>
+        ))}
     </div>
   );
 }
@@ -624,10 +634,386 @@ function MilestonesCardContent({
   );
 }
 
+function formatSalaryK(n: number): string {
+  const k = Math.round(n / 1000);
+  return `$${k}K`;
+}
+
+function liftBadgeStyles(lift: number): { bg: string; text: string } {
+  if (lift >= 15) return { bg: '#D1FAE5', text: '#059669' };
+  if (lift >= 8) return { bg: '#FEF3C7', text: '#D97706' };
+  return { bg: '#F1F5F9', text: '#64748B' };
+}
+
+const URGENCY_RANK: Record<ActionData['ctas'][number]['urgency'], number> = {
+  high: 0,
+  medium: 1,
+  low: 2,
+};
+
+function CareerNextMoveCardContent({
+  loading,
+  career,
+  onUploadResume,
+}: {
+  loading: boolean;
+  career: CareerData | null;
+  onUploadResume: () => void;
+}) {
+  const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
+  const [transitionMonths, setTransitionMonths] = useState<3 | 6 | 9>(6);
+  const [impactFadeIn, setImpactFadeIn] = useState(true);
+  const prevJobIdRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!career?.jobs?.length) {
+      setSelectedJobId(null);
+      return;
+    }
+    setSelectedJobId((prev) => {
+      if (prev && career.jobs.some((j) => j.id === prev)) return prev;
+      return career.jobs[0].id;
+    });
+  }, [career]);
+
+  useLayoutEffect(() => {
+    if (!selectedJobId) return;
+    if (prevJobIdRef.current === null) {
+      prevJobIdRef.current = selectedJobId;
+      setImpactFadeIn(true);
+      return;
+    }
+    if (prevJobIdRef.current === selectedJobId) return;
+    prevJobIdRef.current = selectedJobId;
+    setImpactFadeIn(false);
+    const id = requestAnimationFrame(() => {
+      requestAnimationFrame(() => setImpactFadeIn(true));
+    });
+    return () => cancelAnimationFrame(id);
+  }, [selectedJobId]);
+
+  if (loading) {
+    return (
+      <div className="space-y-2">
+        <div className="h-14 animate-pulse rounded-xl bg-slate-200" />
+        <div className="h-14 animate-pulse rounded-xl bg-slate-200" />
+        <div className="h-14 animate-pulse rounded-xl bg-slate-200" />
+      </div>
+    );
+  }
+
+  const noCareer = !career || career.jobs.length === 0;
+
+  if (noCareer) {
+    return (
+      <div className="flex flex-col items-center px-2 pt-6 text-center">
+        <span className="text-5xl" aria-hidden>
+          💼
+        </span>
+        <p className="mt-5 text-base font-semibold" style={{ color: '#1E293B' }}>
+          No job matches found yet.
+        </p>
+        <p className="mt-3 max-w-sm text-[15px] leading-relaxed text-slate-600">
+          Upload your resume to get personalized career moves and their cash impact.
+        </p>
+        <div
+          role="button"
+          tabIndex={0}
+          className="mt-6 cursor-pointer border-none bg-transparent p-0 text-base font-semibold"
+          style={{ color: '#5B2D8E' }}
+          onClick={onUploadResume}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              onUploadResume();
+            }
+          }}
+        >
+          Upload resume →
+        </div>
+      </div>
+    );
+  }
+
+  const selectedJob = career.jobs.find((j) => j.id === selectedJobId) ?? career.jobs[0];
+  const currentMonth1 = new Date().getMonth() + 1;
+  const monthsRemainingInYear = 12 - currentMonth1;
+  const monthsEarningNewSalary = monthsRemainingInYear - transitionMonths;
+  const monthlyDelta = selectedJob.monthly_takehome_delta;
+  let balanceBoost = 0;
+  let showNextYearCopy = false;
+  if (monthsEarningNewSalary <= 0) {
+    showNextYearCopy = true;
+  } else {
+    balanceBoost = monthsEarningNewSalary * monthlyDelta;
+  }
+
+  const timeOptions: Array<{ label: string; months: 3 | 6 | 9 }> = [
+    { label: '3 months', months: 3 },
+    { label: '6 months', months: 6 },
+    { label: '9 months', months: 9 },
+  ];
+
+  return (
+    <div>
+      <p className="mb-3 text-[13px] text-slate-500">
+        Current: {formatUsd(career.current_salary)}/yr
+      </p>
+      {career.jobs.map((job) => {
+        const selected = job.id === selectedJobId;
+        const lift = Math.round(job.income_lift_pct);
+        const badge = liftBadgeStyles(job.income_lift_pct);
+        return (
+          <div
+            key={job.id}
+            role="button"
+            tabIndex={0}
+            className="mb-2 flex w-full cursor-pointer items-stretch gap-3 rounded-[12px] px-[14px] py-3"
+            style={{
+              backgroundColor: selected ? '#EDE9F6' : '#FFFFFF',
+              border: selected ? '1.5px solid #5B2D8E' : '1.5px solid #E2E8F0',
+            }}
+            onClick={() => setSelectedJobId(job.id)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                setSelectedJobId(job.id);
+              }
+            }}
+          >
+            <div className="min-w-0 flex-1 text-left">
+              <p className="text-[14px] font-bold" style={{ color: '#1E293B' }}>
+                {job.title}
+              </p>
+              <p className="mt-0.5 text-[12px] text-slate-500">
+                {[job.company_type, job.location].filter(Boolean).join(' · ')}
+              </p>
+            </div>
+            <div className="shrink-0 text-right">
+              <span
+                className="inline-block rounded-md px-2 py-0.5 text-[12px] font-semibold"
+                style={{ backgroundColor: badge.bg, color: badge.text }}
+              >
+                +{lift}%
+              </span>
+              <p className="mt-1 text-[11px] text-slate-500">
+                {formatSalaryK(job.salary_low)}–{formatSalaryK(job.salary_high)}
+              </p>
+            </div>
+          </div>
+        );
+      })}
+
+      <div
+        className="mt-3 rounded-xl bg-white p-4 shadow-sm transition-opacity duration-200"
+        style={{ opacity: impactFadeIn ? 1 : 0 }}
+      >
+        <p className="text-[12px] text-slate-500">If you land this in:</p>
+        <div className="mt-3 flex gap-2">
+          {timeOptions.map(({ label, months }) => {
+            const sel = transitionMonths === months;
+            return (
+              <div
+                key={months}
+                role="button"
+                tabIndex={0}
+                className="flex-1 cursor-pointer rounded-lg py-2 text-center text-[14px] font-medium"
+                style={
+                  sel
+                    ? { backgroundColor: '#5B2D8E', color: '#FFFFFF' }
+                    : {
+                        backgroundColor: '#FFFFFF',
+                        border: '1.5px solid #E2E8F0',
+                        color: '#1E293B',
+                      }
+                }
+                onClick={() => setTransitionMonths(months)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    setTransitionMonths(months);
+                  }
+                }}
+              >
+                {label}
+              </div>
+            );
+          })}
+        </div>
+        {showNextYearCopy ? (
+          <p className="mt-4 text-[18px] font-bold" style={{ color: '#059669' }}>
+            You&apos;d start strong next year
+          </p>
+        ) : (
+          <p className="mt-4 text-[18px] font-bold" style={{ color: '#059669' }}>
+            +{formatUsd(balanceBoost)} to your year-end balance
+          </p>
+        )}
+        <p className="mt-1 text-[12px] text-slate-500">
+          +{formatUsd(monthlyDelta)}/mo take-home after taxes
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function ActionTodayCardContent({
+  loading,
+  action,
+}: {
+  loading: boolean;
+  action: ActionData | null;
+}) {
+  if (loading) {
+    return (
+      <div className="space-y-3 px-1">
+        <div className="mx-auto h-6 w-32 animate-pulse rounded-full bg-slate-200" />
+        <div className="mx-auto h-24 max-w-[280px] animate-pulse rounded-xl bg-slate-200" />
+      </div>
+    );
+  }
+
+  if (!action) {
+    return (
+      <div className="flex flex-col items-center px-2 pt-8 text-center">
+        <p className="text-base font-semibold" style={{ color: '#1E293B' }}>
+          Check back tomorrow.
+        </p>
+        <p className="mt-3 max-w-sm text-[15px] leading-relaxed text-slate-600">
+          Your action will be ready once we have more data.
+        </p>
+      </div>
+    );
+  }
+
+  const sourceLabel = action.action_source.replace(/-/g, '_').toUpperCase();
+
+  return (
+    <div className="flex flex-col items-center px-1 pt-2 text-center">
+      <span
+        className="inline-block rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide"
+        style={{ backgroundColor: '#EDE9F6', color: '#5B2D8E' }}
+      >
+        {sourceLabel}
+      </span>
+      <p
+        className="mx-auto my-6 max-w-[280px] text-center text-[20px] font-bold leading-[1.5]"
+        style={{ color: '#1E293B' }}
+      >
+        {action.action_text}
+      </p>
+      <p className="text-[13px] text-slate-500">
+        Based on what we found across your snapshot today.
+      </p>
+    </div>
+  );
+}
+
+function EndActionPanel({
+  visible,
+  action,
+  onComplete,
+}: {
+  visible: boolean;
+  action: ActionData | null;
+  onComplete: (tab: string) => void;
+}) {
+  const sortedCtas = action?.ctas
+    ? [...action.ctas].sort((a, b) => URGENCY_RANK[a.urgency] - URGENCY_RANK[b.urgency])
+    : [];
+
+  return (
+    <div
+      className="fixed bottom-0 left-0 right-0"
+      style={{
+        zIndex: 60,
+        background: '#FFFFFF',
+        borderTopLeftRadius: 24,
+        borderTopRightRadius: 24,
+        boxShadow: '0 -4px 24px rgba(0,0,0,0.10)',
+        padding: '24px 20px 40px',
+        transform: visible ? 'translateY(0)' : 'translateY(100%)',
+        transition: 'transform 400ms cubic-bezier(0.4, 0, 0.2, 1)',
+        pointerEvents: visible ? 'auto' : 'none',
+      }}
+    >
+      <div
+        className="mx-auto mb-4 rounded-full bg-slate-300"
+        style={{ width: 40, height: 4 }}
+        aria-hidden
+      />
+      <h3 className="text-[18px] font-bold" style={{ color: '#1E293B' }}>
+        Your next steps
+      </h3>
+      <p className="mb-4 mt-1 text-[13px] text-slate-500">Based on your snapshot</p>
+      {sortedCtas.map((cta) => {
+        const high = cta.urgency === 'high';
+        const medium = cta.urgency === 'medium';
+        return (
+          <div
+            key={`${cta.tab}-${cta.label}`}
+            role="button"
+            tabIndex={visible ? 0 : -1}
+            className="mb-2 cursor-pointer rounded-xl p-4 text-[15px] font-bold"
+            style={
+              high
+                ? { backgroundColor: '#5B2D8E', color: '#FFFFFF' }
+                : medium
+                  ? {
+                      backgroundColor: '#FFFFFF',
+                      border: '1.5px solid #5B2D8E',
+                      color: '#5B2D8E',
+                    }
+                  : {
+                      backgroundColor: '#FFFFFF',
+                      border: '1.5px solid #E2E8F0',
+                      color: '#64748B',
+                    }
+            }
+            onClick={() => onComplete(cta.tab)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                onComplete(cta.tab);
+              }
+            }}
+          >
+            {cta.label}
+          </div>
+        );
+      })}
+      <div
+        role="button"
+        tabIndex={visible ? 0 : -1}
+        className="mt-3 cursor-pointer text-center text-[13px] text-slate-500"
+        onClick={() => onComplete('dashboard')}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            onComplete('dashboard');
+          }
+        }}
+      >
+        Skip — take me to my dashboard
+      </div>
+    </div>
+  );
+}
+
 function MingusSnapshot({ onComplete }: MingusSnapshotProps) {
   const { data, loadStates } = useSnapshotData();
   const [index, setIndex] = useState(0);
+  const [endPanelVisible, setEndPanelVisible] = useState(false);
   const touchStartXRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (index !== 6) {
+      setEndPanelVisible(false);
+      return;
+    }
+    const t = window.setTimeout(() => setEndPanelVisible(true), 600);
+    return () => window.clearTimeout(t);
+  }, [index]);
 
   const onTouchStart = useCallback((e: TouchEvent) => {
     touchStartXRef.current = e.changedTouches[0]?.clientX ?? e.touches[0]?.clientX ?? null;
@@ -656,6 +1042,8 @@ function MingusSnapshot({ onComplete }: MingusSnapshotProps) {
   const spendingLoading = loadStates.spending === 'loading';
   const rosterLoading = loadStates.roster === 'loading';
   const milestonesLoading = loadStates.milestones === 'loading';
+  const careerLoading = loadStates.career === 'loading';
+  const actionLoading = loadStates.action === 'loading';
 
   return (
     <>
@@ -712,17 +1100,31 @@ function MingusSnapshot({ onComplete }: MingusSnapshotProps) {
             />
           </CardFrame>
 
-          {[6, 7].map((n) => (
-            <div
-              key={n}
-              className="box-border flex w-screen shrink-0 items-center justify-center overflow-y-auto bg-[#F8FAFC] px-5 pb-[72px] pt-6 text-center text-slate-500"
-              style={{ height: '100dvh' }}
-            >
-              <span className="text-base">Card {n} — Coming Soon</span>
-            </div>
-          ))}
+          <CardFrame index={6} tag="YOUR NEXT MOVE" title="Your next move" showSwipeHint>
+            <CareerNextMoveCardContent
+              loading={careerLoading}
+              career={data.career}
+              onUploadResume={() => onComplete('job-recommendations')}
+            />
+          </CardFrame>
+
+          <CardFrame
+            index={7}
+            tag="ONE THING TO DO TODAY"
+            title="One thing to do today"
+            showSwipeHint
+            swipeHintText="Swipe to see your next steps →"
+          >
+            <ActionTodayCardContent loading={actionLoading} action={data.action} />
+          </CardFrame>
         </div>
       </div>
+
+      <EndActionPanel
+        visible={endPanelVisible && index === 6}
+        action={data.action}
+        onComplete={onComplete}
+      />
 
       <div
         className="pointer-events-none fixed bottom-6 left-0 right-0 z-[60] flex justify-center gap-2"
