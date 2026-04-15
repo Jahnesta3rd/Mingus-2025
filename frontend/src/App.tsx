@@ -31,7 +31,7 @@ import VehicleCheckPage from './pages/VehicleCheckPage';
 import VibeTrackerPage from './pages/VibeTrackerPage';
 import SpiritFinance from './pages/SpiritFinance';
 import SettingsPage from './pages/SettingsPage';
-import OnboardingPage from './pages/OnboardingPage';
+import OnboardingRouter from './components/OnboardingRouter';
 import FinancialForecastPage from './pages/FinancialForecastPage';
 import DashboardProfilePage from './pages/DashboardProfilePage';
 import SnapshotPage from './pages/SnapshotPage';
@@ -44,6 +44,14 @@ function localCalendarDateYmd(): string {
   const day = String(d.getDate()).padStart(2, '0');
   return `${y}-${m}-${day}`;
 }
+
+const OnboardingRouteWrapper: React.FC = () => {
+  const navigate = useNavigate();
+  const handleOnboardingComplete = () => {
+    navigate('/snapshot');
+  };
+  return <OnboardingRouter onComplete={handleOnboardingComplete} />;
+};
 
 const VibeCheckMemeWrapper: React.FC = () => {
   const navigate = useNavigate();
@@ -150,7 +158,7 @@ const router = createBrowserRouter([
     path: '/onboarding',
     element: (
       <AuthGuard>
-        <OnboardingPage />
+        <OnboardingRouteWrapper />
       </AuthGuard>
     ),
   },

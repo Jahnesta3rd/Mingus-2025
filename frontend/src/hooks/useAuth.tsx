@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, createContext, useContext } from 'react';
+import { useState, useEffect, useCallback, useMemo, createContext, useContext } from 'react';
 
 function csrfHeaders(): Record<string, string> {
   const token =
@@ -27,9 +27,20 @@ export interface RegisterOptions {
   vc_lead_id?: string | null;
 }
 
+export type AuthUserTier = 'budget' | 'mid_tier' | 'professional';
+
+function normalizeUserTier(user: User | null): AuthUserTier | null {
+  if (!user) return null;
+  if (user.is_beta === true || user.tier === 'professional') return 'professional';
+  if (user.tier === 'mid_tier') return 'mid_tier';
+  return 'budget';
+}
+
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
+  /** Resolved subscription tier; null while auth is loading or when no user. */
+  userTier: AuthUserTier | null;
   /** JWT for Bearer APIs when present (mirrors `mingus_token` / `auth_token` storage). Cookie auth still works without this. */
   getAccessToken: () => string | null;
   login: (email: string, password: string, rememberMe?: boolean) => Promise<void>;
@@ -254,9 +265,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const userTier = useMemo(() => (loading ? null : normalizeUserTier(user)), [loading, user]);
+
   const value = {
     user,
     isAuthenticated: !!user?.isAuthenticated,
+    userTier,
     getAccessToken,
     login,
     register,

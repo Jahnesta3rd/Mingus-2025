@@ -62,7 +62,11 @@ const inputClass =
 
 const labelClass = 'mb-1.5 block text-sm font-medium text-[#1E293B]';
 
-export default function OnboardingPage() {
+type OnboardingPageProps = {
+  onComplete?: () => void;
+};
+
+export default function OnboardingPage({ onComplete }: OnboardingPageProps = {}) {
   const navigate = useNavigate();
   const { getAccessToken } = useAuth();
   const {
@@ -312,7 +316,11 @@ export default function OnboardingPage() {
     }
     const ok = await saveGoals({ goals: goalsObj });
     if (ok) {
-      navigate('/snapshot?returnTo=dashboard');
+      if (onComplete) {
+        onComplete();
+      } else {
+        navigate('/snapshot?returnTo=dashboard');
+      }
     }
   };
 
