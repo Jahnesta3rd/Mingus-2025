@@ -22,7 +22,7 @@ export async function trackEvent(
       body.metadata = metadata;
     }
 
-    await fetch('/api/telemetry/event', {
+    const res = await fetch('/api/telemetry/event', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -32,6 +32,9 @@ export async function trackEvent(
       credentials: 'include',
       body: JSON.stringify(body),
     });
+    if (res.ok) {
+      localStorage.setItem('mingus_last_feature_view', featureName);
+    }
   } catch {
     /* silent — telemetry must not affect UX */
   }

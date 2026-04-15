@@ -422,7 +422,11 @@ export default function FinancialForecastTab({
       const forecast = data.forecast;
       if (!forecast) throw new Error('No forecast data');
 
-      setDailyCashflow(forecast.daily_cashflow ?? []);
+      const daily = forecast.daily_cashflow ?? [];
+      const todayEntry = daily[0];
+      localStorage.setItem('mingus_last_balance_status', todayEntry?.balance_status ?? 'healthy');
+
+      setDailyCashflow(daily);
       setMonthlySummaries(forecast.monthly_summaries ?? []);
       setVehicleExpenseTotals(forecast.vehicle_expense_totals ?? null);
       const relRaw = forecast.relationship_cost_breakdown;

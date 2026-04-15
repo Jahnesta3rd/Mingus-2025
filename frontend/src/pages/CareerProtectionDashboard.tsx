@@ -22,6 +22,7 @@ import LifeLedgerErrorBoundary from '../components/LifeLedger/LifeLedgerErrorBou
 import LifeLedgerWidget from '../components/LifeLedger/LifeLedgerWidget';
 import CorrelationWidget from '../components/LifeLedger/CorrelationWidget';
 import UserProfile from '../components/UserProfile';
+import BugReportButton from '../components/BugReportButton';
 import FeatureRating from '../components/FeatureRating';
 import { useAuth } from '../hooks/useAuth';
 import { useAnalytics } from '../hooks/useAnalytics';
@@ -350,6 +351,7 @@ const CareerProtectionDashboard: React.FC = () => {
                 >
                   Spirit &amp; Finance
                 </Link>
+                <BugReportButton />
                 <button
                   onClick={() => setShowProfileModal(true)}
                   className="text-sm text-purple-600 hover:text-purple-700 font-medium px-2 py-1 rounded hover:bg-purple-50 transition-colors"
