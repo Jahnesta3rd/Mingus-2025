@@ -5,13 +5,14 @@ import type {
   ActionData,
   CareerData,
   CashNowData,
+  FaithCardData,
   MilestonesData,
   RosterData,
   SpendingData,
   VibeCheckData,
 } from '../types/snapshot';
 
-const TOTAL_CARDS = 7;
+const TOTAL_CARDS = 8;
 const SWIPE_THRESHOLD_PX = 50;
 
 export interface MingusSnapshotProps {
@@ -909,6 +910,147 @@ function ActionTodayCardContent({
   );
 }
 
+function FaithDeckCard({
+  loading,
+  faith,
+  isFavorited,
+  savedAnim,
+  savedLabelOpacity,
+  onFavoriteTap,
+}: {
+  loading: boolean;
+  faith: FaithCardData | null;
+  isFavorited: boolean;
+  savedAnim: boolean;
+  savedLabelOpacity: number;
+  onFavoriteTap: () => void;
+}) {
+  const heartPath =
+    'M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z';
+
+  return (
+    <div
+      className="relative box-border flex w-screen shrink-0 flex-col overflow-y-auto px-5 pb-[72px] pt-6"
+      style={{
+        height: '100dvh',
+        background: 'linear-gradient(160deg, #3b1f6e 0%, #5B2D8E 55%, #3b1f6e 100%)',
+      }}
+    >
+      <p
+        className="mb-2 text-[11px] font-medium uppercase"
+        style={{ color: '#c4b5fd', letterSpacing: '0.2em' }}
+      >
+        CARD 1 OF {TOTAL_CARDS} · FAITH
+      </p>
+
+      <div className="flex min-h-0 flex-1 flex-col justify-center">
+        {loading ? (
+          <div className="flex flex-col items-center justify-center gap-3 py-8">
+            <div
+              className="h-3 w-[75%] max-w-sm animate-pulse rounded"
+              style={{ backgroundColor: 'rgba(255,255,255,0.1)' }}
+            />
+            <div
+              className="h-3 w-[60%] max-w-xs animate-pulse rounded"
+              style={{ backgroundColor: 'rgba(255,255,255,0.1)' }}
+            />
+            <div
+              className="h-3 w-[45%] max-w-[200px] animate-pulse rounded"
+              style={{ backgroundColor: 'rgba(255,255,255,0.1)' }}
+            />
+          </div>
+        ) : !faith ? (
+          <div className="flex flex-col items-center px-2 text-center">
+            <span className="text-6xl" aria-hidden>
+              🙏
+            </span>
+            <h3 className="mt-6 text-lg font-semibold" style={{ color: '#f5f3ff' }}>
+              Start your day with the Word
+            </h3>
+            <p className="mt-3 max-w-sm text-[14px] leading-relaxed" style={{ color: '#ddd6fe' }}>
+              We&apos;ll have a verse ready for you tomorrow.
+            </p>
+          </div>
+        ) : (
+          <div className="flex flex-col items-center px-2 py-4 text-center">
+            <p
+              className="mb-5 text-center text-[13px] font-medium uppercase"
+              style={{
+                color: '#fbbf24',
+                letterSpacing: '0.12em',
+              }}
+            >
+              {faith.verse_reference}
+            </p>
+            <p
+              className="mx-auto max-w-[300px] text-center text-[20px] leading-[1.75]"
+              style={{ color: '#f5f3ff', fontStyle: 'italic' }}
+            >
+              {faith.verse_text}
+            </p>
+            <div
+              className="my-5 h-px w-10"
+              style={{ backgroundColor: 'rgba(251,191,36,0.4)' }}
+              aria-hidden
+            />
+            <p
+              className="mx-auto max-w-[280px] text-center text-[14px] leading-[1.6]"
+              style={{ color: '#ddd6fe' }}
+            >
+              {faith.bridge_sentence}
+            </p>
+          </div>
+        )}
+      </div>
+
+      {faith && !loading ? (
+        <div
+          className="pointer-events-auto absolute flex items-center gap-2"
+          style={{ bottom: 80, right: 24 }}
+        >
+          {savedAnim ? (
+            <span
+              style={{
+                color: '#fbbf24',
+                fontSize: 12,
+                fontWeight: 500,
+                opacity: savedLabelOpacity,
+                transition: 'opacity 200ms ease',
+              }}
+            >
+              Saved
+            </span>
+          ) : null}
+          <button
+            type="button"
+            className="border-none bg-transparent p-0"
+            aria-label={isFavorited ? 'Verse saved' : 'Save verse to favorites'}
+            onClick={onFavoriteTap}
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden>
+              <path
+                d={heartPath}
+                fill={isFavorited ? '#fbbf24' : 'none'}
+                stroke={isFavorited ? '#fbbf24' : 'rgba(255,255,255,0.5)'}
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </button>
+        </div>
+      ) : null}
+
+      <p
+        className="mt-10 shrink-0 text-center text-[12px]"
+        style={{ color: 'rgba(196,181,253,0.8)' }}
+      >
+        Swipe to see your snapshot →
+      </p>
+    </div>
+  );
+}
+
 function EndActionPanel({
   visible,
   action,
@@ -1001,13 +1143,40 @@ function EndActionPanel({
 }
 
 function MingusSnapshot({ onComplete }: MingusSnapshotProps) {
-  const { data, loadStates } = useSnapshotData();
+  const { data, loadStates, saveFavorite } = useSnapshotData();
   const [index, setIndex] = useState(0);
   const [endPanelVisible, setEndPanelVisible] = useState(false);
+  const [savedAnim, setSavedAnim] = useState(false);
+  const [savedLabelOpacity, setSavedLabelOpacity] = useState(0);
+  const [isFavorited, setIsFavorited] = useState(false);
   const touchStartXRef = useRef<number | null>(null);
 
   useEffect(() => {
-    if (index !== 6) {
+    setIsFavorited(Boolean(data.faith?.is_favorited));
+  }, [data.faith]);
+
+  useEffect(() => {
+    if (!savedAnim) return;
+    setSavedLabelOpacity(0);
+    let rafInner = 0;
+    const rafOuter = requestAnimationFrame(() => {
+      rafInner = requestAnimationFrame(() => setSavedLabelOpacity(1));
+    });
+    const tFadeOut = window.setTimeout(() => setSavedLabelOpacity(0), 1200);
+    const tClear = window.setTimeout(() => {
+      setSavedAnim(false);
+      setSavedLabelOpacity(0);
+    }, 1500);
+    return () => {
+      cancelAnimationFrame(rafOuter);
+      cancelAnimationFrame(rafInner);
+      window.clearTimeout(tFadeOut);
+      window.clearTimeout(tClear);
+    };
+  }, [savedAnim]);
+
+  useEffect(() => {
+    if (index !== 7) {
       setEndPanelVisible(false);
       return;
     }
@@ -1036,6 +1205,16 @@ function MingusSnapshot({ onComplete }: MingusSnapshotProps) {
     [],
   );
 
+  const handleFaithFavoriteTap = useCallback(() => {
+    if (isFavorited || !data.faith) return;
+    setIsFavorited(true);
+    setSavedAnim(true);
+    void saveFavorite(data.faith).then((ok) => {
+      if (!ok) setIsFavorited(false);
+    });
+  }, [isFavorited, data.faith, saveFavorite]);
+
+  const faithLoading = loadStates.faith === 'loading';
   const vibeLoading = loadStates.vibe === 'loading';
   const cashLoading = loadStates.cash === 'loading';
   const cashMissingOrError = loadStates.cash === 'error' || (loadStates.cash === 'ready' && !data.cash);
@@ -1062,7 +1241,16 @@ function MingusSnapshot({ onComplete }: MingusSnapshotProps) {
             willChange: 'transform',
           }}
         >
-          <CardFrame index={1} tag="VIBE CHECK" title="Your Vibe Check" showSwipeHint>
+          <FaithDeckCard
+            loading={faithLoading}
+            faith={data.faith}
+            isFavorited={isFavorited}
+            savedAnim={savedAnim}
+            savedLabelOpacity={savedLabelOpacity}
+            onFavoriteTap={handleFaithFavoriteTap}
+          />
+
+          <CardFrame index={2} tag="VIBE CHECK" title="Your Vibe Check" showSwipeHint>
             <VibeCardContent
               loading={vibeLoading}
               vibe={data.vibe}
@@ -1070,7 +1258,7 @@ function MingusSnapshot({ onComplete }: MingusSnapshotProps) {
             />
           </CardFrame>
 
-          <CardFrame index={2} tag="MONEY RIGHT NOW" title="Money right now" showSwipeHint>
+          <CardFrame index={3} tag="MONEY RIGHT NOW" title="Money right now" showSwipeHint>
             <CashCardContent
               loading={cashLoading}
               cash={data.cash}
@@ -1079,7 +1267,12 @@ function MingusSnapshot({ onComplete }: MingusSnapshotProps) {
             />
           </CardFrame>
 
-          <CardFrame index={3} tag="SPENDING" title="Where your money is going" showSwipeHint>
+          <CardFrame
+            index={4}
+            tag="WHERE YOUR MONEY IS GOING"
+            title="Where your money is going"
+            showSwipeHint
+          >
             <SpendingCardContent
               loading={spendingLoading}
               spending={data.spending}
@@ -1087,11 +1280,11 @@ function MingusSnapshot({ onComplete }: MingusSnapshotProps) {
             />
           </CardFrame>
 
-          <CardFrame index={4} tag="ROSTER" title="Your roster's cost" showSwipeHint>
+          <CardFrame index={5} tag="YOUR ROSTER'S COST" title="Your roster's cost" showSwipeHint>
             <RosterCardContent loading={rosterLoading} roster={data.roster} />
           </CardFrame>
 
-          <CardFrame index={5} tag="MILESTONES" title="Milestones coming up" showSwipeHint>
+          <CardFrame index={6} tag="MILESTONES COMING UP" title="Milestones coming up" showSwipeHint>
             <MilestonesCardContent
               loading={milestonesLoading}
               milestones={data.milestones}
@@ -1100,7 +1293,7 @@ function MingusSnapshot({ onComplete }: MingusSnapshotProps) {
             />
           </CardFrame>
 
-          <CardFrame index={6} tag="YOUR NEXT MOVE" title="Your next move" showSwipeHint>
+          <CardFrame index={7} tag="YOUR NEXT MOVE" title="Your next move" showSwipeHint>
             <CareerNextMoveCardContent
               loading={careerLoading}
               career={data.career}
@@ -1109,7 +1302,7 @@ function MingusSnapshot({ onComplete }: MingusSnapshotProps) {
           </CardFrame>
 
           <CardFrame
-            index={7}
+            index={8}
             tag="ONE THING TO DO TODAY"
             title="One thing to do today"
             showSwipeHint
@@ -1121,7 +1314,7 @@ function MingusSnapshot({ onComplete }: MingusSnapshotProps) {
       </div>
 
       <EndActionPanel
-        visible={endPanelVisible && index === 6}
+        visible={endPanelVisible && index === 7}
         action={data.action}
         onComplete={onComplete}
       />
