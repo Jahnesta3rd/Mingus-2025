@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bug Report {{ ticket_number }}</title>
+</head>
+<body style="margin:0;padding:0;background:#f4f4f5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f4f4f5;padding:24px 12px;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:600px;background:#ffffff;border-radius:8px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.08);">
+          <tr>
+            <td style="background:#5B2D8E;padding:20px 24px;text-align:center;">
+              <div style="color:#ffffff;font-size:20px;font-weight:700;letter-spacing:0.12em;">MINGUS</div>
+              <div style="color:#EDE9F6;font-size:14px;margin-top:6px;font-weight:500;">Bug Report</div>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:24px;">
+              <div style="text-align:center;background:#EDE9F6;border-radius:8px;padding:16px 12px;margin-bottom:24px;">
+                <span style="font-size:22px;font-weight:700;color:#5B2D8E;">{{ ticket_number }}</span>
+              </div>
+
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="font-size:14px;color:#1a1a1a;line-height:1.5;">
+                <tr>
+                  <td style="padding:8px 12px 8px 0;color:#5B2D8E;font-weight:600;width:38%;vertical-align:top;">From</td>
+                  <td style="padding:8px 0;vertical-align:top;">{{ user_name }} ({{ user_email }})</td>
+                </tr>
+                <tr>
+                  <td style="padding:8px 12px 8px 0;color:#5B2D8E;font-weight:600;vertical-align:top;">Tier</td>
+                  <td style="padding:8px 0;vertical-align:top;">{{ user_tier }}</td>
+                </tr>
+                <tr>
+                  <td style="padding:8px 12px 8px 0;color:#5B2D8E;font-weight:600;vertical-align:top;">Account Age</td>
+                  <td style="padding:8px 0;vertical-align:top;">{{ account_age_days }} days</td>
+                </tr>
+                <tr>
+                  <td style="padding:8px 12px 8px 0;color:#5B2D8E;font-weight:600;vertical-align:top;">Beta User</td>
+                  <td style="padding:8px 0;vertical-align:top;">{% if is_beta %}Yes{% else %}No{% endif %}</td>
+                </tr>
+                <tr>
+                  <td style="padding:8px 12px 8px 0;color:#5B2D8E;font-weight:600;vertical-align:top;">Screen</td>
+                  <td style="padding:8px 0;vertical-align:top;">{{ current_route }}</td>
+                </tr>
+                <tr>
+                  <td style="padding:8px 12px 8px 0;color:#5B2D8E;font-weight:600;vertical-align:top;">Browser</td>
+                  <td style="padding:8px 0;vertical-align:top;">{{ browser_info }}</td>
+                </tr>
+                <tr>
+                  <td style="padding:8px 12px 8px 0;color:#5B2D8E;font-weight:600;vertical-align:top;">Balance</td>
+                  <td style="padding:8px 0;vertical-align:top;">{{ balance_status }}</td>
+                </tr>
+                <tr>
+                  <td style="padding:8px 12px 8px 0;color:#5B2D8E;font-weight:600;vertical-align:top;">Last Feature</td>
+                  <td style="padding:8px 0;vertical-align:top;">{{ last_feature }}</td>
+                </tr>
+                <tr>
+                  <td style="padding:8px 12px 8px 0;color:#5B2D8E;font-weight:600;vertical-align:top;">Submitted</td>
+                  <td style="padding:8px 0;vertical-align:top;">{{ created_at }} UTC</td>
+                </tr>
+              </table>
+
+              <div style="margin-top:28px;">
+                <div style="color:#5B2D8E;font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:8px;">WHAT THEY REPORTED</div>
+                <div style="background:#f3f4f6;border-radius:8px;padding:16px;font-size:14px;color:#374151;line-height:1.55;white-space:pre-wrap;">{{ description }}</div>
+              </div>
+
+              <p style="margin:28px 0 0;font-size:13px;color:#6b7280;line-height:1.5;">
+                Reply to this email to respond directly to {{ user_name }}.
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

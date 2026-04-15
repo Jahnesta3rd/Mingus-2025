@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>We got your report</title>
+</head>
+<body style="margin:0;padding:0;background:#f4f4f5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f4f4f5;padding:24px 12px;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:600px;background:#ffffff;border-radius:8px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.08);">
+          <tr>
+            <td style="background:#5B2D8E;padding:20px 24px;text-align:center;">
+              <div style="color:#ffffff;font-size:20px;font-weight:700;letter-spacing:0.12em;">MINGUS</div>
+              <div style="color:#EDE9F6;font-size:14px;margin-top:6px;font-weight:500;">Bug Report</div>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:24px;font-size:15px;color:#1a1a1a;line-height:1.55;">
+              <p style="margin:0 0 16px;">Hi {{ user_name }},</p>
+              <p style="margin:0 0 20px;">We received your report and we're on it. Your ticket number is:</p>
+
+              <div style="text-align:center;background:#EDE9F6;border-radius:8px;padding:16px 12px;margin-bottom:20px;">
+                <span style="font-size:22px;font-weight:700;color:#5B2D8E;">{{ ticket_number }}</span>
+              </div>
+
+              <p style="margin:0 0 24px;color:#374151;">
+                Keep this number for your records.
+                Reply to this email if you have more details to add.
+              </p>
+
+              <hr style="border:none;border-top:1px solid #e5e7eb;margin:24px 0;" />
+
+              <div style="color:#374151;font-weight:600;margin-bottom:8px;">What you reported:</div>
+              <div style="background:#f3f4f6;border-radius:8px;padding:16px;font-size:14px;color:#374151;line-height:1.55;white-space:pre-wrap;">{{ description }}</div>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

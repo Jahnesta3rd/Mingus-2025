@@ -15,6 +15,7 @@ celery = Celery(
     backend=os.environ.get("CELERY_RESULT_BACKEND", "redis://localhost:6379/2"),
     include=[
         "backend.tasks.email_tasks",
+        "backend.tasks.bug_report_tasks",
         "backend.tasks.vibe_checkups_emails",
         "backend.tasks.life_correlation_tasks",
         "backend.tasks.spirit_tasks",

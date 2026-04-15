@@ -58,6 +58,8 @@ from .spirit_checkin import (
 from .spirit_prefs import SpiritNotificationPrefs, DEFAULT_REMINDER_DAYS
 from .in_app_notification import InAppNotification
 from .transaction_schedule import IncomeStream, ScheduledExpense
+from .favorite_verse import FavoriteVerse
+from .bug_report import BugReport
 
 __all__ = [
     'db',
@@ -118,4 +120,6 @@ __all__ = [
     'InAppNotification',
     'IncomeStream',
     'ScheduledExpense',
+    'FavoriteVerse',
+    'BugReport',
 ]
