@@ -656,10 +656,12 @@ function CareerNextMoveCardContent({
   loading,
   career,
   onUploadResume,
+  onComplete,
 }: {
   loading: boolean;
   career: CareerData | null;
   onUploadResume: () => void;
+  onComplete: (topCta: string) => void;
 }) {
   const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
   const [transitionMonths, setTransitionMonths] = useState<3 | 6 | 9>(6);
@@ -737,17 +739,11 @@ function CareerNextMoveCardContent({
   }
 
   const selectedJob = career.jobs.find((j) => j.id === selectedJobId) ?? career.jobs[0];
-  const currentMonth1 = new Date().getMonth() + 1;
-  const monthsRemainingInYear = 12 - currentMonth1;
-  const monthsEarningNewSalary = monthsRemainingInYear - transitionMonths;
-  const monthlyDelta = selectedJob.monthly_takehome_delta;
-  let balanceBoost = 0;
-  let showNextYearCopy = false;
-  if (monthsEarningNewSalary <= 0) {
-    showNextYearCopy = true;
-  } else {
-    balanceBoost = monthsEarningNewSalary * monthlyDelta;
-  }
+  const totalExpectedReturn = selectedJob?.total_expected_return;
+  const hasExpectedReturn =
+    selectedJob != null &&
+    totalExpectedReturn != null &&
+    totalExpectedReturn !== 0;
 
   const timeOptions: Array<{ label: string; months: 3 | 6 | 9 }> = [
     { label: '3 months', months: 3 },
@@ -841,18 +837,35 @@ function CareerNextMoveCardContent({
             );
           })}
         </div>
-        {showNextYearCopy ? (
-          <p className="mt-4 text-[18px] font-bold" style={{ color: '#059669' }}>
-            You&apos;d start strong next year
-          </p>
+        <p className="mt-3 text-[12px] text-slate-500">
+          The sooner you land it, the more of this year you capture.
+        </p>
+        {hasExpectedReturn ? (
+          <>
+            <p
+              className="mt-4 text-[18px] font-bold leading-[1.4]"
+              style={{ color: '#059669' }}
+            >
+              Making this move could put an extra $
+              {selectedJob.total_expected_return.toLocaleString()} in your pocket this year.
+            </p>
+            <p className="mt-1 text-[12px] text-slate-500">
+              After taxes · {Math.round(selectedJob.job_probability * 100)}% job probability · wellness
+              included
+            </p>
+            <button
+              type="button"
+              className="mt-3 cursor-pointer border-none bg-transparent p-0 text-xs font-semibold text-purple-600 hover:underline"
+              onClick={() => onComplete('job-recommendations')}
+            >
+              Full breakdown in Job Recommendations →
+            </button>
+          </>
         ) : (
-          <p className="mt-4 text-[18px] font-bold" style={{ color: '#059669' }}>
-            +{formatUsd(balanceBoost)} to your year-end balance
+          <p className="mt-4 text-[13px] text-slate-500">
+            Select a role above to see your expected return.
           </p>
         )}
-        <p className="mt-1 text-[12px] text-slate-500">
-          +{formatUsd(monthlyDelta)}/mo take-home after taxes
-        </p>
       </div>
     </div>
   );
@@ -1298,6 +1311,7 @@ function MingusSnapshot({ onComplete }: MingusSnapshotProps) {
               loading={careerLoading}
               career={data.career}
               onUploadResume={() => onComplete('job-recommendations')}
+              onComplete={onComplete}
             />
           </CardFrame>
 
