@@ -141,6 +141,12 @@ interface EnhancedMatchingResult {
   career_positioning_plan: CareerPositioningPlan;
   success_probability: number;
   generated_at: string;
+  /**
+   * User's current annual salary when the API includes it.
+   * TODO: Confirm the backend field name and populate from the recommendations/profile response.
+   * Related: snapshot career card uses `current_salary` from GET /api/career/recommendations/:userId.
+   */
+  user_current_salary?: number;
 }
 
 interface EnhancedJobMatchingResultsProps {
@@ -160,6 +166,10 @@ const EnhancedJobMatchingResults: React.FC<EnhancedJobMatchingResultsProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState<'overview' | 'problems' | 'solutions' | 'positioning' | 'jobs'>('overview');
   const [expandedJob, setExpandedJob] = useState<string | null>(null);
+
+  // User baseline salary for future comparisons / CTAs — not on this payload today except via optional user_current_salary.
+  // TODO: Wire to the confirmed user salary field from the job recommendations API or profile when available.
+  const currentSalary = result.user_current_salary ?? 0;
 
   const getTierColor = (tier: string) => {
     switch (tier) {
@@ -198,7 +208,10 @@ const EnhancedJobMatchingResults: React.FC<EnhancedJobMatchingResultsProps> = ({
   ];
 
   return (
-    <div className={`bg-slate-900 ${className}`}>
+    <div
+      className={`bg-slate-900 ${className}`}
+      data-user-current-salary={currentSalary}
+    >
       {/* Header */}
       <div className="bg-gradient-to-r from-violet-600 to-purple-600 p-6 rounded-t-xl">
         <div className="flex items-center justify-between">

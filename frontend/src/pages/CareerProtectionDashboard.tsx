@@ -547,6 +547,11 @@ const CareerProtectionDashboard: React.FC = () => {
               </div>
             )}
             
+            {/*
+              Job recommendations are fetched inside RecommendationTiers, not in this file.
+              User current salary: use 0 here until wired; snapshot hook reads `current_salary` from
+              GET /api/career/recommendations/:userId — TODO align tiers with that (or confirmed) field.
+            */}
             {dashboardState.activeTab === 'recommendations' && (
               <RecommendationTiers />
             )}
