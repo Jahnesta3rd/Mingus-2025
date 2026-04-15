@@ -15,6 +15,7 @@ from backend.routes.connection_trend import connection_trend_bp
 from backend.routes.alerts import alerts_bp
 from backend.routes.spirit_finance import spirit_finance_bp
 from backend.routes.transaction_schedule import transaction_schedule_bp
+from backend.routes.faith_card import faith_card_bp
 
 
 def register_backend_blueprints(app):
@@ -39,3 +40,4 @@ def register_backend_blueprints(app):
     app.register_blueprint(
         transaction_schedule_bp, url_prefix="/api/transaction-schedule"
     )
+    app.register_blueprint(faith_card_bp)
