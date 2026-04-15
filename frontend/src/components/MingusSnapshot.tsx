@@ -154,8 +154,8 @@ function CardFrame({
 }) {
   return (
     <div
-      className="box-border w-screen shrink-0 overflow-y-auto bg-[#F8FAFC] px-5 pb-[72px] pt-6"
-      style={{ height: '100dvh' }}
+      className="box-border w-screen shrink-0 overflow-y-auto px-5 pb-[72px] pt-6"
+      style={{ height: '100dvh', background: '#FAF5FF' }}
     >
       <p
         className="mb-2 text-[11px] font-medium uppercase tracking-wide"
