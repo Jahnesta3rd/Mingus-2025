@@ -14,7 +14,7 @@ from sqlalchemy import func
 from backend.auth.decorators import require_auth
 from backend.models.beta_code import BetaCode
 from backend.models.beta_invite_log import BetaInviteLog
-from backend.src.models.bug_report import BugReport
+from backend.models.bug_report import BugReport
 from backend.models.database import db
 from backend.models.feedback import FeatureRating, NPSSurvey
 from backend.models.user_models import User
