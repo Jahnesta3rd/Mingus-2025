@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import PageWrapper from '../PageWrapper';
 import NPSSurvey from '../NPSSurvey';
+import BugReportButton from '../BugReportButton';
 import { useAuth } from '../../hooks/useAuth';
 import { useNPSSurvey } from '../../hooks/useNPSSurvey';
 
@@ -161,7 +162,7 @@ const DashboardLayout: React.FC = () => {
         <div className="min-w-0 flex-1 flex flex-col">
           <div className="border-b border-[#E2E8F0] bg-white">
             <div className="mx-auto flex max-w-7xl items-center justify-end px-4 py-2 text-sm text-[#1E293B] sm:px-6 lg:px-8">
-              <span className="flex items-center font-medium">
+              <BugReportButton /><span className="flex items-center font-medium">
                 {user?.name ?? 'User'}
                 {user?.is_beta === true && (
                   <span
