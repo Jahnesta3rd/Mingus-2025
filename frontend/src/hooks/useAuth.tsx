@@ -32,7 +32,7 @@ export type AuthUserTier = 'budget' | 'mid_tier' | 'professional';
 function normalizeUserTier(user: User | null): AuthUserTier | null {
   if (!user) return null;
   if (user.is_beta === true || user.tier === 'professional') return 'professional';
-  if (user.tier === 'mid_tier') return 'mid_tier';
+  if (user.tier === 'mid_tier' || user.tier === 'mid') return 'mid_tier';
   return 'budget';
 }
 
