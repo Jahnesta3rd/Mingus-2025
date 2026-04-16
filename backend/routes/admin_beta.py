@@ -14,6 +14,7 @@ from sqlalchemy import func
 from backend.auth.decorators import require_auth
 from backend.models.beta_code import BetaCode
 from backend.models.beta_invite_log import BetaInviteLog
+from backend.src.models.bug_report import BugReport
 from backend.models.database import db
 from backend.models.feedback import FeatureRating, NPSSurvey
 from backend.models.user_models import User
@@ -420,3 +421,90 @@ def send_wave():
         ),
         200,
     )
+
+
+def _bug_report_ticket_summary(r: BugReport) -> dict:
+    desc = r.description or ""
+    preview = desc[:120]
+    return {
+        "ticket_number": r.ticket_number,
+        "user_name": r.user_name or "",
+        "user_email": r.user_email or "",
+        "user_tier": r.user_tier or "",
+        "is_beta": bool(r.is_beta),
+        "description_preview": preview,
+        "current_route": r.current_route,
+        "balance_status": r.balance_status,
+        "last_feature": r.last_feature,
+        "account_age_days": r.account_age_days,
+        "status": r.status,
+        "created_at": r.created_at.isoformat() if r.created_at else None,
+        "resolved_at": r.resolved_at.isoformat() if r.resolved_at else None,
+    }
+
+
+@admin_beta_bp.route("/bug-reports", methods=["GET"])
+@require_auth
+def bug_reports_list():
+    user = _user_for_jwt()
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+    if not _is_admin_user(user):
+        return _admin_forbidden()
+
+    raw_status = (request.args.get("status") or "all").strip().lower()
+    if raw_status != "all" and raw_status not in BugReport.ALLOWED_STATUS:
+        return jsonify({"error": "invalid status filter"}), 400
+
+    try:
+        page = int(request.args.get("page", 1))
+    except (TypeError, ValueError):
+        page = 1
+    try:
+        per_page = int(request.args.get("per_page", 25))
+    except (TypeError, ValueError):
+        per_page = 25
+    page = max(1, page)
+    per_page = min(max(1, per_page), 100)
+
+    open_count = BugReport.query.filter_by(status="open").count()
+    in_progress_count = BugReport.query.filter_by(status="in_progress").count()
+
+    q = BugReport.query
+    if raw_status != "all":
+        q = q.filter(BugReport.status == raw_status)
+    q = q.order_by(BugReport.created_at.desc())
+
+    total = q.count()
+    pages = max(1, (total + per_page - 1) // per_page) if total else 1
+    items = q.offset((page - 1) * per_page).limit(per_page).all()
+
+    return (
+        jsonify(
+            {
+                "tickets": [_bug_report_ticket_summary(r) for r in items],
+                "total": total,
+                "page": page,
+                "pages": pages,
+                "open_count": open_count,
+                "in_progress_count": in_progress_count,
+            }
+        ),
+        200,
+    )
+
+
+@admin_beta_bp.route("/bug-reports/<ticket_number>", methods=["GET"])
+@require_auth
+def bug_report_detail(ticket_number: str):
+    user = _user_for_jwt()
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+    if not _is_admin_user(user):
+        return _admin_forbidden()
+
+    ticket_number = (ticket_number or "").strip().upper()
+    report = BugReport.query.filter_by(ticket_number=ticket_number).first()
+    if not report:
+        return jsonify({"error": "Not found"}), 404
+    return jsonify(report.to_dict()), 200

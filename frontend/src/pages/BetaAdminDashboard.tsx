@@ -2,11 +2,13 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   BarChart3,
+  Bug,
   KeyRound,
   LineChart,
   MessageSquare,
   RefreshCw,
   Sparkles,
+  Star,
   Users,
 } from 'lucide-react';
 import { csrfHeaders } from '../utils/csrfHeaders';
@@ -131,6 +133,107 @@ interface VibeCheckupsAnalyticsPayload {
 
 const VERDICT_PIE_COLORS = ['#5B2D8E', '#C4A064', '#0d9488', '#ea580c', '#be123c', '#64748b'];
 
+type BugReportStatus = 'open' | 'in_progress' | 'resolved' | 'wont_fix';
+
+type BugReportFilter = 'all' | 'open' | 'in_progress' | 'resolved';
+
+interface BugTicketListItem {
+  ticket_number: string;
+  user_name: string;
+  user_email: string;
+  user_tier: string;
+  is_beta: boolean;
+  description_preview: string;
+  current_route: string | null;
+  balance_status: string | null;
+  last_feature: string | null;
+  account_age_days: number | null;
+  status: BugReportStatus;
+  created_at: string | null;
+  resolved_at: string | null;
+}
+
+interface BugReportsListPayload {
+  tickets: BugTicketListItem[];
+  total: number;
+  page: number;
+  pages: number;
+  open_count: number;
+  in_progress_count: number;
+}
+
+interface BugReportFull {
+  id: number;
+  ticket_number: string;
+  user_id: number;
+  user_email: string;
+  user_name: string;
+  user_tier: string;
+  description: string;
+  current_route: string | null;
+  browser_info: string | null;
+  balance_status: string | null;
+  last_feature: string | null;
+  onboarding_complete: boolean;
+  account_age_days: number | null;
+  is_beta: boolean;
+  status: BugReportStatus;
+  admin_notes: string | null;
+  created_at: string | null;
+  updated_at: string | null;
+  resolved_at: string | null;
+}
+
+function formatRelativeTime(iso: string | null): string {
+  if (!iso) return '—';
+  const t = new Date(iso).getTime();
+  if (Number.isNaN(t)) return '—';
+  const sec = Math.max(0, Math.floor((Date.now() - t) / 1000));
+  if (sec < 60) return 'just now';
+  const min = Math.floor(sec / 60);
+  if (min < 60) return `${min} minute${min === 1 ? '' : 's'} ago`;
+  const hr = Math.floor(min / 60);
+  if (hr < 24) return `${hr} hour${hr === 1 ? '' : 's'} ago`;
+  const day = Math.floor(hr / 24);
+  if (day < 30) return `${day} day${day === 1 ? '' : 's'} ago`;
+  const mo = Math.floor(day / 30);
+  if (mo < 12) return `${mo} month${mo === 1 ? '' : 's'} ago`;
+  const yr = Math.floor(day / 365);
+  return `${yr} year${yr === 1 ? '' : 's'} ago`;
+}
+
+function formatScreenRoute(route: string | null, maxLen: number): string {
+  if (!route) return '—';
+  const s = route.trim();
+  if (s.length <= maxLen) return s;
+  return `${s.slice(0, maxLen)}…`;
+}
+
+function bugStatusBadgeClasses(status: BugReportStatus): string {
+  switch (status) {
+    case 'open':
+      return 'bg-[#FEE2E2] text-red-700';
+    case 'in_progress':
+      return 'bg-[#FEF3C7] text-amber-800';
+    case 'resolved':
+      return 'bg-[#D1FAE5] text-green-800';
+    case 'wont_fix':
+    default:
+      return 'bg-gray-100 text-gray-600';
+  }
+}
+
+function tierPillClasses(tier: string): string {
+  const t = (tier || '').toLowerCase();
+  if (t.includes('premium') || t.includes('elite')) {
+    return 'bg-purple-100 text-purple-800 border border-purple-200';
+  }
+  if (t.includes('pro') || t.includes('plus') || t.includes('standard')) {
+    return 'bg-blue-100 text-blue-800 border border-blue-200';
+  }
+  return 'bg-gray-100 text-gray-700 border border-gray-200';
+}
+
 function VerdictPieChart({
   slices,
 }: {
@@ -186,6 +289,17 @@ const BetaAdminDashboard: React.FC = () => {
   const [userPage, setUserPage] = useState(0);
   const [vibeAnalytics, setVibeAnalytics] = useState<VibeCheckupsAnalyticsPayload | null>(null);
   const [spiritMetrics, setSpiritMetrics] = useState<SpiritMetricsPayload | null>(null);
+
+  const [bugReports, setBugReports] = useState<BugReportsListPayload | null>(null);
+  const [bugListLoading, setBugListLoading] = useState(false);
+  const [bugListError, setBugListError] = useState<string | null>(null);
+  const [bugFilter, setBugFilter] = useState<BugReportFilter>('all');
+  const [bugPage, setBugPage] = useState(1);
+  const [expandedTicket, setExpandedTicket] = useState<string | null>(null);
+  const [bugDetails, setBugDetails] = useState<Record<string, BugReportFull>>({});
+  const [detailLoadingTicket, setDetailLoadingTicket] = useState<string | null>(null);
+  const [notesDraft, setNotesDraft] = useState<Record<string, string>>({});
+  const [savingNotesFor, setSavingNotesFor] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setError(null);
@@ -252,6 +366,124 @@ const BetaAdminDashboard: React.FC = () => {
   useEffect(() => {
     void load();
   }, [load]);
+
+  useEffect(() => {
+    setExpandedTicket(null);
+    let cancelled = false;
+    (async () => {
+      setBugListLoading(true);
+      setBugListError(null);
+      try {
+        const qs = new URLSearchParams();
+        qs.set('status', bugFilter);
+        qs.set('page', String(bugPage));
+        qs.set('per_page', '25');
+        const res = await fetch(`/api/admin/beta/bug-reports?${qs.toString()}`, {
+          credentials: 'include',
+          headers: { ...csrfHeaders() },
+        });
+        if (cancelled) return;
+        if (res.status === 403) {
+          setBugListError('Admin access required');
+          setBugReports(null);
+          return;
+        }
+        if (!res.ok) {
+          setBugListError('Failed to load bug reports');
+          setBugReports(null);
+          return;
+        }
+        setBugReports((await res.json()) as BugReportsListPayload);
+      } catch {
+        if (!cancelled) {
+          setBugListError('Failed to load bug reports');
+          setBugReports(null);
+        }
+      } finally {
+        if (!cancelled) setBugListLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [bugFilter, bugPage]);
+
+  useEffect(() => {
+    if (!expandedTicket) return;
+    let cancelled = false;
+    (async () => {
+      setDetailLoadingTicket(expandedTicket);
+      try {
+        const res = await fetch(
+          `/api/admin/beta/bug-reports/${encodeURIComponent(expandedTicket)}`,
+          { credentials: 'include', headers: { ...csrfHeaders() } }
+        );
+        if (cancelled || !res.ok) return;
+        const data = (await res.json()) as BugReportFull;
+        if (cancelled) return;
+        setBugDetails((p) => ({ ...p, [expandedTicket]: data }));
+        setNotesDraft((p) => ({ ...p, [expandedTicket]: data.admin_notes ?? '' }));
+      } finally {
+        if (!cancelled) setDetailLoadingTicket(null);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [expandedTicket]);
+
+  const setBugFilterAndResetPage = (f: BugReportFilter) => {
+    setBugFilter(f);
+    setBugPage(1);
+  };
+
+  const patchTicketStatus = async (ticket: string, status: BugReportStatus) => {
+    const res = await fetch(`/api/bug-report/${encodeURIComponent(ticket)}/status`, {
+      method: 'PATCH',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json', ...csrfHeaders() },
+      body: JSON.stringify({ status }),
+    });
+    if (!res.ok) return;
+    const updated = (await res.json()) as BugReportFull;
+    setBugReports((prev) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        tickets: prev.tickets.map((t) =>
+          t.ticket_number === ticket
+            ? { ...t, status: updated.status, resolved_at: updated.resolved_at }
+            : t
+        ),
+      };
+    });
+    setBugDetails((p) => ({ ...p, [ticket]: updated }));
+  };
+
+  const saveAdminNotes = async (ticket: string) => {
+    const detail = bugDetails[ticket];
+    const row = bugReports?.tickets.find((t) => t.ticket_number === ticket);
+    const status = detail?.status ?? row?.status;
+    if (!status) return;
+    setSavingNotesFor(ticket);
+    try {
+      const res = await fetch(`/api/bug-report/${encodeURIComponent(ticket)}/status`, {
+        method: 'PATCH',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json', ...csrfHeaders() },
+        body: JSON.stringify({
+          status,
+          admin_notes: notesDraft[ticket] ?? '',
+        }),
+      });
+      if (!res.ok) return;
+      const updated = (await res.json()) as BugReportFull;
+      setBugDetails((p) => ({ ...p, [ticket]: updated }));
+      setNotesDraft((p) => ({ ...p, [ticket]: updated.admin_notes ?? '' }));
+    } finally {
+      setSavingNotesFor(null);
+    }
+  };
 
   const sortedUsers = useMemo(() => {
     const list = [...users];
@@ -809,6 +1041,316 @@ const BetaAdminDashboard: React.FC = () => {
               </ol>
             )}
           </div>
+        </section>
+
+        {/* Section 5 — Bug reports */}
+        <section
+          aria-label="Bug reports"
+          className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden"
+        >
+          <div className="px-5 py-4 border-b border-gray-100 flex flex-wrap items-center gap-3 justify-between gap-y-2">
+            <div className="flex items-center gap-2 min-w-0">
+              <Bug className="w-5 h-5 shrink-0" style={{ color: HEADER_PURPLE }} />
+              <h2 className="text-lg font-semibold text-gray-900">Bug Reports</h2>
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                {bugReports?.open_count ?? 0} open
+              </span>
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-900">
+                {bugReports?.in_progress_count ?? 0} in progress
+              </span>
+            </div>
+          </div>
+
+          <div className="px-5 pt-3 pb-2 border-b border-gray-100 flex flex-wrap gap-1">
+            {(
+              [
+                ['all', 'All'],
+                ['open', 'Open'],
+                ['in_progress', 'In Progress'],
+                ['resolved', 'Resolved'],
+              ] as const
+            ).map(([key, label]) => {
+              const active = bugFilter === key;
+              return (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => setBugFilterAndResetPage(key)}
+                  className={`px-3 py-2 text-sm font-medium rounded-t-md border-b-2 -mb-px transition-colors ${
+                    active
+                      ? 'text-[#5B2D8E] border-[#5B2D8E]'
+                      : 'text-gray-600 border-transparent hover:text-gray-800'
+                  }`}
+                >
+                  {label}
+                </button>
+              );
+            })}
+          </div>
+
+          {bugListError && (
+            <p className="px-5 py-4 text-sm text-red-600 border-b border-gray-100">{bugListError}</p>
+          )}
+
+          <div className="overflow-x-auto">
+            <table className="min-w-full text-sm">
+              <thead>
+                <tr className="bg-gray-50 text-left text-gray-600">
+                  <th className="px-4 py-3 font-medium">Ticket</th>
+                  <th className="px-4 py-3 font-medium">User</th>
+                  <th className="px-4 py-3 font-medium">Tier</th>
+                  <th className="px-4 py-3 font-medium">Screen</th>
+                  <th className="px-4 py-3 font-medium">Status</th>
+                  <th className="px-4 py-3 font-medium">Submitted</th>
+                </tr>
+              </thead>
+              <tbody>
+                {bugListLoading && !bugReports ? (
+                  <tr>
+                    <td colSpan={6} className="px-4 py-8 text-center text-gray-500">
+                      Loading bug reports…
+                    </td>
+                  </tr>
+                ) : bugReports && bugReports.tickets.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="px-4 py-10 text-center text-gray-500">
+                      {bugFilter === 'all'
+                        ? 'No tickets'
+                        : `No ${bugFilter === 'in_progress' ? 'in progress' : bugFilter} tickets`}
+                    </td>
+                  </tr>
+                ) : (
+                  bugReports?.tickets.map((row) => {
+                    const expanded = expandedTicket === row.ticket_number;
+                    const detail = bugDetails[row.ticket_number];
+                    const loadingDetail = detailLoadingTicket === row.ticket_number;
+                    const statusBtn = (s: BugReportStatus) => {
+                      const cur = detail?.status ?? row.status;
+                      const isCur = cur === s;
+                      const labels: Record<BugReportStatus, string> = {
+                        open: 'Open',
+                        in_progress: 'In progress',
+                        resolved: 'Resolved',
+                        wont_fix: "Won't fix",
+                      };
+                      return (
+                        <button
+                          key={s}
+                          type="button"
+                          className={`w-full text-left text-sm font-medium px-3 py-2 rounded-lg border transition-colors ${
+                            isCur
+                              ? 'bg-[#5B2D8E] text-white border-[#5B2D8E]'
+                              : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'
+                          }`}
+                          onClick={() => void patchTicketStatus(row.ticket_number, s)}
+                        >
+                          {labels[s]}
+                        </button>
+                      );
+                    };
+                    const formatStatusLabel = (s: BugReportStatus) =>
+                      s === 'in_progress'
+                        ? 'In progress'
+                        : s === 'wont_fix'
+                          ? "Won't fix"
+                          : `${s.charAt(0).toUpperCase()}${s.slice(1)}`;
+                    return (
+                      <React.Fragment key={row.ticket_number}>
+                        <tr
+                          role="button"
+                          tabIndex={0}
+                          onClick={() =>
+                            setExpandedTicket((cur) =>
+                              cur === row.ticket_number ? null : row.ticket_number
+                            )
+                          }
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                              e.preventDefault();
+                              setExpandedTicket((cur) =>
+                                cur === row.ticket_number ? null : row.ticket_number
+                              );
+                            }
+                          }}
+                          className={`border-t border-gray-100 transition-colors cursor-pointer ${
+                            expanded ? 'bg-purple-50/80' : 'hover:bg-purple-50/60'
+                          }`}
+                        >
+                          <td className="px-4 py-3 align-top whitespace-nowrap">
+                            <span
+                              className="font-mono font-bold text-[13px]"
+                              style={{ color: HEADER_PURPLE }}
+                            >
+                              {row.ticket_number}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3 align-top">
+                            <p className="font-bold text-[13px] text-gray-900">{row.user_name}</p>
+                            <p className="text-[11px] text-gray-500 mt-0.5 break-all">
+                              {row.user_email}
+                            </p>
+                          </td>
+                          <td className="px-4 py-3 align-top whitespace-nowrap">
+                            <div className="flex items-center gap-1">
+                              <span
+                                className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${tierPillClasses(
+                                  row.user_tier
+                                )}`}
+                              >
+                                {row.user_tier}
+                              </span>
+                              {row.is_beta ? (
+                                <Star
+                                  className="w-3.5 h-3.5 text-amber-500 shrink-0"
+                                  fill="currentColor"
+                                  aria-label="Beta user"
+                                />
+                              ) : null}
+                            </div>
+                          </td>
+                          <td className="px-4 py-3 align-top text-gray-500 text-[12px] max-w-[10rem] break-all">
+                            {formatScreenRoute(row.current_route, 30)}
+                          </td>
+                          <td className="px-4 py-3 align-top whitespace-nowrap">
+                            <span
+                              className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${bugStatusBadgeClasses(
+                                row.status
+                              )}`}
+                            >
+                              {formatStatusLabel(row.status)}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3 align-top text-gray-600 whitespace-nowrap">
+                            {formatRelativeTime(row.created_at)}
+                          </td>
+                        </tr>
+                        {expanded ? (
+                          <tr className="border-t border-gray-100 bg-gray-50/80">
+                            <td colSpan={6} className="px-4 py-4">
+                              {loadingDetail ? (
+                                <p className="text-sm text-gray-500">Loading details…</p>
+                              ) : detail ? (
+                                <div className="flex flex-col lg:flex-row gap-6">
+                                  <div className="flex-1 min-w-0 lg:max-w-[60%]">
+                                    <p className="text-[11px] font-medium text-gray-500 uppercase tracking-wide mb-2">
+                                      What they reported
+                                    </p>
+                                    <div className="bg-white rounded-lg p-3 text-sm text-gray-900 border border-gray-100 whitespace-pre-wrap break-words">
+                                      {detail.description}
+                                    </div>
+                                    <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                                      <div>
+                                        <span className="text-gray-500">Balance status</span>
+                                        <p className="font-medium text-gray-900">
+                                          {detail.balance_status ?? '—'}
+                                        </p>
+                                      </div>
+                                      <div>
+                                        <span className="text-gray-500">Last feature</span>
+                                        <p className="font-medium text-gray-900 break-all">
+                                          {detail.last_feature ?? '—'}
+                                        </p>
+                                      </div>
+                                      <div>
+                                        <span className="text-gray-500">Account age</span>
+                                        <p className="font-medium text-gray-900">
+                                          {detail.account_age_days != null
+                                            ? `${detail.account_age_days} days`
+                                            : '—'}
+                                        </p>
+                                      </div>
+                                      <div>
+                                        <span className="text-gray-500">Beta user</span>
+                                        <p className="font-medium text-gray-900">
+                                          {detail.is_beta ? 'Yes' : 'No'}
+                                        </p>
+                                      </div>
+                                      <div className="sm:col-span-2">
+                                        <span className="text-gray-500">Browser</span>
+                                        <p className="font-medium text-gray-900 break-all">
+                                          {detail.browser_info ?? '—'}
+                                        </p>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div className="w-full lg:w-[40%] shrink-0 min-w-0">
+                                    <p className="text-[11px] font-medium text-gray-500 uppercase tracking-wide mb-2">
+                                      Update status
+                                    </p>
+                                    <div className="flex flex-col gap-2">
+                                      {statusBtn('open')}
+                                      {statusBtn('in_progress')}
+                                      {statusBtn('resolved')}
+                                      {statusBtn('wont_fix')}
+                                    </div>
+                                    <p className="text-[11px] font-medium text-gray-500 uppercase tracking-wide mt-4 mb-2">
+                                      Admin notes
+                                    </p>
+                                    <textarea
+                                      className="w-full border border-gray-200 rounded-lg text-sm p-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#5B2D8E]/30"
+                                      rows={3}
+                                      placeholder="Internal notes (not visible to user)..."
+                                      value={notesDraft[row.ticket_number] ?? ''}
+                                      onChange={(e) =>
+                                        setNotesDraft((p) => ({
+                                          ...p,
+                                          [row.ticket_number]: e.target.value,
+                                        }))
+                                      }
+                                      onClick={(e) => e.stopPropagation()}
+                                    />
+                                    <button
+                                      type="button"
+                                      disabled={savingNotesFor === row.ticket_number}
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        void saveAdminNotes(row.ticket_number);
+                                      }}
+                                      className="mt-2 text-xs font-medium px-3 py-1.5 rounded-lg bg-gray-900 text-white hover:bg-gray-800 disabled:opacity-50"
+                                    >
+                                      {savingNotesFor === row.ticket_number ? 'Saving…' : 'Save Notes'}
+                                    </button>
+                                  </div>
+                                </div>
+                              ) : (
+                                <p className="text-sm text-gray-500">Could not load ticket.</p>
+                              )}
+                            </td>
+                          </tr>
+                        ) : null}
+                      </React.Fragment>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          {bugReports && bugReports.pages > 1 ? (
+            <div className="grid grid-cols-3 items-center gap-2 px-5 py-3 border-t border-gray-100 text-sm text-gray-600">
+              <button
+                type="button"
+                disabled={bugPage <= 1 || bugListLoading}
+                onClick={() => setBugPage((p) => Math.max(1, p - 1))}
+                className="justify-self-start px-3 py-1 rounded-lg border border-gray-200 disabled:opacity-40 hover:bg-gray-50"
+              >
+                Previous
+              </button>
+              <span className="text-center tabular-nums">
+                Page {bugPage} of {bugReports.pages}
+              </span>
+              <button
+                type="button"
+                disabled={bugPage >= bugReports.pages || bugListLoading}
+                onClick={() => setBugPage((p) => p + 1)}
+                className="justify-self-end px-3 py-1 rounded-lg border border-gray-200 disabled:opacity-40 hover:bg-gray-50"
+              >
+                Next
+              </button>
+            </div>
+          ) : null}
         </section>
       </main>
     </div>
