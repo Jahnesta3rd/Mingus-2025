@@ -515,15 +515,26 @@ export default function ConversationalOnboarding({ onComplete }: ConversationalO
             >
               Skip for now →
             </button>
-            {turnCount >= 2 ? (
-              <button
-                type="button"
-                onClick={() => void resetConversation()}
-                className="text-xs font-medium text-gray-500 hover:text-gray-700 sm:text-sm"
-              >
-                Start over
-              </button>
-            ) : null}
+            <div className="flex items-center justify-end gap-2">
+              {turnCount > 0 ? (
+                <button
+                  type="button"
+                  onClick={() => onComplete()}
+                  className="cursor-pointer text-xs text-gray-400 hover:text-gray-600"
+                >
+                  Exit →
+                </button>
+              ) : null}
+              {turnCount >= 2 ? (
+                <button
+                  type="button"
+                  onClick={() => void resetConversation()}
+                  className="text-xs font-medium text-gray-500 hover:text-gray-700 sm:text-sm"
+                >
+                  Start over
+                </button>
+              ) : null}
+            </div>
           </div>
         </div>
       </header>
