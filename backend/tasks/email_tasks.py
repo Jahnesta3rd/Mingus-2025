@@ -14,6 +14,26 @@ from backend.services.email_service import EmailService
 BETA_INVITE_SUBJECT = "You're invited to the Mingus Beta"
 
 
+def send_email(
+    to: str,
+    subject: str,
+    html_body: str,
+    text_body: str | None = None,
+    mail_from: str | None = None,
+    reply_to: str | None = None,
+) -> bool:
+    """Transactional send via :class:`EmailService` (used by Celery tasks)."""
+    svc = EmailService()
+    return svc.send_email(
+        to=to,
+        subject=subject,
+        html_body=html_body,
+        text_body=text_body,
+        mail_from=mail_from,
+        reply_to=reply_to,
+    )
+
+
 def _template_dir() -> str:
     return os.path.normpath(
         os.path.join(os.path.dirname(__file__), "..", "templates", "emails")

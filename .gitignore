@@ -145,3 +145,4 @@ node_modules
 backend/cache/*.json
 *.bak
 alembic.ini
+frontend/dist/

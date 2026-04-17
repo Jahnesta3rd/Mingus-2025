@@ -36,6 +36,7 @@ class User(db.Model):
     # Personal information
     first_name = db.Column(db.String(100), nullable=True)
     last_name = db.Column(db.String(100), nullable=True)
+    primary_financial_goal = db.Column(db.String(255), nullable=True)
     tier = db.Column(db.String(50), default='budget', nullable=False)
     is_beta = db.Column(db.Boolean, default=False, nullable=False)
     beta_batch = db.Column(db.String(30), nullable=True)

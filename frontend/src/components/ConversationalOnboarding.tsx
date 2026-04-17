@@ -507,7 +507,14 @@ export default function ConversationalOnboarding({ onComplete }: ConversationalO
           <div className="min-w-0 flex-1 px-1">
             <ClusterProgressBar cluster={cluster} phase={phase} />
           </div>
-          <div className="w-20 shrink-0 text-right sm:w-24">
+          <div className="flex shrink-0 flex-col items-end gap-1 text-right">
+            <button
+              type="button"
+              onClick={() => onComplete()}
+              className="whitespace-nowrap text-[12px] text-gray-500 hover:text-gray-700"
+            >
+              Skip for now →
+            </button>
             {turnCount >= 2 ? (
               <button
                 type="button"
@@ -516,9 +523,7 @@ export default function ConversationalOnboarding({ onComplete }: ConversationalO
               >
                 Start over
               </button>
-            ) : (
-              <span className="inline-block w-8" aria-hidden />
-            )}
+            ) : null}
           </div>
         </div>
       </header>

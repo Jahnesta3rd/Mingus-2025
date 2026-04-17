@@ -30,6 +30,8 @@ from backend.models.vibe_tracker import (
 )
 from backend.models.connection_trend import ConnectionTrendAssessment  # noqa: F401
 from backend.models.alerts import UserAlert  # noqa: F401
+from backend.models.favorite_verse import FavoriteVerse  # noqa: F401
+from backend.models.bug_report import BugReport  # noqa: F401
 from backend.models.spirit_checkin import (
     SpiritCheckin,
     SpiritCheckinStreak,

@@ -31,6 +31,8 @@ class EmailService:
         subject: str,
         html_body: str,
         text_body: Optional[str] = None,
+        mail_from: Optional[str] = None,
+        reply_to: Optional[str] = None,
     ) -> bool:
         """Send a transactional HTML email via Resend (shared by Celery tasks and services)."""
         try:
@@ -38,14 +40,17 @@ class EmailService:
                 logger.warning("Resend dependency not installed; skipping email send.")
                 return False
 
+            from_addr = mail_from if mail_from else f"{FROM_NAME} <{FROM_EMAIL}>"
             payload: dict = {
-                "from": f"{FROM_NAME} <{FROM_EMAIL}>",
+                "from": from_addr,
                 "to": [to],
                 "subject": subject,
                 "html": html_body,
             }
             if text_body:
                 payload["text"] = text_body
+            if reply_to:
+                payload["reply_to"] = [reply_to] if isinstance(reply_to, str) else reply_to
 
             resend.Emails.send(payload)
             return True
