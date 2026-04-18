@@ -18,6 +18,8 @@ from backend.routes.transaction_schedule import transaction_schedule_bp
 from backend.routes.faith_card import faith_card_bp
 from backend.routes.bug_report import bug_report_bp
 from backend.routes.conversation_onboarding import conversation_onboarding_bp
+from backend.routes.modular_onboarding import modular_onboarding_bp
+from backend.models.onboarding_progress import OnboardingProgress  # noqa: F401
 
 
 def register_backend_blueprints(app):
@@ -45,3 +47,4 @@ def register_backend_blueprints(app):
     app.register_blueprint(faith_card_bp)
     app.register_blueprint(bug_report_bp)
     app.register_blueprint(conversation_onboarding_bp)
+    app.register_blueprint(modular_onboarding_bp)
