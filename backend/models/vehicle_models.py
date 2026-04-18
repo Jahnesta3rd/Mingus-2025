@@ -5,7 +5,6 @@ SQLAlchemy models for vehicle management system
 """
 
 from datetime import datetime
-from decimal import Decimal
 from .database import db
 
 class Vehicle(db.Model):
@@ -20,8 +19,8 @@ class Vehicle(db.Model):
     # Foreign key to users table
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, index=True)
     
-    # Vehicle identification
-    vin = db.Column(db.String(17), unique=True, nullable=False, index=True)
+    # Vehicle identification (nullable until user supplies; GC2 stubs omit VIN)
+    vin = db.Column(db.String(17), unique=True, nullable=True, index=True)
     
     # Vehicle details
     year = db.Column(db.Integer, nullable=False)
@@ -33,9 +32,14 @@ class Vehicle(db.Model):
     current_mileage = db.Column(db.Integer, nullable=False, default=0)
     monthly_miles = db.Column(db.Integer, nullable=False, default=0)
     
-    # Location data for MSA mapping
-    user_zipcode = db.Column(db.String(10), nullable=False, index=True)
+    # Location data for MSA mapping (zip nullable until user supplies)
+    user_zipcode = db.Column(db.String(10), nullable=True, index=True)
     assigned_msa = db.Column(db.String(100), nullable=True, index=True)
+    
+    # Vehicle operating costs (nullable; GC2 commits vehicles[i].monthly_fuel here as monthly_fuel_cost)
+    monthly_fuel_cost = db.Column(db.Numeric(10, 2), nullable=True)
+    monthly_payment = db.Column(db.Numeric(10, 2), nullable=True)
+    recent_maintenance = db.Column(db.Boolean, nullable=True, default=False)
     
     # Assessment / analytics extras
     notes = db.Column(db.Text, nullable=True)
@@ -57,7 +61,8 @@ class Vehicle(db.Model):
     )
     
     def __repr__(self):
-        return f'<Vehicle {self.year} {self.make} {self.model} (VIN: {self.vin[:8]}...)>'
+        vin_bit = f"{self.vin[:8]}..." if self.vin else "no VIN"
+        return f"<Vehicle {self.year} {self.make} {self.model} (VIN: {vin_bit})>"
     
     def to_dict(self):
         """Convert vehicle to dictionary for JSON serialization"""
