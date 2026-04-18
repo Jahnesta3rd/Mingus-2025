@@ -41,7 +41,10 @@ class RecurringExpense(db.Model):
         Index('idx_recurring_expenses_user_active', 'user_id', 'is_active'),
         Index('ix_recurring_expenses_user_source', 'user_id', 'source'),
         CheckConstraint(
-            "category IN ('housing', 'transportation', 'insurance', 'debt', 'subscription', 'utilities', 'other', 'relationship')",
+            "category IN ("
+            "'housing', 'transportation', 'insurance', 'debt', 'subscription', "
+            "'utilities', 'other', 'relationship', 'groceries', 'healthcare', 'childcare'"
+            ")",
             name='ck_recurring_expenses_category'
         ),
         CheckConstraint(
@@ -81,7 +84,7 @@ class UserIncome(db.Model):
         Index('idx_user_income_user_id', 'user_id'),
         Index('idx_user_income_user_active', 'user_id', 'is_active'),
         CheckConstraint(
-            "frequency IN ('monthly', 'biweekly', 'weekly', 'annual')",
+            "frequency IN ('monthly', 'biweekly', 'weekly', 'semimonthly', 'annual')",
             name='ck_user_income_frequency'
         ),
         CheckConstraint('pay_day IS NULL OR (pay_day >= 1 AND pay_day <= 31)', name='ck_user_income_pay_day'),

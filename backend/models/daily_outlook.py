@@ -14,11 +14,15 @@ class RelationshipStatus(enum.Enum):
     """Enum for relationship status"""
     SINGLE_CAREER_FOCUSED = "single_career_focused"
     SINGLE_LOOKING = "single_looking"
+    SINGLE = "single"
     DATING = "dating"
+    PARTNERED = "partnered"
     EARLY_RELATIONSHIP = "early_relationship"
     COMMITTED = "committed"
     ENGAGED = "engaged"
     MARRIED = "married"
+    DIVORCED = "divorced"
+    OTHER = "other"
     COMPLICATED = "complicated"
 
 

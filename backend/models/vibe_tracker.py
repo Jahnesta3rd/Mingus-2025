@@ -35,6 +35,8 @@ class VibeTrackedPerson(db.Model):
         index=True,
     )
     nickname = db.Column(db.String(30), nullable=False)
+    relationship_type = db.Column(db.String(50), nullable=True)
+    estimated_monthly_cost = db.Column(db.Float, nullable=True)
     card_type = db.Column(
         db.String(20),
         nullable=False,
