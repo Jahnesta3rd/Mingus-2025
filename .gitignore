@@ -19,8 +19,10 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
-lib64/
+venv/lib/
+venv/lib64/
+.venv/lib/
+.venv/lib64/
 parts/
 sdist/
 var/
@@ -146,3 +148,9 @@ backend/cache/*.json
 *.bak
 alembic.ini
 frontend/dist/
+
+# Stray directories from earlier project layouts / developer workstations
+# (explicitly anchored to repo root — do NOT change to unanchored patterns,
+#  doing so would silently exclude frontend/src/lib/ and similar paths)
+/lib/
+/MINGUS Marketing/
