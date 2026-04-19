@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import logging
 import os
@@ -20,6 +21,7 @@ from backend.models.database import db
 from backend.models.onboarding_progress import OnboardingProgress
 from backend.models.user_models import User
 from backend.routes._modular_onboarding_gc2_commit import run_commit_field, run_commit_module
+from loguru import logger as loguru_logger
 
 try:
     from dateutil import parser as date_parser
@@ -35,6 +37,12 @@ modular_onboarding_bp = Blueprint(
 )
 
 _redis = redis.Redis.from_url(
+    os.environ.get("REDIS_URL", "redis://localhost:6379/0"),
+    decode_responses=True,
+    socket_timeout=3,
+)
+
+_bridge_redis = redis.Redis.from_url(
     os.environ.get("REDIS_URL", "redis://localhost:6379/0"),
     decode_responses=True,
     socket_timeout=3,
@@ -704,6 +712,99 @@ def _build_modules() -> dict:
 
 MODULES = _build_modules()
 
+MODULE_IDS = frozenset(MODULE_ORDER)
+
+
+def _get_from_module_summary(session: dict, from_module: str) -> dict:
+    """Return a short dict of committed values in from_module for bridge context."""
+    raw = (session.get("module_snapshots") or {}).get(from_module)
+    data = raw if isinstance(raw, dict) else {}
+    if from_module == "income":
+        return {
+            "monthly_takehome": data.get("monthly_takehome"),
+            "pay_frequency": data.get("pay_frequency"),
+            "has_secondary": data.get("has_secondary"),
+        }
+    if from_module == "housing":
+        return {
+            "housing_type": data.get("housing_type"),
+            "monthly_cost": data.get("monthly_cost"),
+        }
+    if from_module == "vehicle":
+        return {
+            "vehicle_count": data.get("vehicle_count"),
+        }
+    if from_module == "recurring_expenses":
+        cats = data.get("categories") or {}
+        total = 0.0
+        if isinstance(cats, dict):
+            for v in cats.values():
+                if v is None:
+                    continue
+                if isinstance(v, dict):
+                    amt = v.get("amount")
+                    try:
+                        total += float(amt) if amt is not None else 0.0
+                    except (TypeError, ValueError):
+                        pass
+                else:
+                    try:
+                        total += float(v)
+                    except (TypeError, ValueError):
+                        pass
+        return {"total_monthly": total}
+    if from_module == "roster":
+        return {
+            "relationship_status": data.get("relationship_status"),
+            "people_count": len(data.get("people") or []),
+        }
+    if from_module == "career":
+        return {
+            "current_role": data.get("current_role"),
+            "open_to_move": data.get("open_to_move"),
+        }
+    if from_module == "milestones":
+        return {
+            "events_count": len(data.get("events") or []),
+        }
+    return {}
+
+
+def _build_bridge_prompt(from_module: str, to_module: str, summary: dict) -> str:
+    """Build the single-turn prompt Claude uses to produce the bridge."""
+    display = {
+        "income": "income",
+        "housing": "housing",
+        "vehicle": "vehicles",
+        "recurring_expenses": "recurring expenses",
+        "roster": "important people and social spending",
+        "career": "career",
+        "milestones": "milestones",
+    }
+    return (
+        "You are writing a brief, warm transition sentence for a "
+        "financial onboarding flow. The user just finished talking "
+        f"about their {display[from_module]} and is moving to "
+        f"{display[to_module]}.\n\n"
+        f"Context from previous module: {json.dumps(summary)}\n\n"
+        "Write ONE sentence (under 20 words) that acknowledges "
+        "what they shared and introduces the next topic. Be "
+        "conversational, not formal. Do not use corporate language "
+        "like 'let's explore' or 'great to hear'. Use casual "
+        "contractions. No markdown, no quotes, no emoji.\n\n"
+        "Example good: 'With $4,200 coming in monthly, let's see "
+        "where it goes first — what's rent looking like?'\n"
+        "Example bad: 'Great! Now let us explore your housing "
+        "situation.'\n\n"
+        "Return the sentence only, no preamble."
+    )
+
+
+def _fallback_bridge(from_module: str, to_module: str) -> str:
+    """Static fallback if Claude call fails."""
+    del from_module
+    return f"Got it — let's move on to {to_module.replace('_', ' ')}."
+
 
 def _module_completion_flags(session: dict) -> dict[str, dict[str, bool]]:
     done = set(session.get("completed_modules") or [])
@@ -915,6 +1016,90 @@ def get_status():
     return jsonify(payload), 200
 
 
+@modular_onboarding_bp.route("/bridge", methods=["POST"])
+@require_auth
+@require_csrf
+@limiter.limit("10 per minute")
+def post_bridge():
+    """Generate a one-line contextual bridge between modules (Redis 24h cache)."""
+    uid = _ext_user_id()
+    if not uid:
+        return jsonify({"error": "Authentication required"}), 401
+    user = User.query.filter_by(user_id=uid).first()
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    payload = request.get_json(silent=True) or {}
+    from_module = payload.get("from_module")
+    to_module = payload.get("to_module")
+
+    if not from_module or not to_module:
+        return (
+            jsonify(
+                {
+                    "error": "missing_fields",
+                    "message": "from_module and to_module required",
+                }
+            ),
+            400,
+        )
+    if from_module not in MODULE_IDS or to_module not in MODULE_IDS:
+        return (
+            jsonify(
+                {
+                    "error": "invalid_module",
+                    "message": "unknown module id",
+                }
+            ),
+            400,
+        )
+
+    session = _get_session(uid, user)
+
+    summary = _get_from_module_summary(session, from_module)
+    data_hash = hashlib.sha256(
+        json.dumps(summary, sort_keys=True, default=str).encode("utf-8")
+    ).hexdigest()[:12]
+
+    cache_key = f"bridge:{uid}:{from_module}:{to_module}:{data_hash}"
+
+    try:
+        cached = _bridge_redis.get(cache_key)
+        if cached:
+            loguru_logger.info(
+                "bridge cache hit user_id={} {}->{}",
+                uid,
+                from_module,
+                to_module,
+            )
+            return jsonify({"bridge_message": cached, "cached": True})
+    except Exception as exc:
+        loguru_logger.warning("bridge redis read failed: {}", exc)
+
+    prompt = _build_bridge_prompt(from_module, to_module, summary)
+    try:
+        client = anthropic.Anthropic()
+        response = client.messages.create(
+            model="claude-sonnet-4-6",
+            max_tokens=120,
+            messages=[{"role": "user", "content": prompt}],
+        )
+        block = response.content[0] if response.content else None
+        bridge_text = (getattr(block, "text", None) or "").strip()
+        if not bridge_text:
+            bridge_text = _fallback_bridge(from_module, to_module)
+    except Exception as exc:
+        loguru_logger.error("bridge anthropic call failed: {}", exc)
+        bridge_text = _fallback_bridge(from_module, to_module)
+
+    try:
+        _bridge_redis.setex(cache_key, 86400, bridge_text)
+    except Exception as exc:
+        loguru_logger.warning("bridge redis write failed: {}", exc)
+
+    return jsonify({"bridge_message": bridge_text, "cached": False})
+
+
 @modular_onboarding_bp.route("/reset", methods=["DELETE"])
 @require_auth
 @require_csrf
@@ -992,4 +1177,10 @@ def post_commit_module():
         load_row=_load_row,
         upsert_db_progress=_upsert_db_progress,
     )
+    if code == 200 and isinstance(body, dict) and body.get("ok") and isinstance(data, dict):
+        session.setdefault("module_snapshots", {})[module_id] = json.loads(json.dumps(data))
+        try:
+            _save_session(uid, session)
+        except Exception as exc:
+            logger.warning("module_snapshots redis save failed: %s", exc)
     return jsonify(body), code

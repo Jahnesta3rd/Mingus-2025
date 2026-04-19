@@ -210,6 +210,30 @@ export async function commitModule(
   );
 }
 
+export async function getBridge(
+  token: string,
+  fromModule: ModuleId,
+  toModule: ModuleId
+): Promise<{ bridge_message: string; cached: boolean }> {
+  const res = await fetch(`${BASE}/bridge`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+      ...csrfHeaders(),
+    },
+    body: JSON.stringify({
+      from_module: fromModule,
+      to_module: toModule,
+    }),
+  });
+  if (!res.ok) {
+    throw new Error(`${res.status}: bridge request failed`);
+  }
+  return (await res.json()) as { bridge_message: string; cached: boolean };
+}
+
 export async function skipModule(
   token: string,
   moduleId: ModuleId

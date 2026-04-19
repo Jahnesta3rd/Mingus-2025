@@ -331,6 +331,8 @@ export function useModularOnboarding() {
     setState((prev) => ({ ...prev, phase: 'committing', error: null }));
     try {
       const resp = await api.commitModule(token, moduleId, state.data[moduleId]);
+      const fromModule = moduleId;
+      const toModule = resp.next_module;
       setState((prev) => {
         const newModules = { ...prev.modules };
         newModules[moduleId] = {
@@ -350,6 +352,28 @@ export function useModularOnboarding() {
           phase: resp.all_done ? 'complete' : 'chatting',
         };
       });
+      if (toModule && !resp.all_done) {
+        api
+          .getBridge(token, fromModule, toModule)
+          .then((bridgeResp) => {
+            if (!bridgeResp.bridge_message) return;
+            setState((prev) => ({
+              ...prev,
+              messages: [
+                ...prev.messages,
+                {
+                  id: 'bridge-' + Date.now(),
+                  role: 'assistant',
+                  content: bridgeResp.bridge_message,
+                  timestamp: Date.now(),
+                },
+              ],
+            }));
+          })
+          .catch((err) => {
+            console.warn('bridge fetch failed', err);
+          });
+      }
       return resp;
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Commit failed';
