@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from './useAuth';
 import * as api from '../lib/modularOnboarding';
 import type {
+  CommitFieldResponse,
   OnboardingState,
   ModuleId,
   ModuleData,
@@ -19,6 +20,8 @@ const MODULE_DISPLAY_NAMES: Record<ModuleId, string> = {
   career: 'Career',
   milestones: 'Milestones',
 };
+
+const NEW_ROW_PATH_RE = /^(vehicles|people|events)\[new\]\.([a-z_]+)$/;
 
 function greetingFirstName(userName: string | null | undefined): string | null {
   if (!userName?.trim()) return null;
@@ -213,7 +216,86 @@ export function useModularOnboarding() {
         }));
       }
       try {
-        const resp = await api.commitField(token, moduleId, fieldPath, value);
+        const resp: CommitFieldResponse = await api.commitField(
+          token,
+          moduleId,
+          fieldPath,
+          value
+        );
+
+        if (resp.assigned_index != null && typeof resp.assigned_index === 'number') {
+          const m = fieldPath.match(NEW_ROW_PATH_RE);
+          if (m) {
+            const arrSeg = m[1] as 'vehicles' | 'people' | 'events';
+            const fieldKey = m[2];
+            const target:
+              | { mod: ModuleId; key: 'vehicles' | 'people' | 'events' }
+              | undefined =
+              arrSeg === 'vehicles'
+                ? { mod: 'vehicle', key: 'vehicles' }
+                : arrSeg === 'people'
+                  ? { mod: 'roster', key: 'people' }
+                  : { mod: 'milestones', key: 'events' };
+            if (target && moduleId === target.mod) {
+              const idx = resp.assigned_index;
+              const stored =
+                resp.value_stored !== undefined ? resp.value_stored : value;
+              setState((prev) => {
+                const d = prev.data;
+                if (target.key === 'vehicles') {
+                  const v = d.vehicle;
+                  const list = [...(v.vehicles ?? [])];
+                  while (list.length < idx + 1) {
+                    list.push({});
+                  }
+                  const prevRow = list[idx] ?? {};
+                  list[idx] = { ...prevRow, [fieldKey]: stored };
+                  return {
+                    ...prev,
+                    error: null,
+                    data: {
+                      ...d,
+                      vehicle: { ...v, vehicles: list },
+                    },
+                  };
+                }
+                if (target.key === 'people') {
+                  const r = d.roster;
+                  const list = [...(r.people ?? [])];
+                  while (list.length < idx + 1) {
+                    list.push({});
+                  }
+                  const prevRow = list[idx] ?? {};
+                  list[idx] = { ...prevRow, [fieldKey]: stored };
+                  return {
+                    ...prev,
+                    error: null,
+                    data: {
+                      ...d,
+                      roster: { ...r, people: list },
+                    },
+                  };
+                }
+                const ms = d.milestones;
+                const list = [...(ms.events ?? [])];
+                while (list.length < idx + 1) {
+                  list.push({});
+                }
+                const prevRow = list[idx] ?? {};
+                list[idx] = { ...prevRow, [fieldKey]: stored };
+                return {
+                  ...prev,
+                  error: null,
+                  data: {
+                    ...d,
+                    milestones: { ...ms, events: list },
+                  },
+                };
+              });
+            }
+          }
+        }
+
         // On success, leave optimistic state as-is. Clear error.
         return resp;
       } catch (err) {
