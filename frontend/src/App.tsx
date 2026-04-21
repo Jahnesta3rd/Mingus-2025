@@ -14,6 +14,7 @@ import HomeScreen from './components/HomeScreen';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
 import AuthGuard from './guards/AuthGuard';
+import { TermsCheckGuard } from './components/Auth/TermsCheckGuard';
 import VibeGuard from './guards/VibeGuard';
 import { MCIProvider } from './context/MCIContext';
 import LandingPage from './components/LandingPage';
@@ -107,7 +108,9 @@ const router = createBrowserRouter([
     path: '/welcome',
     element: (
       <AuthGuard>
-        <LogoSplash />
+        <TermsCheckGuard>
+          <LogoSplash />
+        </TermsCheckGuard>
       </AuthGuard>
     ),
   },
@@ -115,7 +118,9 @@ const router = createBrowserRouter([
     path: '/vibe-check-meme',
     element: (
       <AuthGuard>
-        <VibeCheckMemeWrapper />
+        <TermsCheckGuard>
+          <VibeCheckMemeWrapper />
+        </TermsCheckGuard>
       </AuthGuard>
     ),
   },
@@ -125,7 +130,9 @@ const router = createBrowserRouter([
     path: '/vibe-check',
     element: (
       <AuthGuard>
-        <VibeCheckPage />
+        <TermsCheckGuard>
+          <VibeCheckPage />
+        </TermsCheckGuard>
       </AuthGuard>
     ),
   },
@@ -135,11 +142,13 @@ const router = createBrowserRouter([
     path: '/dashboard',
     element: (
       <AuthGuard>
-        <VibeGuard>
-          <MCIProvider>
-            <DashboardLayout />
-          </MCIProvider>
-        </VibeGuard>
+        <TermsCheckGuard>
+          <VibeGuard>
+            <MCIProvider>
+              <DashboardLayout />
+            </MCIProvider>
+          </VibeGuard>
+        </TermsCheckGuard>
       </AuthGuard>
     ),
     children: [
@@ -158,7 +167,9 @@ const router = createBrowserRouter([
     path: '/onboarding',
     element: (
       <AuthGuard>
-        <OnboardingRouteWrapper />
+        <TermsCheckGuard>
+          <OnboardingRouteWrapper />
+        </TermsCheckGuard>
       </AuthGuard>
     ),
   },
@@ -167,7 +178,9 @@ const router = createBrowserRouter([
     path: '/snapshot',
     element: (
       <AuthGuard>
-        <SnapshotPage />
+        <TermsCheckGuard>
+          <SnapshotPage />
+        </TermsCheckGuard>
       </AuthGuard>
     ),
   },
@@ -176,7 +189,9 @@ const router = createBrowserRouter([
     path: '/settings',
     element: (
       <AuthGuard>
-        <SettingsPage />
+        <TermsCheckGuard>
+          <SettingsPage />
+        </TermsCheckGuard>
       </AuthGuard>
     ),
   },

@@ -38,6 +38,7 @@ from backend.models.spirit_checkin import (
     SpiritCheckinStreak,
     SpiritFinanceCorrelation,
 )
+from backend.models.agreement_acceptance import AgreementAcceptance  # noqa: F401
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
