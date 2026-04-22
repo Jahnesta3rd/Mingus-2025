@@ -16,6 +16,7 @@ from sqlalchemy import text
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 
 from backend.auth.decorators import require_auth
+from backend.constants.anthropic_models import CLAUDE_SONNET_MODEL
 from backend.models.database import db
 from backend.models.favorite_verse import FavoriteVerse
 from backend.models.user_models import User
@@ -114,7 +115,8 @@ Select the most fitting NIV verse and write the bridge sentence.
 
     client = anthropic.Anthropic()
     message = client.messages.create(
-        model="claude-sonnet-4-6",
+        # Sonnet ID from backend.constants.anthropic_models (single source of truth).
+        model=CLAUDE_SONNET_MODEL,
         max_tokens=300,
         system=system_prompt,
         messages=[{"role": "user", "content": user_message}],

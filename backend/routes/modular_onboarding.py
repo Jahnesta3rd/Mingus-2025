@@ -15,6 +15,7 @@ import redis
 from flask import Blueprint, g, jsonify, request
 
 from backend.auth.decorators import require_auth, require_csrf
+from backend.constants.anthropic_models import CLAUDE_SONNET_MODEL
 from backend.constants.onboarding import CATEGORY_KEYS, CATEGORY_KEY_IDS, MODULE_ORDER
 from backend.middleware.limiter_ext import limiter
 from backend.models.database import db
@@ -891,7 +892,8 @@ def post_message():
 
     client = anthropic.Anthropic()
     message = client.messages.create(
-        model="claude-sonnet-4-20250514",
+        # Sonnet ID from backend.constants.anthropic_models (replaces deprecated 20250514 snapshot).
+        model=CLAUDE_SONNET_MODEL,
         max_tokens=400,
         system=system,
         messages=api_messages,
@@ -1080,7 +1082,8 @@ def post_bridge():
     try:
         client = anthropic.Anthropic()
         response = client.messages.create(
-            model="claude-sonnet-4-6",
+            # Shared Sonnet ID: backend.constants.anthropic_models.CLAUDE_SONNET_MODEL
+            model=CLAUDE_SONNET_MODEL,
             max_tokens=120,
             messages=[{"role": "user", "content": prompt}],
         )
