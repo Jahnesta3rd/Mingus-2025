@@ -64,7 +64,9 @@ _DOLLAR_RE = re.compile(
     r"\$\s*([\d,]+(?:\.\d{1,2})?)|([\d,]+(?:\.\d{1,2})?)\s*(?:usd|dollars?)\b",
     re.IGNORECASE,
 )
-_READY_STRIP_RE = re.compile(r"\[MODULE_COMPLETE:[^\]]+\]")
+_READY_STRIP_RE = re.compile(
+    r"\[MODULE_COMPLETE:[^\]]+\]|\[EXPENSES_READY\]"
+)
 _ZIP_RE = re.compile(r"\b(\d{5})\b")
 _ISO_DATE_RE = re.compile(r"\b(20\d{2}-\d{2}-\d{2})\b")
 
@@ -78,6 +80,22 @@ def _parse_money_token(s: str) -> float | None:
         return v if v >= 0 else None
     except ValueError:
         return None
+
+
+def _recurring_expense_positive_category_count(ext: dict) -> int:
+    """Count GC2 expense categories with a strictly positive extracted amount."""
+    cats = ext.get("categories") or []
+    n = 0
+    for c in cats:
+        if not isinstance(c, dict):
+            continue
+        amt = c.get("amount")
+        try:
+            if amt is not None and float(amt) > 0:
+                n += 1
+        except (TypeError, ValueError):
+            continue
+    return n
 
 
 def _all_dollar_amounts(text: str) -> list[float]:
@@ -592,12 +610,20 @@ def extract_module_data(response_text: str, module_id: str) -> dict:
         if module_id not in MODULES:
             return {"_parse_failed": True, "raw": response_text or ""}
         tok = MODULES[module_id]["ready_token"]
-        if tok not in (response_text or ""):
+        raw = response_text or ""
+        if module_id == "recurring_expenses":
+            if not raw.rstrip().endswith(tok):
+                return {}
+        elif tok not in raw:
             return {}
         fn = MODULES[module_id].get("extraction_fn")
         if not callable(fn):
             return {"_parse_failed": True, "raw": response_text or ""}
-        return fn(response_text)
+        data = fn(response_text)
+        if module_id == "recurring_expenses":
+            if _recurring_expense_positive_category_count(data) < 3:
+                return {}
+        return data
     except Exception:
         logger.exception("extract_module_data failed for %s", module_id)
         return {"_parse_failed": True, "raw": response_text or ""}
@@ -652,15 +678,15 @@ def _build_modules() -> dict:
         "recurring_expenses": {
             "id": "recurring_expenses",
             "display_name": "Recurring Expenses",
-            "ready_token": "[MODULE_COMPLETE:expenses]",
+            "ready_token": "[EXPENSES_READY]",
             "per_module_turn_cap": 8,
             "system_prompt_append": (
-                "Collect monthly recurring expenses across these eight categories: "
-                "insurance, debt, subscription, utilities, other, groceries, healthcare, "
-                "childcare. Ask about each in turn. Accept approximate "
-                "numbers. If the user says a category does not apply, record zero. When you "
-                "have amounts for all eight categories (including zeros), end with: "
-                "[MODULE_COMPLETE:expenses]"
+                "You are collecting the user's monthly expenses. "
+                "Start by asking about their two biggest recurring expenses. "
+                "Then ask about a few more: food, transportation, subscriptions. "
+                "Accept approximate numbers. Keep it to 4-5 exchanges. "
+                "When you have at least 3 expense categories with amounts, "
+                "end your message with [EXPENSES_READY]"
             ),
             "extraction_fn": _extract_recurring_expenses,
         },
@@ -899,10 +925,9 @@ def post_message():
         messages=api_messages,
     )
     response_text = (message.content[0].text or "").strip()
-    ready_tok = mod["ready_token"]
+    extracted = extract_module_data(response_text, current_module_id)
 
-    if ready_tok in response_text:
-        extracted = extract_module_data(response_text, current_module_id)
+    if extracted:
         stripped = _strip_ready_tokens(response_text)
         _save_session(uid, session)
         _upsert_db_progress(user, session)
@@ -921,7 +946,7 @@ def post_message():
     session["messages"].append(
         {
             "role": "assistant",
-            "content": response_text,
+            "content": _strip_ready_tokens(response_text),
             "module": current_module_id,
         }
     )
@@ -933,7 +958,7 @@ def post_message():
         jsonify(
             {
                 "phase": "chatting",
-                "assistant_message": response_text,
+                "assistant_message": _strip_ready_tokens(response_text),
             }
         ),
         200,

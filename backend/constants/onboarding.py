@@ -35,6 +35,9 @@ CATEGORY_KEYS: tuple[tuple[str, tuple[str, ...]], ...] = (
             "credit card",
             "student loan",
             "minimum payment",
+            "car payment",
+            "auto loan",
+            "vehicle loan",
         ),
     ),
     (
@@ -53,7 +56,7 @@ CATEGORY_KEYS: tuple[tuple[str, tuple[str, ...]], ...] = (
         "utilities",
         ("utilit", "electric", "water", "gas bill", "internet", "phone"),
     ),
-    ("other", ("other", "misc")),
+    ("other", ("other", "misc", "rent", "rental")),
     ("groceries", ("food", "grocery", "groceries")),
     (
         "healthcare",
