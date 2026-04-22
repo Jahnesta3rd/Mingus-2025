@@ -190,6 +190,8 @@ def init_profile_database():
                 important_dates TEXT,
                 health_wellness TEXT,
                 goals TEXT,
+                current_balance NUMERIC(18, 2),
+                balance_last_updated TIMESTAMPTZ,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
@@ -207,7 +209,12 @@ def init_profile_database():
             )
         ''')
         
-        for col, typ in [('assessment_results', 'TEXT'), ('financial_readiness_index', 'REAL')]:
+        for col, typ in [
+            ('assessment_results', 'TEXT'),
+            ('financial_readiness_index', 'REAL'),
+            ('current_balance', 'NUMERIC(18, 2)'),
+            ('balance_last_updated', 'TIMESTAMPTZ'),
+        ]:
             try:
                 cursor.execute(f'ALTER TABLE user_profiles ADD COLUMN {col} {typ}')
                 conn.commit()

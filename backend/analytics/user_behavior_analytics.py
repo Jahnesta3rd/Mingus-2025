@@ -398,7 +398,7 @@ class UserBehaviorAnalytics:
                             INSERT INTO user_interactions (
                                 session_id, user_id, interaction_type, page_url,
                                 element_id, element_text, interaction_data
-                            ) VALUES (%s, %s, %s, %s, %s, %s, %s)
+                            ) VALUES (%s, %s, %s, %s, %s, %s, CAST(%s AS jsonb))
                         ''', (
                             interaction.session_id, interaction.user_id, interaction.interaction_type,
                             interaction.page_url, interaction.element_id, interaction.element_text,
@@ -547,7 +547,7 @@ class UserBehaviorAnalytics:
                     interaction_type,
                     COUNT(*) as count
                 FROM user_interactions 
-                WHERE user_id = %s AND timestamp >= %s
+                WHERE user_id = %s AND "timestamp" >= %s
                 GROUP BY interaction_type
                 ORDER BY count DESC
             ''', (user_id, start_date))
@@ -785,10 +785,10 @@ class UserBehaviorAnalytics:
             # User interactions
             cursor.execute('''
                 SELECT 'interaction' as event_type, interaction_type as event_name,
-                       timestamp, page_url, element_id, element_text
+                       "timestamp", page_url, element_id, element_text
                 FROM user_interactions 
                 WHERE session_id = %s
-                ORDER BY timestamp
+                ORDER BY "timestamp"
             ''', (session_id,))
             
             for row in cursor.fetchall():
@@ -914,15 +914,15 @@ class UserBehaviorAnalytics:
                 cursor.execute('''
                     SELECT 
                         interaction_type,
-                        interaction_timestamp,
+                        "timestamp",
                         interaction_data,
                         page_url
                     FROM user_interactions
                     WHERE user_id = %s 
                     AND interaction_type LIKE 'risk_%'
-                    AND interaction_timestamp >= NOW() - INTERVAL '{} days'
-                    ORDER BY interaction_timestamp
-                '''.format(days), (user_id,))
+                    AND "timestamp" >= NOW() - (%s * INTERVAL '1 day')
+                    ORDER BY "timestamp"
+                ''', (user_id, days))
                 
                 risk_interactions = cursor.fetchall()
                 
@@ -932,10 +932,16 @@ class UserBehaviorAnalytics:
                 
                 for interaction in risk_interactions:
                     interaction_type = interaction['interaction_type']
-                    timestamp = interaction['interaction_timestamp']
+                    timestamp = interaction['timestamp']
                     if isinstance(timestamp, str):
                         timestamp = datetime.fromisoformat(timestamp)
-                    interaction_data = json.loads(interaction['interaction_data']) if interaction['interaction_data'] else {}
+                    raw_data = interaction['interaction_data']
+                    if raw_data is None:
+                        interaction_data = {}
+                    elif isinstance(raw_data, dict):
+                        interaction_data = raw_data
+                    else:
+                        interaction_data = json.loads(raw_data) if raw_data else {}
                     
                     journey_steps.append({
                         'step': interaction_type.replace('risk_', ''),
@@ -1030,12 +1036,12 @@ class UserBehaviorAnalytics:
                         COUNT(CASE WHEN interaction_type = 'risk_assessment_completed' THEN 1 END) as assessments,
                         COUNT(CASE WHEN interaction_type = 'risk_recommendation_clicked' THEN 1 END) as recommendations_clicked,
                         COUNT(CASE WHEN interaction_type = 'proactive_action_taken' THEN 1 END) as proactive_actions,
-                        MAX(interaction_timestamp) as last_interaction
+                        MAX("timestamp") as last_interaction
                     FROM user_interactions
                     WHERE interaction_type LIKE 'risk_%'
-                    AND interaction_timestamp >= NOW() - INTERVAL '{} days'
+                    AND "timestamp" >= NOW() - (%s * INTERVAL '1 day')
                     GROUP BY user_id
-                '''.format(days))
+                ''', (days,))
                 
                 user_data = cursor.fetchall()
                 
