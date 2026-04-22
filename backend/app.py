@@ -20,10 +20,17 @@ from backend.routes.bug_report import bug_report_bp
 from backend.routes.modular_onboarding import modular_onboarding_bp
 from backend.routes.user import user_bp as user_agreement_bp
 from backend.models.onboarding_progress import OnboardingProgress  # noqa: F401
+from backend.models.database import db
 
 
 def register_backend_blueprints(app):
     """Register Flask blueprints owned by this package."""
+
+    @app.teardown_request
+    def rollback_on_exception(exception):
+        if exception is not None:
+            db.session.rollback()
+
     app.register_blueprint(admin_bp)
     app.register_blueprint(admin_beta_bp)
     app.register_blueprint(beta_bp)

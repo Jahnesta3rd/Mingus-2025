@@ -23,9 +23,26 @@ import json
 
 # Import the existing maintenance prediction engine
 from .maintenance_prediction_engine import MaintenancePredictionEngine
+from backend.models.database import db
 
 # Configure logging
 logger = logging.getLogger(__name__)
+
+
+def _rollback_pg_conn(conn) -> None:
+    if conn is None:
+        return
+    try:
+        conn.rollback()
+    except Exception:
+        pass
+
+
+def _rollback_sqlalchemy_session() -> None:
+    try:
+        db.session.rollback()
+    except Exception:
+        pass
 
 @dataclass
 class VehicleExpenseForecast:
@@ -111,17 +128,19 @@ class EnhancedCashFlowForecastEngine:
         Returns:
             List of vehicle information dictionaries
         """
+        conn = None
         try:
             conn = get_pg_connection()
             cursor = conn.cursor()
             
-            # Get vehicles for user (assuming user_email is stored in vehicles table)
+            # Vehicles link to users via user_id; resolve email on users table
             cursor.execute('''
-                SELECT id, year, make, model, current_mileage, user_zipcode, 
-                       user_email, created_date, updated_date
-                FROM vehicles 
-                WHERE user_email = %s
-                ORDER BY created_date DESC
+                SELECT v.id, v.year, v.make, v.model, v.current_mileage, v.user_zipcode,
+                       u.email AS user_email, v.created_date, v.updated_date
+                FROM vehicles v
+                INNER JOIN users u ON u.id = v.user_id
+                WHERE LOWER(u.email) = LOWER(%s)
+                ORDER BY v.created_date DESC
             ''', (user_email,))
             
             vehicles = []
@@ -138,12 +157,19 @@ class EnhancedCashFlowForecastEngine:
                     'updated_date': row['updated_date']
                 })
             
-            conn.close()
             return vehicles
             
         except Exception as e:
             logger.error(f"Error getting user vehicles for {user_email}: {e}")
+            _rollback_pg_conn(conn)
+            _rollback_sqlalchemy_session()
             return []
+        finally:
+            if conn is not None:
+                try:
+                    conn.close()
+                except Exception:
+                    pass
     
     def generate_vehicle_expense_forecast(self, vehicle_id: int, months: int = 12) -> Optional[VehicleExpenseForecast]:
         """
@@ -156,18 +182,20 @@ class EnhancedCashFlowForecastEngine:
         Returns:
             VehicleExpenseForecast object or None if error
         """
+        conn = None
         try:
             # Get vehicle information
             conn = get_pg_connection()
             cursor = conn.cursor()
             
             cursor.execute('''
-                SELECT id, year, make, model, current_mileage, user_zipcode, user_email
-                FROM vehicles WHERE id = %s
+                SELECT v.id, v.year, v.make, v.model, v.current_mileage, v.user_zipcode, u.email AS user_email
+                FROM vehicles v
+                INNER JOIN users u ON u.id = v.user_id
+                WHERE v.id = %s
             ''', (vehicle_id,))
             
             vehicle_row = cursor.fetchone()
-            conn.close()
             
             if not vehicle_row:
                 logger.warning(f"Vehicle {vehicle_id} not found")
@@ -280,7 +308,15 @@ class EnhancedCashFlowForecastEngine:
             
         except Exception as e:
             logger.error(f"Error generating vehicle expense forecast for vehicle {vehicle_id}: {e}")
+            _rollback_pg_conn(conn)
+            _rollback_sqlalchemy_session()
             return None
+        finally:
+            if conn is not None:
+                try:
+                    conn.close()
+                except Exception:
+                    pass
     
     def get_user_profile_expenses(self, user_email: str) -> Tuple[Dict[str, MonthlyForecastCategory], float]:
         """
@@ -293,6 +329,7 @@ class EnhancedCashFlowForecastEngine:
             Tuple of (expense categories dict, initial_balance for cashflow).
             initial_balance uses current_balance when present and > 0, else 5000.0.
         """
+        conn = None
         try:
             conn = get_pg_connection()
             cursor = conn.cursor()
@@ -303,7 +340,6 @@ class EnhancedCashFlowForecastEngine:
             ''', (user_email,))
             
             profile_row = cursor.fetchone()
-            conn.close()
 
             initial_balance = 5000.0
             if profile_row:
@@ -351,7 +387,15 @@ class EnhancedCashFlowForecastEngine:
             
         except Exception as e:
             logger.error(f"Error getting user profile expenses for {user_email}: {e}")
+            _rollback_pg_conn(conn)
+            _rollback_sqlalchemy_session()
             return {}, 5000.0
+        finally:
+            if conn is not None:
+                try:
+                    conn.close()
+                except Exception:
+                    pass
     
     def generate_enhanced_cash_flow_forecast(self, user_email: str, months: int = 12) -> Optional[EnhancedCashFlowForecast]:
         """
@@ -462,6 +506,7 @@ class EnhancedCashFlowForecastEngine:
             
         except Exception as e:
             logger.error(f"Error generating enhanced cash flow forecast for {user_email}: {e}")
+            _rollback_sqlalchemy_session()
             return None
 
     def build_daily_cashflow(
@@ -565,6 +610,7 @@ class EnhancedCashFlowForecastEngine:
             
         except Exception as e:
             logger.error(f"Error getting vehicle expense details for {user_email}, {month_key}: {e}")
+            _rollback_sqlalchemy_session()
             return {'month': month_key, 'total_vehicle_cost': 0.0, 'vehicles': []}
     
     def update_vehicle_mileage_and_refresh_forecast(self, vehicle_id: int, new_mileage: int) -> bool:
@@ -578,6 +624,8 @@ class EnhancedCashFlowForecastEngine:
         Returns:
             True if successful, False otherwise
         """
+        conn = None
+        select_conn = None
         try:
             # Update mileage in database
             conn = get_pg_connection()
@@ -591,27 +639,37 @@ class EnhancedCashFlowForecastEngine:
             
             conn.commit()
             conn.close()
+            conn = None
             
             # Clear existing predictions for this vehicle
+            pred_conn = None
             try:
-                conn = get_pg_connection()
-                cursor = conn.cursor()
+                pred_conn = get_pg_connection()
+                cursor = pred_conn.cursor()
                 cursor.execute('DELETE FROM maintenance_predictions WHERE vehicle_id = %s', (vehicle_id,))
-                conn.commit()
-                conn.close()
+                pred_conn.commit()
             except Exception as e:
                 logger.warning(f"Could not clear existing predictions for vehicle {vehicle_id}: {e}")
+                _rollback_pg_conn(pred_conn)
+                _rollback_sqlalchemy_session()
+            finally:
+                if pred_conn is not None:
+                    try:
+                        pred_conn.close()
+                    except Exception:
+                        pass
             
             # Generate new predictions
-            conn = get_pg_connection()
-            cursor = conn.cursor()
+            select_conn = get_pg_connection()
+            cursor = select_conn.cursor()
             
             cursor.execute('''
                 SELECT year, make, model, user_zipcode FROM vehicles WHERE id = %s
             ''', (vehicle_id,))
             
             vehicle_row = cursor.fetchone()
-            conn.close()
+            select_conn.close()
+            select_conn = None
             
             if vehicle_row:
                 predictions = self.maintenance_engine.predict_maintenance(
@@ -634,4 +692,14 @@ class EnhancedCashFlowForecastEngine:
             
         except Exception as e:
             logger.error(f"Error updating vehicle mileage for {vehicle_id}: {e}")
+            _rollback_pg_conn(conn)
+            _rollback_pg_conn(select_conn)
+            _rollback_sqlalchemy_session()
             return False
+        finally:
+            for c in (conn, select_conn):
+                if c is not None:
+                    try:
+                        c.close()
+                    except Exception:
+                        pass
