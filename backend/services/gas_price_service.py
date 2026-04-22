@@ -26,8 +26,8 @@ import sys
 # Add backend modules to path
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
-from models.database import db
-from models.vehicle_models import MSAGasPrice
+from backend.models.database import db
+from backend.models.vehicle_models import MSAGasPrice
 from msa_mapping_service import ZipcodeToMSAMapper
 
 # Configure logging
