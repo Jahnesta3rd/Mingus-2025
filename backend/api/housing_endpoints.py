@@ -16,7 +16,7 @@ from flask_cors import cross_origin
 from backend.auth.decorators import require_auth, require_housing_feature, rate_limit_housing_searches
 from backend.models.database import db
 from backend.models.housing_models import HousingSearch, HousingScenario
-from backend.services.feature_flag_service import feature_flag_service
+from backend.services.feature_flag_service import feature_flag_service, FeatureFlag
 from datetime import datetime, timedelta
 from typing import Dict, Any, List
 
@@ -349,8 +349,8 @@ def get_housing_tier_info():
             'tier_name': user_tier.value.replace('_', ' ').title(),
             'features': features,
             'has_optimal_location': feature_flag_service.has_feature_access(
-                user_id, 
-                feature_flag_service.FeatureFlag.OPTIMAL_LOCATION
+                user_id,
+                FeatureFlag.OPTIMAL_LOCATION
             ),
             'upgrade_options': upgrade_options
         }
