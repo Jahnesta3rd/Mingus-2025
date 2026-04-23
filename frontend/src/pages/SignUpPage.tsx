@@ -3,27 +3,45 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
 
 /**
- * Dedicated sign-up step between assessment result and checkout.
- * Email and first name pre-filled from URL params; user sets password and creates account.
+ * Dedicated sign-up step between assessment result and checkout, or standalone from CTAs.
+ * Email and first name may be pre-filled from URL params (assessment); otherwise user edits them.
  */
 const SignupPage: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const email = searchParams.get('email') ?? '';
-  const firstName = searchParams.get('firstName') ?? '';
+  const emailFromUrl = searchParams.get('email') ?? '';
+  const firstNameFromUrl = searchParams.get('firstName') ?? '';
   const fromAssessment = searchParams.get('from') === 'assessment';
   const assessmentType = searchParams.get('type') ?? 'ai-risk';
+
+  const [email, setEmail] = useState(emailFromUrl);
+  const [firstName, setFirstName] = useState(firstNameFromUrl);
+  const fieldsReadonly = !!emailFromUrl;
 
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const readonlyInputClass =
+    'w-full px-4 py-2.5 rounded-lg bg-gray-700 text-gray-300 border border-gray-600 cursor-not-allowed';
+  const editableInputClass =
+    'w-full px-4 py-2.5 rounded-lg bg-gray-800 text-white border border-gray-600 focus:ring-2 focus:ring-violet-500 focus:border-violet-500';
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    if (!email?.trim()) {
+    const trimmedEmail = email.trim();
+    if (!trimmedEmail) {
       setError('Email is required.');
+      return;
+    }
+    if (trimmedEmail.length > 255) {
+      setError('Email must be 255 characters or fewer.');
+      return;
+    }
+    if (!trimmedEmail.includes('@') || !trimmedEmail.includes('.')) {
+      setError('Please enter a valid email address.');
       return;
     }
     if (!password) {
@@ -43,7 +61,7 @@ const SignupPage: React.FC = () => {
         headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || 'test-token' },
         credentials: 'include',
         body: JSON.stringify({
-          email: email.trim().toLowerCase(),
+          email: trimmedEmail.toLowerCase(),
           firstName: firstName.trim() || undefined,
           first_name: firstName.trim() || undefined,
           password,
@@ -89,9 +107,16 @@ const SignupPage: React.FC = () => {
               id="signup-email"
               type="email"
               value={email}
-              readOnly
-              className="w-full px-4 py-2.5 rounded-lg bg-gray-700 text-gray-300 border border-gray-600 cursor-not-allowed"
-              aria-readonly="true"
+              readOnly={fieldsReadonly}
+              className={fieldsReadonly ? readonlyInputClass : editableInputClass}
+              aria-readonly={fieldsReadonly ? 'true' : 'false'}
+              {...(fieldsReadonly
+                ? {}
+                : {
+                    onChange: (e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value),
+                    required: true,
+                    autoComplete: 'email',
+                  })}
             />
           </div>
 
@@ -103,9 +128,16 @@ const SignupPage: React.FC = () => {
               id="signup-firstName"
               type="text"
               value={firstName}
-              readOnly
-              className="w-full px-4 py-2.5 rounded-lg bg-gray-700 text-gray-300 border border-gray-600 cursor-not-allowed"
-              aria-readonly="true"
+              readOnly={fieldsReadonly}
+              className={fieldsReadonly ? readonlyInputClass : editableInputClass}
+              aria-readonly={fieldsReadonly ? 'true' : 'false'}
+              {...(fieldsReadonly
+                ? {}
+                : {
+                    onChange: (e: React.ChangeEvent<HTMLInputElement>) => setFirstName(e.target.value),
+                    required: true,
+                    autoComplete: 'given-name',
+                  })}
             />
           </div>
 
