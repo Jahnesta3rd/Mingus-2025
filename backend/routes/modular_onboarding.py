@@ -548,6 +548,13 @@ def _extract_career(text: str) -> dict:
     return out
 
 
+def _milestone_event_name_meaningful(name: object) -> bool:
+    if not isinstance(name, str):
+        return False
+    alnum = re.sub(r"[^a-zA-Z0-9]", "", name)
+    return len(alnum) >= 3
+
+
 def _extract_milestones(text: str) -> dict:
     low = text.lower()
     events: list[dict] = []
@@ -569,8 +576,11 @@ def _extract_milestones(text: str) -> dict:
         if not amts:
             continue
         cost = float(amts[-1])
-        name = re.sub(r"\[MODULE_COMPLETE:\w+\]", "", block).split("$")[0].strip(" :-—\t")
-        name = re.sub(r"^\W+", "", name).strip() or "Event"
+        raw_name = re.sub(r"\[MODULE_COMPLETE:\w+\]", "", block).split("$")[0].strip(
+            " :-—\t"
+        )
+        name = re.sub(r"^\W+", "", raw_name).strip()
+        name = name[:160] if name else None
         date_iso = None
         iso_m = _ISO_DATE_RE.search(block)
         if iso_m:
@@ -586,7 +596,7 @@ def _extract_milestones(text: str) -> dict:
         recurring = any(x in block.lower() for x in ("annual", "every year", "recur"))
         events.append(
             {
-                "name": name[:160],
+                "name": name,
                 "date": date_iso,
                 "cost": cost,
                 "recurring": recurring,
@@ -595,12 +605,15 @@ def _extract_milestones(text: str) -> dict:
     if not events and _all_dollar_amounts(text):
         events.append(
             {
-                "name": "Milestone",
+                "name": None,
                 "date": None,
                 "cost": float(_all_dollar_amounts(text)[0]),
                 "recurring": False,
             }
         )
+    events = [e for e in events if _milestone_event_name_meaningful(e.get("name"))]
+    if not events:
+        return {}
     return {"events": events[:24]}
 
 
