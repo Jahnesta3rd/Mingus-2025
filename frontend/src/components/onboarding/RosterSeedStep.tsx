@@ -93,11 +93,15 @@ export default function RosterSeedStep({ onSubmitted, onSkip, setPageError }: Ro
 
   const postPerson = useCallback(
     async (nickname: string, card_type: RosterCardType): Promise<VibePersonPayload> => {
+      const name = nickname.trim();
+      if (!name) {
+        throw new Error('Nickname is required.');
+      }
       const res = await fetch('/api/vibe-tracker/people', {
         method: 'POST',
         credentials: 'include',
         headers: buildHeaders(getAccessToken),
-        body: JSON.stringify({ nickname, card_type }),
+        body: JSON.stringify({ nickname: name, card_type }),
       });
       if (res.status !== 201 && res.status !== 200) {
         throw new Error(await readErrorMessage(res));
@@ -178,7 +182,7 @@ export default function RosterSeedStep({ onSubmitted, onSkip, setPageError }: Ro
 
       <button
         type="submit"
-        disabled={submitting}
+        disabled={submitting || !nick1.trim()}
         className="min-h-11 w-full rounded-xl bg-[#5B2D8E] py-3 font-semibold text-white transition hover:opacity-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5B2D8E] focus-visible:ring-offset-2 disabled:opacity-50"
       >
         {submitting ? 'Adding…' : 'Add to my Roster →'}
