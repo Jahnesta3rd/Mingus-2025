@@ -291,6 +291,33 @@ def _validate_and_cast(field_path: str, value: Any) -> tuple[Any | None, tuple[d
         if v < 0 or v > 60:
             return None, _validation_failed(field_path, "out_of_range", "[0, 60]", value)
         return v, None
+    if field_path == "vehicle_count":
+        if value is None or value == "":
+            return None, _validation_failed(field_path, "type_mismatch", "int", value)
+        if isinstance(value, bool):
+            return None, _validation_failed(field_path, "type_mismatch", "int", value)
+        if isinstance(value, float):
+            if not value.is_integer():
+                return None, _validation_failed(field_path, "type_mismatch", "int", value)
+            v = int(value)
+        elif isinstance(value, int):
+            v = value
+        elif isinstance(value, str):
+            s = value.strip()
+            if not s:
+                return None, _validation_failed(field_path, "type_mismatch", "int", value)
+            try:
+                v = int(s)
+            except ValueError:
+                return None, _validation_failed(field_path, "type_mismatch", "int", value)
+        else:
+            try:
+                v = int(value)
+            except (TypeError, ValueError):
+                return None, _validation_failed(field_path, "type_mismatch", "int", value)
+        if v < 0 or v > 5:
+            return None, _validation_failed(field_path, "out_of_range", "[0, 5]", value)
+        return v, None
     if field_path == "zip_or_city":
         if not isinstance(value, str):
             return None, _validation_failed(field_path, "type_mismatch", "non-empty string max 100", value)
