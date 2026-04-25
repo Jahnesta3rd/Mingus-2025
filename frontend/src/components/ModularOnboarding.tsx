@@ -42,16 +42,18 @@ export function ModularOnboarding({ onComplete }: ModularOnboardingProps) {
           ))}
           {hook.isTyping && <TypingIndicator />}
         </div>
-        <InputBar
-          inputHint={hook.inputHint}
-          onSend={hook.sendUserMessage}
-          disabled={
-            hook.phase === 'committing' ||
-            hook.phase === 'hard_cap' ||
-            hook.phase === 'complete'
-          }
-          phase={hook.phase}
-        />
+        <div className="shrink-0 max-h-[40vh] overflow-y-auto bg-white">
+          <InputBar
+            inputHint={hook.inputHint}
+            onSend={hook.sendUserMessage}
+            disabled={
+              hook.phase === 'committing' ||
+              hook.phase === 'hard_cap' ||
+              hook.phase === 'complete'
+            }
+            phase={hook.phase}
+          />
+        </div>
       </div>
       <div className="overflow-y-auto">
         <OnboardingCanvas
