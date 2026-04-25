@@ -36,8 +36,8 @@ def ensure_user_preferences_table():
                 id SERIAL PRIMARY KEY,
                 user_id TEXT NOT NULL UNIQUE,
                 preferences TEXT NOT NULL,
-                created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+                created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
             )
         ''')
         

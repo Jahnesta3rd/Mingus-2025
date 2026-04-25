@@ -112,8 +112,8 @@ def submit_weekly_checkin():
                 transportation_stress INTEGER,
                 commute_satisfaction INTEGER,
                 vehicle_decisions TEXT,
-                created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
                 UNIQUE(user_id, week_start_date)
             )
         ''')
