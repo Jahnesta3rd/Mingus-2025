@@ -56,8 +56,7 @@ const LoginPage: React.FC = () => {
               : [];
           const isComplete =
             statusData.setupCompleted === true ||
-            statusData.onboarding_complete === true ||
-            steps.length >= 3;
+            statusData.onboarding_complete === true;
           if (!isComplete) {
             window.location.replace('/onboarding');
             return;

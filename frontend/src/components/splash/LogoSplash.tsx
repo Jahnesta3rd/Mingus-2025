@@ -61,8 +61,7 @@ const LogoSplash: React.FC = () => {
                 : [];
             const isComplete =
               data.setupCompleted === true ||
-              data.onboarding_complete === true ||
-              steps.length >= 3;
+              data.onboarding_complete === true;
 
             if (!isComplete) {
               if (mounted) navigate('/onboarding', { replace: true });
