@@ -938,7 +938,9 @@ def post_message():
         messages=api_messages,
     )
     response_text = (message.content[0].text or "").strip()
+    logger.info(f"chat_response_tail module={current_module_id} tail={response_text[-200:]!r}")
     extracted = extract_module_data(response_text, current_module_id)
+    logger.info(f"chat_extraction module={current_module_id} extracted_keys={list(extracted.keys()) if extracted else None}")
 
     if extracted:
         stripped = _strip_ready_tokens(response_text)
