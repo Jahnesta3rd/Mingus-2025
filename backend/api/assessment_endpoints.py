@@ -14,11 +14,31 @@ import secrets
 from datetime import datetime
 from flask import Blueprint, request, jsonify, current_app, send_file
 from werkzeug.exceptions import BadRequest, InternalServerError
+from sqlalchemy import Table, Column, Integer, Text, Float, DateTime, MetaData, literal_column
+from sqlalchemy.dialects.postgresql import insert as pg_insert
 from ..utils.validation import APIValidator
 from ..services.email_service import EmailService
+from ..models.database import db
 
 # Configure logging
 logger = logging.getLogger(__name__)
+
+_user_profiles_table = Table(
+    'user_profiles',
+    MetaData(),
+    Column('id', Integer),
+    Column('email', Text),
+    Column('personal_info', Text),
+    Column('financial_info', Text),
+    Column('monthly_expenses', Text),
+    Column('important_dates', Text),
+    Column('health_wellness', Text),
+    Column('goals', Text),
+    Column('assessment_results', Text),
+    Column('financial_readiness_index', Float),
+    Column('created_at', DateTime),
+    Column('updated_at', DateTime),
+)
 
 # Create blueprint
 assessment_api = Blueprint('assessment_api', __name__, url_prefix='/api')
@@ -356,70 +376,98 @@ def sync_assessments_to_profile(email):
     Fetch all assessments for this email (by hash), build assessment_results and FRI,
     and update user_profiles. Called after signup or when user completes an assessment.
     """
-    email_hash = hashlib.sha256(email.lower().strip().encode()).hexdigest()
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute('''
-        SELECT a.id, a.assessment_type, a.answers, a.completed_at,
-               lmr.score, lmr.risk_level, lmr.recommendations, lmr.subscores
-        FROM assessments a
-        LEFT JOIN lead_magnet_results lmr ON a.id = lmr.assessment_id
-        WHERE a.email = %s
-        ORDER BY a.completed_at DESC
-    ''', (email_hash,))
-    rows = cursor.fetchall()
-    conn.close()
-    assessment_results = {}
-    scores_by_type = {}
-    for row in rows:
-        r = dict(row)  # Row has no .get(); convert so r.get() works
-        aid = r['id']
-        atype = r['assessment_type']
-        raw_answers = r.get('answers')
-        answers = json.loads(raw_answers) if raw_answers else {}
-        raw_rec = r.get('recommendations')
-        raw_sub = r.get('subscores')
-        try:
-            recs = json.loads(raw_rec) if raw_rec else []
-        except (TypeError, ValueError):
-            recs = []
-        try:
-            subs = json.loads(raw_sub) if raw_sub else None
-        except (TypeError, ValueError):
-            subs = None
-        assessment_results[str(aid)] = {
-            'completed_at': r.get('completed_at') or '',
-            'score': r.get('score'),
-            'subscores': subs,
-            'answers': answers,
-            'risk_level': r.get('risk_level') or 'Unknown',
-            'recommendations': recs
-        }
-        if atype in ('ai-risk', 'income-comparison', 'layoff-risk', 'vehicle-financial-health') and r.get('score') is not None:
-            scores_by_type[atype] = r.get('score')
-    fri = compute_financial_readiness_index(scores_by_type) if len(scores_by_type) >= 2 else None
-    profile_db_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'user_profiles.db'))
-    if not os.path.exists(profile_db_path):
-        return
+    normalized_email = email.lower().strip()
+    email_hash = hashlib.sha256(normalized_email.encode()).hexdigest()
+    conn = None
     try:
-        sqlite3 = __import__('sqlite3')
-        pconn = sqlite3.connect(profile_db_path)
-        pc = pconn.cursor()
-        pc.execute(
-            '''UPDATE user_profiles 
-               SET assessment_results = ?, 
-                   financial_readiness_index = ?, 
-                   updated_at = ? 
-               WHERE email = ?''',
-            (json.dumps(assessment_results), fri,
-             datetime.now().isoformat(), email.lower().strip())
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute('''
+            SELECT a.id, a.assessment_type, a.answers, a.completed_at,
+                   lmr.score, lmr.risk_level, lmr.recommendations, lmr.subscores
+            FROM assessments a
+            LEFT JOIN lead_magnet_results lmr ON a.id = lmr.assessment_id
+            WHERE a.email = %s
+            ORDER BY a.completed_at DESC
+        ''', (email_hash,))
+        rows = cursor.fetchall()
+
+        assessment_results = {}
+        scores_by_type = {}
+        for row in rows:
+            r = dict(row)  # Row has no .get(); convert so r.get() works
+            aid = r['id']
+            atype = r['assessment_type']
+            raw_answers = r.get('answers')
+            answers = json.loads(raw_answers) if raw_answers else {}
+            raw_rec = r.get('recommendations')
+            raw_sub = r.get('subscores')
+            try:
+                recs = json.loads(raw_rec) if raw_rec else []
+            except (TypeError, ValueError):
+                recs = []
+            try:
+                subs = json.loads(raw_sub) if raw_sub else None
+            except (TypeError, ValueError):
+                subs = None
+            assessment_results[str(aid)] = {
+                'completed_at': r.get('completed_at') or '',
+                'score': r.get('score'),
+                'subscores': subs,
+                'answers': answers,
+                'risk_level': r.get('risk_level') or 'Unknown',
+                'recommendations': recs
+            }
+            if atype in ('ai-risk', 'income-comparison', 'layoff-risk', 'vehicle-financial-health') and r.get('score') is not None:
+                scores_by_type[atype] = r.get('score')
+
+        fri = compute_financial_readiness_index(scores_by_type) if len(scores_by_type) >= 2 else None
+        now = datetime.utcnow()
+        upsert_stmt = (
+            pg_insert(_user_profiles_table)
+            .values(
+                email=normalized_email,
+                assessment_results=json.dumps(assessment_results),
+                financial_readiness_index=fri,
+                personal_info='{}',
+                financial_info='{}',
+                monthly_expenses='{}',
+                important_dates='{}',
+                health_wellness='{}',
+                goals='{}',
+                created_at=now,
+                updated_at=now,
+            )
+            .on_conflict_do_update(
+                index_elements=[_user_profiles_table.c.email],
+                set_={
+                    'assessment_results': json.dumps(assessment_results),
+                    'financial_readiness_index': fri,
+                    'updated_at': now,
+                },
+            )
+            .returning(
+                _user_profiles_table.c.id,
+                _user_profiles_table.c.email,
+                literal_column('xmax = 0').label('inserted'),
+            )
         )
-        pconn.commit()
+
+        upsert_result = db.session.execute(upsert_stmt).first()
+        db.session.commit()
+        action = 'insert' if getattr(upsert_result, 'inserted', False) else 'update'
+        logger.info(
+            "assessment_sync user_profile_id=%s email=%s action=%s",
+            getattr(upsert_result, 'id', None),
+            normalized_email,
+            action,
+        )
     except Exception as e:
-        logger.warning(f"Could not sync profile: {e}")
+        db.session.rollback()
+        logger.warning("assessment_sync failed email=%s error=%s", normalized_email, e)
     finally:
-        if 'pconn' in locals():
-            pconn.close()
+        if conn is not None:
+            conn.close()
 
 
 @assessment_api.route('/assessments/sync-profile', methods=['POST'])
