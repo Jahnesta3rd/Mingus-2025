@@ -723,15 +723,36 @@ def _build_modules() -> dict:
             "id": "income",
             "display_name": "Income",
             "ready_token": "[MODULE_COMPLETE:income]",
-            "per_module_turn_cap": 6,
+            "per_module_turn_cap": 12,
             "system_prompt_append": (
-                "Collect the user monthly take-home pay after taxes, their pay frequency "
-                "(weekly, biweekly, semimonthly, monthly), what day of the month their paycheck "
-                "typically arrives (e.g. the 1st, the 15th), whether they have secondary income "
-                "(freelance, side work, gig), and approximate bonus cadence if any. Ask one "
-                "thing at a time. Accept approximate numbers. When you have monthly take-home, "
-                "pay frequency, pay-day-of-month (or they clearly have only a weekday-based "
-                "schedule), and know whether secondary income exists, end your message with "
+                "You are collecting the user's income information. Ask about ONE field at a time. "
+                "Open by telling the user: \"Please answer with labels so I can save your information "
+                "correctly. For example: take-home: $5,000 or secondary: $1,000 monthly.\" "
+                "Because only the user's messages are parsed, each answer should include a dollar sign "
+                "when giving amounts (e.g. take-home: $5,000), not a bare number alone. "
+                "Walk through in this exact order; wait for each reply before the next question:\n"
+                "1) Take-home pay — \"What's your monthly take-home pay after taxes? Please answer in "
+                "the format 'take-home: $5,000'.\" If they reply with only an amount like \"$5,000\" "
+                "without context, gently re-ask: \"Got it — is that your take-home pay each month? "
+                "Please answer like 'take-home: $5,000' so I can save it correctly.\"\n"
+                "2) Pay frequency — \"How often do you get paid? Answer using one of these words in "
+                "your reply: weekly, biweekly, semimonthly, or monthly.\" (These match what our system "
+                "stores; if they describe something else, help them pick the closest of those four.)\n"
+                "3) Pay day — \"What day of the month does your paycheck typically arrive — for example "
+                "'the 1st' or 'the 15th'? If you're paid on weekdays only (e.g. every other Friday), "
+                "say that clearly in the same message.\"\n"
+                "4) Secondary income — \"Do you have any secondary income from freelance work, a side "
+                "gig, or another regular source? If yes, answer like 'secondary: $1,000 monthly' or "
+                "'side gig: $500' (include the word secondary, side, freelance, or gig, and the dollar "
+                "amount). If no, say clearly 'no secondary income'.\"\n"
+                "5) Bonuses — \"Do you receive bonuses? If yes, how often — for example 'quarterly bonus' "
+                "or 'annual bonus'. If no, say 'no bonuses'.\"\n"
+                "After you have take-home (with a dollar amount in their answers), pay frequency, "
+                "pay-day or weekday schedule, secondary status, and bonus status, summarize for "
+                "confirmation — for example: \"Here's what I have: take-home: $5,000 monthly, paid on "
+                "the 15th, no secondary income, no bonuses. Does this look right?\" Wait for their "
+                "confirmation (yes / corrections). Only after take-home and pay frequency are clearly "
+                "captured in the conversation AND the user confirms the summary, end your message with "
                 "exactly: [MODULE_COMPLETE:income]"
             ),
             "extraction_fn": _extract_income,
