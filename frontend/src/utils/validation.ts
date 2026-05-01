@@ -1,4 +1,5 @@
 import DOMPurify from 'dompurify';
+import { Sanitizer } from './sanitize';
 
 export interface ValidationResult {
   isValid: boolean;
@@ -116,9 +117,12 @@ export class InputValidator {
         continue;
       }
       
-      // Sanitize string values
+      // Sanitize string values (never HTML-sanitize email — same paste/DOMPurify issue as AssessmentModal)
       if (typeof value === 'string') {
-        answers[key] = DOMPurify.sanitize(value);
+        answers[key] =
+          key === 'email'
+            ? Sanitizer.sanitizePlainText(value)
+            : DOMPurify.sanitize(value);
       }
     }
     

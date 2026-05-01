@@ -1,6 +1,19 @@
 import DOMPurify from 'dompurify';
 
 export class Sanitizer {
+  /**
+   * Control characters + length only. No HTML pass — required for email and any
+   * string where DOMPurify would treat paste/clipboard `<`...`>` fragments as tags
+   * and strip them (e.g. `user@gmail.co<m` → `user@gmail.co`).
+   */
+  static sanitizePlainText(input: string, maxLen = 1000): string {
+    if (typeof input !== 'string') {
+      return '';
+    }
+    let sanitized = input.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
+    return sanitized.substring(0, maxLen);
+  }
+
   static sanitizeString(input: string): string {
     if (typeof input !== 'string') {
       return '';
@@ -60,7 +73,7 @@ export class Sanitizer {
       return null;
     }
     
-    const sanitized = this.sanitizeString(email);
+    const sanitized = this.sanitizePlainText(email, 254);
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     
     if (!emailRegex.test(sanitized)) {
