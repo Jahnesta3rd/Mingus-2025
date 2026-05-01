@@ -215,6 +215,35 @@ def _strip_ready_tokens(text: str) -> str:
     return _READY_STRIP_RE.sub("", text or "").strip()
 
 
+# Path 1 (pre-beta): extractors run on concatenated user turns; see extract_from_history.
+_PATH1_EXTRACTION_MODULES = frozenset({"income", "recurring_expenses", "milestones"})
+
+
+def extract_from_history(messages: list[dict], module_id: str) -> dict:
+    """
+    Concatenate user-only turns and run the module's keyword extractor on that text.
+
+    ``messages`` items are dicts with ``role`` (``user`` / ``assistant``) and ``content`` (str).
+    """
+    parts: list[str] = []
+    for m in messages or []:
+        if not isinstance(m, dict):
+            continue
+        if m.get("role") != "user":
+            continue
+        c = m.get("content")
+        if isinstance(c, str) and c.strip():
+            parts.append(c.strip())
+    blob = "\n".join(parts)
+    if module_id == "income":
+        return _extract_income(blob)
+    if module_id == "recurring_expenses":
+        return _extract_recurring_expenses(blob)
+    if module_id == "milestones":
+        return _extract_milestones(blob)
+    return {}
+
+
 def _parse_milestone_date(fragment: str) -> str | None:
     s = (fragment or "").strip()
     if not s:
@@ -248,6 +277,38 @@ def _parse_milestone_date(fragment: str) -> str | None:
         return None
 
 
+def _extract_income_pay_day(low: str, compact: str) -> int | None:
+    """Day-of-month (1–31) from phrases like 'the 15th' / 'around the 5th'; else None."""
+    weekdays = (
+        "monday",
+        "tuesday",
+        "wednesday",
+        "thursday",
+        "friday",
+        "saturday",
+        "sunday",
+    )
+    has_weekday = any(w in low for w in weekdays)
+    week_based = (
+        "biweekly" in compact
+        or "everytwoweeks" in compact
+        or "every2weeks" in compact
+        or ("weekly" in low and "biweekly" not in compact)
+    )
+    ord_m = re.search(
+        r"\b(?:around\s+)?(?:the\s+)?(\d{1,2})(?:st|nd|rd|th)\b",
+        low,
+        re.I,
+    )
+    if ord_m:
+        d = int(ord_m.group(1))
+        if 1 <= d <= 31:
+            return d
+    if has_weekday and week_based:
+        return None
+    return None
+
+
 def _extract_income(text: str) -> dict:
     low = text.lower()
     out: dict = {}
@@ -266,6 +327,9 @@ def _extract_income(text: str) -> dict:
         freq = "monthly"
     if freq:
         out["pay_frequency"] = freq
+    pay_day = _extract_income_pay_day(low, compact)
+    if pay_day is not None:
+        out["pay_day"] = pay_day
     has_secondary: bool | None = None
     if any(
         x in low
@@ -617,7 +681,11 @@ def _extract_milestones(text: str) -> dict:
     return {"events": events[:24]}
 
 
-def extract_module_data(response_text: str, module_id: str) -> dict:
+def extract_module_data(
+    response_text: str,
+    module_id: str,
+    conversation_history: list[dict] | None = None,
+) -> dict:
     """Regex / keyword extraction only; never raises."""
     try:
         if module_id not in MODULES:
@@ -632,7 +700,14 @@ def extract_module_data(response_text: str, module_id: str) -> dict:
         fn = MODULES[module_id].get("extraction_fn")
         if not callable(fn):
             return {"_parse_failed": True, "raw": response_text or ""}
-        data = fn(response_text)
+        if module_id in _PATH1_EXTRACTION_MODULES:
+            hist = conversation_history or []
+            if hist:
+                data = extract_from_history(hist, module_id)
+            else:
+                data = fn(response_text)
+        else:
+            data = fn(response_text)
         if module_id == "recurring_expenses":
             if _recurring_expense_positive_category_count(data) < 3:
                 return {}
@@ -651,10 +726,12 @@ def _build_modules() -> dict:
             "per_module_turn_cap": 6,
             "system_prompt_append": (
                 "Collect the user monthly take-home pay after taxes, their pay frequency "
-                "(weekly, biweekly, semimonthly, monthly), whether they have secondary income "
+                "(weekly, biweekly, semimonthly, monthly), what day of the month their paycheck "
+                "typically arrives (e.g. the 1st, the 15th), whether they have secondary income "
                 "(freelance, side work, gig), and approximate bonus cadence if any. Ask one "
                 "thing at a time. Accept approximate numbers. When you have monthly take-home, "
-                "pay frequency, and know whether secondary income exists, end your message with "
+                "pay frequency, pay-day-of-month (or they clearly have only a weekday-based "
+                "schedule), and know whether secondary income exists, end your message with "
                 "exactly: [MODULE_COMPLETE:income]"
             ),
             "extraction_fn": _extract_income,
@@ -939,7 +1016,23 @@ def post_message():
     )
     response_text = (message.content[0].text or "").strip()
     logger.info(f"chat_response_tail module={current_module_id} tail={response_text[-200:]!r}")
-    extracted = extract_module_data(response_text, current_module_id)
+    conversation_history = [
+        {"role": m["role"], "content": m["content"]} for m in mod_msgs
+    ]
+    if current_module_id in _PATH1_EXTRACTION_MODULES:
+        uh_parts = [
+            (m.get("content") or "").strip()
+            for m in mod_msgs
+            if m.get("role") == "user" and (m.get("content") or "").strip()
+        ]
+        logger.info(
+            "chat_extraction_history module=%s user_history_len=%s",
+            current_module_id,
+            len("\n".join(uh_parts)),
+        )
+    extracted = extract_module_data(
+        response_text, current_module_id, conversation_history=conversation_history
+    )
     logger.info(f"chat_extraction module={current_module_id} extracted_keys={list(extracted.keys()) if extracted else None}")
 
     if extracted:

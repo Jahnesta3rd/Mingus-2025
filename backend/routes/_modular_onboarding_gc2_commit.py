@@ -6,9 +6,10 @@ This module is not a blueprint; it exposes callables bound at import time.
 
 from __future__ import annotations
 
+import calendar
 import json
 import re
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from decimal import Decimal, InvalidOperation
 from typing import Any, Callable
 from uuid import UUID
@@ -24,6 +25,7 @@ from backend.models.database import db
 from backend.models.financial_setup import RecurringExpense, UserIncome
 from backend.models.housing_profile import HousingProfile
 from backend.models.onboarding_progress import OnboardingProgress
+from backend.models.transaction_schedule import IncomeStream
 from backend.models.user_models import User
 from backend.models.vehicle_models import Vehicle
 from backend.models.vibe_tracker import VibeTrackedPerson
@@ -331,11 +333,22 @@ def _validate_and_cast(field_path: str, value: Any) -> tuple[Any | None, tuple[d
         if not isinstance(value, str):
             return None, _validation_failed(field_path, "type_mismatch", "enum string", value)
         v = value.strip().lower()
-        if v not in ("weekly", "biweekly", "semimonthly", "monthly"):
+        if v not in ("weekly", "biweekly", "semimonthly", "monthly", "annual"):
             return None, _validation_failed(
-                field_path, "type_mismatch", "weekly|biweekly|semimonthly|monthly", value
+                field_path,
+                "type_mismatch",
+                "weekly|biweekly|semimonthly|monthly|annual",
+                value,
             )
         return v, None
+    if field_path == "pay_day":
+        try:
+            vi = int(value)
+        except (TypeError, ValueError):
+            return None, _validation_failed(field_path, "type_mismatch", "int 1-31", value)
+        if vi < 1 or vi > 31:
+            return None, _validation_failed(field_path, "out_of_range", "[1, 31]", value)
+        return vi, None
     if field_path == "secondary_amount":
         try:
             v = float(value)
@@ -631,6 +644,264 @@ def _resolve_person(
     return rows[i], None
 
 
+def _next_income_stream_date(
+    pay_day: int | None, frequency: str, today: date | None = None
+) -> date:
+    """
+    Compute IncomeStream.next_date (always a concrete DATE).
+
+    If ``pay_day`` is set: next calendar occurrence of that day-of-month using UTC
+    ``today`` as the anchor (inclusive of today when it matches).
+
+    Otherwise approximate anchors from ``today`` (onboarding best-effort when the user
+    only described a weekday cadence): biweekly +14d, weekly +7d, semimonthly +15d,
+    monthly +30d, annual +365d.
+    """
+    today = today or datetime.utcnow().date()
+    freq = (frequency or "monthly").lower()
+
+    if pay_day is not None and 1 <= pay_day <= 31:
+        y, m = today.year, today.month
+        last = calendar.monthrange(y, m)[1]
+        day_use = min(pay_day, last)
+        candidate = date(y, m, day_use)
+        if candidate >= today:
+            return candidate
+        if m == 12:
+            y, m = y + 1, 1
+        else:
+            m += 1
+        last2 = calendar.monthrange(y, m)[1]
+        day_use2 = min(pay_day, last2)
+        return date(y, m, day_use2)
+
+    if freq == "biweekly":
+        return today + timedelta(days=14)
+    if freq == "weekly":
+        return today + timedelta(days=7)
+    if freq == "semimonthly":
+        return today + timedelta(days=15)
+    if freq == "monthly":
+        return today + timedelta(days=30)
+    if freq == "annual":
+        return today + timedelta(days=365)
+    return today + timedelta(days=30)
+
+
+def _upsert_income_stream_from_primary(user: User, primary: UserIncome) -> None:
+    # Note: amounts are post-tax (take-home) per the income module system prompt.
+    # Verified Apr 30 that cash_forecast_service applies no tax math.
+    # Do not introduce gross-to-net conversion here.
+    nd = _next_income_stream_date(primary.pay_day, primary.frequency or "monthly")
+    label = primary.source_name
+    row = IncomeStream.query.filter_by(user_id=user.id, label=label).first()
+    amt = primary.amount
+    freq = primary.frequency or "monthly"
+    if row is None:
+        db.session.add(
+            IncomeStream(
+                user_id=user.id,
+                label=label,
+                amount=amt,
+                frequency=freq,
+                next_date=nd,
+                income_type="earned",
+                is_active=True,
+            )
+        )
+    else:
+        row.amount = amt
+        row.frequency = freq
+        row.next_date = nd
+        row.income_type = "earned"
+        row.is_active = True
+
+
+def _commit_income_module_dual_write(
+    *,
+    user: User,
+    uid: str,
+    session: dict,
+    data: dict,
+    save_session: Callable[[str, dict], None],
+    load_row: Callable[[User], OnboardingProgress | None],
+) -> tuple[list[str], list[dict]]:
+    """Apply all income field commits and dual-write IncomeStream in one DB transaction."""
+    pairs = flatten_module_data("income", data)
+    committed_fields: list[str] = []
+    failed_fields: list[dict] = []
+    to_apply: list[tuple[str, Any]] = []
+    for fp, val in pairs:
+        cast_v, err = _validate_and_cast(fp, val)
+        if err:
+            failed_fields.append(
+                {
+                    "field_path": fp,
+                    "error": (err[0] or {}).get("error", "error"),
+                    "reason": (err[0] or {}).get("reason")
+                    or (err[0] or {}).get("note")
+                    or str(err[0]),
+                }
+            )
+            continue
+        to_apply.append((fp, cast_v))
+
+    if not to_apply:
+        return committed_fields, failed_fields
+
+    applied: list[str] = []
+    try:
+        for fp, cast_v in to_apply:
+            if fp == "bonus_cadence":
+                applied.append(fp)
+                continue
+            if fp == "has_secondary":
+                assert isinstance(cast_v, bool)
+                session[_SESSION_HAS_SECONDARY] = cast_v
+                try:
+                    save_session(uid, session)
+                except Exception as e:
+                    loguru_logger.warning("GC2 redis has_secondary: {}", e)
+                if not cast_v:
+                    for ir in UserIncome.query.filter_by(user_id=user.id).all():
+                        if ir.source_name == _SECONDARY_INCOME_SOURCE and ir.is_active:
+                            ir.is_active = False
+                applied.append(fp)
+                continue
+            if fp == "monthly_takehome":
+                dec = _to_decimal_amount(cast_v)
+                if dec is None:
+                    failed_fields.append(
+                        {
+                            "field_path": fp,
+                            "error": "validation_failed",
+                            "reason": "type_mismatch",
+                        }
+                    )
+                    db.session.rollback()
+                    return committed_fields, failed_fields
+                row = None
+                for r in UserIncome.query.filter_by(user_id=user.id, is_active=True).all():
+                    if r.source_name == _PRIMARY_INCOME_SOURCE:
+                        row = r
+                        break
+                if row is None:
+                    row = UserIncome(
+                        user_id=user.id,
+                        source_name=_PRIMARY_INCOME_SOURCE,
+                        amount=dec,
+                        frequency="monthly",
+                        pay_day=None,
+                        is_active=True,
+                    )
+                    db.session.add(row)
+                else:
+                    row.amount = dec
+                applied.append(fp)
+                continue
+            if fp == "pay_frequency":
+                freq = str(cast_v)
+                row = None
+                for r in UserIncome.query.filter_by(user_id=user.id, is_active=True).all():
+                    if r.source_name == _PRIMARY_INCOME_SOURCE:
+                        row = r
+                        break
+                if row is None:
+                    failed_fields.append(
+                        {
+                            "field_path": fp,
+                            "error": "precondition_failed",
+                            "reason": "primary income row missing",
+                        }
+                    )
+                    db.session.rollback()
+                    return committed_fields, failed_fields
+                row.frequency = freq
+                applied.append(fp)
+                continue
+            if fp == "pay_day":
+                assert isinstance(cast_v, int)
+                row = None
+                for r in UserIncome.query.filter_by(user_id=user.id, is_active=True).all():
+                    if r.source_name == _PRIMARY_INCOME_SOURCE:
+                        row = r
+                        break
+                if row is None:
+                    failed_fields.append(
+                        {
+                            "field_path": fp,
+                            "error": "precondition_failed",
+                            "reason": "primary income row missing",
+                        }
+                    )
+                    db.session.rollback()
+                    return committed_fields, failed_fields
+                row.pay_day = cast_v
+                applied.append(fp)
+                continue
+            if fp == "secondary_amount":
+                dec = _to_decimal_amount(cast_v)
+                declared = session.get(_SESSION_HAS_SECONDARY) is True
+                if not declared:
+                    has_row = any(
+                        r.source_name == _SECONDARY_INCOME_SOURCE and r.is_active
+                        for r in UserIncome.query.filter_by(user_id=user.id).all()
+                    )
+                    if not has_row:
+                        failed_fields.append(
+                            {
+                                "field_path": fp,
+                                "error": "precondition_failed",
+                                "reason": "secondary income not declared",
+                            }
+                        )
+                        db.session.rollback()
+                        return committed_fields, failed_fields
+                row = None
+                for r in UserIncome.query.filter_by(user_id=user.id, is_active=True).all():
+                    if r.source_name == _SECONDARY_INCOME_SOURCE:
+                        row = r
+                        break
+                if row is None:
+                    row = UserIncome(
+                        user_id=user.id,
+                        source_name=_SECONDARY_INCOME_SOURCE,
+                        amount=dec or Decimal(0),
+                        frequency="monthly",
+                        pay_day=None,
+                        is_active=True,
+                    )
+                    db.session.add(row)
+                else:
+                    row.amount = dec or Decimal(0)
+                applied.append(fp)
+                continue
+
+        primary: UserIncome | None = None
+        for r in UserIncome.query.filter_by(user_id=user.id, is_active=True).all():
+            if r.source_name == _PRIMARY_INCOME_SOURCE:
+                primary = r
+                break
+        if primary is not None:
+            _upsert_income_stream_from_primary(user, primary)
+
+        _touch_progress_row(user, load_row)
+        db.session.commit()
+        committed_fields.extend(applied)
+    except Exception as e:
+        db.session.rollback()
+        loguru_logger.exception("GC2 income dual-write batch failed: {}", e)
+        failed_fields.append(
+            {
+                "field_path": "__batch__",
+                "error": "commit_failed",
+                "reason": str(e),
+            }
+        )
+
+    return committed_fields, failed_fields
+
+
 def _touch_progress_row(user: User, load_row: Callable[[User], OnboardingProgress | None]) -> None:
     row = load_row(user)
     now = _utcnow()
@@ -775,6 +1046,36 @@ def _apply_commit_field(
                     "field_path": field_path,
                     "value_stored": freq,
                 },
+            200,
+        )
+
+    if field_path == "pay_day":
+        assert isinstance(cast_value, int)
+        row = None
+        for r in UserIncome.query.filter_by(user_id=user.id, is_active=True).all():
+            if r.source_name == _PRIMARY_INCOME_SOURCE:
+                row = r
+                break
+        if row is None:
+            return (
+                {
+                    "error": "precondition_failed",
+                    "reason": "primary income row missing",
+                },
+                400,
+            )
+        changed = row.pay_day != cast_value
+        row.pay_day = cast_value
+        _touch_progress_row(user, load_row)
+        db.session.commit()
+        return (
+            {
+                "ok": True,
+                "changed": changed,
+                "committed_at": _iso(_utcnow()),
+                "field_path": field_path,
+                "value_stored": cast_value,
+            },
             200,
         )
 
@@ -1265,12 +1566,16 @@ def flatten_module_data(module_id: str, data: dict) -> list[tuple[str, Any]]:
         for k in (
             "monthly_takehome",
             "pay_frequency",
+            "pay_day",
             "has_secondary",
             "secondary_amount",
             "bonus_cadence",
         ):
-            if k in data:
-                pairs.append((k, data[k]))
+            if k not in data:
+                continue
+            if k == "pay_day" and data[k] is None:
+                continue
+            pairs.append((k, data[k]))
     elif module_id == "housing":
         for k in (
             "housing_type",
@@ -1363,32 +1668,42 @@ def run_commit_module(
 ) -> tuple[dict, int]:
     if module_id not in MODULE_ORDER:
         return ({"error": "unknown_module", "module_id": module_id}, 400)
-    pairs = flatten_module_data(module_id, data)
     committed_fields: list[str] = []
     failed_fields: list[dict] = []
-    for fp, val in pairs:
-        body, code = run_commit_field(
+    if module_id == "income":
+        committed_fields, failed_fields = _commit_income_module_dual_write(
             user=user,
             uid=uid,
             session=session,
-            module_id=module_id,
-            field_path=fp,
-            value=val,
+            data=data,
             save_session=save_session,
             load_row=load_row,
         )
-        if code != 200 or not isinstance(body, dict) or not body.get("ok"):
-            failed_fields.append(
-                {
-                    "field_path": fp,
-                    "error": (body or {}).get("error", "error"),
-                    "reason": (body or {}).get("reason")
-                    or (body or {}).get("note")
-                    or str(body),
-                }
+    else:
+        pairs = flatten_module_data(module_id, data)
+        for fp, val in pairs:
+            body, code = run_commit_field(
+                user=user,
+                uid=uid,
+                session=session,
+                module_id=module_id,
+                field_path=fp,
+                value=val,
+                save_session=save_session,
+                load_row=load_row,
             )
-        else:
-            committed_fields.append(fp)
+            if code != 200 or not isinstance(body, dict) or not body.get("ok"):
+                failed_fields.append(
+                    {
+                        "field_path": fp,
+                        "error": (body or {}).get("error", "error"),
+                        "reason": (body or {}).get("reason")
+                        or (body or {}).get("note")
+                        or str(body),
+                    }
+                )
+            else:
+                committed_fields.append(fp)
 
     completed = list(session.get("completed_modules") or [])
     skipped = list(session.get("skipped_modules") or [])
