@@ -56,7 +56,9 @@ _GC_REL_ALLOWED_STATUS_NAMES: frozenset[str] = frozenset(
 
 _RE_VEH = re.compile(r"^vehicles\[(?P<idx>\d+|new)\]\.(?P<fld>[a-z_]+)$")
 _RE_PPL = re.compile(r"^people\[(?P<idx>\d+|new)\]\.(?P<fld>[a-z_]+)$")
-_RE_CAT = re.compile(r"^categories\[(?P<cat>[a-z_]+)\]\.amount$")
+_RE_CAT_FIELD = re.compile(
+    r"^categories\[(?P<cat>[a-z_]+)\]\.(?P<fld>amount|due_day|frequency)$"
+)
 _RE_EVT = re.compile(r"^events\[(?P<idx>\d+|new)\]\.(?P<fld>name|date|cost)$")
 
 
@@ -359,11 +361,9 @@ def _validate_and_cast(field_path: str, value: Any) -> tuple[Any | None, tuple[d
         return v, None
     if field_path == "bonus_cadence":
         return value, None
-    if field_path.startswith("categories[") and field_path.endswith("].amount"):
-        m = _RE_CAT.match(field_path)
-        if not m:
-            return None, _unknown_field(field_path)
-        cat = m.group("cat")
+    m_cat = _RE_CAT_FIELD.match(field_path)
+    if m_cat and m_cat.group("fld") == "amount":
+        cat = m_cat.group("cat")
         if cat not in CATEGORY_KEY_IDS:
             return None, ({"error": "invalid_category", "category": cat}, 400)
         try:
@@ -372,6 +372,34 @@ def _validate_and_cast(field_path: str, value: Any) -> tuple[Any | None, tuple[d
             return None, _validation_failed(field_path, "type_mismatch", "number", value)
         if v < 0 or v > 100000:
             return None, _validation_failed(field_path, "out_of_range", "[0, 100000]", value)
+        return v, None
+    if m_cat and m_cat.group("fld") == "due_day":
+        cat = m_cat.group("cat")
+        if cat not in CATEGORY_KEY_IDS:
+            return None, ({"error": "invalid_category", "category": cat}, 400)
+        if value is None or value == "":
+            return None, None
+        try:
+            vi = int(value)
+        except (TypeError, ValueError):
+            return None, _validation_failed(field_path, "type_mismatch", "int 1-31 or null", value)
+        if vi < 1 or vi > 31:
+            return None, _validation_failed(field_path, "out_of_range", "[1, 31]", value)
+        return vi, None
+    if m_cat and m_cat.group("fld") == "frequency":
+        cat = m_cat.group("cat")
+        if cat not in CATEGORY_KEY_IDS:
+            return None, ({"error": "invalid_category", "category": cat}, 400)
+        if not isinstance(value, str):
+            return None, _validation_failed(field_path, "type_mismatch", "enum string", value)
+        v = value.strip().lower()
+        if v not in ("monthly", "biweekly", "weekly", "quarterly", "annual"):
+            return None, _validation_failed(
+                field_path,
+                "type_mismatch",
+                "monthly|biweekly|weekly|quarterly|annual",
+                value,
+            )
         return v, None
     if field_path == "relationship_status":
         if not isinstance(value, str):
@@ -902,6 +930,130 @@ def _commit_income_module_dual_write(
     return committed_fields, failed_fields
 
 
+def _commit_recurring_expenses_module(
+    *,
+    user: User,
+    uid: str,
+    session: dict,
+    data: dict,
+    save_session: Callable[[str, dict], None],
+    load_row: Callable[[User], OnboardingProgress | None],
+) -> tuple[list[str], list[dict]]:
+    """Validate and upsert all modular recurring_expense rows in a single DB transaction."""
+    committed_fields: list[str] = []
+    failed_fields: list[dict] = []
+    rows: list[tuple[str, Decimal, int | None, str]] = []
+
+    for item in data.get("categories") or []:
+        if not isinstance(item, dict):
+            continue
+        cid = item.get("category_id")
+        if not cid or cid not in CATEGORY_KEY_IDS:
+            continue
+        fp_a = f"categories[{cid}].amount"
+        cast_a, err_a = _validate_and_cast(fp_a, item.get("amount"))
+        if err_a:
+            failed_fields.append(
+                {
+                    "field_path": fp_a,
+                    "error": (err_a[0] or {}).get("error", "error"),
+                    "reason": (err_a[0] or {}).get("reason")
+                    or (err_a[0] or {}).get("note")
+                    or str(err_a[0]),
+                }
+            )
+            continue
+        amt = _to_decimal_amount(cast_a)
+        if amt is None:
+            amt = Decimal(0)
+
+        due_raw = item.get("due_day")
+        due_i: int | None = None
+        if due_raw is not None and due_raw != "":
+            fp_d = f"categories[{cid}].due_day"
+            cast_d, err_d = _validate_and_cast(fp_d, due_raw)
+            if err_d:
+                failed_fields.append(
+                    {
+                        "field_path": fp_d,
+                        "error": (err_d[0] or {}).get("error", "error"),
+                        "reason": (err_d[0] or {}).get("reason")
+                        or (err_d[0] or {}).get("note")
+                        or str(err_d[0]),
+                    }
+                )
+                continue
+            due_i = cast_d
+
+        freq = (item.get("frequency") or "monthly").strip().lower()
+        fp_f = f"categories[{cid}].frequency"
+        cast_f, err_f = _validate_and_cast(fp_f, freq)
+        if err_f:
+            failed_fields.append(
+                {
+                    "field_path": fp_f,
+                    "error": (err_f[0] or {}).get("error", "error"),
+                    "reason": (err_f[0] or {}).get("reason")
+                    or (err_f[0] or {}).get("note")
+                    or str(err_f[0]),
+                }
+            )
+            continue
+        assert isinstance(cast_f, str)
+        rows.append((cid, amt, due_i, cast_f))
+
+    if failed_fields:
+        return committed_fields, failed_fields
+
+    applied: list[str] = []
+    try:
+        # Note: due_day is the day-of-month (1-31). NULL is acceptable for items
+        # where the user did not specify a due date. Cash forecast service handles
+        # NULL due_day per its existing logic at cash_forecast_service.py lines 211, 220.
+        for cid, amt, due_i, cast_f in rows:
+            name = cid.replace("_", " ").title()
+            row = RecurringExpense.query.filter_by(
+                user_id=user.id, category=cid, source=_MODULAR_EXPENSE_SOURCE
+            ).first()
+            if row is None:
+                row = RecurringExpense(
+                    user_id=user.id,
+                    name=name,
+                    amount=amt,
+                    category=cid,
+                    due_day=due_i,
+                    frequency=cast_f,
+                    is_active=True,
+                    source=_MODULAR_EXPENSE_SOURCE,
+                )
+                db.session.add(row)
+            else:
+                row.amount = amt
+                row.name = name
+                row.due_day = due_i
+                row.frequency = cast_f
+                row.is_active = True
+            applied.append(f"categories[{cid}].amount")
+            applied.append(f"categories[{cid}].due_day")
+            applied.append(f"categories[{cid}].frequency")
+
+        _touch_progress_row(user, load_row)
+        db.session.commit()
+        committed_fields.extend(applied)
+    except Exception as e:
+        db.session.rollback()
+        loguru_logger.exception("GC2 recurring_expenses batch failed: {}", e)
+        failed_fields.append(
+            {
+                "field_path": "__batch__",
+                "error": "commit_failed",
+                "reason": str(e),
+            }
+        )
+
+    return committed_fields, failed_fields
+
+
 def _touch_progress_row(user: User, load_row: Callable[[User], OnboardingProgress | None]) -> None:
     row = load_row(user)
     now = _utcnow()
@@ -1182,46 +1334,101 @@ def _apply_commit_field(
             200,
         )
 
-    m = _RE_CAT.match(field_path)
+    m = _RE_CAT_FIELD.match(field_path)
     if m:
         cat = m.group("cat")
-        amt = _to_decimal_amount(cast_value)
-        if amt is None:
-            amt = Decimal(0)
+        fld = m.group("fld")
         name = cat.replace("_", " ").title()
         row = RecurringExpense.query.filter_by(
             user_id=user.id, category=cat, source=_MODULAR_EXPENSE_SOURCE
         ).first()
-        if row is None:
-            row = RecurringExpense(
-                user_id=user.id,
-                name=name,
-                amount=amt,
-                category=cat,
-                due_day=None,
-                frequency="monthly",
-                is_active=True,
-                source=_MODULAR_EXPENSE_SOURCE,
-            )
-            db.session.add(row)
-            changed = True
-        else:
-            changed = not _decimal_eq(row.amount, amt)
-            row.amount = amt
-            row.name = name
-            row.is_active = True
-        _touch_progress_row(user, load_row)
-        db.session.commit()
-        return (
-            {
+        if fld == "amount":
+            amt = _to_decimal_amount(cast_value)
+            if amt is None:
+                amt = Decimal(0)
+            if row is None:
+                row = RecurringExpense(
+                    user_id=user.id,
+                    name=name,
+                    amount=amt,
+                    category=cat,
+                    due_day=None,
+                    frequency="monthly",
+                    is_active=True,
+                    source=_MODULAR_EXPENSE_SOURCE,
+                )
+                db.session.add(row)
+                changed = True
+            else:
+                changed = not _decimal_eq(row.amount, amt)
+                row.amount = amt
+                row.name = name
+                row.is_active = True
+            _touch_progress_row(user, load_row)
+            db.session.commit()
+            return (
+                {
                     "ok": True,
                     "changed": changed,
                     "committed_at": _iso(_utcnow()),
                     "field_path": field_path,
                     "value_stored": float(amt),
                 },
-            200,
-        )
+                200,
+            )
+        if fld == "due_day":
+            if row is None:
+                return (
+                    {
+                        "error": "precondition_failed",
+                        "field_path": field_path,
+                        "reason": "recurring_expense row missing for category",
+                    },
+                    400,
+                )
+            changed = row.due_day != cast_value
+            row.due_day = cast_value
+            row.name = name
+            row.is_active = True
+            _touch_progress_row(user, load_row)
+            db.session.commit()
+            return (
+                {
+                    "ok": True,
+                    "changed": changed,
+                    "committed_at": _iso(_utcnow()),
+                    "field_path": field_path,
+                    "value_stored": cast_value,
+                },
+                200,
+            )
+        if fld == "frequency":
+            if row is None:
+                return (
+                    {
+                        "error": "precondition_failed",
+                        "field_path": field_path,
+                        "reason": "recurring_expense row missing for category",
+                    },
+                    400,
+                )
+            assert isinstance(cast_value, str)
+            changed = (row.frequency or "").lower() != cast_value.lower()
+            row.frequency = cast_value
+            row.name = name
+            row.is_active = True
+            _touch_progress_row(user, load_row)
+            db.session.commit()
+            return (
+                {
+                    "ok": True,
+                    "changed": changed,
+                    "committed_at": _iso(_utcnow()),
+                    "field_path": field_path,
+                    "value_stored": cast_value,
+                },
+                200,
+            )
 
     if field_path == "relationship_status":
         assert isinstance(cast_value, RelationshipStatus)
@@ -1596,9 +1803,12 @@ def flatten_module_data(module_id: str, data: dict) -> list[tuple[str, Any]]:
     elif module_id == "recurring_expenses":
         for item in data.get("categories") or []:
             if isinstance(item, dict) and item.get("category_id"):
-                pairs.append(
-                    (f"categories[{item['category_id']}].amount", item.get("amount"))
-                )
+                cid = item["category_id"]
+                pairs.append((f"categories[{cid}].amount", item.get("amount")))
+                if item.get("due_day") is not None:
+                    pairs.append((f"categories[{cid}].due_day", item["due_day"]))
+                if item.get("frequency"):
+                    pairs.append((f"categories[{cid}].frequency", item["frequency"]))
     elif module_id == "roster":
         if "relationship_status" in data:
             pairs.append(("relationship_status", data["relationship_status"]))
@@ -1672,6 +1882,15 @@ def run_commit_module(
     failed_fields: list[dict] = []
     if module_id == "income":
         committed_fields, failed_fields = _commit_income_module_dual_write(
+            user=user,
+            uid=uid,
+            session=session,
+            data=data,
+            save_session=save_session,
+            load_row=load_row,
+        )
+    elif module_id == "recurring_expenses":
+        committed_fields, failed_fields = _commit_recurring_expenses_module(
             user=user,
             uid=uid,
             session=session,

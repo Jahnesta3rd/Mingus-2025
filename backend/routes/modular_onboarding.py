@@ -309,6 +309,88 @@ def _extract_income_pay_day(low: str, compact: str) -> int | None:
     return None
 
 
+def _extract_recurring_expense_due_day(low: str, compact: str) -> int | None:
+    """Day-of-month (1–31) for recurring bill due dates; None if non-specific or weekday-based."""
+    if re.search(r"\b(?:end|middle|mid)\s+of\s+the\s+month\b", low):
+        return None
+    if re.search(r"\baround\s+the\s+\d{1,2}(?:st|nd|rd|th)?\b", low):
+        return None
+    if re.search(r"\b(last|final)\s+day\s+of\b", low) or "last of the month" in low:
+        return None
+    weekdays = (
+        "monday",
+        "tuesday",
+        "wednesday",
+        "thursday",
+        "friday",
+        "saturday",
+        "sunday",
+    )
+    has_weekday = any(w in low for w in weekdays)
+    week_based = (
+        "biweekly" in compact
+        or "everytwoweeks" in compact
+        or "every2weeks" in compact
+        or ("weekly" in low and "biweekly" not in compact)
+    )
+    if has_weekday and week_based:
+        return None
+    if "first of the month" in low or re.search(
+        r"\bfirst\s+day\s+of\s+the\s+month\b", low
+    ):
+        return 1
+    ord_m = re.search(r"\b(?:the\s+)?(\d{1,2})(?:st|nd|rd|th)\b", low, re.I)
+    if ord_m:
+        span = low[max(0, ord_m.start() - 14) : ord_m.start()]
+        if "around" in span:
+            return None
+        d = int(ord_m.group(1))
+        if 1 <= d <= 31:
+            return d
+    card_m = re.search(
+        r"\b(?:on|due|by)\s+(?:the\s+)?([1-9]|[12]\d|3[01])\b(?!\s*(?:st|nd|rd|th)\b)",
+        low,
+        re.I,
+    )
+    if card_m:
+        d = int(card_m.group(1))
+        if 1 <= d <= 31:
+            return d
+    the_m = re.search(
+        r"\b(?:due|payable)\s+the\s+([1-9]|[12]\d|3[01])\b(?!\s*(?:st|nd|rd|th)\b)",
+        low,
+        re.I,
+    )
+    if the_m:
+        d = int(the_m.group(1))
+        if 1 <= d <= 31:
+            return d
+    return None
+
+
+def _recurring_line_frequency(low: str, compact: str) -> str | None:
+    """Detect bill cadence from a single user line; None → default monthly downstream."""
+    if "biweekly" in compact or "everytwoweeks" in compact or "every2weeks" in compact:
+        return "biweekly"
+    if "semimonthly" in compact or "twiceamonth" in compact or "twicemonthly" in compact:
+        return None
+    if "weekly" in low and "biweekly" not in compact:
+        return "weekly"
+    if "annual" in low or "yearly" in low or "per year" in low:
+        return "annual"
+    if "quarterly" in low:
+        return "quarterly"
+    if "monthly" in low or "permonth" in compact:
+        return "monthly"
+    return None
+
+
+def _line_matches_recurring_category(cat_id: str, keys: tuple[str, ...], low: str) -> bool:
+    if cat_id == "debt" and "mortgage" in low:
+        return True
+    return any(k in low for k in keys)
+
+
 def _extract_income(text: str) -> dict:
     low = text.lower()
     out: dict = {}
@@ -496,33 +578,61 @@ def _extract_vehicle(text: str) -> dict:
 
 
 def _extract_recurring_expenses(text: str) -> dict:
-    low = text.lower()
-    categories: list[dict] = []
+    """
+    Parse recurring expense GC2 categories from full user-turn text (Path 1: conversation blob).
+
+    Scans line-by-line for CATEGORY_KEYS hints plus mortgage→debt; captures amount, optional
+    due_day (day of month), and frequency when stated.
+    """
+    blob = text or ""
     found: dict[str, float] = {}
-    for cat_id, keys in CATEGORY_KEYS:
-        for line in text.splitlines():
-            l = line.lower()
-            if any(k in l for k in keys):
-                amts = _all_dollar_amounts(line)
-                if amts:
-                    found[cat_id] = float(amts[-1])
-    for cat_id, _keys in CATEGORY_KEYS:
-        categories.append(
-            {"category_id": cat_id, "amount": float(found.get(cat_id, 0.0))}
-        )
+    due_days: dict[str, int] = {}
+    freqs: dict[str, str] = {}
+    for line in blob.splitlines():
+        low = line.lower()
+        compact = low.replace("-", "").replace(" ", "")
+        for cat_id, keys in CATEGORY_KEYS:
+            if not _line_matches_recurring_category(cat_id, keys, low):
+                continue
+            amts = _all_dollar_amounts(line)
+            if not amts:
+                continue
+            found[cat_id] = float(amts[-1])
+            dd = _extract_recurring_expense_due_day(low, compact)
+            if dd is not None:
+                due_days[cat_id] = dd
+            fq = _recurring_line_frequency(low, compact)
+            if fq:
+                freqs[cat_id] = fq
     if not any(v > 0 for v in found.values()):
         for cat_id, keys in CATEGORY_KEYS:
-            for m in _DOLLAR_RE.finditer(text):
-                ctx = text[max(0, m.start() - 50) : m.start() + 50].lower()
-                if any(k in ctx for k in keys):
-                    raw = (m.group(1) or m.group(2) or "").replace(",", "")
-                    val = _parse_money_token(raw)
-                    if val is not None:
-                        found[cat_id] = float(val)
-        categories = [
-            {"category_id": cid, "amount": float(found.get(cid, 0.0))}
-            for cid, _ in CATEGORY_KEYS
-        ]
+            for m in _DOLLAR_RE.finditer(blob):
+                ctx = blob[max(0, m.start() - 50) : m.start() + 50]
+                ctx_low = ctx.lower()
+                compact_ctx = ctx_low.replace("-", "").replace(" ", "")
+                if not _line_matches_recurring_category(cat_id, keys, ctx_low):
+                    continue
+                raw = (m.group(1) or m.group(2) or "").replace(",", "")
+                val = _parse_money_token(raw)
+                if val is not None:
+                    found[cat_id] = float(val)
+                    dd = _extract_recurring_expense_due_day(ctx_low, compact_ctx)
+                    if dd is not None:
+                        due_days[cat_id] = dd
+                    fq = _recurring_line_frequency(ctx_low, compact_ctx)
+                    if fq:
+                        freqs[cat_id] = fq
+    categories: list[dict] = []
+    for cat_id, _keys in CATEGORY_KEYS:
+        item: dict = {
+            "category_id": cat_id,
+            "amount": float(found.get(cat_id, 0.0)),
+        }
+        if cat_id in due_days:
+            item["due_day"] = due_days[cat_id]
+        if cat_id in freqs:
+            item["frequency"] = freqs[cat_id]
+        categories.append(item)
     return {"categories": categories}
 
 
@@ -820,9 +930,14 @@ def _build_modules() -> dict:
                 "healthcare or medical, childcare or daycare. "
                 "For each step: ask using one of the canonical keywords above; wait for their reply. "
                 "Their reply must include that keyword (or another keyword from the same category "
-                "bucket) AND a dollar amount on the same line; optionally add an ordinal day "
-                "(e.g. on the 1st, around the 15th). Examples you may cite: 'rent: $1,800 on the "
-                "1st'; '$500 for car payment on the 5th'; 'phone: $80 around the 15th'; "
+                "bucket) AND a dollar amount on the same line. After they give the amount for a "
+                "category, ask one short follow-up before moving on: \"What day of the month is "
+                "this bill due — for example, the 1st, the 15th, or the 30th?\" They may put the "
+                "due day on the same line as the amount if they prefer (e.g. 'rent: $1,800 on the "
+                "1st'). Use specific calendar days only; if they say something vague like "
+                "\"around the 20th\" or \"end of the month\", accept it conversationally but do "
+                "not insist on a numeric day. Examples you may cite: 'rent: $1,800 on the "
+                "1st'; '$500 for car payment on the 5th'; 'phone: $80 on the 15th'; "
                 "'groceries: $500'; 'subscription: $50 on the 15th'. "
                 "If they skip (e.g. 'no rent, I own my home' with no payment, or 'no childcare'), "
                 "accept and move on. "
