@@ -1054,6 +1054,217 @@ def _commit_recurring_expenses_module(
     return committed_fields, failed_fields
 
 
+def _commit_milestones_module(
+    *,
+    user: User,
+    uid: str,
+    session: dict,
+    data: dict,
+    save_session: Callable[[str, dict], None],
+    load_row: Callable[[User], OnboardingProgress | None],
+) -> tuple[list[str], list[dict]]:
+    """Validate and replace important_dates.customEvents in one batch (all-or-nothing)."""
+    committed_fields: list[str] = []
+    failed_fields: list[dict] = []
+    email = (user.email or "").strip().lower()
+    if not email:
+        failed_fields.append(
+            {
+                "field_path": "__batch__",
+                "error": "validation_failed",
+                "reason": "missing_user_email",
+            }
+        )
+        return committed_fields, failed_fields
+
+    raw_events = data.get("events", [])
+    if raw_events is None:
+        raw_events = []
+    if not isinstance(raw_events, list):
+        failed_fields.append(
+            {
+                "field_path": "events",
+                "error": "validation_failed",
+                "reason": "expected_list",
+                "got": type(raw_events).__name__,
+            }
+        )
+        return committed_fields, failed_fields
+
+    validated_rows: list[dict[str, Any]] = []
+
+    for i, ev in enumerate(raw_events):
+        base = f"events[{i}]"
+        if not isinstance(ev, dict):
+            failed_fields.append(
+                {
+                    "field_path": base,
+                    "error": "validation_failed",
+                    "reason": "expected_object",
+                    "got": type(ev).__name__,
+                }
+            )
+            continue
+
+        name_raw = ev.get("name", None)
+        if name_raw is None or name_raw == "":
+            name_out: str | None = None
+        elif isinstance(name_raw, str):
+            s = name_raw.strip()
+            if not s:
+                name_out = None
+            elif len(s) > 160:
+                failed_fields.append(
+                    {
+                        "field_path": f"{base}.name",
+                        "error": "validation_failed",
+                        "reason": "string_too_long",
+                        "expected": "max 160",
+                        "got": len(s),
+                    }
+                )
+                continue
+            else:
+                name_out = s
+        else:
+            failed_fields.append(
+                {
+                    "field_path": f"{base}.name",
+                    "error": "validation_failed",
+                    "reason": "type_mismatch",
+                    "expected": "string or null",
+                    "got": type(name_raw).__name__,
+                }
+            )
+            continue
+
+        date_raw = ev.get("date", None)
+        date_out: str | None
+        if date_raw is None or date_raw == "":
+            date_out = None
+        elif isinstance(date_raw, str):
+            ds = date_raw.strip()
+            if not re.match(r"^\d{4}-\d{2}-\d{2}$", ds):
+                failed_fields.append(
+                    {
+                        "field_path": f"{base}.date",
+                        "error": "validation_failed",
+                        "reason": "bad_date_format",
+                        "expected": "YYYY-MM-DD or null",
+                        "got": date_raw,
+                    }
+                )
+                continue
+            try:
+                date.fromisoformat(ds)
+            except ValueError:
+                failed_fields.append(
+                    {
+                        "field_path": f"{base}.date",
+                        "error": "validation_failed",
+                        "reason": "bad_date_format",
+                        "expected": "YYYY-MM-DD or null",
+                        "got": date_raw,
+                    }
+                )
+                continue
+            date_out = ds
+        else:
+            failed_fields.append(
+                {
+                    "field_path": f"{base}.date",
+                    "error": "validation_failed",
+                    "reason": "type_mismatch",
+                    "expected": "YYYY-MM-DD string or null",
+                    "got": type(date_raw).__name__,
+                }
+            )
+            continue
+
+        cost_raw = ev.get("cost", 0)
+        try:
+            cost_f = float(cost_raw)
+        except (TypeError, ValueError):
+            failed_fields.append(
+                {
+                    "field_path": f"{base}.cost",
+                    "error": "validation_failed",
+                    "reason": "type_mismatch",
+                    "expected": "number",
+                    "got": cost_raw,
+                }
+            )
+            continue
+        if cost_f < 0 or cost_f > 1_000_000:
+            failed_fields.append(
+                {
+                    "field_path": f"{base}.cost",
+                    "error": "validation_failed",
+                    "reason": "out_of_range",
+                    "expected": "[0, 1000000]",
+                    "got": cost_f,
+                }
+            )
+            continue
+
+        rec_raw = ev.get("recurring", False)
+        rec_b = _coerce_bool(rec_raw)
+        if rec_b is None:
+            failed_fields.append(
+                {
+                    "field_path": f"{base}.recurring",
+                    "error": "validation_failed",
+                    "reason": "type_mismatch",
+                    "expected": "boolean",
+                    "got": rec_raw,
+                }
+            )
+            continue
+
+        validated_rows.append(
+            {
+                "name": name_out,
+                "date": date_out,
+                "cost": cost_f,
+                "recurring": rec_b,
+            }
+        )
+
+    if failed_fields:
+        return committed_fields, failed_fields
+
+    applied: list[str] = []
+    for i, row in enumerate(validated_rows):
+        applied.append(f"events[{i}].name")
+        applied.append(f"events[{i}].date")
+        applied.append(f"events[{i}].cost")
+        applied.append(f"events[{i}].recurring")
+
+    try:
+        prev = _load_important_dates(email)
+        # Note: customEvents is replaced as a complete array, not appended.
+        # Re-running the milestones module overwrites prior entries rather
+        # than duplicating. Other keys in important_dates (birthdays, etc.)
+        # are preserved untouched.
+        prev["customEvents"] = validated_rows
+        _save_important_dates(email, prev)
+        _touch_progress_row(user, load_row)
+        db.session.commit()
+        committed_fields.extend(applied)
+    except Exception as e:
+        db.session.rollback()
+        loguru_logger.exception("GC2 milestones batch failed: {}", e)
+        failed_fields.append(
+            {
+                "field_path": "__batch__",
+                "error": "commit_failed",
+                "reason": str(e),
+            }
+        )
+
+    return committed_fields, failed_fields
+
+
 def _touch_progress_row(user: User, load_row: Callable[[User], OnboardingProgress | None]) -> None:
     row = load_row(user)
     now = _utcnow()
@@ -1832,7 +2043,7 @@ def flatten_module_data(module_id: str, data: dict) -> list[tuple[str, Any]]:
     elif module_id == "milestones":
         for i, ev in enumerate(data.get("events") or []):
             if isinstance(ev, dict):
-                for k in ("name", "date", "cost"):
+                for k in ("name", "date", "cost", "recurring"):
                     if k in ev:
                         pairs.append((f"events[{i}].{k}", ev[k]))
     return pairs
@@ -1891,6 +2102,15 @@ def run_commit_module(
         )
     elif module_id == "recurring_expenses":
         committed_fields, failed_fields = _commit_recurring_expenses_module(
+            user=user,
+            uid=uid,
+            session=session,
+            data=data,
+            save_session=save_session,
+            load_row=load_row,
+        )
+    elif module_id == "milestones":
+        committed_fields, failed_fields = _commit_milestones_module(
             user=user,
             uid=uid,
             session=session,
