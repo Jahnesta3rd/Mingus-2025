@@ -1,6 +1,6 @@
 import React from 'react';
 import { useAuth } from '../hooks/useAuth';
-import { ModularOnboarding } from './ModularOnboarding';
+import OnboardingWizard from './onboarding/wizard/OnboardingWizard';
 import ExistingOnboardingForm from '../pages/OnboardingPage';
 
 export interface OnboardingRouterProps {
@@ -23,7 +23,7 @@ export default function OnboardingRouter({ onComplete }: OnboardingRouterProps) 
   }
 
   if (userTier === 'mid_tier' || userTier === 'professional') {
-    return <ModularOnboarding onComplete={onComplete} />;
+    return <OnboardingWizard />;
   }
 
   return <ExistingOnboardingForm onComplete={onComplete} />;
