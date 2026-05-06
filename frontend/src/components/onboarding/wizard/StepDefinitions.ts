@@ -18,16 +18,11 @@ export interface StepDefinition {
 }
 
 export const STEP_ORDER: StepDefinition[] = [
-  { id: 'income', label: 'Income', Component: PlaceholderStep, allowSkip: true },
-  {
-    id: 'recurring_expenses',
-    label: 'Recurring Expenses',
-    Component: PlaceholderStep,
-    allowSkip: true,
-  },
-  { id: 'housing', label: 'Housing', Component: PlaceholderStep, allowSkip: true },
-  { id: 'vehicle', label: 'Vehicle', Component: PlaceholderStep, allowSkip: true },
-  { id: 'milestones', label: 'Milestones', Component: PlaceholderStep, allowSkip: true },
-  { id: 'roster', label: 'Roster', Component: PlaceholderStep, allowSkip: true },
-  { id: 'career', label: 'Career', Component: PlaceholderStep, allowSkip: true },
+  { id: 'income',             label: 'Income',             Component: PlaceholderStep, allowSkip: true },
+  { id: 'housing',            label: 'Housing',            Component: PlaceholderStep, allowSkip: true },
+  { id: 'vehicle',            label: 'Vehicle',            Component: PlaceholderStep, allowSkip: true },
+  { id: 'recurring_expenses', label: 'Recurring Expenses', Component: PlaceholderStep, allowSkip: true },
+  { id: 'roster',             label: 'Roster',             Component: PlaceholderStep, allowSkip: true },
+  { id: 'career',             label: 'Career',             Component: PlaceholderStep, allowSkip: true },
+  { id: 'milestones',         label: 'Milestones',         Component: PlaceholderStep, allowSkip: true },
 ];
