@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../hooks/useAuth';
+import { commitModule } from '../../../lib/modularOnboarding';
+import type { ModuleData, ModuleId } from '../../../types/modularOnboarding';
 import { csrfHeaders } from '../../../utils/csrfHeaders';
 import { ProgressIndicator } from './ProgressIndicator';
 import { STEP_ORDER } from './StepDefinitions';
@@ -139,19 +141,41 @@ export default function OnboardingWizard() {
   }, [headers, navigate]);
 
   const handleStepSubmit = useCallback(
-    async (_data: Record<string, unknown>) => {
+    async (data: Record<string, unknown>) => {
       if (isSubmitting) return;
+      const stepDef = STEP_ORDER[currentIndex];
+      if (stepDef.commitOnSubmit && (!data || Object.keys(data).length === 0)) {
+        return;
+      }
       setIsSubmitting(true);
       setError(null);
       try {
         if (isLastStep) {
           await completeFinalStep();
+        } else if (stepDef.commitOnSubmit) {
+          const token = getAccessToken();
+          if (!token) {
+            throw new Error('You must be signed in to continue.');
+          }
+          const resp = await commitModule(token, stepDef.id, data as ModuleData[ModuleId]);
+          setError(null);
+          if (resp.all_done) {
+            navigate('/dashboard', { replace: true });
+            return;
+          }
+          if (resp.next_module) {
+            setCurrentIndex(moduleIndex(resp.next_module));
+            return;
+          }
+          setCurrentIndex((prev) => Math.min(prev + 1, STEP_ORDER.length - 1));
         } else {
           await persistSkipAndAdvance();
         }
       } catch (err) {
         if (isLastStep) {
           setError(FINAL_ERROR);
+        } else if (stepDef.commitOnSubmit) {
+          setError(err instanceof Error ? err.message : 'Failed to save step progress');
         } else {
           setError(err instanceof Error ? err.message : 'Failed to continue');
         }
@@ -159,12 +183,29 @@ export default function OnboardingWizard() {
         setIsSubmitting(false);
       }
     },
-    [completeFinalStep, isLastStep, isSubmitting, persistSkipAndAdvance]
+    [
+      completeFinalStep,
+      currentIndex,
+      getAccessToken,
+      isLastStep,
+      isSubmitting,
+      navigate,
+      persistSkipAndAdvance,
+    ]
   );
 
-  const handleSkip = useCallback(() => {
-    void handleStepSubmit({});
-  }, [handleStepSubmit]);
+  const handleSkip = useCallback(async () => {
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+    setError(null);
+    try {
+      await persistSkipAndAdvance();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to continue');
+    } finally {
+      setIsSubmitting(false);
+    }
+  }, [isSubmitting, persistSkipAndAdvance]);
 
   if (isLoading) {
     return (
@@ -207,15 +248,17 @@ export default function OnboardingWizard() {
           >
             Back
           </button>
-          <button
-            type="button"
-            onClick={() => void handleStepSubmit({})}
-            disabled={isSubmitting}
-            aria-label={`Save & Continue to step ${Math.min(currentIndex + 2, STEP_ORDER.length)} of ${STEP_ORDER.length}`}
-            className="min-h-11 w-full rounded-lg bg-[#5B2D8E] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#4B2474] disabled:cursor-not-allowed disabled:opacity-60 min-[640px]:w-auto"
-          >
-            {isSubmitting ? 'Saving...' : 'Save & Continue'}
-          </button>
+          {!STEP_ORDER[currentIndex].commitOnSubmit && (
+            <button
+              type="button"
+              onClick={() => void handleStepSubmit({})}
+              disabled={isSubmitting}
+              aria-label={`Save & Continue to step ${Math.min(currentIndex + 2, STEP_ORDER.length)} of ${STEP_ORDER.length}`}
+              className="min-h-11 w-full rounded-lg bg-[#5B2D8E] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#4B2474] disabled:cursor-not-allowed disabled:opacity-60 min-[640px]:w-auto"
+            >
+              {isSubmitting ? 'Saving...' : 'Save & Continue'}
+            </button>
+          )}
         </div>
       </div>
     </div>
