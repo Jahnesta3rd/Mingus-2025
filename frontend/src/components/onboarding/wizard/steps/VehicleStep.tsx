@@ -128,19 +128,6 @@ export default function VehicleStep({ initialData, onSubmit, onSkip }: StepProps
     return next;
   }, [make, model, year, mileage, monthlyPayment, insuranceMonthly, lastOilChangeBucket, majorServiceStatus, knownIssues, currentYear]);
 
-  const postVehicle = useCallback(
-    async (payload: Record<string, unknown>) => {
-      const res = await fetch('/api/modular-onboarding/commit-module', {
-        method: 'POST',
-        credentials: 'include',
-        headers: buildHeaders(getAccessToken),
-        body: JSON.stringify({ module_id: 'vehicle', data: payload }),
-      });
-      if (!res.ok) throw new Error(await readErrorMessage(res));
-    },
-    [getAccessToken]
-  );
-
   const postRecurringExpense = useCallback(
     async (label: 'Car Payment' | 'Auto Insurance', amount: number) => {
       const res = await fetch('/api/transaction-schedule/expenses', {
@@ -175,8 +162,7 @@ export default function VehicleStep({ initialData, onSubmit, onSkip }: StepProps
     setIsSubmitting(true);
     try {
       if (!hasVehicle) {
-        await postVehicle({ has_vehicle: false, vehicle_count: 0, vehicles: [] });
-        await onSubmit({ has_vehicle: false });
+        await onSubmit({ has_vehicle: false, vehicle_count: 0, vehicles: [] });
         return;
       }
 
@@ -203,39 +189,23 @@ export default function VehicleStep({ initialData, onSubmit, onSkip }: StepProps
 
       setShowValidationSummary(false);
       const parsedYear = Number.parseInt(year, 10);
-      const parsedMileage = Number.parseInt(mileage, 10);
       const parsedPayment = Number.parseFloat(monthlyPayment);
       const parsedInsurance = Number.parseFloat(insuranceMonthly);
-      const payload = {
+      if (parsedPayment > 0) await postRecurringExpense('Car Payment', parsedPayment);
+      if (parsedInsurance > 0) await postRecurringExpense('Auto Insurance', parsedInsurance);
+      await onSubmit({
         has_vehicle: true,
         vehicle_count: 1,
-        make: make.trim(),
-        model: model.trim(),
-        year: parsedYear,
-        mileage: parsedMileage,
-        monthly_payment: parsedPayment,
-        insurance_monthly: parsedInsurance,
-        last_oil_change_bucket: lastOilChangeBucket,
-        major_service_status: majorServiceStatus,
-        known_issues: knownIssues.trim(),
         vehicles: [
           {
             make: make.trim(),
             model: model.trim(),
             year: parsedYear,
             monthly_payment: parsedPayment,
-            monthly_fuel: parsedInsurance,
+            monthly_fuel: 0,
             recent_maintenance: lastOilChangeBucket === 'recent' || majorServiceStatus === 'up_to_date',
           },
         ],
-      };
-      await postVehicle(payload);
-      if (parsedPayment > 0) await postRecurringExpense('Car Payment', parsedPayment);
-      if (parsedInsurance > 0) await postRecurringExpense('Auto Insurance', parsedInsurance);
-      await onSubmit({
-        has_vehicle: true,
-        has_payment: parsedPayment > 0,
-        has_insurance: parsedInsurance > 0,
       });
     } catch (err) {
       setSubmitBanner(err instanceof Error ? err.message : 'Save failed');

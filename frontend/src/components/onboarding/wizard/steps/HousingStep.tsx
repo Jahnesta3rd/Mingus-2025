@@ -82,19 +82,6 @@ export default function HousingStep({ initialData, onSubmit, onSkip }: StepProps
     return next;
   }, [ownership, monthlyCost, zipCode]);
 
-  const postHousing = useCallback(
-    async (payload: Record<string, unknown>) => {
-      const res = await fetch('/api/modular-onboarding/commit-module', {
-        method: 'POST',
-        credentials: 'include',
-        headers: buildHeaders(getAccessToken),
-        body: JSON.stringify({ module_id: 'housing', data: payload }),
-      });
-      if (!res.ok) throw new Error(await readErrorMessage(res));
-    },
-    [getAccessToken]
-  );
-
   const postRecurringExpense = useCallback(
     async (label: 'Rent' | 'Mortgage', amount: number) => {
       const res = await fetch('/api/transaction-schedule/expenses', {
@@ -147,20 +134,18 @@ export default function HousingStep({ initialData, onSubmit, onSkip }: StepProps
 
     setIsSubmitting(true);
     try {
-      const payload: Record<string, unknown> = {
-        ownership,
-        housing_type: mapHousingType(ownership as Ownership),
-        monthly_cost: hasRecurring ? parsedMonthly : 0,
-        includes_utilities: ownership === 'rent' ? includesUtilities : false,
-        city: city.trim() || null,
-        zip_code: zipCode.trim() || null,
-        zip_or_city: city.trim() || zipCode.trim() || 'N/A',
-      };
-      await postHousing(payload);
       if (hasRecurring) {
         await postRecurringExpense(ownership === 'rent' ? 'Rent' : 'Mortgage', parsedMonthly);
       }
-      await onSubmit({ ownership, has_recurring: hasRecurring });
+      await onSubmit({
+        housing_type: mapHousingType(ownership as Ownership),
+        monthly_cost: hasRecurring ? parsedMonthly : 0,
+        zip_or_city: city.trim() || zipCode.trim() || 'N/A',
+        split_share_pct: 100,
+        has_buy_goal: false,
+        target_price: null,
+        target_timeline_months: null,
+      });
     } catch (err) {
       setSubmitBanner(err instanceof Error ? err.message : 'Save failed');
     } finally {

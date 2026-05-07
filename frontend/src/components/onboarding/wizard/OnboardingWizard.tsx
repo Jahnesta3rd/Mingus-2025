@@ -126,13 +126,13 @@ export default function OnboardingWizard() {
     setCurrentIndex((prev) => Math.min(prev + 1, STEP_ORDER.length - 1));
   }, [currentIndex, headers, navigate]);
 
-  const completeFinalStep = useCallback(async () => {
+  const completeFinalStep = useCallback(async (data: Record<string, unknown> = {}) => {
     const finalStep = STEP_ORDER[STEP_ORDER.length - 1];
     const res = await fetch(`${BASE}/commit-module`, {
       method: 'POST',
       credentials: 'include',
       headers,
-      body: JSON.stringify({ module_id: finalStep.id, data: {} }),
+      body: JSON.stringify({ module_id: finalStep.id, data }),
     });
     if (!res.ok) {
       throw new Error(FINAL_ERROR);
@@ -151,7 +151,7 @@ export default function OnboardingWizard() {
       setError(null);
       try {
         if (isLastStep) {
-          await completeFinalStep();
+          await completeFinalStep(data);
         } else if (stepDef.commitOnSubmit) {
           const token = getAccessToken();
           if (!token) {

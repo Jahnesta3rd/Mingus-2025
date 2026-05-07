@@ -1,7 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { Trash2 } from 'lucide-react';
 import { useAuth } from '../../../../hooks/useAuth';
-import { csrfHeaders } from '../../../../utils/csrfHeaders';
 import type { StepProps } from '../StepDefinitions';
 
 type EventType = 'graduation' | 'wedding' | 'birth' | 'retirement' | 'home_purchase' | 'other';
@@ -18,23 +17,6 @@ type RowErrors = Partial<Record<RowField, string>>;
 const inputClass =
   'w-full min-h-11 rounded-lg border border-[#E2E8F0] bg-white px-3 py-2.5 text-[#1E293B] placeholder:text-[#64748B] focus:border-[#5B2D8E] focus:outline-none focus:ring-1 focus:ring-[#5B2D8E]';
 const labelClass = 'mb-1.5 block text-sm font-medium text-[#1E293B]';
-
-function buildHeaders(getAccessToken: () => string | null): HeadersInit {
-  const h: Record<string, string> = { ...csrfHeaders(), 'Content-Type': 'application/json' };
-  const token = getAccessToken();
-  if (token) h.Authorization = `Bearer ${token}`;
-  return h;
-}
-
-async function readErrorMessage(res: Response): Promise<string> {
-  const text = await res.text();
-  try {
-    const j = JSON.parse(text) as { error?: string; message?: string };
-    return j.error || j.message || text || res.statusText;
-  } catch {
-    return text || res.statusText || 'Request failed';
-  }
-}
 
 function newId(): string {
   return crypto.randomUUID();
@@ -109,22 +91,6 @@ export default function MilestonesStep({ initialData, onSubmit, onSkip }: StepPr
     setRows((prev) => [...prev, { id: newId(), name: '', event_date: '', event_type: 'other', estimated_cost: '' }]);
   }, [clearValidationFeedback]);
 
-  const postMilestones = useCallback(
-    async (events: Array<Record<string, unknown>>) => {
-      const res = await fetch('/api/modular-onboarding/commit-module', {
-        method: 'POST',
-        credentials: 'include',
-        headers: buildHeaders(getAccessToken),
-        body: JSON.stringify({
-          module_id: 'milestones',
-          data: { events },
-        }),
-      });
-      if (!res.ok) throw new Error(await readErrorMessage(res));
-    },
-    [getAccessToken]
-  );
-
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitBanner(null);
@@ -159,15 +125,11 @@ export default function MilestonesStep({ initialData, onSubmit, onSkip }: StepPr
     try {
       const events = rows.map((row) => ({
         name: row.name.trim(),
-        event_date: row.event_date,
-        event_type: row.event_type,
-        estimated_cost: row.estimated_cost.trim() ? Number.parseFloat(row.estimated_cost) : undefined,
         date: row.event_date,
         cost: row.estimated_cost.trim() ? Number.parseFloat(row.estimated_cost) : 0,
         recurring: false,
       }));
-      await postMilestones(events);
-      await onSubmit({ count: rows.length });
+      await onSubmit({ events });
     } catch (err) {
       setSubmitBanner(err instanceof Error ? err.message : 'Save failed');
     } finally {

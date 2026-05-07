@@ -1,6 +1,5 @@
 import React, { useCallback, useState } from 'react';
 import { useAuth } from '../../../../hooks/useAuth';
-import { csrfHeaders } from '../../../../utils/csrfHeaders';
 import type { StepProps } from '../StepDefinitions';
 
 type Field = 'current_position' | 'employer' | 'industry' | 'years_in_role' | 'next_review_date';
@@ -21,23 +20,6 @@ const INDUSTRIES = [
   'Construction',
   'Other',
 ];
-
-function buildHeaders(getAccessToken: () => string | null): HeadersInit {
-  const h: Record<string, string> = { ...csrfHeaders(), 'Content-Type': 'application/json' };
-  const token = getAccessToken();
-  if (token) h.Authorization = `Bearer ${token}`;
-  return h;
-}
-
-async function readErrorMessage(res: Response): Promise<string> {
-  const text = await res.text();
-  try {
-    const j = JSON.parse(text) as { error?: string; message?: string };
-    return j.error || j.message || text || res.statusText;
-  } catch {
-    return text || res.statusText || 'Request failed';
-  }
-}
 
 function todayIso(): string {
   return new Date().toISOString().slice(0, 10);
@@ -87,19 +69,6 @@ export default function CareerStep({ initialData, onSubmit, onSkip }: StepProps)
     return next;
   }, [currentPosition, employer, industry, yearsInRole, nextReviewDate]);
 
-  const postCareer = useCallback(
-    async (payload: Record<string, unknown>) => {
-      const res = await fetch('/api/modular-onboarding/commit-module', {
-        method: 'POST',
-        credentials: 'include',
-        headers: buildHeaders(getAccessToken),
-        body: JSON.stringify({ module_id: 'career', data: payload }),
-      });
-      if (!res.ok) throw new Error(await readErrorMessage(res));
-    },
-    [getAccessToken]
-  );
-
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitBanner(null);
@@ -124,16 +93,14 @@ export default function CareerStep({ initialData, onSubmit, onSkip }: StepProps)
     setIsSubmitting(true);
     try {
       const years = Number.parseInt(yearsInRole, 10);
-      await postCareer({
-        current_position: currentPosition.trim(),
-        employer: employer.trim(),
-        industry,
-        years_in_role: years,
-        next_review_date: nextReviewDate || null,
+      await onSubmit({
         current_role: currentPosition.trim(),
+        industry,
         years_experience: years,
+        satisfaction: typeof initialData.satisfaction === 'number' ? initialData.satisfaction : null,
+        open_to_move: typeof initialData.open_to_move === 'boolean' ? initialData.open_to_move : false,
+        target_comp: typeof initialData.target_comp === 'number' ? initialData.target_comp : null,
       });
-      await onSubmit({ industry, years_in_role: years });
     } catch (err) {
       setSubmitBanner(err instanceof Error ? err.message : 'Save failed');
     } finally {
