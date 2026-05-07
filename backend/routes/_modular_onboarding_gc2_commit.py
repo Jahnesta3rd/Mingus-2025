@@ -1090,6 +1090,15 @@ def _commit_milestones_module(
             }
         )
         return committed_fields, failed_fields
+    loguru_logger.info(
+        "milestones commit: user_id={}, raw_events_count={}, keys_seen={}",
+        user.id,
+        len(raw_events),
+        [
+            list(ev.keys()) if isinstance(ev, dict) else type(ev).__name__
+            for ev in raw_events
+        ],
+    )
 
     validated_rows: list[dict[str, Any]] = []
 
@@ -1229,6 +1238,36 @@ def _commit_milestones_module(
                 "recurring": rec_b,
             }
         )
+        loguru_logger.info(
+            "milestones validated event {} for user {}: name={!r} date={!r} cost={!r} recurring={!r}",
+            i,
+            user.id,
+            name_out,
+            date_out,
+            cost_f,
+            rec_b,
+        )
+
+    loguru_logger.info(
+        "milestones validation done for user {}: validated_count={}, failed_count={}",
+        user.id,
+        len(validated_rows),
+        len(failed_fields),
+    )
+    if raw_events and not validated_rows and not failed_fields:
+        loguru_logger.warning(
+            "milestones invariant violated for user {}: raw_events={} but validated_rows=0 and no failures",
+            user.id,
+            len(raw_events),
+        )
+        failed_fields.append(
+            {
+                "field_path": "__invariant__",
+                "error": "invariant_violation",
+                "reason": "events_dropped_silently",
+            }
+        )
+        return committed_fields, failed_fields
 
     if failed_fields:
         return committed_fields, failed_fields
@@ -1247,6 +1286,12 @@ def _commit_milestones_module(
         # than duplicating. Other keys in important_dates (birthdays, etc.)
         # are preserved untouched.
         prev["customEvents"] = validated_rows
+        loguru_logger.info(
+            "milestones writing customEvents for user {}: count={}, payload={!r}",
+            user.id,
+            len(validated_rows),
+            validated_rows,
+        )
         _save_important_dates(email, prev)
         _touch_progress_row(user, load_row)
         db.session.commit()
@@ -1254,6 +1299,246 @@ def _commit_milestones_module(
     except Exception as e:
         db.session.rollback()
         loguru_logger.exception("GC2 milestones batch failed: {}", e)
+        failed_fields.append(
+            {
+                "field_path": "__batch__",
+                "error": "commit_failed",
+                "reason": str(e),
+            }
+        )
+
+    return committed_fields, failed_fields
+
+
+def _commit_vehicle_module(
+    *,
+    user: User,
+    uid: str,
+    session: dict,
+    data: dict,
+    save_session: Callable[[str, dict], None],
+    load_row: Callable[[User], OnboardingProgress | None],
+) -> tuple[list[str], list[dict]]:
+    """Validate and replace all user vehicles in one DB transaction (all-or-nothing)."""
+    del uid, session, save_session
+    committed_fields: list[str] = []
+    failed_fields: list[dict] = []
+    raw_vehicles = data.get("vehicles", [])
+    if raw_vehicles is None:
+        raw_vehicles = []
+    if not isinstance(raw_vehicles, list):
+        failed_fields.append(
+            {
+                "field_path": "vehicles",
+                "error": "validation_failed",
+                "reason": "expected_list",
+                "got": type(raw_vehicles).__name__,
+            }
+        )
+        return committed_fields, failed_fields
+
+    validated_rows: list[dict[str, Any]] = []
+    current_year = date.today().year
+    for i, veh in enumerate(raw_vehicles):
+        base = f"vehicles[{i}]"
+        if not isinstance(veh, dict):
+            failed_fields.append(
+                {
+                    "field_path": base,
+                    "error": "validation_failed",
+                    "reason": "expected_object",
+                    "got": type(veh).__name__,
+                }
+            )
+            continue
+
+        make_raw = veh.get("make")
+        if not isinstance(make_raw, str) or not make_raw.strip():
+            failed_fields.append(
+                {
+                    "field_path": f"{base}.make",
+                    "error": "validation_failed",
+                    "reason": "type_mismatch",
+                    "expected": "non-empty string (max 50)",
+                    "got": make_raw,
+                }
+            )
+            continue
+        make_out = make_raw.strip()
+        if len(make_out) > 50:
+            failed_fields.append(
+                {
+                    "field_path": f"{base}.make",
+                    "error": "validation_failed",
+                    "reason": "string_too_long",
+                    "expected": "max 50",
+                    "got": len(make_out),
+                }
+            )
+            continue
+
+        model_raw = veh.get("model")
+        if not isinstance(model_raw, str) or not model_raw.strip():
+            failed_fields.append(
+                {
+                    "field_path": f"{base}.model",
+                    "error": "validation_failed",
+                    "reason": "type_mismatch",
+                    "expected": "non-empty string (max 100)",
+                    "got": model_raw,
+                }
+            )
+            continue
+        model_out = model_raw.strip()
+        if len(model_out) > 100:
+            failed_fields.append(
+                {
+                    "field_path": f"{base}.model",
+                    "error": "validation_failed",
+                    "reason": "string_too_long",
+                    "expected": "max 100",
+                    "got": len(model_out),
+                }
+            )
+            continue
+
+        year_raw = veh.get("year")
+        try:
+            year_out = int(year_raw)
+        except (TypeError, ValueError):
+            failed_fields.append(
+                {
+                    "field_path": f"{base}.year",
+                    "error": "validation_failed",
+                    "reason": "type_mismatch",
+                    "expected": f"integer in [1980, {current_year + 1}]",
+                    "got": year_raw,
+                }
+            )
+            continue
+        if year_out < 1980 or year_out > current_year + 1:
+            failed_fields.append(
+                {
+                    "field_path": f"{base}.year",
+                    "error": "validation_failed",
+                    "reason": "out_of_range",
+                    "expected": f"[1980, {current_year + 1}]",
+                    "got": year_out,
+                }
+            )
+            continue
+
+        payment_raw = veh.get("monthly_payment")
+        payment_out = _to_decimal_amount(payment_raw)
+        if payment_out is None:
+            failed_fields.append(
+                {
+                    "field_path": f"{base}.monthly_payment",
+                    "error": "validation_failed",
+                    "reason": "type_mismatch",
+                    "expected": "number >= 0",
+                    "got": payment_raw,
+                }
+            )
+            continue
+        if payment_out < 0:
+            failed_fields.append(
+                {
+                    "field_path": f"{base}.monthly_payment",
+                    "error": "validation_failed",
+                    "reason": "out_of_range",
+                    "expected": ">= 0",
+                    "got": str(payment_out),
+                }
+            )
+            continue
+
+        fuel_raw = veh.get("monthly_fuel")
+        fuel_out = _to_decimal_amount(fuel_raw)
+        if fuel_out is None:
+            failed_fields.append(
+                {
+                    "field_path": f"{base}.monthly_fuel",
+                    "error": "validation_failed",
+                    "reason": "type_mismatch",
+                    "expected": "number >= 0",
+                    "got": fuel_raw,
+                }
+            )
+            continue
+        if fuel_out < 0:
+            failed_fields.append(
+                {
+                    "field_path": f"{base}.monthly_fuel",
+                    "error": "validation_failed",
+                    "reason": "out_of_range",
+                    "expected": ">= 0",
+                    "got": str(fuel_out),
+                }
+            )
+            continue
+
+        recent_raw = veh.get("recent_maintenance")
+        if recent_raw is None or recent_raw == "":
+            recent_out = False
+        else:
+            recent_out = _coerce_bool(recent_raw)
+            if recent_out is None:
+                failed_fields.append(
+                    {
+                        "field_path": f"{base}.recent_maintenance",
+                        "error": "validation_failed",
+                        "reason": "type_mismatch",
+                        "expected": "boolean",
+                        "got": recent_raw,
+                    }
+                )
+                continue
+
+        validated_rows.append(
+            {
+                "make": make_out,
+                "model": model_out,
+                "year": year_out,
+                "monthly_payment": payment_out,
+                "monthly_fuel_cost": fuel_out,
+                "recent_maintenance": recent_out,
+            }
+        )
+
+    if failed_fields:
+        return committed_fields, failed_fields
+
+    applied: list[str] = []
+    try:
+        for existing in Vehicle.query.filter_by(user_id=user.id).all():
+            db.session.delete(existing)
+
+        for i, row in enumerate(validated_rows):
+            db.session.add(
+                Vehicle(
+                    user_id=user.id,
+                    make=row["make"],
+                    model=row["model"],
+                    year=row["year"],
+                    monthly_payment=row["monthly_payment"],
+                    monthly_fuel_cost=row["monthly_fuel_cost"],
+                    recent_maintenance=row["recent_maintenance"],
+                )
+            )
+            applied.append(f"vehicles[{i}].make")
+            applied.append(f"vehicles[{i}].model")
+            applied.append(f"vehicles[{i}].year")
+            applied.append(f"vehicles[{i}].monthly_payment")
+            applied.append(f"vehicles[{i}].monthly_fuel")
+            applied.append(f"vehicles[{i}].recent_maintenance")
+
+        _touch_progress_row(user, load_row)
+        db.session.commit()
+        committed_fields.extend(applied)
+    except Exception as e:
+        db.session.rollback()
+        loguru_logger.exception("GC2 vehicle batch failed: {}", e)
         failed_fields.append(
             {
                 "field_path": "__batch__",
@@ -2005,7 +2290,13 @@ def flatten_module_data(module_id: str, data: dict) -> list[tuple[str, Any]]:
             "target_timeline_months",
         ):
             if k in data:
-                pairs.append((k, data[k]))
+                v = data[k]
+                if k == "split_share_pct" and (v is None or v == ""):
+                    v = 100
+                pairs.append((k, v))
+            elif k == "split_share_pct":
+                # Default to 100% (user pays full housing cost) when frontend omits the field.
+                pairs.append((k, 100))
     elif module_id == "vehicle":
         for i, v in enumerate(data.get("vehicles") or []):
             if isinstance(v, dict):
@@ -2111,6 +2402,15 @@ def run_commit_module(
         )
     elif module_id == "milestones":
         committed_fields, failed_fields = _commit_milestones_module(
+            user=user,
+            uid=uid,
+            session=session,
+            data=data,
+            save_session=save_session,
+            load_row=load_row,
+        )
+    elif module_id == "vehicle":
+        committed_fields, failed_fields = _commit_vehicle_module(
             user=user,
             uid=uid,
             session=session,
