@@ -3,6 +3,11 @@ import type { ModuleId } from '../../../types/modularOnboarding';
 import { PlaceholderStep } from './steps/PlaceholderStep';
 import IncomeStep from './steps/IncomeStep';
 import RecurringExpensesStep from './steps/RecurringExpensesStep';
+import HousingStep from './steps/HousingStep';
+import VehicleStep from './steps/VehicleStep';
+import RosterStep from './steps/RosterStep';
+import CareerStep from './steps/CareerStep';
+import MilestonesStep from './steps/MilestonesStep';
 
 export interface StepProps {
   stepLabel: string;
@@ -23,10 +28,10 @@ export type StepDefinition = {
 
 export const STEP_ORDER: StepDefinition[] = [
   { id: 'income',             label: 'Income',             Component: IncomeStep,             allowSkip: true, commitOnSubmit: true },
-  { id: 'housing',            label: 'Housing',            Component: PlaceholderStep,        allowSkip: true },
-  { id: 'vehicle',            label: 'Vehicle',            Component: PlaceholderStep,        allowSkip: true },
+  { id: 'housing',            label: 'Housing',            Component: HousingStep,            allowSkip: true, commitOnSubmit: true },
+  { id: 'vehicle',            label: 'Vehicle',            Component: VehicleStep,            allowSkip: true, commitOnSubmit: true },
   { id: 'recurring_expenses', label: 'Recurring Expenses', Component: RecurringExpensesStep, allowSkip: true, commitOnSubmit: true },
-  { id: 'roster',             label: 'Roster',             Component: PlaceholderStep,        allowSkip: true },
-  { id: 'career',             label: 'Career',             Component: PlaceholderStep,        allowSkip: true },
-  { id: 'milestones',         label: 'Milestones',         Component: PlaceholderStep,        allowSkip: true },
+  { id: 'roster',             label: 'Roster',             Component: RosterStep,             allowSkip: true, commitOnSubmit: true },
+  { id: 'career',             label: 'Career',             Component: CareerStep,             allowSkip: true, commitOnSubmit: true },
+  { id: 'milestones',         label: 'Milestones',         Component: MilestonesStep,         allowSkip: true, commitOnSubmit: true },
 ];
