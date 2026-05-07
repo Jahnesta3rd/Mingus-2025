@@ -1068,6 +1068,7 @@ def _commit_milestones_module(
     failed_fields: list[dict] = []
     email = (user.email or "").strip().lower()
     if not email:
+        loguru_logger.warning("milestones validation failed for user {}: field={} reason={} got={!r}", user.id, "__batch__", "missing_user_email", user.email)
         failed_fields.append(
             {
                 "field_path": "__batch__",
@@ -1081,6 +1082,7 @@ def _commit_milestones_module(
     if raw_events is None:
         raw_events = []
     if not isinstance(raw_events, list):
+        loguru_logger.warning("milestones validation failed for user {}: field={} reason={} got={!r}", user.id, "events", "expected_list", raw_events)
         failed_fields.append(
             {
                 "field_path": "events",
@@ -1105,6 +1107,7 @@ def _commit_milestones_module(
     for i, ev in enumerate(raw_events):
         base = f"events[{i}]"
         if not isinstance(ev, dict):
+            loguru_logger.warning("milestones validation failed for user {}: field={} reason={} got={!r}", user.id, base, "expected_object", ev)
             failed_fields.append(
                 {
                     "field_path": base,
@@ -1123,6 +1126,7 @@ def _commit_milestones_module(
             if not s:
                 name_out = None
             elif len(s) > 160:
+                loguru_logger.warning("milestones validation failed for user {}: field={} reason={} got={!r}", user.id, f"{base}.name", "string_too_long", len(s))
                 failed_fields.append(
                     {
                         "field_path": f"{base}.name",
@@ -1136,6 +1140,7 @@ def _commit_milestones_module(
             else:
                 name_out = s
         else:
+            loguru_logger.warning("milestones validation failed for user {}: field={} reason={} got={!r}", user.id, f"{base}.name", "type_mismatch", name_raw)
             failed_fields.append(
                 {
                     "field_path": f"{base}.name",
@@ -1154,6 +1159,7 @@ def _commit_milestones_module(
         elif isinstance(date_raw, str):
             ds = date_raw.strip()
             if not re.match(r"^\d{4}-\d{2}-\d{2}$", ds):
+                loguru_logger.warning("milestones validation failed for user {}: field={} reason={} got={!r}", user.id, f"{base}.date", "bad_date_format", date_raw)
                 failed_fields.append(
                     {
                         "field_path": f"{base}.date",
@@ -1167,6 +1173,7 @@ def _commit_milestones_module(
             try:
                 date.fromisoformat(ds)
             except ValueError:
+                loguru_logger.warning("milestones validation failed for user {}: field={} reason={} got={!r}", user.id, f"{base}.date", "bad_date_format", date_raw)
                 failed_fields.append(
                     {
                         "field_path": f"{base}.date",
@@ -1179,6 +1186,7 @@ def _commit_milestones_module(
                 continue
             date_out = ds
         else:
+            loguru_logger.warning("milestones validation failed for user {}: field={} reason={} got={!r}", user.id, f"{base}.date", "type_mismatch", date_raw)
             failed_fields.append(
                 {
                     "field_path": f"{base}.date",
@@ -1194,6 +1202,7 @@ def _commit_milestones_module(
         try:
             cost_f = float(cost_raw)
         except (TypeError, ValueError):
+            loguru_logger.warning("milestones validation failed for user {}: field={} reason={} got={!r}", user.id, f"{base}.cost", "type_mismatch", cost_raw)
             failed_fields.append(
                 {
                     "field_path": f"{base}.cost",
@@ -1205,6 +1214,7 @@ def _commit_milestones_module(
             )
             continue
         if cost_f < 0 or cost_f > 1_000_000:
+            loguru_logger.warning("milestones validation failed for user {}: field={} reason={} got={!r}", user.id, f"{base}.cost", "out_of_range", cost_f)
             failed_fields.append(
                 {
                     "field_path": f"{base}.cost",
@@ -1219,6 +1229,7 @@ def _commit_milestones_module(
         rec_raw = ev.get("recurring", False)
         rec_b = _coerce_bool(rec_raw)
         if rec_b is None:
+            loguru_logger.warning("milestones validation failed for user {}: field={} reason={} got={!r}", user.id, f"{base}.recurring", "type_mismatch", rec_raw)
             failed_fields.append(
                 {
                     "field_path": f"{base}.recurring",
@@ -1260,6 +1271,7 @@ def _commit_milestones_module(
             user.id,
             len(raw_events),
         )
+        loguru_logger.warning("milestones validation failed for user {}: field={} reason={} got={!r}", user.id, "__invariant__", "events_dropped_silently", raw_events)
         failed_fields.append(
             {
                 "field_path": "__invariant__",
@@ -1299,6 +1311,7 @@ def _commit_milestones_module(
     except Exception as e:
         db.session.rollback()
         loguru_logger.exception("GC2 milestones batch failed: {}", e)
+        loguru_logger.warning("milestones validation failed for user {}: field={} reason={} got={!r}", user.id, "__batch__", "commit_failed", str(e))
         failed_fields.append(
             {
                 "field_path": "__batch__",
@@ -1327,6 +1340,7 @@ def _commit_vehicle_module(
     if raw_vehicles is None:
         raw_vehicles = []
     if not isinstance(raw_vehicles, list):
+        loguru_logger.warning("vehicle validation failed for user {}: field={} reason={} got={!r}", user.id, "vehicles", "expected_list", raw_vehicles)
         failed_fields.append(
             {
                 "field_path": "vehicles",
@@ -1342,6 +1356,7 @@ def _commit_vehicle_module(
     for i, veh in enumerate(raw_vehicles):
         base = f"vehicles[{i}]"
         if not isinstance(veh, dict):
+            loguru_logger.warning("vehicle validation failed for user {}: field={} reason={} got={!r}", user.id, base, "expected_object", veh)
             failed_fields.append(
                 {
                     "field_path": base,
@@ -1354,6 +1369,7 @@ def _commit_vehicle_module(
 
         make_raw = veh.get("make")
         if not isinstance(make_raw, str) or not make_raw.strip():
+            loguru_logger.warning("vehicle validation failed for user {}: field={} reason={} got={!r}", user.id, f"{base}.make", "type_mismatch", make_raw)
             failed_fields.append(
                 {
                     "field_path": f"{base}.make",
@@ -1366,6 +1382,7 @@ def _commit_vehicle_module(
             continue
         make_out = make_raw.strip()
         if len(make_out) > 50:
+            loguru_logger.warning("vehicle validation failed for user {}: field={} reason={} got={!r}", user.id, f"{base}.make", "string_too_long", len(make_out))
             failed_fields.append(
                 {
                     "field_path": f"{base}.make",
@@ -1379,6 +1396,7 @@ def _commit_vehicle_module(
 
         model_raw = veh.get("model")
         if not isinstance(model_raw, str) or not model_raw.strip():
+            loguru_logger.warning("vehicle validation failed for user {}: field={} reason={} got={!r}", user.id, f"{base}.model", "type_mismatch", model_raw)
             failed_fields.append(
                 {
                     "field_path": f"{base}.model",
@@ -1391,6 +1409,7 @@ def _commit_vehicle_module(
             continue
         model_out = model_raw.strip()
         if len(model_out) > 100:
+            loguru_logger.warning("vehicle validation failed for user {}: field={} reason={} got={!r}", user.id, f"{base}.model", "string_too_long", len(model_out))
             failed_fields.append(
                 {
                     "field_path": f"{base}.model",
@@ -1406,6 +1425,7 @@ def _commit_vehicle_module(
         try:
             year_out = int(year_raw)
         except (TypeError, ValueError):
+            loguru_logger.warning("vehicle validation failed for user {}: field={} reason={} got={!r}", user.id, f"{base}.year", "type_mismatch", year_raw)
             failed_fields.append(
                 {
                     "field_path": f"{base}.year",
@@ -1417,6 +1437,7 @@ def _commit_vehicle_module(
             )
             continue
         if year_out < 1980 or year_out > current_year + 1:
+            loguru_logger.warning("vehicle validation failed for user {}: field={} reason={} got={!r}", user.id, f"{base}.year", "out_of_range", year_out)
             failed_fields.append(
                 {
                     "field_path": f"{base}.year",
@@ -1431,6 +1452,7 @@ def _commit_vehicle_module(
         payment_raw = veh.get("monthly_payment")
         payment_out = _to_decimal_amount(payment_raw)
         if payment_out is None:
+            loguru_logger.warning("vehicle validation failed for user {}: field={} reason={} got={!r}", user.id, f"{base}.monthly_payment", "type_mismatch", payment_raw)
             failed_fields.append(
                 {
                     "field_path": f"{base}.monthly_payment",
@@ -1442,6 +1464,7 @@ def _commit_vehicle_module(
             )
             continue
         if payment_out < 0:
+            loguru_logger.warning("vehicle validation failed for user {}: field={} reason={} got={!r}", user.id, f"{base}.monthly_payment", "out_of_range", str(payment_out))
             failed_fields.append(
                 {
                     "field_path": f"{base}.monthly_payment",
@@ -1456,6 +1479,7 @@ def _commit_vehicle_module(
         fuel_raw = veh.get("monthly_fuel")
         fuel_out = _to_decimal_amount(fuel_raw)
         if fuel_out is None:
+            loguru_logger.warning("vehicle validation failed for user {}: field={} reason={} got={!r}", user.id, f"{base}.monthly_fuel", "type_mismatch", fuel_raw)
             failed_fields.append(
                 {
                     "field_path": f"{base}.monthly_fuel",
@@ -1467,6 +1491,7 @@ def _commit_vehicle_module(
             )
             continue
         if fuel_out < 0:
+            loguru_logger.warning("vehicle validation failed for user {}: field={} reason={} got={!r}", user.id, f"{base}.monthly_fuel", "out_of_range", str(fuel_out))
             failed_fields.append(
                 {
                     "field_path": f"{base}.monthly_fuel",
@@ -1484,6 +1509,7 @@ def _commit_vehicle_module(
         else:
             recent_out = _coerce_bool(recent_raw)
             if recent_out is None:
+                loguru_logger.warning("vehicle validation failed for user {}: field={} reason={} got={!r}", user.id, f"{base}.recent_maintenance", "type_mismatch", recent_raw)
                 failed_fields.append(
                     {
                         "field_path": f"{base}.recent_maintenance",
@@ -1539,6 +1565,7 @@ def _commit_vehicle_module(
     except Exception as e:
         db.session.rollback()
         loguru_logger.exception("GC2 vehicle batch failed: {}", e)
+        loguru_logger.warning("vehicle validation failed for user {}: field={} reason={} got={!r}", user.id, "__batch__", "commit_failed", str(e))
         failed_fields.append(
             {
                 "field_path": "__batch__",
@@ -2444,6 +2471,23 @@ def run_commit_module(
             else:
                 committed_fields.append(fp)
 
+    if failed_fields:
+        is_revisit_failed = module_id in list(session.get("completed_modules") or [])
+        try:
+            save_session(uid, session)
+        except Exception as e:
+            loguru_logger.warning("GC2 run_commit_module redis save: {}", e)
+        return (
+            {
+                "ok": False,
+                "module_id": module_id,
+                "committed_fields": committed_fields,
+                "failed_fields": failed_fields,
+                "is_revisit": is_revisit_failed,
+            },
+            200,
+        )
+
     completed = list(session.get("completed_modules") or [])
     skipped = list(session.get("skipped_modules") or [])
     was_completed = module_id in completed
@@ -2495,7 +2539,7 @@ def run_commit_module(
             "next_module": next_module,
             "all_done": all_done,
             "committed_fields": committed_fields,
-            "failed_fields": failed_fields,
+            "failed_fields": [],
             "is_revisit": is_revisit,
         },
         200,

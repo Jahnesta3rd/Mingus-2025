@@ -126,19 +126,38 @@ export default function OnboardingWizard() {
     setCurrentIndex((prev) => Math.min(prev + 1, STEP_ORDER.length - 1));
   }, [currentIndex, headers, navigate]);
 
-  const completeFinalStep = useCallback(async (data: Record<string, unknown> = {}) => {
-    const finalStep = STEP_ORDER[STEP_ORDER.length - 1];
-    const res = await fetch(`${BASE}/commit-module`, {
-      method: 'POST',
-      credentials: 'include',
-      headers,
-      body: JSON.stringify({ module_id: finalStep.id, data }),
-    });
-    if (!res.ok) {
-      throw new Error(FINAL_ERROR);
-    }
-    navigate('/dashboard', { replace: true });
-  }, [headers, navigate]);
+  const completeFinalStep = useCallback(
+    async (data: Record<string, unknown> = {}) => {
+      const finalStep = STEP_ORDER[STEP_ORDER.length - 1];
+      const res = await fetch(`${BASE}/commit-module`, {
+        method: 'POST',
+        credentials: 'include',
+        headers,
+        body: JSON.stringify({ module_id: finalStep.id, data }),
+      });
+
+      if (!res.ok) {
+        throw new Error(FINAL_ERROR);
+      }
+
+      const body = (await res.json()) as {
+        ok?: boolean;
+        failed_fields?: Array<{ field_path: string; reason: string }>;
+      };
+
+      if (body.failed_fields && body.failed_fields.length > 0) {
+        const summary = body.failed_fields
+          .map((f) => `${f.field_path}: ${f.reason}`)
+          .join('; ');
+        throw new Error(
+          `Some entries couldn't be saved — ${summary}. Fix and try again, or skip this step.`
+        );
+      }
+
+      navigate('/dashboard', { replace: true });
+    },
+    [headers, navigate]
+  );
 
   const handleStepSubmit = useCallback(
     async (data: Record<string, unknown>) => {
@@ -159,6 +178,12 @@ export default function OnboardingWizard() {
           }
           const resp = await commitModule(token, stepDef.id, data as ModuleData[ModuleId]);
           setError(null);
+          if (resp.failed_fields && resp.failed_fields.length > 0) {
+            const summary = resp.failed_fields
+              .map((f) => `${f.field_path}: ${f.reason}`)
+              .join('; ');
+            throw new Error(`Some entries couldn't be saved — ${summary}.`);
+          }
           if (resp.all_done) {
             navigate('/dashboard', { replace: true });
             return;
@@ -172,12 +197,13 @@ export default function OnboardingWizard() {
           await persistSkipAndAdvance();
         }
       } catch (err) {
+        const message = err instanceof Error ? err.message : null;
         if (isLastStep) {
-          setError(FINAL_ERROR);
+          setError(message || FINAL_ERROR);
         } else if (stepDef.commitOnSubmit) {
-          setError(err instanceof Error ? err.message : 'Failed to save step progress');
+          setError(message || 'Failed to save step progress');
         } else {
-          setError(err instanceof Error ? err.message : 'Failed to continue');
+          setError(message || 'Failed to continue');
         }
       } finally {
         setIsSubmitting(false);
