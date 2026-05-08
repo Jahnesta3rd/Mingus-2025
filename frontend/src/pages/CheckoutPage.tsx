@@ -176,7 +176,7 @@ function PaymentFormInner({ tierName, onBack }: { tierName: string; onBack: () =
       const { error: confirmError } = await stripe.confirmPayment({
         elements,
         confirmParams: {
-          return_url: window.location.origin + '/dashboard',
+          return_url: window.location.origin + '/onboarding',
         },
       });
       if (confirmError) {
