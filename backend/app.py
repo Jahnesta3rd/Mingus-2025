@@ -19,6 +19,8 @@ from backend.routes.faith_card import faith_card_bp
 from backend.routes.bug_report import bug_report_bp
 from backend.routes.modular_onboarding import modular_onboarding_bp
 from backend.routes.user import user_bp as user_agreement_bp
+from backend.routes.vehicle_dashboard_routes import vehicle_dashboard_public_bp
+from backend.routes.vibe_daily_routes import vibe_daily_public_bp
 from backend.models.onboarding_progress import OnboardingProgress  # noqa: F401
 from backend.models.database import db
 
@@ -55,3 +57,7 @@ def register_backend_blueprints(app):
     app.register_blueprint(bug_report_bp)
     app.register_blueprint(modular_onboarding_bp)
     app.register_blueprint(user_agreement_bp)
+    # Vehicle dashboard GET /api/vehicles/dashboard (alongside ``vehicle_api`` in root app).
+    app.register_blueprint(vehicle_dashboard_public_bp)
+    # Stub GET /api/vibe/daily — placeholder for #99.
+    app.register_blueprint(vibe_daily_public_bp)
