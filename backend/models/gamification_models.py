@@ -10,7 +10,7 @@ milestone tracking, and weekly challenges.
 from datetime import datetime, date
 from enum import Enum
 from sqlalchemy import Column, Integer, String, DateTime, Date, Boolean, Text, Float, ForeignKey, JSON
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import backref, relationship
 from sqlalchemy.dialects.postgresql import UUID
 from backend.models.database import db
 import uuid
@@ -79,7 +79,7 @@ class UserStreak(db.Model):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
     
     # Relationships
-    user = relationship("User", back_populates="streaks")
+    user = relationship("User", backref=backref("streaks", lazy="dynamic"))
     milestone_achievements = relationship("MilestoneAchievement", back_populates="streak")
     
     def to_dict(self):
