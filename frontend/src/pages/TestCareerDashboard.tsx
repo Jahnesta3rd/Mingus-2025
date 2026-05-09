@@ -8,7 +8,6 @@ import HousingLocationTile from '../components/HousingLocationTile';
 import HousingNotificationSystem from '../components/HousingNotificationSystem';
 import HousingProfileIntegration from '../components/HousingProfileIntegration';
 import DashboardErrorBoundary from '../components/DashboardErrorBoundary';
-import QuickActionsPanel from '../components/QuickActionsPanel';
 import RecentActivityPanel from '../components/RecentActivityPanel';
 import UnlockRecommendationsPanel from '../components/UnlockRecommendationsPanel';
 import DashboardSkeleton from '../components/DashboardSkeleton';
@@ -200,22 +199,11 @@ const TestCareerDashboard: React.FC = () => {
               {dashboardState.activeTab === 'daily-outlook' && (
                 <div className="space-y-6">
                   {/* Daily Outlook Card for Dashboard Overview */}
-                  <div className="grid gap-6 lg:grid-cols-2">
-                    <div className="lg:col-span-1">
-                      <DailyOutlookCard 
-                        onViewFullOutlook={handleViewFullDailyOutlook}
-                        compact={false}
-                      />
-                    </div>
-                    <div className="lg:col-span-1">
-                      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
-                        <QuickActionsPanel 
-                          riskLevel={dashboardState.riskLevel}
-                          hasRecommendations={dashboardState.hasUnlockedRecommendations}
-                        />
-                      </div>
-                    </div>
+                  <div>
+                    <DailyOutlookCard 
+                      onViewFullOutlook={handleViewFullDailyOutlook}
+                      compact={false}
+                    />
                   </div>
                   
                   {/* Recent Activity */}
@@ -228,19 +216,9 @@ const TestCareerDashboard: React.FC = () => {
 
               {dashboardState.activeTab === 'overview' && (
                 <div className="space-y-6">
-                  {/* Top Row - Quick Actions and Recent Activity */}
-                  <div className="grid gap-6 lg:gap-8 lg:grid-cols-2">
-                    <div>
-                      <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
-                      <QuickActionsPanel 
-                        riskLevel={dashboardState.riskLevel}
-                        hasRecommendations={dashboardState.hasUnlockedRecommendations}
-                      />
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h3>
-                      <RecentActivityPanel />
-                    </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h3>
+                    <RecentActivityPanel />
                   </div>
                   
                   {/* Bottom Row - Housing Location Tile */}

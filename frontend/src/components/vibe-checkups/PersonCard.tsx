@@ -544,12 +544,16 @@ export function PersonCard({
             Update costs →
           </Link>
         ) : (
-          <Link
-            to="/dashboard/vibe-checkups"
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              setObservationModalOpen(true);
+            }}
             className="flex-1 min-h-11 rounded-xl border border-[#A78BFA]/60 bg-transparent px-3 py-2.5 text-center text-sm font-semibold text-[#A78BFA] transition hover:border-[#A78BFA] hover:bg-[#A78BFA]/10"
           >
             Re-assess
-          </Link>
+          </button>
         )}
         <div className="relative" ref={menuRef}>
           <button

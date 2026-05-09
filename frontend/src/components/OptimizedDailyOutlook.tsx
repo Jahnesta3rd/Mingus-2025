@@ -8,7 +8,6 @@ import { performanceOptimizer, ServiceWorkerManager, ProgressiveLoadingManager, 
 
 // Lazy load heavy components
 const BalanceScoreChart = lazy(() => import('./BalanceScoreChart'));
-const QuickActionsPanel = lazy(() => import('./QuickActionsPanel'));
 const PeerComparisonWidget = lazy(() => import('./PeerComparisonWidget'));
 const AnalyticsDashboard = lazy(() => import('./AnalyticsDashboard'));
 
@@ -264,12 +263,6 @@ const OptimizedDailyOutlook: React.FC<OptimizedDailyOutlookProps> = ({
         height: 300,
         quality: 90,
         format: 'webp'
-      }),
-      actionIcons: imageManager.optimizeImage('/static/images/quick-actions-icons.webp', {
-        width: 200,
-        height: 200,
-        quality: 80,
-        format: 'webp'
       })
     };
   }, [enableImageOptimization]);
@@ -293,23 +286,6 @@ const OptimizedDailyOutlook: React.FC<OptimizedDailyOutlookProps> = ({
       </Suspense>
     );
   }, [dailyOutlook, progressiveLoading.balanceScore, optimizedImages.balanceChart]);
-
-  const QuickActionsSection = useMemo(() => {
-    if (!dailyOutlook || !progressiveLoading.quickActions) return null;
-    
-    return (
-      <Suspense fallback={<div className="animate-pulse bg-gray-200 h-24 rounded"></div>}>
-        <QuickActionsPanel
-          actions={dailyOutlook.quick_actions}
-          onActionComplete={(actionId) => {
-            // Handle action completion
-            console.log('Action completed:', actionId);
-          }}
-          optimizedImages={optimizedImages.actionIcons}
-        />
-      </Suspense>
-    );
-  }, [dailyOutlook, progressiveLoading.quickActions, optimizedImages.actionIcons]);
 
   const PeerComparisonSection = useMemo(() => {
     if (!dailyOutlook || !progressiveLoading.peerComparison) return null;
@@ -420,9 +396,6 @@ const OptimizedDailyOutlook: React.FC<OptimizedDailyOutlookProps> = ({
 
             {/* Balance score section */}
             {BalanceScoreSection}
-
-            {/* Quick actions section */}
-            {QuickActionsSection}
 
             {/* Encouragement message */}
             <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-6">

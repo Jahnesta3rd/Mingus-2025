@@ -7,7 +7,6 @@ import AnalyticsDashboard from '../components/AnalyticsDashboard';
 import VehicleDashboard from '../components/VehicleDashboard';
 import HousingLocationTile from '../components/HousingLocationTile';
 import DashboardErrorBoundary from '../components/DashboardErrorBoundary';
-import QuickActionsPanel from '../components/QuickActionsPanel';
 import RecentActivityPanel from '../components/RecentActivityPanel';
 import UnlockRecommendationsPanel from '../components/UnlockRecommendationsPanel';
 import { useAnalytics } from '../hooks/useAnalytics';
@@ -168,19 +167,9 @@ const DashboardPreview: React.FC = () => {
             <div className="min-h-[600px]">
               {dashboardState.activeTab === 'overview' && (
                 <div className="space-y-6">
-                  {/* Top Row - Quick Actions and Recent Activity */}
-                  <div className="grid gap-6 lg:gap-8 lg:grid-cols-2">
-                    <div>
-                      <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
-                      <QuickActionsPanel 
-                        riskLevel={dashboardState.riskLevel}
-                        hasRecommendations={dashboardState.hasUnlockedRecommendations}
-                      />
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h3>
-                      <RecentActivityPanel />
-                    </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h3>
+                    <RecentActivityPanel />
                   </div>
                   
                   {/* Bottom Row - Housing Location Tile */}

@@ -43,7 +43,6 @@ frontend/src/
 ├── components/
 │   ├── DashboardErrorBoundary.tsx             # Error boundary with retry logic
 │   ├── DashboardSkeleton.tsx                  # Loading skeleton component
-│   ├── QuickActionsPanel.tsx                  # Quick actions and shortcuts
 │   ├── RecentActivityPanel.tsx                # User activity timeline
 │   ├── UnlockRecommendationsPanel.tsx         # Recommendation unlock interface
 │   ├── LocationIntelligenceMap.tsx            # Location-based job analysis

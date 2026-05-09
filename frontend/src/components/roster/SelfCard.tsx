@@ -336,7 +336,7 @@ export default function SelfCard({ className = '' }: SelfCardProps) {
 
       <div className="mt-5 border-t border-[#E2E8F0] pt-4">
         <Link
-          to="/daily-outlook"
+          to="/dashboard/tools?tab=daily-outlook"
           className="inline-flex min-h-11 items-center rounded-lg text-sm font-medium text-[#6D28D9] underline decoration-[#6D28D9]/40 underline-offset-2 hover:decoration-[#6D28D9] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5B2D8E] focus-visible:ring-offset-2"
         >
           Update your check-in →

@@ -14,9 +14,10 @@ import { StayOrGoSignal } from '../components/vibe-checkups/StayOrGoSignal';
 import SelfCard from '../components/roster/SelfCard';
 import { RosterSection } from '../components/roster/RosterSection';
 import ReEntryBanner from '../components/roster/ReEntryBanner';
+import ConnectionTrendAssessmentModal from '../components/roster/ConnectionTrendAssessmentModal';
 
 export default function VibeTrackerPage() {
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const {
     data,
     archivedData,
@@ -45,6 +46,9 @@ export default function VibeTrackerPage() {
   const [addEmoji, setAddEmoji] = useState('');
   const [addBusy, setAddBusy] = useState(false);
   const [addError, setAddError] = useState<string | null>(null);
+  const [reassessTarget, setReassessTarget] = useState<{ id: string; nickname: string } | null>(
+    null
+  );
   const [reEntryByPersonId, setReEntryByPersonId] = useState<
     Record<
       string,
@@ -246,12 +250,15 @@ export default function VibeTrackerPage() {
               <p className="text-sm leading-relaxed text-[#F0E8D8]/90">
                 Start tracking someone — take a checkup and give them a nickname.
               </p>
-              <Link
-                to="/dashboard/vibe-checkups"
-                className="mt-6 inline-flex w-full items-center justify-center rounded-xl bg-[#5B2D8E] py-3.5 text-sm font-semibold text-white transition hover:opacity-95 sm:w-auto sm:px-8"
-              >
-                Take a Checkup
-              </Link>
+              {/* TODO: post-beta replace with authenticated vibe assessment flow per #99 People tab redesign */}
+              {!isAuthenticated ? (
+                <Link
+                  to="/dashboard/vibe-checkups"
+                  className="mt-6 inline-flex w-full items-center justify-center rounded-xl bg-[#5B2D8E] py-3.5 text-sm font-semibold text-white transition hover:opacity-95 sm:w-auto sm:px-8"
+                >
+                  Take a Checkup
+                </Link>
+              ) : null}
             </div>
           ) : null}
 
@@ -287,12 +294,18 @@ export default function VibeTrackerPage() {
                           <AssessmentTimeline assessments={expandedDetail.assessments} />
                           {expandedDetail.trend ? <StayOrGoSignal trend={expandedDetail.trend} /> : null}
                           <div className="mt-6 text-center">
-                            <Link
-                              to="/dashboard/vibe-checkups"
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setReassessTarget({
+                                  id: expandedDetail.id,
+                                  nickname: expandedDetail.nickname,
+                                })
+                              }
                               className="inline-flex rounded-xl border border-[#A78BFA]/60 bg-transparent px-6 py-3 text-sm font-semibold text-[#A78BFA] transition hover:border-[#A78BFA] hover:bg-[#A78BFA]/10"
                             >
                               Re-assess this person
-                            </Link>
+                            </button>
                           </div>
                         </>
                       ) : (
@@ -345,12 +358,18 @@ export default function VibeTrackerPage() {
                                 <AssessmentTimeline assessments={expandedDetail.assessments} />
                                 {expandedDetail.trend ? <StayOrGoSignal trend={expandedDetail.trend} /> : null}
                                 <div className="mt-6 text-center">
-                                  <Link
-                                    to="/dashboard/vibe-checkups"
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      setReassessTarget({
+                                        id: expandedDetail.id,
+                                        nickname: expandedDetail.nickname,
+                                      })
+                                    }
                                     className="inline-flex rounded-xl border border-[#A78BFA]/60 bg-transparent px-6 py-3 text-sm font-semibold text-[#A78BFA] transition hover:border-[#A78BFA] hover:bg-[#A78BFA]/10"
                                   >
                                     Re-assess this person
-                                  </Link>
+                                  </button>
                                 </div>
                               </>
                             ) : (
@@ -545,6 +564,18 @@ export default function VibeTrackerPage() {
             </div>
           </div>
         </div>
+      ) : null}
+
+      {reassessTarget ? (
+        <ConnectionTrendAssessmentModal
+          personId={reassessTarget.id}
+          nickname={reassessTarget.nickname}
+          onComplete={() => {
+            void getPeople().catch(() => {});
+            void getPerson(reassessTarget.id).catch(() => {});
+          }}
+          onClose={() => setReassessTarget(null)}
+        />
       ) : null}
     </div>
   );

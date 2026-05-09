@@ -286,8 +286,10 @@ export default function HomeScreen() {
               <p className="mt-2 text-sm text-[#9A8F7E]">Complete a Vibe Checkup to see your score.</p>
             ) : null}
             <div className="mt-6">
+              {/* TODO: post-beta replace with per-job-home check-in entries per #99 */}
+              {/* (Roof Check → Home, Body Check → Wellness, Vibe Check → People per-person flow) */}
               <Link
-                to="/dashboard/vibe-checkups"
+                to="/dashboard/tools"
                 className="inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-[#5B2D8E] px-4 text-center text-sm font-medium text-white hover:opacity-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A78BFA] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0D0A08] sm:w-auto"
               >
                 Run a Checkup →

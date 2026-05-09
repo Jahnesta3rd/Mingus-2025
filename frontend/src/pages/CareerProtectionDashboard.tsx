@@ -10,7 +10,6 @@ import HousingNotificationSystem from '../components/HousingNotificationSystem';
 import HousingProfileIntegration from '../components/HousingProfileIntegration';
 import DashboardErrorBoundary from '../components/DashboardErrorBoundary';
 import DashboardWellnessSection from '../components/DashboardWellnessSection';
-import QuickActionsPanel from '../components/QuickActionsPanel';
 import RecentActivityPanel from '../components/RecentActivityPanel';
 import UnlockRecommendationsPanel from '../components/UnlockRecommendationsPanel';
 import DashboardSkeleton from '../components/DashboardSkeleton';
@@ -478,29 +477,18 @@ const CareerProtectionDashboard: React.FC = () => {
             {dashboardState.activeTab === 'daily-outlook' && (
               <div className="space-y-6">
                 {/* Daily Outlook Card for Dashboard Overview */}
-                <div className="grid gap-6 lg:grid-cols-2">
-                  <div className="lg:col-span-1">
-                    <DailyOutlookCard 
-                      onViewFullOutlook={handleViewFullDailyOutlook}
-                      compact={false}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => handleTabChange('overview')}
-                      className="mt-2 block text-sm text-purple-600 hover:underline cursor-pointer"
-                    >
-                      View all milestones →
-                    </button>
-                  </div>
-                  <div className="lg:col-span-1">
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                      <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
-                      <QuickActionsPanel 
-                        riskLevel={dashboardState.riskLevel}
-                        hasRecommendations={dashboardState.hasUnlockedRecommendations}
-                      />
-                    </div>
-                  </div>
+                <div>
+                  <DailyOutlookCard 
+                    onViewFullOutlook={handleViewFullDailyOutlook}
+                    compact={false}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => handleTabChange('overview')}
+                    className="mt-2 block text-sm text-purple-600 hover:underline cursor-pointer"
+                  >
+                    View all milestones →
+                  </button>
                 </div>
                 
                 {/* Recent Activity */}
@@ -519,19 +507,9 @@ const CareerProtectionDashboard: React.FC = () => {
 
             {dashboardState.activeTab === 'overview' && (
               <div className="space-y-6">
-                {/* Top Row - Quick Actions and Recent Activity */}
-                <div className="grid gap-6 lg:gap-8 lg:grid-cols-2">
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
-                    <QuickActionsPanel 
-                      riskLevel="watchful"
-                      hasRecommendations={true}
-                    />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h3>
-                    <RecentActivityPanel />
-                  </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h3>
+                  <RecentActivityPanel />
                 </div>
 
                 <SpendingMilestonesWidget userId={user?.id ?? ''} className="mt-6" />
