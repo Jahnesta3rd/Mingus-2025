@@ -21,6 +21,10 @@ from backend.routes.modular_onboarding import modular_onboarding_bp
 from backend.routes.user import user_bp as user_agreement_bp
 from backend.routes.vehicle_dashboard_routes import vehicle_dashboard_public_bp
 from backend.routes.vibe_daily_routes import vibe_daily_public_bp
+from backend.routes.wellness_routes import wellness_public_bp
+from backend.routes.gamification_routes import gamification_public_bp
+from backend.routes.user_activity_routes import user_activity_public_bp
+from backend.routes.daily_outlook_routes import daily_outlook_public_bp
 from backend.models.onboarding_progress import OnboardingProgress  # noqa: F401
 from backend.models.database import db
 
@@ -57,6 +61,10 @@ def register_backend_blueprints(app):
     app.register_blueprint(bug_report_bp)
     app.register_blueprint(modular_onboarding_bp)
     app.register_blueprint(user_agreement_bp)
+    app.register_blueprint(wellness_public_bp)
+    app.register_blueprint(gamification_public_bp)
+    app.register_blueprint(user_activity_public_bp)
+    app.register_blueprint(daily_outlook_public_bp)
     # Vehicle dashboard GET /api/vehicles/dashboard (alongside ``vehicle_api`` in root app).
     app.register_blueprint(vehicle_dashboard_public_bp)
     # Stub GET /api/vibe/daily — placeholder for #99.
