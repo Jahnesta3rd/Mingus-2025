@@ -30,6 +30,12 @@ daily_outlook_public_bp = Blueprint(
 _MILESTONE_DAYS = (3, 7, 14, 30, 60, 100)
 _CONTENT_SVC: Any = None
 
+_DEFAULT_EMPTY_TOMORROW_TEASER: dict[str, Any] = {
+    "title": "Tomorrow's outlook will appear here",
+    "description": "Complete today's check-in to unlock a preview of tomorrow.",
+    "excitement_level": 0,
+}
+
 
 def _content_service() -> Any:
     global _CONTENT_SVC
@@ -281,7 +287,7 @@ def _empty_defaults(user_display_name: str, user_tier: str) -> dict[str, Any]:
             "next_milestone": 3,
             "progress_percentage": 0,
         },
-        "tomorrow_teaser": None,
+        "tomorrow_teaser": dict(_DEFAULT_EMPTY_TOMORROW_TEASER),
         "user_tier": user_tier,
     }
 
@@ -374,10 +380,15 @@ def get_tomorrow_teaser():
     tier = _normalize_user_tier(getattr(user, "tier", None))
     streak = _calculate_streak_count(int(user.id), today)
 
+    outlook = DailyOutlook.query.filter(
+        and_(DailyOutlook.user_id == user.id, DailyOutlook.date == today)
+    ).first()
+
     base = _empty_defaults(display, tier)
-    base["tomorrow_teaser"] = _build_tomorrow_teaser_for_user(
-        int(user.id), str(user.user_id), streak
-    )
+    if outlook:
+        base["tomorrow_teaser"] = _build_tomorrow_teaser_for_user(
+            int(user.id), str(user.user_id), streak
+        )
     base["current_time"] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
     return jsonify(base), 200
 
