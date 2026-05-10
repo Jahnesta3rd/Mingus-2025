@@ -682,7 +682,7 @@ def add_assessment(person_id: uuid.UUID):
     payload["latest_assessment"] = _assessment_summary(row)
     db.session.commit()
     record_life_snapshot.delay(str(user.id), "vibe_assessment")
-    check_for_alerts.delay(user.id, str(p.id))
+    check_for_alerts.delay(user.user_id, str(p.id))
     return jsonify(payload), 201
 
 

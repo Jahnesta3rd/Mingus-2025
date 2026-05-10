@@ -13,7 +13,7 @@ from backend.services.vibe_financial_alert_service import check_for_alerts as ru
 
 
 @celery.task(name="check_vibe_financial_alerts")
-def check_for_alerts(user_id: int, person_id: str) -> None:
+def check_for_alerts(user_id: str, person_id: str) -> None:
     """Run alert rules for one tracked person; persists UserAlert rows when triggered."""
     try:
         pid = uuid.UUID(str(person_id))
