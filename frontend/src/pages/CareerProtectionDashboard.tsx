@@ -41,6 +41,12 @@ interface DashboardState {
   isMobile: boolean;
 }
 
+// Pre-beta: suppress vestigial Quick Personalization popup (#106).
+// Root cause is a legacy /api/profile/setup-status definition that doesn't
+// reflect the F1-F3.7 modular onboarding architecture; reconciling that
+// belongs to the #99 sprint. Until then, do not open the overlay.
+const SUPPRESS_QUICK_SETUP_PREBETA = true;
+
 const CareerProtectionDashboard: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -175,7 +181,7 @@ const CareerProtectionDashboard: React.FC = () => {
           
           if (setupResponse.ok) {
             const setupData = await setupResponse.json();
-            if (!setupData.setupCompleted) {
+            if (!setupData.setupCompleted && !SUPPRESS_QUICK_SETUP_PREBETA) {
               setShowQuickSetup(true);
             }
           }
