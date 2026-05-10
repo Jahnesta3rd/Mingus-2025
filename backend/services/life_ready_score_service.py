@@ -80,9 +80,9 @@ def _wellness_input_for_user(user_id: int) -> float | None:
     return _normalize_wellness_score(sum(vals) / len(vals))
 
 
-def _financial_health_from_profile(user_id: int) -> float | None:
+def _financial_health_from_profile(user_id: str) -> float | None:
     """Savings rate as percentage 0–100: (income − expenses) / income × 100."""
-    user = db.session.get(User, user_id)
+    user = db.session.query(User).filter_by(user_id=user_id).first()
     if user is None:
         return None
     email = (user.email or "").strip().lower()
@@ -233,23 +233,51 @@ def _headline(
     return "You're balanced across all areas. Keep the momentum."
 
 
-def compute_life_ready_score(user_id: int) -> dict[str, Any]:
+def _neutral_full_response() -> dict[str, Any]:
+    """Same shape as compute_life_ready_score when the user row cannot be resolved."""
+    n = float(_NEUTRAL)
+    life_ready_score = _weighted_total(n, n, n, n, n)
+    return {
+        "life_ready_score": life_ready_score,
+        "components": {
+            "vibe": {"score": int(round(n)), "weight": _W_VIBE},
+            "body": {"score": int(round(n)), "weight": _W_BODY},
+            "wellness": {"score": int(round(n)), "weight": _W_WELLNESS},
+            "financial": {"score": int(round(n)), "weight": _W_FIN},
+            "stability": {"score": int(round(n)), "weight": _W_STAB},
+        },
+        "trend": "stable",
+        "headline": _headline(n, n, n, n, n),
+    }
+
+
+def compute_life_ready_score(user_id: str) -> dict[str, Any]:
     """
     Composite 0–100 score with breakdown, trend vs latest LifeScoreSnapshot, and headline.
     Missing inputs use neutral 50.
+
+    Args:
+        user_id: External user identifier (``User.user_id``, UUID string from JWT).
     """
-    profile = LifeLedgerProfile.query.filter_by(user_id=user_id).first()
+    user = db.session.query(User).filter_by(user_id=user_id).first()
+    if user is None:
+        return _neutral_full_response()
+
+    uid = user.id
+    ext_user_id = user.user_id
+
+    profile = LifeLedgerProfile.query.filter_by(user_id=uid).first()
     vibe_raw = _coerce_float(profile.vibe_score) if profile else None
     body_raw = _coerce_float(profile.body_score) if profile else None
 
     vibe = _component_or_neutral(vibe_raw)
     body = _component_or_neutral(body_raw)
-    wellness = _component_or_neutral(_wellness_input_for_user(user_id))
-    financial = _component_or_neutral(_financial_health_from_profile(user_id))
-    stability = _stability_score(user_id)
+    wellness = _component_or_neutral(_wellness_input_for_user(uid))
+    financial = _component_or_neutral(_financial_health_from_profile(ext_user_id))
+    stability = _stability_score(uid)
 
     life_ready_score = _weighted_total(vibe, body, wellness, financial, stability)
-    trend = _trend_vs_snapshot(user_id, life_ready_score)
+    trend = _trend_vs_snapshot(uid, life_ready_score)
     headline = _headline(vibe, body, wellness, financial, stability)
 
     return {

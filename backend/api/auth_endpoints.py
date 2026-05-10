@@ -299,7 +299,7 @@ def register():
                 db.session.rollback()
 
             try:
-                life_ledger_svc.import_vibe_lead(new_user.id, vc_lead_id)
+                life_ledger_svc.import_vibe_lead(new_user.user_id, vc_lead_id)
                 loguru_logger.info(
                     "Life Ledger Vibe import succeeded for user_id={} vc_lead_id={}",
                     new_user.id,
