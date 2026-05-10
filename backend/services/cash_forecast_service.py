@@ -553,7 +553,7 @@ def classify_status(closing: Decimal) -> str:
 
 
 def _forecast_bundle(
-    user_id: int, days: int
+    user_id: str, days: int
 ) -> tuple[
     list[dict[str, Any]],
     dict[str, Decimal],
@@ -565,13 +565,19 @@ def _forecast_bundle(
 
     Relationship costs (roster / Vibe Checkups) are added as a flat daily outflow:
     sum per person of (monthly_estimate / 30) on every forecast day.
+
+    Args:
+        user_id: External user identifier (``User.user_id``, UUID string).
     """
     if days < 1:
         return [], {}, {}, []
 
-    user = db.session.get(User, user_id)
+    user = db.session.query(User).filter_by(user_id=user_id).first()
     if not user:
+        logger.warning("cash_forecast: no user row for user_id=%r", user_id)
         return [], {}, {}, []
+
+    uid = user.id
 
     email = (user.email or "").strip().lower()
     current_balance, important_dates = _load_profile_balance_and_dates(email)
@@ -585,7 +591,7 @@ def _forecast_bundle(
     flows_out: dict[str, Decimal] = defaultdict(lambda: Decimal("0"))
 
     streams = (
-        IncomeStream.query.filter_by(user_id=user_id, is_active=True)
+        IncomeStream.query.filter_by(user_id=uid, is_active=True)
         .order_by(IncomeStream.created_at.asc())
         .all()
     )
@@ -599,7 +605,7 @@ def _forecast_bundle(
             flows_in[d0.isoformat()] += amt
 
     expenses = (
-        RecurringExpense.query.filter_by(user_id=user_id, is_active=True)
+        RecurringExpense.query.filter_by(user_id=uid, is_active=True)
         .order_by(RecurringExpense.created_at.asc())
         .all()
     )
@@ -611,7 +617,7 @@ def _forecast_bundle(
             flows_out[d0.isoformat()] += amt
 
     scheduled = (
-        ScheduledExpense.query.filter_by(user_id=user_id, is_active=True)
+        ScheduledExpense.query.filter_by(user_id=uid, is_active=True)
         .order_by(ScheduledExpense.created_at.asc())
         .all()
     )
@@ -627,7 +633,7 @@ def _forecast_bundle(
     ):
         flows_out[evd.isoformat()] += cost
 
-    rel_rows = _relationship_cost_rows_for_user(user_id, important_dates)
+    rel_rows = _relationship_cost_rows_for_user(uid, important_dates)
     rel_per_day = Decimal("0")
     for r in rel_rows:
         mdec = r["monthly_dec"]
@@ -697,7 +703,7 @@ def _forecast_bundle(
 
 
 def build_forecast_for_user(
-    user_id: int, days: int = 90
+    user_id: str, days: int = 90
 ) -> tuple[list[dict[str, Any]], list[dict[str, Any]], list[dict[str, Any]]]:
     """Run schedule expansion and return (daily_cashflow, monthly_summaries, relationship_cost_breakdown)."""
     daily, mi, mo, rel_bd = _forecast_bundle(user_id, days)
@@ -707,7 +713,7 @@ def build_forecast_for_user(
     return daily, summaries, rel_bd
 
 
-def generate_daily_forecast(user_id: int, days: int = 90) -> list[dict[str, Any]]:
+def generate_daily_forecast(user_id: str, days: int = 90) -> list[dict[str, Any]]:
     """
     Build per-day opening/closing balance from scheduled inflows/outflows.
 

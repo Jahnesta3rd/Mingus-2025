@@ -777,7 +777,7 @@ def get_parenting_costs():
     coverage_status = None
     balance_after_parenting = None
     if total_monthly > 0:
-        daily = generate_daily_forecast(user_id, days=31)
+        daily = generate_daily_forecast(user.user_id, days=31)
         if daily:
             slice_rows = daily[:31]
             if slice_rows:

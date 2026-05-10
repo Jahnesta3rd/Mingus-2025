@@ -78,7 +78,7 @@ def get_enhanced_cash_flow_forecast(user_email):
         ).first()
         if mingus_user:
             daily_cashflow, monthly_summaries, relationship_cost_breakdown = (
-                build_forecast_for_user(mingus_user.id, days=90)
+                build_forecast_for_user(mingus_user.user_id, days=90)
             )
         else:
             logger.warning(
@@ -381,7 +381,7 @@ def get_backward_compatible_forecast(user_email):
         ).first()
         if mingus_user:
             daily_cashflow, monthly_summaries, relationship_cost_breakdown = (
-                build_forecast_for_user(mingus_user.id, days=90)
+                build_forecast_for_user(mingus_user.user_id, days=90)
             )
         else:
             logger.warning(

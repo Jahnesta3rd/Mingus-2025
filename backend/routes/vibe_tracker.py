@@ -363,7 +363,7 @@ def list_person_linked_events(person_id: uuid.UUID):
         span = (last_ev - today).days + 1
         forecast_days = min(366, max(90, span))
 
-    daily = generate_daily_forecast(user.id, days=forecast_days)
+    daily = generate_daily_forecast(user.user_id, days=forecast_days)
 
     payload_events = []
     for ev in linked:

@@ -32,7 +32,7 @@ def _format_money_monthly(value: float) -> str:
 
 
 def _monthly_cost_for_person_forecast(
-    user_id: int, person_nickname: str
+    user_id: str, person_nickname: str
 ) -> float | None:
     nick = (person_nickname or "").strip().lower()
     if not nick:
@@ -128,7 +128,7 @@ def check_for_alerts(user_id: str, person_id: uuid.UUID) -> list[dict]:
         c_prev = _combined_score(prev_a)
         if c_latest < c_prev - 10:
             delta = c_prev - c_latest
-            monthly = _monthly_cost_for_person_forecast(uid, person.nickname)
+            monthly = _monthly_cost_for_person_forecast(user.user_id, person.nickname)
             if monthly is None:
                 monthly_str = "$0/mo"
             else:
