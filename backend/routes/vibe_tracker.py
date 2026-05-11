@@ -324,7 +324,7 @@ def list_person_linked_events(person_id: uuid.UUID):
         return jsonify({"error": "Not found"}), 404
 
     email = (user.email or "").strip().lower()
-    _bal, important = _load_profile_balance_and_dates(email)
+    _bal, important, _balance_set = _load_profile_balance_and_dates(email)
     if not isinstance(important, dict):
         important = {}
 

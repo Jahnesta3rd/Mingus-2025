@@ -63,7 +63,7 @@ def _thirty_day_linked_cost_for_nickname(user_id: str, nickname: str) -> float:
     email = (user.email or "").strip().lower()
     if not email:
         return 0.0
-    _bal, important = vtr._load_profile_balance_and_dates(email)
+    _bal, important, _balance_set = vtr._load_profile_balance_and_dates(email)
     if not isinstance(important, dict):
         important = {}
     nick = (nickname or "").strip()
