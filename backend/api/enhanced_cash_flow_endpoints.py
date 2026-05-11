@@ -77,15 +77,16 @@ def get_enhanced_cash_flow_forecast(user_email):
             func.lower(User.email) == user_email.strip().lower()
         ).first()
         if mingus_user:
-            daily_cashflow, monthly_summaries, relationship_cost_breakdown = (
-                build_forecast_for_user(mingus_user.user_id, days=90)
-            )
+            forecast_result = build_forecast_for_user(mingus_user.user_id, days=90)
+            daily_cashflow, monthly_summaries, relationship_cost_breakdown = forecast_result
+            balance_set = forecast_result.balance_set
         else:
             logger.warning(
                 "No users row for email %s; daily cash forecast empty", user_email
             )
             daily_cashflow, monthly_summaries = [], []
             relationship_cost_breakdown = []
+            balance_set = False
 
         vehicle_expense_totals = {}
 
@@ -134,6 +135,7 @@ def get_enhanced_cash_flow_forecast(user_email):
         
         return jsonify({
             'success': True,
+            'balance_set': balance_set,
             'forecast': forecast_data,
             'message': 'Enhanced cash flow forecast generated successfully'
         })
@@ -380,15 +382,16 @@ def get_backward_compatible_forecast(user_email):
             func.lower(User.email) == user_email.strip().lower()
         ).first()
         if mingus_user:
-            daily_cashflow, monthly_summaries, relationship_cost_breakdown = (
-                build_forecast_for_user(mingus_user.user_id, days=90)
-            )
+            forecast_result = build_forecast_for_user(mingus_user.user_id, days=90)
+            daily_cashflow, monthly_summaries, relationship_cost_breakdown = forecast_result
+            balance_set = forecast_result.balance_set
         else:
             logger.warning(
                 "No users row for email %s; daily cash forecast empty", user_email
             )
             daily_cashflow, monthly_summaries = [], []
             relationship_cost_breakdown = []
+            balance_set = False
 
         vehicle_expense_totals = {}
 
@@ -461,6 +464,7 @@ def get_backward_compatible_forecast(user_email):
         
         return jsonify({
             'success': True,
+            'balance_set': balance_set,
             'forecast': compatible_forecast,
             'message': 'Backward-compatible forecast generated successfully'
         })

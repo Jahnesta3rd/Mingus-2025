@@ -7,11 +7,13 @@ from __future__ import annotations
 import os
 import sys
 import uuid
+from datetime import datetime
 
 import pytest
 from flask import Flask
+from sqlalchemy import text
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", ".."))
 
 from backend.models.database import db, init_database
 from backend.models.user_models import User
@@ -66,3 +68,72 @@ class TestCashForecastService:
                 if row is not None:
                     db.session.delete(row)
                     db.session.commit()
+
+    def test_build_forecast_for_user_surfaces_balance_set_state(self, cash_forecast_app):
+        """NULL profile balance projects from $0 and explicit balance is preserved."""
+        unset_user_id = str(uuid.uuid4())
+        set_user_id = str(uuid.uuid4())
+        unset_email = f"cash_fc_unset_{unset_user_id[:12]}@example.com"
+        set_email = f"cash_fc_set_{set_user_id[:12]}@example.com"
+
+        with cash_forecast_app.app_context():
+            users = [
+                User(
+                    user_id=unset_user_id,
+                    email=unset_email,
+                    password_hash="unused",
+                ),
+                User(
+                    user_id=set_user_id,
+                    email=set_email,
+                    password_hash="unused",
+                ),
+            ]
+            db.session.add_all(users)
+            db.session.flush()
+            db.session.execute(
+                text(
+                    """
+                    INSERT INTO user_profiles (
+                        email, current_balance, balance_last_updated, important_dates
+                    )
+                    VALUES
+                        (:unset_email, NULL, NULL, '{}'),
+                        (:set_email, 2500.0, :updated_at, '{}')
+                    """
+                ),
+                {
+                    "unset_email": unset_email,
+                    "set_email": set_email,
+                    "updated_at": datetime.utcnow(),
+                },
+            )
+            db.session.commit()
+
+            try:
+                unset_result = build_forecast_for_user(unset_user_id, days=90)
+                unset_daily, unset_summaries, unset_rel_bd = unset_result
+                assert unset_result.balance_set is False
+                assert isinstance(unset_daily, list)
+                assert isinstance(unset_summaries, list)
+                assert isinstance(unset_rel_bd, list)
+                assert unset_daily
+                assert unset_daily[0]["opening_balance"] == 0.0
+
+                set_result = build_forecast_for_user(set_user_id, days=90)
+                set_daily, set_summaries, set_rel_bd = set_result
+                assert set_result.balance_set is True
+                assert isinstance(set_daily, list)
+                assert isinstance(set_summaries, list)
+                assert isinstance(set_rel_bd, list)
+                assert set_daily
+                assert set_daily[0]["opening_balance"] == 2500.0
+            finally:
+                db.session.execute(
+                    text("DELETE FROM user_profiles WHERE email IN (:unset_email, :set_email)"),
+                    {"unset_email": unset_email, "set_email": set_email},
+                )
+                User.query.filter(User.user_id.in_([unset_user_id, set_user_id])).delete(
+                    synchronize_session=False
+                )
+                db.session.commit()
