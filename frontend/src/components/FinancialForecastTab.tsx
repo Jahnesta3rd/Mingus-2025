@@ -39,6 +39,7 @@ interface RelationshipCostBreakdownRow {
 
 interface ForecastResponse {
   success: boolean;
+  balance_set: boolean;
   forecast?: {
     daily_cashflow?: DailyCashflowEntry[];
     monthly_summaries?: { month_key: string; total: number }[];
@@ -395,6 +396,7 @@ export default function FinancialForecastTab({
   const [vehicleDetailsLoading, setVehicleDetailsLoading] = useState(false);
   const [currentBalance, setCurrentBalance] = useState<number>(5000);
   const [balanceLastUpdated, setBalanceLastUpdated] = useState<string | null>(null);
+  const [balanceSet, setBalanceSet] = useState<boolean>(true);
   const [profileLoading, setProfileLoading] = useState<boolean>(true);
 
   const fetchForecast = useCallback(async () => {
@@ -429,6 +431,7 @@ export default function FinancialForecastTab({
       setDailyCashflow(daily);
       setMonthlySummaries(forecast.monthly_summaries ?? []);
       setVehicleExpenseTotals(forecast.vehicle_expense_totals ?? null);
+      setBalanceSet(data.balance_set ?? true);
       const relRaw = forecast.relationship_cost_breakdown;
       setRelationshipCostBreakdown(Array.isArray(relRaw) ? relRaw : []);
     } catch {
@@ -613,6 +616,22 @@ export default function FinancialForecastTab({
 
   return (
     <div className={`space-y-6 ${className}`}>
+      {!balanceSet && (
+        <div className="rounded-xl border border-purple-200 bg-purple-50 p-6 shadow-sm">
+          <div className="flex items-start gap-3">
+            <span className="mt-1 h-2.5 w-2.5 shrink-0 rounded-full bg-[#5B2D8E]" aria-hidden />
+            <div>
+              <p className="font-semibold text-[#1E293B]">
+                Set your starting balance to see your real forecast
+              </p>
+              <p className="mt-2 text-sm text-[#64748B]">
+                Your forecast currently uses a placeholder value. Update your current balance in the
+                Balance section below to see accurate projections for the next 90 days.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
       <BalanceEntryWidget
         userEmail={userEmail}
         initialBalance={currentBalance}
@@ -751,7 +770,7 @@ export default function FinancialForecastTab({
       )}
 
       {/* 90-day balance chart — mid & professional only */}
-      {(userTier === 'mid' || userTier === 'professional') && chartData90.length > 0 && (
+      {(userTier === 'mid' || userTier === 'professional') && (chartData90.length > 0 || !balanceSet) && (
         <div className="rounded-xl bg-white p-6 shadow-sm">
           <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
             <div>
@@ -770,69 +789,77 @@ export default function FinancialForecastTab({
               </span>
             </div>
           </div>
-          <ResponsiveContainer width="100%" height={300}>
-            <AreaChart data={chartData90} margin={{ top: 8, right: 8, left: 8, bottom: 8 }}>
-              <defs>
-                <linearGradient id={areaGradientId} x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor={areaColor.from} stopOpacity={areaColor.fromOpacity} />
-                  <stop offset="100%" stopColor="white" stopOpacity={1} />
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-              <XAxis
-                dataKey="date"
-                tickFormatter={(dateStr) => formatChartDate(dateStr)}
-                tick={{ fontSize: 12, fill: '#6B7280' }}
-                interval={13}
-              />
-              <YAxis
-                tickFormatter={formatUsdShort}
-                tick={{ fontSize: 12, fill: '#6B7280' }}
-                width={52}
-              />
-              <Tooltip
-                content={({ active, payload }) => {
-                  if (!active || !payload?.length) return null;
-                  const p = payload[0].payload as {
-                    date: string;
-                    balance: number;
-                    status: 'healthy' | 'warning' | 'danger';
-                  };
-                  const dateFormatted = new Date(p.date + 'T00:00:00').toLocaleDateString('en-US', {
-                    month: 'long',
-                    day: 'numeric',
-                    year: 'numeric',
-                  });
-                  return (
-                    <div className="rounded-lg bg-white p-3 text-sm shadow-lg">
-                      <div className="font-medium text-gray-700">Date: {dateFormatted}</div>
-                      <div className="mt-1 text-gray-700">Balance: {formatUsd(p.balance)}</div>
-                      <div className="mt-2">
-                        <span
-                          className={`inline-block rounded px-2 py-0.5 text-xs font-medium ${getStatusClasses(p.status)}`}
-                        >
-                          {getStatusLabel(p.status)}
-                        </span>
+          {!balanceSet ? (
+            <div className="flex min-h-[300px] items-center justify-center text-center">
+              <p className="max-w-md text-sm text-gray-500">
+                Your 90-day forecast will appear here once you&apos;ve set a starting balance.
+              </p>
+            </div>
+          ) : (
+            <ResponsiveContainer width="100%" height={300}>
+              <AreaChart data={chartData90} margin={{ top: 8, right: 8, left: 8, bottom: 8 }}>
+                <defs>
+                  <linearGradient id={areaGradientId} x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor={areaColor.from} stopOpacity={areaColor.fromOpacity} />
+                    <stop offset="100%" stopColor="white" stopOpacity={1} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                <XAxis
+                  dataKey="date"
+                  tickFormatter={(dateStr) => formatChartDate(dateStr)}
+                  tick={{ fontSize: 12, fill: '#6B7280' }}
+                  interval={13}
+                />
+                <YAxis
+                  tickFormatter={formatUsdShort}
+                  tick={{ fontSize: 12, fill: '#6B7280' }}
+                  width={52}
+                />
+                <Tooltip
+                  content={({ active, payload }) => {
+                    if (!active || !payload?.length) return null;
+                    const p = payload[0].payload as {
+                      date: string;
+                      balance: number;
+                      status: 'healthy' | 'warning' | 'danger';
+                    };
+                    const dateFormatted = new Date(p.date + 'T00:00:00').toLocaleDateString('en-US', {
+                      month: 'long',
+                      day: 'numeric',
+                      year: 'numeric',
+                    });
+                    return (
+                      <div className="rounded-lg bg-white p-3 text-sm shadow-lg">
+                        <div className="font-medium text-gray-700">Date: {dateFormatted}</div>
+                        <div className="mt-1 text-gray-700">Balance: {formatUsd(p.balance)}</div>
+                        <div className="mt-2">
+                          <span
+                            className={`inline-block rounded px-2 py-0.5 text-xs font-medium ${getStatusClasses(p.status)}`}
+                          >
+                            {getStatusLabel(p.status)}
+                          </span>
+                        </div>
                       </div>
-                    </div>
-                  );
-                }}
-              />
-              <ReferenceLine
-                y={0}
-                stroke="#9CA3AF"
-                strokeDasharray="4 4"
-                label={{ value: '$0', position: 'right' }}
-              />
-              <Area
-                type="monotone"
-                dataKey="balance"
-                stroke={strokeColor}
-                strokeWidth={2}
-                fill={`url(#${areaGradientId})`}
-              />
-            </AreaChart>
-          </ResponsiveContainer>
+                    );
+                  }}
+                />
+                <ReferenceLine
+                  y={0}
+                  stroke="#9CA3AF"
+                  strokeDasharray="4 4"
+                  label={{ value: '$0', position: 'right' }}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="balance"
+                  stroke={strokeColor}
+                  strokeWidth={2}
+                  fill={`url(#${areaGradientId})`}
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          )}
         </div>
       )}
 
