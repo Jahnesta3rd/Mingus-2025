@@ -56,6 +56,7 @@ class User(db.Model):
     # Timestamps
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    last_vibe_moment_shown_at = db.Column(db.DateTime, nullable=True)
     
     # Relationships
     vehicles = db.relationship('Vehicle', backref='user', lazy=True, cascade='all, delete-orphan')

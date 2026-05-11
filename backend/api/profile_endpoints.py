@@ -10,7 +10,7 @@ import logging
 import hashlib
 import hmac
 import secrets
-from datetime import datetime
+from datetime import datetime, timezone
 from flask import Blueprint, request, jsonify, current_app, g
 from flask_cors import cross_origin
 from werkzeug.exceptions import BadRequest, InternalServerError
@@ -612,11 +612,22 @@ def get_setup_status():
         setup_completed = len(steps_remaining) == 0
         onboarding_complete = setup_completed
 
+        today_start_utc = datetime.now(timezone.utc).replace(
+            hour=0, minute=0, second=0, microsecond=0
+        )
+        show_vibe_moment_today = False
+        if user is not None and onboarding_complete:
+            last_shown = getattr(user, 'last_vibe_moment_shown_at', None)
+            if last_shown is not None and last_shown.tzinfo is None:
+                last_shown = last_shown.replace(tzinfo=timezone.utc)
+            show_vibe_moment_today = last_shown is None or last_shown < today_start_utc
+
         return jsonify({
             'success': True,
             'setupCompleted': setup_completed,
             'is_beta': is_beta_flag,
             'onboarding_complete': onboarding_complete,
+            'show_vibe_moment_today': show_vibe_moment_today,
             'steps_completed': steps_completed,
             'steps_remaining': steps_remaining,
             'data': {
@@ -634,6 +645,7 @@ def get_setup_status():
             'setupCompleted': False,
             'is_beta': False,
             'onboarding_complete': False,
+            'show_vibe_moment_today': False,
             'steps_completed': [],
             'steps_remaining': list(ALL_ONBOARDING_STEPS),
             'data': {
@@ -643,6 +655,33 @@ def get_setup_status():
                 'is_beta': False,
             }
         }), 200
+
+
+@profile_api.route('/profile/vibe-moment-shown', methods=['POST', 'OPTIONS'])
+@cross_origin()
+@require_auth
+def mark_vibe_moment_shown():
+    """Record that the user saw or dismissed the Vibe Moment (UTC now). Idempotent."""
+    if request.method == 'OPTIONS':
+        return jsonify({}), 200
+    try:
+        uid = getattr(g, 'current_user_id', None) or getattr(g, 'user_id', None)
+        user = User.query.filter_by(user_id=str(uid)).first() if uid else None
+        if user is None:
+            return jsonify({'success': False, 'error': 'User not found'}), 404
+
+        user.last_vibe_moment_shown_at = datetime.now(timezone.utc)
+        db.session.commit()
+
+        ts = user.last_vibe_moment_shown_at
+        return jsonify({
+            'success': True,
+            'last_vibe_moment_shown_at': ts.isoformat() if ts else None,
+        }), 200
+    except Exception as e:
+        loguru_logger.error("Error in mark_vibe_moment_shown: {}", e)
+        db.session.rollback()
+        return jsonify({'success': False, 'error': 'Internal server error'}), 500
 
 # Initialize database when module is imported
 init_profile_database()

@@ -25,7 +25,7 @@ const LoginPage: React.FC = () => {
         throw new Error(errData.error || errData.message || 'Login failed');
       }
 
-      // Set auth token first so AuthGuard allows /vibe-check-meme on the next load
+      // Set auth token first so AuthGuard allows protected routes on the next load
       localStorage.setItem('auth_token', 'ok');
       sessionStorage.removeItem('prefetched_vibe');
       sessionStorage.removeItem('last_vibe_date');
@@ -49,11 +49,6 @@ const LoginPage: React.FC = () => {
         });
         if (statusRes.ok) {
           const statusData = await statusRes.json();
-          const steps = Array.isArray(statusData.steps_completed)
-            ? statusData.steps_completed
-            : Array.isArray(statusData.data?.steps_completed)
-              ? statusData.data.steps_completed
-              : [];
           const isComplete =
             statusData.setupCompleted === true ||
             statusData.onboarding_complete === true;
@@ -61,11 +56,21 @@ const LoginPage: React.FC = () => {
             window.location.replace('/onboarding');
             return;
           }
+          if (statusData.show_vibe_moment_today === true) {
+            window.location.replace('/vibe-check-meme?t=' + Date.now());
+            return;
+          }
+          window.location.replace('/dashboard');
+          return;
         }
-      } catch {
-        // silent — fall through to vibe-check-meme
+        console.error('LoginPage: setup-status returned', statusRes.status);
+        window.location.replace('/dashboard');
+        return;
+      } catch (err) {
+        console.error('LoginPage: setup-status fetch failed', err);
+        window.location.replace('/dashboard');
+        return;
       }
-      window.location.replace('/vibe-check-meme?t=' + Date.now());
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Invalid email or password');
     } finally {

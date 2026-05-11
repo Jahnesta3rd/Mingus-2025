@@ -67,6 +67,12 @@ const VibeCheckMemeWrapper: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const goToDashboard = () => {
+    void fetch('/api/profile/vibe-moment-shown', {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+    }).catch((err) => console.warn('vibe-moment-shown failed:', err));
+
     const userId = user?.id;
     if (!userId) {
       navigate('/dashboard', { replace: true });
