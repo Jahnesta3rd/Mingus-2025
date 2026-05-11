@@ -258,7 +258,7 @@ export default function BalanceEntryWidget({
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onFocus={(e) => e.target.select()}
-            className="w-48 rounded-lg border border-gray-300 px-3 py-2 text-lg focus:ring-2 focus:ring-purple-500 focus:outline-none"
+            className="w-48 rounded-lg border border-gray-300 bg-white px-3 py-2 text-lg text-gray-900 focus:ring-2 focus:ring-purple-500 focus:outline-none"
           />
           <p className="mt-1 text-xs text-gray-400">
             Enter your approximate checking + savings balance today.
