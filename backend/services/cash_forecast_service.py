@@ -27,6 +27,7 @@ from backend.models.database import db
 from backend.models.financial_setup import RecurringExpense
 from backend.models.transaction_schedule import IncomeStream, ScheduledExpense
 from backend.models.user_models import User
+from backend.models.vehicle_models import Vehicle
 from backend.models.vibe_checkups import VibeCheckupsLead
 from backend.models.vibe_tracker import VibePersonAssessment, VibeTrackedPerson
 
@@ -188,6 +189,17 @@ def _dates_monthly_series(
         if d >= window_start:
             out.append(d)
         d = _add_months(d, 1)
+    return out
+
+
+def _month_starts_in_window(window_start: date, window_end: date) -> list[date]:
+    out: list[date] = []
+    cur = date(window_start.year, window_start.month, 1)
+    if cur < window_start:
+        cur = _add_months(cur, 1)
+    while cur <= window_end:
+        out.append(cur)
+        cur = _add_months(cur, 1)
     return out
 
 
@@ -651,6 +663,29 @@ def _forecast_bundle(
         important_dates, window_start, window_end
     ):
         flows_out[evd.isoformat()] += cost
+
+    vehicles = (
+        Vehicle.query.filter_by(user_id=uid)
+        .order_by(Vehicle.created_date.asc())
+        .all()
+    )
+    vehicle_payment_dates = _month_starts_in_window(window_start, window_end)
+    vehicle_fuel_per_day = Decimal("0")
+    for vehicle in vehicles:
+        payment = _money(_d(vehicle.monthly_payment))
+        if payment > 0:
+            for d0 in vehicle_payment_dates:
+                flows_out[d0.isoformat()] += payment
+
+        fuel = _money(_d(vehicle.monthly_fuel_cost))
+        if fuel > 0:
+            vehicle_fuel_per_day += _money(fuel / Decimal("30"))
+
+    if vehicle_fuel_per_day > 0:
+        vehicle_fuel_per_day = _money(vehicle_fuel_per_day)
+        for i in range(days):
+            d0 = today + timedelta(days=i)
+            flows_out[d0.isoformat()] += vehicle_fuel_per_day
 
     rel_rows = _relationship_cost_rows_for_user(uid, important_dates)
     rel_per_day = Decimal("0")
