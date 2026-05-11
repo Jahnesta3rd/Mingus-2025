@@ -137,11 +137,15 @@ const NavigationBar: React.FC<NavigationBarProps> = ({ className = '' }) => {
     logout();
     navigate('/');
     setShowUserMenu(false);
+    setIsMenuOpen(false);
+    setFocusedIndex(-1);
   };
 
   const handleNavigateToDashboard = () => {
     navigate('/dashboard');
     setShowUserMenu(false);
+    setIsMenuOpen(false);
+    setFocusedIndex(-1);
   };
 
   return (
@@ -156,21 +160,24 @@ const NavigationBar: React.FC<NavigationBarProps> = ({ className = '' }) => {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          {/* Logo */}
-          <div className="flex items-center space-x-3">
+          {/* Logo — dashboard when signed in, landing when signed out */}
+          <Link
+            to={isAuthenticated ? '/dashboard' : '/'}
+            className="flex items-center space-x-3 rounded-md focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-900"
+            aria-label={isAuthenticated ? 'Go to dashboard' : 'Mingus home'}
+          >
             <div className="flex-shrink-0">
-              <img 
-                src="/mingus-logo.png" 
-                alt="Mingus" 
+              <img
+                src="/mingus-logo.png"
+                alt=""
                 className="h-8 w-auto object-contain"
+                aria-hidden
               />
             </div>
             <div className="hidden sm:block">
-              <span className="text-xl font-bold text-white">
-                Mingus
-              </span>
+              <span className="text-xl font-bold text-white">Mingus</span>
             </div>
-          </div>
+          </Link>
 
           {/* Desktop Menu */}
           <div className="hidden md:block">
@@ -223,9 +230,18 @@ const NavigationBar: React.FC<NavigationBarProps> = ({ className = '' }) => {
                     role="menu"
                     aria-label="User menu"
                   >
+                    <Link
+                      to="/dashboard/profile"
+                      onClick={() => setShowUserMenu(false)}
+                      className="flex items-center gap-2 w-full px-4 py-2 text-sm text-gray-300 hover:bg-slate-700 hover:text-white transition-colors min-h-[44px]"
+                      role="menuitem"
+                    >
+                      <User className="h-4 w-4" />
+                      Profile
+                    </Link>
                     <button
                       onClick={handleNavigateToDashboard}
-                      className="flex items-center gap-2 w-full px-4 py-2 text-sm text-gray-300 hover:bg-slate-700 hover:text-white transition-colors"
+                      className="flex items-center gap-2 w-full px-4 py-2 text-sm text-gray-300 hover:bg-slate-700 hover:text-white transition-colors min-h-[44px]"
                       role="menuitem"
                     >
                       <Shield className="h-4 w-4" />
@@ -233,7 +249,7 @@ const NavigationBar: React.FC<NavigationBarProps> = ({ className = '' }) => {
                     </button>
                     <button
                       onClick={handleLogout}
-                      className="flex items-center gap-2 w-full px-4 py-2 text-sm text-gray-300 hover:bg-slate-700 hover:text-white transition-colors"
+                      className="flex items-center gap-2 w-full px-4 py-2 text-sm text-gray-300 hover:bg-slate-700 hover:text-white transition-colors min-h-[44px]"
                       role="menuitem"
                     >
                       <LogOut className="h-4 w-4" />
@@ -321,10 +337,26 @@ const NavigationBar: React.FC<NavigationBarProps> = ({ className = '' }) => {
             <div className="pt-2 border-t border-slate-700/50">
               {isAuthenticated ? (
                 <>
+                  <Link
+                    ref={el => {
+                      menuItemsRef.current[3] = el;
+                    }}
+                    to="/dashboard/profile"
+                    onClick={() => {
+                      setIsMenuOpen(false);
+                      setFocusedIndex(-1);
+                    }}
+                    className="w-full flex min-h-[44px] items-center justify-center gap-2 bg-slate-700 hover:bg-slate-600 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-800"
+                    role="menuitem"
+                    aria-label="Profile"
+                  >
+                    <User className="h-4 w-4" />
+                    Profile
+                  </Link>
                   <button 
-                    ref={el => menuItemsRef.current[3] = el}
+                    ref={el => menuItemsRef.current[4] = el}
                     onClick={handleNavigateToDashboard}
-                    className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 transform hover:scale-105 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-800"
+                    className="w-full flex min-h-[44px] items-center justify-center gap-2 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 transform hover:scale-105 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-800 mt-2"
                     role="menuitem"
                     aria-label="Main Dashboard"
                   >
@@ -332,9 +364,13 @@ const NavigationBar: React.FC<NavigationBarProps> = ({ className = '' }) => {
                     Main Dashboard
                   </button>
                   <button 
-                    ref={el => menuItemsRef.current[4] = el}
-                    onClick={() => navigate('/dashboard/tools?tab=housing')}
-                    className="w-full flex items-center justify-center gap-2 bg-slate-700 hover:bg-slate-600 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-800 mt-2"
+                    ref={el => menuItemsRef.current[5] = el}
+                    onClick={() => {
+                      setIsMenuOpen(false);
+                      setFocusedIndex(-1);
+                      navigate('/dashboard/tools?tab=housing');
+                    }}
+                    className="w-full flex min-h-[44px] items-center justify-center gap-2 bg-slate-700 hover:bg-slate-600 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-800 mt-2"
                     role="menuitem"
                     aria-label="Housing Location"
                   >
@@ -342,9 +378,9 @@ const NavigationBar: React.FC<NavigationBarProps> = ({ className = '' }) => {
                     Housing Location
                   </button>
                   <button 
-                    ref={el => menuItemsRef.current[5] = el}
+                    ref={el => menuItemsRef.current[6] = el}
                     onClick={handleLogout}
-                    className="w-full flex items-center justify-center gap-2 bg-slate-700 hover:bg-slate-600 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-800 mt-2"
+                    className="w-full flex min-h-[44px] items-center justify-center gap-2 bg-slate-700 hover:bg-slate-600 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-800 mt-2"
                     role="menuitem"
                     aria-label="Sign Out"
                   >

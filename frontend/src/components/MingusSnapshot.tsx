@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { ReactNode, TouchEvent } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useSnapshotData } from '../hooks/useSnapshotData';
 import type {
   ActionData,
@@ -1156,6 +1157,7 @@ function EndActionPanel({
 }
 
 function MingusSnapshot({ onComplete }: MingusSnapshotProps) {
+  const navigate = useNavigate();
   const { data, loadStates, saveFavorite } = useSnapshotData();
   const [index, setIndex] = useState(0);
   const [endPanelVisible, setEndPanelVisible] = useState(false);
@@ -1227,6 +1229,16 @@ function MingusSnapshot({ onComplete }: MingusSnapshotProps) {
     });
   }, [isFavorited, data.faith, saveFavorite]);
 
+  const handleCloseSnapshot = useCallback(() => {
+    if (
+      window.confirm(
+        'Leave this summary and go to your dashboard? You can open it again from the app when you are ready.',
+      )
+    ) {
+      navigate('/dashboard');
+    }
+  }, [navigate]);
+
   const faithLoading = loadStates.faith === 'loading';
   const vibeLoading = loadStates.vibe === 'loading';
   const cashLoading = loadStates.cash === 'loading';
@@ -1239,6 +1251,14 @@ function MingusSnapshot({ onComplete }: MingusSnapshotProps) {
 
   return (
     <>
+      <button
+        type="button"
+        onClick={handleCloseSnapshot}
+        className="fixed right-3 top-[max(0.75rem,env(safe-area-inset-top))] z-[70] flex h-11 w-11 min-h-[44px] min-w-[44px] items-center justify-center rounded-full border border-slate-300 bg-white/95 text-lg font-light leading-none text-slate-700 shadow-sm hover:bg-white hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5B2D8E] focus-visible:ring-offset-2"
+        aria-label="Close snapshot and go to dashboard"
+      >
+        <span aria-hidden>×</span>
+      </button>
       <div
         className="fixed left-0 top-0 z-50 overflow-hidden bg-[#F8FAFC]"
         style={{ width: '100vw', height: '100dvh' }}
