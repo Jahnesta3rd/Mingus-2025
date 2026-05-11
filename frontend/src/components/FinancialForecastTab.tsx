@@ -394,7 +394,7 @@ export default function FinancialForecastTab({
   );
   const [vehicleDetails, setVehicleDetails] = useState<VehicleExpenseDetails | null>(null);
   const [vehicleDetailsLoading, setVehicleDetailsLoading] = useState(false);
-  const [currentBalance, setCurrentBalance] = useState<number>(5000);
+  const [currentBalance, setCurrentBalance] = useState<number | null>(null);
   const [balanceLastUpdated, setBalanceLastUpdated] = useState<string | null>(null);
   const [balanceSet, setBalanceSet] = useState<boolean>(true);
   const [profileLoading, setProfileLoading] = useState<boolean>(true);
@@ -473,12 +473,12 @@ export default function FinancialForecastTab({
         if (typeof rawBal === 'number' && Number.isFinite(rawBal)) {
           setCurrentBalance(rawBal);
         } else {
-          setCurrentBalance(5000);
+          setCurrentBalance(null);
         }
         setBalanceLastUpdated(typeof tsRaw === 'string' && tsRaw ? tsRaw : null);
       } catch {
         if (!cancelled) {
-          setCurrentBalance(5000);
+          setCurrentBalance(null);
           setBalanceLastUpdated(null);
         }
       } finally {

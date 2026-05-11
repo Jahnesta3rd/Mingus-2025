@@ -10,7 +10,7 @@ const MS_PER_DAY = 86_400_000;
 
 export interface BalanceEntryWidgetProps {
   userEmail: string;
-  initialBalance: number;
+  initialBalance: number | null;
   lastUpdated: string | null;
   onBalanceSaved: (newBalance: number) => void;
   isLoading?: boolean;
@@ -84,7 +84,7 @@ export default function BalanceEntryWidget({
 }: BalanceEntryWidgetProps) {
   void userEmail;
 
-  const [balance, setBalance] = useState(initialBalance);
+  const [balance, setBalance] = useState<number | null>(initialBalance);
   const [localLastUpdated, setLocalLastUpdated] = useState(lastUpdated);
   const [isEditing, setIsEditing] = useState(false);
   const [inputValue, setInputValue] = useState('');
@@ -110,7 +110,7 @@ export default function BalanceEntryWidget({
   const openEdit = useCallback(() => {
     setValidationError(null);
     setSaveError(null);
-    setInputValue(String(balance));
+    setInputValue(balance === null ? '' : String(balance));
     setIsEditing(true);
   }, [balance]);
 
@@ -222,7 +222,7 @@ export default function BalanceEntryWidget({
             <div>
               <p className="text-sm text-gray-500">Starting Balance</p>
               <p className="text-2xl font-semibold tabular-nums text-gray-900">
-                {formatUsd(balance)}
+                {balance === null ? 'Not set' : formatUsd(balance)}
               </p>
               {staleNotice}
             </div>
@@ -233,7 +233,7 @@ export default function BalanceEntryWidget({
                 aria-expanded={isEditing}
                 className="rounded-lg border border-purple-300 px-4 py-2 text-sm font-medium text-purple-700 hover:bg-purple-50"
               >
-                Update Balance
+                {balance === null ? 'Set Balance' : 'Update Balance'}
               </button>
             </div>
           </div>
@@ -257,6 +257,7 @@ export default function BalanceEntryWidget({
             placeholder="e.g. 3200"
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
+            onFocus={(e) => e.target.select()}
             className="w-48 rounded-lg border border-gray-300 px-3 py-2 text-lg focus:ring-2 focus:ring-purple-500 focus:outline-none"
           />
           <p className="mt-1 text-xs text-gray-400">
