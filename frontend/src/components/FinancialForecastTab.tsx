@@ -37,19 +37,31 @@ interface RelationshipCostBreakdownRow {
   pct_of_total_expenses?: number;
 }
 
+/** One row from GET …/enhanced-forecast `forecast.monthly_summaries` (gross flows per month). */
+interface MonthlySummaryApiRow {
+  month?: string;
+  month_key: string;
+  month_label: string;
+  opening_balance: number;
+  total_income: number;
+  total_expenses: number;
+  closing_balance: number;
+  worst_status: 'healthy' | 'warning' | 'danger';
+}
+
 interface ForecastResponse {
   success: boolean;
   balance_set: boolean;
   forecast?: {
     daily_cashflow?: DailyCashflowEntry[];
-    monthly_summaries?: { month_key: string; total: number }[];
+    monthly_summaries?: MonthlySummaryApiRow[];
     vehicle_expense_totals?: { total: number; routine: number; repair: number };
     relationship_cost_breakdown?: RelationshipCostBreakdownRow[];
     [key: string]: unknown;
   };
 }
 
-/** One row for the monthly breakdown table (derived from daily_cashflow or API). */
+/** One row for the Monthly Forecast Summary table (from `forecast.monthly_summaries`; not from net_change). */
 interface MonthlyTableRow {
   month: string;
   month_label: string;
@@ -130,45 +142,21 @@ function formatChartDate(isoDate: string): string {
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
 
-/** Build monthly table rows from daily_cashflow (group by month). */
-function buildMonthlyTableRows(daily: DailyCashflowEntry[]): MonthlyTableRow[] {
-  const byMonth = new Map<
-    string,
-    { opening_balance: number; closing_balance: number; income: number; expenses: number; statuses: ('healthy' | 'warning' | 'danger')[] }
-  >();
-  for (const e of daily) {
-    const monthKey = e.date.slice(0, 7);
-    const r = byMonth.get(monthKey);
-    if (!r) {
-      byMonth.set(monthKey, {
-        opening_balance: e.opening_balance,
-        closing_balance: e.closing_balance,
-        income: e.net_change > 0 ? e.net_change : 0,
-        expenses: e.net_change < 0 ? Math.abs(e.net_change) : 0,
-        statuses: [e.balance_status],
-      });
-    } else {
-      r.closing_balance = e.closing_balance;
-      r.statuses.push(e.balance_status);
-      if (e.net_change > 0) r.income += e.net_change;
-      else if (e.net_change < 0) r.expenses += Math.abs(e.net_change);
-    }
-  }
-  const order = { danger: 3, warning: 2, healthy: 1 };
-  return Array.from(byMonth.entries())
-    .sort(([a], [b]) => a.localeCompare(b))
-    .map(([month, r]) => {
-      const worst = r.statuses.reduce((a, s) => (order[s] > order[a] ? s : a), 'healthy' as const);
-      return {
-        month,
-        month_label: new Date(month + '-01').toLocaleDateString('en-US', { month: 'long', year: 'numeric' }),
-        opening_balance: r.opening_balance,
-        total_income: r.income,
-        total_expenses: r.expenses,
-        closing_balance: r.closing_balance,
-        worst_status: worst,
-      };
-    });
+/** Map API monthly_summaries to table rows. Chart / cards still use daily_cashflow only. */
+function monthlySummariesToTableRows(rows: MonthlySummaryApiRow[]): MonthlyTableRow[] {
+  return rows.map((s) => {
+    const worst = s.worst_status;
+    return {
+      month: s.month_key ?? s.month ?? '',
+      month_label: s.month_label,
+      opening_balance: s.opening_balance,
+      total_income: s.total_income,
+      total_expenses: s.total_expenses,
+      closing_balance: s.closing_balance,
+      worst_status:
+        worst === 'danger' || worst === 'warning' || worst === 'healthy' ? worst : 'healthy',
+    };
+  });
 }
 
 function formatMciMonthDay(isoDate: string): string {
@@ -376,7 +364,7 @@ export default function FinancialForecastTab({
   className = '',
 }: FinancialForecastTabProps) {
   const [dailyCashflow, setDailyCashflow] = useState<DailyCashflowEntry[]>([]);
-  const [monthlySummaries, setMonthlySummaries] = useState<{ month_key: string; total: number }[]>([]);
+  const [monthlySummaries, setMonthlySummaries] = useState<MonthlyTableRow[]>([]);
   const [vehicleExpenseTotals, setVehicleExpenseTotals] = useState<{
     total: number;
     routine: number;
@@ -429,7 +417,11 @@ export default function FinancialForecastTab({
       localStorage.setItem('mingus_last_balance_status', todayEntry?.balance_status ?? 'healthy');
 
       setDailyCashflow(daily);
-      setMonthlySummaries(forecast.monthly_summaries ?? []);
+      setMonthlySummaries(
+        monthlySummariesToTableRows(
+          Array.isArray(forecast.monthly_summaries) ? forecast.monthly_summaries : []
+        )
+      );
       setVehicleExpenseTotals(forecast.vehicle_expense_totals ?? null);
       setBalanceSet(data.balance_set ?? true);
       const relRaw = forecast.relationship_cost_breakdown;
@@ -579,7 +571,6 @@ export default function FinancialForecastTab({
   const activeForecastLegend: 'healthy' | 'warning' | 'danger' =
     minBalance90 >= 1000 ? 'healthy' : minBalance90 >= 0 ? 'warning' : 'danger';
 
-  const monthlyTableRows = buildMonthlyTableRows(dailyCashflow);
   const currentMonthKey = new Date().toISOString().slice(0, 7);
 
   if (loading) {
@@ -953,7 +944,7 @@ export default function FinancialForecastTab({
             <>
               <div className="relative mt-4">
                 <div className="pointer-events-none select-none blur-sm opacity-50">
-                  <MonthlyTable rows={monthlyTableRows.slice(0, 3)} />
+                  <MonthlyTable rows={monthlySummaries.slice(0, 3)} />
                 </div>
                 <div className="absolute inset-0 flex flex-col items-center justify-center rounded-lg bg-white/80 p-6 text-center">
                   <p className="text-gray-700 font-medium">
@@ -971,7 +962,7 @@ export default function FinancialForecastTab({
           )}
           {(userTier === 'mid' || userTier === 'professional') && (
             <div className="mt-4">
-              <MonthlyTable rows={monthlyTableRows} onSelectMonth={userTier === 'professional' ? setSelectedMonthKey : undefined} />
+              <MonthlyTable rows={monthlySummaries} onSelectMonth={userTier === 'professional' ? setSelectedMonthKey : undefined} />
             </div>
           )}
         </div>
@@ -1008,8 +999,8 @@ export default function FinancialForecastTab({
               onChange={(e) => setSelectedMonthKey(e.target.value)}
               className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900"
             >
-              {monthlyTableRows.length > 0
-                ? monthlyTableRows.map((r) => (
+              {monthlySummaries.length > 0
+                ? monthlySummaries.map((r) => (
                     <option key={r.month} value={r.month}>
                       {r.month_label}
                     </option>
