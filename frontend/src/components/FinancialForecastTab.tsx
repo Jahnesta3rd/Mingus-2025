@@ -575,6 +575,10 @@ export default function FinancialForecastTab({
   const strokeColor =
     worstStatus90 === 'danger' ? '#DC2626' : worstStatus90 === 'warning' ? '#D97706' : '#16A34A';
 
+  /** Which risk band the 90-day minimum balance falls into — matches chart area/stroke semantics. */
+  const activeForecastLegend: 'healthy' | 'warning' | 'danger' =
+    minBalance90 >= 1000 ? 'healthy' : minBalance90 >= 0 ? 'warning' : 'danger';
+
   const monthlyTableRows = buildMonthlyTableRows(dailyCashflow);
   const currentMonthKey = new Date().toISOString().slice(0, 7);
 
@@ -796,69 +800,117 @@ export default function FinancialForecastTab({
               </p>
             </div>
           ) : (
-            <ResponsiveContainer width="100%" height={300}>
-              <AreaChart data={chartData90} margin={{ top: 8, right: 8, left: 8, bottom: 8 }}>
-                <defs>
-                  <linearGradient id={areaGradientId} x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor={areaColor.from} stopOpacity={areaColor.fromOpacity} />
-                    <stop offset="100%" stopColor="white" stopOpacity={1} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-                <XAxis
-                  dataKey="date"
-                  tickFormatter={(dateStr) => formatChartDate(dateStr)}
-                  tick={{ fontSize: 12, fill: '#6B7280' }}
-                  interval={13}
-                />
-                <YAxis
-                  tickFormatter={formatUsdShort}
-                  tick={{ fontSize: 12, fill: '#6B7280' }}
-                  width={52}
-                />
-                <Tooltip
-                  content={({ active, payload }) => {
-                    if (!active || !payload?.length) return null;
-                    const p = payload[0].payload as {
-                      date: string;
-                      balance: number;
-                      status: 'healthy' | 'warning' | 'danger';
-                    };
-                    const dateFormatted = new Date(p.date + 'T00:00:00').toLocaleDateString('en-US', {
-                      month: 'long',
-                      day: 'numeric',
-                      year: 'numeric',
-                    });
-                    return (
-                      <div className="rounded-lg bg-white p-3 text-sm shadow-lg">
-                        <div className="font-medium text-gray-700">Date: {dateFormatted}</div>
-                        <div className="mt-1 text-gray-700">Balance: {formatUsd(p.balance)}</div>
-                        <div className="mt-2">
-                          <span
-                            className={`inline-block rounded px-2 py-0.5 text-xs font-medium ${getStatusClasses(p.status)}`}
-                          >
-                            {getStatusLabel(p.status)}
-                          </span>
+            <>
+              <ResponsiveContainer width="100%" height={300}>
+                <AreaChart data={chartData90} margin={{ top: 8, right: 8, left: 8, bottom: 8 }}>
+                  <defs>
+                    <linearGradient id={areaGradientId} x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor={areaColor.from} stopOpacity={areaColor.fromOpacity} />
+                      <stop offset="100%" stopColor="white" stopOpacity={1} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                  <XAxis
+                    dataKey="date"
+                    tickFormatter={(dateStr) => formatChartDate(dateStr)}
+                    tick={{ fontSize: 12, fill: '#6B7280' }}
+                    interval={13}
+                  />
+                  <YAxis
+                    tickFormatter={formatUsdShort}
+                    tick={{ fontSize: 12, fill: '#6B7280' }}
+                    width={52}
+                  />
+                  <Tooltip
+                    content={({ active, payload }) => {
+                      if (!active || !payload?.length) return null;
+                      const p = payload[0].payload as {
+                        date: string;
+                        balance: number;
+                        status: 'healthy' | 'warning' | 'danger';
+                      };
+                      const dateFormatted = new Date(p.date + 'T00:00:00').toLocaleDateString('en-US', {
+                        month: 'long',
+                        day: 'numeric',
+                        year: 'numeric',
+                      });
+                      return (
+                        <div className="rounded-lg bg-white p-3 text-sm shadow-lg">
+                          <div className="font-medium text-gray-700">Date: {dateFormatted}</div>
+                          <div className="mt-1 text-gray-700">Balance: {formatUsd(p.balance)}</div>
+                          <div className="mt-2">
+                            <span
+                              className={`inline-block rounded px-2 py-0.5 text-xs font-medium ${getStatusClasses(p.status)}`}
+                            >
+                              {getStatusLabel(p.status)}
+                            </span>
+                          </div>
                         </div>
-                      </div>
-                    );
-                  }}
-                />
-                <ReferenceLine
-                  y={0}
-                  stroke="#9CA3AF"
-                  strokeDasharray="4 4"
-                  label={{ value: '$0', position: 'right' }}
-                />
-                <Area
-                  type="monotone"
-                  dataKey="balance"
-                  stroke={strokeColor}
-                  strokeWidth={2}
-                  fill={`url(#${areaGradientId})`}
-                />
-              </AreaChart>
-            </ResponsiveContainer>
+                      );
+                    }}
+                  />
+                  <ReferenceLine
+                    y={0}
+                    stroke="#9CA3AF"
+                    strokeDasharray="4 4"
+                    label={{ value: '$0', position: 'right' }}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="balance"
+                    stroke={strokeColor}
+                    strokeWidth={2}
+                    fill={`url(#${areaGradientId})`}
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+              {balanceSet && chartData90.length > 0 && (
+                <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-gray-600">
+                  <span
+                    className={`inline-flex min-w-0 max-w-full items-center gap-1.5 ${activeForecastLegend === 'healthy' ? 'font-semibold text-gray-900' : ''}`}
+                  >
+                    <span
+                      className="h-2.5 w-2.5 shrink-0 rounded-full bg-[#16A34A]"
+                      aria-label="Healthy band: projected balance stays above $1,000"
+                    />
+                    <span>
+                      Stays above $1,000 (healthy)
+                      {activeForecastLegend === 'healthy' && (
+                        <span className="ml-1 font-normal text-gray-500">← your forecast</span>
+                      )}
+                    </span>
+                  </span>
+                  <span
+                    className={`inline-flex min-w-0 max-w-full items-center gap-1.5 ${activeForecastLegend === 'warning' ? 'font-semibold text-gray-900' : ''}`}
+                  >
+                    <span
+                      className="h-2.5 w-2.5 shrink-0 rounded-full bg-[#D97706]"
+                      aria-label="Warning band: projected balance drops between $0 and $1,000"
+                    />
+                    <span>
+                      Drops between $0 and $1,000 (warning)
+                      {activeForecastLegend === 'warning' && (
+                        <span className="ml-1 font-normal text-gray-500">← your forecast</span>
+                      )}
+                    </span>
+                  </span>
+                  <span
+                    className={`inline-flex min-w-0 max-w-full items-center gap-1.5 ${activeForecastLegend === 'danger' ? 'font-semibold text-gray-900' : ''}`}
+                  >
+                    <span
+                      className="h-2.5 w-2.5 shrink-0 rounded-full bg-[#DC2626]"
+                      aria-label="Danger band: projected balance goes below $0"
+                    />
+                    <span>
+                      Goes below $0 (danger)
+                      {activeForecastLegend === 'danger' && (
+                        <span className="ml-1 font-normal text-gray-500">← your forecast</span>
+                      )}
+                    </span>
+                  </span>
+                </div>
+              )}
+            </>
           )}
         </div>
       )}
