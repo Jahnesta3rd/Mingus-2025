@@ -60,7 +60,7 @@ describe('SpendingMilestonesWidget', () => {
       render(<SpendingMilestonesWidget userId="user-1" />);
       await waitFor(() => {
         expect(screen.getByText('4')).toBeInTheDocument();
-        expect(screen.getByText('Next milestone: 7 days')).toBeInTheDocument();
+        expect(screen.getByText('Next streak checkpoint: 7 days')).toBeInTheDocument();
       });
       const svg = document.querySelector('svg');
       expect(svg).toBeInTheDocument();
@@ -101,7 +101,7 @@ describe('SpendingMilestonesWidget', () => {
       });
       render(<SpendingMilestonesWidget userId="user-1" />);
       await waitFor(() => expect(screen.getByText(/day streak/i)).toBeInTheDocument());
-      const achievedBadge = screen.getByRole('button', { name: /milestone 3 days, achieved/i });
+      const achievedBadge = screen.getByRole('button', { name: /streak checkpoint 3 days, achieved/i });
       expect(achievedBadge).toBeInTheDocument();
       fireEvent.mouseEnter(achievedBadge);
       await waitFor(() => {
@@ -134,7 +134,7 @@ describe('SpendingMilestonesWidget', () => {
       await waitFor(() => {
         expect(screen.getByText(/complete your first check-in to start your streak/i)).toBeInTheDocument();
       });
-      const link = screen.getByRole('link', { name: /go to daily outlook/i });
+      const link = screen.getByRole('link', { name: /open daily outlook to check in/i });
       expect(link).toBeInTheDocument();
       expect(link).toHaveAttribute('href', '/dashboard/tools?tab=daily-outlook');
     });
@@ -148,7 +148,7 @@ describe('SpendingMilestonesWidget', () => {
       });
       render(<SpendingMilestonesWidget userId="user-1" />);
       await waitFor(() => expect(screen.getByText(/day streak/i)).toBeInTheDocument());
-      const region = document.querySelector('[aria-label="Spending milestones"]');
+      const region = document.querySelector('[aria-label="Streak achievements from daily check-ins"]');
       expect(region).toBeInTheDocument();
       const inner = region?.querySelector('[class*="flex-col"]') ?? region?.firstElementChild;
       const className = (inner as HTMLElement)?.className ?? (region as HTMLElement)?.className ?? '';

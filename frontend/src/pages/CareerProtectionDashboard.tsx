@@ -485,7 +485,7 @@ const CareerProtectionDashboard: React.FC = () => {
                     onClick={() => handleTabChange('overview')}
                     className="mt-2 block text-sm text-purple-600 hover:underline cursor-pointer"
                   >
-                    View all milestones →
+                    See streak & upcoming events →
                   </button>
                 </div>
                 

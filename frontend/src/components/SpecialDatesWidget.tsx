@@ -297,9 +297,9 @@ export default function SpecialDatesWidget({
       <div
         className={`rounded-xl bg-white p-6 shadow-sm ${className}`}
         role="status"
-        aria-label="Loading events"
+        aria-label="Loading upcoming events"
       >
-        <div className="mb-4 h-6 w-40 animate-pulse rounded bg-gray-200" />
+        <h2 className="mb-4 text-lg font-semibold text-gray-900">Upcoming events</h2>
         <div className="max-h-[320px] space-y-0 overflow-hidden">
           {[1, 2, 3].map((i) => (
             <div key={i} className="flex items-center gap-3 border-b border-gray-100 py-3 last:border-0">
@@ -334,7 +334,7 @@ export default function SpecialDatesWidget({
   if (isEmpty) {
     return (
       <div className={`rounded-xl bg-white p-6 shadow-sm ${className}`}>
-        <h2 className="mb-2 text-lg font-semibold text-gray-900">Upcoming Events & Costs</h2>
+        <h2 className="mb-2 text-lg font-semibold text-gray-900">Upcoming events</h2>
         <p className="mb-4 text-gray-600">Add your upcoming events to see how they affect your finances.</p>
         <a
           href={profileLink}
@@ -352,8 +352,8 @@ export default function SpecialDatesWidget({
   }
 
   return (
-    <div className={`rounded-xl bg-white p-6 shadow-sm ${className}`} role="region" aria-label="Upcoming events and costs">
-      <h2 className="mb-4 text-lg font-semibold text-gray-900">Upcoming Events & Costs</h2>
+    <div className={`rounded-xl bg-white p-6 shadow-sm ${className}`} role="region" aria-label="Upcoming events">
+      <h2 className="mb-4 text-lg font-semibold text-gray-900">Upcoming events</h2>
       <ul className="max-h-[320px] list-none space-y-0 overflow-y-auto py-0" aria-label="Events list">
         {events.map((ev, index) => {
           const badge = getCountdownBadge(ev.date);
