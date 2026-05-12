@@ -249,7 +249,7 @@ export function ResultsGate({
               onClick={() => void onUnlockClick()}
               className="mt-5 w-full rounded-xl border border-[#C4A064]/50 bg-[#C4A064]/12 py-3.5 text-sm font-semibold text-[#C4A064] transition hover:border-[#C4A064] hover:bg-[#C4A064]/10 disabled:opacity-45"
             >
-              {unlockBusy ? "Opening…" : "See My Financial Projection — Free"}
+              {unlockBusy ? "Opening…" : "See my financial projection"}
             </button>
           </div>
 
@@ -277,7 +277,7 @@ export function ResultsGate({
           {!isLoggedIn ? (
             <div className="rounded-2xl border border-[#2a2030] bg-[#1a1520]/80 px-5 py-5 text-center shadow-landing-card">
               <p className="text-sm font-medium text-[#f0e8d8]">
-                Create a free account to save your checkup history and trends
+                Create an account to save your checkup history and trends
               </p>
               <a
                 href="/register"

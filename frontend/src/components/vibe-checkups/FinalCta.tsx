@@ -17,7 +17,7 @@ export function FinalCta({ onCta }: Props) {
             Start the Assessment
           </LandingPrimaryButton>
           <p className="text-sm text-[#9a8f7e]">
-            Free to take. No credit card. No Mingus account needed.
+            No Mingus account needed for this checkup. Mingus is subscription-only—plans from $15/mo.
           </p>
         </div>
       </div>

@@ -118,7 +118,7 @@ const pricingTiers: PricingTier[] = [
       "Export data to Excel/PDF"
     ],
     popular: true,
-    cta: "Start Free Trial"
+    cta: "Get Started"
   },
   {
     name: "Professional",
@@ -484,7 +484,7 @@ const LandingPage: React.FC = () => {
           id="assessments"
           className="py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-gray-900 to-gray-800" 
           role="region" 
-          aria-label="Free career and financial assessments"
+          aria-label="Career and financial assessments"
         >
           <div className="max-w-7xl mx-auto">
             <div className="text-center mb-12">
@@ -492,7 +492,7 @@ const LandingPage: React.FC = () => {
                 Discover Your Financial & Career Profile
               </h2>
               <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-                Take our free assessments to understand your unique situation and get personalized recommendations.
+                Take our assessments to understand your unique situation and get personalized recommendations. All Mingus plans are paid—from $15/mo.
               </p>
             </div>
             

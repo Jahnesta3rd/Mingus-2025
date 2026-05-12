@@ -162,10 +162,10 @@ def _mingus_offer_html(*, unsubscribe_url: str) -> str:
     return f"""<!DOCTYPE html>
 <html><head><meta charset="UTF-8"/></head>
 <body style="font-family:system-ui,-apple-system,sans-serif;color:#1a1a1a;max-width:600px;margin:0 auto;padding:28px 20px">
-  <h1 style="font-size:1.25rem;font-weight:700;margin:0 0 12px">Your first month on Mingus is on us</h1>
-  <p style="line-height:1.65;color:#374151;margin:0 0 16px">Start a <strong>30-day free trial</strong> — no credit card required. Bring the same clarity you felt in Vibe Checkups to your real numbers, goals, and stress points.</p>
+  <h1 style="font-size:1.25rem;font-weight:700;margin:0 0 12px">Subscribe to Mingus</h1>
+  <p style="line-height:1.65;color:#374151;margin:0 0 16px">Mingus does not offer a free trial—all tiers are paid subscriptions (Budget <strong>$15/mo</strong>, Mid-tier <strong>$35/mo</strong>, Professional <strong>$100/mo</strong>). Bring the same clarity you felt in Vibe Checkups to your real numbers, goals, and stress points.</p>
   <p style="margin:22px 0">
-    <a href="https://mingusapp.com/signup" style="display:inline-block;background:#2563eb;color:#fff;padding:14px 22px;border-radius:10px;text-decoration:none;font-weight:600">Claim your free month</a>
+    <a href="https://mingusapp.com/signup" style="display:inline-block;background:#2563eb;color:#fff;padding:14px 22px;border-radius:10px;text-decoration:none;font-weight:600">Get started</a>
   </p>
   {_footer(unsubscribe_url)}
 </body></html>"""
@@ -236,7 +236,7 @@ def send_vibe_checkups_mingus_offer(self, lead_id: str) -> dict[str, Any]:
     lid = str(lead["id"])
     u = build_vibe_checkups_unsubscribe_url(lid)
     html_body = _mingus_offer_html(unsubscribe_url=u)
-    subject = "Your first month on Mingus is on us"
+    subject = "Subscribe to Mingus — paid plans from $15/mo"
     ok = EmailService().send_email(to=lead["email"], subject=subject, html_body=html_body)
 
     if ok:
