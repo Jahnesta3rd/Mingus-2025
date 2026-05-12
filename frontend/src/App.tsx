@@ -26,6 +26,7 @@ import BetaWelcome from './pages/BetaWelcome';
 import AdminRoute from './components/AdminRoute';
 import BetaAdminDashboard from './pages/BetaAdminDashboard';
 import VibeCheckupsPage from './pages/VibeCheckupsPage';
+import CheckupsHub from './components/CheckupsHub';
 import BodyCheckPage from './pages/BodyCheckPage';
 import RoofCheckPage from './pages/RoofCheckPage';
 import VehicleCheckPage from './pages/VehicleCheckPage';
@@ -172,7 +173,8 @@ const router = createBrowserRouter([
       { path: 'forecast', element: <FinancialForecastPage /> },
       { path: 'tools', element: <CareerProtectionDashboard /> },
       { path: 'profile', element: <DashboardProfilePage /> },
-      { path: 'vibe-checkups', element: <VibeCheckupsPage /> },
+      { path: 'vibe-checkups', element: <CheckupsHub /> },
+      { path: 'checkups/relationships', element: <VibeCheckupsPage /> },
       { path: 'spirit', element: <SpiritFinance /> },
       { path: 'vibe-tracker', element: <Navigate to="/dashboard/roster" replace /> },
     ],

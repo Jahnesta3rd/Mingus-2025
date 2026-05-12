@@ -289,7 +289,7 @@ export default function SpecialDatesWidget({
   const events = normalizeEvents(importantDates);
   const isEmpty = events.length === 0 && !loading && !error;
 
-  const profileLink = '/profile#important-dates';
+  const profileLink = '/dashboard/profile#important-dates';
 
   // Loading: skeleton
   if (loading) {

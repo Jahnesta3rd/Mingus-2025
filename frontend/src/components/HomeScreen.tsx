@@ -114,6 +114,10 @@ export default function HomeScreen() {
   useEffect(() => {
     const tab = searchParams.get('tab');
     if (!tab) return;
+    if (tab === 'vibe-checkups') {
+      navigate('/dashboard/vibe-checkups', { replace: true });
+      return;
+    }
     const normalized = tab === 'vehicles' ? 'vehicle' : tab;
     if (normalized === 'vehicle' || normalized === 'housing' || normalized === 'life-ledger') {
       navigate(`/dashboard/tools?tab=${normalized}`, { replace: true });

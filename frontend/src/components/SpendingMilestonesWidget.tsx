@@ -283,7 +283,7 @@ export default function SpendingMilestonesWidget({
       <div className={`rounded-xl bg-white p-6 shadow-sm ${className}`}>
         <p className="text-gray-700 mb-4">Complete your first check-in to start your streak</p>
         <a
-          href="/daily-outlook"
+          href="/dashboard/tools?tab=daily-outlook"
           className="inline-block rounded-lg px-4 py-2 text-white transition-colors hover:opacity-90"
           style={{ backgroundColor: PRIMARY_PURPLE }}
         >

@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
-import RiskStatusHero from '../components/RiskStatusHero';
 import RecommendationTiers from '../components/RecommendationTiers';
 import LocationIntelligenceMap from '../components/LocationIntelligenceMap';
 import AnalyticsDashboard from '../components/AnalyticsDashboard';
@@ -223,6 +222,9 @@ const CareerProtectionDashboard: React.FC = () => {
     } else if (tab === 'vehicle' || tab === 'vehicles') {
       setDashboardState((prev) => ({ ...prev, activeTab: 'vehicle' }));
       setActiveTab('vehicles');
+    } else if (tab === 'daily-outlook') {
+      setDashboardState((prev) => ({ ...prev, activeTab: 'daily-outlook' }));
+      setActiveTab('daily-outlook');
     } else {
       return;
     }
@@ -259,13 +261,6 @@ const CareerProtectionDashboard: React.FC = () => {
     });
   };
   
-  const handleRiskLevelChange = (newRiskLevel: DashboardState['riskLevel']) => {
-    setDashboardState(prev => ({ 
-      ...prev, 
-      riskLevel: newRiskLevel,
-      emergencyMode: newRiskLevel === 'urgent'
-    }));
-  };
   
   const handleEmergencyUnlock = () => {
     setDashboardState(prev => ({ 
@@ -394,10 +389,7 @@ const CareerProtectionDashboard: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="space-y-8">
           
-          {/* Risk Status Hero - Always Visible */}
-          <RiskStatusHero 
-            onRiskLevelChange={handleRiskLevelChange}
-          />
+          {/* TODO(post-beta): Replace removed RiskStatusHero with new career risk methodology + display (#sprint TBD). */}
 
           <LifeLedgerErrorBoundary>
             <LifeLedgerWidget />

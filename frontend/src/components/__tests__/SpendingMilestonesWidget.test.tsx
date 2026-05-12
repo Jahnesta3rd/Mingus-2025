@@ -112,8 +112,8 @@ describe('SpendingMilestonesWidget', () => {
     });
   });
 
-  describe('4. Empty state links to /daily-outlook', () => {
-    it('shows empty state with link to /daily-outlook when current_streak is 0', async () => {
+  describe('4. Empty state links to Tools Daily Outlook tab', () => {
+    it('shows empty state with link to /dashboard/tools?tab=daily-outlook when current_streak is 0', async () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
         json: async () =>
@@ -136,7 +136,7 @@ describe('SpendingMilestonesWidget', () => {
       });
       const link = screen.getByRole('link', { name: /go to daily outlook/i });
       expect(link).toBeInTheDocument();
-      expect(link).toHaveAttribute('href', '/daily-outlook');
+      expect(link).toHaveAttribute('href', '/dashboard/tools?tab=daily-outlook');
     });
   });
 

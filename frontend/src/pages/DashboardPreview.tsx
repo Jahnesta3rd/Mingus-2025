@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import RiskStatusHero from '../components/RiskStatusHero';
 import RecommendationTiers from '../components/RecommendationTiers';
 import LocationIntelligenceMap from '../components/LocationIntelligenceMap';
 import AnalyticsDashboard from '../components/AnalyticsDashboard';
@@ -40,14 +39,6 @@ const DashboardPreview: React.FC = () => {
       new_tab: tab,
       risk_level: dashboardState.riskLevel
     });
-  };
-  
-  const handleRiskLevelChange = (newRiskLevel: DashboardState['riskLevel']) => {
-    setDashboardState(prev => ({ 
-      ...prev, 
-      riskLevel: newRiskLevel,
-      emergencyMode: newRiskLevel === 'urgent'
-    }));
   };
   
   const handleEmergencyUnlock = () => {
@@ -114,11 +105,8 @@ const DashboardPreview: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="space-y-8">
             
-            {/* Risk Status Hero - Always Visible */}
-            <RiskStatusHero 
-              onRiskLevelChange={handleRiskLevelChange}
-            />
-            
+            {/* TODO(post-beta): Risk hero removed — replace with new career risk surface when available. */}
+
             {/* Tab Navigation */}
             <div className="border-b border-gray-200">
               <nav className="-mb-px flex space-x-2 sm:space-x-8 overflow-x-auto">

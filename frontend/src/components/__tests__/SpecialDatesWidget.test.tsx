@@ -182,8 +182,8 @@ describe('SpecialDatesWidget', () => {
     });
   });
 
-  describe('5. Empty state button links to /profile#important-dates', () => {
-    it('Add Events button has href /profile#important-dates', async () => {
+  describe('5. Empty state button links to /dashboard/profile#important-dates', () => {
+    it('Add Events button has href /dashboard/profile#important-dates', async () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
         json: async () => mockProfileResponse(null),
@@ -193,10 +193,10 @@ describe('SpecialDatesWidget', () => {
       await waitFor(() => expect(screen.getByText(/Add your upcoming events/)).toBeInTheDocument());
 
       const addButton = screen.getByRole('link', { name: /Add Events/i });
-      expect(addButton).toHaveAttribute('href', '/profile#important-dates');
+      expect(addButton).toHaveAttribute('href', '/dashboard/profile#important-dates');
     });
 
-    it('footer "Edit events" link has href /profile#important-dates when events exist', async () => {
+    it('footer "Edit events" link has href /dashboard/profile#important-dates when events exist', async () => {
       const future = new Date();
       future.setDate(future.getDate() + 14);
       const futureStr = future.toISOString().slice(0, 10);
@@ -216,7 +216,7 @@ describe('SpecialDatesWidget', () => {
       await waitFor(() => expect(screen.getByText('Vacation')).toBeInTheDocument());
 
       const editLink = screen.getByRole('link', { name: /Edit events in your profile/i });
-      expect(editLink).toHaveAttribute('href', '/profile#important-dates');
+      expect(editLink).toHaveAttribute('href', '/dashboard/profile#important-dates');
     });
   });
 });
