@@ -6,6 +6,7 @@ import type { ModuleData, ModuleId } from '../../../types/modularOnboarding';
 import { csrfHeaders } from '../../../utils/csrfHeaders';
 import { ProgressIndicator } from './ProgressIndicator';
 import { STEP_ORDER } from './StepDefinitions';
+import { OnboardingSaveAndExit } from '../OnboardingSaveAndExit';
 
 const BASE = '/api/modular-onboarding';
 const FINAL_ERROR = "Couldn't complete onboarding. Please try again.";
@@ -243,8 +244,13 @@ export default function OnboardingWizard() {
 
   return (
     <div className="flex h-dvh flex-col bg-[#F8FAFC]">
-      <div className="mx-auto w-full max-w-4xl px-4 pt-6 sm:px-6">
-        <ProgressIndicator currentIndex={currentIndex} total={STEP_ORDER.length} stepLabel={currentStep.label} />
+      <div className="mx-auto flex w-full max-w-4xl flex-col gap-3 px-4 pt-6 sm:flex-row sm:items-start sm:justify-between sm:px-6">
+        <div className="min-w-0 flex-1">
+          <ProgressIndicator currentIndex={currentIndex} total={STEP_ORDER.length} stepLabel={currentStep.label} />
+        </div>
+        <div className="flex shrink-0 justify-end sm:pt-0">
+          <OnboardingSaveAndExit disabled={isSubmitting} />
+        </div>
       </div>
 
       <div className="mx-auto w-full max-w-4xl flex-1 overflow-y-auto px-4 py-5 sm:px-6">

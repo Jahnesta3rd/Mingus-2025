@@ -7,6 +7,7 @@ import IncomeScheduleStep from '../components/onboarding/IncomeScheduleStep';
 import ExpenseScheduleStep from '../components/onboarding/ExpenseScheduleStep';
 import RosterSeedStep from '../components/onboarding/RosterSeedStep';
 import QuickVibeStep from '../components/onboarding/QuickVibeStep';
+import { OnboardingSaveAndExit } from '../components/onboarding/OnboardingSaveAndExit';
 import { csrfHeaders } from '../utils/csrfHeaders';
 
 const STEP_META = [
@@ -43,18 +44,28 @@ type ExpenseRow = {
   amount: string;
   category: string;
   frequency: string;
+  /** Day of month (1-31); string for controlled inputs, clamped at submit */
+  dueDay: string;
   preset: boolean;
 };
 
+/** Empty / non-numeric / out of range defaults to 1 (matches expense amount: no per-field inline errors). */
+function clampedDueDayFromInput(raw: string): number {
+  const n = parseInt(raw, 10);
+  if (!Number.isFinite(n)) return 1;
+  if (n < 1 || n > 31) return 1;
+  return n;
+}
+
 const PRESET_EXPENSES: Omit<ExpenseRow, 'id' | 'amount'>[] = [
-  { name: 'Housing (rent or mortgage)', category: 'housing', frequency: 'monthly', preset: true },
-  { name: 'Car / transportation', category: 'transportation', frequency: 'monthly', preset: true },
-  { name: 'Groceries & food', category: 'other', frequency: 'monthly', preset: true },
-  { name: 'Utilities', category: 'utilities', frequency: 'monthly', preset: true },
-  { name: 'Subscriptions', category: 'subscription', frequency: 'monthly', preset: true },
-  { name: 'Healthcare / insurance', category: 'insurance', frequency: 'monthly', preset: true },
-  { name: 'Childcare', category: 'other', frequency: 'monthly', preset: true },
-  { name: 'Debt payments', category: 'debt', frequency: 'monthly', preset: true },
+  { name: 'Housing (rent or mortgage)', category: 'housing', frequency: 'monthly', dueDay: '1', preset: true },
+  { name: 'Car / transportation', category: 'transportation', frequency: 'monthly', dueDay: '1', preset: true },
+  { name: 'Groceries & food', category: 'other', frequency: 'monthly', dueDay: '1', preset: true },
+  { name: 'Utilities', category: 'utilities', frequency: 'monthly', dueDay: '15', preset: true },
+  { name: 'Subscriptions', category: 'subscription', frequency: 'monthly', dueDay: '1', preset: true },
+  { name: 'Healthcare / insurance', category: 'insurance', frequency: 'monthly', dueDay: '1', preset: true },
+  { name: 'Childcare', category: 'other', frequency: 'monthly', dueDay: '1', preset: true },
+  { name: 'Debt payments', category: 'debt', frequency: 'monthly', dueDay: '1', preset: true },
 ];
 
 const inputClass =
@@ -170,6 +181,7 @@ export default function OnboardingPage({ onComplete }: OnboardingPageProps = {})
         amount: '0',
         category: 'other',
         frequency: 'monthly',
+        dueDay: '1',
         preset: false,
       },
     ]);
@@ -198,7 +210,7 @@ export default function OnboardingPage({ onComplete }: OnboardingPageProps = {})
       setError('Please select employment status.');
       return;
     }
-    await savePersonal({
+    const ok = await savePersonal({
       personalInfo: {
         firstName: firstName.trim(),
         lastName: lastName.trim(),
@@ -212,6 +224,9 @@ export default function OnboardingPage({ onComplete }: OnboardingPageProps = {})
         employer: employer.trim() || undefined,
       },
     });
+    if (ok) {
+      goToStep(2);
+    }
   };
 
   const onSubmitIncome = async (e: React.FormEvent) => {
@@ -232,7 +247,10 @@ export default function OnboardingPage({ onComplete }: OnboardingPageProps = {})
       setError('Each income source needs an amount greater than 0.');
       return;
     }
-    await saveIncome({ sources });
+    const ok = await saveIncome({ sources });
+    if (ok) {
+      goToStep(5);
+    }
   };
 
   const onSubmitExpenses = async (e: React.FormEvent) => {
@@ -248,12 +266,16 @@ export default function OnboardingPage({ onComplete }: OnboardingPageProps = {})
         amount: parseFloat(r.amount),
         category: r.category,
         frequency: r.frequency,
+        due_day: clampedDueDayFromInput(r.dueDay),
       }));
     if (expenses.length < 1) {
       setError('Enter at least one expense with an amount greater than 0.');
       return;
     }
-    await saveExpenses({ expenses });
+    const ok = await saveExpenses({ expenses });
+    if (ok) {
+      goToStep(8);
+    }
   };
 
   const onSubmitPosition = async (e: React.FormEvent) => {
@@ -292,9 +314,8 @@ export default function OnboardingPage({ onComplete }: OnboardingPageProps = {})
       }
       payload.savings_balance = v;
     }
-    const hasAny = Object.keys(payload).length > 0;
     const ok = await savePosition(payload);
-    if (ok && !hasAny) {
+    if (ok) {
       goToStep(9);
     }
   };
@@ -369,7 +390,11 @@ export default function OnboardingPage({ onComplete }: OnboardingPageProps = {})
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] px-4 py-8">
-      <div className="mx-auto max-w-2xl rounded-2xl border border-[#E2E8F0] bg-white p-6 shadow-sm sm:p-8">
+      <div className="mx-auto max-w-2xl">
+        <div className="mb-3 flex justify-end">
+          <OnboardingSaveAndExit disabled={isSaving} />
+        </div>
+        <div className="rounded-2xl border border-[#E2E8F0] bg-white p-6 shadow-sm sm:p-8">
         {currentStep > 1 && (
           <button
             type="button"
@@ -671,8 +696,8 @@ export default function OnboardingPage({ onComplete }: OnboardingPageProps = {})
               {expenseRows.map((row) => (
                 <div key={row.id} className="rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] p-4">
                   <div className="flex items-start justify-between gap-2">
-                    <div className="grid flex-1 gap-3 sm:grid-cols-2">
-                      <div className="sm:col-span-2">
+                    <div className="grid flex-1 gap-3 sm:grid-cols-3">
+                      <div className="min-w-0 sm:col-span-3">
                         <label className={labelClass}>Name</label>
                         <input
                           className={inputClass}
@@ -684,7 +709,7 @@ export default function OnboardingPage({ onComplete }: OnboardingPageProps = {})
                           }
                         />
                       </div>
-                      <div>
+                      <div className="min-w-0">
                         <label className={labelClass}>Amount ($)</label>
                         <input
                           className={inputClass}
@@ -699,7 +724,7 @@ export default function OnboardingPage({ onComplete }: OnboardingPageProps = {})
                           }
                         />
                       </div>
-                      <div>
+                      <div className="min-w-0">
                         <label className={labelClass}>Frequency</label>
                         <select
                           className={inputClass}
@@ -716,8 +741,26 @@ export default function OnboardingPage({ onComplete }: OnboardingPageProps = {})
                           <option value="annual">Annual</option>
                         </select>
                       </div>
+                      <div className="min-w-0 sm:max-w-[6.5rem]">
+                        <label className={labelClass}>Day of month</label>
+                        <input
+                          className={inputClass}
+                          type="number"
+                          min={1}
+                          max={31}
+                          step={1}
+                          inputMode="numeric"
+                          aria-label="Day of month this expense is due"
+                          value={row.dueDay}
+                          onChange={(e) =>
+                            setExpenseRows((r) =>
+                              r.map((x) => (x.id === row.id ? { ...x, dueDay: e.target.value } : x))
+                            )
+                          }
+                        />
+                      </div>
                       {!row.preset && (
-                        <div className="sm:col-span-2">
+                        <div className="min-w-0 sm:col-span-3">
                           <label className={labelClass}>Category</label>
                           <select
                             className={inputClass}
@@ -921,6 +964,7 @@ export default function OnboardingPage({ onComplete }: OnboardingPageProps = {})
             </button>
           </form>
         )}
+        </div>
       </div>
     </div>
   );
