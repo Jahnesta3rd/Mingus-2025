@@ -28,7 +28,7 @@ import { InputValidator } from '../utils/validation';
 import { Sanitizer } from '../utils/sanitize';
 import { runComprehensiveTest } from '../utils/responsiveTestUtils';
 import { logger } from '../utils/logger';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { AssessmentType } from '../types/assessments';
 import { useAnalytics } from '../hooks/useAnalytics';
 import HeroSection from './sections/HeroSection';
@@ -201,8 +201,24 @@ const financialWellnessFeatures: Feature[] = [
   }
 ];
 
+function useScrollToHash() {
+  const { hash } = useLocation();
+  useEffect(() => {
+    if (!hash) return;
+    const targetId = hash.slice(1);
+    const t = setTimeout(() => {
+      const el = document.getElementById(targetId);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 100);
+    return () => clearTimeout(t);
+  }, [hash]);
+}
+
 // Main Landing Page Component
 const LandingPage: React.FC = () => {
+  useScrollToHash();
   const navigate = useNavigate();
   const { trackInteraction, trackPageView } = useAnalytics();
   const [openFAQ, setOpenFAQ] = useState<number | null>(null);
