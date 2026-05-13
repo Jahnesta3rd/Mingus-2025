@@ -5,18 +5,18 @@ exports[`WellnessScoreCard snapshot matches snapshot when empty 1`] = `
   <div
     aria-label="Wellness score"
     class="
-          rounded-2xl bg-slate-800/80 border border-slate-700 p-8
-          flex flex-col items-center justify-center text-center min-h-[280px]
+          rounded-2xl bg-slate-800/80 border border-dashed border-slate-600 p-4 sm:p-8
+          flex flex-col items-center justify-center text-center min-h-[280px] max-w-full
           
         "
     role="region"
   >
     <div
       aria-hidden="true"
-      class="text-slate-400 mb-4"
+      class="mb-4 flex h-36 w-36 max-w-full shrink-0 items-center justify-center rounded-full border-[10px] border-dashed border-slate-600 bg-slate-900/40"
     >
       <svg
-        class="w-14 h-14 mx-auto"
+        class="mx-auto h-12 w-12 text-slate-500 sm:h-14 sm:w-14"
         fill="none"
         height="24"
         stroke="currentColor"
@@ -52,16 +52,22 @@ exports[`WellnessScoreCard snapshot matches snapshot when empty 1`] = `
         />
       </svg>
     </div>
-    <h3
-      class="text-lg font-semibold text-slate-200 mb-2"
+    <h2
+      class="mb-2 text-lg font-semibold leading-snug text-slate-100"
     >
-      Complete your first check-in to see your wellness score
-    </h3>
+      Wellness Score
+    </h2>
     <p
-      class="text-slate-400 text-sm mb-6 max-w-sm"
+      class="mb-6 max-w-sm px-1 text-sm leading-relaxed text-slate-400"
     >
-      Track physical, mental, relationship, and financial wellness in one place.
+      Complete your weekly check-in to see your scores
     </p>
+    <a
+      class="inline-flex min-h-[44px] w-full max-w-xs items-center justify-center rounded-xl px-4 py-3 text-sm font-semibold bg-violet-600 text-white hover:bg-violet-500 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 focus:ring-offset-slate-900"
+      href="/dashboard/vibe-checkups"
+    >
+      Take your check-in →
+    </a>
   </div>
 </div>
 `;
@@ -70,11 +76,11 @@ exports[`WellnessScoreCard snapshot matches snapshot with scores 1`] = `
 <div>
   <div
     aria-label="Wellness score"
-    class="rounded-2xl bg-slate-800/80 border border-slate-700 p-6 "
+    class="rounded-2xl bg-slate-800/80 border border-slate-700 p-4 sm:p-6 max-w-full "
     role="region"
   >
     <div
-      class="flex flex-col items-center mb-8"
+      class="mb-8 flex flex-col items-center"
     >
       <div
         class="relative inline-flex items-center justify-center"
@@ -115,7 +121,7 @@ exports[`WellnessScoreCard snapshot matches snapshot with scores 1`] = `
         </div>
         <div
           aria-hidden="true"
-          class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none"
+          class="pointer-events-none absolute inset-0 flex flex-col items-center justify-center"
         >
           <span
             class="text-4xl font-bold tabular-nums"
@@ -124,7 +130,7 @@ exports[`WellnessScoreCard snapshot matches snapshot with scores 1`] = `
             0
           </span>
           <span
-            class="text-slate-400 text-sm font-medium mt-0.5"
+            class="mt-0.5 text-sm font-medium text-slate-400"
           >
             Growing
           </span>
@@ -168,16 +174,16 @@ exports[`WellnessScoreCard snapshot matches snapshot with scores 1`] = `
           </span>
         </span>
         <p
-          class="text-slate-500 text-sm"
+          class="text-sm text-slate-500"
         >
           Week of 
-          Feb 1, 2025
+          February 2, 2025
         </p>
       </div>
     </div>
     <div
       aria-label="Wellness categories"
-      class="grid grid-cols-2 md:grid-cols-4 gap-3"
+      class="grid grid-cols-2 gap-3 md:grid-cols-4"
       role="list"
     >
       <div

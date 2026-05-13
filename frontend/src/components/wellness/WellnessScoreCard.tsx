@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { ClipboardList } from 'lucide-react';
 import { CircularProgressRing } from './CircularProgressRing';
 import { ScoreChangeIndicator } from './ScoreChangeIndicator';
@@ -33,10 +34,25 @@ const TIER_LABELS: Record<string, string> = {
   attention: 'Needs attention',
 };
 
+/** Parse YYYY-MM-DD as local calendar date so week labels are not shifted back a day in US timezones. */
 function formatWeekLabel(isoDate: string): string {
   try {
-    const d = new Date(isoDate);
-    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    const parts = isoDate.trim().split('-');
+    if (parts.length !== 3) {
+      return isoDate;
+    }
+    const year = Number(parts[0]);
+    const month = Number(parts[1]);
+    const day = Number(parts[2]);
+    if (!Number.isFinite(year) || !Number.isFinite(month) || !Number.isFinite(day)) {
+      return isoDate;
+    }
+    const localDate = new Date(year, month - 1, day);
+    return localDate.toLocaleDateString('en-US', {
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric',
+    });
   } catch {
     return isoDate;
   }
@@ -45,11 +61,14 @@ function formatWeekLabel(isoDate: string): string {
 export interface WellnessScoreCardProps {
   /** Scores for the latest week, or null for empty state */
   scores: WellnessScores | null;
-  /** Called when user taps "Start check-in" in empty state */
+  /** Called when user taps the check-in CTA in empty state (opens modal on dashboard) */
   onStartCheckin?: () => void;
   /** Optional class for the card container */
   className?: string;
 }
+
+const ctaClassName =
+  'inline-flex min-h-[44px] w-full max-w-xs items-center justify-center rounded-xl px-4 py-3 text-sm font-semibold bg-violet-600 text-white hover:bg-violet-500 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 focus:ring-offset-slate-900';
 
 /**
  * Dashboard wellness score card: hero ring, overall score, change, week label,
@@ -88,35 +107,36 @@ export const WellnessScoreCard: React.FC<WellnessScoreCardProps> = ({
     return (
       <div
         className={`
-          rounded-2xl bg-slate-800/80 border border-slate-700 p-8
-          flex flex-col items-center justify-center text-center min-h-[280px]
+          rounded-2xl bg-slate-800/80 border border-dashed border-slate-600 p-4 sm:p-8
+          flex flex-col items-center justify-center text-center min-h-[280px] max-w-full
           ${className}
         `}
         role="region"
         aria-label="Wellness score"
       >
-        <div className="text-slate-400 mb-4" aria-hidden>
-          <ClipboardList className="w-14 h-14 mx-auto" strokeWidth={1.5} />
+        <div
+          className="mb-4 flex h-36 w-36 max-w-full shrink-0 items-center justify-center rounded-full border-[10px] border-dashed border-slate-600 bg-slate-900/40"
+          aria-hidden
+        >
+          <ClipboardList className="mx-auto h-12 w-12 text-slate-500 sm:h-14 sm:w-14" strokeWidth={1.5} />
         </div>
-        <h3 className="text-lg font-semibold text-slate-200 mb-2">
-          Complete your first check-in to see your wellness score
-        </h3>
-        <p className="text-slate-400 text-sm mb-6 max-w-sm">
-          Track physical, mental, relationship, and financial wellness in one place.
+        <h2 className="mb-2 text-lg font-semibold leading-snug text-slate-100">Wellness Score</h2>
+        <p className="mb-6 max-w-sm px-1 text-sm leading-relaxed text-slate-400">
+          Complete your weekly check-in to see your scores
         </p>
-        {onStartCheckin && (
+        {onStartCheckin ? (
           <button
             type="button"
             onClick={onStartCheckin}
-            className="
-              min-h-[44px] px-6 rounded-xl font-semibold
-              bg-violet-600 text-white hover:bg-violet-500
-              focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 focus:ring-offset-slate-900
-            "
-            aria-label="Start weekly check-in"
+            className={ctaClassName}
+            aria-label="Take your weekly check-in"
           >
-            Start check-in
+            Take your check-in →
           </button>
+        ) : (
+          <Link to="/dashboard/vibe-checkups" className={ctaClassName}>
+            Take your check-in →
+          </Link>
         )}
       </div>
     );
@@ -127,12 +147,12 @@ export const WellnessScoreCard: React.FC<WellnessScoreCardProps> = ({
 
   return (
     <div
-      className={`rounded-2xl bg-slate-800/80 border border-slate-700 p-6 ${className}`}
+      className={`rounded-2xl bg-slate-800/80 border border-slate-700 p-4 sm:p-6 max-w-full ${className}`}
       role="region"
       aria-label="Wellness score"
     >
       {/* Hero: circular ring + overall score + change + week */}
-      <div className="flex flex-col items-center mb-8">
+      <div className="mb-8 flex flex-col items-center">
         <div className="relative inline-flex items-center justify-center">
           <CircularProgressRing
             value={overall}
@@ -145,7 +165,7 @@ export const WellnessScoreCard: React.FC<WellnessScoreCardProps> = ({
             ariaLabel={`Overall wellness score: ${Math.round(overall)} out of 100, ${tierLabel}`}
           />
           <div
-            className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none"
+            className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center"
             aria-hidden
           >
             <span
@@ -154,7 +174,7 @@ export const WellnessScoreCard: React.FC<WellnessScoreCardProps> = ({
             >
               {displayOverall}
             </span>
-            <span className="text-slate-400 text-sm font-medium mt-0.5">
+            <span className="mt-0.5 text-sm font-medium text-slate-400">
               {tierLabel}
             </span>
           </div>
@@ -170,13 +190,13 @@ export const WellnessScoreCard: React.FC<WellnessScoreCardProps> = ({
                   : 'No change from last week'
             }
           />
-          <p className="text-slate-500 text-sm">Week of {weekLabel}</p>
+          <p className="text-sm text-slate-500">Week of {weekLabel}</p>
         </div>
       </div>
 
       {/* Category grid: 2x2 mobile, 4x1 desktop */}
       <div
-        className="grid grid-cols-2 md:grid-cols-4 gap-3"
+        className="grid grid-cols-2 gap-3 md:grid-cols-4"
         role="list"
         aria-label="Wellness categories"
       >
