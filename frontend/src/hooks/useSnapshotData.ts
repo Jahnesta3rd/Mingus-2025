@@ -46,7 +46,8 @@ function resolveSnapshotUserTier(user: ReturnType<typeof useAuth>['user']): stri
 
 // ─── HOOK ────────────────────────────────────────────────────────────
 
-export function useSnapshotData() {
+export function useSnapshotData(opts?: { reloadKey?: number }) {
+  const reloadKey = opts?.reloadKey ?? 0;
   const { user, getAccessToken } = useAuth();
   const userId = user?.id;
   const userEmail = user?.email;
@@ -346,7 +347,7 @@ export function useSnapshotData() {
       });
       setLoadStates((prev) => ({ ...prev, action: 'ready' }));
     });
-  }, [userId, userEmail, userTier]);
+  }, [userId, userEmail, userTier, reloadKey]);
 
   // ── saveFavorite ─────────────────────────────────────────────
   // Called by Faith Card when user taps the heart button.

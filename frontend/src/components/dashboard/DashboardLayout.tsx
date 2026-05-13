@@ -5,6 +5,7 @@ import NPSSurvey from '../NPSSurvey';
 import BugReportButton from '../BugReportButton';
 import { useAuth } from '../../hooks/useAuth';
 import { useNPSSurvey } from '../../hooks/useNPSSurvey';
+import { ImportantDateModalProvider } from '../../context/ImportantDateModalContext';
 
 const VC_IMPORT_SHOWN_KEY = 'vc_import_shown';
 const VC_IMPORT_PENDING_KEY = 'mingus_vc_import_pending';
@@ -203,7 +204,9 @@ const DashboardLayout: React.FC = () => {
               </div>
             </div>
           ) : null}
-          <Outlet />
+          <ImportantDateModalProvider>
+            <Outlet />
+          </ImportantDateModalProvider>
         </div>
 
         <nav

@@ -16,6 +16,7 @@ import DailyOutlookCard from '../components/DailyOutlookCard';
 import QuickSetupOverlay from '../components/QuickSetupOverlay';
 import SpendingMilestonesWidget from '../components/SpendingMilestonesWidget';
 import SpecialDatesWidget from '../components/SpecialDatesWidget';
+import { useImportantDateModal } from '../context/ImportantDateModalContext';
 import LifeLedgerErrorBoundary from '../components/LifeLedger/LifeLedgerErrorBoundary';
 import LifeLedgerWidget from '../components/LifeLedger/LifeLedgerWidget';
 import CorrelationWidget from '../components/LifeLedger/CorrelationWidget';
@@ -50,6 +51,7 @@ const CareerProtectionDashboard: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { user, isAuthenticated, loading: authLoading } = useAuth();
+  const { openAddImportantDate, importantDatesRefreshKey } = useImportantDateModal();
   const { trackPageView, trackInteraction } = useAnalytics();
   const [showProfileModal, setShowProfileModal] = useState(false);
   
@@ -209,11 +211,19 @@ const CareerProtectionDashboard: React.FC = () => {
   
   useEffect(() => {
     const tab = searchParams.get('tab');
+    const editProfile = searchParams.get('editProfile') === '1';
+    if (!tab && !editProfile) return;
+
     if (tab === 'financial-forecast') {
       navigate('/dashboard/forecast', { replace: true });
       return;
     }
-    if (tab === 'life-ledger') {
+
+    if (editProfile) {
+      setShowProfileModal(true);
+      setDashboardState((prev) => ({ ...prev, activeTab: 'overview' }));
+      setActiveTab('overview');
+    } else if (tab === 'life-ledger') {
       setDashboardState((prev) => ({ ...prev, activeTab: 'life-ledger' }));
       setActiveTab('life-ledger');
     } else if (tab === 'housing') {
@@ -225,11 +235,14 @@ const CareerProtectionDashboard: React.FC = () => {
     } else if (tab === 'daily-outlook') {
       setDashboardState((prev) => ({ ...prev, activeTab: 'daily-outlook' }));
       setActiveTab('daily-outlook');
-    } else {
-      return;
+    } else if (tab === 'overview') {
+      setDashboardState((prev) => ({ ...prev, activeTab: 'overview' }));
+      setActiveTab('overview');
     }
+
     const next = new URLSearchParams(searchParams);
-    next.delete('tab');
+    if (tab) next.delete('tab');
+    if (editProfile) next.delete('editProfile');
     setSearchParams(next, { replace: true });
   }, [searchParams, setActiveTab, setSearchParams, navigate]);
 
@@ -515,6 +528,8 @@ const CareerProtectionDashboard: React.FC = () => {
                   userId={user?.id ?? ''}
                   userEmail={user?.email ?? ''}
                   onNavigateToForecast={() => navigate('/dashboard/forecast')}
+                  onRequestAddDate={openAddImportantDate}
+                  importantDatesRefreshKey={importantDatesRefreshKey}
                   className="mt-6"
                 />
                 

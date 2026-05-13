@@ -19,12 +19,14 @@ interface CustomEvent {
 
 interface ImportantDatesData {
   birthday: string | null;
-  /** When set, links the birthday milestone to a roster nickname (profile JSON). */
+  /** When set, links the birthday to a roster nickname (profile JSON). */
   birthday_person_nickname?: string;
   vacation: DatedCost | null;
   car_inspection: DatedCost | null;
   sisters_wedding: DatedCost | null;
   custom_events?: CustomEvent[];
+  /** GC2 / DB canonical key for modular milestones commits */
+  customEvents?: CustomEvent[];
 }
 
 interface ProfileResponse {
@@ -40,6 +42,10 @@ interface SpecialDatesWidgetProps {
   className?: string;
   /** Callback to open the Financial Forecast tab (e.g. from dashboard). Used for shortfall "Review forecast" link. */
   onNavigateToForecast?: () => void;
+  /** Opens the Add important date modal (dashboard host). */
+  onRequestAddDate?: () => void;
+  /** Increment to refetch profile after a date was saved elsewhere. */
+  importantDatesRefreshKey?: number;
 }
 
 /** Shape from GET /api/cash-flow/backward-compatibility/{userEmail} forecast.daily_cashflow */
@@ -156,7 +162,7 @@ function normalizeEvents(data: ImportantDatesData | null): NormalizedEvent[] {
     });
   }
 
-  const custom = data.custom_events ?? [];
+  const custom = data.custom_events ?? data.customEvents ?? [];
   custom.forEach((ev) => {
     if (ev.date >= today) {
       out.push({
@@ -201,6 +207,8 @@ export default function SpecialDatesWidget({
   userEmail,
   className = '',
   onNavigateToForecast,
+  onRequestAddDate,
+  importantDatesRefreshKey = 0,
 }: SpecialDatesWidgetProps) {
   const [profile, setProfile] = useState<ProfileResponse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -234,8 +242,8 @@ export default function SpecialDatesWidget({
   }, [userId]);
 
   useEffect(() => {
-    fetchProfile();
-  }, [fetchProfile]);
+    void fetchProfile();
+  }, [fetchProfile, importantDatesRefreshKey]);
 
   useEffect(() => {
     if (!userEmail) {
@@ -289,7 +297,17 @@ export default function SpecialDatesWidget({
   const events = normalizeEvents(importantDates);
   const isEmpty = events.length === 0 && !loading && !error;
 
-  const profileLink = '/dashboard/profile#important-dates';
+  const openAdd = onRequestAddDate;
+
+  const addControl = openAdd ? (
+    <button
+      type="button"
+      onClick={openAdd}
+      className="inline-flex min-h-11 shrink-0 items-center justify-center rounded-lg border border-gray-900 bg-white px-4 text-sm font-semibold text-gray-900 transition-colors hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:ring-offset-2"
+    >
+      + Add date
+    </button>
+  ) : null;
 
   // Loading: skeleton
   if (loading) {
@@ -297,9 +315,9 @@ export default function SpecialDatesWidget({
       <div
         className={`rounded-xl bg-white p-6 shadow-sm ${className}`}
         role="status"
-        aria-label="Loading upcoming events"
+        aria-label="Loading important dates"
       >
-        <h2 className="mb-4 text-lg font-semibold text-gray-900">Upcoming events</h2>
+        <h2 className="mb-4 text-lg font-semibold text-gray-900">Important dates</h2>
         <div className="max-h-[320px] space-y-0 overflow-hidden">
           {[1, 2, 3].map((i) => (
             <div key={i} className="flex items-center gap-3 border-b border-gray-100 py-3 last:border-0">
@@ -334,27 +352,36 @@ export default function SpecialDatesWidget({
   if (isEmpty) {
     return (
       <div className={`rounded-xl bg-white p-6 shadow-sm ${className}`}>
-        <h2 className="mb-2 text-lg font-semibold text-gray-900">Upcoming events</h2>
-        <p className="mb-4 text-gray-600">Add your upcoming events to see how they affect your finances.</p>
-        <a
-          href={profileLink}
-          className="inline-block rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-gray-800"
-        >
-          Add Events
-        </a>
-        <p className="mt-4">
-          <a href={profileLink} className="text-sm text-gray-500 underline hover:text-gray-700">
-            Edit events in your profile →
-          </a>
+        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <h2 className="text-lg font-semibold text-gray-900">Important dates</h2>
+          {addControl}
+        </div>
+        <p className="mb-4 text-gray-600">
+          No important dates yet. Add birthdays, trips, or other dates — we&apos;ll show how they line up with
+          your cash forecast.
+        </p>
+        <p>
+          {openAdd ? (
+            <button
+              type="button"
+              onClick={openAdd}
+              className="inline-flex min-h-11 items-center text-sm font-semibold text-[#6D28D9] underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6D28D9] focus-visible:ring-offset-2"
+            >
+              Add your first date →
+            </button>
+          ) : null}
         </p>
       </div>
     );
   }
 
   return (
-    <div className={`rounded-xl bg-white p-6 shadow-sm ${className}`} role="region" aria-label="Upcoming events">
-      <h2 className="mb-4 text-lg font-semibold text-gray-900">Upcoming events</h2>
-      <ul className="max-h-[320px] list-none space-y-0 overflow-y-auto py-0" aria-label="Events list">
+    <div className={`rounded-xl bg-white p-6 shadow-sm ${className}`} role="region" aria-label="Important dates">
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <h2 className="text-lg font-semibold text-gray-900">Important dates</h2>
+        {addControl}
+      </div>
+      <ul className="max-h-[320px] list-none space-y-0 overflow-y-auto py-0" aria-label="Important dates list">
         {events.map((ev, index) => {
           const badge = getCountdownBadge(ev.date);
           const impact = ev.cost > 0 ? getForecastImpact(new Date(ev.date + 'T00:00:00'), ev.cost) : null;
@@ -455,11 +482,6 @@ export default function SpecialDatesWidget({
           );
         })}
       </ul>
-      <p className="mt-4 border-t border-gray-100 pt-4">
-        <a href={profileLink} className="text-sm text-gray-500 underline hover:text-gray-700">
-          Edit events in your profile →
-        </a>
-      </p>
     </div>
   );
 }

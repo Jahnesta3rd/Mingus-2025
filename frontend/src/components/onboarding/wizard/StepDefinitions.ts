@@ -33,5 +33,5 @@ export const STEP_ORDER: StepDefinition[] = [
   { id: 'recurring_expenses', label: 'Recurring Expenses', Component: RecurringExpensesStep, allowSkip: true, commitOnSubmit: true },
   { id: 'roster',             label: 'Roster',             Component: RosterStep,             allowSkip: true, commitOnSubmit: true },
   { id: 'career',             label: 'Career',             Component: CareerStep,             allowSkip: true, commitOnSubmit: true },
-  { id: 'milestones',         label: 'Milestones',         Component: MilestonesStep,         allowSkip: true, commitOnSubmit: true },
+  { id: 'milestones',         label: 'Important dates',  Component: MilestonesStep,         allowSkip: true, commitOnSubmit: true },
 ];

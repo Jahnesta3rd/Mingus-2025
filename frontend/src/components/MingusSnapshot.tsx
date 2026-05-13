@@ -19,6 +19,10 @@ const SWIPE_THRESHOLD_PX = 50;
 export interface MingusSnapshotProps {
   /** Called when user taps a CTA on the final action panel — receives the tab name to navigate to */
   onComplete: (topCta: string) => void;
+  /** When set, the snapshot milestones card opens this instead of navigating via onComplete('milestones'). */
+  onOpenAddImportantDate?: () => void;
+  /** Bumping this refetches snapshot cards (e.g. after adding an important date). */
+  snapshotReloadKey?: number;
 }
 
 function formatUsd(value: number): string {
@@ -528,12 +532,12 @@ function MilestonesCardContent({
   loading,
   milestones,
   onReviewForecast,
-  onAddMilestones,
+  onAddImportantDates,
 }: {
   loading: boolean;
   milestones: MilestonesData | null;
   onReviewForecast: () => void;
-  onAddMilestones: () => void;
+  onAddImportantDates: () => void;
 }) {
   if (loading) {
     return (
@@ -554,7 +558,7 @@ function MilestonesCardContent({
           📅
         </span>
         <p className="mt-5 text-base font-semibold" style={{ color: '#1E293B' }}>
-          No upcoming milestones found.
+          No upcoming important dates found.
         </p>
         <p className="mt-3 max-w-sm text-[15px] leading-relaxed text-slate-600">
           Add important dates and their costs to see if your forecast can cover them.
@@ -563,9 +567,9 @@ function MilestonesCardContent({
           type="button"
           className="mt-6 border-none bg-transparent p-0 text-base font-semibold"
           style={{ color: '#5B2D8E' }}
-          onClick={onAddMilestones}
+          onClick={onAddImportantDates}
         >
-          Add milestones →
+          Add important date →
         </button>
       </div>
     );
@@ -629,7 +633,7 @@ function MilestonesCardContent({
       })}
       {allCovered ? (
         <p className="mt-1 text-[13px]" style={{ color: '#059669' }}>
-          ✓ Your forecast covers all upcoming milestones.
+          ✓ Your forecast covers all upcoming important dates.
         </p>
       ) : null}
     </div>
@@ -1156,9 +1160,15 @@ function EndActionPanel({
   );
 }
 
-function MingusSnapshot({ onComplete }: MingusSnapshotProps) {
+function MingusSnapshot({
+  onComplete,
+  onOpenAddImportantDate,
+  snapshotReloadKey = 0,
+}: MingusSnapshotProps) {
   const navigate = useNavigate();
-  const { data, loadStates, saveFavorite } = useSnapshotData();
+  const { data, loadStates, saveFavorite } = useSnapshotData({
+    reloadKey: snapshotReloadKey,
+  });
   const [index, setIndex] = useState(0);
   const [endPanelVisible, setEndPanelVisible] = useState(false);
   const [savedAnim, setSavedAnim] = useState(false);
@@ -1317,12 +1327,15 @@ function MingusSnapshot({ onComplete }: MingusSnapshotProps) {
             <RosterCardContent loading={rosterLoading} roster={data.roster} />
           </CardFrame>
 
-          <CardFrame index={6} tag="MILESTONES COMING UP" title="Milestones coming up" showSwipeHint>
+          <CardFrame index={6} tag="IMPORTANT DATES" title="Important dates coming up" showSwipeHint>
             <MilestonesCardContent
               loading={milestonesLoading}
               milestones={data.milestones}
               onReviewForecast={() => onComplete('financial-forecast')}
-              onAddMilestones={() => onComplete('overview')}
+              onAddImportantDates={() => {
+                if (onOpenAddImportantDate) onOpenAddImportantDate();
+                else onComplete('milestones');
+              }}
             />
           </CardFrame>
 

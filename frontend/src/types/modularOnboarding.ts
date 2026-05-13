@@ -148,6 +148,7 @@ export interface MilestoneEvent {
   date?: string; // YYYY-MM-DD
   cost?: number;
   recurring?: boolean;
+  type?: string;
 }
 
 export interface MilestonesData {

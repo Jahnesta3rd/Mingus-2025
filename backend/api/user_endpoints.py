@@ -5,6 +5,7 @@ User API Endpoints for Mingus Application
 Provides endpoints for user profile and setup status.
 """
 
+import json
 import logging
 
 from flask import Blueprint, jsonify, request, g
@@ -29,13 +30,14 @@ def get_user_profile():
 
         current_balance = None
         balance_last_updated = None
+        important_dates = None
         if user_email:
             try:
                 conn = get_db_connection()
                 cursor = conn.cursor()
                 cursor.execute(
                     '''
-                    SELECT current_balance, balance_last_updated
+                    SELECT current_balance, balance_last_updated, important_dates
                     FROM user_profiles WHERE email = %s
                     ''',
                     (user_email,),
@@ -48,22 +50,36 @@ def get_user_profile():
                     ts = row.get('balance_last_updated')
                     if ts is not None:
                         balance_last_updated = ts.isoformat()
+                    raw_imp = row.get('important_dates')
+                    if raw_imp is not None and raw_imp != '':
+                        if isinstance(raw_imp, dict):
+                            important_dates = raw_imp
+                        elif isinstance(raw_imp, str):
+                            try:
+                                parsed = json.loads(raw_imp)
+                                important_dates = parsed if isinstance(parsed, dict) else None
+                            except json.JSONDecodeError:
+                                important_dates = None
             except Exception as e:
-                logger.debug(f"Profile balance fields not loaded: {e}")
+                logger.debug(f"Profile fields not loaded: {e}")
+
+        profile_out = {
+            'id': user_id or '',
+            'email': user_email,
+            'name': '',
+            'tier': 'budget',
+            'current_address': None,
+            'vehicle_info': None,
+            'preferences': None,
+            'current_balance': current_balance,
+            'balance_last_updated': balance_last_updated,
+        }
+        if important_dates is not None:
+            profile_out['important_dates'] = important_dates
 
         return jsonify({
             'success': True,
-            'profile': {
-                'id': user_id or '',
-                'email': user_email,
-                'name': '',
-                'tier': 'budget',
-                'current_address': None,
-                'vehicle_info': None,
-                'preferences': None,
-                'current_balance': current_balance,
-                'balance_last_updated': balance_last_updated,
-            }
+            'profile': profile_out,
         }), 200
     except Exception as e:
         return jsonify({'success': True, 'profile': {}}), 200

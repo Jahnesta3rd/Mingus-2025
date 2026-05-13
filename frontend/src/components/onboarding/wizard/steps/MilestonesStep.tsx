@@ -3,7 +3,14 @@ import { Trash2 } from 'lucide-react';
 import { useAuth } from '../../../../hooks/useAuth';
 import type { StepProps } from '../StepDefinitions';
 
-type EventType = 'graduation' | 'wedding' | 'birth' | 'retirement' | 'home_purchase' | 'other';
+type EventType =
+  | 'graduation'
+  | 'wedding'
+  | 'birth'
+  | 'retirement'
+  | 'home_purchase'
+  | 'greek_event'
+  | 'other';
 type RowField = 'name' | 'event_date' | 'event_type' | 'estimated_cost';
 type Row = {
   id: string;
@@ -128,6 +135,7 @@ export default function MilestonesStep({ initialData, onSubmit, onSkip }: StepPr
         date: row.event_date,
         cost: row.estimated_cost.trim() ? Number.parseFloat(row.estimated_cost) : 0,
         recurring: false,
+        type: row.event_type,
       }));
       await onSubmit({ events });
     } catch (err) {
@@ -140,7 +148,7 @@ export default function MilestonesStep({ initialData, onSubmit, onSkip }: StepPr
   return (
     <form onSubmit={handleSave} className="space-y-6">
       <div className="rounded-xl border border-[#E2E8F0] bg-white p-6 shadow-sm">
-        <h1 className="font-serif text-2xl font-semibold text-[#1E293B] sm:text-3xl">Upcoming Life Events</h1>
+        <h1 className="font-serif text-2xl font-semibold text-[#1E293B] sm:text-3xl">Important dates</h1>
         <p className="mt-2 text-sm text-[#64748B]">
           Tell us about big life events coming up. We&apos;ll factor them into your cash forecast and warn you if your savings won&apos;t cover them.
         </p>
@@ -205,9 +213,10 @@ export default function MilestonesStep({ initialData, onSubmit, onSkip }: StepPr
                     <select id={`${row.id}-event_type`} className={inputClass} value={row.event_type} onChange={(e) => updateRow(row.id, { event_type: e.target.value as EventType })}>
                       <option value="graduation">Graduation</option>
                       <option value="wedding">Wedding</option>
-                      <option value="birth">Birth</option>
+                      <option value="birth">Birthday</option>
                       <option value="retirement">Retirement</option>
                       <option value="home_purchase">Home Purchase</option>
+                      <option value="greek_event">Fraternity/Sorority event</option>
                       <option value="other">Other</option>
                     </select>
                   </div>

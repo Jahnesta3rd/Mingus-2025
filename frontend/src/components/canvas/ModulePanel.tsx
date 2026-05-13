@@ -583,7 +583,7 @@ export function ModulePanel({
               onClick={() => void doCommit('events[new].name', '')}
               className="w-full rounded-xl border border-dashed border-slate-300 bg-slate-50 px-3 py-3 text-sm font-medium text-slate-600 transition-colors hover:border-[#5B2D8E] hover:text-[#5B2D8E]"
             >
-              + Add milestone
+              + Add important date
             </button>
           </div>
         )}

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useOptionalImportantDateModal } from '../../context/ImportantDateModalContext';
 
 interface PersonEventRow {
   name: string;
@@ -44,6 +44,7 @@ function countdownLabel(days: number): string {
 }
 
 export default function EventRail({ personId, nickname: _nickname }: EventRailProps) {
+  const dateModal = useOptionalImportantDateModal();
   const [data, setData] = useState<PersonEventsApiResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [failed, setFailed] = useState(false);
@@ -140,14 +141,17 @@ export default function EventRail({ personId, nickname: _nickname }: EventRailPr
         </ul>
       )}
 
-      <p className="mt-3">
-        <Link
-          to="/dashboard/profile#important-dates"
-          className="inline-flex min-h-11 items-center rounded-lg text-sm font-medium text-[#A78BFA] underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A78BFA] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0d0a08]"
-        >
-          Link an event →
-        </Link>
-      </p>
+      {dateModal ? (
+        <p className="mt-3">
+          <button
+            type="button"
+            onClick={dateModal.openAddImportantDate}
+            className="inline-flex min-h-11 items-center rounded-lg border-none bg-transparent p-0 text-sm font-medium text-[#A78BFA] underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A78BFA] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0d0a08]"
+          >
+            Link an event →
+          </button>
+        </p>
+      ) : null}
     </div>
   );
 }

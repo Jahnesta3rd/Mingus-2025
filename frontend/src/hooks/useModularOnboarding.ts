@@ -18,7 +18,7 @@ const MODULE_DISPLAY_NAMES: Record<ModuleId, string> = {
   recurring_expenses: 'Recurring Expenses',
   roster: 'Vibe Check',
   career: 'Career',
-  milestones: 'Milestones',
+  milestones: 'Important dates',
 };
 
 const NEW_ROW_PATH_RE = /^(vehicles|people|events)\[new\]\.([a-z_]+)$/;
