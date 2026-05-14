@@ -539,7 +539,7 @@ const AssessmentResults: React.FC<AssessmentResultsProps> = ({
             </div>
 
             <p className="text-gray-500 text-xs text-center mt-4">
-              Free 14-day trial • No credit card required
+              Paid plans from $15/mo · Cancel anytime
             </p>
           </div>
         </div>

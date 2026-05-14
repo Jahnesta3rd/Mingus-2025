@@ -165,6 +165,8 @@ describe('FinancialForecastTab', () => {
       );
 
       expect(screen.getByText(/Upgrade to Mid-tier to see your 90-day forecast chart/)).toBeInTheDocument();
+      const upgradeOptions = screen.getByRole('link', { name: /View upgrade options/i });
+      expect(upgradeOptions).toHaveAttribute('href', '/#pricing');
       const planLinks = screen.getAllByRole('link', { name: /View Plans/i });
       expect(planLinks.length).toBeGreaterThanOrEqual(1);
       planLinks.forEach((link) => expect(link).toHaveAttribute('href', '/#pricing'));

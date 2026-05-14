@@ -44,7 +44,7 @@ export function TierGateOverlay({
         Upgrade to {tierLabel} to unlock {feature}
       </p>
       <Link
-        to="/settings/upgrade"
+        to="/#pricing"
         className="inline-flex items-center justify-center rounded-lg bg-[#C4A064] px-5 py-2.5 text-sm font-semibold text-[#0f172a] shadow-sm transition-colors hover:bg-[#b08d52]"
       >
         Upgrade Now

@@ -207,6 +207,7 @@ function getDirectionArrow(direction: MCIDirection): string {
 function formatCardTypeLabel(cardType: string): string {
   const t = (cardType || '').trim().toLowerCase();
   if (t === 'kids') return 'Kids';
+  if (t === 'family') return 'Family';
   if (t === 'person') return 'Person';
   if (!t) return 'Person';
   return t.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
@@ -687,7 +688,7 @@ export default function FinancialForecastTab({
             Professional.
           </p>
           <Link
-            to="/settings/upgrade"
+            to="/#pricing"
             className="mt-4 inline-flex min-h-11 items-center justify-center rounded-lg bg-[#5B2D8E] px-4 text-sm font-semibold text-white hover:opacity-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5B2D8E] focus-visible:ring-offset-2"
           >
             View upgrade options

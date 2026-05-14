@@ -63,14 +63,23 @@ class TestLifeReadyScoreService:
                     db.session.commit()
 
         assert isinstance(out, dict)
-        assert "life_ready_score" in out
-        assert isinstance(out["life_ready_score"], int)
-        assert 0 <= out["life_ready_score"] <= 100
-        assert out.get("trend") in ("improving", "declining", "stable")
-        assert "headline" in out and isinstance(out["headline"], str)
+        assert out.get("has_sufficient_data") is False
+        assert out.get("life_ready_score") is None
+        assert out.get("pillars_complete") == 0
+        assert out.get("pillars_total") == 4
+        assert out.get("trend") is None
+        assert out.get("headline") is None
         comps = out.get("components")
         assert isinstance(comps, dict)
         for key in ("vibe", "body", "wellness", "financial", "stability"):
             assert key in comps
             assert "score" in comps[key]
             assert "weight" in comps[key]
+
+    def test_compute_life_ready_score_unknown_user_insufficient(self, life_ready_app):
+        missing = str(uuid.uuid4())
+        with life_ready_app.app_context():
+            out = compute_life_ready_score(missing)
+        assert out["has_sufficient_data"] is False
+        assert out["life_ready_score"] is None
+        assert out["pillars_complete"] == 0

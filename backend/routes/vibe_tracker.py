@@ -478,8 +478,8 @@ def create_person():
     if not isinstance(card_type_raw, str):
         return jsonify({"error": "card_type must be a string"}), 400
     card_type = card_type_raw.strip().lower()
-    if card_type not in ("person", "kids", "social"):
-        return jsonify({"error": "card_type must be person, kids, or social"}), 400
+    if card_type not in ("person", "kids", "social", "family"):
+        return jsonify({"error": "card_type must be person, kids, social, or family"}), 400
 
     prior_ct = _latest_archived_connection_trend_for_nickname(user.id, nickname)
 

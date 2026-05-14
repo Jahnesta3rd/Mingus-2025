@@ -27,6 +27,8 @@ _W_STAB = 0.10
 
 _NEUTRAL = 50
 _TREND_EPS = 3
+_MIN_PILLARS_FOR_SCORE = 3
+_PILLARS_TOTAL = 4
 
 
 def _clamp_0_100(x: float) -> int:
@@ -129,7 +131,7 @@ def _financial_health_from_profile(user_id: str) -> float | None:
     return max(0.0, min(100.0, savings_rate * 100.0))
 
 
-def _stability_score(user_id: int) -> float:
+def _stability_has_income_and_expense(user_id: int) -> bool:
     has_income = (
         IncomeStream.query.filter_by(user_id=user_id, is_active=True).first() is not None
     )
@@ -142,7 +144,118 @@ def _stability_score(user_id: int) -> float:
         is not None
     )
     has_expense = has_recurring_expense or has_scheduled_expense
-    return 100.0 if (has_income and has_expense) else 10.0
+    return bool(has_income and has_expense)
+
+
+def _stability_score(user_id: int) -> float:
+    return 100.0 if _stability_has_income_and_expense(user_id) else 10.0
+
+
+def _assessment_results_meaningful(raw: Any) -> bool:
+    """True when user_profiles.assessment_results has usable content (not NULL / empty)."""
+    if raw is None:
+        return False
+    if isinstance(raw, str):
+        s = raw.strip()
+        if not s or s == "{}":
+            return False
+        try:
+            parsed: Any = json.loads(s)
+        except (TypeError, ValueError):
+            return False
+    elif isinstance(raw, (dict, list)):
+        parsed = raw
+    else:
+        return False
+    if isinstance(parsed, dict):
+        return len(parsed) > 0
+    if isinstance(parsed, list):
+        return len(parsed) > 0
+    return False
+
+
+def _user_profile_assessment_raw(email: str) -> Any | None:
+    if not email:
+        return None
+    try:
+        row = db.session.execute(
+            text(
+                "SELECT assessment_results FROM user_profiles WHERE email = :email"
+            ),
+            {"email": email},
+        ).fetchone()
+    except Exception as e:
+        logger.warning("life_ready assessment_results load failed email=%s: %s", email, e)
+        return None
+    return row[0] if row else None
+
+
+def _vibe_body_pillar_meaningful(
+    profile: LifeLedgerProfile | None, assessment_raw: Any
+) -> bool:
+    """Pillar 1: ledger vibe/body scores or synced assessment_results."""
+    if _assessment_results_meaningful(assessment_raw):
+        return True
+    if profile is None:
+        return False
+    return profile.vibe_score is not None or profile.body_score is not None
+
+
+def _wellness_pillar_meaningful(user_id: int) -> bool:
+    """Pillar 2: any check-in or stored wellness score row."""
+    return (
+        WeeklyCheckin.query.filter_by(user_id=user_id).first() is not None
+        or WellnessScore.query.filter_by(user_id=user_id).first() is not None
+    )
+
+
+def _stability_pillar_meaningful(user_id: int) -> bool:
+    """Pillar 4: only when both active income and expense mapping exist (not the 10 fallback)."""
+    return _stability_has_income_and_expense(user_id)
+
+
+def _components_payload(
+    vibe: float, body: float, wellness: float, financial: float, stability: float
+) -> dict[str, Any]:
+    return {
+        "vibe": {"score": int(round(vibe)), "weight": _W_VIBE},
+        "body": {"score": int(round(body)), "weight": _W_BODY},
+        "wellness": {"score": int(round(wellness)), "weight": _W_WELLNESS},
+        "financial": {"score": int(round(financial)), "weight": _W_FIN},
+        "stability": {"score": int(round(stability)), "weight": _W_STAB},
+    }
+
+
+def _insufficient_score_payload(
+    components: dict[str, Any], pillars_complete: int
+) -> dict[str, Any]:
+    return {
+        "life_ready_score": None,
+        "has_sufficient_data": False,
+        "pillars_complete": pillars_complete,
+        "pillars_total": _PILLARS_TOTAL,
+        "components": components,
+        "trend": None,
+        "headline": None,
+    }
+
+
+def _sufficient_score_payload(
+    life_ready_score: int,
+    components: dict[str, Any],
+    trend: str,
+    headline: str,
+    pillars_complete: int,
+) -> dict[str, Any]:
+    return {
+        "life_ready_score": life_ready_score,
+        "has_sufficient_data": True,
+        "pillars_complete": pillars_complete,
+        "pillars_total": _PILLARS_TOTAL,
+        "components": components,
+        "trend": trend,
+        "headline": headline,
+    }
 
 
 def _component_or_neutral(x: float | None) -> float:
@@ -233,40 +346,39 @@ def _headline(
     return "You're balanced across all areas. Keep the momentum."
 
 
-def _neutral_full_response() -> dict[str, Any]:
-    """Same shape as compute_life_ready_score when the user row cannot be resolved."""
-    n = float(_NEUTRAL)
-    life_ready_score = _weighted_total(n, n, n, n, n)
-    return {
-        "life_ready_score": life_ready_score,
-        "components": {
-            "vibe": {"score": int(round(n)), "weight": _W_VIBE},
-            "body": {"score": int(round(n)), "weight": _W_BODY},
-            "wellness": {"score": int(round(n)), "weight": _W_WELLNESS},
-            "financial": {"score": int(round(n)), "weight": _W_FIN},
-            "stability": {"score": int(round(n)), "weight": _W_STAB},
-        },
-        "trend": "stable",
-        "headline": _headline(n, n, n, n, n),
-    }
-
-
 def compute_life_ready_score(user_id: str) -> dict[str, Any]:
     """
     Composite 0–100 score with breakdown, trend vs latest LifeScoreSnapshot, and headline.
     Missing inputs use neutral 50.
+
+    When fewer than ``_MIN_PILLARS_FOR_SCORE`` of four pillars (vibe/body+assessments,
+    wellness, financial, stability) have real data, returns ``life_ready_score`` null and
+    ``has_sufficient_data`` false instead of a neutral-blended number.
 
     Args:
         user_id: External user identifier (``User.user_id``, UUID string from JWT).
     """
     user = db.session.query(User).filter_by(user_id=user_id).first()
     if user is None:
-        return _neutral_full_response()
+        n = float(_NEUTRAL)
+        return _insufficient_score_payload(_components_payload(n, n, n, n, n), 0)
 
     uid = user.id
     ext_user_id = user.user_id
+    email = (user.email or "").strip().lower()
 
     profile = LifeLedgerProfile.query.filter_by(user_id=uid).first()
+    assessment_raw = _user_profile_assessment_raw(email)
+
+    ledger_pillar = _vibe_body_pillar_meaningful(profile, assessment_raw)
+    wellness_pillar = _wellness_pillar_meaningful(uid)
+    financial_pillar = _financial_health_from_profile(ext_user_id) is not None
+    stability_pillar = _stability_pillar_meaningful(uid)
+
+    pillars_complete = sum(
+        (ledger_pillar, wellness_pillar, financial_pillar, stability_pillar)
+    )
+
     vibe_raw = _coerce_float(profile.vibe_score) if profile else None
     body_raw = _coerce_float(profile.body_score) if profile else None
 
@@ -276,19 +388,15 @@ def compute_life_ready_score(user_id: str) -> dict[str, Any]:
     financial = _component_or_neutral(_financial_health_from_profile(ext_user_id))
     stability = _stability_score(uid)
 
+    components = _components_payload(vibe, body, wellness, financial, stability)
+
+    if pillars_complete < _MIN_PILLARS_FOR_SCORE:
+        return _insufficient_score_payload(components, pillars_complete)
+
     life_ready_score = _weighted_total(vibe, body, wellness, financial, stability)
     trend = _trend_vs_snapshot(uid, life_ready_score)
     headline = _headline(vibe, body, wellness, financial, stability)
 
-    return {
-        "life_ready_score": life_ready_score,
-        "components": {
-            "vibe": {"score": int(round(vibe)), "weight": _W_VIBE},
-            "body": {"score": int(round(body)), "weight": _W_BODY},
-            "wellness": {"score": int(round(wellness)), "weight": _W_WELLNESS},
-            "financial": {"score": int(round(financial)), "weight": _W_FIN},
-            "stability": {"score": int(round(stability)), "weight": _W_STAB},
-        },
-        "trend": trend,
-        "headline": headline,
-    }
+    return _sufficient_score_payload(
+        life_ready_score, components, trend, headline, pillars_complete
+    )

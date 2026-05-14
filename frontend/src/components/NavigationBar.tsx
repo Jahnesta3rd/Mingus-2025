@@ -15,8 +15,9 @@ const NavigationBar: React.FC<NavigationBarProps> = ({ className = '' }) => {
   // const menuRef = useRef<HTMLDivElement>(null);
   const menuItemsRef = useRef<(HTMLButtonElement | HTMLAnchorElement | null)[]>([]);
   const userMenuRef = useRef<HTMLDivElement>(null);
-  const { user, isAuthenticated, logout } = useAuth();
+  const { user, isAuthenticated, logout, userTier } = useAuth();
   const navigate = useNavigate();
+  const showUpgradeInNav = isAuthenticated && userTier !== 'professional';
 
   // Handle scroll effect for navbar background
   useEffect(() => {
@@ -182,30 +183,46 @@ const NavigationBar: React.FC<NavigationBarProps> = ({ className = '' }) => {
           {/* Desktop Menu */}
           <div className="hidden md:block">
             <div className="ml-10 flex items-baseline space-x-8">
-              <button
-                onClick={() => scrollToSection('features')}
-                onKeyDown={(e) => handleSectionKeyDown(e, 'features')}
-                className="text-gray-300 hover:text-violet-400 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-900"
-                aria-label="Navigate to Features section"
-              >
-                Features
-              </button>
-              <button
-                onClick={() => scrollToSection('pricing')}
-                onKeyDown={(e) => handleSectionKeyDown(e, 'pricing')}
-                className="text-gray-300 hover:text-violet-400 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-900"
-                aria-label="Navigate to Pricing section"
-              >
-                Pricing
-              </button>
-              <button
-                onClick={() => scrollToSection('faq')}
-                onKeyDown={(e) => handleSectionKeyDown(e, 'faq')}
-                className="text-gray-300 hover:text-violet-400 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-900"
-                aria-label="Navigate to FAQ section"
-              >
-                FAQ
-              </button>
+              {!isAuthenticated && (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => scrollToSection('features')}
+                    onKeyDown={(e) => handleSectionKeyDown(e, 'features')}
+                    className="text-gray-300 hover:text-violet-400 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-900"
+                    aria-label="Navigate to Features section"
+                  >
+                    Features
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => scrollToSection('pricing')}
+                    onKeyDown={(e) => handleSectionKeyDown(e, 'pricing')}
+                    className="text-gray-300 hover:text-violet-400 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-900"
+                    aria-label="Navigate to Pricing section"
+                  >
+                    Pricing
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => scrollToSection('faq')}
+                    onKeyDown={(e) => handleSectionKeyDown(e, 'faq')}
+                    className="text-gray-300 hover:text-violet-400 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-900"
+                    aria-label="Navigate to FAQ section"
+                  >
+                    FAQ
+                  </button>
+                </>
+              )}
+              {showUpgradeInNav && (
+                <Link
+                  to="/#pricing"
+                  className="text-gray-300 hover:text-violet-400 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-900"
+                  aria-label="View upgrade plans"
+                >
+                  Upgrade
+                </Link>
+              )}
             </div>
           </div>
 
@@ -304,42 +321,72 @@ const NavigationBar: React.FC<NavigationBarProps> = ({ className = '' }) => {
           aria-label="Mobile navigation menu"
         >
           <div className="px-2 pt-2 pb-3 space-y-1 bg-slate-800/50 backdrop-blur-md rounded-lg mt-2 border border-slate-700/50">
-            <button
-              ref={el => menuItemsRef.current[0] = el}
-              onClick={() => scrollToSection('features')}
-              onKeyDown={(e) => handleSectionKeyDown(e, 'features')}
-              className="block w-full text-left text-gray-300 hover:text-violet-400 hover:bg-slate-700/50 px-3 py-2 rounded-md text-base font-medium transition-colors duration-200 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-800"
-              role="menuitem"
-              aria-label="Navigate to Features section"
-            >
-              Features
-            </button>
-            <button
-              ref={el => menuItemsRef.current[1] = el}
-              onClick={() => scrollToSection('pricing')}
-              onKeyDown={(e) => handleSectionKeyDown(e, 'pricing')}
-              className="block w-full text-left text-gray-300 hover:text-violet-400 hover:bg-slate-700/50 px-3 py-2 rounded-md text-base font-medium transition-colors duration-200 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-800"
-              role="menuitem"
-              aria-label="Navigate to Pricing section"
-            >
-              Pricing
-            </button>
-            <button
-              ref={el => menuItemsRef.current[2] = el}
-              onClick={() => scrollToSection('faq')}
-              onKeyDown={(e) => handleSectionKeyDown(e, 'faq')}
-              className="block w-full text-left text-gray-300 hover:text-violet-400 hover:bg-slate-700/50 px-3 py-2 rounded-md text-base font-medium transition-colors duration-200 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-800"
-              role="menuitem"
-              aria-label="Navigate to FAQ section"
-            >
-              FAQ
-            </button>
+            {!isAuthenticated && (
+              <>
+                <button
+                  type="button"
+                  ref={el => {
+                    menuItemsRef.current[0] = el;
+                  }}
+                  onClick={() => scrollToSection('features')}
+                  onKeyDown={(e) => handleSectionKeyDown(e, 'features')}
+                  className="block w-full min-h-[44px] text-left text-gray-300 hover:text-violet-400 hover:bg-slate-700/50 px-3 py-2 rounded-md text-base font-medium transition-colors duration-200 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-800"
+                  role="menuitem"
+                  aria-label="Navigate to Features section"
+                >
+                  Features
+                </button>
+                <button
+                  type="button"
+                  ref={el => {
+                    menuItemsRef.current[1] = el;
+                  }}
+                  onClick={() => scrollToSection('pricing')}
+                  onKeyDown={(e) => handleSectionKeyDown(e, 'pricing')}
+                  className="block w-full min-h-[44px] text-left text-gray-300 hover:text-violet-400 hover:bg-slate-700/50 px-3 py-2 rounded-md text-base font-medium transition-colors duration-200 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-800"
+                  role="menuitem"
+                  aria-label="Navigate to Pricing section"
+                >
+                  Pricing
+                </button>
+                <button
+                  type="button"
+                  ref={el => {
+                    menuItemsRef.current[2] = el;
+                  }}
+                  onClick={() => scrollToSection('faq')}
+                  onKeyDown={(e) => handleSectionKeyDown(e, 'faq')}
+                  className="block w-full min-h-[44px] text-left text-gray-300 hover:text-violet-400 hover:bg-slate-700/50 px-3 py-2 rounded-md text-base font-medium transition-colors duration-200 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-800"
+                  role="menuitem"
+                  aria-label="Navigate to FAQ section"
+                >
+                  FAQ
+                </button>
+              </>
+            )}
+            {showUpgradeInNav && (
+              <Link
+                ref={el => {
+                  menuItemsRef.current[0] = el;
+                }}
+                to="/#pricing"
+                onClick={() => {
+                  setIsMenuOpen(false);
+                  setFocusedIndex(-1);
+                }}
+                className="flex w-full min-h-[44px] items-center text-gray-300 hover:text-violet-400 hover:bg-slate-700/50 px-3 py-2 rounded-md text-base font-medium transition-colors duration-200 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-800"
+                role="menuitem"
+                aria-label="View upgrade plans"
+              >
+                Upgrade
+              </Link>
+            )}
             <div className="pt-2 border-t border-slate-700/50">
               {isAuthenticated ? (
                 <>
                   <Link
                     ref={el => {
-                      menuItemsRef.current[3] = el;
+                      menuItemsRef.current[showUpgradeInNav ? 1 : 0] = el;
                     }}
                     to="/dashboard/profile"
                     onClick={() => {
@@ -353,8 +400,11 @@ const NavigationBar: React.FC<NavigationBarProps> = ({ className = '' }) => {
                     <User className="h-4 w-4" />
                     Profile
                   </Link>
-                  <button 
-                    ref={el => menuItemsRef.current[4] = el}
+                  <button
+                    type="button"
+                    ref={el => {
+                      menuItemsRef.current[showUpgradeInNav ? 2 : 1] = el;
+                    }}
                     onClick={handleNavigateToDashboard}
                     className="w-full flex min-h-[44px] items-center justify-center gap-2 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 transform hover:scale-105 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-800 mt-2"
                     role="menuitem"
@@ -363,8 +413,11 @@ const NavigationBar: React.FC<NavigationBarProps> = ({ className = '' }) => {
                     <Shield className="h-4 w-4" />
                     Main Dashboard
                   </button>
-                  <button 
-                    ref={el => menuItemsRef.current[5] = el}
+                  <button
+                    type="button"
+                    ref={el => {
+                      menuItemsRef.current[showUpgradeInNav ? 3 : 2] = el;
+                    }}
                     onClick={() => {
                       setIsMenuOpen(false);
                       setFocusedIndex(-1);
@@ -377,8 +430,11 @@ const NavigationBar: React.FC<NavigationBarProps> = ({ className = '' }) => {
                     <Home className="h-4 w-4" />
                     Housing Location
                   </button>
-                  <button 
-                    ref={el => menuItemsRef.current[6] = el}
+                  <button
+                    type="button"
+                    ref={el => {
+                      menuItemsRef.current[showUpgradeInNav ? 4 : 3] = el;
+                    }}
                     onClick={handleLogout}
                     className="w-full flex min-h-[44px] items-center justify-center gap-2 bg-slate-700 hover:bg-slate-600 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-800 mt-2"
                     role="menuitem"
@@ -391,19 +447,24 @@ const NavigationBar: React.FC<NavigationBarProps> = ({ className = '' }) => {
               ) : (
                 <div className="space-y-2">
                   <Link
-                    ref={el => { menuItemsRef.current[3] = el; }}
+                    ref={el => {
+                      menuItemsRef.current[3] = el;
+                    }}
                     to="/login"
-                    className="block w-full text-center bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 transform hover:scale-105 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-800"
+                    className="flex min-h-[44px] w-full items-center justify-center text-center bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 transform hover:scale-105 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-800"
                     role="menuitem"
                     aria-label="Log in to Mingus"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     Log In
                   </Link>
-                  <button 
-                    ref={el => menuItemsRef.current[4] = el}
+                  <button
+                    type="button"
+                    ref={el => {
+                      menuItemsRef.current[4] = el;
+                    }}
                     onClick={() => navigate('/signup?source=cta')}
-                    className="w-full bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 transform hover:scale-105 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-800"
+                    className="flex min-h-[44px] w-full items-center justify-center bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 transform hover:scale-105 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-800"
                     role="menuitem"
                     aria-label="Get started with Mingus"
                   >

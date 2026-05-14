@@ -25,22 +25,23 @@ def _normalize_tier(tier: str | None) -> str:
 
 def check_person_limit(user_id: int, tier: str | None) -> bool:
     """
-    Budget: no tracking (False).
-    Mid-tier: True if fewer than 3 active (non-archived) people.
+    Budget: True if fewer than 2 active (non-archived) people.
+    Mid-tier: True if fewer than 6 active (non-archived) people.
     Professional: always True.
     """
     t = _normalize_tier(tier)
-    if t == "budget":
-        return False
     if t == "professional":
         return True
-    if t == "mid_tier":
-        n = (
-            VibeTrackedPerson.query.filter_by(user_id=user_id, is_archived=False)
-            .with_entities(func.count())
-            .scalar()
-        )
-        return (n or 0) < 3
+    n = (
+        VibeTrackedPerson.query.filter_by(user_id=user_id, is_archived=False)
+        .with_entities(func.count())
+        .scalar()
+    )
+    count = n or 0
+    if t == "budget":
+        return count < 2
+    if t in ("mid_tier", "mid"):
+        return count < 6
     return False
 
 

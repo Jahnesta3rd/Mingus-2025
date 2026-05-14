@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
+import { Link } from 'react-router-dom';
 
 interface LifeReadyScoreComponent {
   score: number;
@@ -6,7 +7,11 @@ interface LifeReadyScoreComponent {
 }
 
 export interface LifeReadyScoreApiResponse {
-  life_ready_score: number;
+  life_ready_score: number | null;
+  /** When omitted (legacy), treat as sufficient if ``life_ready_score`` is a number. */
+  has_sufficient_data?: boolean;
+  pillars_complete?: number;
+  pillars_total?: number;
   components: {
     vibe: LifeReadyScoreComponent;
     body: LifeReadyScoreComponent;
@@ -14,8 +19,8 @@ export interface LifeReadyScoreApiResponse {
     financial: LifeReadyScoreComponent;
     stability: LifeReadyScoreComponent;
   };
-  trend: 'improving' | 'declining' | 'stable';
-  headline: string;
+  trend: 'improving' | 'declining' | 'stable' | null;
+  headline: string | null;
 }
 
 function authHeadersGet(): HeadersInit {
@@ -58,8 +63,8 @@ function ScoreRing({ score }: { score: number }) {
   const clamped = Math.max(0, Math.min(100, score));
   const offset = c * (1 - clamped / 100);
   return (
-    <div className="relative mx-auto flex h-44 w-44 items-center justify-center">
-      <svg className="h-44 w-44 -rotate-90" viewBox="0 0 144 144" aria-hidden>
+    <div className="relative mx-auto flex h-44 w-44 max-w-full items-center justify-center">
+      <svg className="h-44 w-44 max-w-full shrink-0 -rotate-90" viewBox="0 0 144 144" aria-hidden>
         <circle
           cx="72"
           cy="72"
@@ -90,7 +95,7 @@ function ScoreRing({ score }: { score: number }) {
   );
 }
 
-function TrendIndicator({ trend }: { trend: LifeReadyScoreApiResponse['trend'] }) {
+function TrendIndicator({ trend }: { trend: NonNullable<LifeReadyScoreApiResponse['trend']> }) {
   if (trend === 'improving') {
     return <span className="text-xl font-semibold text-[#059669]" aria-label="Trending up">↑</span>;
   }
@@ -98,6 +103,33 @@ function TrendIndicator({ trend }: { trend: LifeReadyScoreApiResponse['trend'] }
     return <span className="text-xl font-semibold text-[#DC2626]" aria-label="Trending down">↓</span>;
   }
   return <span className="text-xl font-semibold text-[#64748B]" aria-label="Stable">—</span>;
+}
+
+function LifeReadyScorePlaceholder({ pillarsComplete, pillarsTotal }: { pillarsComplete: number; pillarsTotal: number }) {
+  return (
+    <div className="flex w-full max-w-full flex-col items-center gap-4 px-1 text-center sm:px-0">
+      <div
+        className="flex h-44 w-44 max-w-full shrink-0 items-center justify-center rounded-full border-[10px] border-dashed border-[#E2E8F0] bg-[#F8FAFC]"
+        aria-hidden
+      >
+        <span className="text-5xl font-light tabular-nums text-[#94A3B8] sm:text-6xl">—</span>
+      </div>
+      <h2 className="text-center text-lg font-semibold leading-snug text-[#1E293B]">Life Ready Score</h2>
+      <p className="max-w-[20rem] text-sm leading-relaxed text-[#64748B]">Complete assessments to see your score</p>
+      <span
+        className="inline-flex max-w-full items-center justify-center rounded-full border border-[#E2E8F0] bg-[#F8FAFC] px-3 py-1.5 text-xs font-medium tabular-nums text-[#475569] sm:text-sm"
+        aria-live="polite"
+      >
+        {pillarsComplete} of {pillarsTotal} pillars complete
+      </span>
+      <Link
+        to="/dashboard/vibe-checkups"
+        className="inline-flex min-h-11 w-full max-w-xs items-center justify-center rounded-xl bg-[#5B2D8E] px-4 py-3 text-sm font-medium text-white hover:opacity-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5B2D8E] focus-visible:ring-offset-2"
+      >
+        Take an assessment →
+      </Link>
+    </div>
+  );
 }
 
 export default function LifeReadyScoreCard() {
@@ -130,8 +162,16 @@ export default function LifeReadyScoreCard() {
     void load();
   }, [load]);
 
+  const showScoreRing =
+    data != null &&
+    typeof data.life_ready_score === 'number' &&
+    data.has_sufficient_data !== false;
+
+  const pillarsComplete = data?.pillars_complete ?? 0;
+  const pillarsTotal = data?.pillars_total ?? 4;
+
   return (
-    <section className="rounded-2xl bg-white p-6 shadow-md">
+    <section className="rounded-2xl bg-white p-4 shadow-md sm:p-6">
       {loading ? (
         <div className="flex flex-col items-center">
           <ScoreRingSkeleton />
@@ -154,37 +194,43 @@ export default function LifeReadyScoreCard() {
           </button>
         </div>
       ) : data ? (
-        <div className="flex flex-col items-center">
-          <ScoreRing score={data.life_ready_score} />
-          <h2 className="mt-2 text-center text-lg font-semibold text-[#1E293B]">Life Ready Score</h2>
-          <div className="mt-1 flex min-h-8 items-center justify-center">
-            <TrendIndicator trend={data.trend} />
-          </div>
-          <p className="mt-1 max-w-md text-center text-sm italic text-[#64748B]">{data.headline}</p>
-          <div className="mt-6 w-full max-w-sm space-y-3">
-            {COMPONENT_ORDER.map((key) => {
-              const comp = data.components[key];
-              const pct = weightedBarPercent(comp.score, comp.weight);
-              return (
-                <div key={key}>
-                  <div className="mb-1 flex justify-between text-sm text-[#1E293B]">
-                    <span>{LABELS[key]}</span>
-                    <span className="text-[#64748B]">{Math.round(comp.weight * 100)}% weight</span>
+        showScoreRing ? (
+          <div className="flex flex-col items-center">
+            <ScoreRing score={data.life_ready_score as number} />
+            <h2 className="mt-2 text-center text-lg font-semibold text-[#1E293B]">Life Ready Score</h2>
+            <div className="mt-1 flex min-h-8 items-center justify-center">
+              {data.trend != null ? <TrendIndicator trend={data.trend} /> : null}
+            </div>
+            {data.headline ? (
+              <p className="mt-1 max-w-md text-center text-sm italic text-[#64748B]">{data.headline}</p>
+            ) : null}
+            <div className="mt-6 w-full max-w-sm space-y-3">
+              {COMPONENT_ORDER.map((key) => {
+                const comp = data.components[key];
+                const pct = weightedBarPercent(comp.score, comp.weight);
+                return (
+                  <div key={key}>
+                    <div className="mb-1 flex justify-between text-sm text-[#1E293B]">
+                      <span>{LABELS[key]}</span>
+                      <span className="text-[#64748B]">{Math.round(comp.weight * 100)}% weight</span>
+                    </div>
+                    <svg
+                      className="h-2 w-full overflow-hidden rounded-full"
+                      viewBox="0 0 100 4"
+                      preserveAspectRatio="none"
+                      aria-hidden
+                    >
+                      <rect x="0" y="0" width="100" height="4" rx="2" fill="#E2E8F0" />
+                      <rect x="0" y="0" width={pct} height="4" rx="2" fill="#7C3AED" />
+                    </svg>
                   </div>
-                  <svg
-                    className="h-2 w-full overflow-hidden rounded-full"
-                    viewBox="0 0 100 4"
-                    preserveAspectRatio="none"
-                    aria-hidden
-                  >
-                    <rect x="0" y="0" width="100" height="4" rx="2" fill="#E2E8F0" />
-                    <rect x="0" y="0" width={pct} height="4" rx="2" fill="#7C3AED" />
-                  </svg>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
-        </div>
+        ) : (
+          <LifeReadyScorePlaceholder pillarsComplete={pillarsComplete} pillarsTotal={pillarsTotal} />
+        )
       ) : null}
     </section>
   );

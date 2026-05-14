@@ -86,7 +86,7 @@ function BudgetExtraCorrelationsLock() {
             Upgrade to Mid-tier for impulse spend and bills on-time correlations
           </p>
           <Link
-            to="/settings/upgrade"
+            to="/#pricing"
             className="mt-2 inline-flex text-sm font-semibold text-[#C4A064] underline-offset-2 hover:underline"
           >
             Upgrade

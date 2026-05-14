@@ -1241,14 +1241,59 @@ def _commit_milestones_module(
             )
             continue
 
-        validated_rows.append(
-            {
-                "name": name_out,
-                "date": date_out,
-                "cost": cost_f,
-                "recurring": rec_b,
-            }
-        )
+        type_raw = ev.get("type", ev.get("event_type"))
+        type_out: str | None = None
+        if type_raw is not None and type_raw != "":
+            if not isinstance(type_raw, str):
+                loguru_logger.warning(
+                    "milestones validation failed for user {}: field={} reason={} got={!r}",
+                    user.id,
+                    f"{base}.type",
+                    "type_mismatch",
+                    type_raw,
+                )
+                failed_fields.append(
+                    {
+                        "field_path": f"{base}.type",
+                        "error": "validation_failed",
+                        "reason": "type_mismatch",
+                        "expected": "string or null",
+                        "got": type(type_raw).__name__,
+                    }
+                )
+                continue
+            ts = type_raw.strip()
+            if ts:
+                if len(ts) > 64:
+                    loguru_logger.warning(
+                        "milestones validation failed for user {}: field={} reason={} got={!r}",
+                        user.id,
+                        f"{base}.type",
+                        "string_too_long",
+                        len(ts),
+                    )
+                    failed_fields.append(
+                        {
+                            "field_path": f"{base}.type",
+                            "error": "validation_failed",
+                            "reason": "string_too_long",
+                            "expected": "max 64",
+                            "got": len(ts),
+                        }
+                    )
+                    continue
+                type_out = ts
+
+        row_out: dict[str, Any] = {
+            "name": name_out,
+            "date": date_out,
+            "cost": cost_f,
+            "recurring": rec_b,
+        }
+        if type_out is not None:
+            row_out["type"] = type_out
+
+        validated_rows.append(row_out)
         loguru_logger.info(
             "milestones validated event {} for user {}: name={!r} date={!r} cost={!r} recurring={!r}",
             i,
@@ -1290,6 +1335,8 @@ def _commit_milestones_module(
         applied.append(f"events[{i}].date")
         applied.append(f"events[{i}].cost")
         applied.append(f"events[{i}].recurring")
+        if row.get("type"):
+            applied.append(f"events[{i}].type")
 
     try:
         prev = _load_important_dates(email)

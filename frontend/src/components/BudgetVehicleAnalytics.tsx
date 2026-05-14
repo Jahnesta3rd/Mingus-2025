@@ -341,7 +341,7 @@ const BudgetVehicleAnalytics: React.FC<BudgetVehicleAnalyticsProps> = ({
           <Button variant="contained" onClick={() => {
             setUpgradeDialogOpen(false);
             // Handle upgrade logic
-            window.location.href = '/pricing';
+            window.location.href = '/#pricing';
           }}>
             Upgrade Now
           </Button>

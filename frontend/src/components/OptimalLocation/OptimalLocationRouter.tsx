@@ -461,7 +461,7 @@ const OptimalLocationRouter: React.FC<OptimalLocationRouterProps> = ({ className
             The Optimal Living Location feature requires an active subscription.
           </p>
           <button
-            onClick={() => navigate('/pricing')}
+            onClick={() => navigate('/#pricing')}
             className="bg-violet-600 hover:bg-violet-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
           >
             View Pricing Plans

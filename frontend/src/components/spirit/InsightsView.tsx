@@ -356,7 +356,7 @@ export const InsightsView: React.FC<InsightsViewProps> = ({ userTier, isBeta }) 
             <div className="mt-3 rounded-xl border border-dashed border-slate-300 bg-white/80 p-4 text-sm text-slate-600">
               <p>Upgrade to Professional to see savings, impulse, stress, and bills metrics alongside your practice.</p>
               <Link
-                to="/settings/upgrade"
+                to="/#pricing"
                 className="mt-2 inline-flex text-sm font-semibold text-[#C4A064] underline-offset-2 hover:underline"
               >
                 View upgrade options

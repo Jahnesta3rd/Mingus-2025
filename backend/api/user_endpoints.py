@@ -10,12 +10,27 @@ import logging
 
 from flask import Blueprint, jsonify, request, g
 from flask_cors import cross_origin
-from backend.auth.decorators import require_auth
+from backend.auth.decorators import require_auth, get_current_user_id
 from backend.api.profile_endpoints import get_db_connection
 
 logger = logging.getLogger(__name__)
 
 user_bp = Blueprint('user', __name__, url_prefix='/api/user')
+
+# Display metadata for GET /api/user/tier (prices aligned with feature_flag_service.FeatureFlagService)
+_TIER_DISPLAY = {
+    'budget': ('Budget', 15),
+    'budget_career_vehicle': ('Budget + Career Vehicle', 22),
+    'mid_tier': ('Mid-tier', 35),
+    'professional': ('Professional', 100),
+}
+
+
+def _tier_display_for_slug(slug: str) -> tuple[str, int]:
+    if slug in _TIER_DISPLAY:
+        return _TIER_DISPLAY[slug]
+    label = slug.replace('_', ' ').strip().title() if slug else 'Unknown'
+    return (label, 0)
 
 @user_bp.route('/profile', methods=['GET', 'OPTIONS'])
 @cross_origin()
@@ -31,43 +46,72 @@ def get_user_profile():
         current_balance = None
         balance_last_updated = None
         important_dates = None
-        if user_email:
+        tier_value = 'budget'
+        conn = None
+        if user_email or get_current_user_id():
             try:
                 conn = get_db_connection()
                 cursor = conn.cursor()
-                cursor.execute(
-                    '''
-                    SELECT current_balance, balance_last_updated, important_dates
-                    FROM user_profiles WHERE email = %s
-                    ''',
-                    (user_email,),
-                )
-                row = cursor.fetchone()
-                conn.close()
-                if row:
-                    if row.get('current_balance') is not None:
-                        current_balance = float(row['current_balance'])
-                    ts = row.get('balance_last_updated')
-                    if ts is not None:
-                        balance_last_updated = ts.isoformat()
-                    raw_imp = row.get('important_dates')
-                    if raw_imp is not None and raw_imp != '':
-                        if isinstance(raw_imp, dict):
-                            important_dates = raw_imp
-                        elif isinstance(raw_imp, str):
-                            try:
-                                parsed = json.loads(raw_imp)
-                                important_dates = parsed if isinstance(parsed, dict) else None
-                            except json.JSONDecodeError:
-                                important_dates = None
+                ext_uid = get_current_user_id()
+                if ext_uid is not None:
+                    cursor.execute(
+                        'SELECT tier FROM users WHERE user_id = %s',
+                        (str(ext_uid),),
+                    )
+                    trow = cursor.fetchone()
+                    if trow and trow.get('tier'):
+                        t = str(trow['tier']).strip()
+                        if t:
+                            tier_value = t
+                if tier_value == 'budget' and user_email:
+                    cursor.execute(
+                        'SELECT tier FROM users WHERE email = %s',
+                        (user_email,),
+                    )
+                    trow = cursor.fetchone()
+                    if trow and trow.get('tier'):
+                        t = str(trow['tier']).strip()
+                        if t:
+                            tier_value = t
+                if user_email:
+                    cursor.execute(
+                        '''
+                        SELECT current_balance, balance_last_updated, important_dates
+                        FROM user_profiles WHERE email = %s
+                        ''',
+                        (user_email,),
+                    )
+                    row = cursor.fetchone()
+                    if row:
+                        if row.get('current_balance') is not None:
+                            current_balance = float(row['current_balance'])
+                        ts = row.get('balance_last_updated')
+                        if ts is not None:
+                            balance_last_updated = ts.isoformat()
+                        raw_imp = row.get('important_dates')
+                        if raw_imp is not None and raw_imp != '':
+                            if isinstance(raw_imp, dict):
+                                important_dates = raw_imp
+                            elif isinstance(raw_imp, str):
+                                try:
+                                    parsed = json.loads(raw_imp)
+                                    important_dates = parsed if isinstance(parsed, dict) else None
+                                except json.JSONDecodeError:
+                                    important_dates = None
             except Exception as e:
                 logger.debug(f"Profile fields not loaded: {e}")
+            finally:
+                if conn is not None:
+                    try:
+                        conn.close()
+                    except Exception:
+                        pass
 
         profile_out = {
             'id': user_id or '',
             'email': user_email,
             'name': '',
-            'tier': 'budget',
+            'tier': tier_value,
             'current_address': None,
             'vehicle_info': None,
             'preferences': None,
@@ -171,12 +215,48 @@ def get_user_tier():
     if request.method == 'OPTIONS':
         return jsonify({}), 200
     try:
+        tier_slug = 'budget'
+        user_email = getattr(g, 'current_user_email', None) or ''
+        conn = None
+        try:
+            conn = get_db_connection()
+            cursor = conn.cursor()
+            ext_uid = get_current_user_id()
+            if ext_uid is not None:
+                cursor.execute(
+                    'SELECT tier FROM users WHERE user_id = %s',
+                    (str(ext_uid),),
+                )
+                row = cursor.fetchone()
+                if row and row.get('tier'):
+                    t = str(row['tier']).strip()
+                    if t:
+                        tier_slug = t
+            if tier_slug == 'budget' and user_email:
+                cursor.execute(
+                    'SELECT tier FROM users WHERE email = %s',
+                    (user_email,),
+                )
+                row = cursor.fetchone()
+                if row and row.get('tier'):
+                    t = str(row['tier']).strip()
+                    if t:
+                        tier_slug = t
+        except Exception as e:
+            logger.debug(f"User tier not loaded: {e}")
+        finally:
+            if conn is not None:
+                try:
+                    conn.close()
+                except Exception:
+                    pass
+        name, price = _tier_display_for_slug(tier_slug)
         return jsonify({
             'success': True,
             'data': {
-                'tier': 'budget',
-                'name': 'Budget',
-                'price': 15
+                'tier': tier_slug,
+                'name': name,
+                'price': price
             }
         }), 200
     except Exception as e:

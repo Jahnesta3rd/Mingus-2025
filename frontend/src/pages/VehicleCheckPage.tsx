@@ -133,7 +133,7 @@ export default function VehicleCheckPage() {
   const dashboardHref = isAuthenticated ? "/dashboard/tools?tab=vehicle" : "/register";
   const dashboardLabel = isAuthenticated
     ? "See your full Vehicle Analytics dashboard in Mingus"
-    : "Track your vehicle costs in Mingus — Start free";
+    : "Track your vehicle costs in Mingus — Get started";
 
   return (
     <>
@@ -251,7 +251,7 @@ export default function VehicleCheckPage() {
 
                     {!results.saved && (
                       <p className="text-center text-sm text-[#9a8f7e]">
-                        Create a free Mingus account to save this to your Life Ledger and pre-fill Vehicle Analytics.
+                        Create a Mingus account to save this to your Life Ledger and pre-fill Vehicle Analytics.
                       </p>
                     )}
 

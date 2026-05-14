@@ -19,7 +19,7 @@ function jsonAuthHeaders(): Record<string, string> {
   };
 }
 
-export type VibeCardType = 'person' | 'kids' | 'social';
+export type VibeCardType = 'person' | 'kids' | 'social' | 'family';
 
 export interface VibeTrackedPerson {
   id: string;
@@ -144,7 +144,9 @@ export function useVibeTracker(): UseVibeTrackerResult {
       const people = (json.people ?? []).map((p) => ({
         ...p,
         card_type:
-          p.card_type === 'kids' || p.card_type === 'social' ? p.card_type : 'person',
+          p.card_type === 'kids' || p.card_type === 'social' || p.card_type === 'family'
+            ? p.card_type
+            : 'person',
       }));
       setData(people);
       return people;
@@ -177,7 +179,9 @@ export function useVibeTracker(): UseVibeTrackerResult {
       const people = (json.people ?? []).map((p) => ({
         ...p,
         card_type:
-          p.card_type === 'kids' || p.card_type === 'social' ? p.card_type : 'person',
+          p.card_type === 'kids' || p.card_type === 'social' || p.card_type === 'family'
+            ? p.card_type
+            : 'person',
       }));
       setArchivedData(people);
       return people;
@@ -242,7 +246,9 @@ export function useVibeTracker(): UseVibeTrackerResult {
       const normalized: VibeTrackedPerson = {
         ...json.person,
         card_type:
-          json.person.card_type === 'kids' || json.person.card_type === 'social'
+          json.person.card_type === 'kids' ||
+          json.person.card_type === 'social' ||
+          json.person.card_type === 'family'
             ? json.person.card_type
             : 'person',
       };
