@@ -149,7 +149,7 @@ def _prediction_to_dashboard_prediction(pred: dict[str, Any]) -> dict[str, Any]:
     pid = pred.get("id")
     return {
         "id": int(pid) if pid is not None else 0,
-        "vehicleId": vid,
+        "vehicleId": int(pred.get("vehicle_id") or 0),
         "maintenanceType": str(
             pred.get("maintenance_type") or pred.get("service_type") or ""
         ),

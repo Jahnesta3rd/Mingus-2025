@@ -16,11 +16,13 @@ import { QuickAction } from '../types/vehicle';
 interface VehicleQuickActionsProps {
   actions: QuickAction[];
   onActionClick: (actionId: string) => void;
+  onRequestAddVehicle?: () => void;
 }
 
 const VehicleQuickActions: React.FC<VehicleQuickActionsProps> = ({ 
   actions, 
-  onActionClick 
+  onActionClick,
+  onRequestAddVehicle
 }) => {
   const defaultActions: QuickAction[] = [
     {
@@ -131,7 +133,19 @@ const VehicleQuickActions: React.FC<VehicleQuickActionsProps> = ({
           return (
             <button
               key={action.id}
-              onClick={() => action.enabled && onActionClick(action.id)}
+              type="button"
+              onClick={() => {
+                if (!action.enabled) return;
+                const aid = action.id;
+                if (
+                  (aid === 'add_vehicle' || aid === 'add-vehicle') &&
+                  onRequestAddVehicle
+                ) {
+                  onRequestAddVehicle();
+                } else {
+                  onActionClick(aid);
+                }
+              }}
               className={`
                 flex items-center gap-3 p-4 rounded-lg border transition-all duration-200
                 ${getColorClasses(action.color, action.enabled)}
