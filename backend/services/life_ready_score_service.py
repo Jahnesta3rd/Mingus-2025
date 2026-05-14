@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Life Ready Score: weighted composite of vibe, body, wellness, finances, and cash-flow stability."""
+"""Life Ready Score: weighted composite across ledger, wellness, finances, and cash-flow stability.
+
+Eight nominal components (Financial, Roof, Career, Vibe, Vehicle, Body, Wellness, Stability);
+Career is inactive until a metric exists — its weight is excluded and active weights renormalize to 1.0.
+"""
 
 from __future__ import annotations
 
@@ -19,11 +23,27 @@ from backend.models.wellness import WeeklyCheckin, WellnessScore
 
 logger = logging.getLogger(__name__)
 
-_W_VIBE = 0.30
-_W_BODY = 0.20
-_W_WELLNESS = 0.15
-_W_FIN = 0.25
-_W_STAB = 0.10
+# Nominal Whole-Life weights (8 slots). Career is inactive: excluded from ``_ACTIVE_WEIGHT_SUM``.
+_NOMINAL_WEIGHTS: dict[str, float] = {
+    "financial": 0.20,
+    "roof": 0.20,
+    "career": 0.14,
+    "vibe": 0.12,
+    "vehicle": 0.12,
+    "body": 0.08,
+    "wellness": 0.08,
+    "stability": 0.06,
+}
+_ACTIVE_COMPONENT_KEYS: tuple[str, ...] = (
+    "financial",
+    "roof",
+    "vibe",
+    "vehicle",
+    "body",
+    "wellness",
+    "stability",
+)
+_ACTIVE_WEIGHT_SUM = sum(_NOMINAL_WEIGHTS[k] for k in _ACTIVE_COMPONENT_KEYS)
 
 _NEUTRAL = 50
 _TREND_EPS = 3
@@ -193,12 +213,17 @@ def _user_profile_assessment_raw(email: str) -> Any | None:
 def _vibe_body_pillar_meaningful(
     profile: LifeLedgerProfile | None, assessment_raw: Any
 ) -> bool:
-    """Pillar 1: ledger vibe/body scores or synced assessment_results."""
+    """Pillar 1: any ledger assessment (vibe/body/roof/vehicle) or synced assessment_results."""
     if _assessment_results_meaningful(assessment_raw):
         return True
     if profile is None:
         return False
-    return profile.vibe_score is not None or profile.body_score is not None
+    return (
+        profile.vibe_score is not None
+        or profile.body_score is not None
+        or profile.roof_score is not None
+        or profile.vehicle_score is not None
+    )
 
 
 def _wellness_pillar_meaningful(user_id: int) -> bool:
@@ -215,14 +240,37 @@ def _stability_pillar_meaningful(user_id: int) -> bool:
 
 
 def _components_payload(
-    vibe: float, body: float, wellness: float, financial: float, stability: float
+    *,
+    financial: float,
+    roof: float,
+    vibe: float,
+    vehicle: float,
+    body: float,
+    wellness: float,
+    stability: float,
 ) -> dict[str, Any]:
+    """Response order matches product naming; career is the inactive socket (no score, not in blend)."""
+
+    def _active_slot(key: str, score: float) -> dict[str, Any]:
+        return {
+            "score": int(round(score)),
+            "weight": _NOMINAL_WEIGHTS[key],
+            "active": True,
+        }
+
     return {
-        "vibe": {"score": int(round(vibe)), "weight": _W_VIBE},
-        "body": {"score": int(round(body)), "weight": _W_BODY},
-        "wellness": {"score": int(round(wellness)), "weight": _W_WELLNESS},
-        "financial": {"score": int(round(financial)), "weight": _W_FIN},
-        "stability": {"score": int(round(stability)), "weight": _W_STAB},
+        "financial": _active_slot("financial", financial),
+        "roof": _active_slot("roof", roof),
+        "career": {
+            "score": None,
+            "weight": _NOMINAL_WEIGHTS["career"],
+            "active": False,
+        },
+        "vibe": _active_slot("vibe", vibe),
+        "vehicle": _active_slot("vehicle", vehicle),
+        "body": _active_slot("body", body),
+        "wellness": _active_slot("wellness", wellness),
+        "stability": _active_slot("stability", stability),
     }
 
 
@@ -263,16 +311,29 @@ def _component_or_neutral(x: float | None) -> float:
 
 
 def _weighted_total(
-    vibe: float, body: float, wellness: float, financial: float, stability: float
+    *,
+    financial: float,
+    roof: float,
+    vibe: float,
+    vehicle: float,
+    body: float,
+    wellness: float,
+    stability: float,
 ) -> int:
-    total = (
-        vibe * _W_VIBE
-        + body * _W_BODY
-        + wellness * _W_WELLNESS
-        + financial * _W_FIN
-        + stability * _W_STAB
-    )
-    return _clamp_0_100(total)
+    """Weighted mean over active components only; nominal weights renormalize (inactive career omitted)."""
+    scores = {
+        "financial": financial,
+        "roof": roof,
+        "vibe": vibe,
+        "vehicle": vehicle,
+        "body": body,
+        "wellness": wellness,
+        "stability": stability,
+    }
+    blended = sum(
+        scores[k] * _NOMINAL_WEIGHTS[k] for k in _ACTIVE_COMPONENT_KEYS
+    ) / float(_ACTIVE_WEIGHT_SUM)
+    return _clamp_0_100(blended)
 
 
 def _financial_from_snapshot_rate(rate: float | None) -> float:
@@ -290,13 +351,23 @@ def _score_from_snapshot(snap: LifeScoreSnapshot) -> int:
         _coerce_float(snap.best_vibe_combined_score)
     )
     body = _component_or_neutral(_coerce_float(snap.body_score))
+    roof = _component_or_neutral(_coerce_float(snap.roof_score))
+    vehicle = _component_or_neutral(_coerce_float(snap.vehicle_score))
     w_raw = _coerce_float(snap.avg_wellness_score)
     wellness = _component_or_neutral(
         _normalize_wellness_score(w_raw) if w_raw is not None else None
     )
     financial = _financial_from_snapshot_rate(_coerce_float(snap.monthly_savings_rate))
     stability = float(_NEUTRAL)
-    return _weighted_total(vibe, body, wellness, financial, stability)
+    return _weighted_total(
+        financial=financial,
+        roof=roof,
+        vibe=vibe,
+        vehicle=vehicle,
+        body=body,
+        wellness=wellness,
+        stability=stability,
+    )
 
 
 def _trend_vs_snapshot(user_id: int, current: int) -> str:
@@ -317,11 +388,20 @@ def _trend_vs_snapshot(user_id: int, current: int) -> str:
 
 
 def _headline(
-    vibe: float, body: float, wellness: float, financial: float, stability: float
+    *,
+    financial: float,
+    roof: float,
+    vibe: float,
+    vehicle: float,
+    body: float,
+    wellness: float,
+    stability: float,
 ) -> str:
     raw = {
         "vibe": vibe,
         "body": body,
+        "roof": roof,
+        "vehicle": vehicle,
         "wellness": wellness,
         "financial": financial,
         "stability": stability,
@@ -337,6 +417,10 @@ def _headline(
         return "Your relationship energy is your strongest asset right now."
     if hi == "body":
         return "Your physical readiness is leading the way right now."
+    if hi == "roof":
+        return "Your housing readiness is leading the way right now."
+    if hi == "vehicle":
+        return "Your vehicle readiness is leading the way right now."
     if hi == "wellness":
         return "Your weekly wellness habits are carrying your overall readiness."
     if hi == "financial":
@@ -349,11 +433,12 @@ def _headline(
 def compute_life_ready_score(user_id: str) -> dict[str, Any]:
     """
     Composite 0–100 score with breakdown, trend vs latest LifeScoreSnapshot, and headline.
-    Missing inputs use neutral 50.
+    Missing inputs for *active* components use neutral 50. Career is inactive and never filled.
 
-    When fewer than ``_MIN_PILLARS_FOR_SCORE`` of four pillars (vibe/body+assessments,
-    wellness, financial, stability) have real data, returns ``life_ready_score`` null and
-    ``has_sufficient_data`` false instead of a neutral-blended number.
+    When fewer than ``_MIN_PILLARS_FOR_SCORE`` of four pillars (ledger assessments including
+    vibe/body/roof/vehicle + synced assessments, wellness, financial, stability) have real
+    data, returns ``life_ready_score`` null and ``has_sufficient_data`` false instead of a
+    neutral-blended number.
 
     Args:
         user_id: External user identifier (``User.user_id``, UUID string from JWT).
@@ -361,7 +446,18 @@ def compute_life_ready_score(user_id: str) -> dict[str, Any]:
     user = db.session.query(User).filter_by(user_id=user_id).first()
     if user is None:
         n = float(_NEUTRAL)
-        return _insufficient_score_payload(_components_payload(n, n, n, n, n), 0)
+        return _insufficient_score_payload(
+            _components_payload(
+                financial=n,
+                roof=n,
+                vibe=n,
+                vehicle=n,
+                body=n,
+                wellness=n,
+                stability=n,
+            ),
+            0,
+        )
 
     uid = user.id
     ext_user_id = user.user_id
@@ -381,21 +477,49 @@ def compute_life_ready_score(user_id: str) -> dict[str, Any]:
 
     vibe_raw = _coerce_float(profile.vibe_score) if profile else None
     body_raw = _coerce_float(profile.body_score) if profile else None
+    roof_raw = _coerce_float(profile.roof_score) if profile else None
+    vehicle_raw = _coerce_float(profile.vehicle_score) if profile else None
 
     vibe = _component_or_neutral(vibe_raw)
     body = _component_or_neutral(body_raw)
+    roof = _component_or_neutral(roof_raw)
+    vehicle = _component_or_neutral(vehicle_raw)
     wellness = _component_or_neutral(_wellness_input_for_user(uid))
     financial = _component_or_neutral(_financial_health_from_profile(ext_user_id))
     stability = _stability_score(uid)
 
-    components = _components_payload(vibe, body, wellness, financial, stability)
+    components = _components_payload(
+        financial=financial,
+        roof=roof,
+        vibe=vibe,
+        vehicle=vehicle,
+        body=body,
+        wellness=wellness,
+        stability=stability,
+    )
 
     if pillars_complete < _MIN_PILLARS_FOR_SCORE:
         return _insufficient_score_payload(components, pillars_complete)
 
-    life_ready_score = _weighted_total(vibe, body, wellness, financial, stability)
+    life_ready_score = _weighted_total(
+        financial=financial,
+        roof=roof,
+        vibe=vibe,
+        vehicle=vehicle,
+        body=body,
+        wellness=wellness,
+        stability=stability,
+    )
     trend = _trend_vs_snapshot(uid, life_ready_score)
-    headline = _headline(vibe, body, wellness, financial, stability)
+    headline = _headline(
+        financial=financial,
+        roof=roof,
+        vibe=vibe,
+        vehicle=vehicle,
+        body=body,
+        wellness=wellness,
+        stability=stability,
+    )
 
     return _sufficient_score_payload(
         life_ready_score, components, trend, headline, pillars_complete
