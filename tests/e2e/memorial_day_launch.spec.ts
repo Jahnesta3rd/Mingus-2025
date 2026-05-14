@@ -957,7 +957,7 @@ test.describe('Memorial Day launch', () => {
     }
   });
 
-  test('MD-06: /dashboard shows HomeScreen with Life Ready Score', async ({ browser }) => {
+  test('MD-06: /dashboard shows HomeScreen with Whole-Life Score', async ({ browser }) => {
     const state: MemorialState = {
       incomeScheduleSaved: false,
       expenseScheduleSaved: false,
@@ -971,7 +971,7 @@ test.describe('Memorial Day launch', () => {
       await addDashboardMocks(page, MAYA, state);
       await loginAs(page, MAYA);
       await dismissOverlay(page);
-      await expect(page.getByRole('heading', { name: /Life Ready Score/i })).toBeVisible({ timeout: 20000 });
+      await expect(page.getByRole('heading', { name: /Whole-Life Score/i })).toBeVisible({ timeout: 20000 });
       ok = true;
     } finally {
       logMd('MD-06', ok);
@@ -979,7 +979,7 @@ test.describe('Memorial Day launch', () => {
     }
   });
 
-  test('MD-07: Life Ready Score between 0 and 100', async ({ browser }) => {
+  test('MD-07: Whole-Life Score between 0 and 100', async ({ browser }) => {
     const state: MemorialState = {
       incomeScheduleSaved: false,
       expenseScheduleSaved: false,

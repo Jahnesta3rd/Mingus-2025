@@ -87,7 +87,7 @@ function ScoreRing({ score }: { score: number }) {
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-4xl font-bold tabular-nums text-[#1E293B]" aria-label={`Life ready score ${clamped} out of 100`}>
+        <span className="text-4xl font-bold tabular-nums text-[#1E293B]" aria-label={`Whole-Life Score ${clamped} out of 100`}>
           {clamped}
         </span>
       </div>
@@ -114,7 +114,7 @@ function LifeReadyScorePlaceholder({ pillarsComplete, pillarsTotal }: { pillarsC
       >
         <span className="text-5xl font-light tabular-nums text-[#94A3B8] sm:text-6xl">—</span>
       </div>
-      <h2 className="text-center text-lg font-semibold leading-snug text-[#1E293B]">Life Ready Score</h2>
+      <h2 className="text-center text-lg font-semibold leading-snug text-[#1E293B]">Whole-Life Score</h2>
       <p className="max-w-[20rem] text-sm leading-relaxed text-[#64748B]">Complete assessments to see your score</p>
       <span
         className="inline-flex max-w-full items-center justify-center rounded-full border border-[#E2E8F0] bg-[#F8FAFC] px-3 py-1.5 text-xs font-medium tabular-nums text-[#475569] sm:text-sm"
@@ -146,7 +146,7 @@ export default function LifeReadyScoreCard() {
         headers: authHeadersGet(),
       });
       if (!res.ok) {
-        throw new Error('Failed to load Life Ready Score');
+        throw new Error('Failed to load Whole-Life Score');
       }
       const json = (await res.json()) as LifeReadyScoreApiResponse;
       setData(json);
@@ -197,7 +197,7 @@ export default function LifeReadyScoreCard() {
         showScoreRing ? (
           <div className="flex flex-col items-center">
             <ScoreRing score={data.life_ready_score as number} />
-            <h2 className="mt-2 text-center text-lg font-semibold text-[#1E293B]">Life Ready Score</h2>
+            <h2 className="mt-2 text-center text-lg font-semibold text-[#1E293B]">Whole-Life Score</h2>
             <div className="mt-1 flex min-h-8 items-center justify-center">
               {data.trend != null ? <TrendIndicator trend={data.trend} /> : null}
             </div>

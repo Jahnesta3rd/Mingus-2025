@@ -37,7 +37,6 @@ const LifeLedgerWidget: React.FC<LifeLedgerWidgetProps> = ({
         ? 'mid_tier'
         : 'budget';
   const isProfessional = tier === 'professional';
-  const isBudget = tier === 'budget';
 
   const handleDismissInsight = useCallback(
     async (id: string) => {
@@ -66,7 +65,7 @@ const LifeLedgerWidget: React.FC<LifeLedgerWidgetProps> = ({
     >
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-6">
         <div className="min-w-0">
-          <h2 className="text-lg font-semibold text-gray-900">Life Ledger Score</h2>
+          <h2 className="text-lg font-semibold text-gray-900">Assessment summary</h2>
           {!loading && profile && (
             <p
               className="text-4xl sm:text-5xl font-bold tabular-nums mt-2"
@@ -76,7 +75,8 @@ const LifeLedgerWidget: React.FC<LifeLedgerWidgetProps> = ({
             </p>
           )}
           <p className="text-sm text-gray-600 mt-1 max-w-xl">
-            Composite view across relationship, health, housing, and vehicle assessments.
+            Combined view across relationship, health, housing, and vehicle assessments — context that
+            supports your Whole-Life Score.
           </p>
         </div>
         {!loading && profile && (
@@ -109,6 +109,7 @@ const LifeLedgerWidget: React.FC<LifeLedgerWidgetProps> = ({
 
       {!loading && profile && (
         <>
+          <p className="text-sm font-medium text-gray-900">These assessments feed your Whole-Life Score</p>
           <div className="grid grid-cols-2 gap-3 sm:gap-4">
             <ModuleScoreCard
               module="vibe"
@@ -128,17 +129,15 @@ const LifeLedgerWidget: React.FC<LifeLedgerWidgetProps> = ({
               module="roof"
               label="Roof"
               icon="🏠"
-              score={isBudget ? null : profile.roof_score}
+              score={profile.roof_score}
               actionUrl="/roof-check"
-              locked={isBudget}
             />
             <ModuleScoreCard
               module="vehicle"
               label="Vehicle"
               icon="🚗"
-              score={isBudget ? null : profile.vehicle_score}
+              score={profile.vehicle_score}
               actionUrl="/vehicle-check"
-              locked={isBudget}
             />
           </div>
 
@@ -176,13 +175,8 @@ const LifeLedgerWidget: React.FC<LifeLedgerWidgetProps> = ({
           {complete < 4 && (
             <div className="rounded-lg bg-violet-50 border border-violet-100 px-4 py-3 text-center">
               <p className="text-sm font-medium text-violet-900">
-                Complete all 4 assessments for your full Life Ledger Score
+                Complete all 4 assessments to strengthen your Whole-Life Score
               </p>
-              {isBudget && (
-                <p className="text-xs text-violet-800/90 mt-1">
-                  Upgrade to unlock Roof and Vehicle modules.
-                </p>
-              )}
             </div>
           )}
         </>
