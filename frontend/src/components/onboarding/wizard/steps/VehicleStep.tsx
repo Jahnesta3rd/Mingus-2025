@@ -74,6 +74,17 @@ export default function VehicleStep({ initialData, onSubmit, onSkip }: StepProps
         ? initialData.monthly_payment
         : ''
   );
+  const [monthlyFuel, setMonthlyFuel] = useState<string>(() => {
+    const v = initialData.monthly_fuel;
+    if (typeof v === 'number' && v > 0) return String(v);
+    if (typeof v === 'string' && v.trim()) return v;
+    const vehicles = initialData.vehicles;
+    if (Array.isArray(vehicles) && vehicles[0] && typeof vehicles[0] === 'object') {
+      const fuel = (vehicles[0] as { monthly_fuel?: number }).monthly_fuel;
+      if (typeof fuel === 'number' && fuel > 0) return String(fuel);
+    }
+    return '';
+  });
   const [insuranceMonthly, setInsuranceMonthly] = useState<string>(
     typeof initialData.insurance_monthly === 'number'
       ? String(initialData.insurance_monthly)
@@ -191,6 +202,9 @@ export default function VehicleStep({ initialData, onSubmit, onSkip }: StepProps
       const parsedYear = Number.parseInt(year, 10);
       const parsedPayment = Number.parseFloat(monthlyPayment);
       const parsedInsurance = Number.parseFloat(insuranceMonthly);
+      const fuelTrimmed = monthlyFuel.trim();
+      const parsedFuel = fuelTrimmed ? Number.parseFloat(fuelTrimmed) : 0;
+      const monthlyFuelOut = Number.isFinite(parsedFuel) && parsedFuel > 0 ? parsedFuel : 0;
       if (parsedPayment > 0) await postRecurringExpense('Car Payment', parsedPayment);
       if (parsedInsurance > 0) await postRecurringExpense('Auto Insurance', parsedInsurance);
       await onSubmit({
@@ -202,7 +216,7 @@ export default function VehicleStep({ initialData, onSubmit, onSkip }: StepProps
             model: model.trim(),
             year: parsedYear,
             monthly_payment: parsedPayment,
-            monthly_fuel: 0,
+            monthly_fuel: monthlyFuelOut,
             recent_maintenance: lastOilChangeBucket === 'recent' || majorServiceStatus === 'up_to_date',
           },
         ],
@@ -296,6 +310,24 @@ export default function VehicleStep({ initialData, onSubmit, onSkip }: StepProps
                 <label className={labelClass} htmlFor="vehicle-monthly_payment">Monthly payment *</label>
                 <input id="vehicle-monthly_payment" className={inputClass} type="number" min={0} step="0.01" value={monthlyPayment} onChange={(e) => { clearValidationFeedback(); setMonthlyPayment(e.target.value); }} />
                 {errors.monthly_payment && <p className="mt-1 text-sm text-red-600">{errors.monthly_payment}</p>}
+              </div>
+              <div>
+                <label className={labelClass} htmlFor="vehicle-monthly_fuel">
+                  Estimated monthly fuel cost (optional)
+                </label>
+                <input
+                  id="vehicle-monthly_fuel"
+                  className={inputClass}
+                  type="number"
+                  min={0}
+                  step="0.01"
+                  placeholder="e.g., 150"
+                  value={monthlyFuel}
+                  onChange={(e) => {
+                    clearValidationFeedback();
+                    setMonthlyFuel(e.target.value);
+                  }}
+                />
               </div>
               <div>
                 <label className={labelClass} htmlFor="vehicle-insurance_monthly">Insurance monthly *</label>

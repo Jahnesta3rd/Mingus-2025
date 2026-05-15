@@ -2,8 +2,26 @@ import React, { useCallback, useState } from 'react';
 import { useAuth } from '../../../../hooks/useAuth';
 import type { StepProps } from '../StepDefinitions';
 
-type Field = 'current_position' | 'employer' | 'industry' | 'years_in_role' | 'next_review_date';
+type RelocationOpenness = 'yes' | 'maybe' | 'no';
+
+type Field =
+  | 'current_position'
+  | 'employer'
+  | 'industry'
+  | 'years_in_role'
+  | 'next_review_date'
+  | 'target_comp';
 type FieldErrors = Partial<Record<Field, string>>;
+
+function parseRelocationOpenness(raw: unknown): RelocationOpenness {
+  if (raw === true || raw === 'yes') return 'yes';
+  if (raw === 'maybe') return 'maybe';
+  return 'no';
+}
+
+function relocationToOpenToMove(value: RelocationOpenness): boolean {
+  return value === 'yes';
+}
 
 const inputClass =
   'w-full min-h-11 rounded-lg border border-[#E2E8F0] bg-white px-3 py-2.5 text-[#1E293B] placeholder:text-[#64748B] focus:border-[#5B2D8E] focus:outline-none focus:ring-1 focus:ring-[#5B2D8E]';
@@ -46,6 +64,21 @@ export default function CareerStep({ initialData, onSubmit, onSkip }: StepProps)
   const [nextReviewDate, setNextReviewDate] = useState<string>(
     typeof initialData.next_review_date === 'string' ? initialData.next_review_date : ''
   );
+  const [satisfaction, setSatisfaction] = useState<number>(
+    typeof initialData.satisfaction === 'number' && initialData.satisfaction >= 1 && initialData.satisfaction <= 5
+      ? initialData.satisfaction
+      : 3
+  );
+  const [relocationOpenness, setRelocationOpenness] = useState<RelocationOpenness>(
+    parseRelocationOpenness(initialData.open_to_move)
+  );
+  const [targetComp, setTargetComp] = useState<string>(
+    typeof initialData.target_comp === 'number'
+      ? String(initialData.target_comp)
+      : typeof initialData.target_comp === 'string'
+        ? initialData.target_comp
+        : ''
+  );
   const [errors, setErrors] = useState<FieldErrors>({});
   const [showValidationSummary, setShowValidationSummary] = useState(false);
   const [submitBanner, setSubmitBanner] = useState<string | null>(null);
@@ -66,15 +99,28 @@ export default function CareerStep({ initialData, onSubmit, onSkip }: StepProps)
     if (nextReviewDate && nextReviewDate <= todayIso()) {
       next.next_review_date = 'Next review date must be in the future.';
     }
+    if (targetComp.trim()) {
+      const tc = Number.parseFloat(targetComp);
+      if (!Number.isFinite(tc) || tc < 0) {
+        next.target_comp = 'Target compensation must be 0 or greater.';
+      }
+    }
     return next;
-  }, [currentPosition, employer, industry, yearsInRole, nextReviewDate]);
+  }, [currentPosition, employer, industry, yearsInRole, nextReviewDate, targetComp]);
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitBanner(null);
     const nextErrors = validate();
     setErrors(nextErrors);
-    const order: Field[] = ['current_position', 'employer', 'industry', 'years_in_role', 'next_review_date'];
+    const order: Field[] = [
+      'current_position',
+      'employer',
+      'industry',
+      'years_in_role',
+      'next_review_date',
+      'target_comp',
+    ];
     const firstInvalid = order.find((f) => nextErrors[f]);
     if (firstInvalid) {
       setShowValidationSummary(true);
@@ -93,13 +139,14 @@ export default function CareerStep({ initialData, onSubmit, onSkip }: StepProps)
     setIsSubmitting(true);
     try {
       const years = Number.parseInt(yearsInRole, 10);
+      const parsedTarget = targetComp.trim() ? Number.parseFloat(targetComp) : null;
       await onSubmit({
         current_role: currentPosition.trim(),
         industry,
         years_experience: years,
-        satisfaction: typeof initialData.satisfaction === 'number' ? initialData.satisfaction : null,
-        open_to_move: typeof initialData.open_to_move === 'boolean' ? initialData.open_to_move : false,
-        target_comp: typeof initialData.target_comp === 'number' ? initialData.target_comp : null,
+        satisfaction,
+        open_to_move: relocationToOpenToMove(relocationOpenness),
+        target_comp: parsedTarget,
       });
     } catch (err) {
       setSubmitBanner(err instanceof Error ? err.message : 'Save failed');
@@ -160,6 +207,64 @@ export default function CareerStep({ initialData, onSubmit, onSkip }: StepProps)
             <label className={labelClass} htmlFor="career-years_in_role">Years in role *</label>
             <input id="career-years_in_role" className={inputClass} inputMode="numeric" value={yearsInRole} onChange={(e) => { clearValidationFeedback(); setYearsInRole(e.target.value.replace(/\D/g, '')); }} />
             {errors.years_in_role && <p className="mt-1 text-sm text-red-600">{errors.years_in_role}</p>}
+          </div>
+          <div className="sm:col-span-2">
+            <label className={labelClass} htmlFor="career-satisfaction">
+              How satisfied are you with your current role? (1–5)
+            </label>
+            <div className="flex items-center gap-3">
+              <input
+                id="career-satisfaction"
+                className="min-h-11 flex-1 accent-[#5B2D8E]"
+                type="range"
+                min={1}
+                max={5}
+                step={1}
+                value={satisfaction}
+                onChange={(e) => {
+                  clearValidationFeedback();
+                  setSatisfaction(Number.parseInt(e.target.value, 10));
+                }}
+              />
+              <span className="min-w-[3rem] text-sm font-medium text-[#1E293B]">{satisfaction}/5</span>
+            </div>
+          </div>
+          <div className="sm:col-span-2">
+            <label className={labelClass} htmlFor="career-open_to_move">
+              Are you open to relocating for the right opportunity?
+            </label>
+            <select
+              id="career-open_to_move"
+              className={inputClass}
+              value={relocationOpenness}
+              onChange={(e) => {
+                clearValidationFeedback();
+                setRelocationOpenness(e.target.value as RelocationOpenness);
+              }}
+            >
+              <option value="yes">Yes, definitely</option>
+              <option value="maybe">Maybe, depends on the opportunity</option>
+              <option value="no">No, prefer to stay in my area</option>
+            </select>
+          </div>
+          <div className="sm:col-span-2">
+            <label className={labelClass} htmlFor="career-target_comp">
+              Target annual compensation (optional)
+            </label>
+            <input
+              id="career-target_comp"
+              className={inputClass}
+              type="number"
+              min={0}
+              step={1000}
+              placeholder="e.g., 120000"
+              value={targetComp}
+              onChange={(e) => {
+                clearValidationFeedback();
+                setTargetComp(e.target.value);
+              }}
+            />
+            {errors.target_comp && <p className="mt-1 text-sm text-red-600">{errors.target_comp}</p>}
           </div>
           <div className="sm:col-span-2">
             <label className={labelClass} htmlFor="career-next_review_date">Next review date (optional)</label>

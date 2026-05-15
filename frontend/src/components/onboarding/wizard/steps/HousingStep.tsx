@@ -54,6 +54,17 @@ export default function HousingStep({ initialData, onSubmit, onSkip }: StepProps
   const [includesUtilities, setIncludesUtilities] = useState<boolean>(
     typeof initialData.includes_utilities === 'boolean' ? initialData.includes_utilities : false
   );
+  const [sharesHousing, setSharesHousing] = useState<boolean>(() => {
+    const pct = initialData.split_share_pct;
+    if (typeof pct === 'number' && pct > 0 && pct < 100) return true;
+    return initialData.shares_housing === true;
+  });
+  const [sharePercentage, setSharePercentage] = useState<string>(() => {
+    const pct = initialData.split_share_pct;
+    if (typeof pct === 'number' && pct > 0 && pct <= 100) return String(pct);
+    if (typeof pct === 'string' && pct.trim()) return pct;
+    return '';
+  });
   const [city, setCity] = useState<string>(typeof initialData.city === 'string' ? initialData.city : '');
   const [zipCode, setZipCode] = useState<string>(
     typeof initialData.zip_code === 'string' ? initialData.zip_code : ''
@@ -132,16 +143,34 @@ export default function HousingStep({ initialData, onSubmit, onSkip }: StepProps
       Number.isFinite(parsedMonthly) &&
       parsedMonthly > 0;
 
+    let splitSharePct = 100;
+    if (sharesHousing) {
+      const pct = Number.parseFloat(sharePercentage);
+      if (!Number.isFinite(pct) || pct < 1 || pct > 100) {
+        setErrors({ monthly_cost: 'Enter your share as a percentage from 1 to 100.' });
+        setShowValidationSummary(true);
+        document.getElementById('housing-share_percentage')?.focus();
+        return;
+      }
+      splitSharePct = pct;
+    }
+
+    const effectiveMonthly =
+      hasRecurring && sharesHousing ? parsedMonthly * (splitSharePct / 100) : parsedMonthly;
+
     setIsSubmitting(true);
     try {
-      if (hasRecurring) {
-        await postRecurringExpense(ownership === 'rent' ? 'Rent' : 'Mortgage', parsedMonthly);
+      if (hasRecurring && effectiveMonthly > 0) {
+        await postRecurringExpense(
+          ownership === 'rent' ? 'Rent' : 'Mortgage',
+          effectiveMonthly
+        );
       }
       await onSubmit({
         housing_type: mapHousingType(ownership as Ownership),
         monthly_cost: hasRecurring ? parsedMonthly : 0,
         zip_or_city: city.trim() || zipCode.trim() || 'N/A',
-        split_share_pct: 100,
+        split_share_pct: splitSharePct,
         has_buy_goal: false,
         target_price: null,
         target_timeline_months: null,
@@ -229,6 +258,59 @@ export default function HousingStep({ initialData, onSubmit, onSkip }: StepProps
                 }}
               />
               {errors.monthly_cost && <p className="mt-1 text-sm text-red-600">{errors.monthly_cost}</p>}
+            </div>
+          )}
+
+          {(ownership === 'rent' || ownership === 'own_with_mortgage') && (
+            <div className="space-y-3">
+              <label className="flex items-center gap-2 text-sm text-[#1E293B]">
+                <input
+                  type="checkbox"
+                  id="housing-shares_housing"
+                  checked={sharesHousing}
+                  onChange={(e) => {
+                    clearValidationFeedback();
+                    setSharesHousing(e.target.checked);
+                    if (!e.target.checked) setSharePercentage('');
+                  }}
+                />
+                Do you share housing costs? (e.g., roommates, spouse)
+              </label>
+              {sharesHousing && (
+                <>
+                  <div>
+                    <label className={labelClass} htmlFor="housing-share_percentage">
+                      What % of the total housing cost do you pay? (1–100)
+                    </label>
+                    <input
+                      id="housing-share_percentage"
+                      className={inputClass}
+                      type="number"
+                      min={1}
+                      max={100}
+                      placeholder="e.g., 50"
+                      value={sharePercentage}
+                      onChange={(e) => {
+                        clearValidationFeedback();
+                        setSharePercentage(e.target.value);
+                      }}
+                    />
+                  </div>
+                  {Number.isFinite(Number.parseFloat(monthlyCost)) &&
+                    Number.isFinite(Number.parseFloat(sharePercentage)) && (
+                      <p className="text-sm text-[#64748B]">
+                        Your estimated monthly cost:{' '}
+                        <span className="font-medium text-[#1E293B]">
+                          $
+                          {(
+                            Number.parseFloat(monthlyCost) *
+                            (Number.parseFloat(sharePercentage) / 100)
+                          ).toFixed(2)}
+                        </span>
+                      </p>
+                    )}
+                </>
+              )}
             </div>
           )}
 
