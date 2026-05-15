@@ -29,6 +29,7 @@ import { Sanitizer } from '../utils/sanitize';
 import { runComprehensiveTest } from '../utils/responsiveTestUtils';
 import { logger } from '../utils/logger';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
 import { AssessmentType } from '../types/assessments';
 import { useAnalytics } from '../hooks/useAnalytics';
 import HeroSection from './sections/HeroSection';
@@ -220,6 +221,7 @@ function useScrollToHash() {
 const LandingPage: React.FC = () => {
   useScrollToHash();
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
   const { trackInteraction, trackPageView } = useAnalytics();
   const [openFAQ, setOpenFAQ] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -273,26 +275,40 @@ const LandingPage: React.FC = () => {
 
 
   const handleButtonClick = (action: string) => {
-    // Track button click
     trackInteraction('button_click', {
       button_name: action,
       page: 'landing'
     });
-    
-    // Navigate to signup page with source tracking
-    navigate('/signup?source=cta');
+
+    if (isAuthenticated) {
+      navigate('/dashboard');
+    } else {
+      navigate('/signup?source=cta');
+    }
   };
 
   // Handle assessment button clicks
   const handleAssessmentClick = (assessmentType: AssessmentType) => {
-    // Track assessment started
     trackInteraction('assessment_started', {
       assessment_type: assessmentType,
       page: 'landing'
     });
-    
+
+    if (isAuthenticated) {
+      navigate('/dashboard');
+      return;
+    }
+
     setActiveAssessment(assessmentType);
-    setIsLoading(false); // Stop loading state
+    setIsLoading(false);
+  };
+
+  const handleAssessmentCardClick = (assessmentType: AssessmentType) => {
+    if (isAuthenticated) {
+      navigate('/dashboard');
+    } else {
+      setActiveAssessment(assessmentType);
+    }
   };
 
   // Handle assessment modal close
@@ -493,6 +509,7 @@ const LandingPage: React.FC = () => {
           onAssessmentKeyDown={handleAssessmentKeyDown}
           isLoading={isLoading}
           navigate={navigate}
+          isAuthenticated={isAuthenticated}
         />
         
         {/* Unified Assessment Section - THE ONLY ASSESSMENT AREA */}
@@ -516,7 +533,7 @@ const LandingPage: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
               {/* AI Replacement Risk */}
               <button
-                onClick={() => setActiveAssessment('ai-risk')}
+                onClick={() => handleAssessmentCardClick('ai-risk')}
                 className="group bg-gray-800 hover:bg-gray-700 border border-gray-700 hover:border-violet-500 rounded-xl p-6 text-left transition-all duration-300 transform hover:scale-105"
                 aria-label="Start AI Replacement Risk Assessment"
               >
@@ -535,7 +552,7 @@ const LandingPage: React.FC = () => {
 
               {/* Income Comparison */}
               <button
-                onClick={() => setActiveAssessment('income-comparison')}
+                onClick={() => handleAssessmentCardClick('income-comparison')}
                 className="group bg-gray-800 hover:bg-gray-700 border border-gray-700 hover:border-violet-500 rounded-xl p-6 text-left transition-all duration-300 transform hover:scale-105"
                 aria-label="Start Income Comparison Assessment"
               >
@@ -554,7 +571,7 @@ const LandingPage: React.FC = () => {
 
               {/* Cuffing Season Score */}
               <button
-                onClick={() => setActiveAssessment('cuffing-season')}
+                onClick={() => handleAssessmentCardClick('cuffing-season')}
                 className="group bg-gray-800 hover:bg-gray-700 border border-gray-700 hover:border-violet-500 rounded-xl p-6 text-left transition-all duration-300 transform hover:scale-105"
                 aria-label="Start Cuffing Season Score Assessment"
               >
@@ -573,7 +590,7 @@ const LandingPage: React.FC = () => {
 
               {/* Layoff Risk */}
               <button
-                onClick={() => setActiveAssessment('layoff-risk')}
+                onClick={() => handleAssessmentCardClick('layoff-risk')}
                 className="group bg-gray-800 hover:bg-gray-700 border border-gray-700 hover:border-violet-500 rounded-xl p-6 text-left transition-all duration-300 transform hover:scale-105"
                 aria-label="Start Layoff Risk Assessment"
               >
@@ -592,7 +609,7 @@ const LandingPage: React.FC = () => {
 
               {/* Vehicle Financial Health */}
               <button
-                onClick={() => setActiveAssessment('vehicle-financial-health')}
+                onClick={() => handleAssessmentCardClick('vehicle-financial-health')}
                 className="group bg-gray-800 hover:bg-gray-700 border border-gray-700 hover:border-violet-500 rounded-xl p-6 text-left transition-all duration-300 transform hover:scale-105"
                 aria-label="Start Vehicle Financial Health Assessment"
               >
@@ -611,14 +628,16 @@ const LandingPage: React.FC = () => {
             </div>
 
             {/* Skip Option */}
-            <div className="text-center">
-              <button
-                onClick={() => navigate('/signup?source=direct')}
-                className="text-gray-400 hover:text-white transition-colors text-sm underline min-h-[44px] px-3"
-              >
-                Skip assessments and sign up directly
-              </button>
-            </div>
+            {!isAuthenticated ? (
+              <div className="text-center">
+                <button
+                  onClick={() => navigate('/signup?source=direct')}
+                  className="text-gray-400 hover:text-white transition-colors text-sm underline min-h-[44px] px-3"
+                >
+                  Skip assessments and sign up directly
+                </button>
+              </div>
+            ) : null}
           </div>
         </section>
 
@@ -673,13 +692,23 @@ const LandingPage: React.FC = () => {
           </div>
           
           <div className="text-center mt-8">
-            <button
-              onClick={() => navigate('/signup?source=cta')}
-              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3 min-h-[44px] rounded-lg font-semibold transition-all duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-              aria-label="Get started with Mingus to access job recommendations"
-            >
-              Get Started
-            </button>
+            {isAuthenticated ? (
+              <button
+                onClick={() => navigate('/dashboard')}
+                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3 min-h-[44px] rounded-lg font-semibold transition-all duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                aria-label="Go to Mingus dashboard"
+              >
+                Go to Dashboard
+              </button>
+            ) : (
+              <button
+                onClick={() => navigate('/signup?source=cta')}
+                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3 min-h-[44px] rounded-lg font-semibold transition-all duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                aria-label="Get started with Mingus to access job recommendations"
+              >
+                Get Started
+              </button>
+            )}
           </div>
         </div>
       </section>
@@ -772,6 +801,7 @@ const LandingPage: React.FC = () => {
         onCTAKeyDown={handleCTAKeyDown}
         isLoading={isLoading}
         navigate={navigate}
+        isAuthenticated={isAuthenticated}
       />
       
       {/* Footer */}

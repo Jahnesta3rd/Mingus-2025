@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../../hooks/useAuth';
 import { ClipboardList } from 'lucide-react';
 import { CircularProgressRing } from './CircularProgressRing';
 import { ScoreChangeIndicator } from './ScoreChangeIndicator';
@@ -79,6 +80,7 @@ export const WellnessScoreCard: React.FC<WellnessScoreCardProps> = ({
   onStartCheckin,
   className = '',
 }) => {
+  const { isAuthenticated } = useAuth();
   const [displayOverall, setDisplayOverall] = useState(0);
 
   const overall = scores?.overall_wellness_score ?? 0;
@@ -133,11 +135,11 @@ export const WellnessScoreCard: React.FC<WellnessScoreCardProps> = ({
           >
             Take your check-in →
           </button>
-        ) : (
+        ) : isAuthenticated ? (
           <Link to="/dashboard/vibe-checkups" className={ctaClassName}>
             Take your check-in →
           </Link>
-        )}
+        ) : null}
       </div>
     );
   }

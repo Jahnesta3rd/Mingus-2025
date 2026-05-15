@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Check } from 'lucide-react';
+import { useAuth } from '../hooks/useAuth';
 
 // ========================================
 // TYPES
@@ -25,6 +26,20 @@ interface SpendingMilestonesWidgetProps {
 
 const MILESTONE_DAYS = [3, 7, 14, 30, 60, 100] as const;
 const PRIMARY_PURPLE = '#5B2D8E';
+
+function SpendingMilestonesEmptyCta() {
+  const { isAuthenticated } = useAuth();
+  if (!isAuthenticated) return null;
+  return (
+    <a
+      href="/dashboard/tools?tab=daily-outlook"
+      className="inline-block rounded-lg px-4 py-2 text-white transition-colors hover:opacity-90"
+      style={{ backgroundColor: PRIMARY_PURPLE }}
+    >
+      Open Daily Outlook to check in
+    </a>
+  );
+}
 
 const MILESTONE_MESSAGES: Record<number, string> = {
   3: 'You started something. That is the hardest part. Keep going.',
@@ -291,13 +306,7 @@ export default function SpendingMilestonesWidget({
           Check-in streak rewards — not financial goal milestones (those are coming later).
         </p>
         <p className="text-gray-700 mb-4">Complete your first check-in to start your streak</p>
-        <a
-          href="/dashboard/tools?tab=daily-outlook"
-          className="inline-block rounded-lg px-4 py-2 text-white transition-colors hover:opacity-90"
-          style={{ backgroundColor: PRIMARY_PURPLE }}
-        >
-          Open Daily Outlook to check in
-        </a>
+        <SpendingMilestonesEmptyCta />
         <p className="mt-4 text-xs text-gray-500">Goal tracking and milestone management coming soon.</p>
       </div>
     );

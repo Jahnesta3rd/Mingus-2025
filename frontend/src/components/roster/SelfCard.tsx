@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../../hooks/useAuth';
 
 // ========================================
 // TYPES
@@ -117,6 +118,7 @@ function SelfCardSkeleton({ className = '' }: { className?: string }) {
 // ========================================
 
 export default function SelfCard({ className = '' }: SelfCardProps) {
+  const { isAuthenticated } = useAuth();
   const [data, setData] = useState<SelfCardApiResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -334,14 +336,16 @@ export default function SelfCard({ className = '' }: SelfCardProps) {
         </div>
       </div>
 
-      <div className="mt-5 border-t border-[#E2E8F0] pt-4">
-        <Link
-          to="/dashboard/vibe-checkups"
-          className="inline-flex min-h-11 items-center rounded-lg text-sm font-medium text-[#6D28D9] underline decoration-[#6D28D9]/40 underline-offset-2 hover:decoration-[#6D28D9] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5B2D8E] focus-visible:ring-offset-2"
-        >
-          Update your check-in →
-        </Link>
-      </div>
+      {isAuthenticated ? (
+        <div className="mt-5 border-t border-[#E2E8F0] pt-4">
+          <Link
+            to="/dashboard/vibe-checkups"
+            className="inline-flex min-h-11 items-center rounded-lg text-sm font-medium text-[#6D28D9] underline decoration-[#6D28D9]/40 underline-offset-2 hover:decoration-[#6D28D9] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5B2D8E] focus-visible:ring-offset-2"
+          >
+            Update your check-in →
+          </Link>
+        </div>
+      ) : null}
     </div>
   );
 }

@@ -274,7 +274,7 @@ export default function VibeTrackerPage() {
                 Start tracking someone — take a checkup and give them a nickname.
               </p>
               {/* TODO: post-beta replace with authenticated vibe assessment flow per #99 People tab redesign */}
-              {!isAuthenticated ? (
+              {isAuthenticated ? (
                 <Link
                   to="/dashboard/vibe-checkups"
                   className="mt-6 inline-flex w-full items-center justify-center rounded-xl bg-[#5B2D8E] py-3.5 text-sm font-semibold text-white transition hover:opacity-95 sm:w-auto sm:px-8"

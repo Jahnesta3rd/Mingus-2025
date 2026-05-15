@@ -190,6 +190,8 @@ export function CheckupsHub() {
           const hasCompleted = Boolean(relative);
           const cta = hasCompleted ? 'Update' : 'Start';
 
+          if (!isAuthenticated) return null;
+
           return (
             <Link
               key={item.id}

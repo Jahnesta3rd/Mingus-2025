@@ -284,7 +284,8 @@ const NavigationBar: React.FC<NavigationBarProps> = ({ className = '' }) => {
                 >
                   Log In
                 </Link>
-                <button 
+                <button
+                  type="button"
                   onClick={() => navigate('/signup?source=cta')}
                   className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white px-6 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-violet-500/25 hover:-translate-y-0.5 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-900"
                   aria-label="Get started with Mingus"

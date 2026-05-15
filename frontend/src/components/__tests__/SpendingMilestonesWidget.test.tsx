@@ -3,6 +3,10 @@ import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import SpendingMilestonesWidget from '../SpendingMilestonesWidget';
 
+jest.mock('../../hooks/useAuth', () => ({
+  useAuth: () => ({ isAuthenticated: true, user: null, loading: false }),
+}));
+
 const mockFetch = jest.fn();
 
 function mockMilestonesResponse(overrides: Partial<{

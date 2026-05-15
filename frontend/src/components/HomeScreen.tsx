@@ -297,16 +297,18 @@ export default function HomeScreen() {
             {profile?.vibe_score == null ? (
               <p className="mt-2 text-sm text-[#9A8F7E]">Complete a Vibe Checkup to see your score.</p>
             ) : null}
-            <div className="mt-6">
-              {/* TODO: post-beta replace with per-job-home check-in entries per #99 */}
-              {/* (Roof Check → Home, Body Check → Wellness, Vibe Check → People per-person flow) */}
-              <Link
-                to="/dashboard/vibe-checkups"
-                className="inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-[#5B2D8E] px-4 text-center text-sm font-medium text-white hover:opacity-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A78BFA] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0D0A08] sm:w-auto"
-              >
-                Run a Checkup →
-              </Link>
-            </div>
+            {isAuthenticated ? (
+              <div className="mt-6">
+                {/* TODO: post-beta replace with per-job-home check-in entries per #99 */}
+                {/* (Roof Check → Home, Body Check → Wellness, Vibe Check → People per-person flow) */}
+                <Link
+                  to="/dashboard/vibe-checkups"
+                  className="inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-[#5B2D8E] px-4 text-center text-sm font-medium text-white hover:opacity-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A78BFA] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0D0A08] sm:w-auto"
+                >
+                  Run a Checkup →
+                </Link>
+              </div>
+            ) : null}
           </>
         )}
       </section>
@@ -359,14 +361,16 @@ export default function HomeScreen() {
             })}
           </ul>
         )}
-        <div className="mt-4">
-          <Link
-            to="/dashboard/roster"
-            className="inline-flex min-h-11 items-center rounded-lg text-sm font-medium text-[#6D28D9] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5B2D8E] focus-visible:ring-offset-2"
-          >
-            View full Roster →
-          </Link>
-        </div>
+        {isAuthenticated ? (
+          <div className="mt-4">
+            <Link
+              to="/dashboard/roster"
+              className="inline-flex min-h-11 items-center rounded-lg text-sm font-medium text-[#6D28D9] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5B2D8E] focus-visible:ring-offset-2"
+            >
+              View full Roster →
+            </Link>
+          </div>
+        ) : null}
       </section>
 
       <section className="rounded-2xl bg-white p-6 shadow-md">

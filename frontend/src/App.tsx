@@ -39,6 +39,7 @@ import FinancialForecastPage from './pages/FinancialForecastPage';
 import DashboardProfilePage from './pages/DashboardProfilePage';
 import SnapshotPage from './pages/SnapshotPage';
 import { useAuth } from './hooks/useAuth';
+import { LeadGenAssessment } from './pages/LeadGenAssessment';
 
 function localCalendarDateYmd(): string {
   const d = new Date();
@@ -102,10 +103,32 @@ const router = createBrowserRouter([
   { path: '/checkout', element: <CheckoutPage /> },
   { path: '/beta', element: <BetaLanding /> },
   { path: '/beta/welcome', element: <BetaWelcome /> },
+  { path: '/assessments', element: <LeadGenAssessment /> },
   { path: '/vibe-checkups', element: <VibeCheckupsPage /> },
-  { path: '/body-check', element: <BodyCheckPage /> },
-  { path: '/roof-check', element: <RoofCheckPage /> },
-  { path: '/vehicle-check', element: <VehicleCheckPage /> },
+  {
+    path: '/body-check',
+    element: (
+      <AuthGuard>
+        <BodyCheckPage />
+      </AuthGuard>
+    ),
+  },
+  {
+    path: '/roof-check',
+    element: (
+      <AuthGuard>
+        <RoofCheckPage />
+      </AuthGuard>
+    ),
+  },
+  {
+    path: '/vehicle-check',
+    element: (
+      <AuthGuard>
+        <VehicleCheckPage />
+      </AuthGuard>
+    ),
+  },
 
   // Pre-launch fix tracker (internal)
   { path: '/pre-launch', element: <PreLaunchTracker /> },

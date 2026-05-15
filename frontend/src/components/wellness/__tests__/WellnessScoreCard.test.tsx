@@ -13,6 +13,10 @@ import { MemoryRouter } from 'react-router-dom';
 import '@testing-library/jest-dom';
 import { WellnessScoreCard } from '../WellnessScoreCard';
 
+jest.mock('../../../hooks/useAuth', () => ({
+  useAuth: () => ({ isAuthenticated: true, user: null, loading: false }),
+}));
+
 function renderWellness(ui: React.ReactElement) {
   return render(<MemoryRouter>{ui}</MemoryRouter>);
 }

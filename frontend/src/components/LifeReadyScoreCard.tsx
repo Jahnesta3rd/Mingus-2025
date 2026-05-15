@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
 
 interface LifeReadyScoreComponent {
   score: number;
@@ -106,6 +107,7 @@ function TrendIndicator({ trend }: { trend: NonNullable<LifeReadyScoreApiRespons
 }
 
 function LifeReadyScorePlaceholder({ pillarsComplete, pillarsTotal }: { pillarsComplete: number; pillarsTotal: number }) {
+  const { isAuthenticated } = useAuth();
   return (
     <div className="flex w-full max-w-full flex-col items-center gap-4 px-1 text-center sm:px-0">
       <div
@@ -122,12 +124,14 @@ function LifeReadyScorePlaceholder({ pillarsComplete, pillarsTotal }: { pillarsC
       >
         {pillarsComplete} of {pillarsTotal} pillars complete
       </span>
-      <Link
-        to="/dashboard/vibe-checkups"
-        className="inline-flex min-h-11 w-full max-w-xs items-center justify-center rounded-xl bg-[#5B2D8E] px-4 py-3 text-sm font-medium text-white hover:opacity-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5B2D8E] focus-visible:ring-offset-2"
-      >
-        Take an assessment →
-      </Link>
+      {isAuthenticated ? (
+        <Link
+          to="/dashboard/vibe-checkups"
+          className="inline-flex min-h-11 w-full max-w-xs items-center justify-center rounded-xl bg-[#5B2D8E] px-4 py-3 text-sm font-medium text-white hover:opacity-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5B2D8E] focus-visible:ring-offset-2"
+        >
+          Take an assessment →
+        </Link>
+      ) : null}
     </div>
   );
 }

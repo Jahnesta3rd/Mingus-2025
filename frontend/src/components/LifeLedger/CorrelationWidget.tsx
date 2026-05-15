@@ -150,12 +150,14 @@ const CorrelationWidget: React.FC = () => {
           </div>
           {/* TODO: post-beta replace with per-job-home check-in entries per #99 */}
           {/* (Roof Check → Home, Body Check → Wellness, Vibe Check → People per-person flow) */}
-          <Link
-            to="/dashboard/vibe-checkups"
-            className="inline-flex items-center justify-center rounded-lg bg-[#C4A064] px-4 py-2.5 text-sm font-semibold text-[#0d0a08] hover:bg-[#d4b074] transition-colors"
-          >
-            Complete a checkup
-          </Link>
+          {isAuthenticated ? (
+            <Link
+              to="/dashboard/vibe-checkups"
+              className="inline-flex items-center justify-center rounded-lg bg-[#C4A064] px-4 py-2.5 text-sm font-semibold text-[#0d0a08] hover:bg-[#d4b074] transition-colors"
+            >
+              Complete a checkup
+            </Link>
+          ) : null}
         </section>
       )}
 
