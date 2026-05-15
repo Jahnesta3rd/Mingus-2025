@@ -118,6 +118,14 @@ export default function HomeScreen() {
       navigate('/dashboard/vibe-checkups', { replace: true });
       return;
     }
+    if (tab === 'daily-outlook') {
+      navigate('/dashboard/tools?tab=daily-outlook', { replace: true });
+      return;
+    }
+    if (tab === 'job-recommendations' || tab === 'recommendations') {
+      navigate('/dashboard/tools?tab=recommendations', { replace: true });
+      return;
+    }
     const normalized = tab === 'vehicles' ? 'vehicle' : tab;
     if (normalized === 'vehicle' || normalized === 'housing' || normalized === 'life-ledger') {
       navigate(`/dashboard/tools?tab=${normalized}`, { replace: true });
@@ -293,7 +301,7 @@ export default function HomeScreen() {
               {/* TODO: post-beta replace with per-job-home check-in entries per #99 */}
               {/* (Roof Check → Home, Body Check → Wellness, Vibe Check → People per-person flow) */}
               <Link
-                to="/dashboard/tools"
+                to="/dashboard/vibe-checkups"
                 className="inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-[#5B2D8E] px-4 text-center text-sm font-medium text-white hover:opacity-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A78BFA] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0D0A08] sm:w-auto"
               >
                 Run a Checkup →

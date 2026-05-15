@@ -52,6 +52,10 @@ describe('CareerProtectionDashboard – tab bar and URL sync verification', () =
       expect(src).toContain("tab === 'daily-outlook'");
       expect(src).toContain("setActiveTab('daily-outlook')");
     });
+    it('searchParams tab=job-recommendations maps to recommendations panel', () => {
+      expect(src).toContain("tab === 'job-recommendations'");
+      expect(src).toContain("setActiveTab('recommendations')");
+    });
     it('RecommendationTiers, LocationIntelligenceMap, VehicleDashboard, AnalyticsDashboard still used', () => {
       expect(src).toContain('RecommendationTiers');
       expect(src).toContain('LocationIntelligenceMap');

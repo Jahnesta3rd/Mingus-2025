@@ -59,7 +59,7 @@ def generate_insights(user_id: int, profile: LifeLedgerProfile) -> list[dict[str
                     "Your relationship wellness score suggests meaningful financial "
                     "drain risk—review shared money patterns before they compound."
                 ),
-                "action_url": "/dashboard/wellness",
+                "action_url": "/dashboard/vibe-checkups",
             }
         )
 
@@ -72,7 +72,7 @@ def generate_insights(user_id: int, profile: LifeLedgerProfile) -> list[dict[str
                     "Health habits that slip often show up as lost focus and "
                     "productivity—worth budgeting time and care like any other cost."
                 ),
-                "action_url": "/dashboard/wellness",
+                "action_url": "/dashboard/vibe-checkups",
             }
         )
 
@@ -98,7 +98,7 @@ def generate_insights(user_id: int, profile: LifeLedgerProfile) -> list[dict[str
                     "Vehicle upkeep risk is elevated—plan for maintenance spikes so "
                     "they do not derail cash flow."
                 ),
-                "action_url": "/dashboard/vehicle",
+                "action_url": "/dashboard/tools?tab=vehicle",
             }
         )
 

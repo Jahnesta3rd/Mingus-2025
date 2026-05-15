@@ -111,12 +111,13 @@ const LifeLedgerWidget: React.FC<LifeLedgerWidgetProps> = ({
         <>
           <p className="text-sm font-medium text-gray-900">These assessments feed your Whole-Life Score</p>
           <div className="grid grid-cols-2 gap-3 sm:gap-4">
+            {/* #109: /vibe-check (daily meme) does not write LifeLedgerProfile.vibe_score; hub lists paths that fill the vibe pillar. */}
             <ModuleScoreCard
               module="vibe"
               label="Vibe"
               icon="💑"
               score={profile.vibe_score}
-              actionUrl="/dashboard/roster"
+              actionUrl="/dashboard/vibe-checkups"
             />
             <ModuleScoreCard
               module="body"

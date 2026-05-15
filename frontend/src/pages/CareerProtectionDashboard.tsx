@@ -235,6 +235,9 @@ const CareerProtectionDashboard: React.FC = () => {
     } else if (tab === 'daily-outlook') {
       setDashboardState((prev) => ({ ...prev, activeTab: 'daily-outlook' }));
       setActiveTab('daily-outlook');
+    } else if (tab === 'recommendations' || tab === 'job-recommendations') {
+      setDashboardState((prev) => ({ ...prev, activeTab: 'recommendations' }));
+      setActiveTab('recommendations');
     } else if (tab === 'overview') {
       setDashboardState((prev) => ({ ...prev, activeTab: 'overview' }));
       setActiveTab('overview');
