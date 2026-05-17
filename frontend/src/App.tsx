@@ -34,7 +34,6 @@ import VibeTrackerPage from './pages/VibeTrackerPage';
 import SpiritFinance from './pages/SpiritFinance';
 import SettingsPage from './pages/SettingsPage';
 import OnboardingRouter from './components/OnboardingRouter';
-import { ModularOnboarding } from './components/ModularOnboarding';
 import FinancialForecastPage from './pages/FinancialForecastPage';
 import DashboardProfilePage from './pages/DashboardProfilePage';
 import SnapshotPage from './pages/SnapshotPage';
@@ -55,14 +54,6 @@ const OnboardingRouteWrapper: React.FC = () => {
     navigate('/snapshot');
   };
   return <OnboardingRouter onComplete={handleOnboardingComplete} />;
-};
-
-const OnboardingLegacyRouteWrapper: React.FC = () => {
-  const navigate = useNavigate();
-  const handleOnboardingComplete = () => {
-    navigate('/snapshot');
-  };
-  return <ModularOnboarding onComplete={handleOnboardingComplete} />;
 };
 
 const VibeCheckMemeWrapper: React.FC = () => {
@@ -209,17 +200,6 @@ const router = createBrowserRouter([
       <AuthGuard>
         <TermsCheckGuard>
           <OnboardingRouteWrapper />
-        </TermsCheckGuard>
-      </AuthGuard>
-    ),
-  },
-
-  {
-    path: '/onboarding/legacy',
-    element: (
-      <AuthGuard>
-        <TermsCheckGuard>
-          <OnboardingLegacyRouteWrapper />
         </TermsCheckGuard>
       </AuthGuard>
     ),
