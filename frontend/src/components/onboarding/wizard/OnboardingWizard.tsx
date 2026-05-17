@@ -49,8 +49,20 @@ function moduleIndex(moduleId: string | null): number {
   return idx >= 0 ? idx : 0;
 }
 
-export default function OnboardingWizard() {
+export interface OnboardingWizardProps {
+  onComplete?: () => void;
+}
+
+export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
   const navigate = useNavigate();
+
+  const finishOnboarding = useCallback(() => {
+    if (onComplete) {
+      onComplete();
+      return;
+    }
+    navigate('/dashboard', { replace: true });
+  }, [onComplete, navigate]);
   const { getAccessToken } = useAuth();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
@@ -89,7 +101,7 @@ export default function OnboardingWizard() {
       }
       const payload = (await res.json()) as unknown;
       if (parseStatusComplete(payload)) {
-        navigate('/dashboard', { replace: true });
+        finishOnboarding();
         return;
       }
       setCurrentIndex(moduleIndex(parseStatusModule(payload)));
@@ -98,7 +110,7 @@ export default function OnboardingWizard() {
     } finally {
       setIsLoading(false);
     }
-  }, [headers, navigate]);
+  }, [finishOnboarding, headers]);
 
   useEffect(() => {
     void fetchStatus();
@@ -117,7 +129,7 @@ export default function OnboardingWizard() {
     }
     const body = (await res.json()) as { next_module?: string | null; all_done?: boolean };
     if (body.all_done) {
-      navigate('/dashboard', { replace: true });
+      finishOnboarding();
       return;
     }
     if (body.next_module) {
@@ -125,7 +137,7 @@ export default function OnboardingWizard() {
       return;
     }
     setCurrentIndex((prev) => Math.min(prev + 1, STEP_ORDER.length - 1));
-  }, [currentIndex, headers, navigate]);
+  }, [currentIndex, finishOnboarding, headers]);
 
   const completeFinalStep = useCallback(
     async (data: Record<string, unknown> = {}) => {
@@ -155,9 +167,9 @@ export default function OnboardingWizard() {
         );
       }
 
-      navigate('/dashboard', { replace: true });
+      finishOnboarding();
     },
-    [headers, navigate]
+    [finishOnboarding, headers]
   );
 
   const handleStepSubmit = useCallback(
@@ -186,7 +198,7 @@ export default function OnboardingWizard() {
             throw new Error(`Some entries couldn't be saved — ${summary}.`);
           }
           if (resp.all_done) {
-            navigate('/dashboard', { replace: true });
+            finishOnboarding();
             return;
           }
           if (resp.next_module) {
@@ -213,10 +225,10 @@ export default function OnboardingWizard() {
     [
       completeFinalStep,
       currentIndex,
+      finishOnboarding,
       getAccessToken,
       isLastStep,
       isSubmitting,
-      navigate,
       persistSkipAndAdvance,
     ]
   );
