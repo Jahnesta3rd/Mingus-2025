@@ -353,6 +353,12 @@ export default function RecurringExpensesStep({
       await onSubmit({
         count: rows.length,
         total_monthly: Math.round(totalMonthly * 100) / 100,
+        categories: rows.map((row) => ({
+          category_id: row.category,
+          amount: parseFloat(row.amount),
+          due_day: row.due_day,
+          frequency: row.frequency,
+        })),
       });
     } catch (err) {
       setSubmitBanner(err instanceof Error ? err.message : 'Save failed');

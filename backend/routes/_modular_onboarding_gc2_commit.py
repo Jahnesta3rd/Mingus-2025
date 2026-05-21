@@ -60,6 +60,7 @@ _RE_CAT_FIELD = re.compile(
     r"^categories\[(?P<cat>[a-z_]+)\]\.(?P<fld>amount|due_day|frequency)$"
 )
 _RE_EVT = re.compile(r"^events\[(?P<idx>\d+|new)\]\.(?P<fld>name|date|cost)$")
+_RE_INC_ROW = re.compile(r"^rows\[(?P<idx>\d+)\]\.(?P<fld>label|amount|frequency|pay_day)$")
 
 
 def _utcnow() -> datetime:
@@ -331,6 +332,47 @@ def _validate_and_cast(field_path: str, value: Any) -> tuple[Any | None, tuple[d
         if len(s) > 100:
             return None, _validation_failed(field_path, "string_too_long", "max 100", value)
         return s, None
+    m_inc_row = _RE_INC_ROW.match(field_path)
+    if m_inc_row:
+        fld = m_inc_row.group("fld")
+        if fld == "label":
+            if not isinstance(value, str) or not value.strip():
+                return None, _validation_failed(
+                    field_path, "type_mismatch", "non-empty string max 100", value
+                )
+            s = value.strip()
+            if len(s) > 100:
+                return None, _validation_failed(field_path, "string_too_long", "max 100", value)
+            return s, None
+        if fld == "amount":
+            try:
+                v = float(value)
+            except (TypeError, ValueError):
+                return None, _validation_failed(field_path, "type_mismatch", "number", value)
+            if v < 0 or v > 500_000:
+                return None, _validation_failed(field_path, "out_of_range", "[0, 500000]", value)
+            return v, None
+        if fld == "frequency":
+            if not isinstance(value, str):
+                return None, _validation_failed(field_path, "type_mismatch", "enum string", value)
+            v = value.strip().lower()
+            if v not in ("weekly", "biweekly", "semimonthly", "monthly", "annual"):
+                return None, _validation_failed(
+                    field_path,
+                    "type_mismatch",
+                    "weekly|biweekly|semimonthly|monthly|annual",
+                    value,
+                )
+            return v, None
+        if fld == "pay_day":
+            try:
+                vi = int(value)
+            except (TypeError, ValueError):
+                return None, _validation_failed(field_path, "type_mismatch", "int 1-31", value)
+            if vi < 1 or vi > 31:
+                return None, _validation_failed(field_path, "out_of_range", "[1, 31]", value)
+            return vi, None
+        return None, _unknown_field(field_path)
     if field_path == "pay_frequency":
         if not isinstance(value, str):
             return None, _validation_failed(field_path, "type_mismatch", "enum string", value)
@@ -538,6 +580,18 @@ def _validate_and_cast(field_path: str, value: Any) -> tuple[Any | None, tuple[d
             if v < 0 or v > 10000:
                 return None, _validation_failed(field_path, "out_of_range", "[0, 10000]", value)
             return v, None
+        if fld == "card_type":
+            if not isinstance(value, str):
+                return None, _validation_failed(field_path, "type_mismatch", "string", value)
+            s = value.strip().lower()
+            if s not in ("person", "kids", "social", "family"):
+                return None, _validation_failed(
+                    field_path,
+                    "invalid_enum",
+                    "person|kids|social|family",
+                    value,
+                )
+            return s, None
         return None, _unknown_field(field_path)
     m = _RE_EVT.match(field_path)
     if m:
@@ -716,6 +770,60 @@ def _next_income_stream_date(
     return today + timedelta(days=30)
 
 
+def _pay_day_from_next_date(next_date: Any) -> int | None:
+    if isinstance(next_date, str) and len(next_date) >= 10:
+        try:
+            return date.fromisoformat(next_date[:10]).day
+        except ValueError:
+            return None
+    return None
+
+
+def _upsert_wizard_income_row(
+    user: User,
+    idx: int,
+    batch: dict[str, Any],
+    applied: list[str],
+) -> None:
+    label_raw = batch.get("label")
+    if not isinstance(label_raw, str) or not label_raw.strip():
+        return
+    source_name = label_raw.strip()[:100]
+    dec = _to_decimal_amount(batch.get("amount"))
+    if dec is None:
+        return
+    freq = str(batch.get("frequency") or "monthly").strip().lower()
+    pay_day = batch.get("pay_day")
+    pay_day_i = int(pay_day) if isinstance(pay_day, int) else None
+
+    row = None
+    for r in UserIncome.query.filter_by(user_id=user.id, is_active=True).all():
+        if r.source_name == source_name:
+            row = r
+            break
+    if row is None:
+        row = UserIncome(
+            user_id=user.id,
+            source_name=source_name,
+            amount=dec,
+            frequency=freq,
+            pay_day=pay_day_i,
+            is_active=True,
+        )
+        db.session.add(row)
+    else:
+        row.amount = dec
+        row.frequency = freq
+        row.pay_day = pay_day_i
+        row.is_active = True
+    _upsert_income_stream_from_primary(user, row)
+    applied.append(f"rows[{idx}].label")
+    applied.append(f"rows[{idx}].amount")
+    applied.append(f"rows[{idx}].frequency")
+    if pay_day_i is not None:
+        applied.append(f"rows[{idx}].pay_day")
+
+
 def _upsert_income_stream_from_primary(user: User, primary: UserIncome) -> None:
     # Note: amounts are post-tax (take-home) per the income module system prompt.
     # Verified Apr 30 that cash_forecast_service applies no tax math.
@@ -758,7 +866,8 @@ def _commit_income_module_dual_write(
     pairs = flatten_module_data("income", data)
     committed_fields: list[str] = []
     failed_fields: list[dict] = []
-    to_apply: list[tuple[str, Any]] = []
+    row_batches: dict[int, dict[str, Any]] = {}
+    gc2_pairs: list[tuple[str, Any]] = []
     for fp, val in pairs:
         cast_v, err = _validate_and_cast(fp, val)
         if err:
@@ -772,14 +881,25 @@ def _commit_income_module_dual_write(
                 }
             )
             continue
-        to_apply.append((fp, cast_v))
+        m_row = _RE_INC_ROW.match(fp)
+        if m_row:
+            idx = int(m_row.group("idx"))
+            row_batches.setdefault(idx, {})[m_row.group("fld")] = cast_v
+            continue
+        gc2_pairs.append((fp, cast_v))
 
-    if not to_apply:
+    if failed_fields:
+        return committed_fields, failed_fields
+
+    if not row_batches and not gc2_pairs:
         return committed_fields, failed_fields
 
     applied: list[str] = []
     try:
-        for fp, cast_v in to_apply:
+        for idx in sorted(row_batches.keys()):
+            _upsert_wizard_income_row(user, idx, row_batches[idx], applied)
+
+        for fp, cast_v in gc2_pairs:
             if fp == "bonus_cadence":
                 applied.append(fp)
                 continue
@@ -1624,6 +1744,185 @@ def _commit_vehicle_module(
     return committed_fields, failed_fields
 
 
+def _commit_housing_module(
+    *,
+    user: User,
+    uid: str,
+    session: dict,
+    data: dict,
+    save_session: Callable[[str, dict], None],
+    load_row: Callable[[User], OnboardingProgress | None],
+) -> tuple[list[str], list[dict]]:
+    """Validate and upsert HousingProfile in a single DB transaction."""
+    committed_fields: list[str] = []
+    failed_fields: list[dict] = []
+    validated: dict[str, Any] = {}
+
+    split_raw = data.get("split_share_pct") if "split_share_pct" in data else 100
+    field_specs: list[tuple[str, Any]] = [
+        ("housing_type", data.get("housing_type")),
+        ("monthly_cost", data.get("monthly_cost")),
+        ("zip_or_city", data.get("zip_or_city")),
+        ("split_share_pct", split_raw),
+        ("has_buy_goal", data.get("has_buy_goal")),
+        ("target_price", data.get("target_price")),
+        ("target_timeline_months", data.get("target_timeline_months")),
+    ]
+    for fp, raw in field_specs:
+        cast_v, err = _validate_and_cast(fp, raw)
+        if err:
+            failed_fields.append(
+                {
+                    "field_path": fp,
+                    "error": (err[0] or {}).get("error", "error"),
+                    "reason": (err[0] or {}).get("reason")
+                    or (err[0] or {}).get("note")
+                    or str(err[0]),
+                }
+            )
+            continue
+        validated[fp] = cast_v
+
+    if failed_fields:
+        return committed_fields, failed_fields
+
+    applied: list[str] = []
+    try:
+        hp = HousingProfile.query.filter_by(user_id=user.id).first()
+        if hp is None:
+            hp = HousingProfile(
+                user_id=user.id,
+                housing_type="rent",
+                monthly_cost=0.0,
+                zip_or_city="",
+            )
+            db.session.add(hp)
+            db.session.flush()
+        hp.housing_type = validated["housing_type"]
+        hp.monthly_cost = float(validated["monthly_cost"])
+        hp.zip_or_city = validated["zip_or_city"]
+        hp.split_share_pct = validated["split_share_pct"]
+        hp.has_buy_goal = bool(validated["has_buy_goal"])
+        hp.target_price = (
+            float(validated["target_price"])
+            if validated["target_price"] is not None
+            else None
+        )
+        hp.target_timeline_months = validated["target_timeline_months"]
+        applied.extend(
+            [
+                "housing_type",
+                "monthly_cost",
+                "zip_or_city",
+                "split_share_pct",
+                "has_buy_goal",
+                "target_price",
+                "target_timeline_months",
+            ]
+        )
+
+        _touch_progress_row(user, load_row)
+        db.session.commit()
+        committed_fields.extend(applied)
+    except Exception as e:
+        db.session.rollback()
+        loguru_logger.exception("GC2 housing batch failed: {}", e)
+        failed_fields.append(
+            {
+                "field_path": "__batch__",
+                "error": "commit_failed",
+                "reason": str(e),
+            }
+        )
+
+    return committed_fields, failed_fields
+
+
+def _commit_career_module(
+    *,
+    user: User,
+    uid: str,
+    session: dict,
+    data: dict,
+    save_session: Callable[[str, dict], None],
+    load_row: Callable[[User], OnboardingProgress | None],
+) -> tuple[list[str], list[dict]]:
+    """Validate and upsert CareerProfile in a single DB transaction."""
+    committed_fields: list[str] = []
+    failed_fields: list[dict] = []
+    validated: dict[str, Any] = {}
+
+    field_specs: list[tuple[str, Any]] = [
+        ("current_role", data.get("current_role")),
+        ("industry", data.get("industry")),
+        ("years_experience", data.get("years_experience")),
+        ("satisfaction", data.get("satisfaction")),
+        ("open_to_move", data.get("open_to_move")),
+        ("target_comp", data.get("target_comp")),
+    ]
+    for fp, raw in field_specs:
+        cast_v, err = _validate_and_cast(fp, raw)
+        if err:
+            failed_fields.append(
+                {
+                    "field_path": fp,
+                    "error": (err[0] or {}).get("error", "error"),
+                    "reason": (err[0] or {}).get("reason")
+                    or (err[0] or {}).get("note")
+                    or str(err[0]),
+                }
+            )
+            continue
+        validated[fp] = cast_v
+
+    if failed_fields:
+        return committed_fields, failed_fields
+
+    applied: list[str] = []
+    try:
+        cp = CareerProfile.query.filter_by(user_id=user.id).first()
+        if cp is None:
+            cp = CareerProfile(user_id=user.id)
+            db.session.add(cp)
+            db.session.flush()
+        cp.current_role = validated["current_role"]
+        cp.industry = validated["industry"]
+        cp.years_experience = validated["years_experience"]
+        cp.satisfaction = validated["satisfaction"]
+        cp.open_to_move = bool(validated["open_to_move"])
+        cp.target_comp = (
+            float(validated["target_comp"])
+            if validated["target_comp"] is not None
+            else None
+        )
+        applied.extend(
+            [
+                "current_role",
+                "industry",
+                "years_experience",
+                "satisfaction",
+                "open_to_move",
+                "target_comp",
+            ]
+        )
+
+        _touch_progress_row(user, load_row)
+        db.session.commit()
+        committed_fields.extend(applied)
+    except Exception as e:
+        db.session.rollback()
+        loguru_logger.exception("GC2 career batch failed: {}", e)
+        failed_fields.append(
+            {
+                "field_path": "__batch__",
+                "error": "commit_failed",
+                "reason": str(e),
+            }
+        )
+
+    return committed_fields, failed_fields
+
+
 def _touch_progress_row(user: User, load_row: Callable[[User], OnboardingProgress | None]) -> None:
     row = load_row(user)
     now = _utcnow()
@@ -2206,6 +2505,21 @@ def _apply_commit_field(
             newv = float(cast_value)
             changed = not _float_eq(pers.estimated_monthly_cost, newv)
             pers.estimated_monthly_cost = newv
+        elif fld == "card_type":
+            if not isinstance(cast_value, str):
+                return ({"error": "validation_failed", "field_path": field_path}, 400)
+            newv = cast_value.strip().lower()
+            if newv not in ("person", "kids", "social", "family"):
+                return (
+                    {
+                        "error": "validation_failed",
+                        "reason": "card_type must be person, kids, social, or family",
+                        "field_path": field_path,
+                    },
+                    400,
+                )
+            changed = (pers.card_type or "person") != newv
+            pers.card_type = newv
         else:
             return ({"error": "unknown_field", "field_path": field_path}, 400)
         _touch_progress_row(user, load_row)
@@ -2353,6 +2667,18 @@ def flatten_module_data(module_id: str, data: dict) -> list[tuple[str, Any]]:
             if k == "pay_day" and data[k] is None:
                 continue
             pairs.append((k, data[k]))
+        for i, row in enumerate(data.get("rows") or []):
+            if not isinstance(row, dict):
+                continue
+            if row.get("label") is not None:
+                pairs.append((f"rows[{i}].label", row.get("label")))
+            if row.get("amount") is not None:
+                pairs.append((f"rows[{i}].amount", row.get("amount")))
+            if row.get("frequency"):
+                pairs.append((f"rows[{i}].frequency", row.get("frequency")))
+            pay_day = _pay_day_from_next_date(row.get("next_date"))
+            if pay_day is not None:
+                pairs.append((f"rows[{i}].pay_day", pay_day))
     elif module_id == "housing":
         for k in (
             "housing_type",
@@ -2485,6 +2811,24 @@ def run_commit_module(
         )
     elif module_id == "vehicle":
         committed_fields, failed_fields = _commit_vehicle_module(
+            user=user,
+            uid=uid,
+            session=session,
+            data=data,
+            save_session=save_session,
+            load_row=load_row,
+        )
+    elif module_id == "housing":
+        committed_fields, failed_fields = _commit_housing_module(
+            user=user,
+            uid=uid,
+            session=session,
+            data=data,
+            save_session=save_session,
+            load_row=load_row,
+        )
+    elif module_id == "career":
+        committed_fields, failed_fields = _commit_career_module(
             user=user,
             uid=uid,
             session=session,

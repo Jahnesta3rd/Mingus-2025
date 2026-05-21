@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const LoginPage: React.FC = () => {
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
@@ -36,41 +37,7 @@ const LoginPage: React.FC = () => {
         // ignore
       }
 
-      // Full page redirect so the app loads fresh and AuthGuard sees the token.
-      // Cache-bust so we don't get a cached HTML/JS bundle.
-      try {
-        const statusRes = await fetch('/api/profile/setup-status', {
-          method: 'GET',
-          credentials: 'include',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('mingus_token') || ''}`,
-          },
-        });
-        if (statusRes.ok) {
-          const statusData = await statusRes.json();
-          const isComplete =
-            statusData.setupCompleted === true ||
-            statusData.onboarding_complete === true;
-          if (!isComplete) {
-            window.location.replace('/onboarding');
-            return;
-          }
-          if (statusData.show_vibe_moment_today === true) {
-            window.location.replace('/vibe-check-meme?t=' + Date.now());
-            return;
-          }
-          window.location.replace('/dashboard');
-          return;
-        }
-        console.error('LoginPage: setup-status returned', statusRes.status);
-        window.location.replace('/dashboard');
-        return;
-      } catch (err) {
-        console.error('LoginPage: setup-status fetch failed', err);
-        window.location.replace('/dashboard');
-        return;
-      }
+      navigate('/welcome', { replace: true });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Invalid email or password');
     } finally {

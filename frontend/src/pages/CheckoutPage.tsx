@@ -1,4 +1,5 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
+import { useLocation } from 'react-router-dom';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { useAuth } from '../hooks/useAuth';
@@ -176,7 +177,7 @@ function PaymentFormInner({ tierName, onBack }: { tierName: string; onBack: () =
       const { error: confirmError } = await stripe.confirmPayment({
         elements,
         confirmParams: {
-          return_url: window.location.origin + '/onboarding',
+          return_url: window.location.origin + '/welcome',
         },
       });
       if (confirmError) {
@@ -233,20 +234,30 @@ function PaymentFormInner({ tierName, onBack }: { tierName: string; onBack: () =
   );
 }
 
+type CheckoutLocationState = {
+  tierId?: TierId;
+};
+
+function tierFromLocationState(state: unknown): TierOption | null {
+  if (!state || typeof state !== 'object') return null;
+  const tierId = (state as CheckoutLocationState).tierId;
+  if (tierId !== 'budget' && tierId !== 'mid' && tierId !== 'professional') return null;
+  return TIERS.find((t) => t.id === tierId) ?? null;
+}
+
 export default function CheckoutPage() {
   const { user } = useAuth();
+  const location = useLocation();
+  const incomingTier = tierFromLocationState(location.state);
   const [step, setStep] = useState<1 | 2>(1);
-  const [selectedTier, setSelectedTier] = useState<TierOption | null>(null);
+  const [selectedTier, setSelectedTier] = useState<TierOption | null>(incomingTier);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [intentError, setIntentError] = useState<string | null>(null);
   const [loadingIntent, setLoadingIntent] = useState(false);
+  const [skipTierPicker, setSkipTierPicker] = useState(() => incomingTier !== null);
+  const tierAutoAdvanceAttempted = useRef(false);
 
-  const handleContinue = async () => {
-    // If no tier selected (e.g. state not updated by click), default to Budget so the request always fires
-    const tier = selectedTier ?? TIERS[0];
-    if (!selectedTier && typeof console !== 'undefined' && console.warn) {
-      console.warn('Checkout: Continue clicked with no tier selected; using default Budget tier.');
-    }
+  const startPaymentIntent = async (tier: TierOption) => {
     setIntentError(null);
     setLoadingIntent(true);
     try {
@@ -262,20 +273,38 @@ export default function CheckoutPage() {
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
         setIntentError(data.error || 'Failed to start payment');
+        setSkipTierPicker(false);
         return;
       }
       if (data.clientSecret) {
-        if (!selectedTier) setSelectedTier(tier);
+        setSelectedTier(tier);
         setClientSecret(data.clientSecret);
         setStep(2);
       } else {
         setIntentError('Invalid response from server');
+        setSkipTierPicker(false);
       }
     } catch (err) {
       setIntentError(err instanceof Error ? err.message : 'Network error');
+      setSkipTierPicker(false);
     } finally {
       setLoadingIntent(false);
     }
+  };
+
+  useEffect(() => {
+    if (tierAutoAdvanceAttempted.current || !incomingTier) return;
+    tierAutoAdvanceAttempted.current = true;
+    void startPaymentIntent(incomingTier);
+  }, [incomingTier]);
+
+  const handleContinue = async () => {
+    // If no tier selected (e.g. state not updated by click), default to Budget so the request always fires
+    const tier = selectedTier ?? TIERS[0];
+    if (!selectedTier && typeof console !== 'undefined' && console.warn) {
+      console.warn('Checkout: Continue clicked with no tier selected; using default Budget tier.');
+    }
+    await startPaymentIntent(tier);
   };
 
   const handleBack = () => {
@@ -299,7 +328,7 @@ export default function CheckoutPage() {
             {intentError}
           </div>
         )}
-        {step === 1 && (
+        {step === 1 && !skipTierPicker && (
           <TierSelectionStep
             selectedTier={selectedTier}
             onSelectTier={setSelectedTier}
@@ -307,7 +336,7 @@ export default function CheckoutPage() {
             loading={loadingIntent}
           />
         )}
-        {step === 1 && loadingIntent && (
+        {step === 1 && (skipTierPicker || loadingIntent) && (
           <div className="mt-6 flex items-center gap-2 text-gray-600">
             <LoadingSpinner size="sm" />
             <span>Preparing payment…</span>

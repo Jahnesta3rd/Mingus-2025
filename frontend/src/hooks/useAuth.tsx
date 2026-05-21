@@ -1,5 +1,30 @@
 import { useState, useEffect, useCallback, useMemo, createContext, useContext } from 'react';
 
+/** Thrown when GET /api/auth/session-ready does not succeed within bounded retries. */
+export class SessionNotReadyError extends Error {
+  constructor(message = 'Session not ready') {
+    super(message);
+    this.name = 'SessionNotReadyError';
+  }
+}
+
+// Bounded retry for post-auth cookie propagation (session-ready probe).
+// maxAttempts: 6 — total tries before SessionNotReadyError
+// baseDelayMs: 200 — initial backoff after first failure
+// maxDelayMs: 1200 — cap per wait between attempts
+// jitter: each delay is multiplied by uniform random in [0.7, 1.0] (70–100% of computed delay)
+const SESSION_READY_MAX_ATTEMPTS = 6;
+const SESSION_READY_BASE_DELAY_MS = 200;
+const SESSION_READY_MAX_DELAY_MS = 1200;
+
+function sessionReadyBackoffMs(attemptIndex: number): number {
+  const exp = Math.min(
+    SESSION_READY_BASE_DELAY_MS * 2 ** attemptIndex,
+    SESSION_READY_MAX_DELAY_MS
+  );
+  return exp * (0.7 + Math.random() * 0.3);
+}
+
 function csrfHeaders(): Record<string, string> {
   const token =
     document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || 'test-token';
@@ -53,6 +78,8 @@ interface AuthContextType {
   ) => Promise<{ isBeta: boolean }>;
   logout: () => void;
   loading: boolean;
+  /** Poll GET /api/auth/session-ready until cookie JWT is accepted or retries exhaust. */
+  awaitSessionReady: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -75,6 +102,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch {
       return null;
     }
+  }, []);
+
+  const awaitSessionReady = useCallback(async (): Promise<void> => {
+    for (let attempt = 0; attempt < SESSION_READY_MAX_ATTEMPTS; attempt++) {
+      try {
+        const res = await fetch('/api/auth/session-ready', {
+          method: 'GET',
+          credentials: 'include',
+        });
+        if (res.ok) {
+          const data = (await res.json()) as { ready?: boolean };
+          if (data.ready === true) {
+            return;
+          }
+        }
+      } catch {
+        /* retry */
+      }
+      if (attempt < SESSION_READY_MAX_ATTEMPTS - 1) {
+        await new Promise((r) => setTimeout(r, sessionReadyBackoffMs(attempt)));
+      }
+    }
+    throw new SessionNotReadyError();
   }, []);
 
   useEffect(() => {
@@ -276,6 +326,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     register,
     logout,
     loading,
+    awaitSessionReady,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

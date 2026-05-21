@@ -18,11 +18,9 @@ import { TermsCheckGuard } from './components/Auth/TermsCheckGuard';
 import VibeGuard from './guards/VibeGuard';
 import { MCIProvider } from './context/MCIContext';
 import LandingPage from './components/LandingPage';
-import SignUpPage from './pages/SignUpPage';
 import CheckoutPage from './pages/CheckoutPage';
 import PreLaunchTracker from './pages/PreLaunchTracker';
-import BetaLanding from './pages/BetaLanding';
-import BetaWelcome from './pages/BetaWelcome';
+import { RedirectWithQuery } from './components/routing/RedirectWithQuery';
 import AdminRoute from './components/AdminRoute';
 import BetaAdminDashboard from './pages/BetaAdminDashboard';
 import VibeCheckupsPage from './pages/VibeCheckupsPage';
@@ -87,13 +85,13 @@ const router = createBrowserRouter([
   // Public routes
   { path: '/', element: <LandingPage /> },
   { path: '/login', element: <LoginPage /> },
-  { path: '/signup', element: <SignUpPage /> },
+  { path: '/signup', element: <RedirectWithQuery toPath="/register" /> },
   { path: '/register', element: <RegisterPage /> },
   { path: '/forgot-password', element: <ForgotPasswordPage /> },
   { path: '/reset-password', element: <ResetPasswordPage /> },
   { path: '/checkout', element: <CheckoutPage /> },
-  { path: '/beta', element: <BetaLanding /> },
-  { path: '/beta/welcome', element: <BetaWelcome /> },
+  { path: '/beta', element: <Navigate to="/register?beta=1" replace /> },
+  { path: '/beta/welcome', element: <Navigate to="/welcome" replace /> },
   { path: '/assessments', element: <LeadGenAssessment /> },
   { path: '/vibe-checkups', element: <VibeCheckupsPage /> },
   {

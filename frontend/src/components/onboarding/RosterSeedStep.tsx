@@ -5,7 +5,11 @@ import { csrfHeaders } from '../../utils/csrfHeaders';
 export type RosterCardType = 'person' | 'kids' | 'social' | 'family';
 
 export interface RosterSeedStepProps {
-  onSubmitted: (firstPerson: { id: string; nickname: string }) => void;
+  onSubmitted: (payload: {
+    id: string;
+    nickname: string;
+    people: { nickname: string; card_type: RosterCardType }[];
+  }) => void;
   onSkip: () => void;
   setPageError: (msg: string | null) => void;
 }
@@ -208,7 +212,14 @@ export default function RosterSeedStep({ onSubmitted, onSkip, setPageError }: Ro
         }
       }
       if (firstPosted) {
-        onSubmitted({ id: firstPosted.id, nickname: firstPosted.nickname });
+        onSubmitted({
+          id: firstPosted.id,
+          nickname: firstPosted.nickname,
+          people: entries.map((row) => ({
+            nickname: row.nick,
+            card_type: row.cardType,
+          })),
+        });
       }
     } catch (err) {
       setPageError(err instanceof Error ? err.message : 'Could not add to roster');

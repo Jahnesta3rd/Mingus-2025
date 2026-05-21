@@ -43,7 +43,8 @@ class RecurringExpense(db.Model):
         CheckConstraint(
             "category IN ("
             "'housing', 'transportation', 'insurance', 'debt', 'subscription', "
-            "'utilities', 'other', 'relationship', 'groceries', 'healthcare', 'childcare'"
+            "'utilities', 'other', 'relationship', 'groceries', 'healthcare', 'childcare', "
+            "'family_support', 'child_support', 'alimony', 'caregiving'"
             ")",
             name='ck_recurring_expenses_category'
         ),

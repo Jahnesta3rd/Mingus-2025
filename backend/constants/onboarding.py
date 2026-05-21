@@ -63,6 +63,10 @@ CATEGORY_KEYS: tuple[tuple[str, tuple[str, ...]], ...] = (
         ("healthcare", "medical", "doctor", "pharmacy", "copay"),
     ),
     ("childcare", ("childcare", "daycare", "babysit")),
+    ("family_support", ("family support", "family_support")),
+    ("child_support", ("child support", "child_support")),
+    ("alimony", ("alimony",)),
+    ("caregiving", ("caregiving", "daycare", "eldercare")),
 )
 
 # Keys only (commit-field / DB validation).

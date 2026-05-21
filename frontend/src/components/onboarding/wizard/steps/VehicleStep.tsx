@@ -205,7 +205,6 @@ export default function VehicleStep({ initialData, onSubmit, onSkip }: StepProps
       const fuelTrimmed = monthlyFuel.trim();
       const parsedFuel = fuelTrimmed ? Number.parseFloat(fuelTrimmed) : 0;
       const monthlyFuelOut = Number.isFinite(parsedFuel) && parsedFuel > 0 ? parsedFuel : 0;
-      if (parsedPayment > 0) await postRecurringExpense('Car Payment', parsedPayment);
       if (parsedInsurance > 0) await postRecurringExpense('Auto Insurance', parsedInsurance);
       await onSubmit({
         has_vehicle: true,

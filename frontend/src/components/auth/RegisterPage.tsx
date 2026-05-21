@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useCallback, useLayoutEffect } from 'react';
+import React, { useState, useEffect, useCallback, useLayoutEffect, useRef } from 'react';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
+import SessionSetupTerminalError from './SessionSetupTerminalError';
 import BetaCodeInput from '../BetaCodeInput';
 import { TierSelectionStep, TIERS, type TierOption } from '../../pages/CheckoutPage';
 
@@ -38,7 +39,7 @@ async function pingVibeMingusConverted(leadId: string | null, email: string): Pr
 }
 
 const RegisterPage: React.FC = () => {
-  const { register, loading, isAuthenticated } = useAuth();
+  const { register, loading, isAuthenticated, awaitSessionReady } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const loveLedger = searchParams.get('source') === 'love_ledger';
@@ -54,6 +55,9 @@ const RegisterPage: React.FC = () => {
   const [betaCode, setBetaCode] = useState<string | null>(null);
   const [selectedTier, setSelectedTier] = useState<TierOption | null>(null);
   const [isRegistering, setIsRegistering] = useState(false);
+  const [sessionSetupPending, setSessionSetupPending] = useState(false);
+  const [sessionSetupError, setSessionSetupError] = useState(false);
+  const postRegisterNavigatedRef = useRef(false);
 
   useLayoutEffect(() => {
     if (!loveLedger) return;
@@ -67,24 +71,74 @@ const RegisterPage: React.FC = () => {
   }, [loveLedger, searchParams]);
 
   useEffect(() => {
-    if (!loading && isAuthenticated && !success && !isRegistering) {
+    if (
+      !loading &&
+      isAuthenticated &&
+      !success &&
+      !isRegistering &&
+      !sessionSetupPending &&
+      !sessionSetupError
+    ) {
       navigate('/welcome', { replace: true });
     }
-  }, [loading, isAuthenticated, success, isRegistering, navigate]);
+  }, [
+    loading,
+    isAuthenticated,
+    success,
+    isRegistering,
+    sessionSetupPending,
+    sessionSetupError,
+    navigate,
+  ]);
 
   useEffect(() => {
-    if (!success) return;
-    if (registrationBeta) {
-      const t = window.setTimeout(() => navigate('/welcome', { replace: true }), 4000);
-      return () => window.clearTimeout(t);
+    if (!success || postRegisterNavigatedRef.current) return;
+
+    if (betaCode) {
+      let cancelled = false;
+      setSessionSetupPending(true);
+      setSessionSetupError(false);
+
+      (async () => {
+        try {
+          await awaitSessionReady();
+          if (cancelled) return;
+          postRegisterNavigatedRef.current = true;
+          navigate('/welcome', { replace: true });
+        } catch {
+          if (!cancelled) {
+            setSessionSetupError(true);
+          }
+        } finally {
+          if (!cancelled) {
+            setSessionSetupPending(false);
+          }
+        }
+      })();
+
+      return () => {
+        cancelled = true;
+      };
     }
-    if (selectedTier && selectedTier.id !== 'budget') {
-      const t = window.setTimeout(() => navigate('/checkout', { replace: true }), 2000);
-      return () => window.clearTimeout(t);
+
+    postRegisterNavigatedRef.current = true;
+    const tierId = selectedTier?.id ?? 'budget';
+    navigate('/checkout', { state: { tierId }, replace: true });
+  }, [success, betaCode, selectedTier, navigate, awaitSessionReady]);
+
+  const handleSessionSetupRetry = useCallback(async () => {
+    setSessionSetupError(false);
+    setSessionSetupPending(true);
+    try {
+      await awaitSessionReady();
+      postRegisterNavigatedRef.current = true;
+      navigate('/welcome', { replace: true });
+    } catch {
+      setSessionSetupError(true);
+    } finally {
+      setSessionSetupPending(false);
     }
-    const t = window.setTimeout(() => navigate('/welcome', { replace: true }), 2000);
-    return () => window.clearTimeout(t);
-  }, [success, registrationBeta, selectedTier, navigate]);
+  }, [awaitSessionReady, navigate]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -144,6 +198,14 @@ const RegisterPage: React.FC = () => {
   };
 
   if (success) {
+    if (sessionSetupError) {
+      return (
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4">
+          <SessionSetupTerminalError onRetry={() => void handleSessionSetupRetry()} />
+        </div>
+      );
+    }
+
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4">
         <div className="rounded-md bg-green-50 p-6 max-w-md border border-green-200 shadow-sm">
@@ -154,16 +216,14 @@ const RegisterPage: React.FC = () => {
                 You have been granted full Professional access. Your feedback helps shape the future of
                 Mingus.
               </p>
-              <p className="mt-4 text-xs text-green-700">Taking you to your dashboard…</p>
+              <p className="mt-4 text-xs text-green-700">
+                {sessionSetupPending ? 'Setting up your account…' : 'Taking you to your welcome…'}
+              </p>
             </>
           ) : (
             <>
               <h3 className="text-sm font-medium text-green-800">Account created successfully!</h3>
-              <p className="mt-2 text-sm text-green-700">
-                {selectedTier && selectedTier.id !== 'budget'
-                  ? 'Redirecting to checkout…'
-                  : 'Redirecting to welcome…'}
-              </p>
+              <p className="mt-2 text-sm text-green-700">Redirecting to checkout…</p>
             </>
           )}
         </div>

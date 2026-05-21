@@ -107,12 +107,12 @@ export const LeadGenAssessment: React.FC = () => {
       .then(() => {
         setSubmitted(true);
         navigate(
-          `/signup?email=${encodeURIComponent(email)}&from=assessment&type=${assessmentType}`
+          `/register?email=${encodeURIComponent(email)}&from=assessment&type=${assessmentType}`
         );
       })
       .catch((err) => {
         console.error('Lead capture failed:', err);
-        navigate(`/signup?email=${encodeURIComponent(email)}`);
+        navigate(`/register?email=${encodeURIComponent(email)}`);
       });
   };
 

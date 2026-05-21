@@ -114,7 +114,7 @@ const PricingSection: React.FC<PricingSectionProps> = ({ pricingTiers, navigate 
             let label = tier.cta;
             let ariaLabel = `Subscribe to ${tier.name} plan for ${tier.price} per ${tier.period}`;
             let onClick: (() => void) | undefined = () =>
-              isAuthenticated ? navigate('/dashboard') : navigate('/signup?source=cta');
+              isAuthenticated ? navigate('/dashboard') : navigate('/register?source=cta');
             let disabled = false;
             let ariaDisabled: boolean | undefined;
 

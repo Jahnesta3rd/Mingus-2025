@@ -23,6 +23,7 @@ from backend.models.user_models import User
 from backend.models.vibe_checkups import VibeCheckupsLead
 from backend.services import life_ledger_service as life_ledger_svc
 from backend.utils.password import hash_password, check_password, verify_password_strength
+from backend.auth.decorators import require_auth
 from loguru import logger as loguru_logger
 
  # Simple rate limiting (in-memory)
@@ -443,6 +444,16 @@ def login():
     except Exception as e:
         logger.error(f"Login error: {e}")
         return jsonify({'success': False, 'error': 'Login failed. Please try again.'}), 500
+
+
+@auth_api.route('/session-ready', methods=['GET'])
+@require_auth
+def session_ready():
+    """
+    Minimal fail-closed session probe for post-auth cookie propagation.
+    @require_auth validates JWT before this handler runs; no user load or PII.
+    """
+    return jsonify({'ready': True}), 200
 
 
 @auth_api.route('/verify', methods=['GET'])

@@ -1,15 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { getDailyVibe } from '../../services/vibeService';
+import SessionSetupTerminalError from '../auth/SessionSetupTerminalError';
 
 const delay = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 const LogoSplash: React.FC = () => {
   const navigate = useNavigate();
-  const { getAccessToken } = useAuth();
+  const { getAccessToken, awaitSessionReady } = useAuth();
   const [phase, setPhase] = useState<'enter' | 'hold' | 'exit'>('enter');
   const [enterDone, setEnterDone] = useState(false);
+  const [gateError, setGateError] = useState(false);
 
   // Trigger enter animation on next frame so CSS transition runs
   useEffect(() => {
@@ -20,64 +22,81 @@ const LogoSplash: React.FC = () => {
     return () => cancelAnimationFrame(id);
   }, [phase]);
 
+  const runGate = useCallback(async () => {
+    try {
+      await awaitSessionReady();
+    } catch (err) {
+      console.error('LogoSplash: session-ready failed', err);
+      setGateError(true);
+      return;
+    }
+
+    try {
+      const token = getAccessToken ? getAccessToken() : null;
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+      if (token) headers.Authorization = `Bearer ${token}`;
+
+      const res = await fetch('/api/profile/setup-status', {
+        method: 'GET',
+        credentials: 'include',
+        headers,
+      });
+
+      if (!res.ok) {
+        console.error('LogoSplash: setup-status returned', res.status);
+        setGateError(true);
+        return;
+      }
+
+      const data = await res.json();
+      const isComplete =
+        data.setupCompleted === true || data.onboarding_complete === true;
+
+      setPhase('exit');
+      await delay(200);
+
+      if (!isComplete) {
+        navigate('/onboarding', { replace: true });
+        return;
+      }
+      if (data.show_vibe_moment_today === true) {
+        navigate('/vibe-check-meme?t=' + Date.now(), { replace: true });
+        return;
+      }
+      navigate('/dashboard', { replace: true });
+    } catch (err) {
+      console.error('LogoSplash: setup-status failed', err);
+      setGateError(true);
+    }
+  }, [awaitSessionReady, getAccessToken, navigate]);
+
   useEffect(() => {
     let mounted = true;
 
     const runFlow = async () => {
-      const vibePromise = getDailyVibe().catch(() => null);
+      void getDailyVibe().catch(() => null);
 
       await delay(300);
       if (!mounted) return;
       setPhase('hold');
 
-      const [vibeData] = await Promise.all([vibePromise, delay(1000)]);
-      if (!mounted) return;
-
-      setPhase('exit');
-      await delay(200);
-      if (!mounted) return;
-
-      const checkSetupAndNavigate = async () => {
-        try {
-          const token = getAccessToken ? getAccessToken() : null;
-          const headers: Record<string, string> = {
-            'Content-Type': 'application/json',
-          };
-          if (token) headers.Authorization = `Bearer ${token}`;
-
-          const res = await fetch('/api/profile/setup-status', {
-            method: 'GET',
-            credentials: 'include',
-            headers,
-          });
-
-          if (res.ok) {
-            const data = await res.json();
-            const isComplete =
-              data.setupCompleted === true ||
-              data.onboarding_complete === true;
-
-            if (!isComplete) {
-              if (mounted) navigate('/onboarding', { replace: true });
-              return;
-            }
-            if (mounted) navigate('/dashboard', { replace: true });
-            return;
-          }
-        } catch (err) {
-          console.error('LogoSplash: setup-status failed', err);
-        }
-        if (mounted) navigate('/dashboard', { replace: true });
-      };
-
-      checkSetupAndNavigate();
+      await runGate();
     };
 
-    runFlow();
+    void runFlow();
     return () => {
       mounted = false;
     };
-  }, [navigate, getAccessToken]);
+  }, [runGate]);
+
+  const handleRetry = () => {
+    setGateError(false);
+    setPhase('hold');
+    setEnterDone(true);
+    void runGate();
+  };
 
   const isEnter = phase === 'enter';
   const isExit = phase === 'exit';
@@ -110,6 +129,9 @@ const LogoSplash: React.FC = () => {
         .animate-bounce-dot:nth-child(3) { animation-delay: 0.4s; }
       `}</style>
       <div className="min-h-screen bg-gray-900 flex flex-col items-center justify-center relative">
+        {gateError && (
+          <SessionSetupTerminalError variant="dark" onRetry={handleRetry} />
+        )}
         <div
           className={`flex flex-col items-center justify-center transition-all ease-out ${transitionClass} ${contentOpacityScale} ${pulseClass}`}
         >

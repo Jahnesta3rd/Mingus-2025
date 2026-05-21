@@ -40,7 +40,7 @@ const CTASection: React.FC<CTASectionProps> = ({
               <button
                 onClick={() => {
                   onButtonClick('Start Your Wealth Journey');
-                  navigate('/signup?source=cta');
+                  navigate('/register?source=cta');
                 }}
                 onKeyDown={(e) => onCTAKeyDown(e, 'Start Your Wealth Journey')}
                 disabled={isLoading}
@@ -55,7 +55,7 @@ const CTASection: React.FC<CTASectionProps> = ({
               <button
                 onClick={() => {
                   onButtonClick('Join Our Community');
-                  navigate('/signup?source=cta');
+                  navigate('/register?source=cta');
                 }}
                 onKeyDown={(e) => onCTAKeyDown(e, 'Join Our Community')}
                 disabled={isLoading}

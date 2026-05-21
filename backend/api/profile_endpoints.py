@@ -17,10 +17,9 @@ from werkzeug.exceptions import BadRequest, InternalServerError
 from ..utils.validation import APIValidator
 from ..auth.decorators import require_auth
 from ..models.user_models import User
-from ..models.financial_setup import UserIncome, RecurringExpense
-from ..models.transaction_schedule import IncomeStream, ScheduledExpense
+from ..constants.onboarding import MODULE_ORDER
 from ..models.database import db
-from ..models.vibe_tracker import VibePersonAssessment, VibeTrackedPerson
+from ..models.onboarding_progress import OnboardingProgress
 from loguru import logger as loguru_logger
 
 # Configure logging
@@ -58,105 +57,22 @@ def _goals_column_nonempty(goals_raw) -> bool:
 
 
 def _compute_onboarding_steps(user, email: str):
-    """Return (steps_completed, steps_remaining)."""
-    completed: list[str] = []
-    if not user or not email:
-        remaining = [s for s in ALL_ONBOARDING_STEPS if s not in completed]
-        return completed, remaining
+    """Return (steps_completed, steps_remaining) from modular onboarding progress."""
+    del email  # unused; kept for caller compatibility at get_setup_status
+    if not user:
+        return [], list(MODULE_ORDER)
 
-    uid = user.id
-    em = email.strip().lower()
+    row = OnboardingProgress.query.filter_by(user_id=user.id).first()
+    if row is None:
+        return [], list(MODULE_ORDER)
 
-    # personal + position + goals: user_profiles row
-    try:
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        cursor.execute(
-            '''
-            SELECT personal_info, financial_info, goals
-            FROM user_profiles WHERE email = %s
-            ''',
-            (em,),
-        )
-        prow = cursor.fetchone()
-        conn.close()
-    except Exception as e:
-        loguru_logger.error("get_setup_status profile query failed: {}", e)
-        prow = None
+    completed_set = set(row.completed_modules or [])
+    skipped_set = set(row.skipped_modules or [])
+    done_enough = completed_set | skipped_set
 
-    onboarding_flags: dict = {}
-    if prow:
-        pi_raw = prow.get('personal_info')
-        personal_ok = False
-        if pi_raw:
-            try:
-                pi = json.loads(pi_raw) if isinstance(pi_raw, str) else pi_raw
-                if isinstance(pi, dict):
-                    fn = (pi.get('firstName') or pi.get('first_name') or '')
-                    personal_ok = bool(str(fn).strip())
-                    ob = pi.get('onboarding')
-                    if isinstance(ob, dict):
-                        onboarding_flags = ob
-            except (TypeError, ValueError):
-                personal_ok = False
-        if personal_ok:
-            completed.append('personal')
-
-        fi_raw = prow.get('financial_info')
-        if fi_raw:
-            try:
-                fi = json.loads(fi_raw) if isinstance(fi_raw, str) else fi_raw
-                if isinstance(fi, dict) and 'emergency_fund' in fi and fi.get('emergency_fund') is not None:
-                    completed.append('position')
-            except (TypeError, ValueError):
-                pass
-
-        if _goals_column_nonempty(prow.get('goals')):
-            completed.append('goals')
-
-    if UserIncome.query.filter_by(user_id=uid, is_active=True).first() is not None:
-        completed.append('income')
-
-    if IncomeStream.query.filter_by(user_id=uid, is_active=True).first() is not None:
-        completed.append('income_schedule')
-
-    if ScheduledExpense.query.filter_by(user_id=uid, is_active=True).first() is not None:
-        completed.append('expense_schedule')
-
-    if RecurringExpense.query.filter_by(user_id=uid, is_active=True).first() is not None:
-        completed.append('expenses')
-
-    if VibeTrackedPerson.query.filter_by(user_id=uid, is_archived=False).first() is not None:
-        completed.append('roster_seed')
-
-    has_linked_assessment = (
-        db.session.query(VibePersonAssessment.id)
-        .join(VibeTrackedPerson, VibePersonAssessment.tracked_person_id == VibeTrackedPerson.id)
-        .filter(VibeTrackedPerson.user_id == uid, VibeTrackedPerson.is_archived == False)  # noqa: E712
-        .first()
-        is not None
-    )
-    if has_linked_assessment:
-        completed.append('quick_vibe')
-
-    if onboarding_flags.get('roster_seed_skipped'):
-        completed.append('roster_seed')
-    if onboarding_flags.get('quick_vibe_skipped'):
-        completed.append('quick_vibe')
-
-    # Accounts that already progressed past the new roster/vibe steps
-    legacy_financial = any(
-        s in completed
-        for s in ('income', 'income_schedule', 'expense_schedule', 'expenses', 'goals')
-    )
-    if legacy_financial:
-        completed.append('roster_seed')
-        completed.append('quick_vibe')
-
-    # Preserve stable order for steps_completed
-    ordered_done = [s for s in ALL_ONBOARDING_STEPS if s in completed]
-    remaining = [s for s in ALL_ONBOARDING_STEPS if s not in ordered_done]
-    return ordered_done, remaining
+    steps_completed = [mid for mid in MODULE_ORDER if mid in completed_set]
+    steps_remaining = [mid for mid in MODULE_ORDER if mid not in done_enough]
+    return steps_completed, steps_remaining
 
 # Create blueprint
 profile_api = Blueprint('profile_api', __name__, url_prefix='/api')

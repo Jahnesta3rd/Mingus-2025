@@ -60,10 +60,16 @@ export default function RosterStep({ onSubmit, onSkip }: StepProps) {
       )}
 
       <RosterSeedStep
-        onSubmitted={async () => {
+        onSubmitted={async (payload) => {
           setPageError(null);
           const count = await fetchRosterCount();
-          await onSubmit({ count });
+          await onSubmit({
+            count,
+            people: payload.people.map((p) => ({
+              nickname: p.nickname,
+              card_type: p.card_type,
+            })),
+          });
         }}
         onSkip={() => {
           setPageError(null);

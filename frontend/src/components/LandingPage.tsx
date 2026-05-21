@@ -283,7 +283,7 @@ const LandingPage: React.FC = () => {
     if (isAuthenticated) {
       navigate('/dashboard');
     } else {
-      navigate('/signup?source=cta');
+      navigate('/register?source=cta');
     }
   };
 
@@ -631,7 +631,7 @@ const LandingPage: React.FC = () => {
             {!isAuthenticated ? (
               <div className="text-center">
                 <button
-                  onClick={() => navigate('/signup?source=direct')}
+                  onClick={() => navigate('/register?source=direct')}
                   className="text-gray-400 hover:text-white transition-colors text-sm underline min-h-[44px] px-3"
                 >
                   Skip assessments and sign up directly
@@ -702,7 +702,7 @@ const LandingPage: React.FC = () => {
               </button>
             ) : (
               <button
-                onClick={() => navigate('/signup?source=cta')}
+                onClick={() => navigate('/register?source=cta')}
                 className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3 min-h-[44px] rounded-lg font-semibold transition-all duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                 aria-label="Get started with Mingus to access job recommendations"
               >

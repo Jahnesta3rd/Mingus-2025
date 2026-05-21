@@ -270,6 +270,12 @@ export default function IncomeStep({
       await onSubmit({
         count: rows.length,
         total_monthly: Math.round(totalMonthly * 100) / 100,
+        rows: rows.map((row) => ({
+          label: row.label.trim(),
+          amount: parseFloat(row.amount),
+          frequency: row.frequency,
+          next_date: row.next_date,
+        })),
       });
     } catch (err) {
       setSubmitBanner(err instanceof Error ? err.message : 'Save failed');
