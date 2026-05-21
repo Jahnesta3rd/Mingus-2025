@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { useAuth } from '../../../../hooks/useAuth';
 import { csrfHeaders } from '../../../../utils/csrfHeaders';
 import type { StepProps } from '../StepDefinitions';
@@ -6,10 +6,13 @@ import type { StepProps } from '../StepDefinitions';
 type OilBucket = 'recent' | '3-6mo' | '6-12mo' | 'over_year' | 'unknown';
 type MajorServiceStatus = 'up_to_date' | 'overdue' | 'scheduled' | 'unknown';
 type Field =
+  | 'vin'
   | 'make'
   | 'model'
   | 'year'
-  | 'mileage'
+  | 'currentMileage'
+  | 'monthlyMiles'
+  | 'garageZip'
   | 'monthly_payment'
   | 'insurance_monthly'
   | 'last_oil_change_bucket'
@@ -17,9 +20,66 @@ type Field =
   | 'known_issues';
 type FieldErrors = Partial<Record<Field, string>>;
 
+const POPULAR_MAKES = [
+  'Honda',
+  'Toyota',
+  'Nissan',
+  'Ford',
+  'Chevrolet',
+  'BMW',
+  'Mercedes-Benz',
+  'Audi',
+  'Lexus',
+  'Acura',
+  'Infiniti',
+  'Hyundai',
+  'Kia',
+  'Mazda',
+  'Subaru',
+  'Tesla',
+  'GMC',
+  'Jeep',
+  'Ram',
+  'Volkswagen',
+  'Volvo',
+  'Cadillac',
+  'Buick',
+] as const;
+
+const POPULAR_MODELS: Record<string, string[]> = {
+  Honda: ['Civic', 'Accord', 'CR-V', 'Pilot', 'HR-V', 'Passport'],
+  Toyota: ['Camry', 'Corolla', 'RAV4', 'Highlander', 'Prius', '4Runner'],
+  Nissan: ['Altima', 'Sentra', 'Rogue', 'Murano', 'Pathfinder', 'Maxima'],
+  Ford: ['F-150', 'Explorer', 'Escape', 'Mustang', 'Edge', 'Expedition'],
+  Chevrolet: ['Silverado', 'Equinox', 'Malibu', 'Tahoe', 'Suburban', 'Camaro'],
+  BMW: ['3 Series', '5 Series', 'X3', 'X5', 'X1', '7 Series'],
+  'Mercedes-Benz': ['C-Class', 'E-Class', 'GLC', 'GLE', 'A-Class', 'S-Class'],
+  Audi: ['A4', 'A6', 'Q5', 'Q7', 'A3', 'Q3'],
+  Lexus: ['ES', 'RX', 'IS', 'NX', 'GX', 'LS'],
+  Acura: ['TLX', 'RDX', 'MDX', 'ILX', 'NSX', 'RLX'],
+  Infiniti: ['Q50', 'QX60', 'QX80', 'Q60', 'QX50', 'G37'],
+  Hyundai: ['Elantra', 'Sonata', 'Tucson', 'Santa Fe', 'Palisade', 'Veloster'],
+  Kia: ['Optima', 'Sorento', 'Sportage', 'Telluride', 'Forte', 'Stinger'],
+  Mazda: ['CX-5', 'Mazda3', 'CX-9', 'Mazda6', 'CX-3', 'MX-5 Miata'],
+  Subaru: ['Outback', 'Forester', 'Impreza', 'Legacy', 'Ascent', 'WRX'],
+  Tesla: ['Model 3', 'Model Y', 'Model S', 'Model X', 'Cybertruck'],
+  GMC: ['Sierra', 'Yukon', 'Acadia', 'Terrain', 'Canyon'],
+  Jeep: ['Wrangler', 'Grand Cherokee', 'Cherokee', 'Compass', 'Renegade', 'Gladiator'],
+  Ram: ['1500', '2500', '3500', 'ProMaster'],
+  Volkswagen: ['Jetta', 'Passat', 'Tiguan', 'Atlas', 'GTI', 'ID.4'],
+  Volvo: ['XC60', 'XC90', 'S60', 'V60', 'XC40'],
+  Cadillac: ['Escalade', 'XT5', 'CT5', 'XT6', 'XT4'],
+  Buick: ['Enclave', 'Encore', 'Envision', 'Regal'],
+};
+
+const YEARS = Array.from({ length: 30 }, (_, i) => new Date().getFullYear() - i);
+
+const VIN_REGEX = /^[A-HJ-NPR-Z0-9]{17}$/;
+
 const inputClass =
   'w-full min-h-11 rounded-lg border border-[#E2E8F0] bg-white px-3 py-2.5 text-[#1E293B] placeholder:text-[#64748B] focus:border-[#5B2D8E] focus:outline-none focus:ring-1 focus:ring-[#5B2D8E]';
 const labelClass = 'mb-1.5 block text-sm font-medium text-[#1E293B]';
+const helperClass = 'mt-1 text-xs text-[#64748B]';
 
 function buildHeaders(getAccessToken: () => string | null): HeadersInit {
   const h: Record<string, string> = { ...csrfHeaders(), 'Content-Type': 'application/json' };
@@ -45,44 +105,80 @@ function firstOfNextMonthIso(): string {
   return next.toISOString().slice(0, 10);
 }
 
+function readVehicle0(initialData: Record<string, unknown>): Record<string, unknown> | null {
+  const vehicles = initialData.vehicles;
+  if (Array.isArray(vehicles) && vehicles[0] && typeof vehicles[0] === 'object') {
+    return vehicles[0] as Record<string, unknown>;
+  }
+  return null;
+}
+
 export default function VehicleStep({ initialData, onSubmit, onSkip }: StepProps) {
   const { getAccessToken } = useAuth();
   const currentYear = new Date().getFullYear();
+  const v0 = readVehicle0(initialData);
+
   const [hasVehicle, setHasVehicle] = useState<boolean>(
     typeof initialData.has_vehicle === 'boolean' ? initialData.has_vehicle : true
   );
-  const [make, setMake] = useState<string>(typeof initialData.make === 'string' ? initialData.make : '');
-  const [model, setModel] = useState<string>(typeof initialData.model === 'string' ? initialData.model : '');
-  const [year, setYear] = useState<string>(
-    typeof initialData.year === 'number'
-      ? String(initialData.year)
-      : typeof initialData.year === 'string'
-        ? initialData.year
+  const [vin, setVin] = useState<string>(
+    typeof v0?.vin === 'string' ? v0.vin : typeof initialData.vin === 'string' ? initialData.vin : ''
+  );
+  const [make, setMake] = useState<string>(
+    typeof v0?.make === 'string' ? v0.make : typeof initialData.make === 'string' ? initialData.make : ''
+  );
+  const [model, setModel] = useState<string>(
+    typeof v0?.model === 'string' ? v0.model : typeof initialData.model === 'string' ? initialData.model : ''
+  );
+  const [year, setYear] = useState<string>(() => {
+    const y = v0?.year ?? initialData.year;
+    if (typeof y === 'number') return String(y);
+    if (typeof y === 'string') return y;
+    return '';
+  });
+  const [trim, setTrim] = useState<string>(typeof v0?.trim === 'string' ? v0.trim : '');
+  const [currentMileage, setCurrentMileage] = useState<string>(() => {
+    const m = v0?.current_mileage ?? initialData.mileage ?? initialData.current_mileage;
+    if (typeof m === 'number') return String(m);
+    if (typeof m === 'string') return m;
+    return '';
+  });
+  const [monthlyMiles, setMonthlyMiles] = useState<string>(() => {
+    const m = v0?.monthly_miles;
+    if (typeof m === 'number') return String(m);
+    if (typeof m === 'string') return m;
+    return '';
+  });
+  const [garageZip, setGarageZip] = useState<string>(
+    typeof v0?.user_zipcode === 'string'
+      ? v0.user_zipcode
+      : typeof initialData.garage_zip === 'string'
+        ? initialData.garage_zip
         : ''
   );
-  const [mileage, setMileage] = useState<string>(
-    typeof initialData.mileage === 'number'
-      ? String(initialData.mileage)
-      : typeof initialData.mileage === 'string'
-        ? initialData.mileage
-        : ''
+  const [assignedMsa, setAssignedMsa] = useState<string>(
+    typeof v0?.assigned_msa === 'string' ? v0.assigned_msa : ''
   );
+  const [vinLookupLoading, setVinLookupLoading] = useState(false);
+  const [vinValidationError, setVinValidationError] = useState<string | null>(null);
+  const [zipLookupLoading, setZipLookupLoading] = useState(false);
+  const [zipValidationError, setZipValidationError] = useState<string | null>(null);
+  const [vinResolved, setVinResolved] = useState(false);
+
   const [monthlyPayment, setMonthlyPayment] = useState<string>(
     typeof initialData.monthly_payment === 'number'
       ? String(initialData.monthly_payment)
       : typeof initialData.monthly_payment === 'string'
         ? initialData.monthly_payment
-        : ''
+        : typeof v0?.monthly_payment === 'number'
+          ? String(v0.monthly_payment)
+          : ''
   );
   const [monthlyFuel, setMonthlyFuel] = useState<string>(() => {
     const v = initialData.monthly_fuel;
     if (typeof v === 'number' && v > 0) return String(v);
     if (typeof v === 'string' && v.trim()) return v;
-    const vehicles = initialData.vehicles;
-    if (Array.isArray(vehicles) && vehicles[0] && typeof vehicles[0] === 'object') {
-      const fuel = (vehicles[0] as { monthly_fuel?: number }).monthly_fuel;
-      if (typeof fuel === 'number' && fuel > 0) return String(fuel);
-    }
+    if (v0 && typeof v0.monthly_fuel === 'number' && v0.monthly_fuel > 0) return String(v0.monthly_fuel);
     return '';
   });
   const [insuranceMonthly, setInsuranceMonthly] = useState<string>(
@@ -110,21 +206,165 @@ export default function VehicleStep({ initialData, onSubmit, onSkip }: StepProps
   const [submitBanner, setSubmitBanner] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const vinDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const zipDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const makeOptions = make && !(POPULAR_MAKES as readonly string[]).includes(make) ? [...POPULAR_MAKES, make] : [...POPULAR_MAKES];
+  const baseModels = make ? POPULAR_MODELS[make] ?? [] : [];
+  const modelOptions =
+    model && !baseModels.includes(model) ? [...baseModels, model] : baseModels;
+
   const clearValidationFeedback = useCallback(() => {
     setErrors({});
     setShowValidationSummary(false);
   }, []);
 
+  const lookupVin = useCallback(
+    async (vinValue: string) => {
+      setVinLookupLoading(true);
+      setVinValidationError(null);
+      try {
+        const res = await fetch('/api/vehicle-setup/vin-lookup', {
+          method: 'POST',
+          credentials: 'include',
+          headers: buildHeaders(getAccessToken),
+          body: JSON.stringify({ vin: vinValue, use_cache: true }),
+        });
+        if (!res.ok) {
+          const msg = await readErrorMessage(res);
+          setVinValidationError(
+            res.status === 503
+              ? 'VIN lookup is temporarily unavailable. You can still enter your vehicle details below.'
+              : msg || 'VIN lookup failed. You can still enter your vehicle details below.'
+          );
+          setVinResolved(false);
+          return;
+        }
+        const data = (await res.json()) as {
+          success?: boolean;
+          vehicle_info?: {
+            year?: number;
+            make?: string;
+            model?: string;
+            trim?: string;
+          };
+        };
+        if (data.success && data.vehicle_info) {
+          const info = data.vehicle_info;
+          if (info.year) setYear(String(info.year));
+          if (info.make) setMake(info.make);
+          if (info.model) setModel(info.model);
+          if (info.trim) setTrim(info.trim);
+          setVinResolved(true);
+        } else {
+          setVinValidationError('VIN lookup did not return vehicle details. Enter year, make, and model below.');
+          setVinResolved(false);
+        }
+      } catch {
+        setVinValidationError('VIN lookup failed. You can still enter your vehicle details below.');
+        setVinResolved(false);
+      } finally {
+        setVinLookupLoading(false);
+      }
+    },
+    [getAccessToken]
+  );
+
+  const lookupMsa = useCallback(
+    async (zip: string) => {
+      setZipLookupLoading(true);
+      setZipValidationError(null);
+      try {
+        const res = await fetch('/api/vehicle-setup/zipcode-to-msa', {
+          method: 'POST',
+          credentials: 'include',
+          headers: buildHeaders(getAccessToken),
+          body: JSON.stringify({ zipcode: zip }),
+        });
+        if (!res.ok) {
+          setZipValidationError('Could not detect your area from this ZIP. You can still save.');
+          return;
+        }
+        const data = (await res.json()) as {
+          success?: boolean;
+          msa_info?: { msa?: string };
+        };
+        if (data.success && data.msa_info?.msa) {
+          setAssignedMsa(data.msa_info.msa);
+        } else {
+          setZipValidationError('Could not detect your area from this ZIP. You can still save.');
+        }
+      } catch {
+        setZipValidationError('Area lookup unavailable. You can still save.');
+      } finally {
+        setZipLookupLoading(false);
+      }
+    },
+    [getAccessToken]
+  );
+
+  const handleVinChange = useCallback(
+    (value: string) => {
+      const sanitized = value.toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/g, '').slice(0, 17);
+      setVin(sanitized);
+      setVinValidationError(null);
+      setVinResolved(false);
+      if (vinDebounceRef.current) clearTimeout(vinDebounceRef.current);
+      if (sanitized.length === 17) {
+        vinDebounceRef.current = setTimeout(() => {
+          lookupVin(sanitized);
+        }, 500);
+      }
+    },
+    [lookupVin]
+  );
+
+  const handleGarageZipChange = useCallback(
+    (value: string) => {
+      const sanitized = value.replace(/\D/g, '').slice(0, 5);
+      setGarageZip(sanitized);
+      setZipValidationError(null);
+      if (zipDebounceRef.current) clearTimeout(zipDebounceRef.current);
+      if (sanitized.length === 5) {
+        zipDebounceRef.current = setTimeout(() => {
+          lookupMsa(sanitized);
+        }, 500);
+      } else {
+        setAssignedMsa('');
+      }
+    },
+    [lookupMsa]
+  );
+
+  // Stage 2: Vehicle augmentation — fields lifted from VehicleSetup
+  // (the dashboard reference component) into the wizard step.
+  // Backend writes to existing vehicles columns that were previously
+  // unpopulated for wizard users. See commit d5592292 for Stage 1 context.
   const validate = useCallback((): FieldErrors => {
     const next: FieldErrors = {};
+    const vinTrimmed = vin.trim();
+    if (vinTrimmed && (!VIN_REGEX.test(vinTrimmed) || vinTrimmed.length !== 17)) {
+      next.vin =
+        'VIN must be exactly 17 characters and contain only valid VIN characters (no I, O, or Q).';
+    }
     if (!make.trim()) next.make = 'Enter make.';
     if (!model.trim()) next.model = 'Enter model.';
     const y = Number.parseInt(year, 10);
     if (!Number.isInteger(y) || y < 1980 || y > currentYear + 1) {
       next.year = `Enter a year between 1980 and ${currentYear + 1}.`;
     }
-    const mi = Number.parseInt(mileage, 10);
-    if (!Number.isInteger(mi) || mi < 0) next.mileage = 'Mileage must be 0 or greater.';
+    const cm = Number.parseInt(currentMileage, 10);
+    if (!Number.isInteger(cm) || cm < 0 || cm > 999999) {
+      next.currentMileage = 'Current mileage is required.';
+    }
+    const mm = Number.parseInt(monthlyMiles, 10);
+    if (!Number.isInteger(mm) || mm < 0 || mm > 10000) {
+      next.monthlyMiles = 'Monthly miles driven is required.';
+    }
+    const zip = garageZip.trim();
+    if (zip.length !== 5 || !/^\d{5}$/.test(zip)) {
+      next.garageZip = 'ZIP code is required (5 digits).';
+    }
     const mp = Number.parseFloat(monthlyPayment);
     if (!Number.isFinite(mp) || mp < 0) next.monthly_payment = 'Monthly payment must be 0 or greater.';
     const ins = Number.parseFloat(insuranceMonthly);
@@ -137,7 +377,21 @@ export default function VehicleStep({ initialData, onSubmit, onSkip }: StepProps
     }
     if (knownIssues.length > 500) next.known_issues = 'Known issues must be 500 characters or fewer.';
     return next;
-  }, [make, model, year, mileage, monthlyPayment, insuranceMonthly, lastOilChangeBucket, majorServiceStatus, knownIssues, currentYear]);
+  }, [
+    vin,
+    make,
+    model,
+    year,
+    currentMileage,
+    monthlyMiles,
+    garageZip,
+    monthlyPayment,
+    insuranceMonthly,
+    lastOilChangeBucket,
+    majorServiceStatus,
+    knownIssues,
+    currentYear,
+  ]);
 
   const postRecurringExpense = useCallback(
     async (label: 'Car Payment' | 'Auto Insurance', amount: number) => {
@@ -180,10 +434,13 @@ export default function VehicleStep({ initialData, onSubmit, onSkip }: StepProps
       const nextErrors = validate();
       setErrors(nextErrors);
       const order: Field[] = [
+        'vin',
         'make',
         'model',
         'year',
-        'mileage',
+        'currentMileage',
+        'monthlyMiles',
+        'garageZip',
         'monthly_payment',
         'insurance_monthly',
         'last_oil_change_bucket',
@@ -200,6 +457,8 @@ export default function VehicleStep({ initialData, onSubmit, onSkip }: StepProps
 
       setShowValidationSummary(false);
       const parsedYear = Number.parseInt(year, 10);
+      const parsedCurrentMileage = Number.parseInt(currentMileage, 10);
+      const parsedMonthlyMiles = Number.parseInt(monthlyMiles, 10);
       const parsedPayment = Number.parseFloat(monthlyPayment);
       const parsedInsurance = Number.parseFloat(insuranceMonthly);
       const fuelTrimmed = monthlyFuel.trim();
@@ -214,9 +473,16 @@ export default function VehicleStep({ initialData, onSubmit, onSkip }: StepProps
             make: make.trim(),
             model: model.trim(),
             year: parsedYear,
+            vin: vin.trim() || null,
+            trim: trim.trim() || null,
+            current_mileage: parsedCurrentMileage,
+            monthly_miles: parsedMonthlyMiles,
+            user_zipcode: garageZip.trim(),
+            assigned_msa: assignedMsa.trim() || null,
             monthly_payment: parsedPayment,
             monthly_fuel: monthlyFuelOut,
-            recent_maintenance: lastOilChangeBucket === 'recent' || majorServiceStatus === 'up_to_date',
+            recent_maintenance:
+              lastOilChangeBucket === 'recent' || majorServiceStatus === 'up_to_date',
           },
         ],
       });
@@ -236,12 +502,18 @@ export default function VehicleStep({ initialData, onSubmit, onSkip }: StepProps
         </p>
 
         {showValidationSummary && Object.keys(errors).length > 0 && (
-          <div className="relative mt-4 rounded-lg border border-red-700 bg-red-600 px-4 py-3 text-sm text-white" role="alert">
+          <div
+            className="relative mt-4 rounded-lg border border-red-700 bg-red-600 px-4 py-3 text-sm text-white"
+            role="alert"
+          >
             Please fix the highlighted errors below before continuing.
           </div>
         )}
         {submitBanner && (
-          <div className="relative mt-4 rounded-lg border border-red-700 bg-red-600 px-4 py-3 text-sm text-white" role="alert">
+          <div
+            className="relative mt-4 rounded-lg border border-red-700 bg-red-600 px-4 py-3 text-sm text-white"
+            role="alert"
+          >
             <button
               type="button"
               className="absolute right-2 top-2 rounded p-1 text-white hover:bg-red-700"
@@ -285,30 +557,229 @@ export default function VehicleStep({ initialData, onSubmit, onSkip }: StepProps
 
           {hasVehicle && (
             <div className="grid gap-3 sm:grid-cols-2">
-              <div>
-                <label className={labelClass} htmlFor="vehicle-make">Make *</label>
-                <input id="vehicle-make" className={inputClass} value={make} onChange={(e) => { clearValidationFeedback(); setMake(e.target.value); }} />
-                {errors.make && <p className="mt-1 text-sm text-red-600">{errors.make}</p>}
+              <div className="sm:col-span-2">
+                <label className={labelClass} htmlFor="vehicle-vin">
+                  Vehicle Identification Number (VIN) — optional
+                </label>
+                <p className={helperClass}>
+                  Entering your VIN gives us more accurate vehicle data — year, make, model, and trim
+                  auto-fill.
+                </p>
+                <div className="relative mt-1.5">
+                  <input
+                    id="vehicle-vin"
+                    className={`${inputClass} font-mono text-sm`}
+                    type="text"
+                    maxLength={17}
+                    value={vin}
+                    onChange={(e) => {
+                      clearValidationFeedback();
+                      handleVinChange(e.target.value);
+                    }}
+                    placeholder="17-character VIN"
+                    aria-invalid={!!errors.vin || !!vinValidationError}
+                  />
+                  {vinLookupLoading && (
+                    <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs text-[#64748B]">
+                      Looking up…
+                    </span>
+                  )}
+                </div>
+                {errors.vin && <p className="mt-1 text-sm text-red-600">{errors.vin}</p>}
+                {vinValidationError && !errors.vin && (
+                  <p className="mt-1 text-sm text-amber-700">{vinValidationError}</p>
+                )}
+                {vinResolved && !vinValidationError && (
+                  <p className="mt-1 text-sm text-green-700">Vehicle details filled from VIN.</p>
+                )}
               </div>
+
               <div>
-                <label className={labelClass} htmlFor="vehicle-model">Model *</label>
-                <input id="vehicle-model" className={inputClass} value={model} onChange={(e) => { clearValidationFeedback(); setModel(e.target.value); }} />
-                {errors.model && <p className="mt-1 text-sm text-red-600">{errors.model}</p>}
-              </div>
-              <div>
-                <label className={labelClass} htmlFor="vehicle-year">Year *</label>
-                <input id="vehicle-year" className={inputClass} inputMode="numeric" value={year} onChange={(e) => { clearValidationFeedback(); setYear(e.target.value.replace(/\D/g, '').slice(0, 4)); }} />
+                <label className={labelClass} htmlFor="vehicle-year">
+                  Year *
+                </label>
+                <select
+                  id="vehicle-year"
+                  className={inputClass}
+                  value={year}
+                  onChange={(e) => {
+                    clearValidationFeedback();
+                    setYear(e.target.value);
+                    setVinResolved(false);
+                  }}
+                >
+                  <option value="">Select year</option>
+                  {YEARS.map((y) => (
+                    <option key={y} value={y}>
+                      {y}
+                    </option>
+                  ))}
+                </select>
                 {errors.year && <p className="mt-1 text-sm text-red-600">{errors.year}</p>}
               </div>
               <div>
-                <label className={labelClass} htmlFor="vehicle-mileage">Mileage *</label>
-                <input id="vehicle-mileage" className={inputClass} inputMode="numeric" value={mileage} onChange={(e) => { clearValidationFeedback(); setMileage(e.target.value.replace(/\D/g, '')); }} />
-                {errors.mileage && <p className="mt-1 text-sm text-red-600">{errors.mileage}</p>}
+                <label className={labelClass} htmlFor="vehicle-make">
+                  Make *
+                </label>
+                <select
+                  id="vehicle-make"
+                  className={inputClass}
+                  value={make}
+                  onChange={(e) => {
+                    clearValidationFeedback();
+                    setMake(e.target.value);
+                    setModel('');
+                    setVinResolved(false);
+                  }}
+                >
+                  <option value="">Select make</option>
+                  {makeOptions.map((m) => (
+                    <option key={m} value={m}>
+                      {m}
+                    </option>
+                  ))}
+                </select>
+                {errors.make && <p className="mt-1 text-sm text-red-600">{errors.make}</p>}
               </div>
               <div>
-                <label className={labelClass} htmlFor="vehicle-monthly_payment">Monthly payment *</label>
-                <input id="vehicle-monthly_payment" className={inputClass} type="number" min={0} step="0.01" value={monthlyPayment} onChange={(e) => { clearValidationFeedback(); setMonthlyPayment(e.target.value); }} />
-                {errors.monthly_payment && <p className="mt-1 text-sm text-red-600">{errors.monthly_payment}</p>}
+                <label className={labelClass} htmlFor="vehicle-model">
+                  Model *
+                </label>
+                <select
+                  id="vehicle-model"
+                  className={inputClass}
+                  value={model}
+                  disabled={!make}
+                  onChange={(e) => {
+                    clearValidationFeedback();
+                    setModel(e.target.value);
+                    setVinResolved(false);
+                  }}
+                >
+                  <option value="">Select model</option>
+                  {modelOptions.map((m) => (
+                    <option key={m} value={m}>
+                      {m}
+                    </option>
+                  ))}
+                </select>
+                {errors.model && <p className="mt-1 text-sm text-red-600">{errors.model}</p>}
+              </div>
+              <div>
+                <label className={labelClass} htmlFor="vehicle-trim">
+                  Trim (optional)
+                </label>
+                <input
+                  id="vehicle-trim"
+                  className={inputClass}
+                  type="text"
+                  value={trim}
+                  placeholder="e.g., EX, LX, Sport"
+                  onChange={(e) => {
+                    clearValidationFeedback();
+                    setTrim(e.target.value);
+                  }}
+                />
+              </div>
+
+              <div>
+                <label className={labelClass} htmlFor="vehicle-currentMileage">
+                  Current mileage *
+                </label>
+                <p className={helperClass}>Your vehicle&apos;s current odometer reading.</p>
+                <input
+                  id="vehicle-currentMileage"
+                  className={inputClass}
+                  type="number"
+                  min={0}
+                  max={999999}
+                  value={currentMileage}
+                  onChange={(e) => {
+                    clearValidationFeedback();
+                    setCurrentMileage(e.target.value.replace(/\D/g, ''));
+                  }}
+                />
+                {errors.currentMileage && (
+                  <p className="mt-1 text-sm text-red-600">{errors.currentMileage}</p>
+                )}
+              </div>
+              <div>
+                <label className={labelClass} htmlFor="vehicle-monthlyMiles">
+                  Monthly miles driven *
+                </label>
+                <p className={helperClass}>
+                  Average miles you drive per month (helps us estimate fuel and maintenance costs).
+                </p>
+                <input
+                  id="vehicle-monthlyMiles"
+                  className={inputClass}
+                  type="number"
+                  min={0}
+                  max={10000}
+                  value={monthlyMiles}
+                  onChange={(e) => {
+                    clearValidationFeedback();
+                    setMonthlyMiles(e.target.value.replace(/\D/g, ''));
+                  }}
+                />
+                {errors.monthlyMiles && (
+                  <p className="mt-1 text-sm text-red-600">{errors.monthlyMiles}</p>
+                )}
+              </div>
+              <div className="sm:col-span-2">
+                <label className={labelClass} htmlFor="vehicle-garageZip">
+                  Garage ZIP code *
+                </label>
+                <p className={helperClass}>
+                  We use this for accurate gas, insurance, and maintenance estimates in your area.
+                </p>
+                <div className="relative mt-1.5">
+                  <input
+                    id="vehicle-garageZip"
+                    className={inputClass}
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={5}
+                    value={garageZip}
+                    onChange={(e) => {
+                      clearValidationFeedback();
+                      handleGarageZipChange(e.target.value);
+                    }}
+                  />
+                  {zipLookupLoading && (
+                    <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs text-[#64748B]">
+                      Looking up…
+                    </span>
+                  )}
+                </div>
+                {errors.garageZip && <p className="mt-1 text-sm text-red-600">{errors.garageZip}</p>}
+                {zipValidationError && !errors.garageZip && (
+                  <p className="mt-1 text-sm text-amber-700">{zipValidationError}</p>
+                )}
+                {assignedMsa && !zipValidationError && (
+                  <p className="mt-1 text-xs text-[#64748B]">Area detected: {assignedMsa}</p>
+                )}
+              </div>
+
+              <div>
+                <label className={labelClass} htmlFor="vehicle-monthly_payment">
+                  Monthly payment *
+                </label>
+                <input
+                  id="vehicle-monthly_payment"
+                  className={inputClass}
+                  type="number"
+                  min={0}
+                  step="0.01"
+                  value={monthlyPayment}
+                  onChange={(e) => {
+                    clearValidationFeedback();
+                    setMonthlyPayment(e.target.value);
+                  }}
+                />
+                {errors.monthly_payment && (
+                  <p className="mt-1 text-sm text-red-600">{errors.monthly_payment}</p>
+                )}
               </div>
               <div>
                 <label className={labelClass} htmlFor="vehicle-monthly_fuel">
@@ -329,13 +800,38 @@ export default function VehicleStep({ initialData, onSubmit, onSkip }: StepProps
                 />
               </div>
               <div>
-                <label className={labelClass} htmlFor="vehicle-insurance_monthly">Insurance monthly *</label>
-                <input id="vehicle-insurance_monthly" className={inputClass} type="number" min={0} step="0.01" value={insuranceMonthly} onChange={(e) => { clearValidationFeedback(); setInsuranceMonthly(e.target.value); }} />
-                {errors.insurance_monthly && <p className="mt-1 text-sm text-red-600">{errors.insurance_monthly}</p>}
+                <label className={labelClass} htmlFor="vehicle-insurance_monthly">
+                  Insurance monthly *
+                </label>
+                <input
+                  id="vehicle-insurance_monthly"
+                  className={inputClass}
+                  type="number"
+                  min={0}
+                  step="0.01"
+                  value={insuranceMonthly}
+                  onChange={(e) => {
+                    clearValidationFeedback();
+                    setInsuranceMonthly(e.target.value);
+                  }}
+                />
+                {errors.insurance_monthly && (
+                  <p className="mt-1 text-sm text-red-600">{errors.insurance_monthly}</p>
+                )}
               </div>
               <div>
-                <label className={labelClass} htmlFor="vehicle-last_oil_change_bucket">Last oil change *</label>
-                <select id="vehicle-last_oil_change_bucket" className={inputClass} value={lastOilChangeBucket} onChange={(e) => { clearValidationFeedback(); setLastOilChangeBucket(e.target.value as OilBucket); }}>
+                <label className={labelClass} htmlFor="vehicle-last_oil_change_bucket">
+                  Last oil change *
+                </label>
+                <select
+                  id="vehicle-last_oil_change_bucket"
+                  className={inputClass}
+                  value={lastOilChangeBucket}
+                  onChange={(e) => {
+                    clearValidationFeedback();
+                    setLastOilChangeBucket(e.target.value as OilBucket);
+                  }}
+                >
                   <option value="recent">Recent</option>
                   <option value="3-6mo">3–6 months</option>
                   <option value="6-12mo">6–12 months</option>
@@ -344,8 +840,18 @@ export default function VehicleStep({ initialData, onSubmit, onSkip }: StepProps
                 </select>
               </div>
               <div>
-                <label className={labelClass} htmlFor="vehicle-major_service_status">Major service status *</label>
-                <select id="vehicle-major_service_status" className={inputClass} value={majorServiceStatus} onChange={(e) => { clearValidationFeedback(); setMajorServiceStatus(e.target.value as MajorServiceStatus); }}>
+                <label className={labelClass} htmlFor="vehicle-major_service_status">
+                  Major service status *
+                </label>
+                <select
+                  id="vehicle-major_service_status"
+                  className={inputClass}
+                  value={majorServiceStatus}
+                  onChange={(e) => {
+                    clearValidationFeedback();
+                    setMajorServiceStatus(e.target.value as MajorServiceStatus);
+                  }}
+                >
                   <option value="up_to_date">Up to date</option>
                   <option value="overdue">Overdue</option>
                   <option value="scheduled">Scheduled</option>
@@ -353,9 +859,22 @@ export default function VehicleStep({ initialData, onSubmit, onSkip }: StepProps
                 </select>
               </div>
               <div className="sm:col-span-2">
-                <label className={labelClass} htmlFor="vehicle-known_issues">Known issues (optional, max 500)</label>
-                <textarea id="vehicle-known_issues" className={inputClass} maxLength={500} value={knownIssues} onChange={(e) => { clearValidationFeedback(); setKnownIssues(e.target.value); }} />
-                {errors.known_issues && <p className="mt-1 text-sm text-red-600">{errors.known_issues}</p>}
+                <label className={labelClass} htmlFor="vehicle-known_issues">
+                  Known issues (optional, max 500)
+                </label>
+                <textarea
+                  id="vehicle-known_issues"
+                  className={inputClass}
+                  maxLength={500}
+                  value={knownIssues}
+                  onChange={(e) => {
+                    clearValidationFeedback();
+                    setKnownIssues(e.target.value);
+                  }}
+                />
+                {errors.known_issues && (
+                  <p className="mt-1 text-sm text-red-600">{errors.known_issues}</p>
+                )}
               </div>
             </div>
           )}

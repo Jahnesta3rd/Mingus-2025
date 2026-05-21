@@ -1499,6 +1499,10 @@ def _commit_vehicle_module(
     save_session: Callable[[str, dict], None],
     load_row: Callable[[User], OnboardingProgress | None],
 ) -> tuple[list[str], list[dict]]:
+    # Stage 2: Vehicle augmentation — fields lifted from VehicleSetup
+    # (the dashboard reference component) into the wizard step.
+    # Backend writes to existing vehicles columns that were previously
+    # unpopulated for wizard users. See commit d5592292 for Stage 1 context.
     """Validate and replace all user vehicles in one DB transaction (all-or-nothing)."""
     del uid, session, save_session
     committed_fields: list[str] = []
@@ -1688,6 +1692,113 @@ def _commit_vehicle_module(
                 )
                 continue
 
+        vin_out: str | None = None
+        vin_raw = veh.get("vin")
+        if vin_raw is not None and vin_raw != "":
+            if isinstance(vin_raw, str):
+                vin_candidate = vin_raw.strip().upper()
+                if len(vin_candidate) == 17 and re.fullmatch(r"[A-HJ-NPR-Z0-9]{17}", vin_candidate):
+                    vin_out = vin_candidate
+                else:
+                    loguru_logger.warning(
+                        "vehicle vin invalid for user {}: field={} got={!r}",
+                        user.id,
+                        f"{base}.vin",
+                        vin_raw,
+                    )
+            else:
+                loguru_logger.warning(
+                    "vehicle vin invalid for user {}: field={} got={!r}",
+                    user.id,
+                    f"{base}.vin",
+                    vin_raw,
+                )
+
+        trim_out: str | None = None
+        trim_raw = veh.get("trim")
+        if trim_raw is not None and trim_raw != "":
+            if isinstance(trim_raw, str):
+                trim_stripped = trim_raw.strip()
+                if trim_stripped and len(trim_stripped) <= 100:
+                    trim_out = trim_stripped
+                elif trim_stripped:
+                    loguru_logger.warning(
+                        "vehicle trim too long for user {}: field={} len={}",
+                        user.id,
+                        f"{base}.trim",
+                        len(trim_stripped),
+                    )
+            else:
+                loguru_logger.warning(
+                    "vehicle trim invalid for user {}: field={} got={!r}",
+                    user.id,
+                    f"{base}.trim",
+                    trim_raw,
+                )
+
+        current_mileage_raw = veh.get("current_mileage")
+        try:
+            current_mileage_out = int(current_mileage_raw) if current_mileage_raw is not None else 0
+        except (TypeError, ValueError):
+            current_mileage_out = 0
+        if current_mileage_out < 0:
+            current_mileage_out = 0
+        elif current_mileage_out > 999999:
+            current_mileage_out = 999999
+
+        monthly_miles_raw = veh.get("monthly_miles")
+        try:
+            monthly_miles_out = int(monthly_miles_raw) if monthly_miles_raw is not None else 0
+        except (TypeError, ValueError):
+            monthly_miles_out = 0
+        if monthly_miles_out < 0:
+            monthly_miles_out = 0
+        elif monthly_miles_out > 10000:
+            monthly_miles_out = 10000
+
+        user_zipcode_out: str | None = None
+        zip_raw = veh.get("user_zipcode")
+        if isinstance(zip_raw, str):
+            zip_stripped = zip_raw.strip()
+            if len(zip_stripped) == 5 and zip_stripped.isdigit():
+                user_zipcode_out = zip_stripped
+            else:
+                loguru_logger.warning(
+                    "vehicle user_zipcode invalid for user {}: field={} got={!r}",
+                    user.id,
+                    f"{base}.user_zipcode",
+                    zip_raw,
+                )
+        elif zip_raw is not None and zip_raw != "":
+            loguru_logger.warning(
+                "vehicle user_zipcode invalid for user {}: field={} got={!r}",
+                user.id,
+                f"{base}.user_zipcode",
+                zip_raw,
+            )
+
+        assigned_msa_out: str | None = None
+        msa_raw = veh.get("assigned_msa")
+        if msa_raw is not None and msa_raw != "":
+            if isinstance(msa_raw, str):
+                msa_stripped = msa_raw.strip()
+                if msa_stripped and len(msa_stripped) <= 100:
+                    assigned_msa_out = msa_stripped
+                elif msa_stripped:
+                    loguru_logger.warning(
+                        "vehicle assigned_msa too long for user {}: field={} len={}",
+                        user.id,
+                        f"{base}.assigned_msa",
+                        len(msa_stripped),
+                    )
+            else:
+                loguru_logger.warning(
+                    "vehicle assigned_msa invalid for user {}: field={} got={!r}",
+                    user.id,
+                    f"{base}.assigned_msa",
+                    msa_raw,
+                )
+
         validated_rows.append(
             {
                 "make": make_out,
@@ -1696,6 +1807,12 @@ def _commit_vehicle_module(
                 "monthly_payment": payment_out,
                 "monthly_fuel_cost": fuel_out,
                 "recent_maintenance": recent_out,
+                "vin": vin_out,
+                "trim": trim_out,
+                "current_mileage": current_mileage_out,
+                "monthly_miles": monthly_miles_out,
+                "user_zipcode": user_zipcode_out,
+                "assigned_msa": assigned_msa_out,
             }
         )
 
@@ -1708,6 +1825,18 @@ def _commit_vehicle_module(
             db.session.delete(existing)
 
         for i, row in enumerate(validated_rows):
+            vin_insert = row["vin"]
+            if vin_insert is not None:
+                dup = Vehicle.query.filter_by(vin=vin_insert).first()
+                if dup is not None:
+                    loguru_logger.warning(
+                        "vehicle vin duplicate for user {}: vin={} existing_user_id={}",
+                        user.id,
+                        vin_insert[:8] + "...",
+                        dup.user_id,
+                    )
+                    vin_insert = None
+
             db.session.add(
                 Vehicle(
                     user_id=user.id,
@@ -1717,6 +1846,12 @@ def _commit_vehicle_module(
                     monthly_payment=row["monthly_payment"],
                     monthly_fuel_cost=row["monthly_fuel_cost"],
                     recent_maintenance=row["recent_maintenance"],
+                    vin=vin_insert,
+                    trim=row["trim"],
+                    current_mileage=row["current_mileage"],
+                    monthly_miles=row["monthly_miles"],
+                    user_zipcode=row["user_zipcode"],
+                    assigned_msa=row["assigned_msa"],
                 )
             )
             applied.append(f"vehicles[{i}].make")
@@ -1725,6 +1860,12 @@ def _commit_vehicle_module(
             applied.append(f"vehicles[{i}].monthly_payment")
             applied.append(f"vehicles[{i}].monthly_fuel")
             applied.append(f"vehicles[{i}].recent_maintenance")
+            applied.append(f"vehicles[{i}].vin")
+            applied.append(f"vehicles[{i}].trim")
+            applied.append(f"vehicles[{i}].current_mileage")
+            applied.append(f"vehicles[{i}].monthly_miles")
+            applied.append(f"vehicles[{i}].user_zipcode")
+            applied.append(f"vehicles[{i}].assigned_msa")
 
         _touch_progress_row(user, load_row)
         db.session.commit()
