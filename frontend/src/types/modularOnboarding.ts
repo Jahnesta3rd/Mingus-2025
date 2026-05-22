@@ -124,7 +124,15 @@ export interface RecurringExpensesData {
 
 export interface RosterPerson {
   nickname?: string;
-  relationship_type?: string;
+  card_type?: 'family' | 'person' | 'kids' | 'social';
+  relationship_type?:
+    | 'talking'
+    | 'dating'
+    | 'serious'
+    | 'engaged'
+    | 'married'
+    | 'situationship'
+    | 'ex';
   monthly_cost?: number;
 }
 

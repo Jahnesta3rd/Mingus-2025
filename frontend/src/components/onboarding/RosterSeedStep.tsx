@@ -4,11 +4,44 @@ import { csrfHeaders } from '../../utils/csrfHeaders';
 
 export type RosterCardType = 'person' | 'kids' | 'social' | 'family';
 
+export type RelationshipType =
+  | 'talking'
+  | 'dating'
+  | 'serious'
+  | 'engaged'
+  | 'married'
+  | 'situationship'
+  | 'ex';
+
+export const RELATIONSHIP_TYPE_OPTIONS: { value: RelationshipType; label: string }[] = [
+  { value: 'talking', label: 'Talking — getting to know' },
+  { value: 'dating', label: 'Dating — actively seeing' },
+  { value: 'serious', label: 'Serious — committed, exclusive' },
+  { value: 'engaged', label: 'Engaged' },
+  { value: 'married', label: 'Married' },
+  { value: 'situationship', label: 'Situationship — undefined' },
+  { value: 'ex', label: 'Ex — still relevant to your life' },
+];
+
+export const ASSESSABLE_RELATIONSHIP_TYPES: RelationshipType[] = [
+  'serious',
+  'engaged',
+  'married',
+  'situationship',
+  'ex',
+];
+
 export interface RosterSeedStepProps {
   onSubmitted: (payload: {
     id: string;
     nickname: string;
-    people: { nickname: string; card_type: RosterCardType }[];
+    people: {
+      nickname: string;
+      card_type: RosterCardType;
+      relationship_type: RelationshipType;
+      monthly_cost: number;
+      server_id: string;
+    }[];
   }) => void;
   onSkip: () => void;
   setPageError: (msg: string | null) => void;
@@ -28,6 +61,9 @@ type RosterPersonRow = {
   id: string;
   nickname: string;
   cardType: RosterCardType;
+  relationshipType: RelationshipType;
+  estimatedMonthlyCost: string;
+  serverId?: string;
 };
 
 const UI_CAP = 50;
@@ -71,6 +107,7 @@ async function readErrorMessage(res: Response): Promise<string> {
 const inputClass =
   'w-full min-h-11 rounded-lg border border-[#E2E8F0] bg-white px-3 py-2.5 text-[#1E293B] placeholder:text-[#64748B] focus:border-[#5B2D8E] focus:outline-none focus:ring-1 focus:ring-[#5B2D8E]';
 const labelClass = 'mb-1.5 block text-sm font-medium text-[#1E293B]';
+const helperClass = 'mt-1 text-xs text-[#64748B]';
 
 const CATEGORY_OPTIONS: { value: RosterCardType; label: string }[] = [
   { value: 'family', label: 'Family' },
@@ -79,11 +116,21 @@ const CATEGORY_OPTIONS: { value: RosterCardType; label: string }[] = [
   { value: 'social', label: 'Friend / other' },
 ];
 
+const DEFAULT_RELATIONSHIP_TYPE: RelationshipType = 'talking';
+
+function emptyRow(): RosterPersonRow {
+  return {
+    id: newRowId(),
+    nickname: '',
+    cardType: 'person',
+    relationshipType: DEFAULT_RELATIONSHIP_TYPE,
+    estimatedMonthlyCost: '',
+  };
+}
+
 export default function RosterSeedStep({ onSubmitted, onSkip, setPageError }: RosterSeedStepProps) {
   const { getAccessToken, user } = useAuth();
-  const [people, setPeople] = useState<RosterPersonRow[]>(() => [
-    { id: newRowId(), nickname: '', cardType: 'person' },
-  ]);
+  const [people, setPeople] = useState<RosterPersonRow[]>(() => [emptyRow()]);
   const [existingRosterCount, setExistingRosterCount] = useState(0);
   const [rowErrors, setRowErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
@@ -136,21 +183,24 @@ export default function RosterSeedStep({ onSubmitted, onSkip, setPageError }: Ro
     [getAccessToken]
   );
 
-  const updatePerson = useCallback((id: string, patch: Partial<Pick<RosterPersonRow, 'nickname' | 'cardType'>>) => {
-    setRowErrors((prev) => {
-      if (!prev[id]) return prev;
-      const next = { ...prev };
-      delete next[id];
-      return next;
-    });
-    setPeople((prev) => prev.map((p) => (p.id === id ? { ...p, ...patch } : p)));
-  }, []);
+  const updatePerson = useCallback(
+    (id: string, patch: Partial<Pick<RosterPersonRow, 'nickname' | 'cardType' | 'relationshipType' | 'estimatedMonthlyCost'>>) => {
+      setRowErrors((prev) => {
+        if (!prev[id]) return prev;
+        const next = { ...prev };
+        delete next[id];
+        return next;
+      });
+      setPeople((prev) => prev.map((p) => (p.id === id ? { ...p, ...patch } : p)));
+    },
+    []
+  );
 
   const addRow = useCallback(() => {
     setPageError(null);
     setPeople((prev) => {
       if (prev.length >= maxRows) return prev;
-      return [...prev, { id: newRowId(), nickname: '', cardType: 'person' }];
+      return [...prev, emptyRow()];
     });
   }, [maxRows, setPageError]);
 
@@ -182,6 +232,14 @@ export default function RosterSeedStep({ onSubmitted, onSkip, setPageError }: Ro
       return;
     }
 
+    for (const row of entries) {
+      const cost = parseFloat(row.estimatedMonthlyCost);
+      if (row.estimatedMonthlyCost.trim() === '' || Number.isNaN(cost) || cost < 0) {
+        setPageError(`Monthly cost is required for ${row.nick}.`);
+        return;
+      }
+    }
+
     if (entries.length > maxRows) {
       setPageError(
         tier === 'mid_tier'
@@ -195,11 +253,30 @@ export default function RosterSeedStep({ onSubmitted, onSkip, setPageError }: Ro
 
     setSubmitting(true);
     let firstPosted: VibePersonPayload | null = null;
+    const postedPeople: {
+      nickname: string;
+      card_type: RosterCardType;
+      relationship_type: RelationshipType;
+      monthly_cost: number;
+      server_id: string;
+    }[] = [];
+
     try {
       for (const row of entries) {
         try {
           const created = await postPerson(row.nick, row.cardType);
           if (!firstPosted) firstPosted = created;
+          const monthlyCost = parseFloat(row.estimatedMonthlyCost);
+          postedPeople.push({
+            nickname: row.nick,
+            card_type: row.cardType,
+            relationship_type: row.relationshipType,
+            monthly_cost: monthlyCost,
+            server_id: created.id,
+          });
+          setPeople((prev) =>
+            prev.map((p) => (p.id === row.id ? { ...p, serverId: created.id } : p))
+          );
         } catch (err) {
           const msg = err instanceof Error ? err.message : 'Could not add';
           setRowErrors({ [row.id]: msg });
@@ -215,10 +292,7 @@ export default function RosterSeedStep({ onSubmitted, onSkip, setPageError }: Ro
         onSubmitted({
           id: firstPosted.id,
           nickname: firstPosted.nickname,
-          people: entries.map((row) => ({
-            nickname: row.nick,
-            card_type: row.cardType,
-          })),
+          people: postedPeople,
         });
       }
     } catch (err) {
@@ -282,7 +356,7 @@ export default function RosterSeedStep({ onSubmitted, onSkip, setPageError }: Ro
                 </div>
                 <div>
                   <label className={labelClass} htmlFor={`roster-card-${row.id}`}>
-                    Relationship
+                    Category
                   </label>
                   <select
                     id={`roster-card-${row.id}`}
@@ -291,7 +365,7 @@ export default function RosterSeedStep({ onSubmitted, onSkip, setPageError }: Ro
                     onChange={(e) =>
                       updatePerson(row.id, { cardType: e.target.value as RosterCardType })
                     }
-                    aria-label={`Relationship category for person ${idx + 1}`}
+                    aria-label={`Category for person ${idx + 1}`}
                   >
                     {CATEGORY_OPTIONS.map((opt) => (
                       <option key={opt.value} value={opt.value}>
@@ -299,6 +373,50 @@ export default function RosterSeedStep({ onSubmitted, onSkip, setPageError }: Ro
                       </option>
                     ))}
                   </select>
+                </div>
+                <div>
+                  <label className={labelClass} htmlFor={`roster-rel-${row.id}`}>
+                    Relationship type
+                  </label>
+                  <select
+                    id={`roster-rel-${row.id}`}
+                    className={inputClass}
+                    value={row.relationshipType}
+                    onChange={(e) =>
+                      updatePerson(row.id, {
+                        relationshipType: e.target.value as RelationshipType,
+                      })
+                    }
+                    aria-label={`Relationship type for person ${idx + 1}`}
+                    required
+                  >
+                    {RELATIONSHIP_TYPE_OPTIONS.map((opt) => (
+                      <option key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className={labelClass} htmlFor={`roster-cost-${row.id}`}>
+                    Estimated monthly cost ($)
+                  </label>
+                  <input
+                    id={`roster-cost-${row.id}`}
+                    type="number"
+                    min={0}
+                    step={0.01}
+                    className={inputClass}
+                    value={row.estimatedMonthlyCost}
+                    onChange={(e) =>
+                      updatePerson(row.id, { estimatedMonthlyCost: e.target.value })
+                    }
+                    aria-label={`Estimated monthly cost for person ${idx + 1}`}
+                    required
+                  />
+                  <p className={helperClass}>
+                    What you typically spend on or with this person each month (gifts, dates, support, etc.).
+                  </p>
                 </div>
                 {rowErrors[row.id] ? (
                   <p className="text-sm text-red-600" role="alert">

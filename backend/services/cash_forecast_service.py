@@ -546,20 +546,24 @@ def _relationship_cost_rows_for_user(
     rows: list[dict[str, Any]] = []
     for person in people:
         monthly = Decimal("0")
-        assn = (
-            VibePersonAssessment.query.filter(
-                VibePersonAssessment.tracked_person_id == person.id,
-                VibePersonAssessment.lead_id.isnot(None),
+
+        if person.estimated_monthly_cost is not None and person.estimated_monthly_cost > 0:
+            monthly = _money(Decimal(str(person.estimated_monthly_cost)))
+        else:
+            assn = (
+                VibePersonAssessment.query.filter(
+                    VibePersonAssessment.tracked_person_id == person.id,
+                    VibePersonAssessment.lead_id.isnot(None),
+                )
+                .order_by(VibePersonAssessment.completed_at.desc())
+                .first()
             )
-            .order_by(VibePersonAssessment.completed_at.desc())
-            .first()
-        )
-        if assn is not None and assn.lead_id is not None:
-            lead = db.session.get(VibeCheckupsLead, assn.lead_id)
-            if lead is not None:
-                monthly = _monthly_from_checkup_lead(lead)
-        if monthly <= 0:
-            monthly = _linked_thirty_day_cost_total(person.nickname, important_dates)
+            if assn is not None and assn.lead_id is not None:
+                lead = db.session.get(VibeCheckupsLead, assn.lead_id)
+                if lead is not None:
+                    monthly = _monthly_from_checkup_lead(lead)
+            if monthly <= 0:
+                monthly = _linked_thirty_day_cost_total(person.nickname, important_dates)
         monthly = _money(monthly)
         rows.append(
             {
