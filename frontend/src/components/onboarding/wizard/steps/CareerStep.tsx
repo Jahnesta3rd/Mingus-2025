@@ -1,10 +1,12 @@
 import React, { useCallback, useState } from 'react';
+import { OCCUPATION_GROUPS } from '../../../../constants/occupationOptions';
 import { useAuth } from '../../../../hooks/useAuth';
 import type { StepProps } from '../StepDefinitions';
 
 type RelocationOpenness = 'yes' | 'maybe' | 'no';
 
 type Field =
+  | 'occupation_key'
   | 'current_position'
   | 'employer'
   | 'industry'
@@ -45,6 +47,8 @@ function todayIso(): string {
 
 export default function CareerStep({ initialData, onSubmit, onSkip }: StepProps) {
   const { getAccessToken } = useAuth();
+  const [occupationKey, setOccupationKey] = useState<string>('');
+  const [occupationTouched, setOccupationTouched] = useState<boolean>(false);
   const [currentPosition, setCurrentPosition] = useState<string>(
     typeof initialData.current_position === 'string' ? initialData.current_position : ''
   );
@@ -91,8 +95,7 @@ export default function CareerStep({ initialData, onSubmit, onSkip }: StepProps)
 
   const validate = useCallback((): FieldErrors => {
     const next: FieldErrors = {};
-    if (!currentPosition.trim()) next.current_position = 'Current position is required.';
-    if (!employer.trim()) next.employer = 'Employer is required.';
+    if (!occupationTouched) next.occupation_key = 'Please select an occupation.';
     if (!industry.trim()) next.industry = 'Choose an industry.';
     const years = Number.parseInt(yearsInRole, 10);
     if (!Number.isInteger(years) || years < 0) next.years_in_role = 'Years in role must be 0 or greater.';
@@ -106,7 +109,7 @@ export default function CareerStep({ initialData, onSubmit, onSkip }: StepProps)
       }
     }
     return next;
-  }, [currentPosition, employer, industry, yearsInRole, nextReviewDate, targetComp]);
+  }, [occupationTouched, industry, yearsInRole, nextReviewDate, targetComp]);
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -114,6 +117,7 @@ export default function CareerStep({ initialData, onSubmit, onSkip }: StepProps)
     const nextErrors = validate();
     setErrors(nextErrors);
     const order: Field[] = [
+      'occupation_key',
       'current_position',
       'employer',
       'industry',
@@ -141,7 +145,8 @@ export default function CareerStep({ initialData, onSubmit, onSkip }: StepProps)
       const years = Number.parseInt(yearsInRole, 10);
       const parsedTarget = targetComp.trim() ? Number.parseFloat(targetComp) : null;
       await onSubmit({
-        current_role: currentPosition.trim(),
+        occupation_key: occupationKey === '' ? null : occupationKey,
+        current_role: currentPosition.trim() || null,
         industry,
         years_experience: years,
         satisfaction,
@@ -184,12 +189,43 @@ export default function CareerStep({ initialData, onSubmit, onSkip }: StepProps)
 
         <div className="mt-6 grid gap-3 sm:grid-cols-2">
           <div className="sm:col-span-2">
-            <label className={labelClass} htmlFor="career-current_position">Current position *</label>
+            <label className={labelClass} htmlFor="career-occupation_key">Occupation *</label>
+            <select
+              id="career-occupation_key"
+              className={inputClass}
+              value={occupationKey}
+              onChange={(e) => {
+                clearValidationFeedback();
+                setOccupationKey(e.target.value);
+                setOccupationTouched(true);
+                setErrors((prev) => ({ ...prev, occupation_key: undefined }));
+              }}
+            >
+              <option value="" disabled={!occupationTouched}>
+                Select your occupation…
+              </option>
+              {OCCUPATION_GROUPS.map((group) => (
+                <optgroup key={group.label} label={group.label}>
+                  {group.options.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </optgroup>
+              ))}
+              <option value="">Other / not listed</option>
+            </select>
+            {errors.occupation_key && (
+              <p className="mt-1 text-sm text-red-600">{errors.occupation_key}</p>
+            )}
+          </div>
+          <div className="sm:col-span-2">
+            <label className={labelClass} htmlFor="career-current_position">Specific title (optional)</label>
             <input id="career-current_position" className={inputClass} value={currentPosition} onChange={(e) => { clearValidationFeedback(); setCurrentPosition(e.target.value); }} />
             {errors.current_position && <p className="mt-1 text-sm text-red-600">{errors.current_position}</p>}
           </div>
           <div className="sm:col-span-2">
-            <label className={labelClass} htmlFor="career-employer">Employer *</label>
+            <label className={labelClass} htmlFor="career-employer">Employer (optional)</label>
             <input id="career-employer" className={inputClass} value={employer} onChange={(e) => { clearValidationFeedback(); setEmployer(e.target.value); }} />
             {errors.employer && <p className="mt-1 text-sm text-red-600">{errors.employer}</p>}
           </div>

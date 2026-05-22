@@ -48,6 +48,35 @@ _PENDING_VEH_PK = "_gc2_pending_vehicle_pk"
 _PENDING_PERSON_UUID = "_gc2_pending_person_uuid"
 _PENDING_EVT_IDX = "_gc2_pending_custom_event_idx"
 
+# Allowlist of canonical occupation keys (kept in sync with frontend/src/constants/occupationOptions.ts)
+VALID_OCCUPATION_KEYS = {
+    "software_developer",
+    "data_analyst",
+    "data_scientist",
+    "qa_tester",
+    "it_support",
+    "marketing_coordinator",
+    "marketing_manager",
+    "content_writer",
+    "social_media_manager",
+    "graphic_designer",
+    "admin_assistant",
+    "data_entry",
+    "operations_coordinator",
+    "program_manager",
+    "project_manager",
+    "operations_manager",
+    "director",
+    "vp_or_above",
+    "public_administrator",
+    "policy_analyst",
+    "federal_program_mgr",
+    "financial_analyst",
+    "consultant",
+    "account_executive",
+    "sales_rep",
+}
+
 # Guided Canvas roster: allowed RelationshipStatus member NAMES (DB / enum keys).
 # GC1 emits lowercase values; validation uppercases then checks this set.
 _GC_REL_ALLOWED_STATUS_NAMES: frozenset[str] = frozenset(
@@ -469,7 +498,20 @@ def _validate_and_cast(field_path: str, value: Any) -> tuple[Any | None, tuple[d
         if v < 0 or v > 10000:
             return None, _validation_failed(field_path, "out_of_range", "[0, 10000]", value)
         return v, None
-    if field_path in ("current_role", "industry"):
+    if field_path == "current_role":
+        # current_role is OPTIONAL as of CR1.5 — accept null/empty as None
+        if value is None or value == "":
+            return None, None
+        if not isinstance(value, str):
+            return None, _validation_failed(field_path, "type_mismatch", "string max 100", value)
+        s = value.strip()
+        if not s:
+            return None, None
+        if len(s) > 100:
+            return None, _validation_failed(field_path, "string_too_long", "max 100", value)
+        return s, None
+    if field_path == "industry":
+        # industry remains required
         if not isinstance(value, str):
             return None, _validation_failed(field_path, "type_mismatch", "string max 100", value)
         s = value.strip()
@@ -478,6 +520,17 @@ def _validate_and_cast(field_path: str, value: Any) -> tuple[Any | None, tuple[d
         if len(s) > 100:
             return None, _validation_failed(field_path, "string_too_long", "max 100", value)
         return s, None
+    if field_path == "occupation_key":
+        # CR1.5: required from user, but null/empty = "Other / not listed" → store as None
+        if value is None or value == "":
+            return None, None
+        if not isinstance(value, str):
+            return None, _validation_failed(field_path, "type_mismatch", "string", value)
+        if value not in VALID_OCCUPATION_KEYS:
+            return None, _validation_failed(
+                field_path, "not_in_allowlist", "one of 25 canonical keys", value
+            )
+        return value, None
     if field_path == "years_experience":
         if value is None or value == "":
             return None, None
@@ -1994,6 +2047,7 @@ def _commit_career_module(
     validated: dict[str, Any] = {}
 
     field_specs: list[tuple[str, Any]] = [
+        ("occupation_key", data.get("occupation_key")),
         ("current_role", data.get("current_role")),
         ("industry", data.get("industry")),
         ("years_experience", data.get("years_experience")),
@@ -2026,6 +2080,7 @@ def _commit_career_module(
             cp = CareerProfile(user_id=user.id)
             db.session.add(cp)
             db.session.flush()
+        cp.occupation_key = validated["occupation_key"]
         cp.current_role = validated["current_role"]
         cp.industry = validated["industry"]
         cp.years_experience = validated["years_experience"]
@@ -2038,6 +2093,7 @@ def _commit_career_module(
         )
         applied.extend(
             [
+                "occupation_key",
                 "current_role",
                 "industry",
                 "years_experience",
@@ -2863,6 +2919,7 @@ def flatten_module_data(module_id: str, data: dict) -> list[tuple[str, Any]]:
                     pairs.append((f"people[{i}].{sk}", sv))
     elif module_id == "career":
         for k in (
+            "occupation_key",
             "current_role",
             "industry",
             "years_experience",

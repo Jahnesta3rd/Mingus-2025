@@ -19,6 +19,7 @@ class CareerProfile(db.Model):
         primary_key=True,
     )
     current_role = db.Column(db.String(100), nullable=True)
+    occupation_key = db.Column(db.String(50), nullable=True)
     industry = db.Column(db.String(100), nullable=True)
     years_experience = db.Column(db.Integer, nullable=True)
     satisfaction = db.Column(db.Integer, nullable=True)
