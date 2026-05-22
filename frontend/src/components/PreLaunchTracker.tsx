@@ -237,7 +237,7 @@ export default function PreLaunchTracker() {
                 style={{
                   border: `1px solid ${isFixed ? "#064E3B" : p.border}`,
                   borderRadius: 8,
-                  background: isFixed ? "#0A1F1A" : "#0D1626`,
+                  background: isFixed ? "#0A1F1A" : "#0D1626",
                   overflow: "hidden",
                   transition: "all 0.2s",
                   opacity: isFixed ? 0.6 : 1,
