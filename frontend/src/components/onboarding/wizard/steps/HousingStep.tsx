@@ -4,7 +4,7 @@ import { csrfHeaders } from '../../../../utils/csrfHeaders';
 import type { StepProps } from '../StepDefinitions';
 
 type Ownership = 'rent' | 'own_with_mortgage' | 'own_outright' | 'family' | 'other';
-type Field = 'ownership' | 'monthly_cost' | 'zip_code';
+type Field = 'ownership' | 'monthly_cost' | 'zip_code' | 'has_buy_goal' | 'target_timeline_months';
 type FieldErrors = Partial<Record<Field, string>>;
 
 const inputClass =
@@ -51,6 +51,8 @@ export default function HousingStep({ initialData, onSubmit, onSkip }: StepProps
         ? initialData.monthly_cost
         : ''
   );
+  const [hasBuyGoal, setHasBuyGoal] = useState<'yes' | 'no' | ''>('');
+  const [targetTimelineMonths, setTargetTimelineMonths] = useState<string>('');
   const [includesUtilities, setIncludesUtilities] = useState<boolean>(
     typeof initialData.includes_utilities === 'boolean' ? initialData.includes_utilities : false
   );
@@ -158,6 +160,36 @@ export default function HousingStep({ initialData, onSubmit, onSkip }: StepProps
     const effectiveMonthly =
       hasRecurring && sharesHousing ? parsedMonthly * (splitSharePct / 100) : parsedMonthly;
 
+    if (hasBuyGoal === '') {
+      setErrors((prev) => ({
+        ...prev,
+        has_buy_goal: "Please answer whether you're saving to buy a home.",
+      }));
+      setShowValidationSummary(true);
+      return;
+    }
+    if (hasBuyGoal === 'yes') {
+      if (targetTimelineMonths.trim() === '') {
+        setErrors((prev) => ({
+          ...prev,
+          target_timeline_months: "Please enter how many months until you'd like to buy.",
+        }));
+        setShowValidationSummary(true);
+        document.getElementById('housing-target_timeline_months')?.focus();
+        return;
+      }
+      const months = Number.parseInt(targetTimelineMonths, 10);
+      if (Number.isNaN(months) || months < 1 || months > 36) {
+        setErrors((prev) => ({
+          ...prev,
+          target_timeline_months: 'Please enter a number of months between 1 and 36.',
+        }));
+        setShowValidationSummary(true);
+        document.getElementById('housing-target_timeline_months')?.focus();
+        return;
+      }
+    }
+
     setIsSubmitting(true);
     try {
       if (hasRecurring && effectiveMonthly > 0) {
@@ -171,9 +203,9 @@ export default function HousingStep({ initialData, onSubmit, onSkip }: StepProps
         monthly_cost: hasRecurring ? parsedMonthly : 0,
         zip_or_city: city.trim() || zipCode.trim() || 'N/A',
         split_share_pct: splitSharePct,
-        has_buy_goal: false,
+        has_buy_goal: hasBuyGoal === 'yes',
         target_price: null,
-        target_timeline_months: null,
+        target_timeline_months: hasBuyGoal === 'yes' ? Number.parseInt(targetTimelineMonths, 10) : null,
       });
     } catch (err) {
       setSubmitBanner(err instanceof Error ? err.message : 'Save failed');
@@ -360,6 +392,62 @@ export default function HousingStep({ initialData, onSubmit, onSkip }: StepProps
               {errors.zip_code && <p className="mt-1 text-sm text-red-600">{errors.zip_code}</p>}
             </div>
           </div>
+
+          <fieldset>
+            <legend className={labelClass}>Are you saving to buy a home in the next 3 years? *</legend>
+            <div className="space-y-2">
+              {[
+                { value: 'yes', label: 'Yes' },
+                { value: 'no', label: 'No' },
+              ].map((opt) => (
+                <label key={opt.value} className="flex items-center gap-2 text-sm text-[#1E293B]">
+                  <input
+                    type="radio"
+                    name="has_buy_goal"
+                    value={opt.value}
+                    checked={hasBuyGoal === opt.value}
+                    onChange={(e) => {
+                      setHasBuyGoal(e.target.value as 'yes' | 'no');
+                      if (e.target.value === 'no') setTargetTimelineMonths('');
+                      setErrors((prev) => ({
+                        ...prev,
+                        has_buy_goal: undefined,
+                        target_timeline_months: undefined,
+                      }));
+                    }}
+                  />
+                  {opt.label}
+                </label>
+              ))}
+            </div>
+            {errors.has_buy_goal && <p className="mt-1 text-sm text-red-600">{errors.has_buy_goal}</p>}
+          </fieldset>
+
+          {hasBuyGoal === 'yes' && (
+            <div>
+              <label className={labelClass} htmlFor="housing-target_timeline_months">
+                How many months until you'd like to buy? *
+              </label>
+              <input
+                id="housing-target_timeline_months"
+                className={inputClass}
+                type="number"
+                min={1}
+                max={36}
+                step={1}
+                inputMode="numeric"
+                value={targetTimelineMonths}
+                onChange={(e) => {
+                  setTargetTimelineMonths(e.target.value);
+                  setErrors((prev) => ({ ...prev, target_timeline_months: undefined }));
+                }}
+                placeholder="e.g. 18"
+              />
+              {errors.target_timeline_months && (
+                <p className="mt-1 text-sm text-red-600">{errors.target_timeline_months}</p>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
