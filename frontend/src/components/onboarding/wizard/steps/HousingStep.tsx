@@ -89,8 +89,10 @@ export default function HousingStep({ initialData, onSubmit, onSkip }: StepProps
     if (requiresCost && (!Number.isFinite(amt) || amt <= 0)) {
       next.monthly_cost = 'Enter a monthly cost greater than zero.';
     }
-    if (zipCode.trim() && !/^\d{5}$/.test(zipCode.trim())) {
-      next.zip_code = 'ZIP code must be 5 digits.';
+    if (!zipCode.trim()) {
+      next.zip_code = 'ZIP code is required';
+    } else if (!/^\d{5}$/.test(zipCode.trim())) {
+      next.zip_code = 'ZIP code must be 5 digits';
     }
     return next;
   }, [ownership, monthlyCost, zipCode]);
@@ -201,7 +203,7 @@ export default function HousingStep({ initialData, onSubmit, onSkip }: StepProps
       await onSubmit({
         housing_type: mapHousingType(ownership as Ownership),
         monthly_cost: hasRecurring ? parsedMonthly : 0,
-        zip_or_city: city.trim() || zipCode.trim() || 'N/A',
+        zip_or_city: zipCode.trim(),
         split_share_pct: splitSharePct,
         has_buy_goal: hasBuyGoal === 'yes',
         target_price: null,
@@ -377,7 +379,7 @@ export default function HousingStep({ initialData, onSubmit, onSkip }: StepProps
             </div>
             <div>
               <label className={labelClass} htmlFor="housing-zip_code">
-                ZIP code (optional)
+                ZIP code *
               </label>
               <input
                 id="housing-zip_code"

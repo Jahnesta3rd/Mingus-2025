@@ -156,3 +156,6 @@ frontend/dist/
 #  doing so would silently exclude frontend/src/lib/ and similar paths)
 /lib/
 /MINGUS Marketing/
+
+# Beta code verification batch artifacts (operator-generated, not source)
+backend/data/beta_codes_*.csv

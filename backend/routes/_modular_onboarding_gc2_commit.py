@@ -358,6 +358,8 @@ def _validate_and_cast(field_path: str, value: Any) -> tuple[Any | None, tuple[d
         s = value.strip()
         if not s:
             return None, _validation_failed(field_path, "empty_string", "non-empty string", value)
+        if not re.fullmatch(r"\d{5}", s):
+            return None, _validation_failed(field_path, "bad_format", "5-digit ZIP", value)
         if len(s) > 100:
             return None, _validation_failed(field_path, "string_too_long", "max 100", value)
         return s, None
