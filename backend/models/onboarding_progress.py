@@ -30,9 +30,9 @@ class OnboardingProgress(db.Model):
 
     @hybrid_property
     def is_complete(self) -> bool:
-        """True when every module id is in completed and/or skipped (same rule as completed_at)."""
-        seen = set(self.completed_modules or []) | set(self.skipped_modules or [])
-        return seen.issuperset(set(MODULE_ORDER))
+        """True when every module id is in completed_modules (skip does not count as done)."""
+        completed_set = set(self.completed_modules or [])
+        return all(mid in completed_set for mid in MODULE_ORDER)
 
     def to_dict(self) -> dict:
         return {

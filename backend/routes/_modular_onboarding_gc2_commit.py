@@ -2982,6 +2982,25 @@ def run_commit_module(
         return ({"error": "unknown_module", "module_id": module_id}, 400)
     committed_fields: list[str] = []
     failed_fields: list[dict] = []
+    if module_id == "milestones":
+        completed_set = set(session.get("completed_modules") or [])
+        missing = [m for m in MODULE_ORDER if m != "milestones" and m not in completed_set]
+        if missing:
+            return (
+                {
+                    "ok": False,
+                    "module_id": module_id,
+                    "failed_fields": [
+                        {
+                            "field_path": "__batch__",
+                            "error": "validation_failed",
+                            "reason": "incomplete_modules",
+                            "missing": missing,
+                        }
+                    ],
+                },
+                200,
+            )
     if module_id == "income":
         committed_fields, failed_fields = _commit_income_module_dual_write(
             user=user,
@@ -3095,11 +3114,10 @@ def run_commit_module(
             completed.append(module_id)
         session["completed_modules"] = completed
         done_set = set(session["completed_modules"] or [])
-        skip_set = set(session.get("skipped_modules") or [])
         next_module = None
         all_done = True
         for mid in MODULE_ORDER:
-            if mid in done_set or mid in skip_set:
+            if mid in done_set:
                 continue
             all_done = False
             next_module = mid
@@ -3115,8 +3133,7 @@ def run_commit_module(
             db.session.commit()
         next_module = session.get("current_module")
         done_s = set(session.get("completed_modules") or [])
-        skip_s = set(session.get("skipped_modules") or [])
-        all_done = set(MODULE_ORDER).issubset(done_s | skip_s)
+        all_done = set(MODULE_ORDER).issubset(done_s)
 
     try:
         save_session(uid, session)

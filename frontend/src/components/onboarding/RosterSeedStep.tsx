@@ -446,17 +446,7 @@ export default function RosterSeedStep({ onSubmitted, onSkip, setPageError }: Ro
         {submitting ? 'Adding…' : 'Add to my Roster →'}
       </button>
 
-      <button
-        type="button"
-        disabled={hasAnyNickname}
-        onClick={() => {
-          setPageError(null);
-          onSkip();
-        }}
-        className="min-h-11 w-full rounded-lg text-center text-sm text-[#64748B] hover:text-[#1E293B] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5B2D8E] focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        Skip for now
-      </button>
+      {/* Skip button removed pending R-A (no-one-to-enter) follow-up. */}
     </form>
   );
 }

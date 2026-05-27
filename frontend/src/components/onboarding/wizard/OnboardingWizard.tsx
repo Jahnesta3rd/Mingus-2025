@@ -11,24 +11,32 @@ import { OnboardingSaveAndExit } from '../OnboardingSaveAndExit';
 const BASE = '/api/modular-onboarding';
 const FINAL_ERROR = "Couldn't complete onboarding. Please try again.";
 
+const STEP_LABEL_BY_ID: Record<ModuleId, string> = Object.fromEntries(
+  STEP_ORDER.map((s) => [s.id, s.label])
+) as Record<ModuleId, string>;
+
+type FailedField = {
+  field_path: string;
+  reason: string;
+  missing?: string[];
+};
+
 function parseStatusComplete(raw: unknown): boolean {
   if (!raw || typeof raw !== 'object') return false;
   const payload = raw as {
-    db?: { is_complete?: boolean } | null;
-    session?: {
-      completed_modules?: unknown;
-      skipped_modules?: unknown;
-    };
+    db?: { is_complete?: boolean; completed_modules?: unknown } | null;
+    session?: { completed_modules?: unknown };
   };
   if (payload.db?.is_complete === true) return true;
-  const completed = Array.isArray(payload.session?.completed_modules)
-    ? payload.session?.completed_modules
+  const fromSession = Array.isArray(payload.session?.completed_modules)
+    ? payload.session.completed_modules
     : [];
-  const skipped = Array.isArray(payload.session?.skipped_modules)
-    ? payload.session?.skipped_modules
-    : [];
-  const seen = new Set<string>([...completed, ...skipped].filter((x): x is string => typeof x === 'string'));
-  return STEP_ORDER.every((step) => seen.has(step.id));
+  const fromDb =
+    payload.db && Array.isArray(payload.db.completed_modules) ? payload.db.completed_modules : [];
+  const completedSet = new Set<string>(
+    [...fromSession, ...fromDb].filter((x): x is string => typeof x === 'string')
+  );
+  return STEP_ORDER.every((step) => completedSet.has(step.id));
 }
 
 function parseStatusModule(raw: unknown): string | null {
@@ -47,6 +55,10 @@ function moduleIndex(moduleId: string | null): number {
   if (!moduleId) return 0;
   const idx = STEP_ORDER.findIndex((s) => s.id.toLowerCase() === moduleId.toLowerCase());
   return idx >= 0 ? idx : 0;
+}
+
+function isModuleId(value: string): value is ModuleId {
+  return STEP_ORDER.some((s) => s.id === value);
 }
 
 export interface OnboardingWizardProps {
@@ -68,6 +80,7 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [incompleteModules, setIncompleteModules] = useState<ModuleId[]>([]);
   const [initialDataByStep] = useState<Record<string, Record<string, unknown>>>({});
 
   const currentStep = STEP_ORDER[currentIndex];
@@ -128,16 +141,12 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
       throw new Error('Failed to save step progress');
     }
     const body = (await res.json()) as { next_module?: string | null; all_done?: boolean };
-    if (body.all_done) {
-      finishOnboarding();
-      return;
-    }
     if (body.next_module) {
       setCurrentIndex(moduleIndex(body.next_module));
       return;
     }
     setCurrentIndex((prev) => Math.min(prev + 1, STEP_ORDER.length - 1));
-  }, [currentIndex, finishOnboarding, headers]);
+  }, [currentIndex, headers]);
 
   const completeFinalStep = useCallback(
     async (data: Record<string, unknown> = {}) => {
@@ -155,8 +164,17 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
 
       const body = (await res.json()) as {
         ok?: boolean;
-        failed_fields?: Array<{ field_path: string; reason: string }>;
+        all_done?: boolean;
+        failed_fields?: FailedField[];
       };
+
+      const incompleteEntry = body.failed_fields?.find((f) => f.reason === 'incomplete_modules');
+      if (body.ok === false && incompleteEntry) {
+        const missing = (incompleteEntry.missing ?? []).filter(isModuleId);
+        setIncompleteModules(missing);
+        setError(null);
+        return;
+      }
 
       if (body.failed_fields && body.failed_fields.length > 0) {
         const summary = body.failed_fields
@@ -167,6 +185,21 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
         );
       }
 
+      if (body.ok === true && body.all_done === true) {
+        setIncompleteModules([]);
+        finishOnboarding();
+        return;
+      }
+
+      if (body.ok === true && body.all_done === false) {
+        setIncompleteModules([]);
+        setError(
+          'You still need to complete every onboarding step before finishing. Use the links below to go back.'
+        );
+        return;
+      }
+
+      setIncompleteModules([]);
       finishOnboarding();
     },
     [finishOnboarding, headers]
@@ -181,6 +214,9 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
       }
       setIsSubmitting(true);
       setError(null);
+      if (!isLastStep) {
+        setIncompleteModules([]);
+      }
       try {
         if (isLastStep) {
           await completeFinalStep(data);
@@ -246,6 +282,12 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
     }
   }, [isSubmitting, persistSkipAndAdvance]);
 
+  const goToIncompleteModule = useCallback((moduleId: ModuleId) => {
+    setIncompleteModules([]);
+    setError(null);
+    setCurrentIndex(moduleIndex(moduleId));
+  }, []);
+
   if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center px-4 py-8">
@@ -269,6 +311,31 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
         {error && (
           <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
             {error}
+          </div>
+        )}
+        {isLastStep && incompleteModules.length > 0 && (
+          <div
+            className="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900"
+            role="alert"
+          >
+            <p className="font-medium">You still need to complete every step before finishing.</p>
+            <ul className="mt-3 space-y-2">
+              {incompleteModules.map((moduleId) => {
+                const label = STEP_LABEL_BY_ID[moduleId] ?? moduleId;
+                return (
+                  <li key={moduleId} className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                    <span>You still need to complete: {label}</span>
+                    <button
+                      type="button"
+                      onClick={() => goToIncompleteModule(moduleId)}
+                      className="min-h-11 shrink-0 rounded-lg bg-[#5B2D8E] px-4 py-2 text-sm font-semibold text-white hover:bg-[#4B2474]"
+                    >
+                      Go to {label}
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
           </div>
         )}
         <StepComponent

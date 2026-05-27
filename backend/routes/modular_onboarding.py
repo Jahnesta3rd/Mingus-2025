@@ -188,9 +188,9 @@ def _upsert_db_progress(user: User, session: dict) -> None:
         row.skipped_modules = list(session.get("skipped_modules") or [])
         row.current_module = session.get("current_module") or MODULE_ORDER[0]
         row.last_activity_at = now
-    covered = set(row.completed_modules or []) | set(row.skipped_modules or [])
-    all_accounted = all(mid in covered for mid in MODULE_ORDER)
-    row.completed_at = now if all_accounted else None
+    completed_set = set(row.completed_modules or [])
+    all_completed = all(mid in completed_set for mid in MODULE_ORDER)
+    row.completed_at = now if all_completed else None
     db.session.commit()
 
 
@@ -1273,11 +1273,8 @@ def post_skip_module():
     _upsert_db_progress(user, session)
 
     nxt = _next_open_module(session)
-    all_done = all(
-        mid in (session.get("completed_modules") or [])
-        or mid in (session.get("skipped_modules") or [])
-        for mid in MODULE_ORDER
-    )
+    done = set(session.get("completed_modules") or [])
+    all_done = all(mid in done for mid in MODULE_ORDER)
     return jsonify({"next_module": nxt, "all_done": all_done}), 200
 
 
@@ -1320,8 +1317,17 @@ def get_status():
         return jsonify({"error": "User not found"}), 404
     session = _get_session(uid, user)
     row = _load_row(user)
+    session_for_response = dict(session)
+    skipped_set = set(row.skipped_modules or []) if row else set(session.get("skipped_modules") or [])
+    if skipped_set:
+        for mid in MODULE_ORDER:
+            if mid in skipped_set:
+                session_for_response["current_module"] = mid
+                break
+    elif row and row.current_module:
+        session_for_response.setdefault("current_module", row.current_module)
     payload = {
-        "session": session,
+        "session": session_for_response,
         "modules": _module_completion_flags(session),
         "db": row.to_dict() if row else None,
     }
