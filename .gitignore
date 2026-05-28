@@ -159,3 +159,5 @@ frontend/dist/
 
 # Beta code verification batch artifacts (operator-generated, not source)
 backend/data/beta_codes_*.csv
+memes_source/
+static/memes/
