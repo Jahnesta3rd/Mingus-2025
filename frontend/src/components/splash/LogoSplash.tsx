@@ -136,7 +136,7 @@ const LogoSplash: React.FC = () => {
           className={`flex flex-col items-center justify-center transition-all ease-out ${transitionClass} ${contentOpacityScale} ${pulseClass}`}
         >
           <h1 className="text-6xl md:text-7xl font-bold text-white tracking-tight">MINGUS</h1>
-          <p className="mt-3 text-lg text-violet-400">Build Wealth. Live Well.</p>
+          <p className="mt-3 text-lg text-violet-400">Be. Do. Have...</p>
         </div>
 
         <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex items-center gap-1.5">
