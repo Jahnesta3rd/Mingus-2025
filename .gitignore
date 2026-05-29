@@ -161,3 +161,4 @@ frontend/dist/
 backend/data/beta_codes_*.csv
 memes_source/
 static/memes/
+.env*

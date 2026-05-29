@@ -32,13 +32,47 @@ def _tier_display_for_slug(slug: str) -> tuple[str, int]:
     label = slug.replace('_', ' ').strip().title() if slug else 'Unknown'
     return (label, 0)
 
-@user_bp.route('/profile', methods=['GET', 'OPTIONS'])
+
+def _parse_important_dates(raw) -> dict:
+    """Deserialize user_profiles.important_dates (TEXT JSON) to a dict."""
+    if raw is None or raw == '':
+        return {}
+    if isinstance(raw, dict):
+        return dict(raw)
+    if isinstance(raw, str):
+        try:
+            parsed = json.loads(raw)
+            return dict(parsed) if isinstance(parsed, dict) else {}
+        except (TypeError, ValueError, json.JSONDecodeError):
+            return {}
+    return {}
+
+
+def _merge_important_dates(existing: dict, patch: dict) -> dict:
+    """Merge a partial important_dates patch into the stored object."""
+    merged = dict(existing)
+    for key, value in patch.items():
+        if key in ('custom_events', 'customEvents') and isinstance(value, list):
+            merged['custom_events'] = value
+            merged.pop('customEvents', None)
+        else:
+            merged[key] = value
+    return merged
+
+
+def _serialize_important_dates(data: dict) -> str:
+    return json.dumps(data)
+
+
+@user_bp.route('/profile', methods=['GET', 'PATCH', 'OPTIONS'])
 @cross_origin()
 @require_auth
 def get_user_profile():
-    """Get user profile information"""
+    """Get or patch user profile information"""
     if request.method == 'OPTIONS':
         return jsonify({}), 200
+    if request.method == 'PATCH':
+        return patch_user_profile()
     try:
         user_id = g.get('user_id') or g.get('current_user_id')
         user_email = getattr(g, 'current_user_email', None) or ''
@@ -127,6 +161,80 @@ def get_user_profile():
         }), 200
     except Exception as e:
         return jsonify({'success': True, 'profile': {}}), 200
+
+
+def patch_user_profile():
+    """Patch user profile fields (currently: important_dates.custom_events)."""
+    user_email = getattr(g, 'current_user_email', None)
+    if not user_email:
+        return jsonify({'success': False, 'error': 'Authentication required'}), 401
+
+    data = request.get_json(silent=True)
+    if not isinstance(data, dict):
+        return jsonify({'success': False, 'error': 'Request body must be JSON.'}), 400
+
+    if 'important_dates' not in data:
+        return jsonify({'success': False, 'error': 'No supported fields to update.'}), 400
+
+    patch_dates = data['important_dates']
+    if not isinstance(patch_dates, dict):
+        return jsonify({
+            'success': False,
+            'error': 'important_dates must be an object.',
+        }), 400
+
+    custom_events = patch_dates.get('custom_events', patch_dates.get('customEvents'))
+    if custom_events is not None and not isinstance(custom_events, list):
+        return jsonify({
+            'success': False,
+            'error': 'custom_events must be an array.',
+        }), 400
+
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute(
+            'SELECT important_dates FROM user_profiles WHERE email = %s',
+            (user_email,),
+        )
+        row = cursor.fetchone()
+        existing = _parse_important_dates(row.get('important_dates') if row else None)
+        merged = _merge_important_dates(existing, patch_dates)
+        imp_json = _serialize_important_dates(merged)
+
+        cursor.execute(
+            '''
+            INSERT INTO user_profiles (
+                email, first_name, personal_info, financial_info,
+                monthly_expenses, important_dates, health_wellness, goals,
+                created_at, updated_at
+            )
+            VALUES (%s, NULL, '{}', '{}', '{}', %s, '{}', '{}',
+                    CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+            ON CONFLICT (email) DO UPDATE SET
+                important_dates = EXCLUDED.important_dates,
+                updated_at = CURRENT_TIMESTAMP
+            RETURNING important_dates
+            ''',
+            (user_email, imp_json),
+        )
+        saved_row = cursor.fetchone()
+        conn.commit()
+        conn.close()
+
+        saved_dates = _parse_important_dates(
+            saved_row.get('important_dates') if saved_row else imp_json
+        )
+        return jsonify({
+            'success': True,
+            'profile': {
+                'email': user_email,
+                'important_dates': saved_dates,
+            },
+        }), 200
+    except Exception as e:
+        logger.error(f"patch_user_profile failed: {e}")
+        return jsonify({'success': False, 'error': 'Internal server error'}), 500
 
 @user_bp.route('/balance', methods=['PATCH', 'OPTIONS'])
 @cross_origin()

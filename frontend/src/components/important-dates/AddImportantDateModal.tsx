@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useAuth } from '../../hooks/useAuth';
-import { commitModule } from '../../lib/modularOnboarding';
 
 type EventType =
   | 'graduation'
@@ -11,7 +10,7 @@ type EventType =
   | 'greek_event'
   | 'other';
 
-type CommitEventRow = {
+type CustomEventRow = {
   name: string;
   date: string;
   cost: number;
@@ -29,13 +28,13 @@ function todayIso(): string {
 
 function parseProfileCustomEvents(
   important: Record<string, unknown> | null | undefined
-): CommitEventRow[] {
+): CustomEventRow[] {
   if (!important || typeof important !== 'object') return [];
   const raw =
     (important as { custom_events?: unknown }).custom_events ??
     (important as { customEvents?: unknown }).customEvents;
   if (!Array.isArray(raw)) return [];
-  const out: CommitEventRow[] = [];
+  const out: CustomEventRow[] = [];
   for (const ev of raw) {
     if (!ev || typeof ev !== 'object') continue;
     const o = ev as Record<string, unknown>;
@@ -50,7 +49,7 @@ function parseProfileCustomEvents(
     const typeRaw = o.type ?? o.event_type;
     const type =
       typeof typeRaw === 'string' && typeRaw.trim() ? typeRaw.trim() : undefined;
-    const row: CommitEventRow = { name, date, cost, recurring };
+    const row: CustomEventRow = { name, date, cost, recurring };
     if (type) row.type = type;
     out.push(row);
   }
@@ -127,18 +126,21 @@ export default function AddImportantDateModal({
     return ok;
   }, [name, eventDate, estimatedCost]);
 
-  const fetchExistingEvents = useCallback(async (): Promise<CommitEventRow[]> => {
-    const token = localStorage.getItem('mingus_token');
+  const fetchExistingEvents = useCallback(async (): Promise<CustomEventRow[]> => {
+    const token = getAccessToken();
     const response = await fetch(
       `/api/user/profile?userId=${encodeURIComponent(userId)}`,
       {
+        credentials: 'include',
         headers: {
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
           'Content-Type': 'application/json',
         },
       }
     );
-    if (!response.ok) return [];
+    if (!response.ok) {
+      throw new Error('Could not load existing events.');
+    }
     const json: unknown = await response.json();
     const profile =
       json && typeof json === 'object' && 'profile' in json
@@ -150,7 +152,7 @@ export default function AddImportantDateModal({
         ? (important as Record<string, unknown>)
         : undefined
     );
-  }, [userId]);
+  }, [getAccessToken, userId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -166,7 +168,7 @@ export default function AddImportantDateModal({
     setSubmitting(true);
     try {
       const existing = await fetchExistingEvents();
-      const newRow: CommitEventRow = {
+      const newRow: CustomEventRow = {
         name: name.trim(),
         date: eventDate,
         cost: estimatedCost.trim() ? Number.parseFloat(estimatedCost) : 0,
@@ -174,12 +176,44 @@ export default function AddImportantDateModal({
         type: eventType,
       };
       const events = [...existing, newRow];
-      const resp = await commitModule(token, 'milestones', { events });
-      if (resp.failed_fields && resp.failed_fields.length > 0) {
-        const summary = resp.failed_fields
-          .map((f) => `${f.field_path}: ${f.reason}`)
-          .join('; ');
-        setBanner(`Could not save — ${summary}`);
+      const resp = await fetch('/api/user/profile', {
+        method: 'PATCH',
+        credentials: 'include',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          important_dates: { custom_events: events },
+        }),
+      });
+      const body: unknown = await resp.json().catch(() => null);
+      if (!resp.ok) {
+        const msg =
+          body &&
+          typeof body === 'object' &&
+          'error' in body &&
+          typeof (body as { error?: unknown }).error === 'string'
+            ? (body as { error: string }).error
+            : 'Could not save.';
+        setBanner(msg);
+        return;
+      }
+      if (
+        body &&
+        typeof body === 'object' &&
+        (('success' in body && (body as { success?: boolean }).success === false) ||
+          ('error' in body &&
+            typeof (body as { error?: unknown }).error === 'string' &&
+            (body as { error: string }).error))
+      ) {
+        setBanner(
+          body &&
+            typeof body === 'object' &&
+            typeof (body as { error?: unknown }).error === 'string'
+            ? (body as { error: string }).error
+            : 'Could not save.'
+        );
         return;
       }
       onSaved();
