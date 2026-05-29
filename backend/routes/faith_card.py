@@ -12,12 +12,12 @@ from urllib.parse import unquote
 import anthropic
 import redis
 from flask import Blueprint, jsonify, request
-from sqlalchemy import text
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 
 from backend.auth.decorators import require_auth
 from backend.constants.anthropic_models import CLAUDE_SONNET_MODEL
 from backend.models.database import db
+from backend.services.cash_forecast_service import generate_daily_forecast
 from backend.models.favorite_verse import FavoriteVerse
 from backend.models.user_models import User
 
@@ -33,24 +33,19 @@ _redis = redis.Redis.from_url(
 
 
 def get_latest_balance_status(user_pk: int) -> str | None:
-    """Most recent balance_status from daily_cashflow for this user, or None."""
+    """Today's balance_status from the cash forecast engine, or None."""
     user = db.session.get(User, user_pk)
     if not user or not user.user_id:
         return None
     try:
-        row = db.session.execute(
-            text(
-                "SELECT balance_status FROM daily_cashflow "
-                "WHERE user_id = :uid "
-                "ORDER BY forecast_date DESC NULLS LAST LIMIT 1"
-            ),
-            {"uid": user.user_id},
-        ).fetchone()
-        if not row or row[0] is None:
+        daily = generate_daily_forecast(user.user_id, days=1)
+        if not daily:
             return None
-        return str(row[0])
+        status = daily[0].get("balance_status")
+        return str(status) if status else None
     except Exception as e:
-        logger.debug("daily_cashflow lookup failed for user %s: %s", user_pk, e)
+        logger.warning("balance_status forecast failed for user %s: %s", user_pk, e)
+        db.session.rollback()
         return None
 
 
