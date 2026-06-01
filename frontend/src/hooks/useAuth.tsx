@@ -137,6 +137,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (response.ok) {
           const userData = await response.json();
           if (userData.authenticated !== false && userData.user_id) {
+            try {
+              localStorage.setItem('auth_token', 'ok');
+            } catch {
+              /* ignore storage errors */
+            }
             setUser({
               id: userData.user_id,
               email: userData.email,
@@ -194,6 +199,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       };
 
       setUser(userData);
+      try {
+        localStorage.setItem('auth_token', 'ok');
+      } catch {
+        /* ignore storage errors */
+      }
     } catch (error: unknown) {
       console.error('Login error:', error);
       if (error instanceof Error && error.name === 'TypeError' && error.message.includes('fetch')) {
@@ -311,6 +321,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch (error) {
       console.error('Logout error:', error);
     } finally {
+      try {
+        localStorage.removeItem('auth_token');
+        localStorage.removeItem('mingus_token');
+      } catch {
+        /* ignore storage errors */
+      }
       setUser(null);
     }
   };

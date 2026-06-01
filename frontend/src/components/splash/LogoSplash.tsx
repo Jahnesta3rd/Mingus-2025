@@ -1,8 +1,10 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { getDailyVibe } from '../../services/vibeService';
 import SessionSetupTerminalError from '../auth/SessionSetupTerminalError';
+
+const MIN_SPLASH_MS = 2000;
 
 const delay = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
@@ -12,6 +14,27 @@ const LogoSplash: React.FC = () => {
   const [phase, setPhase] = useState<'enter' | 'hold' | 'exit'>('enter');
   const [enterDone, setEnterDone] = useState(false);
   const [gateError, setGateError] = useState(false);
+  const mountedRef = useRef(true);
+  const splashStartRef = useRef(Date.now());
+  const minSplashTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const waitForMinSplash = useCallback(async () => {
+    const remaining = MIN_SPLASH_MS - (Date.now() - splashStartRef.current);
+    if (remaining <= 0) return;
+    await new Promise<void>((resolve) => {
+      minSplashTimerRef.current = setTimeout(() => {
+        minSplashTimerRef.current = null;
+        resolve();
+      }, remaining);
+    });
+  }, []);
+
+  const clearMinSplashTimer = useCallback(() => {
+    if (minSplashTimerRef.current) {
+      clearTimeout(minSplashTimerRef.current);
+      minSplashTimerRef.current = null;
+    }
+  }, []);
 
   // Trigger enter animation on next frame so CSS transition runs
   useEffect(() => {
@@ -23,11 +46,17 @@ const LogoSplash: React.FC = () => {
   }, [phase]);
 
   const runGate = useCallback(async () => {
+    const showGateError = async () => {
+      await waitForMinSplash();
+      if (!mountedRef.current) return;
+      setGateError(true);
+    };
+
     try {
       await awaitSessionReady();
     } catch (err) {
       console.error('LogoSplash: session-ready failed', err);
-      setGateError(true);
+      await showGateError();
       return;
     }
 
@@ -46,7 +75,7 @@ const LogoSplash: React.FC = () => {
 
       if (!res.ok) {
         console.error('LogoSplash: setup-status returned', res.status);
-        setGateError(true);
+        await showGateError();
         return;
       }
 
@@ -54,8 +83,12 @@ const LogoSplash: React.FC = () => {
       const isComplete =
         data.setupCompleted === true || data.onboarding_complete === true;
 
+      if (!mountedRef.current) return;
       setPhase('exit');
       await delay(200);
+      if (!mountedRef.current) return;
+      await waitForMinSplash();
+      if (!mountedRef.current) return;
 
       if (!isComplete) {
         navigate('/onboarding', { replace: true });
@@ -68,28 +101,29 @@ const LogoSplash: React.FC = () => {
       navigate('/dashboard', { replace: true });
     } catch (err) {
       console.error('LogoSplash: setup-status failed', err);
-      setGateError(true);
+      await showGateError();
     }
-  }, [awaitSessionReady, getAccessToken, navigate]);
+  }, [awaitSessionReady, getAccessToken, navigate, waitForMinSplash]);
 
   useEffect(() => {
-    let mounted = true;
+    mountedRef.current = true;
+    splashStartRef.current = Date.now();
 
-    const runFlow = async () => {
-      void getDailyVibe().catch(() => null);
+    void getDailyVibe().catch(() => null);
+    void runGate();
 
+    const runHoldAnimation = async () => {
       await delay(300);
-      if (!mounted) return;
+      if (!mountedRef.current) return;
       setPhase('hold');
-
-      await runGate();
     };
 
-    void runFlow();
+    void runHoldAnimation();
     return () => {
-      mounted = false;
+      mountedRef.current = false;
+      clearMinSplashTimer();
     };
-  }, [runGate]);
+  }, [runGate, clearMinSplashTimer]);
 
   const handleRetry = () => {
     setGateError(false);
@@ -135,8 +169,12 @@ const LogoSplash: React.FC = () => {
         <div
           className={`flex flex-col items-center justify-center transition-all ease-out ${transitionClass} ${contentOpacityScale} ${pulseClass}`}
         >
-          <h1 className="text-6xl md:text-7xl font-bold text-white tracking-tight">MINGUS</h1>
-          <p className="mt-3 text-lg text-violet-400">Be. Do. Have...</p>
+          <img
+            src="/mingus-logo.png"
+            alt="Mingus"
+            className="block max-w-[280px] w-full h-auto mb-3"
+          />
+          <p className="mt-3 text-2xl text-violet-400">Be. Do. Have...</p>
         </div>
 
         <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex items-center gap-1.5">
