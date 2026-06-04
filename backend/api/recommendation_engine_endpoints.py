@@ -116,6 +116,17 @@ def process_resume_complete():
             return jsonify({'success': False, 'error': 'User not found'}), 404
 
         cp = CareerProfile.query.filter_by(user_id=user.id).first()
+        if (
+            not cp
+            or not (cp.bls_career_field and str(cp.bls_career_field).strip())
+            or not (cp.seniority_level and str(cp.seniority_level).strip())
+        ):
+            return jsonify({
+                'success': False,
+                'error': 'career_profile_incomplete',
+                'message': 'Complete your career profile to see recommendations',
+            }), 422
+
         msa = _resolve_msa_for_user(user.id)
         career_profile = _build_career_profile_dict(cp, msa)
 

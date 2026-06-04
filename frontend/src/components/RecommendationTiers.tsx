@@ -1,6 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { MapPin, Clock, TrendingUp, Star, ChevronDown, ChevronUp, ExternalLink, Target, Shield, Zap, Filter, RefreshCw } from 'lucide-react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { Link } from 'react-router-dom';
+import { Clock, Star, ChevronDown, ChevronUp, ExternalLink, Target, Shield, Filter, RefreshCw } from 'lucide-react';
 import { useAnalytics } from '../hooks/useAnalytics';
+import { useAuth, type AuthUserTier } from '../hooks/useAuth';
+import { csrfHeaders } from '../utils/csrfHeaders';
 
 interface JobRecommendation {
   job: {
@@ -30,7 +33,7 @@ interface JobRecommendation {
     career_advancement_score: number;
     work_life_balance_score: number;
   };
-  tier: 'conservative' | 'optimal' | 'stretch';
+  tier: 'conservative' | 'same_level' | 'reach' | 'optimal' | 'stretch';
   success_probability: number;
   salary_increase_potential: number;
   skills_gap_analysis: Array<{
@@ -78,317 +81,436 @@ interface TierData {
   icon: React.ReactNode;
 }
 
+export interface CareerProfileSummary {
+  current_role?: string | null;
+  industry?: string | null;
+}
+
+type RecommendationViewState = 'loading' | 'upsell' | 'complete_profile' | 'coming_soon';
+
+interface ApiJobItem {
+  job_id?: string | number;
+  title?: string;
+  company?: string;
+  location?: string;
+  seniority_level?: string;
+  salary_min?: number;
+  salary_max?: number;
+  salary_median?: number;
+  advancement_trajectory?: string;
+  url?: string;
+  overall_score?: number;
+}
+
+interface ProcessResumeApiResponse {
+  success?: boolean;
+  error?: string;
+  message?: string;
+  recommendations?: {
+    same_level?: ApiJobItem[];
+    reach?: ApiJobItem[];
+    conservative?: ApiJobItem[];
+  };
+}
+
+const RECOMMENDATIONS_API = '/api/recommendations/process-resume';
+
+/** E2E / verify shim stored in localStorage when the session is cookie-backed. */
+const PLACEHOLDER_ACCESS_TOKENS = new Set(['ok', '']);
+
+function getCookieValue(name: string): string | null {
+  if (typeof document === 'undefined') return null;
+  const parts = `; ${document.cookie}`.split(`; ${name}=`);
+  if (parts.length < 2) return null;
+  const raw = parts.pop()?.split(';').shift();
+  return raw ? decodeURIComponent(raw) : null;
+}
+
+function isUsableJwt(token: string | null | undefined): token is string {
+  if (!token || PLACEHOLDER_ACCESS_TOKENS.has(token)) return false;
+  // Real mingus JWTs are HS256 strings with three segments.
+  return token.split('.').length === 3;
+}
+
+/**
+ * Resolve Bearer token for protected APIs. Live sessions often have auth_token='ok'
+ * while the real JWT lives in the httpOnly mingus_token cookie (sent via credentials).
+ * Never send Authorization: Bearer ok — the backend falls back to Bearer and rejects it.
+ */
+function resolveBearerToken(getAccessToken: () => string | null): string | null {
+  const fromHook = getAccessToken();
+  if (isUsableJwt(fromHook)) {
+    return fromHook;
+  }
+
+  try {
+    const fromMingusLs = localStorage.getItem('mingus_token');
+    if (isUsableJwt(fromMingusLs)) {
+      return fromMingusLs;
+    }
+    const fromAuthLs = localStorage.getItem('auth_token');
+    if (isUsableJwt(fromAuthLs)) {
+      return fromAuthLs;
+    }
+  } catch {
+    /* ignore storage errors */
+  }
+
+  const fromCookie = getCookieValue('mingus_token');
+  if (isUsableJwt(fromCookie)) {
+    return fromCookie;
+  }
+
+  return null;
+}
+
+function buildAuthHeaders(getAccessToken: () => string | null): HeadersInit {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...csrfHeaders(),
+  };
+  const token = resolveBearerToken(getAccessToken);
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+  return headers;
+}
+
+function formatSalaryK(min?: number, max?: number): string {
+  const fmt = (value: number) => `$${Math.round(value / 1000)}k`;
+  if (min != null && max != null) {
+    return `${fmt(min)} – ${fmt(max)}`;
+  }
+  if (min != null) {
+    return fmt(min);
+  }
+  if (max != null) {
+    return fmt(max);
+  }
+  return '—';
+}
+
+function formatSeniorityLabel(level?: string): string {
+  if (!level) return '—';
+  return level.charAt(0).toUpperCase() + level.slice(1);
+}
+
+const calculateAverageSalaryIncrease = (jobs: JobRecommendation[]): number => {
+  if (jobs.length === 0) return 0;
+  const total = jobs.reduce((sum, job) => sum + job.salary_increase_potential, 0);
+  return Math.round(total / jobs.length);
+};
+
+const calculateAverageSuccessRate = (jobs: JobRecommendation[]): number => {
+  if (jobs.length === 0) return 0;
+  const total = jobs.reduce((sum, job) => sum + job.success_probability, 0);
+  return Math.round(total / jobs.length);
+};
+
+function mapApiJobToRecommendation(
+  raw: ApiJobItem,
+  tier: 'conservative' | 'same_level' | 'reach'
+): JobRecommendation {
+  const salaryMin = raw.salary_min ?? 0;
+  const salaryMax = raw.salary_max ?? 0;
+  const salaryMedian =
+    raw.salary_median ??
+    (salaryMin && salaryMax ? Math.round((salaryMin + salaryMax) / 2) : 0);
+
+  return {
+    job: {
+      job_id: String(raw.job_id ?? ''),
+      title: raw.title ?? '',
+      company: raw.company ?? '',
+      location: raw.location ?? '',
+      salary_min: salaryMin,
+      salary_max: salaryMax,
+      salary_median: salaryMedian,
+      remote_friendly: false,
+      url: raw.url ?? '',
+      description: raw.advancement_trajectory ?? '',
+      requirements: [],
+      benefits: [],
+      experience_level: raw.seniority_level,
+      equity_offered: false,
+      bonus_potential: 0,
+      overall_score: raw.overall_score ?? 0,
+      diversity_score: 0,
+      growth_score: 0,
+      culture_score: 0,
+      career_advancement_score: 0,
+      work_life_balance_score: 0,
+    },
+    tier,
+    success_probability: 0,
+    salary_increase_potential: 0,
+    skills_gap_analysis: [],
+    application_strategy: {
+      approach: '',
+      key_selling_points: [],
+      potential_challenges: [],
+      mitigation_strategies: [],
+    },
+    preparation_roadmap: {
+      immediate_actions: [],
+      short_term_goals: [],
+      long_term_goals: [],
+      skill_development_plan: [],
+      certification_recommendations: [],
+    },
+    diversity_analysis: {
+      diversity_score: 0,
+      inclusion_benefits: [],
+      company_diversity_metrics: {},
+    },
+    company_culture_fit: 0,
+    career_advancement_potential: 0,
+  };
+}
+
+function buildTiersFromApiResponse(
+  recommendations: ProcessResumeApiResponse['recommendations']
+): TierData[] {
+  const tierDefs: Array<{
+    key: 'conservative' | 'same_level' | 'reach';
+    label: string;
+    description: string;
+    color_scheme: string;
+    border_style: string;
+    timeline: string;
+    icon: React.ReactNode;
+  }> = [
+    {
+      key: 'conservative',
+      label: 'Safe Moves',
+      description: 'Lower-risk roles aligned with your current trajectory',
+      color_scheme: 'blue-600',
+      border_style: 'border-2 border-blue-200 bg-blue-50',
+      timeline: '1-3 mo',
+      icon: <Shield className="h-6 w-6 text-blue-600" />,
+    },
+    {
+      key: 'same_level',
+      label: 'Right Level',
+      description: 'Roles at your seniority with competitive compensation',
+      color_scheme: 'purple-600',
+      border_style: 'border-2 border-purple-200 bg-purple-50',
+      timeline: '2-4 mo',
+      icon: <Target className="h-6 w-6 text-purple-600" />,
+    },
+    {
+      key: 'reach',
+      label: 'Stretch Roles',
+      description: 'Ambitious moves that stretch your skills and scope',
+      color_scheme: 'orange-600',
+      border_style: 'border-2 border-orange-200 bg-orange-50',
+      timeline: '3-6 mo',
+      icon: <Star className="h-6 w-6 text-orange-600" />,
+    },
+  ];
+
+  return tierDefs.map((def) => {
+    const rawJobs = recommendations?.[def.key] ?? [];
+    const jobs = rawJobs.map((job) => mapApiJobToRecommendation(job, def.key));
+    return {
+      tier_name: def.key,
+      tier_label: def.label,
+      description: def.description,
+      color_scheme: def.color_scheme,
+      border_style: def.border_style,
+      jobs,
+      average_salary_increase: calculateAverageSalaryIncrease(jobs),
+      average_success_rate: calculateAverageSuccessRate(jobs),
+      recommended_timeline: def.timeline,
+      icon: def.icon,
+    };
+  });
+}
+
+function allTiersEmpty(recommendations: ProcessResumeApiResponse['recommendations']): boolean {
+  if (!recommendations) return true;
+  return (
+    (recommendations.conservative?.length ?? 0) === 0 &&
+    (recommendations.same_level?.length ?? 0) === 0 &&
+    (recommendations.reach?.length ?? 0) === 0
+  );
+}
+
 interface RecommendationTiersProps {
   className?: string;
   userId?: string;
   locationRadius?: number;
+  userTier?: AuthUserTier | null;
+  careerProfile?: CareerProfileSummary | null;
 }
 
-const RecommendationTiers: React.FC<RecommendationTiersProps> = ({ 
-  className = '', 
+function isCareerProfileComplete(profile: CareerProfileSummary | null | undefined): boolean {
+  const role = profile?.current_role?.trim();
+  const industry = profile?.industry?.trim();
+  return Boolean(role && industry);
+}
+
+function resolveViewState(
+  tier: AuthUserTier | null,
+  careerProfile: CareerProfileSummary | null | undefined
+): RecommendationViewState {
+  if (tier === null) return 'loading';
+  if (tier === 'budget') return 'upsell';
+  if (!isCareerProfileComplete(careerProfile)) return 'complete_profile';
+  return 'coming_soon';
+}
+
+const RecommendationTiers: React.FC<RecommendationTiersProps> = ({
+  className = '',
   userId,
-  locationRadius = 10 
+  locationRadius = 10,
+  userTier: userTierProp,
+  careerProfile,
 }) => {
+  const { userTier: authTier, loading: authLoading, getAccessToken } = useAuth();
+  const effectiveTier = userTierProp ?? authTier;
+
   const [tiers, setTiers] = useState<TierData[]>([]);
   const [loading, setLoading] = useState(true);
-  const [expandedTier, setExpandedTier] = useState<string | null>('optimal'); // Default to optimal
+  const [expandedTier, setExpandedTier] = useState<string | null>('same_level');
+  const [apiEmpty, setApiEmpty] = useState(false);
+  const [apiProfileIncomplete, setApiProfileIncomplete] = useState(false);
   const [comparisonMode, setComparisonMode] = useState(false);
   const [selectedRadius, setSelectedRadius] = useState<number>(locationRadius);
   const [error, setError] = useState<string | null>(null);
+  const [needsSignIn, setNeedsSignIn] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  
+
   const { trackInteraction, trackError } = useAnalytics();
-  
-  useEffect(() => {
-    fetchRecommendations();
-  }, [selectedRadius, userId]);
-  
-  const fetchRecommendations = async (isRefresh = false) => {
-    try {
-      if (isRefresh) {
-        setIsRefreshing(true);
-      } else {
-        setLoading(true);
+
+  const viewState = useMemo(
+    () => resolveViewState(authLoading && userTierProp == null ? null : effectiveTier, careerProfile),
+    [authLoading, userTierProp, effectiveTier, careerProfile]
+  );
+
+  const fetchRecommendations = useCallback(
+    async (isRefresh = false) => {
+      if (effectiveTier === 'budget') {
+        setLoading(false);
+        setIsRefreshing(false);
+        setTiers([]);
+        setApiEmpty(false);
+        setApiProfileIncomplete(false);
+        setError(null);
+        return;
       }
+
+      if (effectiveTier !== 'mid_tier' && effectiveTier !== 'professional') {
+        return;
+      }
+
+      if (isRefresh) setIsRefreshing(true);
+      setLoading(true);
       setError(null);
-      
-      // For demonstration purposes, use mock data instead of API call
-      // This shows the resume parsing and job recommendation features
-      const mockData = {
-        success: true,
-        recommendations: {
-          conservative: [
-            {
-              job: {
-                job_id: "job_1",
-                title: "Senior Marketing Coordinator",
-                company: "Healthcare Technology Solutions",
-                location: "Atlanta, GA",
-                salary_min: 58000,
-                salary_max: 62000,
-                salary_median: 60000,
-                remote_friendly: false,
-                url: "https://example.com/job/1",
-                description: "Lead marketing initiatives for healthcare technology products...",
-                requirements: ["3+ years marketing experience", "Healthcare industry knowledge", "Digital marketing skills"],
-                benefits: ["Health insurance", "401k", "Flexible PTO"],
-                field: "Marketing",
-                experience_level: "Mid",
-                company_size: "201-500",
-                company_industry: "Healthcare Technology",
-                equity_offered: false,
-                bonus_potential: 5000,
-                overall_score: 92,
-                diversity_score: 85,
-                growth_score: 88,
-                culture_score: 90,
-                career_advancement_score: 85,
-                work_life_balance_score: 87
-              },
-              tier: 'conservative',
-              success_probability: 0.85,
-              salary_increase_potential: 0.18,
-              skills_gap_analysis: [
-                {
-                  skill: "Advanced Analytics",
-                  category: "Technical",
-                  current_level: 3,
-                  required_level: 4,
-                  gap_size: 1,
-                  priority: "High",
-                  learning_time_estimate: "2-3 months",
-                  resources: ["Google Analytics Advanced", "Tableau Training"]
-                }
-              ],
-              application_strategy: {
-                approach: "Direct application with portfolio",
-                key_selling_points: ["Healthcare experience", "Digital marketing growth"],
-                potential_challenges: ["Competition", "Salary negotiation"],
-                mitigation_strategies: ["Highlight results", "Research market rates"]
-              },
-              preparation_roadmap: {
-                immediate_actions: ["Update resume", "Research company"],
-                short_term_goals: ["Complete analytics certification"],
-                long_term_goals: ["Become marketing manager"],
-                skill_development_plan: ["Learn Tableau", "Improve analytics"],
-                certification_recommendations: ["Google Analytics", "HubSpot"]
-              },
-              diversity_analysis: {
-                diversity_score: 85,
-                inclusion_benefits: ["Inclusive culture", "Diverse team"],
-                company_diversity_metrics: {}
-              },
-              company_culture_fit: 88,
-              career_advancement_potential: 85
-            }
-          ],
-          optimal: [
-            {
-              job: {
-                job_id: "job_2",
-                title: "Digital Marketing Specialist",
-                company: "TechStart Atlanta",
-                location: "Atlanta, GA",
-                salary_min: 60000,
-                salary_max: 65000,
-                salary_median: 62500,
-                remote_friendly: true,
-                url: "https://example.com/job/2",
-                description: "Drive digital marketing strategy for fast-growing tech startup...",
-                requirements: ["2+ years digital marketing", "Startup experience preferred", "Growth mindset"],
-                benefits: ["Equity options", "Unlimited PTO", "Learning budget"],
-                field: "Marketing",
-                experience_level: "Mid",
-                company_size: "11-50",
-                company_industry: "Technology",
-                equity_offered: true,
-                bonus_potential: 8000,
-                overall_score: 88,
-                diversity_score: 90,
-                growth_score: 95,
-                culture_score: 92,
-                career_advancement_score: 90,
-                work_life_balance_score: 85
-              },
-              tier: 'optimal',
-              success_probability: 0.75,
-              salary_increase_potential: 0.28,
-              skills_gap_analysis: [
-                {
-                  skill: "Startup Experience",
-                  category: "Industry",
-                  current_level: 2,
-                  required_level: 4,
-                  gap_size: 2,
-                  priority: "Medium",
-                  learning_time_estimate: "3-6 months",
-                  resources: ["Startup networking", "Growth marketing courses"]
-                }
-              ],
-              application_strategy: {
-                approach: "Network + application",
-                key_selling_points: ["Digital expertise", "Growth mindset"],
-                potential_challenges: ["Startup risk", "Fast pace"],
-                mitigation_strategies: ["Show adaptability", "Highlight growth results"]
-              },
-              preparation_roadmap: {
-                immediate_actions: ["Connect on LinkedIn", "Research startup culture"],
-                short_term_goals: ["Build startup network"],
-                long_term_goals: ["Become marketing director"],
-                skill_development_plan: ["Learn growth marketing", "Build startup experience"],
-                certification_recommendations: ["Growth Marketing", "Startup Leadership"]
-              },
-              diversity_analysis: {
-                diversity_score: 90,
-                inclusion_benefits: ["Diverse leadership", "Inclusive policies"],
-                company_diversity_metrics: {}
-              },
-              company_culture_fit: 92,
-              career_advancement_potential: 90
-            }
-          ],
-          stretch: [
-            {
-              job: {
-                job_id: "job_3",
-                title: "Marketing Manager",
-                company: "Consumer Goods Corp",
-                location: "Atlanta, GA",
-                salary_min: 65000,
-                salary_max: 70000,
-                salary_median: 67500,
-                remote_friendly: false,
-                url: "https://example.com/job/3",
-                description: "Lead marketing team and strategy for consumer products division...",
-                requirements: ["5+ years marketing", "Team leadership", "Consumer goods experience"],
-                benefits: ["Comprehensive benefits", "Professional development", "Bonus potential"],
-                field: "Marketing",
-                experience_level: "Senior",
-                company_size: "1000+",
-                company_industry: "Consumer Goods",
-                equity_offered: false,
-                bonus_potential: 12000,
-                overall_score: 85,
-                diversity_score: 80,
-                growth_score: 75,
-                culture_score: 85,
-                career_advancement_score: 90,
-                work_life_balance_score: 80
-              },
-              tier: 'stretch',
-              success_probability: 0.65,
-              salary_increase_potential: 0.35,
-              skills_gap_analysis: [
-                {
-                  skill: "Team Leadership",
-                  category: "Management",
-                  current_level: 2,
-                  required_level: 5,
-                  gap_size: 3,
-                  priority: "High",
-                  learning_time_estimate: "6-12 months",
-                  resources: ["Leadership courses", "Management training"]
-                }
-              ],
-              application_strategy: {
-                approach: "Internal referral + application",
-                key_selling_points: ["Marketing results", "Leadership potential"],
-                potential_challenges: ["Experience gap", "Competition"],
-                mitigation_strategies: ["Show leadership examples", "Get recommendations"]
-              },
-              preparation_roadmap: {
-                immediate_actions: ["Find internal contacts", "Prepare leadership examples"],
-                short_term_goals: ["Take leadership course"],
-                long_term_goals: ["Become marketing director"],
-                skill_development_plan: ["Develop leadership skills", "Learn consumer goods"],
-                certification_recommendations: ["Leadership", "Consumer Marketing"]
-              },
-              diversity_analysis: {
-                diversity_score: 80,
-                inclusion_benefits: ["Diverse team", "Inclusive culture"],
-                company_diversity_metrics: {}
-              },
-              company_culture_fit: 85,
-              career_advancement_potential: 90
-            }
-          ]
+      setTiers([]);
+      setApiEmpty(false);
+      setApiProfileIncomplete(false);
+      setNeedsSignIn(false);
+
+      try {
+        const response = await fetch(RECOMMENDATIONS_API, {
+          method: 'POST',
+          credentials: 'include',
+          headers: buildAuthHeaders(getAccessToken),
+          body: JSON.stringify({}),
+        });
+
+        if (response.status === 401) {
+          setNeedsSignIn(true);
+          setError('We could not verify your session for recommendations.');
+          return;
         }
-      };
-      
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      const data = mockData;
-      
-      // Transform API data into tier format
-      const tierData = [
-        {
-          tier_name: 'conservative',
-          tier_label: 'Safe Growth',
-          description: '15-20% salary increase, high success probability',
-          color_scheme: 'blue-600',
-          border_style: 'border-2 border-blue-200',
-          jobs: data.recommendations?.conservative || [],
-          average_salary_increase: calculateAverageSalaryIncrease(data.recommendations?.conservative || []),
-          average_success_rate: calculateAverageSuccessRate(data.recommendations?.conservative || []),
-          recommended_timeline: '2-4 weeks',
-          icon: <Shield className="h-6 w-6" />
-        },
-        {
-          tier_name: 'optimal',
-          tier_label: 'Strategic Advance',
-          description: '25-30% salary increase, moderate stretch',
-          color_scheme: 'purple-600',
-          border_style: 'border-2 border-purple-200 bg-gradient-to-r from-purple-50 to-purple-100',
-          jobs: data.recommendations?.optimal || [],
-          average_salary_increase: calculateAverageSalaryIncrease(data.recommendations?.optimal || []),
-          average_success_rate: calculateAverageSuccessRate(data.recommendations?.optimal || []),
-          recommended_timeline: '4-8 weeks',
-          icon: <Target className="h-6 w-6" />
-        },
-        {
-          tier_name: 'stretch',
-          tier_label: 'Ambitious Leap',
-          description: '35%+ salary increase, significant growth',
-          color_scheme: 'orange-600',
-          border_style: 'border-2 border-dashed border-orange-200',
-          jobs: data.recommendations?.stretch || [],
-          average_salary_increase: calculateAverageSalaryIncrease(data.recommendations?.stretch || []),
-          average_success_rate: calculateAverageSuccessRate(data.recommendations?.stretch || []),
-          recommended_timeline: '8-12 weeks',
-          icon: <Zap className="h-6 w-6" />
+
+        let payload: ProcessResumeApiResponse = {};
+        try {
+          payload = (await response.json()) as ProcessResumeApiResponse;
+        } catch {
+          payload = {};
         }
-      ];
-      
-      setTiers(tierData);
-      setLastUpdated(new Date());
-      
-      // Track analytics using the hook
-      await trackInteraction('recommendation_tiers_loaded', {
-        total_jobs: data.recommendations?.total_count || 0,
-        radius_selected: selectedRadius,
-        tiers_with_jobs: tierData.filter(t => t.jobs.length > 0).length,
-        is_refresh: isRefresh
-      });
-      
-    } catch (error) {
-      console.error('Failed to fetch recommendations:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Failed to load recommendations';
-      setError(errorMessage);
-      
-      // Track error using the hook
-      await trackError(error instanceof Error ? error : new Error(errorMessage), {
-        component: 'RecommendationTiers',
-        action: 'fetchRecommendations',
-        radius: selectedRadius,
-        userId: userId || getCurrentUserId()
-      });
-    } finally {
-      setLoading(false);
-      setIsRefreshing(false);
+
+        if (response.status === 422) {
+          const errCode = payload.error ?? '';
+          if (errCode === 'career_profile_incomplete' || response.status === 422) {
+            setApiProfileIncomplete(true);
+            return;
+          }
+        }
+
+        if (!response.ok) {
+          setError('Unable to load recommendations — try again');
+          return;
+        }
+
+        const recommendations = payload.recommendations;
+        if (allTiersEmpty(recommendations)) {
+          setApiEmpty(true);
+          setTiers(buildTiersFromApiResponse(recommendations));
+        } else {
+          setTiers(buildTiersFromApiResponse(recommendations));
+        }
+
+        setLastUpdated(new Date());
+
+        await trackInteraction(
+          isRefresh ? 'recommendations_refreshed' : 'recommendation_tiers_loaded',
+          {
+            view_state: viewState,
+            radius_selected: selectedRadius,
+            user_id: userId || getCurrentUserId(),
+            has_results: !allTiersEmpty(recommendations),
+          }
+        );
+      } catch (trackErr) {
+        setError('Unable to load recommendations — try again');
+        await trackError(trackErr instanceof Error ? trackErr : new Error(String(trackErr)), {
+          component: 'RecommendationTiers',
+          action: 'fetchRecommendations',
+          radius: selectedRadius,
+          userId: userId || getCurrentUserId(),
+        });
+      } finally {
+        setLoading(false);
+        setIsRefreshing(false);
+      }
+    },
+    [effectiveTier, getAccessToken, selectedRadius, trackError, trackInteraction, userId]
+  );
+
+  useEffect(() => {
+    if (authLoading && userTierProp == null) {
+      return;
     }
-  };
+
+    if (effectiveTier === 'budget') {
+      setLoading(false);
+      setTiers([]);
+      setError(null);
+      setApiEmpty(false);
+      setApiProfileIncomplete(false);
+      void Promise.resolve(
+        trackInteraction('recommendation_tiers_loaded', {
+          view_state: viewState,
+          radius_selected: selectedRadius,
+          user_id: userId || getCurrentUserId(),
+        })
+      ).catch((trackErr) => {
+        console.error('Failed to track recommendation tiers load:', trackErr);
+      });
+      setLastUpdated(new Date());
+      return;
+    }
+
+    if (effectiveTier === 'mid_tier' || effectiveTier === 'professional') {
+      void fetchRecommendations();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- refetch only when tier/user changes
+  }, [authLoading, userTierProp, effectiveTier, userId]);
   
   const handleTierExpansion = async (tierName: string) => {
     const newExpandedTier = expandedTier === tierName ? null : tierName;
@@ -446,97 +568,163 @@ const RecommendationTiers: React.FC<RecommendationTiersProps> = ({
     await fetchRecommendations(true);
   };
   
-  if (loading) {
+  if (loading || viewState === 'loading') {
     return <TierLoadingSkeleton />;
   }
-  
+
   if (error) {
-    return <TierErrorState error={error} onRetry={fetchRecommendations} />;
+    return (
+      <TierErrorState
+        error={error}
+        onRetry={fetchRecommendations}
+        needsSignIn={needsSignIn}
+      />
+    );
   }
-  
+
+  const hasJobResults = tiers.some((t) => t.jobs.length > 0);
+
   return (
     <div className={`space-y-6 ${className}`}>
-      {/* Header Controls */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">Career Recommendations</h2>
-          <p className="text-gray-600">Strategic opportunities based on your risk assessment</p>
-          {lastUpdated && (
-            <p className="text-xs text-gray-500 mt-1">
-              Last updated: {lastUpdated.toLocaleTimeString()}
-            </p>
-          )}
-        </div>
-        
-        <div className="flex flex-col sm:flex-row gap-3">
-          {/* Radius Selector */}
-          <div className="flex items-center gap-2">
-            <Filter className="h-4 w-4 text-gray-500" />
-            <select
-              value={selectedRadius}
-              onChange={(e) => handleRadiusChange(Number(e.target.value))}
-              className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              aria-label="Select search radius"
+      <div>
+        <h2 className="text-2xl font-bold text-gray-900">Career Recommendations</h2>
+        <p className="text-gray-600">Roles matched to your career profile and location</p>
+        {lastUpdated && (
+          <p className="text-xs text-gray-500 mt-1">
+            Last updated: {lastUpdated.toLocaleTimeString()}
+          </p>
+        )}
+      </div>
+
+      {viewState === 'upsell' && !hasJobResults && (
+        <RecommendationStateCard
+          title="Unlock Personalized Job Recommendations"
+          body="Upgrade to Mid-Tier to see roles matched to your career profile and salary targets."
+          ctaLabel="Upgrade to Mid-Tier"
+          ctaTo="/upgrade"
+          icon={<Shield className="h-10 w-10 text-purple-600" />}
+          variant="upsell"
+        />
+      )}
+
+      {apiProfileIncomplete && (
+        <RecommendationStateCard
+          title="Complete your career profile to see recommendations"
+          body="Add your BLS career field, seniority level, and target compensation so we can match roles to you."
+          ctaLabel="Complete Profile"
+          ctaTo="/settings/career"
+          icon={<Target className="h-10 w-10 text-gray-600" />}
+          variant="profile"
+        />
+      )}
+
+      {!apiProfileIncomplete && viewState === 'complete_profile' && !hasJobResults && (
+        <RecommendationStateCard
+          title="Complete Your Career Profile"
+          body="Add your current role, industry, and target salary to see job recommendations tailored to you."
+          ctaLabel="Complete Profile"
+          ctaTo="/settings/career"
+          icon={<Target className="h-10 w-10 text-gray-600" />}
+          variant="profile"
+        />
+      )}
+
+      {!apiProfileIncomplete &&
+        viewState !== 'complete_profile' &&
+        (apiEmpty || viewState === 'coming_soon') &&
+        !hasJobResults && (
+        <RecommendationStateCard
+          title="Sourcing Roles for You"
+          body="We are sourcing roles that match your profile — check back soon"
+          icon={<Clock className="h-10 w-10 text-gray-500" />}
+          variant="holding"
+        />
+      )}
+
+      {hasJobResults && (
+        <>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-end gap-3">
+            <div className="flex items-center gap-2">
+              <Filter className="h-4 w-4 text-gray-500" />
+              <select
+                value={selectedRadius}
+                onChange={(e) => handleRadiusChange(Number(e.target.value))}
+                className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                aria-label="Select search radius"
+              >
+                <option value={5}>5 miles</option>
+                <option value={10}>10 miles</option>
+                <option value={30}>30 miles</option>
+                <option value={999}>Nationwide</option>
+              </select>
+            </div>
+            <button
+              onClick={handleRefresh}
+              disabled={isRefreshing}
+              className="bg-blue-100 hover:bg-blue-200 disabled:bg-gray-100 disabled:cursor-not-allowed border border-blue-300 rounded-lg px-4 py-2 text-sm font-medium transition-colors focus:ring-2 focus:ring-blue-500 focus:outline-none flex items-center gap-2"
+              aria-label="Refresh recommendations"
             >
-              <option value={5}>5 miles</option>
-              <option value={10}>10 miles</option>
-              <option value={30}>30 miles</option>
-              <option value={999}>Nationwide</option>
-            </select>
+              <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+              {isRefreshing ? 'Refreshing...' : 'Refresh'}
+            </button>
+            <button
+              onClick={handleComparisonToggle}
+              className="bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-lg px-4 py-2 text-sm font-medium transition-colors focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              aria-label={comparisonMode ? 'Exit comparison mode' : 'Enter comparison mode'}
+            >
+              {comparisonMode ? 'Exit Compare' : 'Compare Tiers'}
+            </button>
           </div>
-          
-          {/* Refresh Button */}
-          <button
-            onClick={handleRefresh}
-            disabled={isRefreshing}
-            className="bg-blue-100 hover:bg-blue-200 disabled:bg-gray-100 disabled:cursor-not-allowed border border-blue-300 rounded-lg px-4 py-2 text-sm font-medium transition-colors focus:ring-2 focus:ring-blue-500 focus:outline-none flex items-center gap-2"
-            aria-label="Refresh recommendations"
-          >
-            <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-            {isRefreshing ? 'Refreshing...' : 'Refresh'}
-          </button>
-          
-          {/* Comparison Toggle */}
-          <button
-            onClick={handleComparisonToggle}
-            className="bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-lg px-4 py-2 text-sm font-medium transition-colors focus:ring-2 focus:ring-blue-500 focus:outline-none"
-            aria-label={comparisonMode ? 'Exit comparison mode' : 'Enter comparison mode'}
-          >
-            {comparisonMode ? 'Exit Compare' : 'Compare Tiers'}
-          </button>
-        </div>
-      </div>
-      
-      {/* Tier Cards */}
-      <div className={`grid gap-6 ${comparisonMode ? 'grid-cols-1 lg:grid-cols-3' : 'grid-cols-1'}`}>
-        {tiers.map((tier) => (
-          <TierCard
-            key={tier.tier_name}
-            tier={tier}
-            isExpanded={expandedTier === tier.tier_name}
-            isComparison={comparisonMode}
-            isFeatured={tier.tier_name === 'optimal'}
-            onExpand={() => handleTierExpansion(tier.tier_name)}
-            onJobInteraction={handleJobInteraction}
-          />
-        ))}
-      </div>
-      
-      {/* No Jobs Message */}
-      {tiers.every(t => t.jobs.length === 0) && (
-        <div className="text-center py-12 bg-gray-50 rounded-xl">
-          <div className="text-gray-400 mb-4">
-            <MapPin className="h-12 w-12 mx-auto" />
+
+          <div className={`grid gap-6 ${comparisonMode ? 'grid-cols-1 lg:grid-cols-3' : 'grid-cols-1'}`}>
+            {tiers.map((tier) => (
+              <TierCard
+                key={tier.tier_name}
+                tier={tier}
+                isExpanded={expandedTier === tier.tier_name}
+                isComparison={comparisonMode}
+                isFeatured={tier.tier_name === 'same_level'}
+                onExpand={() => handleTierExpansion(tier.tier_name)}
+                onJobInteraction={handleJobInteraction}
+              />
+            ))}
           </div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">No opportunities in your area</h3>
-          <p className="text-gray-600 mb-4">Try expanding your search radius or check remote opportunities</p>
-          <button
-            onClick={() => setSelectedRadius(30)}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors focus:ring-2 focus:ring-blue-500 focus:outline-none"
-          >
-            Expand to 30 miles
-          </button>
-        </div>
+        </>
+      )}
+    </div>
+  );
+};
+
+const RecommendationStateCard: React.FC<{
+  title: string;
+  body: string;
+  ctaLabel?: string;
+  ctaTo?: string;
+  icon: React.ReactNode;
+  variant: 'upsell' | 'profile' | 'holding';
+}> = ({ title, body, ctaLabel, ctaTo, icon, variant }) => {
+  const borderClass =
+    variant === 'upsell'
+      ? 'border-purple-300 bg-white shadow-sm'
+      : 'border-gray-200 bg-white shadow-sm';
+
+  const buttonClass =
+    variant === 'upsell'
+      ? 'bg-purple-600 hover:bg-purple-700 focus:ring-purple-500'
+      : 'bg-gray-900 hover:bg-gray-800 focus:ring-gray-500';
+
+  return (
+    <div className={`rounded-xl border p-8 text-center ${borderClass}`}>
+      <div className="flex justify-center mb-4">{icon}</div>
+      <h3 className="text-xl font-semibold text-gray-900 mb-2">{title}</h3>
+      <p className="text-gray-700 max-w-lg mx-auto mb-6">{body}</p>
+      {ctaLabel && ctaTo && (
+        <Link
+          to={ctaTo}
+          className={`inline-block text-white px-6 py-2 rounded-lg font-medium transition-colors focus:ring-2 focus:ring-offset-2 focus:outline-none ${buttonClass}`}
+        >
+          {ctaLabel}
+        </Link>
       )}
     </div>
   );
@@ -681,21 +869,20 @@ const JobPreviewCard: React.FC<{
   onInteraction: (job: JobRecommendation, action: string) => void;
   compact: boolean;
 }> = ({ job, onInteraction, compact }) => {
-  const formatSalary = (min: number, max: number) => {
-    return `$${(min / 1000).toFixed(0)}k - $${(max / 1000).toFixed(0)}k`;
-  };
-  
   const getTierColor = (tier: string) => {
     switch (tier) {
       case 'conservative': return 'blue';
+      case 'same_level':
       case 'optimal': return 'purple';
+      case 'reach':
       case 'stretch': return 'orange';
       default: return 'gray';
     }
   };
-  
+
   const tierColor = getTierColor(job.tier);
-  
+  const advancement = job.job.description?.trim();
+
   return (
     <div 
       className={`bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow ${compact ? 'text-sm' : ''} touch-manipulation`}
@@ -714,29 +901,27 @@ const JobPreviewCard: React.FC<{
             {job.job.company}
           </p>
         </div>
-        <div className={`text-xs px-2 py-1 rounded-full bg-${tierColor}-100 text-${tierColor}-800 flex-shrink-0 ml-2`}>
-          {job.tier.toUpperCase()}
-        </div>
       </div>
-      
-      <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-sm text-gray-600 mb-3">
-        <div className="flex items-center gap-1">
-          <MapPin className="h-4 w-4 flex-shrink-0" />
-          <span className="truncate">{job.job.location}</span>
-        </div>
-        <div className="flex items-center gap-1">
-          <TrendingUp className="h-4 w-4 flex-shrink-0" />
-          <span>+{job.salary_increase_potential}%</span>
-        </div>
-        <div className="flex items-center gap-1">
-          <Clock className="h-4 w-4 flex-shrink-0" />
-          <span>{job.success_probability}%</span>
-        </div>
+
+      <div className="space-y-1 text-sm text-gray-600 mb-3">
+        <p>
+          <span className="font-medium text-gray-700">Seniority: </span>
+          {formatSeniorityLabel(job.job.experience_level)}
+        </p>
+        <p className="font-medium text-gray-900">
+          {formatSalaryK(job.job.salary_min, job.job.salary_max)}
+        </p>
+        {advancement ? (
+          <p className="text-gray-600">
+            <span className="font-medium text-gray-700">Next step: </span>
+            {advancement}
+          </p>
+        ) : null}
       </div>
       
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-        <div className="text-sm font-medium text-gray-900">
-          {formatSalary(job.job.salary_min, job.job.salary_max)}
+        <div className="text-sm text-gray-500 truncate">
+          {job.job.location || null}
         </div>
         
         <div className="flex gap-2">
@@ -822,61 +1007,39 @@ const TierLoadingSkeleton: React.FC = () => {
 };
 
 // Error State Component
-const TierErrorState: React.FC<{ error: string; onRetry: () => void }> = ({ error, onRetry }) => {
+const TierErrorState: React.FC<{
+  error: string;
+  onRetry: () => void;
+  needsSignIn?: boolean;
+}> = ({ error, onRetry, needsSignIn = false }) => {
   return (
     <div className="text-center py-12 bg-red-50 rounded-xl border border-red-200">
       <div className="text-red-400 mb-4">
         <Target className="h-12 w-12 mx-auto" />
       </div>
-      <h3 className="text-lg font-semibold text-red-900 mb-2">Failed to load recommendations</h3>
+      <h3 className="text-lg font-semibold text-red-900 mb-2">Unable to load recommendations</h3>
       <p className="text-red-700 mb-4">{error}</p>
-      <button
-        onClick={onRetry}
-        className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg font-medium transition-colors focus:ring-2 focus:ring-red-500 focus:outline-none"
-      >
-        Try Again
-      </button>
+      {needsSignIn ? (
+        <Link
+          to="/login"
+          className="inline-block bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg font-medium transition-colors focus:ring-2 focus:ring-red-500 focus:outline-none"
+        >
+          Sign in again
+        </Link>
+      ) : (
+        <button
+          onClick={onRetry}
+          className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg font-medium transition-colors focus:ring-2 focus:ring-red-500 focus:outline-none"
+        >
+          Try Again
+        </button>
+      )}
     </div>
   );
-};
-
-// Helper Functions
-const calculateAverageSalaryIncrease = (jobs: JobRecommendation[]): number => {
-  if (jobs.length === 0) return 0;
-  const total = jobs.reduce((sum, job) => sum + job.salary_increase_potential, 0);
-  return Math.round(total / jobs.length);
-};
-
-const calculateAverageSuccessRate = (jobs: JobRecommendation[]): number => {
-  if (jobs.length === 0) return 0;
-  const total = jobs.reduce((sum, job) => sum + job.success_probability, 0);
-  return Math.round(total / jobs.length);
 };
 
 const getCurrentUserId = (): string => {
   return localStorage.getItem('mingus_user_id') || 'anonymous';
 };
-
-const getCSRFToken = (): string => {
-  // For testing purposes, return the test token that the backend accepts
-  return 'test-token';
-  
-  // Original implementation (commented out for testing):
-  // const metaTag = document.querySelector('meta[name="csrf-token"]');
-  // if (metaTag) {
-  //   return metaTag.getAttribute('content') || '';
-  // }
-  // 
-  // const cookies = document.cookie.split(';');
-  // for (let cookie of cookies) {
-  //   const [name, value] = cookie.trim().split('=');
-  //   if (name === 'csrf_token') {
-  //     return value;
-  //   }
-  // }
-  // 
-  // return '';
-};
-
 
 export default RecommendationTiers;
