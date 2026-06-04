@@ -2108,6 +2108,27 @@ def _commit_career_module(
         _touch_progress_row(user, load_row)
         db.session.commit()
         committed_fields.extend(applied)
+
+        try:
+            from backend.services.career_title_classifier import classify_career_title
+
+            result = classify_career_title(
+                raw_title=validated.get("current_role", "") or "",
+                raw_industry=validated.get("industry"),
+                user_id=user.id,
+                db_session=db.session,
+            )
+            if result.get("confidence", 0) >= 0.5:
+                cp.bls_career_field = result["career_field"]
+                cp.seniority_level = result["seniority_level"]
+                cp.is_management = result["is_management"]
+                cp.title_normalized_at = datetime.utcnow()
+                cp.title_normalization_source = result.get("source", "llm")
+                db.session.commit()
+        except Exception as e:
+            loguru_logger.error(
+                "Career classification failed for user {}: {}", user.id, e
+            )
     except Exception as e:
         db.session.rollback()
         loguru_logger.exception("GC2 career batch failed: {}", e)

@@ -38,13 +38,238 @@ from functools import lru_cache
 # Import existing components
 from .advanced_resume_parser import AdvancedResumeParser, IncomePotential, LeadershipIndicator
 from .resume_format_handler import AdvancedResumeParserWithFormats
-from .income_boost_job_matcher import IncomeBoostJobMatcher, SearchCriteria, CareerField, ExperienceLevel
+from .income_boost_job_matcher import IncomeBoostJobMatcher, SearchCriteria, CareerField, ExperienceLevel, JobOpportunity, JobBoard
 from .three_tier_job_selector import ThreeTierJobSelector, JobTier, TieredJobRecommendation
-from backend.api.resume_endpoints import ResumeParser
+from backend.services.career_title_classifier import classify_by_rules
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+TRANSITION_AFFINITY = {
+    'Technology':                    ['Operations & Supply Chain', 'Finance & Accounting', 'Engineering (Civil/Mech/Ind)'],
+    'Healthcare (Clinical)':         ['Healthcare (Admin/Ops)', 'Social Services & Nonprofit'],
+    'Healthcare (Admin/Ops)':        ['Operations & Supply Chain', 'Human Resources', 'Finance & Accounting'],
+    'Finance & Accounting':          ['Real Estate', 'Legal', 'Operations & Supply Chain'],
+    'Legal':                         ['Finance & Accounting', 'Government & Public Policy', 'Human Resources'],
+    'Marketing & Communications':    ['Sales', 'Creative & Design', 'Technology'],
+    'Sales':                         ['Marketing & Communications', 'Operations & Supply Chain', 'Real Estate'],
+    'Education & Training':          ['Social Services & Nonprofit', 'Government & Public Policy', 'Human Resources'],
+    'Engineering (Civil/Mech/Ind)':  ['Operations & Supply Chain', 'Construction & Trades', 'Technology'],
+    'Creative & Design':             ['Marketing & Communications', 'Technology', 'Media & Journalism'],
+    'Operations & Supply Chain':     ['Technology', 'Engineering (Civil/Mech/Ind)', 'Finance & Accounting'],
+    'Human Resources':               ['Legal', 'Operations & Supply Chain', 'Finance & Accounting'],
+    'Real Estate':                   ['Finance & Accounting', 'Legal', 'Construction & Trades'],
+    'Social Services & Nonprofit':   ['Education & Training', 'Government & Public Policy', 'Healthcare (Admin/Ops)'],
+    'Government & Public Policy':    ['Legal', 'Finance & Accounting', 'Social Services & Nonprofit'],
+    'Hospitality & Food Service':    ['Retail & Consumer', 'Operations & Supply Chain', 'Creative & Design'],
+    'Retail & Consumer':             ['Sales', 'Operations & Supply Chain', 'Marketing & Communications'],
+    'Construction & Trades':         ['Engineering (Civil/Mech/Ind)', 'Real Estate', 'Operations & Supply Chain'],
+    'Media & Journalism':            ['Marketing & Communications', 'Creative & Design', 'Technology'],
+    'Science & Research':            ['Technology', 'Healthcare (Clinical)', 'Education & Training'],
+    'Military / Veterans':           ['Government & Public Policy', 'Operations & Supply Chain', 'Engineering (Civil/Mech/Ind)'],
+    'Self-Employed / Entrepreneurship': [],
+}
+
+SENIORITY_ORDER = ['entry', 'mid', 'senior', 'director']
+
+_SENIORITY_TO_EXPERIENCE = {
+    'entry': ExperienceLevel.ENTRY,
+    'mid': ExperienceLevel.MID,
+    'senior': ExperienceLevel.SENIOR,
+    'director': ExperienceLevel.EXECUTIVE,
+}
+
+
+def seniority_distance(level_a: str, level_b: str) -> int:
+    """Return signed distance from level_a to level_b on the seniority ladder."""
+    if level_a not in SENIORITY_ORDER:
+        raise ValueError(f"Invalid seniority level: {level_a!r}")
+    if level_b not in SENIORITY_ORDER:
+        raise ValueError(f"Invalid seniority level: {level_b!r}")
+    return SENIORITY_ORDER.index(level_b) - SENIORITY_ORDER.index(level_a)
+
+
+def _resolve_user_career_field(career_profile: Dict[str, Any]) -> str:
+    """Resolve BLS career field from profile, falling back to rule-based classification."""
+    user_field = career_profile.get('bls_career_field')
+    if user_field:
+        return user_field
+    current_role = career_profile.get('current_role') or ''
+    return classify_by_rules(current_role)['career_field']
+
+
+def _salary_in_range(job: Dict[str, Any], salary_target: Optional[int]) -> bool:
+    if salary_target is None:
+        return True
+    salary_min = job.get('salary_min')
+    salary_max = job.get('salary_max')
+    if salary_min is None or salary_max is None:
+        return False
+    return salary_min <= salary_target <= salary_max
+
+
+def _tier_for_job(
+    job: Dict[str, Any],
+    user_field: str,
+    user_seniority: str,
+    salary_target: Optional[int],
+) -> Optional[str]:
+    """Assign a single tier to a job, or None if it does not qualify."""
+    job_field = job.get('career_field')
+    job_seniority = job.get('seniority_level')
+    if not job_field or not job_seniority:
+        return None
+
+    if job_field == user_field:
+        dist = seniority_distance(user_seniority, job_seniority)
+        if dist == 0:
+            if _salary_in_range(job, salary_target):
+                return 'same_level'
+            return 'conservative'
+        if dist == 1:
+            return 'reach'
+        if dist <= 0:
+            return 'conservative'
+        return None
+
+    affinity_fields = TRANSITION_AFFINITY.get(user_field, [])
+    if job_field in affinity_fields and job_seniority == user_seniority:
+        return 'conservative'
+    return None
+
+
+def _query_curated_jobs(msa: str) -> List[Dict[str, Any]]:
+    """Load job postings for an MSA; returns [] if table is empty or unavailable."""
+    if not msa:
+        return []
+    try:
+        conn = get_pg_connection()
+        cursor = conn.cursor()
+        cursor.execute(
+            '''
+            SELECT id, title, company,
+                   city || ', ' || state AS location,
+                   msa_code AS msa, career_field, seniority_level,
+                   salary_min, salary_max, advancement_trajectory
+            FROM job_postings
+            WHERE msa_code = %s AND is_active = true
+            ORDER BY career_field, seniority_level, title
+            ''',
+            (str(msa),),
+        )
+        rows = cursor.fetchall()
+        conn.close()
+        results = []
+        for row in rows:
+            job = dict(row)
+            job['job_id'] = job.get('id')
+            salary_min = job.get('salary_min')
+            salary_max = job.get('salary_max')
+            if salary_min is not None and salary_max is not None:
+                job['salary_median'] = (salary_min + salary_max) // 2
+            results.append(job)
+        return results
+    except Exception as exc:
+        logger.warning(f"Could not load job_postings for msa={msa}: {exc}")
+        return []
+
+
+def _build_search_criteria(
+    career_profile: Dict[str, Any],
+    user_seniority: str,
+) -> SearchCriteria:
+    salary_target = career_profile.get('salary_target') or career_profile.get('target_comp')
+    current_salary = int(salary_target) if salary_target is not None else 75000
+    experience_level = _SENIORITY_TO_EXPERIENCE.get(user_seniority, ExperienceLevel.MID)
+    msa = career_profile.get('msa')
+    return SearchCriteria(
+        current_salary=current_salary,
+        target_salary_increase=0.25,
+        career_field=CareerField.TECHNOLOGY,
+        experience_level=experience_level,
+        preferred_msas=[str(msa)] if msa else [],
+        remote_ok=True,
+        max_commute_time=30,
+        must_have_benefits=[],
+        company_size_preference=None,
+        industry_preference=None,
+        equity_required=False,
+        min_company_rating=3.0,
+    )
+
+
+def _curated_row_to_job_opportunity(row: Dict[str, Any]) -> JobOpportunity:
+    requirements = row.get('requirements') or []
+    if isinstance(requirements, str):
+        try:
+            requirements = json.loads(requirements)
+        except (json.JSONDecodeError, TypeError):
+            requirements = []
+    benefits = row.get('benefits') or []
+    if isinstance(benefits, str):
+        try:
+            benefits = json.loads(benefits)
+        except (json.JSONDecodeError, TypeError):
+            benefits = []
+
+    salary_median = row.get('salary_median')
+    if salary_median is None and row.get('salary_min') and row.get('salary_max'):
+        salary_median = (row['salary_min'] + row['salary_max']) // 2
+
+    return JobOpportunity(
+        job_id=str(row.get('job_id') or row.get('id') or ''),
+        title=row.get('title') or '',
+        company=row.get('company') or '',
+        location=row.get('location') or '',
+        msa=str(row.get('msa') or ''),
+        salary_min=row.get('salary_min'),
+        salary_max=row.get('salary_max'),
+        salary_median=salary_median,
+        salary_increase_potential=0.0,
+        remote_friendly=bool(row.get('remote_friendly', False)),
+        job_board=JobBoard.INDEED,
+        url=row.get('url') or '',
+        description=row.get('description') or '',
+        requirements=requirements,
+        benefits=benefits,
+        diversity_score=0.0,
+        growth_score=0.0,
+        culture_score=0.0,
+        overall_score=0.0,
+        field=CareerField.TECHNOLOGY,
+        experience_level=_SENIORITY_TO_EXPERIENCE.get(
+            row.get('seniority_level') or 'mid',
+            ExperienceLevel.MID,
+        ),
+        posted_date=datetime.now(),
+        application_deadline=None,
+        company_size=row.get('company_size'),
+        company_industry=row.get('company_industry'),
+        equity_offered=bool(row.get('equity_offered', False)),
+        bonus_potential=row.get('bonus_potential'),
+        career_advancement_score=0.0,
+        work_life_balance_score=0.0,
+    )
+
+
+def _serialize_recommendation(job: Dict[str, Any]) -> Dict[str, Any]:
+    return {
+        'job_id': job.get('job_id') or job.get('id'),
+        'title': job.get('title'),
+        'company': job.get('company'),
+        'location': job.get('location'),
+        'msa': job.get('msa'),
+        'career_field': job.get('career_field'),
+        'seniority_level': job.get('seniority_level'),
+        'salary_min': job.get('salary_min'),
+        'salary_max': job.get('salary_max'),
+        'salary_median': job.get('salary_median'),
+        'overall_score': job.get('overall_score'),
+        'url': job.get('url'),
+        'remote_friendly': job.get('remote_friendly'),
+    }
+
 
 class ProcessingStatus(Enum):
     """Processing status for workflow steps"""
@@ -128,7 +353,7 @@ class MingusJobRecommendationEngine:
         self.resume_parser = AdvancedResumeParserWithFormats()
         self.job_matcher = IncomeBoostJobMatcher()
         self.three_tier_selector = ThreeTierJobSelector()
-        self.basic_parser = ResumeParser()
+        self.basic_parser = None
         
         # Initialize database
         self._init_database()
@@ -148,6 +373,52 @@ class MingusJobRecommendationEngine:
         )
         
         logger.info("MingusJobRecommendationEngine initialized successfully")
+
+    def process_recommendations(self, user_id: str, career_profile: dict) -> dict:
+        """
+        Generate three-tier recommendations from a career profile (#113 Phase A1).
+
+        Tiers: same_level, reach, conservative — max 5 per tier, sorted by score desc.
+        """
+        user_field = _resolve_user_career_field(career_profile)
+        user_seniority = career_profile.get('seniority_level') or 'mid'
+        msa = career_profile.get('msa')
+        salary_target = career_profile.get('salary_target') or career_profile.get('target_comp')
+        if salary_target is not None:
+            salary_target = int(salary_target)
+
+        logger.info(
+            f"process_recommendations for user {user_id}: "
+            f"field={user_field!r}, seniority={user_seniority!r}, msa={msa!r}"
+        )
+
+        raw_jobs = _query_curated_jobs(str(msa) if msa else '')
+        criteria = _build_search_criteria(career_profile, user_seniority)
+
+        tier_buckets: Dict[str, List[Dict[str, Any]]] = {
+            'same_level': [],
+            'reach': [],
+            'conservative': [],
+        }
+
+        for row in raw_jobs:
+            tier = _tier_for_job(row, user_field, user_seniority, salary_target)
+            if tier is None:
+                continue
+            scored = self.job_matcher.multi_dimensional_scoring(
+                _curated_row_to_job_opportunity(row),
+                criteria,
+            )
+            enriched = dict(row)
+            enriched['overall_score'] = scored.overall_score
+            tier_buckets[tier].append(enriched)
+
+        result: Dict[str, List[Dict[str, Any]]] = {}
+        for tier_name, jobs in tier_buckets.items():
+            jobs.sort(key=lambda j: j.get('overall_score') or 0, reverse=True)
+            result[tier_name] = [_serialize_recommendation(j) for j in jobs[:5]]
+
+        return result
     
     def _init_database(self):
         """Verify PostgreSQL database connection"""
@@ -378,6 +649,9 @@ class MingusJobRecommendationEngine:
             logger.error(f"Advanced resume parsing failed: {e}")
             # Fallback to basic parser
             try:
+                if self.basic_parser is None:
+                    from backend.api.resume_endpoints import ResumeParser
+                    self.basic_parser = ResumeParser()
                 basic_result = self.basic_parser.parse_resume(content, file_name)
                 return {
                     'success': True,

@@ -25,6 +25,11 @@ class CareerProfile(db.Model):
     satisfaction = db.Column(db.Integer, nullable=True)
     open_to_move = db.Column(db.Boolean, nullable=False, default=False)
     target_comp = db.Column(db.Float, nullable=True)
+    bls_career_field = db.Column(db.String(100), nullable=True)
+    seniority_level = db.Column(db.String(20), nullable=True)
+    is_management = db.Column(db.Boolean, nullable=True)
+    title_normalized_at = db.Column(db.DateTime, nullable=True)
+    title_normalization_source = db.Column(db.String(20), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     updated_at = db.Column(
         db.DateTime,

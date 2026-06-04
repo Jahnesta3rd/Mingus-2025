@@ -10,6 +10,7 @@ enabling seamless integration with the frontend and other services.
 import asyncio
 import json
 import logging
+import re
 from datetime import datetime
 from flask import Blueprint, request, jsonify
 from flask_cors import cross_origin
@@ -17,6 +18,10 @@ from werkzeug.exceptions import BadRequest, InternalServerError
 import os
 import psycopg2
 import psycopg2.extras
+
+from backend.auth.decorators import get_current_jwt_user, require_auth
+from backend.models.career_profile import CareerProfile
+from backend.models.housing_profile import HousingProfile
 
 # Import the orchestration engine
 from ..utils.mingus_job_recommendation_engine import MingusJobRecommendationEngine
@@ -53,115 +58,80 @@ def check_rate_limit(client_ip):
     # Simplified rate limiting - in production, use Redis or similar
     return True
 
+
+_ZIP_RE = re.compile(r'\b(\d{5})\b')
+
+
+def _extract_zip_from_text(text: str | None) -> str | None:
+    if not text:
+        return None
+    match = _ZIP_RE.search(str(text).strip())
+    return match.group(1) if match else None
+
+
+def _resolve_msa_for_user(internal_user_id: int) -> str:
+    """
+    Resolve job_postings CBSA msa_code for a user.
+
+    HousingProfile stores zip_or_city; user_profiles has no MSA column.
+    backend/services/gas_price_service uses ZipcodeToMSAMapper (zip -> display name),
+    but job_postings.msa_code uses CBSA codes (see job_postings_seed_data.MSA_CONFIG).
+    No CBSA resolver exists — return '' so _query_curated_jobs empty-states gracefully.
+    """
+    hp = HousingProfile.query.filter_by(user_id=internal_user_id).first()
+    zipcode = _extract_zip_from_text(hp.zip_or_city if hp else None)
+    if zipcode:
+        logger.debug(
+            "HousingProfile zip %s found for user_id=%s; no CBSA msa_code resolver yet",
+            zipcode,
+            internal_user_id,
+        )
+    return ''
+
+
+def _build_career_profile_dict(cp: CareerProfile | None, msa: str) -> dict:
+    """Build engine input dict from CareerProfile ORM fields."""
+    career_field = cp.bls_career_field if cp else None
+    seniority = cp.seniority_level if cp else None
+    salary_target = cp.target_comp if cp else None
+    return {
+        'bls_career_field': career_field,
+        'seniority_level': seniority,
+        'target_comp': salary_target,
+        'salary_target': salary_target,
+        'current_role': cp.current_role if cp else None,
+        'msa': msa,
+    }
+
+
 @recommendation_engine_api.route('/recommendations/process-resume', methods=['POST'])
+@recommendation_engine_api.route('/api/recommendations/process-resume', methods=['POST'])
 @cross_origin()
+@require_auth
 def process_resume_complete():
-    """
-    Process resume and generate complete job recommendations
-    
-    This is the main endpoint that orchestrates the entire workflow:
-    1. Resume parsing and analysis
-    2. Income and market research
-    3. Job searching and filtering
-    4. Three-tier recommendation generation
-    5. Application strategy creation
-    6. Results formatting and presentation
-    
-    Request body:
-    {
-        "resume_content": "Resume text content...",
-        "user_id": "user123",
-        "file_name": "resume.pdf",
-        "location": "New York",
-        "preferences": {
-            "remote_ok": true,
-            "max_commute_time": 30,
-            "must_have_benefits": ["health insurance", "401k"],
-            "company_size_preference": "mid",
-            "industry_preference": "technology",
-            "equity_required": false,
-            "min_company_rating": 3.5
-        }
-    }
-    
-    Response:
-    {
-        "success": true,
-        "session_id": "user123_abc123_20240101_120000",
-        "processing_time": 6.5,
-        "recommendations": {
-            "conservative": [...],
-            "optimal": [...],
-            "stretch": [...]
-        },
-        "tier_summary": {...},
-        "application_strategies": {...},
-        "insights": {...},
-        "action_plan": {...},
-        "next_steps": [...],
-        "processing_metrics": {...}
-    }
-    """
+    """Generate tiered job recommendations from the authenticated user's career profile."""
     try:
-        # Validate CSRF token
-        csrf_token = request.headers.get('X-CSRF-Token')
-        if not validate_csrf_token(csrf_token):
-            logger.warning("Invalid CSRF token in resume processing")
-            return jsonify({'success': False, 'error': 'Invalid CSRF token'}), 403
-        
-        # Rate limiting check
-        client_ip = request.remote_addr
-        if not check_rate_limit(client_ip):
-            logger.warning(f"Rate limit exceeded for IP: {client_ip}")
-            return jsonify({'success': False, 'error': 'Rate limit exceeded'}), 429
-        
-        data = request.get_json()
-        
-        if not data:
-            raise BadRequest("No data provided")
-        
-        # Validate required fields
-        if 'resume_content' not in data:
-            raise BadRequest("Missing required field: resume_content")
-        
-        resume_content = data['resume_content']
-        user_id = data.get('user_id', 'anonymous')
-        file_name = data.get('file_name')
-        location = data.get('location', 'New York')
-        preferences = data.get('preferences', {})
-        
-        # Validate content
-        if not resume_content or len(resume_content.strip()) < 50:
-            raise BadRequest("Resume content is too short or empty")
-        
-        # Process resume completely
-        logger.info(f"Starting complete resume processing for user {user_id}")
-        
-        # Run the async workflow
-        result = asyncio.run(engine.process_resume_completely(
-            resume_content=resume_content,
-            user_id=user_id,
-            file_name=file_name,
-            location=location,
-            preferences=preferences
-        ))
-        
-        # Check if processing was successful
-        if not result.get('success', False):
-            return jsonify({
-                'success': False,
-                'error': result.get('error_message', 'Processing failed'),
-                'error_type': result.get('error_type', 'unknown'),
-                'timestamp': result.get('timestamp')
-            }), 400
-        
-        # Return successful result
-        logger.info(f"Resume processing completed successfully for user {user_id}")
-        return jsonify(result)
-        
-    except BadRequest as e:
-        logger.warning(f"Bad request in process_resume_complete: {e}")
-        return jsonify({'success': False, 'error': str(e)}), 400
+        user = get_current_jwt_user()
+        if not user:
+            return jsonify({'success': False, 'error': 'User not found'}), 404
+
+        cp = CareerProfile.query.filter_by(user_id=user.id).first()
+        msa = _resolve_msa_for_user(user.id)
+        career_profile = _build_career_profile_dict(cp, msa)
+
+        recommendations = engine.process_recommendations(str(user.user_id), career_profile)
+
+        return jsonify({
+            'success': True,
+            'recommendations': recommendations,
+            'career_profile_used': {
+                'bls_career_field': career_profile.get('bls_career_field'),
+                'seniority_level': career_profile.get('seniority_level'),
+                'target_comp': career_profile.get('target_comp'),
+                'msa': career_profile.get('msa'),
+            },
+        }), 200
+
     except Exception as e:
         logger.error(f"Error in process_resume_complete: {e}")
         return jsonify({'success': False, 'error': 'Internal server error'}), 500

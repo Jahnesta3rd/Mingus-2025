@@ -44,6 +44,20 @@ job_matching_api = Blueprint('job_matching_api', __name__)
 # Configure logging
 logger = logging.getLogger(__name__)
 
+
+@job_matching_api.route('/api/jobs/recommendations', methods=['POST'])
+@cross_origin()
+def jobs_recommendations_stub():
+    """Return empty tier recommendations until job source is wired."""
+    # TODO #113-Phase-B: replace stub with MingusJobRecommendationEngine wiring
+    return jsonify({
+        'success': True,
+        'recommendations': {'conservative': [], 'optimal': [], 'stretch': []},
+        'total_recommendations': 0,
+        'status': 'pending_job_source',
+    }), 200
+
+
 @job_matching_api.route('/job-matching/search', methods=['POST'])
 @cross_origin()
 def search_jobs():

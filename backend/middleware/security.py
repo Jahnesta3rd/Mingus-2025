@@ -42,6 +42,10 @@ class SecurityMiddleware:
             '/api/beta/validate',
             # Beta redeem uses JWT Bearer; skip CSRF so SPA can call right after register
             '/api/beta/redeem',
+            # JR-2 stubs — no auth or CSRF needed until Phase B wiring
+            '/recommendations/process-resume',
+            '/api/recommendations/process-resume',
+            '/api/jobs/recommendations',
         ]
         if path in public_endpoints or request.path in public_endpoints:
             return True
