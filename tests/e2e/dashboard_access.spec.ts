@@ -3,11 +3,11 @@
  *
  * Covers:
  *   DA-01  Dashboard loads after login (all 3 tiers)
- *   DA-02  All 8 tabs are visible and clickable
+ *   DA-02  All 5 bottom nav tabs are visible
  *   DA-03  Active tab state updates on click
- *   DA-04  Budget tier — Financial Forecast shows upgrade prompt (locked chart)
- *   DA-05  Mid-tier sees Financial Forecast summary cards
- *   DA-06  Professional tier — Vehicle tab shows professional section
+ *   DA-04  Budget tier — Forecast tab shows upgrade prompt (locked chart)
+ *   DA-05  Mid-tier sees Forecast summary cards
+ *   DA-06  Professional tier — Today tab Vehicle card (no upgrade prompt)
  *   DA-07  User menu opens and contains expected items
  *   DA-08  Logout via user menu clears session
  *   DA-09  Assessment history API returns data for authenticated user
@@ -21,6 +21,7 @@ import { test, expect, Browser, BrowserContext, Page, chromium } from '@playwrig
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const BASE_URL = 'https://test.mingusapp.com';
+const BOTTOM_NAV = 'nav[aria-label="Dashboard sections"]';
 
 const USERS = {
   budget: {
@@ -43,15 +44,12 @@ const USERS = {
   },
 };
 
-const DASHBOARD_TABS = [
-  { label: 'Daily Outlook', shortLabel: 'Outlook', id: 'daily-outlook' },
-  { label: 'Financial Forecast', shortLabel: 'Forecast', id: 'financial-forecast' },
-  { label: 'Overview', shortLabel: 'Overview', id: 'overview' },
-  { label: 'Job Recommendations', shortLabel: 'Jobs', id: 'recommendations' },
-  { label: 'Location Intelligence', shortLabel: 'Location', id: 'location' },
-  { label: 'Housing Location', shortLabel: 'Housing', id: 'housing' },
-  { label: 'Vehicle Status', shortLabel: 'Vehicle', id: 'vehicle' },
-  { label: 'Career Analytics', shortLabel: 'Analytics', id: 'analytics' },
+const BOTTOM_NAV_TABS = [
+  { label: 'Today', id: 'today' },
+  { label: 'Forecast', id: 'forecast' },
+  { label: 'Plans', id: 'plans' },
+  { label: 'Discover', id: 'discover' },
+  { label: 'You', id: 'you' },
 ];
 
 // ─── Mock Data ─────────────────────────────────────────────────────────────────
@@ -128,6 +126,68 @@ const JASMINE_DASHBOARD_DATA = {
   profile: { tier: 'professional', email: USERS.professional.email, firstName: 'Jasmine' },
 };
 
+const VEHICLES_DASHBOARD_PAYLOAD = {
+  vehicles: [
+    {
+      id: 1,
+      vin: '1HGBH41JXMN109186',
+      year: 2021,
+      make: 'Toyota',
+      model: 'Camry',
+      currentMileage: 38000,
+      monthlyMiles: 1250,
+      userZipcode: '77386',
+      createdAt: '2024-01-01T00:00:00Z',
+      updatedAt: '2024-01-01T00:00:00Z',
+    },
+  ],
+  stats: {
+    totalVehicles: 1,
+    totalMileage: 38000,
+    averageMonthlyMiles: 1250,
+    totalMonthlyBudget: 550,
+    upcomingMaintenanceCount: 1,
+    overdueMaintenanceCount: 0,
+  },
+  upcomingMaintenance: [
+    {
+      id: 1,
+      vehicleId: 1,
+      type: 'oil_change',
+      description: 'Oil change',
+      dueDate: '2026-04-15',
+      estimatedCost: 45,
+      isOverdue: false,
+      priority: 'medium',
+      status: 'scheduled',
+    },
+  ],
+  maintenancePredictions: [],
+  budgets: [
+    {
+      vehicleId: 1,
+      monthlyBudget: 550,
+      fuelBudget: 180,
+      maintenanceBudget: 120,
+      insuranceBudget: 150,
+      totalSpent: 480,
+      remainingBudget: 70,
+      budgetPeriod: '2026-03',
+    },
+  ],
+  recentExpenses: [],
+  quickActions: [
+    {
+      id: 'add-fuel',
+      title: 'Log fuel',
+      description: 'Record fuel purchase',
+      icon: 'fuel',
+      color: 'blue',
+      enabled: true,
+    },
+  ],
+};
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 let browser: Browser;
@@ -149,6 +209,14 @@ async function addDashboardMocks(p: Page, data: typeof MAYA_DASHBOARD_DATA) {
         name: firstName,
         ...(data.profile.tier != null && { tier: data.profile.tier }),
       }),
+    });
+  });
+
+  await p.route(`**/api/vibe/daily**`, async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ has_vibe: false, vibe: null }),
     });
   });
 
@@ -194,7 +262,7 @@ async function addDashboardMocks(p: Page, data: typeof MAYA_DASHBOARD_DATA) {
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
-      body: JSON.stringify({ setup_complete: true, ...data.profile }),
+      body: JSON.stringify({ setup_complete: true, setupCompleted: true, ...data.profile }),
     });
   });
 
@@ -222,22 +290,107 @@ async function addDashboardMocks(p: Page, data: typeof MAYA_DASHBOARD_DATA) {
       body: JSON.stringify({ notifications: [], unread_count: 0 }),
     });
   });
+
+  await p.route(`**/api/vehicles/dashboard**`, async (route) => {
+    if (route.request().method() !== 'GET') return route.fallback();
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify(VEHICLES_DASHBOARD_PAYLOAD),
+    });
+  });
+
+  await p.route(`**/api/career/profile-summary**`, async (route) => {
+    if (route.request().method() !== 'GET') return route.fallback();
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        success: true,
+        profile: {
+          current_role: 'Software Engineer',
+          industry: 'Technology',
+          seniority_level: 'Senior',
+          years_experience: 8,
+          target_comp: 120000,
+          open_to_move: true,
+          profile_complete: true,
+        },
+      }),
+    });
+  });
+
+  await p.route(`**/api/housing/profile-summary**`, async (route) => {
+    if (route.request().method() !== 'GET') return route.fallback();
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        success: true,
+        profile: {
+          housing_type: 'rent',
+          monthly_cost: 1400,
+          zip_or_city: 'Spring, TX',
+          has_buy_goal: true,
+          target_price: 285000,
+          target_timeline_months: 18,
+          profile_complete: true,
+        },
+      }),
+    });
+  });
+
+  await p.route(`**/api/vibe-tracker/people**`, async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ people: [] }),
+    });
+  });
+
+  await p.route(`**/api/life-ledger/profile**`, async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ vibe_score: 72, life_ledger_score: 68 }),
+    });
+  });
+
+  await p.route(`**/api/user/terms-status**`, async (route) => {
+    if (route.request().method() !== 'GET') return route.fallback();
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        accepted: true,
+        acceptedVersion: 'September2025',
+        currentVersion: 'September2025',
+      }),
+    });
+  });
 }
 
 async function dismissModal(p: Page) {
-  // Wait briefly for any modal to appear
   await p.waitForTimeout(1000);
 
-  // Wait for overlay if present (e.g. QuickSetupOverlay appears after dashboard loads)
   const overlay = p.locator('.fixed.inset-0').first();
   try {
     await overlay.waitFor({ state: 'visible', timeout: 5000 });
   } catch {
-    // No overlay within 5s, nothing to dismiss
     return;
   }
 
-  // Try common dismiss patterns (include QuickSetupOverlay: "I'll do this later", X button, "Continue to Dashboard")
+  const termsAccept = p.getByRole('button', { name: /accept the user agreement and continue/i });
+  if (await termsAccept.isVisible().catch(() => false)) {
+    const scrollRegion = p.getByRole('region', { name: /agreement text/i });
+    await scrollRegion.evaluate((el) => {
+      el.scrollTop = el.scrollHeight;
+    }).catch(() => {});
+    await p.locator('#terms-ack-checkbox, input[type="checkbox"]').first().check({ force: true }).catch(() => {});
+    await termsAccept.click({ force: true }).catch(() => {});
+    await p.waitForTimeout(800);
+  }
+
   const dismissSelectors = [
     'button:has-text("I\'ll do this later")',
     '[aria-label="Close and skip setup"]',
@@ -264,12 +417,25 @@ async function dismissModal(p: Page) {
     }
   }
 
-  // If modal still visible, press Escape
   const overlayStillVisible = await overlay.isVisible().catch(() => false);
   if (overlayStillVisible) {
     await p.keyboard.press('Escape');
     await p.waitForTimeout(500);
   }
+}
+
+async function clickBottomNavTab(p: Page, label: string) {
+  await dismissModal(p);
+  const tab = p.locator(BOTTOM_NAV).getByRole('button', { name: label, exact: true });
+  await tab.waitFor({ state: 'visible', timeout: 10000 });
+  await tab.click({ force: true });
+  await p.waitForTimeout(1200);
+}
+
+async function isBottomNavTabActive(p: Page, label: string): Promise<boolean> {
+  const tab = p.locator(BOTTOM_NAV).getByRole('button', { name: label, exact: true });
+  const ariaCurrent = await tab.getAttribute('aria-current').catch(() => null);
+  return ariaCurrent === 'page';
 }
 
 async function loginAndGoToDashboard(
@@ -278,20 +444,21 @@ async function loginAndGoToDashboard(
   user: (typeof USERS)[keyof typeof USERS],
   data: typeof MAYA_DASHBOARD_DATA
 ) {
-  // Step 1: clear cookies
   await ctx.clearCookies();
 
-  // Step 2: go to login page and clear localStorage
   await p.goto(`${BASE_URL}/login`);
   await p.waitForLoadState('domcontentloaded');
   try {
-    await p.evaluate(() => { localStorage.clear(); sessionStorage.clear(); });
-  } catch { /* ignore */ }
+    await p.evaluate(() => {
+      localStorage.clear();
+      sessionStorage.clear();
+    });
+  } catch {
+    /* ignore */
+  }
 
-  // Step 3: set up mocks AFTER clearing state, while on login page
   await addDashboardMocks(p, data);
 
-  // Mock login so all three tiers succeed regardless of server credentials
   await p.route('**/api/auth/login', async (route) => {
     if (route.request().method() !== 'POST') return route.fallback();
     await route.fulfill({
@@ -308,7 +475,6 @@ async function loginAndGoToDashboard(
     });
   });
 
-  // Step 4: fill login form (already on /login, no second goto needed)
   await p.waitForTimeout(500);
   await p.getByLabel(/email/i).first().fill(user.email);
   await p.getByLabel(/password/i).first().fill(user.password);
@@ -326,12 +492,13 @@ async function loginAndGoToDashboard(
       console.log(`loginAndGoToDashboard: login failed for ${user.email} - ${resp.status()}`);
       return;
     }
-  } catch { /* proceed */ }
+  } catch {
+    /* proceed */
+  }
 
   await p.waitForLoadState('domcontentloaded');
   await p.waitForTimeout(1000);
 
-  // Step 5: set localStorage tokens with retry
   for (let i = 0; i < 3; i++) {
     try {
       await p.evaluate(() => {
@@ -344,34 +511,39 @@ async function loginAndGoToDashboard(
     }
   }
 
-  // Step 6: navigate to dashboard if not already there
   if (!p.url().includes('/dashboard')) {
     await p.goto(`${BASE_URL}/dashboard`);
     await p.waitForLoadState('domcontentloaded');
     await p.waitForTimeout(2000);
   }
 
-  // Step 7: handle vibe-check-meme redirect
   if (p.url().includes('vibe-check-meme')) {
     await p.goto(`${BASE_URL}/dashboard`);
     await p.waitForLoadState('domcontentloaded');
     await p.waitForTimeout(2000);
   }
 
-  // Step 8: re-set tokens after final navigation
   try {
     await p.evaluate(() => {
       localStorage.setItem('auth_token', 'ok');
       localStorage.setItem('mingus_token', 'e2e-dashboard-token');
     });
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
+
+  await p
+    .getByText(/Today|Forecast/i)
+    .first()
+    .waitFor({ state: 'visible', timeout: 30_000 })
+    .catch(() => {});
 
   await dismissModal(p);
 }
 
 // ─── Test Suite ───────────────────────────────────────────────────────────────
 
-test.describe.serial('Dashboard Access', () => {
+test.describe('Dashboard access', () => {
   test.setTimeout(90000);
 
   test.beforeEach(async () => {
@@ -384,15 +556,14 @@ test.describe.serial('Dashboard Access', () => {
     await browser.close();
   });
 
-  // ── DA-01: Dashboard loads after login (all 3 tiers) ──────────────────────
   test('DA-01: Dashboard loads after login for all three tiers', async () => {
     for (const [tierKey, user] of Object.entries(USERS)) {
       const data =
         tierKey === 'budget'
           ? MAYA_DASHBOARD_DATA
           : tierKey === 'mid'
-          ? MARCUS_DASHBOARD_DATA
-          : JASMINE_DASHBOARD_DATA;
+            ? MARCUS_DASHBOARD_DATA
+            : JASMINE_DASHBOARD_DATA;
 
       const ctx = await browser.newContext({ storageState: '.auth/marcus.json' });
       const p = await ctx.newPage();
@@ -400,150 +571,109 @@ test.describe.serial('Dashboard Access', () => {
       await loginAndGoToDashboard(p, ctx, user, data);
 
       await expect(p).toHaveURL(/\/dashboard/, { timeout: 15000 });
+      await p.locator(BOTTOM_NAV).first().waitFor({ state: 'visible', timeout: 15000 }).catch(() => {});
       console.log(`DA-01: ${user.name} (${tierKey}) dashboard loaded at ${p.url()}`);
 
       await ctx.close();
     }
   });
 
-  // ── DA-02: All 8 tabs are visible ─────────────────────────────────────────
-  test('DA-02: All 8 dashboard tabs are visible', async () => {
+  test('DA-02: All 5 bottom nav tabs are visible', async () => {
     await loginAndGoToDashboard(page, context, USERS.budget, MAYA_DASHBOARD_DATA);
     await expect(page).toHaveURL(/\/dashboard/, { timeout: 15000 });
 
-    for (const tab of DASHBOARD_TABS) {
-      // Try full label first, fall back to short label (responsive)
-      const fullLabel = page.getByRole('button', { name: tab.label });
-      const shortLabel = page.getByRole('button', { name: tab.shortLabel });
+    const nav = page.locator(BOTTOM_NAV);
+    await nav.waitFor({ state: 'visible', timeout: 15000 });
 
-      const visible =
-        (await fullLabel.isVisible().catch(() => false)) ||
-        (await shortLabel.isVisible().catch(() => false));
-
+    for (const tab of BOTTOM_NAV_TABS) {
+      const visible = await nav.getByText(tab.label, { exact: true }).isVisible().catch(() => false);
       expect(visible, `Tab "${tab.label}" should be visible`).toBe(true);
       console.log(`DA-02: Tab "${tab.label}" visible ✓`);
     }
   });
 
-  // ── DA-03: Active tab state updates on click ───────────────────────────────
   test('DA-03: Active tab state updates on click', async () => {
     await loginAndGoToDashboard(page, context, USERS.budget, MAYA_DASHBOARD_DATA);
     await expect(page).toHaveURL(/\/dashboard/, { timeout: 15000 });
     await dismissModal(page);
 
-    // Click Overview tab and verify it becomes active
-    const overviewBtn = page.getByRole('button', { name: 'Overview' }).first();
+    await clickBottomNavTab(page, 'Forecast');
+    const forecastActive = await isBottomNavTabActive(page, 'Forecast');
+    const forecastContent = await page
+      .getByText(/Today's Balance|30-Day Forecast|upgrade|View upgrade options/i)
+      .first()
+      .isVisible()
+      .catch(() => false);
+    expect(forecastActive || forecastContent).toBe(true);
+    console.log('DA-03: Forecast tab active state confirmed');
 
-    await overviewBtn.click();
-    await page.waitForTimeout(1000);
-
-    // Active tab has border-blue-500 class
-    const isActive = await overviewBtn.evaluate((el) =>
-      el.className.includes('border-blue-500') || el.className.includes('text-blue-600')
-    );
-    expect(isActive).toBe(true);
-    console.log('DA-03: Overview tab active state confirmed');
-
-    // Click Vehicle tab
-    const vehicleBtn = page.getByRole('button', { name: /Vehicle Status|Vehicle/i }).first();
-    await vehicleBtn.click();
-    await page.waitForTimeout(1000);
-
-    const vehicleActive = await vehicleBtn.evaluate((el) =>
-      el.className.includes('border-blue-500') || el.className.includes('text-blue-600')
-    );
-    expect(vehicleActive).toBe(true);
-    console.log('DA-03: Vehicle tab active state confirmed');
+    await clickBottomNavTab(page, 'Discover');
+    const discoverActive = await isBottomNavTabActive(page, 'Discover');
+    expect(discoverActive).toBe(true);
+    console.log('DA-03: Discover tab active state confirmed');
   });
 
-  // ── DA-04: Budget tier — Financial Forecast shows upgrade prompt ───────────
-  test('DA-04: Budget tier sees upgrade prompt in Financial Forecast tab', async () => {
+  test('DA-04: Budget tier sees upgrade prompt in Forecast tab', async () => {
     test.slow();
     await loginAndGoToDashboard(page, context, USERS.budget, MAYA_DASHBOARD_DATA);
     await expect(page).toHaveURL(/\/dashboard/, { timeout: 15000 });
     await dismissModal(page);
 
-    // Click Financial Forecast tab
-    const forecastBtn = page
-      .getByRole('button', { name: /Financial Forecast|Forecast/i })
-      .first();
-    await forecastBtn.click();
-    await page.waitForTimeout(2000);
+    await clickBottomNavTab(page, 'Forecast');
 
-    // Budget tier should see an upgrade prompt / locked state
-    const upgradePrompt = page.getByText(
-      /upgrade|unlock|mid.tier|view plans|get access/i
-    );
+    const upgradePrompt = page.getByText(/upgrade|unlock|mid.tier|view plans|get access/i);
     const hasUpgradePrompt = await upgradePrompt.first().isVisible().catch(() => false);
 
     expect(hasUpgradePrompt).toBe(true);
-    console.log('DA-04: Budget tier upgrade prompt confirmed in Financial Forecast');
+    console.log('DA-04: Budget tier upgrade prompt confirmed in Forecast');
   });
 
-  // ── DA-05: Mid-tier sees Financial Forecast summary cards ──────────────────
   test('DA-05: Mid-tier sees Financial Forecast summary cards', async () => {
     await loginAndGoToDashboard(page, context, USERS.mid, MARCUS_DASHBOARD_DATA);
     await expect(page).toHaveURL(/\/dashboard/, { timeout: 15000 });
     await dismissModal(page);
 
-    const forecastBtn = page
-      .getByRole('button', { name: /Financial Forecast|Forecast/i })
-      .first();
-    await forecastBtn.click();
-    await page.waitForTimeout(2000);
+    await clickBottomNavTab(page, 'Forecast');
 
-    // Log content for diagnostics
     const tabContent = page.locator('.min-h-\\[600px\\]').first();
     const contentText = await tabContent.innerText().catch(() => '');
     console.log('DA-05: Tab content (first 400 chars):', contentText.slice(0, 400));
 
-    // Mid-tier sees the 3 summary cards (Today's Balance, 30-Day Forecast, Balance Status)
-    // This is verified by the balance data from the mock being rendered
     const hasBalanceCard = page.getByText(/today.*balance|balance status|30.day forecast/i);
     const balanceVisible = await hasBalanceCard.first().isVisible().catch(() => false);
     expect(balanceVisible).toBe(true);
 
-    console.log('DA-05: Mid-tier Financial Forecast summary cards confirmed');
+    console.log('DA-05: Mid-tier Forecast summary cards confirmed');
   });
 
-  // ── DA-06: Professional tier — Vehicle tab has professional section ─────────
-  test('DA-06: Professional tier sees vehicle expense section in Vehicle tab', async () => {
+  test('DA-06: Professional tier sees no upgrade prompt on Today tab', async () => {
     await loginAndGoToDashboard(page, context, USERS.professional, JASMINE_DASHBOARD_DATA);
     await expect(page).toHaveURL(/\/dashboard/, { timeout: 15000 });
     await dismissModal(page);
 
-    const vehicleBtn = page.getByRole('button', { name: /Vehicle Status|Vehicle/i }).first();
-    await vehicleBtn.click();
-    await page.waitForTimeout(2000);
+    await clickBottomNavTab(page, 'Today');
+    await page.getByRole('tab', { name: 'Card 5 of 7' }).click().catch(() => {});
+    await page.waitForTimeout(800);
 
-    // Professional should see export or business metrics, not an upgrade prompt
     const upgradePrompt = page.getByText(/upgrade to professional/i);
     const hasUpgradePrompt = await upgradePrompt.first().isVisible().catch(() => false);
     expect(hasUpgradePrompt).toBe(false);
-    console.log('DA-06: Professional tier vehicle tab — no upgrade prompt confirmed');
+    console.log('DA-06: Professional tier Today tab — no upgrade prompt confirmed');
   });
 
-  // ── DA-07: User menu opens and contains expected items ─────────────────────
   test('DA-07: User menu opens with Dashboard and Sign out options', async () => {
     await loginAndGoToDashboard(page, context, USERS.budget, MAYA_DASHBOARD_DATA);
     await expect(page).toHaveURL(/\/dashboard/, { timeout: 15000 });
     await dismissModal(page);
     await page.waitForTimeout(1000);
 
-    // Dashboard page does not render NavigationBar (no user menu). Go to homepage
-    // where NavigationBar with .user-menu-container is present.
     await page.goto(BASE_URL + '/');
     await page.waitForLoadState('domcontentloaded');
     await page.setViewportSize({ width: 1280, height: 720 });
     await page.waitForTimeout(800);
 
-    // Wait for landing page nav (NavigationBar) to be present
     await page.waitForSelector('nav', { state: 'visible', timeout: 15000 });
 
-    // Find the user menu trigger — NavigationBar renders a button that
-    // toggles showUserMenu. It's typically the rightmost nav button or
-    // a button containing the user's initial/avatar.
-    // Try multiple selectors in order of specificity.
     const menuTriggerSelectors = [
       'button[aria-label="User menu"]',
       '.user-menu-container button',
@@ -563,7 +693,6 @@ test.describe.serial('Dashboard Access', () => {
         if (visible) {
           await btn.click().catch(() => {});
           await page.waitForTimeout(800);
-          // Check if a menu appeared
           const menu = page.locator('[role="menu"]');
           const menuVisible = await menu.isVisible().catch(() => false);
           if (menuVisible) {
@@ -589,8 +718,8 @@ test.describe.serial('Dashboard Access', () => {
       }
       console.log('DA-07: Menu items found:', itemTexts.join(' | '));
 
-      const hasLogout = itemTexts.some(t => /sign out|logout|log out/i.test(t));
-      const hasDashboard = itemTexts.some(t => /dashboard/i.test(t));
+      const hasLogout = itemTexts.some((t) => /sign out|logout|log out/i.test(t));
+      const hasDashboard = itemTexts.some((t) => /dashboard/i.test(t));
       expect(hasLogout || hasDashboard).toBe(true);
       console.log(`DA-07: logout=${hasLogout}, dashboard=${hasDashboard}`);
     } else {
@@ -598,12 +727,10 @@ test.describe.serial('Dashboard Access', () => {
     }
   });
 
-  // ── DA-08: Logout via user menu clears session ────────────────────────────
   test('DA-08: Logout clears mingus_token cookie', async () => {
     await loginAndGoToDashboard(page, context, USERS.budget, MAYA_DASHBOARD_DATA);
     await expect(page).toHaveURL(/\/dashboard/, { timeout: 15000 });
 
-    // Logout via API (same as AUTH-01 — most reliable)
     await page.request.post(`${BASE_URL}/api/auth/logout`, {
       headers: { 'Content-Type': 'application/json' },
     });
@@ -614,9 +741,7 @@ test.describe.serial('Dashboard Access', () => {
     console.log('DA-08: mingus_token cookie cleared after logout ✓');
   });
 
-  // ── DA-09: Assessment history API ─────────────────────────────────────────
   test('DA-09: Assessment history API returns valid response for authenticated user', async () => {
-    // Login first to get session cookie
     await page.goto(`${BASE_URL}/login`);
     await page.waitForLoadState('domcontentloaded');
     await page.getByLabel(/email/i).first().fill(USERS.budget.email);
@@ -630,12 +755,10 @@ test.describe.serial('Dashboard Access', () => {
     await loginResp;
     await page.waitForTimeout(1000);
 
-    // Call assessment history endpoint
     const response = await page.request.get(`${BASE_URL}/api/dashboard/history`, {
       headers: { 'Content-Type': 'application/json' },
     });
 
-    // Should return 200 or 401 (if auth required) — not 500
     expect([200, 401, 404]).toContain(response.status());
     console.log(`DA-09: Assessment history API returned ${response.status()}`);
 
@@ -645,9 +768,7 @@ test.describe.serial('Dashboard Access', () => {
     }
   });
 
-  // ── DA-10: Assessment results API ─────────────────────────────────────────
   test('DA-10: Assessment results API returns valid response', async () => {
-    // Submit a mock assessment to get an ID, then fetch results
     await page.goto(`${BASE_URL}/login`);
     await page.waitForLoadState('domcontentloaded');
     await page.getByLabel(/email/i).first().fill(USERS.budget.email);
@@ -661,26 +782,26 @@ test.describe.serial('Dashboard Access', () => {
     await loginResp;
     await page.waitForTimeout(1000);
 
-    // Use a non-existent ID so the API returns 404 instead of 500 (id=1 may have corrupt rows on test DB)
     const response = await page.request.get(`${BASE_URL}/api/assessments/999999999/results`);
 
-    // 200 (found), 404 (not found), or 401/403 (auth) are valid; 500 = server bug
     expect([200, 401, 403, 404, 500]).toContain(response.status());
     const status = response.status();
     console.log(`DA-10: Assessment results API returned status=${status}`);
   });
 
-  // ── DA-11: Dashboard redirects to /login when unauthenticated ─────────────
   test('DA-11: Unauthenticated access to /dashboard redirects to /login', async () => {
-    // Ensure no session
     await context.clearCookies();
     await page.goto(`${BASE_URL}/login`);
     await page.waitForLoadState('domcontentloaded');
     try {
-      await page.evaluate(() => { localStorage.clear(); sessionStorage.clear(); });
-    } catch { /* ignore */ }
+      await page.evaluate(() => {
+        localStorage.clear();
+        sessionStorage.clear();
+      });
+    } catch {
+      /* ignore */
+    }
 
-    // Navigate directly to dashboard
     await page.goto(`${BASE_URL}/dashboard`);
     await page.waitForLoadState('domcontentloaded');
     await page.waitForTimeout(2000);
@@ -689,41 +810,59 @@ test.describe.serial('Dashboard Access', () => {
     console.log('DA-11: Unauthenticated /dashboard → /login redirect confirmed ✓');
   });
 
-  // ── DA-12: Deep link to tab via URL param ─────────────────────────────────
   test('DA-12: Deep linking to dashboard with tab param loads correct tab', async () => {
     await loginAndGoToDashboard(page, context, USERS.budget, MAYA_DASHBOARD_DATA);
     await expect(page).toHaveURL(/\/dashboard/, { timeout: 15000 });
     await dismissModal(page);
 
-    // Navigate to housing tab via URL param (NavigationBar uses navigate('/dashboard?tab=housing'))
     await addDashboardMocks(page, MAYA_DASHBOARD_DATA);
     await page.goto(`${BASE_URL}/dashboard?tab=housing`);
     await page.waitForLoadState('domcontentloaded');
     await page.waitForTimeout(2000);
 
-    // Set localStorage tokens again after navigation
     try {
       await page.evaluate(() => {
         localStorage.setItem('auth_token', 'ok');
         localStorage.setItem('mingus_token', 'e2e-dashboard-token');
       });
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
 
     await page.waitForTimeout(1000);
 
-    // Housing tab button should be active
-    const housingBtn = page
-      .getByRole('button', { name: /Housing Location|Housing/i })
-      .first();
-    const isActive = await housingBtn
-      .evaluate((el) => el.className.includes('border-blue-500') || el.className.includes('text-blue-600'))
+    const todayActive = await isBottomNavTabActive(page, 'Today');
+    const todayContent = await page
+      .getByText(/Good (morning|afternoon|evening)|DAILY OUTLOOK|CARD 1 OF 7/i)
+      .first()
+      .isVisible()
       .catch(() => false);
+    expect(todayActive || todayContent).toBe(true);
+    console.log(`DA-12: ?tab=housing → Today tab (active=${todayActive})`);
 
-    // Also check the URL still has the tab param
-    const url = page.url();
-    const hasTabParam = url.includes('tab=housing') || url.includes('/dashboard');
+    await addDashboardMocks(page, MAYA_DASHBOARD_DATA);
+    await page.goto(`${BASE_URL}/dashboard?tab=financial-forecast`);
+    await page.waitForLoadState('domcontentloaded');
+    await page.waitForTimeout(2000);
 
-    expect(hasTabParam).toBe(true);
-    console.log(`DA-12: Deep link tab=${isActive ? 'active' : 'url-preserved'} at ${url}`);
+    try {
+      await page.evaluate(() => {
+        localStorage.setItem('auth_token', 'ok');
+        localStorage.setItem('mingus_token', 'e2e-dashboard-token');
+      });
+    } catch {
+      /* ignore */
+    }
+
+    await page.waitForTimeout(1000);
+
+    const forecastActive = await isBottomNavTabActive(page, 'Forecast');
+    const forecastContent = await page
+      .getByText(/Today's Balance|30-Day Forecast|90-Day Balance Forecast|upgrade/i)
+      .first()
+      .isVisible()
+      .catch(() => false);
+    expect(forecastActive || forecastContent).toBe(true);
+    console.log(`DA-12: ?tab=financial-forecast → Forecast tab (active=${forecastActive})`);
   });
 });
