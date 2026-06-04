@@ -23,9 +23,21 @@ export const CARD_CONFIGS: CardConfig[] = [
     placeholder: '',
   },
   {
+    id: 'vibe-roster',
+    label: 'VIBE & ROSTER',
+    eyebrow: 'CARD 2 OF 7',
+    backgroundColor:
+      'linear-gradient(160deg, #2a1a3a 0%, #5b3a7e 55%, #2a1a3a 100%)',
+    accentColor: '#e9d5ff',
+    iconPath:
+      'M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2 M23 21v-2a4 4 0 0 0-3-3.87 M16 3.13a4 4 0 0 1 0 7.75',
+    drillRoute: '/dashboard/tools?tab=vibe-checkups',
+    placeholder: '',
+  },
+  {
     id: 'cash-snapshot',
     label: 'CASH SNAPSHOT',
-    eyebrow: 'CARD 2 OF 7',
+    eyebrow: 'CARD 3 OF 7',
     backgroundColor:
       'linear-gradient(160deg, #1a3a2a 0%, #1e5c3a 55%, #1a3a2a 100%)',
     accentColor: '#6ee7b7',
@@ -36,25 +48,13 @@ export const CARD_CONFIGS: CardConfig[] = [
   {
     id: 'career',
     label: 'CAREER CHECK-IN',
-    eyebrow: 'CARD 3 OF 7',
+    eyebrow: 'CARD 4 OF 7',
     backgroundColor:
       'linear-gradient(160deg, #1a1a3a 0%, #2d2d6e 55%, #1a1a3a 100%)',
     accentColor: '#a5b4fc',
     iconPath:
       'M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2',
     drillRoute: '/dashboard/tools?tab=recommendations',
-    placeholder: '',
-  },
-  {
-    id: 'vibe-roster',
-    label: 'VIBE & ROSTER',
-    eyebrow: 'CARD 4 OF 7',
-    backgroundColor:
-      'linear-gradient(160deg, #2a1a3a 0%, #5b3a7e 55%, #2a1a3a 100%)',
-    accentColor: '#e9d5ff',
-    iconPath:
-      'M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2 M23 21v-2a4 4 0 0 0-3-3.87 M16 3.13a4 4 0 0 1 0 7.75',
-    drillRoute: '/dashboard/tools?tab=vibe-checkups',
     placeholder: '',
   },
   {

@@ -95,11 +95,11 @@ const TodayTab: React.FC<TodayTabProps> = ({ userEmail, userTier, className = ''
             {activeIndex === 0 ? (
               <DailyOutlookCardBody userEmail={userEmail} userTier={userTier} />
             ) : activeIndex === 1 ? (
-              <CashSnapshotCardBody userEmail={userEmail} userTier={userTier} />
-            ) : activeIndex === 2 ? (
-              <CareerCheckInCardBody userEmail={userEmail} userTier={userTier} />
-            ) : activeIndex === 3 ? (
               <VibeRosterCardBody userEmail={userEmail} userTier={userTier} />
+            ) : activeIndex === 2 ? (
+              <CashSnapshotCardBody userEmail={userEmail} userTier={userTier} />
+            ) : activeIndex === 3 ? (
+              <CareerCheckInCardBody userEmail={userEmail} userTier={userTier} />
             ) : activeIndex === 4 ? (
               <VehicleCheckInCardBody userEmail={userEmail} userTier={userTier} />
             ) : activeIndex === 5 ? (
