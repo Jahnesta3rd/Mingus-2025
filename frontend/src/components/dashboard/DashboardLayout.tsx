@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
-import PageWrapper from '../PageWrapper';
 import NPSSurvey from '../NPSSurvey';
 import BugReportButton from '../BugReportButton';
 import { useAuth } from '../../hooks/useAuth';
@@ -59,8 +58,8 @@ const DashboardLayout: React.FC = () => {
   };
 
   return (
-    <PageWrapper>
-      <div className="min-h-screen bg-[#F8FAFC] pt-16">
+    <div className="min-h-screen bg-[#FAF5FF]">
+      <div className="min-h-screen">
         <div className="flex flex-col">
           <div className="border-b border-[#E2E8F0] bg-white">
             <div className="mx-auto flex max-w-7xl items-center justify-end px-4 py-2 text-sm text-[#1E293B] sm:px-6 lg:px-8">
@@ -127,7 +126,7 @@ const DashboardLayout: React.FC = () => {
       {user?.isAuthenticated && shouldShow ? (
         <NPSSurvey onDismiss={dismissNpsSurvey} />
       ) : null}
-    </PageWrapper>
+    </div>
   );
 };
 

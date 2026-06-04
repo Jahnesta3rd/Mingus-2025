@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef, lazy, Suspense } from 'react';
-import { useNavigate, useSearchParams, Link } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import RecommendationTiers from '../components/RecommendationTiers';
-import HousingNotificationSystem from '../components/HousingNotificationSystem';
 import DashboardErrorBoundary from '../components/DashboardErrorBoundary';
 import DashboardSkeleton from '../components/DashboardSkeleton';
 import QuickSetupOverlay from '../components/QuickSetupOverlay';
@@ -12,7 +11,6 @@ import FinancialForecastTab from '../components/FinancialForecastTab';
 import type { AuthUserTier } from '../hooks/useAuth';
 import { useImportantDateModal } from '../context/ImportantDateModalContext';
 import UserProfile from '../components/UserProfile';
-import BugReportButton from '../components/BugReportButton';
 import { useAuth } from '../hooks/useAuth';
 import { useAnalytics } from '../hooks/useAnalytics';
 import { useDashboardStore } from '../stores/dashboardStore';
@@ -372,77 +370,6 @@ const CareerProtectionDashboard: React.FC = () => {
   return (
     <DashboardErrorBoundary>
       <div className="min-h-screen bg-gray-50 pb-16">
-        {/* Header */}
-        <div className="bg-white border-b border-gray-200">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between h-16">
-              <div className="flex items-center gap-4">
-                {/* Logo */}
-                <div className="flex items-center space-x-3">
-                  <div className="flex-shrink-0">
-                    <img 
-                      src="/mingus-logo.png" 
-                      alt="Mingus" 
-                      className="h-8 w-auto object-contain"
-                    />
-                  </div>
-                  <h1 className="text-xl font-semibold text-gray-900">Dashboard</h1>
-                </div>
-                <div className="hidden sm:block">
-                  <span className="text-sm text-gray-500">
-                    Last updated: {dashboardState.lastUpdated.toLocaleTimeString()}
-                  </span>
-                </div>
-              </div>
-              
-              <div className="flex items-center gap-2 sm:gap-4">
-                <HousingNotificationSystem />
-                <Link
-                  to="/dashboard/roster"
-                  className="text-xs sm:text-sm text-[#6D28D9] hover:opacity-90 font-medium px-2 py-1 rounded hover:bg-[#EDE9FE] transition-colors whitespace-nowrap"
-                >
-                  My Roster
-                </Link>
-                <Link
-                  to="/dashboard/spirit"
-                  className="text-xs sm:text-sm text-purple-600 hover:text-purple-700 font-medium px-2 py-1 rounded hover:bg-purple-50 transition-colors whitespace-nowrap"
-                >
-                  Spirit &amp; Finance
-                </Link>
-                <BugReportButton />
-                <button
-                  onClick={() => setShowProfileModal(true)}
-                  className="text-sm text-purple-600 hover:text-purple-700 font-medium px-2 py-1 rounded hover:bg-purple-50 transition-colors"
-                >
-                  <span className="hidden sm:inline">Edit Profile</span>
-                  <span className="sm:hidden">👤</span>
-                </button>
-                <button
-                  onClick={() => {
-                    fetchHousingData().catch(err => console.error('Failed to refresh:', err));
-                  }}
-                  className="text-sm text-blue-600 hover:text-blue-700 font-medium px-2 py-1 rounded hover:bg-blue-50 transition-colors"
-                >
-                  <span className="hidden sm:inline">Refresh</span>
-                  <span className="sm:hidden">↻</span>
-                </button>
-                
-                {/* Risk Level Indicator */}
-                <div className={`
-                  px-2 sm:px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wide
-                  ${dashboardState.riskLevel === 'secure' ? 'bg-green-100 text-green-800' : ''}
-                  ${dashboardState.riskLevel === 'watchful' ? 'bg-yellow-100 text-yellow-800' : ''}
-                  ${dashboardState.riskLevel === 'action_needed' ? 'bg-orange-100 text-orange-800' : ''}
-                  ${dashboardState.riskLevel === 'urgent' ? 'bg-red-100 text-red-800' : ''}
-                `}>
-                  <span className="hidden sm:inline">{dashboardState.riskLevel.replace('_', ' ')}</span>
-                  <span className="sm:hidden">{dashboardState.riskLevel.charAt(0).toUpperCase()}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      
       {/* Main Content */}
       <div className="w-full">
         <div className="min-h-[calc(100vh-8rem)] min-w-0">
