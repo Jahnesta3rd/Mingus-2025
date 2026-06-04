@@ -48,6 +48,26 @@ recommendation_engine_api = Blueprint('recommendation_engine_api', __name__)
 # Initialize the engine
 engine = MingusJobRecommendationEngine()
 
+SEED_ROLE_BLOCKLIST = frozenset({'doadmin', 'admin', 'test', 'seed_user', ''})
+SEED_INDUSTRY_BLOCKLIST = frozenset(
+    {v.lower() for v in ('Manufacturing', 'Unknown', 'Test', '')}
+)
+
+
+def _career_profile_incomplete(cp: CareerProfile) -> bool:
+    """True when profile is missing or uses seed/placeholder values."""
+    role = (cp.current_role or '').strip().lower()
+    field = (cp.bls_career_field or '').strip()
+    seniority = (cp.seniority_level or '').strip()
+    if role in SEED_ROLE_BLOCKLIST:
+        return True
+    if not field or field.lower() in SEED_INDUSTRY_BLOCKLIST:
+        return True
+    if not seniority:
+        return True
+    return False
+
+
 def validate_csrf_token(token):
     """Validate CSRF token"""
     # Simplified validation - in production, implement proper CSRF validation
@@ -116,11 +136,7 @@ def process_resume_complete():
             return jsonify({'success': False, 'error': 'User not found'}), 404
 
         cp = CareerProfile.query.filter_by(user_id=user.id).first()
-        if (
-            not cp
-            or not (cp.bls_career_field and str(cp.bls_career_field).strip())
-            or not (cp.seniority_level and str(cp.seniority_level).strip())
-        ):
+        if not cp or _career_profile_incomplete(cp):
             return jsonify({
                 'success': False,
                 'error': 'career_profile_incomplete',
