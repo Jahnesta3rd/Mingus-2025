@@ -14,12 +14,23 @@ import UserProfile from '../components/UserProfile';
 import { useAuth } from '../hooks/useAuth';
 import { useAnalytics } from '../hooks/useAnalytics';
 import { useDashboardStore } from '../stores/dashboardStore';
+import VehicleDashboard from '../components/VehicleDashboard';
+import HousingLocationTile from '../components/HousingLocationTile';
+import DashboardWellnessSection from '../components/DashboardWellnessSection';
 
 // Lazy load the full Daily Outlook component for performance
 const DailyOutlook = lazy(() => import('../components/DailyOutlook'));
 const MobileDailyOutlook = lazy(() => import('../components/MobileDailyOutlook'));
 
-type MainTabId = 'today' | 'forecast' | 'plans' | 'discover' | 'you';
+type MainTabId =
+  | 'today'
+  | 'forecast'
+  | 'plans'
+  | 'discover'
+  | 'you'
+  | 'vehicle'
+  | 'housing'
+  | 'wellness';
 
 interface DashboardState {
   activeTab: MainTabId;
@@ -82,9 +93,14 @@ function mainTabToStoreTab(tab: MainTabId): LegacyStoreTab {
 function legacyQueryTabToMainTab(tab: string): MainTabId | null {
   switch (tab) {
     case 'daily-outlook':
+      return 'today';
     case 'vehicle':
     case 'vehicles':
-      return 'today';
+      return 'vehicle';
+    case 'housing':
+      return 'housing';
+    case 'wellness':
+      return 'wellness';
     case 'financial-forecast':
       return 'forecast';
     case 'recommendations':
@@ -93,7 +109,6 @@ function legacyQueryTabToMainTab(tab: string): MainTabId | null {
     case 'overview':
       return 'plans';
     case 'life-ledger':
-    case 'housing':
       return 'today';
     case 'location':
     case 'analytics':
@@ -414,6 +429,22 @@ const CareerProtectionDashboard: React.FC = () => {
               <p className="text-center text-base font-medium" style={{ color: MINGUS_PURPLE }}>
                 You — profile and settings coming soon
               </p>
+            </div>
+          )}
+
+          {dashboardState.activeTab === 'vehicle' && (
+            <VehicleDashboard />
+          )}
+
+          {dashboardState.activeTab === 'housing' && (
+            <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+              <HousingLocationTile />
+            </div>
+          )}
+
+          {dashboardState.activeTab === 'wellness' && (
+            <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+              <DashboardWellnessSection />
             </div>
           )}
         </div>
