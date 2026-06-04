@@ -3,7 +3,6 @@ import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import RecommendationTiers from '../components/RecommendationTiers';
 import HousingNotificationSystem from '../components/HousingNotificationSystem';
 import DashboardErrorBoundary from '../components/DashboardErrorBoundary';
-import DashboardWellnessSection from '../components/DashboardWellnessSection';
 import DashboardSkeleton from '../components/DashboardSkeleton';
 import QuickSetupOverlay from '../components/QuickSetupOverlay';
 import SpendingMilestonesWidget from '../components/SpendingMilestonesWidget';
@@ -12,12 +11,8 @@ import TodayTab from '../components/TodayTab';
 import FinancialForecastTab from '../components/FinancialForecastTab';
 import type { AuthUserTier } from '../hooks/useAuth';
 import { useImportantDateModal } from '../context/ImportantDateModalContext';
-import LifeLedgerErrorBoundary from '../components/LifeLedger/LifeLedgerErrorBoundary';
-import LifeLedgerWidget from '../components/LifeLedger/LifeLedgerWidget';
-import CorrelationWidget from '../components/LifeLedger/CorrelationWidget';
 import UserProfile from '../components/UserProfile';
 import BugReportButton from '../components/BugReportButton';
-import FeatureRating from '../components/FeatureRating';
 import { useAuth } from '../hooks/useAuth';
 import { useAnalytics } from '../hooks/useAnalytics';
 import { useDashboardStore } from '../stores/dashboardStore';
@@ -148,7 +143,6 @@ const CareerProtectionDashboard: React.FC = () => {
   
   // Use dashboard store - DO NOT put these functions in useEffect dependencies
   const { 
-    activeTab: storeActiveTab, 
     setActiveTab, 
     setRiskLevel, 
     setEmergencyMode, 
@@ -158,7 +152,7 @@ const CareerProtectionDashboard: React.FC = () => {
 
   // Local state for Daily Outlook integration
   const [dashboardState, setDashboardState] = useState<DashboardState>({
-    activeTab: storeTabToMainTab(storeActiveTab),
+    activeTab: 'today',
     riskLevel: 'watchful',
     hasUnlockedRecommendations: true,
     emergencyMode: false,
@@ -170,14 +164,6 @@ const CareerProtectionDashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showQuickSetup, setShowQuickSetup] = useState(false);
-
-  // Sync local state with store when store changes (non-data-fetching, safe)
-  useEffect(() => {
-    const localTab = storeTabToMainTab(storeActiveTab);
-    if (localTab !== dashboardState.activeTab) {
-      setDashboardState((prev) => ({ ...prev, activeTab: localTab }));
-    }
-  }, [storeActiveTab]); // Only depend on storeActiveTab, not dashboardState.activeTab
 
   // Handle mobile detection (non-data-fetching, safe)
   useEffect(() => {
@@ -458,15 +444,7 @@ const CareerProtectionDashboard: React.FC = () => {
         </div>
       
       {/* Main Content */}
-      <div className="mx-auto max-w-7xl space-y-8 px-4 py-6 sm:px-6 lg:px-8">
-        <LifeLedgerErrorBoundary>
-          <LifeLedgerWidget />
-        </LifeLedgerErrorBoundary>
-
-        <CorrelationWidget />
-
-        <DashboardWellnessSection />
-
+      <div className="w-full">
         <div className="min-h-[calc(100vh-8rem)] min-w-0">
           {dashboardState.activeTab === 'today' && (
             <TodayTab
@@ -511,10 +489,6 @@ const CareerProtectionDashboard: React.FC = () => {
               </p>
             </div>
           )}
-        </div>
-
-        <div className="mt-8 border-t border-gray-100 pt-4">
-          <FeatureRating featureName="test_feature" />
         </div>
       </div>
 

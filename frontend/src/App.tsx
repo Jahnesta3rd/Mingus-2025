@@ -33,6 +33,7 @@ import SpiritFinance from './pages/SpiritFinance';
 import SettingsPage from './pages/SettingsPage';
 import OnboardingRouter from './components/OnboardingRouter';
 import FinancialForecastPage from './pages/FinancialForecastPage';
+import UpgradePage from './pages/UpgradePage';
 import DashboardProfilePage from './pages/DashboardProfilePage';
 import SnapshotPage from './pages/SnapshotPage';
 import { useAuth } from './hooks/useAuth';
@@ -180,9 +181,10 @@ const router = createBrowserRouter([
       </AuthGuard>
     ),
     children: [
-      { index: true, element: <HomeScreen /> },
+      { index: true, element: <Navigate to="/dashboard/tools" replace /> },
       { path: 'roster', element: <VibeTrackerPage /> },
       { path: 'forecast', element: <FinancialForecastPage /> },
+      { path: 'upgrade', element: <UpgradePage /> },
       { path: 'tools', element: <CareerProtectionDashboard /> },
       { path: 'profile', element: <DashboardProfilePage /> },
       { path: 'vibe-checkups', element: <CheckupsHub /> },
@@ -227,6 +229,7 @@ const router = createBrowserRouter([
 
   // Redirects
   { path: '/career-dashboard', element: <Navigate to="/dashboard" replace /> },
+  { path: '/settings/upgrade', element: <Navigate to="/dashboard/upgrade" replace /> },
   { path: '*', element: <Navigate to="/" replace /> },
 ]);
 
