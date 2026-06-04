@@ -118,21 +118,20 @@ export default function HomeScreen() {
       navigate('/dashboard/vibe-checkups', { replace: true });
       return;
     }
-    if (tab === 'daily-outlook') {
-      navigate('/dashboard/tools?tab=daily-outlook', { replace: true });
-      return;
-    }
-    if (tab === 'job-recommendations' || tab === 'recommendations') {
-      navigate('/dashboard/tools?tab=recommendations', { replace: true });
+    if (
+      tab === 'daily-outlook' ||
+      tab === 'job-recommendations' ||
+      tab === 'recommendations' ||
+      tab === 'financial-forecast' ||
+      tab === 'vehicle' ||
+      tab === 'vehicles'
+    ) {
+      navigate(`/dashboard/tools?tab=${tab === 'vehicles' ? 'vehicle' : tab}`, { replace: true });
       return;
     }
     const normalized = tab === 'vehicles' ? 'vehicle' : tab;
-    if (normalized === 'vehicle' || normalized === 'housing' || normalized === 'life-ledger') {
+    if (normalized === 'housing' || normalized === 'life-ledger' || normalized === 'overview') {
       navigate(`/dashboard/tools?tab=${normalized}`, { replace: true });
-      return;
-    }
-    if (tab === 'financial-forecast') {
-      navigate('/dashboard/forecast', { replace: true });
     }
   }, [searchParams, navigate]);
 

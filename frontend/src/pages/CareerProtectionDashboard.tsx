@@ -1,21 +1,16 @@
 import React, { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import RecommendationTiers from '../components/RecommendationTiers';
-import LocationIntelligenceMap from '../components/LocationIntelligenceMap';
-import AnalyticsDashboard from '../components/AnalyticsDashboard';
-import VehicleDashboard from '../components/VehicleDashboard';
-import HousingLocationTile from '../components/HousingLocationTile';
 import HousingNotificationSystem from '../components/HousingNotificationSystem';
-import HousingProfileIntegration from '../components/HousingProfileIntegration';
 import DashboardErrorBoundary from '../components/DashboardErrorBoundary';
 import DashboardWellnessSection from '../components/DashboardWellnessSection';
-import RecentActivityPanel from '../components/RecentActivityPanel';
-import UnlockRecommendationsPanel from '../components/UnlockRecommendationsPanel';
 import DashboardSkeleton from '../components/DashboardSkeleton';
-import DailyOutlookCard from '../components/DailyOutlookCard';
 import QuickSetupOverlay from '../components/QuickSetupOverlay';
 import SpendingMilestonesWidget from '../components/SpendingMilestonesWidget';
 import SpecialDatesWidget from '../components/SpecialDatesWidget';
+import TodayTab from '../components/TodayTab';
+import FinancialForecastTab from '../components/FinancialForecastTab';
+import type { AuthUserTier } from '../hooks/useAuth';
 import { useImportantDateModal } from '../context/ImportantDateModalContext';
 import LifeLedgerErrorBoundary from '../components/LifeLedger/LifeLedgerErrorBoundary';
 import LifeLedgerWidget from '../components/LifeLedger/LifeLedgerWidget';
@@ -25,14 +20,16 @@ import BugReportButton from '../components/BugReportButton';
 import FeatureRating from '../components/FeatureRating';
 import { useAuth } from '../hooks/useAuth';
 import { useAnalytics } from '../hooks/useAnalytics';
-import { useDashboardStore, useDashboardSelectors } from '../stores/dashboardStore';
+import { useDashboardStore } from '../stores/dashboardStore';
 
 // Lazy load the full Daily Outlook component for performance
 const DailyOutlook = lazy(() => import('../components/DailyOutlook'));
 const MobileDailyOutlook = lazy(() => import('../components/MobileDailyOutlook'));
 
+type MainTabId = 'today' | 'forecast' | 'plans' | 'discover' | 'you';
+
 interface DashboardState {
-  activeTab: 'daily-outlook' | 'overview' | 'recommendations' | 'location' | 'analytics' | 'housing' | 'vehicle' | 'life-ledger';
+  activeTab: MainTabId;
   riskLevel: 'secure' | 'watchful' | 'action_needed' | 'urgent';
   hasUnlockedRecommendations: boolean;
   emergencyMode: boolean;
@@ -40,6 +37,97 @@ interface DashboardState {
   showFullDailyOutlook: boolean;
   isMobile: boolean;
 }
+
+type LegacyStoreTab =
+  | 'daily-outlook'
+  | 'financial-forecast'
+  | 'overview'
+  | 'recommendations'
+  | 'vehicles'
+  | 'location'
+  | 'analytics'
+  | 'housing'
+  | 'life-ledger';
+
+function storeTabToMainTab(storeTab: string): MainTabId {
+  switch (storeTab) {
+    case 'financial-forecast':
+      return 'forecast';
+    case 'recommendations':
+      return 'discover';
+    case 'overview':
+      return 'plans';
+    case 'location':
+    case 'analytics':
+      return 'discover';
+    case 'daily-outlook':
+    case 'vehicles':
+    case 'vehicle':
+    case 'life-ledger':
+    case 'housing':
+    default:
+      return 'today';
+  }
+}
+
+function mainTabToStoreTab(tab: MainTabId): LegacyStoreTab {
+  switch (tab) {
+    case 'forecast':
+      return 'financial-forecast';
+    case 'plans':
+      return 'overview';
+    case 'discover':
+      return 'recommendations';
+    case 'you':
+      return 'overview';
+    case 'today':
+    default:
+      return 'daily-outlook';
+  }
+}
+
+function legacyQueryTabToMainTab(tab: string): MainTabId | null {
+  switch (tab) {
+    case 'daily-outlook':
+    case 'vehicle':
+    case 'vehicles':
+      return 'today';
+    case 'financial-forecast':
+      return 'forecast';
+    case 'recommendations':
+    case 'job-recommendations':
+      return 'discover';
+    case 'overview':
+      return 'plans';
+    case 'life-ledger':
+    case 'housing':
+      return 'today';
+    case 'location':
+    case 'analytics':
+      return 'discover';
+    default:
+      return null;
+  }
+}
+
+function forecastTabTier(tier: AuthUserTier | null): 'budget' | 'mid' | 'professional' {
+  if (tier === 'professional') return 'professional';
+  if (tier === 'mid_tier') return 'mid';
+  return 'budget';
+}
+
+const BOTTOM_NAV_TABS: { id: MainTabId; label: string }[] = [
+  { id: 'today', label: 'Today' },
+  { id: 'forecast', label: 'Forecast' },
+  { id: 'plans', label: 'Plans' },
+  { id: 'discover', label: 'Discover' },
+  { id: 'you', label: 'You' },
+];
+
+const MINGUS_PURPLE = '#5B2D8E';
+const INK_SOFT = '#8A8580';
+const LINE = '#E8E1F0';
+const WHISPER_PURPLE = '#FAF5FF';
 
 // Pre-beta: suppress vestigial Quick Personalization popup (#106).
 // Root cause is a legacy /api/profile/setup-status definition that doesn't
@@ -50,7 +138,7 @@ const SUPPRESS_QUICK_SETUP_PREBETA = true;
 const CareerProtectionDashboard: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const { user, isAuthenticated, loading: authLoading } = useAuth();
+  const { user, userTier, isAuthenticated, loading: authLoading } = useAuth();
   const { openAddImportantDate, importantDatesRefreshKey } = useImportantDateModal();
   const { trackPageView, trackInteraction } = useAnalytics();
   const [showProfileModal, setShowProfileModal] = useState(false);
@@ -70,7 +158,7 @@ const CareerProtectionDashboard: React.FC = () => {
 
   // Local state for Daily Outlook integration
   const [dashboardState, setDashboardState] = useState<DashboardState>({
-    activeTab: storeActiveTab as DashboardState['activeTab'],
+    activeTab: storeTabToMainTab(storeActiveTab),
     riskLevel: 'watchful',
     hasUnlockedRecommendations: true,
     emergencyMode: false,
@@ -79,30 +167,15 @@ const CareerProtectionDashboard: React.FC = () => {
     isMobile: window.innerWidth < 768
   });
   
-  const { 
-    housingSearches, 
-    housingScenarios, 
-    leaseInfo, 
-    housingAlerts, 
-    unreadAlerts, 
-    urgentAlerts,
-    hasLeaseExpiringSoon,
-    housingLoading,
-    housingError 
-  } = useDashboardSelectors();
-  
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showQuickSetup, setShowQuickSetup] = useState(false);
 
   // Sync local state with store when store changes (non-data-fetching, safe)
   useEffect(() => {
-    let localTab = storeActiveTab === 'vehicles' ? 'vehicle' : storeActiveTab;
-    if (localTab === 'financial-forecast') {
-      localTab = 'daily-outlook';
-    }
+    const localTab = storeTabToMainTab(storeActiveTab);
     if (localTab !== dashboardState.activeTab) {
-      setDashboardState(prev => ({ ...prev, activeTab: localTab as DashboardState['activeTab'] }));
+      setDashboardState((prev) => ({ ...prev, activeTab: localTab }));
     }
   }, [storeActiveTab]); // Only depend on storeActiveTab, not dashboardState.activeTab
 
@@ -214,44 +287,27 @@ const CareerProtectionDashboard: React.FC = () => {
     const editProfile = searchParams.get('editProfile') === '1';
     if (!tab && !editProfile) return;
 
-    if (tab === 'financial-forecast') {
-      navigate('/dashboard/forecast', { replace: true });
-      return;
-    }
-
     if (editProfile) {
       setShowProfileModal(true);
-      setDashboardState((prev) => ({ ...prev, activeTab: 'overview' }));
-      setActiveTab('overview');
-    } else if (tab === 'life-ledger') {
-      setDashboardState((prev) => ({ ...prev, activeTab: 'life-ledger' }));
-      setActiveTab('life-ledger');
-    } else if (tab === 'housing') {
-      setDashboardState((prev) => ({ ...prev, activeTab: 'housing' }));
-      setActiveTab('housing');
-    } else if (tab === 'vehicle' || tab === 'vehicles') {
-      setDashboardState((prev) => ({ ...prev, activeTab: 'vehicle' }));
-      setActiveTab('vehicles');
-    } else if (tab === 'daily-outlook') {
-      setDashboardState((prev) => ({ ...prev, activeTab: 'daily-outlook' }));
-      setActiveTab('daily-outlook');
-    } else if (tab === 'recommendations' || tab === 'job-recommendations') {
-      setDashboardState((prev) => ({ ...prev, activeTab: 'recommendations' }));
-      setActiveTab('recommendations');
-    } else if (tab === 'overview') {
-      setDashboardState((prev) => ({ ...prev, activeTab: 'overview' }));
-      setActiveTab('overview');
+      setDashboardState((prev) => ({ ...prev, activeTab: 'you' }));
+      setActiveTab(mainTabToStoreTab('you'));
+    } else if (tab) {
+      const mainTab = legacyQueryTabToMainTab(tab);
+      if (mainTab) {
+        setDashboardState((prev) => ({ ...prev, activeTab: mainTab }));
+        setActiveTab(mainTabToStoreTab(mainTab));
+      }
     }
 
     const next = new URLSearchParams(searchParams);
     if (tab) next.delete('tab');
     if (editProfile) next.delete('editProfile');
     setSearchParams(next, { replace: true });
-  }, [searchParams, setActiveTab, setSearchParams, navigate]);
+  }, [searchParams, setActiveTab, setSearchParams]);
 
-  const handleTabChange = async (tab: DashboardState['activeTab']) => {
-    setDashboardState(prev => ({ ...prev, activeTab: tab }));
-    setActiveTab(tab === 'vehicle' ? 'vehicles' : tab);
+  const handleTabChange = async (tab: MainTabId) => {
+    setDashboardState((prev) => ({ ...prev, activeTab: tab }));
+    setActiveTab(mainTabToStoreTab(tab));
     
     // Track tab interaction (non-blocking)
     trackInteraction('dashboard_tab_changed', {
@@ -329,7 +385,7 @@ const CareerProtectionDashboard: React.FC = () => {
   
   return (
     <DashboardErrorBoundary>
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gray-50 pb-16">
         {/* Header */}
         <div className="bg-white border-b border-gray-200">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -402,261 +458,198 @@ const CareerProtectionDashboard: React.FC = () => {
         </div>
       
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="space-y-8">
-          
-          {/* TODO(post-beta): Replace removed RiskStatusHero with new career risk methodology + display (#sprint TBD). */}
+      <div className="mx-auto max-w-7xl space-y-8 px-4 py-6 sm:px-6 lg:px-8">
+        <LifeLedgerErrorBoundary>
+          <LifeLedgerWidget />
+        </LifeLedgerErrorBoundary>
 
-          <LifeLedgerErrorBoundary>
-            <LifeLedgerWidget />
-          </LifeLedgerErrorBoundary>
+        <CorrelationWidget />
 
-          <CorrelationWidget />
+        <DashboardWellnessSection />
 
-          {/* Wellness Section - Check-in reminder, score card, impact card */}
-          <DashboardWellnessSection />
-          
-          {/* Tools sections (secondary to app shell navigation) */}
-          <div className="flex flex-col gap-6 lg:flex-row lg:gap-8">
-            <nav
-              className="flex w-full flex-shrink-0 flex-col gap-1 lg:w-52 lg:border-r lg:border-[#E2E8F0] lg:pr-4"
-              aria-label="Financial tools sections"
-            >
-              {[
-                { id: 'daily-outlook', label: 'Daily Outlook', icon: '🌅' },
-                { id: 'life-ledger', label: 'Life Ledger', icon: '💛' },
-                { id: 'overview', label: 'Overview', icon: '📊' },
-                {
-                  id: 'recommendations',
-                  label: 'Job Recommendations',
-                  icon: '🎯',
-                  locked: false,
-                  badge: null,
-                },
-                { id: 'location', label: 'Location Intelligence', icon: '🗺️' },
-                {
-                  id: 'housing',
-                  label: 'Housing Location',
-                  icon: '🏠',
-                  badge: unreadAlerts.length > 0 ? unreadAlerts.length.toString() : null,
-                },
-                { id: 'vehicle', label: 'Vehicle Status', icon: '🚗' },
-                { id: 'analytics', label: 'Career Analytics', icon: '📈' },
-              ].map((tab) => (
-                <button
-                  key={tab.id}
-                  type="button"
-                  onClick={() =>
-                    'locked' in tab && tab.locked
-                      ? null
-                      : handleTabChange(tab.id as DashboardState['activeTab'])
-                  }
-                  className={[
-                    'flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-left text-sm font-medium transition-colors',
-                    dashboardState.activeTab === tab.id
-                      ? 'bg-[#5B2D8E] text-white'
-                      : 'locked' in tab && tab.locked
-                        ? 'cursor-not-allowed text-[#64748B] opacity-50'
-                        : 'bg-transparent text-[#64748B] hover:bg-[#F8FAFC] hover:text-[#1E293B]',
-                  ].join(' ')}
-                  disabled={'locked' in tab ? tab.locked : false}
-                >
-                  <span className="text-base" aria-hidden>
-                    {tab.icon}
-                  </span>
-                  <span className="min-w-0 flex-1">{tab.label}</span>
-                  {tab.badge ? (
-                    <span
-                      className={
-                        dashboardState.activeTab === tab.id
-                          ? 'rounded-full bg-white/20 px-2 py-0.5 text-xs text-white tabular-nums'
-                          : 'rounded-full bg-[#E2E8F0] px-2 py-0.5 text-xs font-medium text-[#64748B] tabular-nums'
-                      }
-                    >
-                      {tab.badge}
-                    </span>
-                  ) : null}
-                </button>
-              ))}
-              <p className="mt-2 px-3 text-xs text-[#64748B]">
-                Full cash forecast lives under{' '}
-                <Link to="/dashboard/forecast" className="font-medium text-[#6D28D9] hover:underline">
-                  Forecast
-                </Link>
-                .
-              </p>
-            </nav>
+        <div className="min-h-[calc(100vh-8rem)] min-w-0">
+          {dashboardState.activeTab === 'today' && (
+            <TodayTab
+              userEmail={user?.email ?? ''}
+              userTier={userTier ?? 'budget'}
+            />
+          )}
 
-            <div className="min-h-[600px] min-w-0 flex-1">
-            {dashboardState.activeTab === 'daily-outlook' && (
-              <div className="space-y-6">
-                {/* Daily Outlook Card for Dashboard Overview */}
-                <div>
-                  <DailyOutlookCard 
-                    onViewFullOutlook={handleViewFullDailyOutlook}
-                    compact={false}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => handleTabChange('overview')}
-                    className="mt-2 block text-sm text-purple-600 hover:underline cursor-pointer"
-                  >
-                    See streak & upcoming events →
-                  </button>
-                </div>
-                
-                {/* Recent Activity */}
-                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h3>
-                  <RecentActivityPanel />
-                </div>
-              </div>
-            )}
+          {dashboardState.activeTab === 'forecast' && (
+            <FinancialForecastTab
+              userEmail={user?.email ?? ''}
+              userTier={forecastTabTier(userTier)}
+              className="mt-0"
+            />
+          )}
 
-            {dashboardState.activeTab === 'life-ledger' && (
-              <LifeLedgerErrorBoundary>
-                <LifeLedgerWidget className="mt-4" anchorSectionId={false} />
-              </LifeLedgerErrorBoundary>
-            )}
-
-            {dashboardState.activeTab === 'overview' && (
-              <div className="space-y-6">
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h3>
-                  <RecentActivityPanel />
-                </div>
-
-                <SpendingMilestonesWidget userId={user?.id ?? ''} className="mt-6" />
-                <SpecialDatesWidget
-                  userId={user?.id ?? ''}
-                  userEmail={user?.email ?? ''}
-                  onNavigateToForecast={() => navigate('/dashboard/forecast')}
-                  onRequestAddDate={openAddImportantDate}
-                  importantDatesRefreshKey={importantDatesRefreshKey}
-                  className="mt-6"
-                />
-                
-                {/* Bottom Row - Housing Location Tile */}
-                <div>
-                  <HousingLocationTile />
-                </div>
-              </div>
-            )}
-            
-            {/*
-              Job recommendations are fetched inside RecommendationTiers, not in this file.
-              User current salary: use 0 here until wired; snapshot hook reads `current_salary` from
-              GET /api/career/recommendations/:userId — TODO align tiers with that (or confirmed) field.
-            */}
-            {dashboardState.activeTab === 'recommendations' && (
-              <RecommendationTiers />
-            )}
-            
-            {dashboardState.activeTab === 'location' && (
-              <LocationIntelligenceMap />
-            )}
-            
-            {dashboardState.activeTab === 'housing' && (
-              <div className="space-y-6">
-                {/* Housing Alerts */}
-                {urgentAlerts.length > 0 && (
-                  <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                    <h3 className="text-lg font-semibold text-red-800 mb-2">Urgent Housing Alerts</h3>
-                    <div className="space-y-2">
-                      {urgentAlerts.map((alert) => (
-                        <div key={alert.id} className="flex items-center justify-between p-3 bg-red-100 rounded-lg">
-                          <div>
-                            <p className="font-medium text-red-800">{alert.title}</p>
-                            <p className="text-sm text-red-700">{alert.message}</p>
-                          </div>
-                          {alert.action_url && (
-                            <button className="text-sm bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700">
-                              View
-                            </button>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-                
-                {/* Housing Location Tile - Full Width */}
-                <HousingLocationTile />
-                
-                {/* Additional Housing Content */}
-                <div className="grid gap-6 lg:grid-cols-2">
-                  <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Lease Information</h3>
-                    {leaseInfo ? (
-                      <div className="space-y-3">
-                        <div>
-                          <p className="text-sm text-gray-600">Property Address</p>
-                          <p className="font-medium text-gray-900">{leaseInfo.property_address ?? 'N/A'}</p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-gray-600">Monthly Rent</p>
-                          <p className="font-medium text-gray-900">
-                            ${leaseInfo?.monthly_rent?.toLocaleString() ?? 'N/A'}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-gray-600">Lease End Date</p>
-                          <p className="font-medium text-gray-900">
-                            {leaseInfo?.lease_end_date 
-                              ? new Date(leaseInfo.lease_end_date).toLocaleDateString()
-                              : 'N/A'}
-                            {hasLeaseExpiringSoon() && (
-                              <span className="ml-2 text-red-600 text-sm font-medium">
-                                (Expires Soon!)
-                              </span>
-                            )}
-                          </p>
-                        </div>
-                      </div>
-                    ) : (
-                      <p className="text-gray-500">No lease information available</p>
-                    )}
-                  </div>
-                  
-                  <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Housing Activity</h3>
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-600">Recent Searches</span>
-                        <span className="font-medium text-gray-900">{housingSearches.length}</span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-600">Saved Scenarios</span>
-                        <span className="font-medium text-gray-900">{housingScenarios.length}</span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-600">Unread Alerts</span>
-                        <span className="font-medium text-gray-900">{unreadAlerts.length}</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                
-                {/* Profile Integration */}
-                <HousingProfileIntegration />
-              </div>
-            )}
-            
-            {dashboardState.activeTab === 'vehicle' && (
-              <VehicleDashboard />
-            )}
-            
-            {dashboardState.activeTab === 'analytics' && (
-              <AnalyticsDashboard />
-            )}
+          {dashboardState.activeTab === 'plans' && (
+            <div className="space-y-6">
+              <SpendingMilestonesWidget userId={user?.id ?? ''} className="mt-0" />
+              <SpecialDatesWidget
+                userId={user?.id ?? ''}
+                userEmail={user?.email ?? ''}
+                onNavigateToForecast={() => handleTabChange('forecast')}
+                onRequestAddDate={openAddImportantDate}
+                importantDatesRefreshKey={importantDatesRefreshKey}
+                className="mt-6"
+              />
             </div>
-          </div>
+          )}
 
-          <div className="mt-8 pt-4 border-t border-gray-100">
-            <FeatureRating featureName="test_feature" />
-          </div>
+          {dashboardState.activeTab === 'discover' && (
+            <RecommendationTiers userTier={userTier} userId={user?.id} />
+          )}
+
+          {dashboardState.activeTab === 'you' && (
+            <div
+              className="flex min-h-[calc(100vh-12rem)] flex-1 items-center justify-center rounded-xl"
+              style={{ backgroundColor: WHISPER_PURPLE }}
+            >
+              <p className="text-center text-base font-medium" style={{ color: MINGUS_PURPLE }}>
+                You — profile and settings coming soon
+              </p>
+            </div>
+          )}
+        </div>
+
+        <div className="mt-8 border-t border-gray-100 pt-4">
+          <FeatureRating featureName="test_feature" />
         </div>
       </div>
+
+      {/* 5-tab bottom navigation (#99 D1) */}
+      <nav
+        className="fixed bottom-0 left-0 right-0 z-40 border-t bg-white"
+        style={{ borderColor: LINE, height: '64px' }}
+        aria-label="Dashboard sections"
+      >
+        <div className="mx-auto flex h-full max-w-7xl items-stretch justify-around px-2">
+          {BOTTOM_NAV_TABS.map((tab) => {
+            const isActive = dashboardState.activeTab === tab.id;
+            const color = isActive ? MINGUS_PURPLE : INK_SOFT;
+            const userInitial =
+              user?.name?.trim()?.[0]?.toUpperCase() ??
+              user?.email?.trim()?.[0]?.toUpperCase() ??
+              null;
+
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => void handleTabChange(tab.id)}
+                className="flex min-w-0 flex-1 flex-col items-center justify-center gap-1 px-1"
+                aria-current={isActive ? 'page' : undefined}
+              >
+                {tab.id === 'today' && (
+                  <svg
+                    width="22"
+                    height="22"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke={color}
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden
+                  >
+                    <path d="M3 10.5 12 3l9 7.5V21a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z" />
+                  </svg>
+                )}
+                {tab.id === 'forecast' && (
+                  <svg
+                    width="22"
+                    height="22"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke={color}
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden
+                  >
+                    <path d="M3 3v18h18" />
+                    <path d="m7 14 4-4 4 4 5-6" />
+                  </svg>
+                )}
+                {tab.id === 'plans' && (
+                  <svg
+                    width="22"
+                    height="22"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke={color}
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden
+                  >
+                    <rect x="3" y="4" width="18" height="18" rx="2" />
+                    <path d="M16 2v4M8 2v4M3 10h18" />
+                    <path d="m9 15 2 2 4-4" />
+                  </svg>
+                )}
+                {tab.id === 'discover' && (
+                  <svg
+                    width="22"
+                    height="22"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke={color}
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden
+                  >
+                    <circle cx="11" cy="11" r="7" />
+                    <path d="m20 20-3.5-3.5" />
+                  </svg>
+                )}
+                {tab.id === 'you' &&
+                  (userInitial ? (
+                    <span
+                      className="flex h-[22px] w-[22px] items-center justify-center rounded-full text-[11px] font-semibold leading-none"
+                      style={{
+                        color: isActive ? '#fff' : INK_SOFT,
+                        backgroundColor: isActive ? MINGUS_PURPLE : 'transparent',
+                        border: `2px solid ${color}`,
+                      }}
+                      aria-hidden
+                    >
+                      {userInitial}
+                    </span>
+                  ) : (
+                    <svg
+                      width="22"
+                      height="22"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke={color}
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden
+                    >
+                      <circle cx="12" cy="8" r="4" />
+                      <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
+                    </svg>
+                  ))}
+                <span
+                  className="truncate"
+                  style={{
+                    color,
+                    fontSize: '10px',
+                    fontWeight: 600,
+                    letterSpacing: '0.04em',
+                  }}
+                >
+                  {tab.label}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </nav>
 
       {/* Full Daily Outlook Modal/Overlay */}
       {dashboardState.showFullDailyOutlook && (

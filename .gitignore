@@ -162,3 +162,5 @@ backend/data/beta_codes_*.csv
 memes_source/
 static/memes/
 .env*
+playwright-report/
+test-results/
