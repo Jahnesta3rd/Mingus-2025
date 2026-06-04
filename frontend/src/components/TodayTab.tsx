@@ -6,6 +6,8 @@ import CashSnapshotCardBody from './CashSnapshotCardBody';
 import CareerCheckInCardBody from './CareerCheckInCardBody';
 import DailyOutlookCardBody from './DailyOutlookCardBody';
 import VibeRosterCardBody from './VibeRosterCardBody';
+import VehicleCheckInCardBody from './VehicleCheckInCardBody';
+import HousingCheckInCardBody from './HousingCheckInCardBody';
 import { CARD_CONFIGS } from './cardConfigs';
 
 export interface TodayTabProps {
@@ -98,6 +100,10 @@ const TodayTab: React.FC<TodayTabProps> = ({ userEmail, userTier, className = ''
               <CareerCheckInCardBody userEmail={userEmail} userTier={userTier} />
             ) : activeIndex === 3 ? (
               <VibeRosterCardBody userEmail={userEmail} userTier={userTier} />
+            ) : activeIndex === 4 ? (
+              <VehicleCheckInCardBody userEmail={userEmail} userTier={userTier} />
+            ) : activeIndex === 5 ? (
+              <HousingCheckInCardBody userEmail={userEmail} userTier={userTier} />
             ) : (
               <p
                 className="text-center"

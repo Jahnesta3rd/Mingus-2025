@@ -67,7 +67,7 @@ export const CARD_CONFIGS: CardConfig[] = [
     iconPath:
       'M5 17H3a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v9a2 2 0 0 1-2 2h-2 M7 17a2 2 0 1 0 4 0 2 2 0 0 0-4 0 M17 17a2 2 0 1 0 4 0 2 2 0 0 0-4 0',
     drillRoute: '/dashboard/tools?tab=vehicle',
-    placeholder: 'Vehicle data — wired in D7',
+    placeholder: '',
   },
   {
     id: 'housing',
@@ -78,7 +78,7 @@ export const CARD_CONFIGS: CardConfig[] = [
     accentColor: '#fbbf24',
     iconPath: 'M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z M9 22V12h6v10',
     drillRoute: '/dashboard/tools?tab=housing',
-    placeholder: 'Housing data — wired in D8',
+    placeholder: '',
   },
   {
     id: 'wellness',
