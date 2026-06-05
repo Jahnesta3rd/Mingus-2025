@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 import NPSSurvey from '../NPSSurvey';
-import BugReportButton from '../BugReportButton';
 import { useAuth } from '../../hooks/useAuth';
 import { useNPSSurvey } from '../../hooks/useNPSSurvey';
 import { ImportantDateModalProvider } from '../../context/ImportantDateModalContext';
@@ -61,21 +60,6 @@ const DashboardLayout: React.FC = () => {
     <div className="min-h-screen bg-[#FAF5FF]">
       <div className="min-h-screen">
         <div className="flex flex-col">
-          <div className="border-b border-[#E2E8F0] bg-white">
-            <div className="mx-auto flex max-w-7xl items-center justify-end px-4 py-2 text-sm text-[#1E293B] sm:px-6 lg:px-8">
-              <BugReportButton /><span className="flex items-center font-medium">
-                {user?.name ?? 'User'}
-                {user?.is_beta === true && (
-                  <span
-                    title="Beta tester — Professional tier access"
-                    className="ml-2 inline-flex items-center rounded-full bg-[#EDE9FE] px-2 py-0.5 text-xs font-bold text-[#6D28D9]"
-                  >
-                    BETA
-                  </span>
-                )}
-              </span>
-            </div>
-          </div>
           {user?.isAuthenticated && showVcWelcome ? (
             <div className="border-b border-[#E2E8F0] bg-[#F8FAFC]">
               <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">

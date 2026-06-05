@@ -22,130 +22,100 @@ const CardJobHome: React.FC<CardJobHomeProps> = ({ cardId, onBack, children }) =
   const baseColor = extractBaseColor(config.backgroundColor);
 
   return (
-    <div
-      className="flex min-h-screen flex-col"
-      style={{ background: baseColor }}
-    >
+    <div style={{ minHeight: '100vh', background: baseColor }}>
+      {/* Header — normal document flow, not fixed or sticky */}
       <div
         style={{
-          height: 120,
-          position: 'relative',
+          height: 100,
           background: config.backgroundColor,
           padding: '0 20px',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+          paddingTop: 16,
+          paddingBottom: 16,
         }}
       >
-        <button
-          type="button"
-          onClick={onBack}
-          className="flex items-center gap-1"
-          style={{
-            position: 'absolute',
-            top: 16,
-            left: 16,
-          }}
-          aria-label="Back to Today"
-        >
-          <svg
-            width={20}
-            height={20}
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth={2}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            style={{ color: 'rgba(255,255,255,0.9)' }}
-            aria-hidden
-          >
-            <path d="M19 12H5M12 19l-7-7 7-7" />
-          </svg>
-          <span
+        {/* Back button row */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <button
+            type="button"
+            onClick={onBack}
             style={{
-              fontSize: 13,
-              color: 'rgba(255,255,255,0.9)',
-              fontWeight: 600,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 4,
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              padding: 0,
             }}
+            aria-label="Back to Today"
           >
-            Today
-          </span>
-        </button>
+            <svg
+              width={22}
+              height={22}
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#ffffff"
+              strokeWidth={2.5}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden
+            >
+              <path d="M19 12H5M12 19l-7-7 7-7" />
+            </svg>
+            <span
+              style={{
+                fontSize: 14,
+                color: '#ffffff',
+                fontWeight: 700,
+                textShadow: '0 1px 4px rgba(0,0,0,0.5)',
+              }}
+            >
+              Today
+            </span>
+          </button>
+        </div>
 
+        {/* Card identity row */}
         <div
           style={{
-            position: 'absolute',
-            bottom: 0,
-            left: 0,
-            right: 0,
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            paddingBottom: 16,
           }}
         >
           <span
             style={{
-              fontSize: 9,
-              color: config.accentColor,
-              letterSpacing: '0.12em',
+              fontSize: 10,
+              color: '#ffffff',
+              fontWeight: 700,
+              letterSpacing: '0.14em',
               textTransform: 'uppercase',
+              textShadow: '0 1px 4px rgba(0,0,0,0.5)',
+              opacity: 0.85,
             }}
           >
             {config.eyebrow}
           </span>
           <span
             style={{
-              fontSize: 13,
-              color: '#f5f3ff',
-              fontWeight: 700,
-              letterSpacing: '0.08em',
+              fontSize: 15,
+              color: '#ffffff',
+              fontWeight: 800,
+              letterSpacing: '0.1em',
               textTransform: 'uppercase',
+              textShadow: '0 1px 4px rgba(0,0,0,0.5)',
             }}
           >
             {config.label}
           </span>
         </div>
-
-        <div
-          style={{
-            position: 'absolute',
-            bottom: 16,
-            right: 20,
-            width: 36,
-            height: 36,
-            borderRadius: 8,
-            background: 'rgba(255,255,255,0.18)',
-            border: '1.5px solid rgba(255,255,255,0.4)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          <svg
-            width={18}
-            height={18}
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth={2}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            style={{ color: '#f5f3ff' }}
-            aria-hidden
-          >
-            <path d={config.iconPath} />
-          </svg>
-        </div>
       </div>
 
-      <div
-        className="flex-1 overflow-y-auto"
-        style={{
-          background: 'rgba(255,255,255,0.06)',
-          paddingBottom: 80,
-        }}
-      >
-        {children}
-      </div>
+      {/* Content */}
+      <div style={{ paddingBottom: 80 }}>{children}</div>
     </div>
   );
 };

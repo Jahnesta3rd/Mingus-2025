@@ -28,9 +28,13 @@ import VehicleSetup, { VehicleSetupData } from './VehicleSetup';
 
 interface VehicleDashboardProps {
   className?: string;
+  hideHeader?: boolean;
 }
 
-const VehicleDashboard: React.FC<VehicleDashboardProps> = ({ className = '' }) => {
+const VehicleDashboard: React.FC<VehicleDashboardProps> = ({
+  className = '',
+  hideHeader = false,
+}) => {
   const [dashboardState, setDashboardState] = useState<VehicleDashboardState>({
     loading: true,
     error: null,
@@ -153,49 +157,50 @@ const VehicleDashboard: React.FC<VehicleDashboardProps> = ({ className = '' }) =
         <VehicleDashboardSkeleton />
       ) : (
         <div className={`space-y-6 ${className}`}>
-          {/* Header */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-blue-100 rounded-lg">
-                <Car className="h-6 w-6 text-blue-600" />
-              </div>
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900">Vehicle Dashboard</h2>
-                <p className="text-gray-600 text-sm">
-                  Manage your vehicles, maintenance, and budget
-                </p>
-              </div>
-            </div>
-            
-            <div className="flex items-center gap-3">
-              {dashboardState.lastUpdated && (
-                <div className="flex items-center gap-2 text-sm text-gray-500">
-                  <Clock className="h-4 w-4" />
-                  <span>Updated {formatLastUpdated(dashboardState.lastUpdated)}</span>
+          {!hideHeader && (
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-blue-100 rounded-lg">
+                  <Car className="h-6 w-6 text-blue-600" />
                 </div>
-              )}
-              
-              <button
-                onClick={handleRefresh}
-                disabled={dashboardState.loading}
-                className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-lg font-medium transition-colors disabled:opacity-50"
-              >
-                <RefreshCw className={`h-4 w-4 ${dashboardState.loading ? 'animate-spin' : ''}`} />
-                Refresh
-              </button>
-              
-              <button
-                onClick={handleAutoRefreshToggle}
-                className={`px-3 py-2 rounded-lg font-medium transition-colors ${
-                  dashboardState.autoRefresh 
-                    ? 'bg-blue-100 text-blue-700 hover:bg-blue-200' 
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                Auto-refresh {dashboardState.autoRefresh ? 'ON' : 'OFF'}
-              </button>
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900">Vehicle Dashboard</h2>
+                  <p className="text-gray-600 text-sm">
+                    Manage your vehicles, maintenance, and budget
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3">
+                {dashboardState.lastUpdated && (
+                  <div className="flex items-center gap-2 text-sm text-gray-500">
+                    <Clock className="h-4 w-4" />
+                    <span>Updated {formatLastUpdated(dashboardState.lastUpdated)}</span>
+                  </div>
+                )}
+
+                <button
+                  onClick={handleRefresh}
+                  disabled={dashboardState.loading}
+                  className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-lg font-medium transition-colors disabled:opacity-50"
+                >
+                  <RefreshCw className={`h-4 w-4 ${dashboardState.loading ? 'animate-spin' : ''}`} />
+                  Refresh
+                </button>
+
+                <button
+                  onClick={handleAutoRefreshToggle}
+                  className={`px-3 py-2 rounded-lg font-medium transition-colors ${
+                    dashboardState.autoRefresh
+                      ? 'bg-blue-100 text-blue-700 hover:bg-blue-200'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  Auto-refresh {dashboardState.autoRefresh ? 'ON' : 'OFF'}
+                </button>
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Overview Cards */}
           <div className="grid gap-6 lg:gap-8 lg:grid-cols-2">

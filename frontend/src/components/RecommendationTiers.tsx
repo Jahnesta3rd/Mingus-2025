@@ -342,6 +342,7 @@ interface RecommendationTiersProps {
   locationRadius?: number;
   userTier?: AuthUserTier | null;
   careerProfile?: CareerProfileSummary | null;
+  hideHeader?: boolean;
 }
 
 function isCareerProfileComplete(profile: CareerProfileSummary | null | undefined): boolean {
@@ -366,6 +367,7 @@ const RecommendationTiers: React.FC<RecommendationTiersProps> = ({
   locationRadius = 10,
   userTier: userTierProp,
   careerProfile,
+  hideHeader = false,
 }) => {
   const { userTier: authTier, loading: authLoading, getAccessToken } = useAuth();
   const effectiveTier = userTierProp ?? authTier;
@@ -586,15 +588,17 @@ const RecommendationTiers: React.FC<RecommendationTiersProps> = ({
 
   return (
     <div className={`space-y-6 ${className}`}>
-      <div>
-        <h2 className="text-2xl font-bold text-gray-900">Career Recommendations</h2>
-        <p className="text-gray-600">Roles matched to your career profile and location</p>
-        {lastUpdated && (
-          <p className="text-xs text-gray-500 mt-1">
-            Last updated: {lastUpdated.toLocaleTimeString()}
-          </p>
-        )}
-      </div>
+      {!hideHeader && (
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900">Career Recommendations</h2>
+          <p className="text-gray-600">Roles matched to your career profile and location</p>
+          {lastUpdated && (
+            <p className="text-xs text-gray-500 mt-1">
+              Last updated: {lastUpdated.toLocaleTimeString()}
+            </p>
+          )}
+        </div>
+      )}
 
       {viewState === 'upsell' && !hasJobResults && (
         <RecommendationStateCard
