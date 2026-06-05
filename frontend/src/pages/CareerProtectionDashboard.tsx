@@ -7,6 +7,7 @@ import QuickSetupOverlay from '../components/QuickSetupOverlay';
 import SpendingMilestonesWidget from '../components/SpendingMilestonesWidget';
 import SpecialDatesWidget from '../components/SpecialDatesWidget';
 import TodayTab from '../components/TodayTab';
+import CardJobHome from '../components/CardJobHome';
 import FinancialForecastTab from '../components/FinancialForecastTab';
 import type { AuthUserTier } from '../hooks/useAuth';
 import { useImportantDateModal } from '../context/ImportantDateModalContext';
@@ -177,6 +178,7 @@ const CareerProtectionDashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showQuickSetup, setShowQuickSetup] = useState(false);
+  const [todayCardIndex, setTodayCardIndex] = useState(0);
 
   // Handle mobile detection (non-data-fetching, safe)
   useEffect(() => {
@@ -284,7 +286,17 @@ const CareerProtectionDashboard: React.FC = () => {
   useEffect(() => {
     const tab = searchParams.get('tab');
     const editProfile = searchParams.get('editProfile') === '1';
-    if (!tab && !editProfile) return;
+    const fromToday = searchParams.get('from') === 'today';
+    const cardParam = searchParams.get('card');
+
+    if (cardParam !== null) {
+      const idx = parseInt(cardParam, 10);
+      if (!isNaN(idx) && idx >= 0 && idx <= 6) {
+        setTodayCardIndex(idx);
+      }
+    }
+
+    if (!tab && !editProfile && !fromToday && cardParam === null) return;
 
     if (editProfile) {
       setShowProfileModal(true);
@@ -296,13 +308,23 @@ const CareerProtectionDashboard: React.FC = () => {
         setDashboardState((prev) => ({ ...prev, activeTab: mainTab }));
         setActiveTab(mainTabToStoreTab(mainTab));
       }
+    } else if (fromToday) {
+      setDashboardState((prev) => ({ ...prev, activeTab: 'today' }));
+      setActiveTab(mainTabToStoreTab('today'));
     }
 
     const next = new URLSearchParams(searchParams);
     if (tab) next.delete('tab');
     if (editProfile) next.delete('editProfile');
+    if (fromToday) next.delete('from');
+    if (cardParam !== null) next.delete('card');
     setSearchParams(next, { replace: true });
   }, [searchParams, setActiveTab, setSearchParams]);
+
+  const handleDrillBack = () => {
+    setDashboardState((prev) => ({ ...prev, activeTab: 'today' }));
+    setActiveTab(mainTabToStoreTab('today'));
+  };
 
   const handleTabChange = async (tab: MainTabId) => {
     setDashboardState((prev) => ({ ...prev, activeTab: tab }));
@@ -392,6 +414,8 @@ const CareerProtectionDashboard: React.FC = () => {
             <TodayTab
               userEmail={user?.email ?? ''}
               userTier={userTier ?? 'budget'}
+              initialCardIndex={todayCardIndex}
+              onCardChange={setTodayCardIndex}
             />
           )}
 
@@ -418,7 +442,9 @@ const CareerProtectionDashboard: React.FC = () => {
           )}
 
           {dashboardState.activeTab === 'discover' && (
-            <RecommendationTiers userTier={userTier} userId={user?.id} />
+            <CardJobHome cardId="career" onBack={handleDrillBack}>
+              <RecommendationTiers userTier={userTier} userId={user?.id} />
+            </CardJobHome>
           )}
 
           {dashboardState.activeTab === 'you' && (
@@ -433,19 +459,25 @@ const CareerProtectionDashboard: React.FC = () => {
           )}
 
           {dashboardState.activeTab === 'vehicle' && (
-            <VehicleDashboard />
+            <CardJobHome cardId="vehicle" onBack={handleDrillBack}>
+              <VehicleDashboard />
+            </CardJobHome>
           )}
 
           {dashboardState.activeTab === 'housing' && (
-            <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-              <HousingLocationTile />
-            </div>
+            <CardJobHome cardId="housing" onBack={handleDrillBack}>
+              <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+                <HousingLocationTile />
+              </div>
+            </CardJobHome>
           )}
 
           {dashboardState.activeTab === 'wellness' && (
-            <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-              <DashboardWellnessSection />
-            </div>
+            <CardJobHome cardId="wellness" onBack={handleDrillBack}>
+              <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+                <DashboardWellnessSection />
+              </div>
+            </CardJobHome>
           )}
         </div>
       </div>

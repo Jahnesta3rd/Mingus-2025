@@ -14,6 +14,8 @@ import { CARD_CONFIGS } from './cardConfigs';
 export interface TodayTabProps {
   userEmail: string;
   userTier: 'budget' | 'mid_tier' | 'professional';
+  initialCardIndex?: number;
+  onCardChange?: (index: number) => void;
   className?: string;
 }
 
@@ -53,10 +55,21 @@ function CardIcon({ path }: { path: string }) {
 
 const TOTAL_CARDS = CARD_CONFIGS.length;
 
-const TodayTab: React.FC<TodayTabProps> = ({ userEmail, userTier, className = '' }) => {
+const TodayTab: React.FC<TodayTabProps> = ({
+  userEmail,
+  userTier,
+  initialCardIndex,
+  onCardChange,
+  className = '',
+}) => {
   const navigate = useNavigate();
-  const [activeIndex, setActiveIndex] = useState(0);
+  const [activeIndex, setActiveIndex] = useState(initialCardIndex ?? 0);
   const config = CARD_CONFIGS[activeIndex];
+
+  const handleIndexChange = (index: number) => {
+    setActiveIndex(index);
+    onCardChange?.(index);
+  };
 
   return (
     <div
@@ -79,8 +92,10 @@ const TodayTab: React.FC<TodayTabProps> = ({ userEmail, userTier, className = ''
         <CardStack
           activeIndex={activeIndex}
           totalCards={TOTAL_CARDS}
-          onNext={() => setActiveIndex((i) => Math.min(i + 1, TOTAL_CARDS - 1))}
-          onPrev={() => setActiveIndex((i) => Math.max(i - 1, 0))}
+          onNext={() =>
+            handleIndexChange(Math.min(activeIndex + 1, TOTAL_CARDS - 1))
+          }
+          onPrev={() => handleIndexChange(Math.max(activeIndex - 1, 0))}
         >
           <HeroCard
             key={config.id}
@@ -91,7 +106,13 @@ const TodayTab: React.FC<TodayTabProps> = ({ userEmail, userTier, className = ''
             backgroundColor={config.backgroundColor}
             accentColor={config.accentColor}
             icon={<CardIcon path={config.iconPath} />}
-            onTap={() => navigate(config.drillRoute)}
+            onTap={() =>
+              navigate(
+                config.drillRoute.includes('?')
+                  ? config.drillRoute + '&from=today&card=' + activeIndex
+                  : config.drillRoute + '?from=today&card=' + activeIndex
+              )
+            }
           >
             {activeIndex === 0 ? (
               <DailyOutlookCardBody userEmail={userEmail} userTier={userTier} />

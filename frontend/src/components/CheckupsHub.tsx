@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import CardJobHome from './CardJobHome';
 import {
   Brain,
   Car,
@@ -121,6 +122,14 @@ const CHECKUP_ITEMS = [
 
 export function CheckupsHub() {
   const { isAuthenticated } = useAuth();
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const fromToday = searchParams.get('from') === 'today';
+  const cardParam = searchParams.get('card') ?? '1';
+
+  const handleBack = () => {
+    navigate('/dashboard/tools?from=today&card=' + cardParam, { replace: true });
+  };
   const [weeklyStreak, setWeeklyStreak] = useState<StreakPayload | null>(null);
   const [spiritStreak, setSpiritStreak] = useState<StreakPayload | null>(null);
   const [timestampsLoading, setTimestampsLoading] = useState(true);
@@ -170,7 +179,7 @@ export function CheckupsHub() {
     } as const;
   }, [weeklyStreak, spiritStreak]);
 
-  return (
+  const hubContent = (
     <div className="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6 lg:px-8">
       <header className="space-y-2">
         <h1 className="text-2xl font-semibold text-[#1E293B] sm:text-3xl">Your check-up hub</h1>
@@ -221,6 +230,16 @@ export function CheckupsHub() {
       </div>
     </div>
   );
+
+  if (fromToday) {
+    return (
+      <CardJobHome cardId="vibe-roster" onBack={handleBack}>
+        {hubContent}
+      </CardJobHome>
+    );
+  }
+
+  return hubContent;
 }
 
 export default CheckupsHub;
