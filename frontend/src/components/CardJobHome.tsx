@@ -7,6 +7,11 @@ interface CardJobHomeProps {
   children: React.ReactNode;
 }
 
+function extractBaseColor(gradient: string): string {
+  const match = gradient.match(/#[0-9a-fA-F]{6}/);
+  return match ? match[0] : '#1a1a2e';
+}
+
 const CardJobHome: React.FC<CardJobHomeProps> = ({ cardId, onBack, children }) => {
   const config = CARD_CONFIGS.find((c) => c.id === cardId);
 
@@ -14,8 +19,13 @@ const CardJobHome: React.FC<CardJobHomeProps> = ({ cardId, onBack, children }) =
     return <>{children}</>;
   }
 
+  const baseColor = extractBaseColor(config.backgroundColor);
+
   return (
-    <div className="flex min-h-screen flex-col">
+    <div
+      className="flex min-h-screen flex-col"
+      style={{ background: baseColor }}
+    >
       <div
         style={{
           height: 120,
@@ -130,7 +140,7 @@ const CardJobHome: React.FC<CardJobHomeProps> = ({ cardId, onBack, children }) =
       <div
         className="flex-1 overflow-y-auto"
         style={{
-          background: '#FAF5FF',
+          background: 'rgba(255,255,255,0.06)',
           paddingBottom: 80,
         }}
       >
