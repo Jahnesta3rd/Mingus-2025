@@ -7,6 +7,7 @@ export interface CardConfig {
   iconPath: string;
   drillRoute: string;
   placeholder: string;
+  originalOrder: number;
 }
 
 export const CARD_CONFIGS: CardConfig[] = [
@@ -21,6 +22,7 @@ export const CARD_CONFIGS: CardConfig[] = [
       'M12 2v2 M12 20v2 M4.22 4.22l1.42 1.42 M18.36 18.36l1.42 1.42 M2 12h2 M20 12h2 M4.22 19.78l1.42-1.42 M18.36 5.64l1.42-1.42 M12 6a6 6 0 1 0 0 12 6 6 0 0 0 0-12z',
     drillRoute: '/dashboard/tools?tab=daily-outlook',
     placeholder: '',
+    originalOrder: 0,
   },
   {
     id: 'vibe-roster',
@@ -33,6 +35,7 @@ export const CARD_CONFIGS: CardConfig[] = [
       'M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2 M23 21v-2a4 4 0 0 0-3-3.87 M16 3.13a4 4 0 0 1 0 7.75',
     drillRoute: '/dashboard/vibe-checkups',
     placeholder: '',
+    originalOrder: 1,
   },
   {
     id: 'cash-snapshot',
@@ -44,6 +47,7 @@ export const CARD_CONFIGS: CardConfig[] = [
     iconPath: 'M12 2v20 M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6',
     drillRoute: '/dashboard/forecast',
     placeholder: '',
+    originalOrder: 2,
   },
   {
     id: 'career',
@@ -56,6 +60,7 @@ export const CARD_CONFIGS: CardConfig[] = [
       'M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2',
     drillRoute: '/dashboard/tools?tab=recommendations',
     placeholder: '',
+    originalOrder: 3,
   },
   {
     id: 'vehicle',
@@ -68,6 +73,7 @@ export const CARD_CONFIGS: CardConfig[] = [
       'M5 17H3a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v9a2 2 0 0 1-2 2h-2 M7 17a2 2 0 1 0 4 0 2 2 0 0 0-4 0 M17 17a2 2 0 1 0 4 0 2 2 0 0 0-4 0',
     drillRoute: '/dashboard/tools?tab=vehicle',
     placeholder: '',
+    originalOrder: 4,
   },
   {
     id: 'housing',
@@ -79,6 +85,7 @@ export const CARD_CONFIGS: CardConfig[] = [
     iconPath: 'M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z M9 22V12h6v10',
     drillRoute: '/dashboard/tools?tab=housing',
     placeholder: '',
+    originalOrder: 5,
   },
   {
     id: 'wellness',
@@ -91,5 +98,6 @@ export const CARD_CONFIGS: CardConfig[] = [
       'M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z',
     drillRoute: '/dashboard/tools?tab=wellness',
     placeholder: '',
+    originalOrder: 6,
   },
 ];

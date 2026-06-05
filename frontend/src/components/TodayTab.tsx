@@ -10,6 +10,7 @@ import VehicleCheckInCardBody from './VehicleCheckInCardBody';
 import HousingCheckInCardBody from './HousingCheckInCardBody';
 import WellnessCheckInCardBody from './WellnessCheckInCardBody';
 import { CARD_CONFIGS } from './cardConfigs';
+import { useCardPriority } from '../hooks/useCardPriority';
 
 export interface TodayTabProps {
   userEmail: string;
@@ -53,7 +54,46 @@ function CardIcon({ path }: { path: string }) {
   );
 }
 
-const TOTAL_CARDS = CARD_CONFIGS.length;
+function CardStackSkeleton() {
+  return (
+    <div
+      className="animate-pulse flex flex-col items-center justify-center"
+      style={{
+        minHeight: 280,
+        borderRadius: 16,
+        background: 'rgba(88,44,142,0.15)',
+        padding: '32px 24px',
+      }}
+    >
+      <div
+        style={{
+          width: '70%',
+          height: 16,
+          borderRadius: 4,
+          background: 'rgba(88,44,142,0.25)',
+          marginBottom: 12,
+        }}
+      />
+      <div
+        style={{
+          width: '85%',
+          height: 12,
+          borderRadius: 4,
+          background: 'rgba(88,44,142,0.25)',
+          marginBottom: 12,
+        }}
+      />
+      <div
+        style={{
+          width: '60%',
+          height: 12,
+          borderRadius: 4,
+          background: 'rgba(88,44,142,0.25)',
+        }}
+      />
+    </div>
+  );
+}
 
 const TodayTab: React.FC<TodayTabProps> = ({
   userEmail,
@@ -64,7 +104,19 @@ const TodayTab: React.FC<TodayTabProps> = ({
 }) => {
   const navigate = useNavigate();
   const [activeIndex, setActiveIndex] = useState(initialCardIndex ?? 0);
-  const config = CARD_CONFIGS[activeIndex];
+  const { sortedCardIds, isReady } = useCardPriority(userEmail, userTier);
+
+  const totalCards = sortedCardIds.length;
+  const activeCardId = sortedCardIds[activeIndex] ?? sortedCardIds[0];
+  const config =
+    CARD_CONFIGS.find((c) => c.id === activeCardId) ??
+    CARD_CONFIGS[activeIndex] ??
+    CARD_CONFIGS[0];
+
+  const eyebrowFor = (cardId: string): string => {
+    const pos = sortedCardIds.indexOf(cardId) + 1;
+    return `CARD ${pos} OF ${sortedCardIds.length}`;
+  };
 
   const handleIndexChange = (index: number) => {
     setActiveIndex(index);
@@ -89,59 +141,58 @@ const TodayTab: React.FC<TodayTabProps> = ({
       </h1>
 
       <div style={{ padding: '0 16px' }}>
-        <CardStack
-          activeIndex={activeIndex}
-          totalCards={TOTAL_CARDS}
-          onNext={() =>
-            handleIndexChange(Math.min(activeIndex + 1, TOTAL_CARDS - 1))
-          }
-          onPrev={() => handleIndexChange(Math.max(activeIndex - 1, 0))}
-        >
-          <HeroCard
-            key={config.id}
-            cardIndex={activeIndex}
-            totalCards={TOTAL_CARDS}
-            label={config.label}
-            eyebrow={config.eyebrow}
-            backgroundColor={config.backgroundColor}
-            accentColor={config.accentColor}
-            icon={<CardIcon path={config.iconPath} />}
-            onTap={() =>
-              navigate(
-                config.drillRoute.includes('?')
-                  ? config.drillRoute + '&from=today&card=' + activeIndex
-                  : config.drillRoute + '?from=today&card=' + activeIndex
-              )
+        {!isReady ? (
+          <CardStackSkeleton />
+        ) : (
+          <CardStack
+            activeIndex={activeIndex}
+            totalCards={totalCards}
+            onNext={() =>
+              handleIndexChange(Math.min(activeIndex + 1, totalCards - 1))
             }
+            onPrev={() => handleIndexChange(Math.max(activeIndex - 1, 0))}
           >
-            {activeIndex === 0 ? (
-              <DailyOutlookCardBody userEmail={userEmail} userTier={userTier} />
-            ) : activeIndex === 1 ? (
-              <VibeRosterCardBody userEmail={userEmail} userTier={userTier} />
-            ) : activeIndex === 2 ? (
-              <CashSnapshotCardBody userEmail={userEmail} userTier={userTier} />
-            ) : activeIndex === 3 ? (
-              <CareerCheckInCardBody userEmail={userEmail} userTier={userTier} />
-            ) : activeIndex === 4 ? (
-              <VehicleCheckInCardBody userEmail={userEmail} userTier={userTier} />
-            ) : activeIndex === 5 ? (
-              <HousingCheckInCardBody userEmail={userEmail} userTier={userTier} />
-            ) : activeIndex === 6 ? (
-              <WellnessCheckInCardBody userEmail={userEmail} userTier={userTier} />
-            ) : (
-              <p
-                className="text-center"
-                style={{
-                  fontSize: 13,
-                  color: 'rgba(255,255,255,0.6)',
-                  margin: 0,
-                }}
-              >
-                {config.placeholder}
-              </p>
-            )}
-          </HeroCard>
-        </CardStack>
+            <HeroCard
+              key={config.id}
+              cardIndex={activeIndex}
+              totalCards={totalCards}
+              label={config.label}
+              eyebrow={eyebrowFor(activeCardId)}
+              backgroundColor={config.backgroundColor}
+              accentColor={config.accentColor}
+              icon={<CardIcon path={config.iconPath} />}
+              onTap={() =>
+                navigate(
+                  config.drillRoute.includes('?')
+                    ? config.drillRoute + '&from=today&card=' + activeIndex
+                    : config.drillRoute + '?from=today&card=' + activeIndex
+                )
+              }
+            >
+              {activeCardId === 'daily-outlook' && (
+                <DailyOutlookCardBody userEmail={userEmail} userTier={userTier} />
+              )}
+              {activeCardId === 'vibe-roster' && (
+                <VibeRosterCardBody userEmail={userEmail} userTier={userTier} />
+              )}
+              {activeCardId === 'cash-snapshot' && (
+                <CashSnapshotCardBody userEmail={userEmail} userTier={userTier} />
+              )}
+              {activeCardId === 'career' && (
+                <CareerCheckInCardBody userEmail={userEmail} userTier={userTier} />
+              )}
+              {activeCardId === 'vehicle' && (
+                <VehicleCheckInCardBody userEmail={userEmail} userTier={userTier} />
+              )}
+              {activeCardId === 'housing' && (
+                <HousingCheckInCardBody userEmail={userEmail} userTier={userTier} />
+              )}
+              {activeCardId === 'wellness' && (
+                <WellnessCheckInCardBody userEmail={userEmail} userTier={userTier} />
+              )}
+            </HeroCard>
+          </CardStack>
+        )}
       </div>
     </div>
   );
