@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { CARD_CONFIGS } from './cardConfigs';
 
 interface CardJobHomeProps {
@@ -13,7 +13,16 @@ function extractBaseColor(gradient: string): string {
 }
 
 const CardJobHome: React.FC<CardJobHomeProps> = ({ cardId, onBack, children }) => {
+  const containerRef = useRef<HTMLDivElement>(null);
   const config = CARD_CONFIGS.find((c) => c.id === cardId);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'instant' });
+    containerRef.current?.scrollIntoView({
+      block: 'start',
+      behavior: 'instant',
+    });
+  }, []);
 
   if (!config) {
     return <>{children}</>;
@@ -22,7 +31,10 @@ const CardJobHome: React.FC<CardJobHomeProps> = ({ cardId, onBack, children }) =
   const baseColor = extractBaseColor(config.backgroundColor);
 
   return (
-    <div style={{ minHeight: '100vh', background: baseColor }}>
+    <div
+      ref={containerRef}
+      style={{ minHeight: '100vh', background: baseColor }}
+    >
       {/* Header — normal document flow, not fixed or sticky */}
       <div
         style={{
