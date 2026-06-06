@@ -55,6 +55,15 @@ FREDDIE_PMMS_URL = "https://www.freddiemac.com/pmms/docs/historicalweeklydata.xl
 EIA_GAS_URL = "https://api.eia.gov/v2/petroleum/pri/gnd/data/"
 FED_G19_URL = "https://www.federalreserve.gov/releases/g19/current/g19.htm"
 BLS_TIMESERIES_URL = "https://api.bls.gov/publicAPI/v2/timeseries/data/"
+FRED_API_URL = "https://api.stlouisfed.org/fred/series/observations"
+FRED_MORTGAGE_SERIES = "MORTGAGE30US"
+FRED_RENT_CPI_SERIES = "CUSR0000SEHA"
+
+RENT_CPI_FALLBACK = 445.0
+RENT_YOY_CHANGE_FALLBACK = 4.5
+
+HOUSING_RENT_WEIGHT = 0.65
+HOUSING_MORTGAGE_WEIGHT = 0.35
 
 
 WEIGHT_LABOR_MARKET_STRENGTH = 0.25
@@ -172,6 +181,15 @@ def _severity_for_wellness(_: float) -> str:
     if override in ("green", "amber", "red"):
         return override
     return "green"
+
+
+def _severity_for_rent_yoy(yoy_pct: float) -> str:
+    # Year-over-year rent CPI change — higher is worse for renters
+    if yoy_pct < 3.0:
+        return "green"
+    if yoy_pct <= 5.5:
+        return "amber"
+    return "red"
 
 
 def _constituent_score(severity: str) -> float:
@@ -314,6 +332,49 @@ def _requests_session() -> requests.Session:
     return s
 
 
+def _fetch_fred_series_latest(series_id: str, limit: int = 13) -> List[Tuple[str, float]]:
+    """
+    Fetch latest N observations from FRED for a given series.
+    Returns list of (iso_date, value) sorted ascending, excluding missing values.
+    """
+    fred_api_key = os.environ.get("FRED_API_KEY", "")
+    if not fred_api_key:
+        logger.warning("FRED_API_KEY not set — skipping %s fetch", series_id)
+        return []
+
+    session = _requests_session()
+    params = {
+        "series_id": series_id,
+        "api_key": fred_api_key,
+        "file_type": "json",
+        "sort_order": "desc",
+        "limit": limit,
+    }
+
+    try:
+        resp = session.get(FRED_API_URL, params=params, timeout=CACHE_DEFAULT_TIMEOUT_S)
+        resp.raise_for_status()
+        data = resp.json()
+    except Exception as e:
+        logger.warning("FRED fetch failed for %s: %s", series_id, e)
+        return []
+
+    observations = data.get("observations", [])
+    out: List[Tuple[str, float]] = []
+    for o in observations:
+        val = o.get("value")
+        dt = o.get("date")
+        if val in (None, ".", "") or dt is None:
+            continue
+        f = _safe_float(val)
+        if f is None:
+            continue
+        out.append((str(dt), f))
+
+    out.sort(key=lambda x: x[0])
+    return out
+
+
 # -----------------------------------------------------------------------------
 # Constituent 1: labor_market_strength
 # -----------------------------------------------------------------------------
@@ -438,64 +499,103 @@ def get_labor_market_strength() -> Dict[str, Any]:
 
 
 def get_housing_affordability_pressure() -> Dict[str, Any]:
-    # Prompt: use Freddie Mac PMMS RSS feed URL (but this is an .xls link).
-    current_value = float(PMMS_FALLBACK_RATE)
-    previous_value = float(PMMS_FALLBACK_RATE)
-    as_of = _today_iso()
-    source = f"Freddie Mac PMMS weekly 30-year rate ({FREDDIE_PMMS_URL})"
+    """
+    Housing Cost Pressure — composite of:
+      - Rent CPI YoY change (FRED CUSR0000SEHA) — 65% weight, primary signal for renters
+      - 30-year mortgage rate (FRED MORTGAGE30US) — 35% weight, signal for move/sell minority
+    """
+    fred_api_key = os.environ.get("FRED_API_KEY", "")
 
-    try:
-        session = _requests_session()
-        resp = session.get(FREDDIE_PMMS_URL, timeout=CACHE_DEFAULT_TIMEOUT_S)
-        resp.raise_for_status()
+    # --- Rent CPI component ---
+    rent_yoy_pct = RENT_YOY_CHANGE_FALLBACK
+    rent_prev_yoy = RENT_YOY_CHANGE_FALLBACK
+    rent_as_of = _today_iso()
+    rent_source = "FRED CUSR0000SEHA (fallback)"
+    rent_live = False
 
-        # Best-effort parsing. In CI we may not have xlrd, so we fallback.
-        content = resp.content
-        try:
-            import pandas as pd  # local import: only needed if download succeeds
+    rent_points = _fetch_fred_series_latest(FRED_RENT_CPI_SERIES, limit=14)
+    if len(rent_points) >= 13:
+        latest_val = rent_points[-1][1]
+        year_ago_val = rent_points[-13][1]
+        prev_val = rent_points[-2][1]
+        prev_year_ago_val = rent_points[-14][1] if len(rent_points) >= 14 else year_ago_val
 
-            df = pd.read_excel(BytesIO(content), engine=None)  # type: ignore[arg-type]
-            # Heuristic: find last numeric series.
-            last_row = df.tail(1)
-            numeric_cols = [c for c in last_row.columns if _safe_float(last_row[c].iloc[0]) is not None]
-            if not numeric_cols:
-                raise ValueError("no_numeric_columns_in_freddie_pmms_xls")
-            col = numeric_cols[-1]
-            current_value = float(last_row[col].iloc[0])
+        rent_yoy_pct = round(((latest_val - year_ago_val) / year_ago_val) * 100, 2)
+        rent_prev_yoy = round(((prev_val - prev_year_ago_val) / prev_year_ago_val) * 100, 2)
+        rent_as_of = rent_points[-1][0]
+        rent_source = f"FRED {FRED_RENT_CPI_SERIES} - rent CPI YoY"
+        rent_live = True
 
-            prev_row = df.iloc[-2:-1]
-            if not prev_row.empty and _safe_float(prev_row[col].iloc[0]) is not None:
-                previous_value = float(prev_row[col].iloc[0])
-                as_of = _today_iso()
-        except Exception as parse_err:
-            logger.warning("Freddie PMMS parse failed: %s", parse_err)
-            current_value = float(PMMS_FALLBACK_RATE)
-            previous_value = float(PMMS_FALLBACK_RATE)
-            as_of = _today_iso()
+    rent_severity = _severity_for_rent_yoy(rent_yoy_pct)
 
-    except Exception as e:
-        logger.warning("Freddie PMMS fetch failed: %s", e)
+    # --- Mortgage rate component ---
+    mortgage_rate = float(PMMS_FALLBACK_RATE)
+    mortgage_prev = float(PMMS_FALLBACK_RATE)
+    mortgage_as_of = _today_iso()
+    mortgage_source = "FRED MORTGAGE30US (fallback)"
+    mortgage_live = False
 
-    direction = _direction_from_compare(current_value, previous_value)
-    severity = _severity_for_housing_rate(current_value)
-    headline = _truncate_headline_to_12_words(
-        f"30-year mortgage rate is {current_value:.2f}% this week"
-    )
+    mortgage_points = _fetch_fred_series_latest(FRED_MORTGAGE_SERIES, limit=2)
+    if len(mortgage_points) >= 2:
+        mortgage_rate = mortgage_points[-1][1]
+        mortgage_prev = mortgage_points[-2][1]
+        mortgage_as_of = mortgage_points[-1][0]
+        mortgage_source = f"FRED {FRED_MORTGAGE_SERIES} - 30yr fixed"
+        mortgage_live = True
+    elif len(mortgage_points) == 1:
+        mortgage_rate = mortgage_points[-1][1]
+        mortgage_prev = mortgage_rate
+        mortgage_as_of = mortgage_points[-1][0]
+        mortgage_source = f"FRED {FRED_MORTGAGE_SERIES} - 30yr fixed"
+        mortgage_live = True
+
+    mortgage_severity = _severity_for_housing_rate(mortgage_rate)
+
+    # --- Composite housing score (65% rent / 35% mortgage) ---
+    rent_score = SEVERITY_TO_SCORE[rent_severity]
+    mortgage_score = SEVERITY_TO_SCORE[mortgage_severity]
+    composite_score = (rent_score * HOUSING_RENT_WEIGHT) + (mortgage_score * HOUSING_MORTGAGE_WEIGHT)
+
+    if composite_score >= 65.0:
+        composite_severity = "green"
+    elif composite_score >= 35.0:
+        composite_severity = "amber"
+    else:
+        composite_severity = "red"
+
+    rent_direction = _direction_from_compare(rent_yoy_pct, rent_prev_yoy)
+
+    if rent_live:
+        headline = _truncate_headline_to_12_words(
+            f"Rent up {rent_yoy_pct:.1f}% year-over-year; mortgage rate {mortgage_rate:.2f}%"
+        )
+    else:
+        headline = _truncate_headline_to_12_words(
+            f"30-year mortgage rate is {mortgage_rate:.2f}% this week"
+        )
+
+    used_fallback = not rent_live and not mortgage_live
+    source_str = f"{rent_source} + {mortgage_source}"
 
     return _make_constituent(
-        name="Housing Affordability Pressure",
+        name="Housing Cost Pressure",
         slug="housing_affordability_pressure",
-        current_value=current_value,
-        previous_value=previous_value,
-        direction=direction,
-        severity=severity,
+        current_value=round(rent_yoy_pct, 2),
+        previous_value=round(rent_prev_yoy, 2),
+        direction=rent_direction,
+        severity=composite_severity,
         headline=headline,
-        source=source + (" (fallback)" if current_value == PMMS_FALLBACK_RATE else ""),
-        as_of=as_of,
+        source=source_str + (" (fallback)" if used_fallback else ""),
+        as_of=rent_as_of if rent_live else mortgage_as_of,
         weight=WEIGHT_HOUSING_AFFORDABILITY_PRESSURE,
         raw={
-            "url": FREDDIE_PMMS_URL,
-            "fallback_rate": PMMS_FALLBACK_RATE,
+            "rent_yoy_pct": rent_yoy_pct,
+            "rent_series": FRED_RENT_CPI_SERIES,
+            "rent_weight": HOUSING_RENT_WEIGHT,
+            "mortgage_rate": mortgage_rate,
+            "mortgage_series": FRED_MORTGAGE_SERIES,
+            "mortgage_weight": HOUSING_MORTGAGE_WEIGHT,
+            "composite_score": composite_score,
         },
     )
 
