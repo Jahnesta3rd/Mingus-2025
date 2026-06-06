@@ -65,7 +65,10 @@ def _compute_onboarding_steps(user, email: str):
     row = OnboardingProgress.query.filter_by(user_id=user.id).first()
     if row is None:
         return [], list(MODULE_ORDER)
-
+    # Short-circuit: if current_module is 'complete' or completed_at is set,
+    # treat all modules as done regardless of completed_modules array contents.
+    if getattr(row, 'current_module', None) == 'complete' or getattr(row, 'completed_at', None) is not None:
+        return list(MODULE_ORDER), []
     completed_set = set(row.completed_modules or [])
 
     steps_completed = [mid for mid in MODULE_ORDER if mid in completed_set]

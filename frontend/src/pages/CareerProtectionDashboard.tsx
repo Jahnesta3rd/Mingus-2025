@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, lazy, Suspense } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import RecommendationTiers from '../components/RecommendationTiers';
 import DashboardErrorBoundary from '../components/DashboardErrorBoundary';
 import DashboardSkeleton from '../components/DashboardSkeleton';
@@ -146,7 +146,6 @@ const WHISPER_PURPLE = '#FAF5FF';
 const SUPPRESS_QUICK_SETUP_PREBETA = true;
 
 const CareerProtectionDashboard: React.FC = () => {
-  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { user, userTier, isAuthenticated, loading: authLoading } = useAuth();
   const { openAddImportantDate, importantDatesRefreshKey } = useImportantDateModal();
@@ -195,15 +194,6 @@ const CareerProtectionDashboard: React.FC = () => {
   useEffect(() => {
     document.title = 'Dashboard';
   }, []);
-
-  // Wait for auth check (/api/auth/verify) before redirecting — avoids e2e race
-  useEffect(() => {
-    if (authLoading) return;
-    if (!isAuthenticated) {
-      navigate('/login');
-      return;
-    }
-  }, [authLoading, isAuthenticated, navigate]);
 
   // SINGLE useEffect that runs ONCE after auth is ready - all data fetching happens here
   useEffect(() => {

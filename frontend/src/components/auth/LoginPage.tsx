@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../hooks/useAuth';
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
@@ -14,29 +16,9 @@ const LoginPage: React.FC = () => {
     setError('');
     setLoading(true);
     try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ email, password, rememberMe }),
-      });
-
-      if (!response.ok) {
-        const errData = await response.json().catch(() => ({}));
-        throw new Error(errData.error || errData.message || 'Login failed');
-      }
-
-      // Set auth token first so AuthGuard allows protected routes on the next load
-      localStorage.setItem('auth_token', 'ok');
+      await login(email, password, rememberMe);
       sessionStorage.removeItem('prefetched_vibe');
       sessionStorage.removeItem('last_vibe_date');
-
-      try {
-        await response.json();
-      } catch {
-        // ignore
-      }
-
       navigate('/welcome', { replace: true });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Invalid email or password');
