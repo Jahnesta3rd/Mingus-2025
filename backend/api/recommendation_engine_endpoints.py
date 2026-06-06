@@ -22,6 +22,8 @@ import psycopg2.extras
 from backend.auth.decorators import get_current_jwt_user, require_auth
 from backend.models.career_profile import CareerProfile
 from backend.models.housing_profile import HousingProfile
+from backend.models.user_models import User
+from backend.scripts.job_postings_seed_data import MSA_CONFIG
 
 # Import the orchestration engine
 from ..utils.mingus_job_recommendation_engine import MingusJobRecommendationEngine
@@ -81,6 +83,30 @@ def check_rate_limit(client_ip):
 
 _ZIP_RE = re.compile(r'\b(\d{5})\b')
 
+# Interim default when zip/city cannot be mapped — Houston has broad seed coverage.
+DEFAULT_MSA = '26420'
+
+ZIP_TO_MSA: dict[str, str] = {
+    # Houston
+    '77001': '26420', '77002': '26420', '77003': '26420', '77004': '26420',
+    '77005': '26420', '77006': '26420', '77007': '26420', '77019': '26420',
+    '77056': '26420', '77077': '26420', '77098': '26420',
+    # Atlanta
+    '30301': '12060', '30302': '12060', '30303': '12060', '30305': '12060',
+    '30306': '12060', '30307': '12060', '30308': '12060', '30309': '12060',
+    # DC Metro
+    '20001': '47900', '20002': '47900', '20003': '47900', '20004': '47900',
+    '20005': '47900', '20006': '47900', '22201': '47900', '22202': '47900',
+    # Dallas
+    '75201': '19100', '75202': '19100', '75203': '19100', '75204': '19100',
+    '75205': '19100', '75206': '19100',
+    # NYC
+    '10001': '35620', '10002': '35620', '10003': '35620', '10004': '35620',
+    '10005': '35620', '10006': '35620',
+    # Chicago
+    '60601': '16980', '60602': '16980', '60603': '16980', '60604': '16980',
+}
+
 
 def _extract_zip_from_text(text: str | None) -> str | None:
     if not text:
@@ -89,24 +115,94 @@ def _extract_zip_from_text(text: str | None) -> str | None:
     return match.group(1) if match else None
 
 
+def _match_msa_from_city_text(text: str | None) -> str | None:
+    """Match HousingProfile zip_or_city text against MSA_CONFIG city names."""
+    if not text:
+        return None
+    normalized = str(text).strip().lower()
+    for code, meta in MSA_CONFIG.items():
+        city = (meta.get('city') or '').lower()
+        if city and city in normalized:
+            return code
+    return None
+
+
+def _resolve_msa_for_user_by_zip(
+    zipcode: str | None,
+    city_text: str | None = None,
+) -> str:
+    """Map a zip (and optional city text) to a job_postings CBSA msa_code."""
+    if zipcode:
+        mapped = ZIP_TO_MSA.get(zipcode)
+        if mapped:
+            return mapped
+
+    city_msa = _match_msa_from_city_text(city_text)
+    if city_msa:
+        return city_msa
+
+    if zipcode:
+        logger.warning(
+            "Unknown zip %s with no city match; using default MSA %s (interim behavior)",
+            zipcode,
+            DEFAULT_MSA,
+        )
+    else:
+        logger.warning(
+            "No zip or city for MSA resolution; using default MSA %s (interim behavior)",
+            DEFAULT_MSA,
+        )
+    return DEFAULT_MSA
+
+
+def _resolve_user_profile_zip(email: str) -> str | None:
+    """Read zip_code from user_profiles by email (same source as income-percentile)."""
+    try:
+        conn = get_pg_connection()
+        cursor = conn.cursor()
+        cursor.execute(
+            '''
+            SELECT column_name FROM information_schema.columns
+            WHERE table_name = %s
+            ''',
+            ('user_profiles',),
+        )
+        profiles_columns = {row['column_name'] for row in cursor.fetchall()}
+        if 'zip_code' not in profiles_columns:
+            conn.close()
+            return None
+        cursor.execute(
+            'SELECT zip_code FROM user_profiles WHERE email = %s LIMIT 1',
+            (email,),
+        )
+        row = cursor.fetchone()
+        conn.close()
+        if row and row.get('zip_code'):
+            return _extract_zip_from_text(str(row['zip_code']))
+    except Exception as exc:
+        logger.warning("Could not read user_profiles zip for %s: %s", email, exc)
+    return None
+
+
 def _resolve_msa_for_user(internal_user_id: int) -> str:
     """
     Resolve job_postings CBSA msa_code for a user.
 
-    HousingProfile stores zip_or_city; user_profiles has no MSA column.
-    backend/services/gas_price_service uses ZipcodeToMSAMapper (zip -> display name),
-    but job_postings.msa_code uses CBSA codes (see job_postings_seed_data.MSA_CONFIG).
-    No CBSA resolver exists — return '' so _query_curated_jobs empty-states gracefully.
+    Zip sources (first non-null wins): HousingProfile.zip_or_city, then
+    user_profiles.zip_code by email. Maps via ZIP_TO_MSA, then city name in
+    MSA_CONFIG, then DEFAULT_MSA (26420 Houston) so recommendations are never
+    blocked by an unresolved location.
     """
     hp = HousingProfile.query.filter_by(user_id=internal_user_id).first()
-    zipcode = _extract_zip_from_text(hp.zip_or_city if hp else None)
-    if zipcode:
-        logger.debug(
-            "HousingProfile zip %s found for user_id=%s; no CBSA msa_code resolver yet",
-            zipcode,
-            internal_user_id,
-        )
-    return ''
+    city_text = hp.zip_or_city if hp else None
+    zipcode = _extract_zip_from_text(city_text)
+
+    if not zipcode:
+        user = User.query.get(internal_user_id)
+        if user:
+            zipcode = _resolve_user_profile_zip(user.email)
+
+    return _resolve_msa_for_user_by_zip(zipcode, city_text=city_text)
 
 
 def _build_career_profile_dict(cp: CareerProfile | None, msa: str) -> dict:
