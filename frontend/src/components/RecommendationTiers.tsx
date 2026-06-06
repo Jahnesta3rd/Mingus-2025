@@ -669,7 +669,7 @@ const RecommendationTiers: React.FC<RecommendationTiersProps> = ({
           title="Complete your career profile to see recommendations"
           body="Add your BLS career field, seniority level, and target compensation so we can match roles to you."
           ctaLabel="Complete Profile"
-          ctaTo="/settings/career"
+          ctaTo="/dashboard/tools?tab=you"
           icon={<Target className="h-10 w-10 text-gray-600" />}
           variant="profile"
         />
@@ -680,7 +680,7 @@ const RecommendationTiers: React.FC<RecommendationTiersProps> = ({
           title="Complete Your Career Profile"
           body="Add your current role, industry, and target salary to see job recommendations tailored to you."
           ctaLabel="Complete Profile"
-          ctaTo="/settings/career"
+          ctaTo="/dashboard/tools?tab=you"
           icon={<Target className="h-10 w-10 text-gray-600" />}
           variant="profile"
         />

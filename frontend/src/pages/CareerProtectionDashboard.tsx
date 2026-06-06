@@ -110,6 +110,8 @@ function legacyQueryTabToMainTab(tab: string): MainTabId | null {
       return 'discover';
     case 'overview':
       return 'plans';
+    case 'you':
+      return 'you';
     case 'life-ledger':
       return 'today';
     case 'location':
