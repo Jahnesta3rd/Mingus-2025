@@ -128,6 +128,8 @@ export interface PercentileData {
   percentiles?: { p10: number; p25: number; p50: number; p75: number; p90: number };
   zip_missing?: boolean;
   zip_prompt?: string;
+  salary_missing?: boolean;
+  salary_prompt?: string;
   bls_career_field?: string;
 }
 
@@ -755,8 +757,13 @@ const RecommendationTiers: React.FC<RecommendationTiersProps> = ({
 
       {hasJobResults && (
         <>
-          {percentileData?.status === 'ok' && (
+          {percentileData?.status === 'ok' && percentileData.percentile_label && (
             <IncomeStandingBanner percentileData={percentileData} />
+          )}
+          {percentileData?.status === 'ok' &&
+            !percentileData.percentile_label &&
+            percentileData.salary_missing && (
+            <IncomeSalaryPromptBanner percentileData={percentileData} />
           )}
 
           <div className="flex flex-col sm:flex-row sm:items-center justify-end gap-3">
@@ -816,7 +823,8 @@ const IncomeStandingBanner: React.FC<{ percentileData: PercentileData }> = ({
   percentileData,
 }) => {
   const field = percentileData.bls_career_field ?? 'your field';
-  const label = percentileData.percentile_label ?? 'your percentile range';
+  const label = percentileData.percentile_label;
+  if (!label) return null;
 
   return (
     <div className="rounded-lg border border-purple-100 bg-purple-50/80 px-4 py-3 text-sm text-slate-700">
@@ -836,6 +844,46 @@ const IncomeStandingBanner: React.FC<{ percentileData: PercentileData }> = ({
           </Link>
         </p>
       )}
+    </div>
+  );
+};
+
+const IncomeSalaryPromptBanner: React.FC<{ percentileData: PercentileData }> = ({
+  percentileData,
+}) => {
+  const field = percentileData.bls_career_field ?? 'your field';
+  const median = percentileData.percentiles?.p50;
+  const medianHint =
+    median != null ? ` (national median ~$${Math.round(median / 1000)}k)` : '';
+
+  return (
+    <div className="rounded-lg border border-purple-100 bg-purple-50/80 px-4 py-3 text-sm text-slate-700">
+      <p>
+        {percentileData.salary_prompt ??
+          'Add your income in Career Profile to see your percentile standing'}{' '}
+        among{' '}
+        <span className="font-medium text-slate-800">{field}</span>
+        professionals{medianHint}.
+      </p>
+      <p className="mt-1.5 text-xs text-slate-600">
+        <Link
+          to="/dashboard/tools?tab=you"
+          className="font-medium text-purple-700 underline-offset-2 hover:text-purple-900 hover:underline"
+        >
+          Add income in Career Profile →
+        </Link>
+        {percentileData.zip_missing && (
+          <>
+            {' · '}
+            <Link
+              to="/dashboard/tools?editProfile=1"
+              className="font-medium text-purple-700 underline-offset-2 hover:text-purple-900 hover:underline"
+            >
+              Add your zip for local data →
+            </Link>
+          </>
+        )}
+      </p>
     </div>
   );
 };

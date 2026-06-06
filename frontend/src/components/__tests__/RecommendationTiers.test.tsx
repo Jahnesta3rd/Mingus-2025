@@ -268,4 +268,64 @@ describe('RecommendationTiers', () => {
     expect(screen.getByText('Add your zip for local data →')).toBeInTheDocument();
     expect(screen.getByText('↑ Moves you to 75th–90th percentile')).toBeInTheDocument();
   });
+
+  it('shows salary prompt banner when income is missing instead of placeholder percentile text', async () => {
+    (global.fetch as jest.Mock).mockImplementation((url: string) => {
+      if (String(url).includes('/api/career/income-percentile')) {
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          json: async () => ({
+            status: 'ok',
+            bls_career_field: 'Operations & Supply Chain',
+            current_salary: null,
+            percentile_label: null,
+            salary_missing: true,
+            salary_prompt: 'Add your income in Career Profile to see your percentile standing',
+            percentiles: { p10: 30950, p25: 40235, p50: 61900, p75: 80470, p90: 102754 },
+            zip_missing: true,
+          }),
+        });
+      }
+      return Promise.resolve({
+        ok: true,
+        status: 200,
+        json: async () => ({
+          success: true,
+          recommendations: {
+            conservative: [],
+            same_level: [
+              {
+                job_id: '1',
+                title: 'Logistics Coordinator',
+                company: 'FedEx',
+                seniority_level: 'entry',
+                salary_min: 49920,
+                salary_max: 64480,
+                salary_median: 57200,
+                advancement_trajectory: 'Team lead',
+              },
+            ],
+            reach: [],
+          },
+        }),
+      });
+    });
+
+    renderTiers({
+      userTier: 'professional',
+      careerProfile: { current_role: 'Operations Analyst', industry: 'Operations & Supply Chain' },
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText('Logistics Coordinator')).toBeInTheDocument();
+    });
+    expect(screen.queryByText('your percentile range')).not.toBeInTheDocument();
+    expect(screen.queryByText(/You're currently in the/)).not.toBeInTheDocument();
+    expect(
+      screen.getByText(/Add your income in Career Profile to see your percentile standing/)
+    ).toBeInTheDocument();
+    expect(screen.getByText('Add income in Career Profile →')).toBeInTheDocument();
+    expect(screen.getByText('Add your zip for local data →')).toBeInTheDocument();
+  });
 });

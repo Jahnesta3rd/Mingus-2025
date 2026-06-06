@@ -345,6 +345,11 @@ def get_income_percentile():
         'zip_missing': zip_missing,
         'regional_available': False,
     }
+    if current_salary is None:
+        payload['salary_missing'] = True
+        payload['salary_prompt'] = (
+            'Add your income in Career Profile to see your percentile standing'
+        )
     if zip_missing:
         payload['zip_prompt'] = (
             'Add your zip code to see how your income compares locally'
