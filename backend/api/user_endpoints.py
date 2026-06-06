@@ -7,6 +7,7 @@ Provides endpoints for user profile and setup status.
 
 import json
 import logging
+import re
 
 from flask import Blueprint, jsonify, request, g
 from flask_cors import cross_origin
@@ -64,6 +65,107 @@ def _serialize_important_dates(data: dict) -> str:
     return json.dumps(data)
 
 
+_ZIP_CODE_RE = re.compile(r'^\d{5}$')
+_NAME_MAX_LEN = 50
+
+
+def _table_columns(cursor, table_name: str) -> set[str]:
+    cursor.execute(
+        '''
+        SELECT column_name FROM information_schema.columns
+        WHERE table_name = %s
+        ''',
+        (table_name,),
+    )
+    return {row['column_name'] for row in cursor.fetchall()}
+
+
+def _parse_json_object(raw) -> dict:
+    """Deserialize a JSON text/dict column to a dict."""
+    if raw is None or raw == '':
+        return {}
+    if isinstance(raw, dict):
+        return dict(raw)
+    if isinstance(raw, str):
+        try:
+            parsed = json.loads(raw)
+            return dict(parsed) if isinstance(parsed, dict) else {}
+        except (TypeError, ValueError, json.JSONDecodeError):
+            return {}
+    return {}
+
+
+def _validate_name_field(field_key: str, raw) -> tuple[str | None, tuple | None]:
+    if not isinstance(raw, str):
+        return None, (
+            jsonify({'success': False, 'error': f'{field_key} must be a string.'}),
+            400,
+        )
+    value = raw.strip()
+    if len(value) > _NAME_MAX_LEN:
+        return None, (
+            jsonify({
+                'success': False,
+                'error': f'{field_key} must be at most {_NAME_MAX_LEN} characters.',
+            }),
+            400,
+        )
+    return value, None
+
+
+def _validate_zip_code(raw) -> tuple[str | None, tuple | None]:
+    if not isinstance(raw, str):
+        return None, (
+            jsonify({'success': False, 'error': 'zip_code must be a string.'}),
+            400,
+        )
+    value = raw.strip()
+    if not _ZIP_CODE_RE.match(value):
+        return None, (
+            jsonify({
+                'success': False,
+                'error': 'zip_code must be a 5-digit US ZIP code.',
+            }),
+            400,
+        )
+    return value, None
+
+
+def _profile_identity_fields(
+    profile_row: dict | None,
+    users_row: dict | None,
+    profiles_columns: set[str],
+) -> dict[str, str]:
+    personal_info = _parse_json_object(profile_row.get('personal_info') if profile_row else None)
+    first_name = ''
+    if profile_row and profile_row.get('first_name'):
+        first_name = str(profile_row['first_name']).strip()
+    elif users_row and users_row.get('first_name'):
+        first_name = str(users_row['first_name']).strip()
+
+    last_name = ''
+    if profile_row and 'last_name' in profiles_columns and profile_row.get('last_name'):
+        last_name = str(profile_row['last_name']).strip()
+    elif users_row and users_row.get('last_name'):
+        last_name = str(users_row['last_name']).strip()
+    elif personal_info.get('last_name'):
+        last_name = str(personal_info['last_name']).strip()
+
+    zip_code = ''
+    if profile_row and 'zip_code' in profiles_columns and profile_row.get('zip_code'):
+        zip_code = str(profile_row['zip_code']).strip()
+    elif personal_info.get('zip_code'):
+        zip_code = str(personal_info['zip_code']).strip()
+    elif personal_info.get('zipCode'):
+        zip_code = str(personal_info['zipCode']).strip()
+
+    return {
+        'first_name': first_name,
+        'last_name': last_name,
+        'zip_code': zip_code,
+    }
+
+
 @user_bp.route('/profile', methods=['GET', 'PATCH', 'OPTIONS'])
 @cross_origin()
 @require_auth
@@ -81,11 +183,15 @@ def get_user_profile():
         balance_last_updated = None
         important_dates = None
         tier_value = 'budget'
+        profile_row = None
+        users_row = None
+        profiles_columns: set[str] = set()
         conn = None
         if user_email or get_current_user_id():
             try:
                 conn = get_db_connection()
                 cursor = conn.cursor()
+                profiles_columns = _table_columns(cursor, 'user_profiles')
                 ext_uid = get_current_user_id()
                 if ext_uid is not None:
                     cursor.execute(
@@ -109,13 +215,16 @@ def get_user_profile():
                             tier_value = t
                 if user_email:
                     cursor.execute(
-                        '''
-                        SELECT current_balance, balance_last_updated, important_dates
-                        FROM user_profiles WHERE email = %s
-                        ''',
+                        'SELECT first_name, last_name FROM users WHERE email = %s',
                         (user_email,),
                     )
-                    row = cursor.fetchone()
+                    users_row = cursor.fetchone()
+                    cursor.execute(
+                        'SELECT * FROM user_profiles WHERE email = %s',
+                        (user_email,),
+                    )
+                    profile_row = cursor.fetchone()
+                    row = profile_row
                     if row:
                         if row.get('current_balance') is not None:
                             current_balance = float(row['current_balance'])
@@ -141,10 +250,18 @@ def get_user_profile():
                     except Exception:
                         pass
 
+        identity = _profile_identity_fields(profile_row, users_row, profiles_columns)
+        full_name = ' '.join(
+            part for part in (identity['first_name'], identity['last_name']) if part
+        ).strip()
+
         profile_out = {
             'id': user_id or '',
             'email': user_email,
-            'name': '',
+            'name': full_name,
+            'first_name': identity['first_name'],
+            'last_name': identity['last_name'],
+            'zip_code': identity['zip_code'],
             'tier': tier_value,
             'current_address': None,
             'vehicle_info': None,
@@ -164,7 +281,7 @@ def get_user_profile():
 
 
 def patch_user_profile():
-    """Patch user profile fields (currently: important_dates.custom_events)."""
+    """Patch user profile fields (important_dates, first_name, last_name, zip_code)."""
     user_email = getattr(g, 'current_user_email', None)
     if not user_email:
         return jsonify({'success': False, 'error': 'Authentication required'}), 401
@@ -173,64 +290,215 @@ def patch_user_profile():
     if not isinstance(data, dict):
         return jsonify({'success': False, 'error': 'Request body must be JSON.'}), 400
 
-    if 'important_dates' not in data:
+    has_important_dates = 'important_dates' in data
+    has_first_name = 'first_name' in data
+    has_last_name = 'last_name' in data
+    has_zip_code = 'zip_code' in data
+
+    if not (has_important_dates or has_first_name or has_last_name or has_zip_code):
         return jsonify({'success': False, 'error': 'No supported fields to update.'}), 400
 
-    patch_dates = data['important_dates']
-    if not isinstance(patch_dates, dict):
-        return jsonify({
-            'success': False,
-            'error': 'important_dates must be an object.',
-        }), 400
+    validated_first_name = None
+    validated_last_name = None
+    validated_zip_code = None
 
-    custom_events = patch_dates.get('custom_events', patch_dates.get('customEvents'))
-    if custom_events is not None and not isinstance(custom_events, list):
-        return jsonify({
-            'success': False,
-            'error': 'custom_events must be an array.',
-        }), 400
+    if has_first_name:
+        validated_first_name, err = _validate_name_field('first_name', data['first_name'])
+        if err:
+            return err
+
+    if has_last_name:
+        validated_last_name, err = _validate_name_field('last_name', data['last_name'])
+        if err:
+            return err
+
+    if has_zip_code:
+        validated_zip_code, err = _validate_zip_code(data['zip_code'])
+        if err:
+            return err
+
+    patch_dates = None
+    if has_important_dates:
+        patch_dates = data['important_dates']
+        if not isinstance(patch_dates, dict):
+            return jsonify({
+                'success': False,
+                'error': 'important_dates must be an object.',
+            }), 400
+
+        custom_events = patch_dates.get('custom_events', patch_dates.get('customEvents'))
+        if custom_events is not None and not isinstance(custom_events, list):
+            return jsonify({
+                'success': False,
+                'error': 'custom_events must be an array.',
+            }), 400
 
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
+        users_columns = _table_columns(cursor, 'users')
+        profiles_columns = _table_columns(cursor, 'user_profiles')
+
         cursor.execute(
-            'SELECT important_dates FROM user_profiles WHERE email = %s',
+            'SELECT * FROM user_profiles WHERE email = %s',
             (user_email,),
         )
         row = cursor.fetchone()
-        existing = _parse_important_dates(row.get('important_dates') if row else None)
-        merged = _merge_important_dates(existing, patch_dates)
-        imp_json = _serialize_important_dates(merged)
+
+        imp_json = None
+        saved_dates = None
+        if has_important_dates:
+            existing = _parse_important_dates(row.get('important_dates') if row else None)
+            merged = _merge_important_dates(existing, patch_dates)
+            imp_json = _serialize_important_dates(merged)
+
+        profile_first_name = row.get('first_name') if row else None
+        personal_info = _parse_json_object(row.get('personal_info') if row else None)
+        profile_last_name = row.get('last_name') if row and 'last_name' in profiles_columns else None
+        profile_zip_code = row.get('zip_code') if row and 'zip_code' in profiles_columns else None
+
+        if has_first_name:
+            profile_first_name = validated_first_name
+        if has_last_name:
+            if 'last_name' in profiles_columns:
+                profile_last_name = validated_last_name
+            else:
+                personal_info['last_name'] = validated_last_name
+        if has_zip_code:
+            if 'zip_code' in profiles_columns:
+                profile_zip_code = validated_zip_code
+            else:
+                personal_info['zip_code'] = validated_zip_code
+
+        personal_info_json = json.dumps(personal_info)
+
+        if has_important_dates and not (has_first_name or has_last_name or has_zip_code):
+            cursor.execute(
+                '''
+                INSERT INTO user_profiles (
+                    email, first_name, personal_info, financial_info,
+                    monthly_expenses, important_dates, health_wellness, goals,
+                    created_at, updated_at
+                )
+                VALUES (%s, NULL, '{}', '{}', '{}', %s, '{}', '{}',
+                        CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+                ON CONFLICT (email) DO UPDATE SET
+                    important_dates = EXCLUDED.important_dates,
+                    updated_at = CURRENT_TIMESTAMP
+                RETURNING important_dates
+                ''',
+                (user_email, imp_json),
+            )
+            saved_row = cursor.fetchone()
+            conn.commit()
+            conn.close()
+
+            saved_dates = _parse_important_dates(
+                saved_row.get('important_dates') if saved_row else imp_json
+            )
+            return jsonify({
+                'success': True,
+                'profile': {
+                    'email': user_email,
+                    'important_dates': saved_dates,
+                },
+            }), 200
+
+        final_imp_json = imp_json if imp_json is not None else _serialize_important_dates(
+            _parse_important_dates(row.get('important_dates') if row else None)
+        )
+
+        insert_cols = [
+            'email', 'first_name', 'personal_info', 'financial_info',
+            'monthly_expenses', 'important_dates', 'health_wellness', 'goals',
+        ]
+        insert_vals = [
+            user_email,
+            profile_first_name,
+            personal_info_json,
+            '{}',
+            '{}',
+            final_imp_json,
+            '{}',
+            '{}',
+        ]
+
+        if 'last_name' in profiles_columns:
+            insert_cols.append('last_name')
+            insert_vals.append(profile_last_name)
+        if 'zip_code' in profiles_columns:
+            insert_cols.append('zip_code')
+            insert_vals.append(profile_zip_code)
+
+        conflict_sets = [
+            'first_name = EXCLUDED.first_name',
+            'personal_info = EXCLUDED.personal_info',
+            'important_dates = EXCLUDED.important_dates',
+            'updated_at = CURRENT_TIMESTAMP',
+        ]
+        if 'last_name' in profiles_columns:
+            conflict_sets.append('last_name = EXCLUDED.last_name')
+        if 'zip_code' in profiles_columns:
+            conflict_sets.append('zip_code = EXCLUDED.zip_code')
+
+        placeholders = ', '.join(['%s'] * len(insert_vals))
+        cursor.execute(
+            f'''
+            INSERT INTO user_profiles ({', '.join(insert_cols)}, created_at, updated_at)
+            VALUES ({placeholders}, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+            ON CONFLICT (email) DO UPDATE SET
+                {', '.join(conflict_sets)}
+            ''',
+            tuple(insert_vals),
+        )
+
+        user_updates = []
+        user_params = []
+        if has_first_name and 'first_name' in users_columns:
+            user_updates.append('first_name = %s')
+            user_params.append(validated_first_name)
+        if has_last_name and 'last_name' in users_columns:
+            user_updates.append('last_name = %s')
+            user_params.append(validated_last_name)
+        if user_updates:
+            user_params.append(user_email)
+            cursor.execute(
+                f"UPDATE users SET {', '.join(user_updates)} WHERE email = %s",
+                tuple(user_params),
+            )
 
         cursor.execute(
-            '''
-            INSERT INTO user_profiles (
-                email, first_name, personal_info, financial_info,
-                monthly_expenses, important_dates, health_wellness, goals,
-                created_at, updated_at
-            )
-            VALUES (%s, NULL, '{}', '{}', '{}', %s, '{}', '{}',
-                    CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-            ON CONFLICT (email) DO UPDATE SET
-                important_dates = EXCLUDED.important_dates,
-                updated_at = CURRENT_TIMESTAMP
-            RETURNING important_dates
-            ''',
-            (user_email, imp_json),
+            'SELECT * FROM user_profiles WHERE email = %s',
+            (user_email,),
         )
         saved_row = cursor.fetchone()
+        cursor.execute(
+            'SELECT first_name, last_name FROM users WHERE email = %s',
+            (user_email,),
+        )
+        users_row = cursor.fetchone()
+
         conn.commit()
         conn.close()
 
-        saved_dates = _parse_important_dates(
-            saved_row.get('important_dates') if saved_row else imp_json
-        )
+        if has_important_dates:
+            saved_dates = _parse_important_dates(
+                saved_row.get('important_dates') if saved_row else imp_json
+            )
+
+        identity = _profile_identity_fields(saved_row, users_row, profiles_columns)
+        response_profile = {
+            'email': user_email,
+            'first_name': identity['first_name'],
+            'last_name': identity['last_name'],
+            'zip_code': identity['zip_code'],
+        }
+        if saved_dates is not None:
+            response_profile['important_dates'] = saved_dates
+
         return jsonify({
             'success': True,
-            'profile': {
-                'email': user_email,
-                'important_dates': saved_dates,
-            },
+            'profile': response_profile,
         }), 200
     except Exception as e:
         logger.error(f"patch_user_profile failed: {e}")

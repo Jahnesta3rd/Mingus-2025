@@ -185,3 +185,93 @@ def test_patch_important_dates_merges_without_clobbering_other_keys(
     finally:
         with profile_app.app_context():
             _cleanup(email)
+
+
+def test_patch_profile_name_and_zip_persists_and_get_returns_fields(
+    profile_app, profile_client
+):
+    ext_user_id = str(uuid.uuid4())
+    email = f"patch_name_{ext_user_id[:12]}@example.com"
+
+    with profile_app.app_context():
+        _cleanup(email)
+        _ensure_user(email, ext_user_id)
+
+    token = _make_token(ext_user_id, email)
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json",
+    }
+    payload = {
+        "first_name": "Test",
+        "last_name": "User",
+        "zip_code": "30314",
+    }
+
+    try:
+        resp = profile_client.patch(
+            "/api/user/profile",
+            headers=headers,
+            json=payload,
+        )
+        assert resp.status_code == 200, resp.get_data(as_text=True)
+        body = resp.get_json()
+        assert body["success"] is True
+        assert body["profile"]["first_name"] == "Test"
+        assert body["profile"]["last_name"] == "User"
+        assert body["profile"]["zip_code"] == "30314"
+
+        with profile_app.app_context():
+            row = db.session.execute(
+                text(
+                    "SELECT first_name, personal_info FROM user_profiles WHERE email = :e"
+                ),
+                {"e": email},
+            ).first()
+            assert row is not None
+            assert row[0] == "Test"
+            personal = json.loads(row[1])
+            assert personal.get("last_name") == "User"
+            assert personal.get("zip_code") == "30314"
+
+            user = User.query.filter_by(email=email).first()
+            assert user is not None
+            assert user.first_name == "Test"
+            assert user.last_name == "User"
+
+        get_resp = profile_client.get("/api/user/profile", headers=headers)
+        assert get_resp.status_code == 200, get_resp.get_data(as_text=True)
+        profile = get_resp.get_json()["profile"]
+        assert profile["first_name"] == "Test"
+        assert profile["last_name"] == "User"
+        assert profile["zip_code"] == "30314"
+    finally:
+        with profile_app.app_context():
+            _cleanup(email)
+
+
+def test_patch_profile_rejects_invalid_zip(profile_app, profile_client):
+    ext_user_id = str(uuid.uuid4())
+    email = f"patch_zip_{ext_user_id[:12]}@example.com"
+
+    with profile_app.app_context():
+        _cleanup(email)
+        _ensure_user(email, ext_user_id)
+
+    token = _make_token(ext_user_id, email)
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json",
+    }
+
+    try:
+        resp = profile_client.patch(
+            "/api/user/profile",
+            headers=headers,
+            json={"zip_code": "3031"},
+        )
+        assert resp.status_code == 400
+        assert "zip_code" in resp.get_json()["error"]
+    finally:
+        with profile_app.app_context():
+            _cleanup(email)

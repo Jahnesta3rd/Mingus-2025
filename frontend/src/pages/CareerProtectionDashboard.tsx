@@ -18,6 +18,7 @@ import { useDashboardStore } from '../stores/dashboardStore';
 import VehicleDashboard from '../components/VehicleDashboard';
 import HousingLocationTile from '../components/HousingLocationTile';
 import DashboardWellnessSection from '../components/DashboardWellnessSection';
+import YouTab from '../components/YouTab';
 
 // Lazy load the full Daily Outlook component for performance
 const DailyOutlook = lazy(() => import('../components/DailyOutlook'));
@@ -443,24 +444,19 @@ const CareerProtectionDashboard: React.FC = () => {
 
           {dashboardState.activeTab === 'discover' && (
             <CardJobHome cardId="career" onBack={handleDrillBack}>
-              <RecommendationTiers userTier={userTier} userId={user?.id} />
+              <RecommendationTiers
+                userTier={userTier}
+                userId={user?.id}
+                hideHeader
+              />
             </CardJobHome>
           )}
 
-          {dashboardState.activeTab === 'you' && (
-            <div
-              className="flex min-h-[calc(100vh-12rem)] flex-1 items-center justify-center rounded-xl"
-              style={{ backgroundColor: WHISPER_PURPLE }}
-            >
-              <p className="text-center text-base font-medium" style={{ color: MINGUS_PURPLE }}>
-                You — profile and settings coming soon
-              </p>
-            </div>
-          )}
+          {dashboardState.activeTab === 'you' && <YouTab />}
 
           {dashboardState.activeTab === 'vehicle' && (
             <CardJobHome cardId="vehicle" onBack={handleDrillBack}>
-              <VehicleDashboard />
+              <VehicleDashboard hideHeader />
             </CardJobHome>
           )}
 
