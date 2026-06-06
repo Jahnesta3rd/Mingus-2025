@@ -42,6 +42,8 @@ class SecurityMiddleware:
             '/api/beta/validate',
             # Beta redeem uses JWT Bearer; skip CSRF so SPA can call right after register
             '/api/beta/redeem',
+            # CareerStep resume upload uses JWT Bearer multipart; skip CSRF (Phase R1)
+            '/api/career/resume',
             # JR-2 stubs — no auth or CSRF needed until Phase B wiring
             '/recommendations/process-resume',
             '/api/recommendations/process-resume',

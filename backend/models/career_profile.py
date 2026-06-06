@@ -3,7 +3,7 @@
 
 from datetime import datetime
 
-from sqlalchemy import CheckConstraint
+from sqlalchemy import CheckConstraint, Numeric
 
 from .database import db
 
@@ -29,7 +29,12 @@ class CareerProfile(db.Model):
     seniority_level = db.Column(db.String(20), nullable=True)
     is_management = db.Column(db.Boolean, nullable=True)
     title_normalized_at = db.Column(db.DateTime, nullable=True)
-    title_normalization_source = db.Column(db.String(20), nullable=True)
+    title_normalization_source = db.Column(
+        db.String(20), nullable=True
+    )  # Accepted values: 'llm' (manual CareerStep commit), 'llm_resume' (parsed from uploaded resume), 'rule' (rule-based fallback)
+    resume_file_path = db.Column(db.String(500), nullable=True)
+    resume_parsed_at = db.Column(db.DateTime, nullable=True)
+    resume_confidence_score = db.Column(Numeric(4, 2), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     updated_at = db.Column(
         db.DateTime,

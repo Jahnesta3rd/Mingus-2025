@@ -1,6 +1,11 @@
 import React, { useCallback, useState } from 'react';
 import { OCCUPATION_GROUPS } from '../../../../constants/occupationOptions';
 import { useAuth } from '../../../../hooks/useAuth';
+import CareerResumeUploadSection from '../../../career/CareerResumeUploadSection';
+import {
+  applyResumePrefill,
+  type CareerResumePrefill,
+} from '../../../career/careerResumeUpload';
 import type { StepProps } from '../StepDefinitions';
 
 type RelocationOpenness = 'yes' | 'maybe' | 'no';
@@ -87,6 +92,35 @@ export default function CareerStep({ initialData, onSubmit, onSkip }: StepProps)
   const [showValidationSummary, setShowValidationSummary] = useState(false);
   const [submitBanner, setSubmitBanner] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [uploadSectionDismissed, setUploadSectionDismissed] = useState(false);
+
+  const handleResumePrefill = useCallback(
+    (prefill: CareerResumePrefill) => {
+      const merged = applyResumePrefill(
+        {
+          title: currentPosition,
+          employer,
+          industry,
+          yearsExperience: yearsInRole,
+        },
+        prefill
+      );
+
+      if (merged.title != null && merged.title !== currentPosition) {
+        setCurrentPosition(String(merged.title));
+      }
+      if (merged.employer != null && merged.employer !== employer) {
+        setEmployer(String(merged.employer));
+      }
+      if (merged.industry != null && merged.industry !== industry) {
+        setIndustry(String(merged.industry));
+      }
+      if (merged.yearsExperience != null && merged.yearsExperience !== yearsInRole) {
+        setYearsInRole(String(merged.yearsExperience));
+      }
+    },
+    [currentPosition, employer, industry, yearsInRole]
+  );
 
   const clearValidationFeedback = useCallback(() => {
     setErrors({});
@@ -187,7 +221,19 @@ export default function CareerStep({ initialData, onSubmit, onSkip }: StepProps)
           </div>
         )}
 
-        <div className="mt-6 grid gap-3 sm:grid-cols-2">
+        {!uploadSectionDismissed && (
+          <div className="mt-6">
+            <CareerResumeUploadSection
+              onPrefill={handleResumePrefill}
+              showSkipLink
+              manualFieldsAnchorId="career-manual-fields"
+              onSkipManual={() => setUploadSectionDismissed(true)}
+              variant="onboarding"
+            />
+          </div>
+        )}
+
+        <div id="career-manual-fields" className="mt-6 grid gap-3 sm:grid-cols-2">
           <div className="sm:col-span-2">
             <label className={labelClass} htmlFor="career-occupation_key">Occupation *</label>
             <select

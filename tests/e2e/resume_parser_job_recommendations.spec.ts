@@ -166,6 +166,31 @@ function makeFakeDocxBytes(): Buffer {
   return Buffer.from('504b0304', 'hex');
 }
 
+/** R1-compatible POST /api/career/resume response for tier mocks */
+function buildCareerResumeApiBody(tier: 'budget' | 'mid' | 'pro') {
+  const resumeData = RESUME_PARSE_RESULTS[tier];
+  return {
+    success: true,
+    file_path: `static/uploads/resumes/mock/resume-${tier}-001.pdf`,
+    parsed: {
+      title: resumeData.current_role,
+      industry: resumeData.industries[0],
+      years_experience: Math.floor(resumeData.experience_years),
+      skills: resumeData.skills.slice(0, 10),
+      confidence_score: resumeData.accuracy / 100,
+    },
+    raw_advanced_analytics: {
+      career_field: resumeData.industries[0],
+      contact_info: { company: resumeData.employer },
+      experience: [{ company: resumeData.employer, job_title: resumeData.current_role }],
+      education: resumeData.education,
+      target_salary: resumeData.target_salary,
+      contact: resumeData.contact,
+    },
+    message: 'Resume uploaded and parsed successfully',
+  };
+}
+
 async function addResumeMocks(p: Page, tier: 'budget' | 'mid' | 'pro') {
   const resumeData  = RESUME_PARSE_RESULTS[tier];
   const jobs        = JOB_RECOMMENDATIONS[tier];
@@ -188,24 +213,31 @@ async function addResumeMocks(p: Page, tier: 'budget' | 'mid' | 'pro') {
       body: JSON.stringify({ setup_complete: true, tier: tier === 'mid' ? 'mid_tier' : tier === 'pro' ? 'professional' : 'budget', email: user.email, firstName: user.name }) });
   });
 
-  // Resume upload / parse endpoints
-  await p.route('**/api/resume/upload', async (route) => {
+  // Resume upload endpoint (R1: POST /api/career/resume)
+  await p.route('**/api/career/resume**', async (route) => {
     const method = route.request().method();
     if (method !== 'POST') return route.fallback();
     const postData = route.request().postData() || '';
-    const isUnsupported = postData.includes('.txt') || postData.includes('text/plain');
+    const isUnsupported =
+      postData.includes('.txt') ||
+      postData.includes('text/plain') ||
+      postData.includes('filename="resume.txt"');
     if (isUnsupported) {
-      await route.fulfill({ status: 400, contentType: 'application/json',
-        body: JSON.stringify({ error: 'unsupported_format', message: 'Only PDF and Word (.docx) formats are supported.' }) });
-    } else {
-      await route.fulfill({ status: 200, contentType: 'application/json',
-        body: JSON.stringify({ resume_id: `resume-${tier}-001`, status: 'uploaded', format_detected: postData.includes('pdf') ? 'pdf' : 'docx' }) });
+      await route.fulfill({
+        status: 422,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          error: 'invalid_file',
+          message: 'Invalid file type. Allowed types: .pdf, .docx, .doc, .txt',
+        }),
+      });
+      return;
     }
-  });
-
-  await p.route('**/api/resume/parse**', async (route) => {
-    await route.fulfill({ status: 200, contentType: 'application/json',
-      body: JSON.stringify({ ...resumeData, resume_id: `resume-${tier}-001`, status: 'parsed' }) });
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify(buildCareerResumeApiBody(tier)),
+    });
   });
 
   await p.route('**/api/resume/status**', async (route) => {
@@ -428,13 +460,14 @@ test.describe.serial('Resume Parser & Job Recommendation Tests', () => {
       // Verify the parse endpoint responds correctly to a PDF
       const response = await page.evaluate(async (url) => {
         const form = new FormData();
-        form.append('file', new Blob(['%PDF-1.4'], { type: 'application/pdf' }), 'maya_resume.pdf');
-        const r = await fetch(`${url}/api/resume/upload`, { method: 'POST', body: form });
+        form.append('resume', new Blob(['%PDF-1.4'], { type: 'application/pdf' }), 'maya_resume.pdf');
+        const r = await fetch(`${url}/api/career/resume`, { method: 'POST', body: form });
         return { status: r.status, data: await r.json() };
       }, BASE_URL);
       expect(response.status).toBe(200);
-      expect(response.data.format_detected).toBe('pdf');
-      console.log(`RP-U01: PDF upload API returned 200, format_detected: pdf ✓`);
+      expect(response.data.success).toBe(true);
+      expect(response.data.parsed?.title).toBeTruthy();
+      console.log(`RP-U01: PDF upload API returned 200, title: ${response.data.parsed?.title} ✓`);
     } else {
       // Try file input upload
       const fileInput = page.locator('input[type="file"]').first();
@@ -467,11 +500,18 @@ test.describe.serial('Resume Parser & Job Recommendation Tests', () => {
       // Test via API directly
       const response = await page.evaluate(async (url) => {
         const form = new FormData();
-        form.append('file', new Blob(['\x50\x4b\x03\x04'], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' }), 'maya_resume.docx');
-        const r = await fetch(`${url}/api/resume/upload`, { method: 'POST', body: form });
+        form.append(
+          'resume',
+          new Blob(['\x50\x4b\x03\x04'], {
+            type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+          }),
+          'maya_resume.docx'
+        );
+        const r = await fetch(`${url}/api/career/resume`, { method: 'POST', body: form });
         return { status: r.status, data: await r.json() };
       }, BASE_URL);
       expect([200, 201]).toContain(response.status);
+      expect(response.data.success).toBe(true);
       console.log(`RP-U02: DOCX upload API returned ${response.status} ✓`);
     }
   });
@@ -483,16 +523,14 @@ test.describe.serial('Resume Parser & Job Recommendation Tests', () => {
     // The mock returns 400 for .txt — verify via direct API call
     const response = await page.evaluate(async (url) => {
       const form = new FormData();
-      // Append with .txt flag so our mock intercepts correctly
-      form.append('file', new Blob(['plain text resume'], { type: 'text/plain' }), 'resume.txt');
-      form.append('filename', 'resume.txt'); // extra signal for mock
-      const r = await fetch(`${url}/api/resume/upload`, { method: 'POST', body: form });
+      form.append('resume', new Blob(['plain text resume'], { type: 'text/plain' }), 'resume.exe');
+      const r = await fetch(`${url}/api/career/resume`, { method: 'POST', body: form });
       return { status: r.status, data: await r.json().catch(() => ({})) };
     }, BASE_URL);
 
-    // Accept 400 (explicit rejection) or 200 with error field — both are valid UX
-    const isRejected = response.status === 400 ||
-      (response.data?.error && response.data.error.includes('unsupported'));
+    const isRejected =
+      response.status === 422 ||
+      (response.data?.error && String(response.data.error).includes('invalid_file'));
     console.log(`RP-U03: Unsupported format response: ${response.status} — rejected: ${isRejected}`);
     expect([400, 415, 422]).toContain(response.status);
     console.log('RP-U03: Unsupported format correctly rejected ✓');
@@ -521,7 +559,9 @@ test.describe.serial('Resume Parser & Job Recommendation Tests', () => {
       ];
       // Trigger parse via API
       await p2.evaluate(async (url) => {
-        await fetch(`${url}/api/resume/parse?resume_id=resume-test-001`);
+        const form = new FormData();
+        form.append('resume', new Blob(['%PDF-1.4'], { type: 'application/pdf' }), 'resume.pdf');
+        await fetch(`${url}/api/career/resume`, { method: 'POST', body: form });
       }, BASE_URL);
       await p2.waitForTimeout(500);
 
@@ -547,18 +587,21 @@ test.describe.serial('Resume Parser & Job Recommendation Tests', () => {
 
     // Verify parse API returns experience fields
     const parseResp = await page.evaluate(async (url) => {
-      const r = await fetch(`${url}/api/resume/parse?resume_id=resume-budget-001`);
+      const form = new FormData();
+      form.append('resume', new Blob(['%PDF-1.4'], { type: 'application/pdf' }), 'resume.pdf');
+      const r = await fetch(`${url}/api/career/resume`, { method: 'POST', body: form });
       return r.json();
     }, BASE_URL);
 
-    expect(parseResp.current_role).toBeTruthy();
-    expect(parseResp.experience_years).toBeGreaterThan(0);
-    expect(parseResp.employer).toBeTruthy();
+    expect(parseResp.parsed?.title).toBeTruthy();
+    expect(parseResp.parsed?.years_experience).toBeGreaterThan(0);
+    expect(parseResp.raw_advanced_analytics?.experience?.[0]?.company).toBeTruthy();
 
-    const workTerms = [parseResp.current_role.toLowerCase(), parseResp.employer.toLowerCase().split(' ')[0]];
+    const employer = parseResp.raw_advanced_analytics.experience[0].company as string;
+    const workTerms = [parseResp.parsed.title.toLowerCase(), employer.toLowerCase().split(' ')[0]];
     const { found, matched } = await pageContainsAny(page, workTerms);
 
-    console.log(`RP-P02: API role: "${parseResp.current_role}", years: ${parseResp.experience_years}, employer: "${parseResp.employer}"`);
+    console.log(`RP-P02: API role: "${parseResp.parsed.title}", years: ${parseResp.parsed.years_experience}, employer: "${employer}"`);
     console.log(`RP-P02: UI display term: "${matched}"`);
     console.log('RP-P02: Work experience parsing validated ✓');
   });
@@ -569,16 +612,19 @@ test.describe.serial('Resume Parser & Job Recommendation Tests', () => {
     await navigateToJobsTab(page, 'mid');
 
     const parseResp = await page.evaluate(async (url) => {
-      const r = await fetch(`${url}/api/resume/parse?resume_id=resume-mid-001`);
+      const form = new FormData();
+      form.append('resume', new Blob(['%PDF-1.4'], { type: 'application/pdf' }), 'resume.pdf');
+      const r = await fetch(`${url}/api/career/resume`, { method: 'POST', body: form });
       return r.json();
     }, BASE_URL);
 
-    expect(parseResp.education).toBeTruthy();
-    expect(parseResp.education.degree).toBeTruthy();
-    expect(parseResp.education.institution).toBeTruthy();
-    expect(parseResp.education.year).toBeGreaterThan(2000);
+    const education = parseResp.raw_advanced_analytics?.education;
+    expect(education).toBeTruthy();
+    expect(education.degree).toBeTruthy();
+    expect(education.institution).toBeTruthy();
+    expect(education.year).toBeGreaterThan(2000);
 
-    console.log(`RP-P03: Degree: "${parseResp.education.degree}" | Institution: "${parseResp.education.institution}" | Year: ${parseResp.education.year}`);
+    console.log(`RP-P03: Degree: "${education.degree}" | Institution: "${education.institution}" | Year: ${education.year}`);
     console.log('RP-P03: Education history extraction validated ✓');
   });
 
@@ -590,14 +636,16 @@ test.describe.serial('Resume Parser & Job Recommendation Tests', () => {
       await addResumeMocks(p2, tier);
 
       const parseResp = await p2.evaluate(async (url) => {
-        const r = await fetch(`${url}/api/resume/parse?resume_id=test`);
+        const form = new FormData();
+        form.append('resume', new Blob(['%PDF-1.4'], { type: 'application/pdf' }), 'resume.pdf');
+        const r = await fetch(`${url}/api/career/resume`, { method: 'POST', body: form });
         return r.json();
       }, BASE_URL);
 
-      expect(Array.isArray(parseResp.skills)).toBe(true);
-      expect(parseResp.skills.length).toBeGreaterThan(3);
+      expect(Array.isArray(parseResp.parsed?.skills)).toBe(true);
+      expect(parseResp.parsed.skills.length).toBeGreaterThan(3);
 
-      console.log(`RP-P04 [${tier}]: ${parseResp.skills.length} skills found: ${parseResp.skills.slice(0, 3).join(', ')}...`);
+      console.log(`RP-P04 [${tier}]: ${parseResp.parsed.skills.length} skills found: ${parseResp.parsed.skills.slice(0, 3).join(', ')}...`);
       await ctx2.close();
     }
     console.log('RP-P04: Skills identification validated across all 3 tiers ✓');
@@ -610,15 +658,18 @@ test.describe.serial('Resume Parser & Job Recommendation Tests', () => {
       await addResumeMocks(p2, tier);
 
       const parseResp = await p2.evaluate(async (url) => {
-        const r = await fetch(`${url}/api/resume/parse?resume_id=test`);
+        const form = new FormData();
+        form.append('resume', new Blob(['%PDF-1.4'], { type: 'application/pdf' }), 'resume.pdf');
+        const r = await fetch(`${url}/api/career/resume`, { method: 'POST', body: form });
         return r.json();
       }, BASE_URL);
 
-      expect(parseResp.target_salary).toBeTruthy();
-      expect(parseResp.target_salary.min).toBeGreaterThan(0);
-      expect(parseResp.target_salary.max).toBeGreaterThan(parseResp.target_salary.min);
+      const targetSalary = parseResp.raw_advanced_analytics?.target_salary;
+      expect(targetSalary).toBeTruthy();
+      expect(targetSalary.min).toBeGreaterThan(0);
+      expect(targetSalary.max).toBeGreaterThan(targetSalary.min);
 
-      console.log(`RP-P05 [${tier}]: Salary range $${parseResp.target_salary.min.toLocaleString()}–$${parseResp.target_salary.max.toLocaleString()}`);
+      console.log(`RP-P05 [${tier}]: Salary range $${targetSalary.min.toLocaleString()}–$${targetSalary.max.toLocaleString()}`);
       await ctx2.close();
     }
     console.log('RP-P05: Target salary range extraction validated ✓');

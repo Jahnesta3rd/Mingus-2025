@@ -88,6 +88,7 @@ class ResumeFormatHandler:
     def _extract_pdf_pypdf2(self, file_path: Path) -> Optional[str]:
         """Extract text using PyPDF2"""
         try:
+            import PyPDF2
             with open(file_path, 'rb') as file:
                 pdf_reader = PyPDF2.PdfReader(file)
                 text = ""

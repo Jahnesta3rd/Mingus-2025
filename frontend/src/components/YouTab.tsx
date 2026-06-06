@@ -4,10 +4,10 @@ import {
   ChevronRight,
   ExternalLink,
   Loader2,
-  Upload,
 } from 'lucide-react';
 import { useAuth, type AuthUserTier } from '../hooks/useAuth';
 import { csrfHeaders } from '../utils/csrfHeaders';
+import CareerResumeUploadSection from './career/CareerResumeUploadSection';
 
 const MINGUS_PURPLE = '#5B2D8E';
 const DEEP_PURPLE = '#3b1f6e';
@@ -542,35 +542,7 @@ const YouTab: React.FC = () => {
 
         {/* Section 3: Resume */}
         <SectionCard title="Resume">
-          <div className="rounded-xl border-2 border-dashed border-[#E9D5FF] bg-[#FAF5FF] p-6 text-center">
-            <Upload className="mx-auto mb-3 h-8 w-8" style={{ color: MINGUS_PURPLE }} />
-            <p className="mb-4 text-sm" style={{ color: SLATE_TEXT }}>
-              Upload your resume to unlock smarter career matches
-            </p>
-            <button
-              type="button"
-              disabled
-              title="Coming soon"
-              data-testid="resume-upload-coming-soon"
-              className="cursor-not-allowed rounded-lg px-5 py-2.5 text-sm font-semibold text-white opacity-60"
-              style={{ backgroundColor: MINGUS_PURPLE }}
-            >
-              Upload Resume
-            </button>
-            <p className="mt-3 text-xs" style={{ color: MUTED_TEXT }}>
-              Supported formats: PDF, DOCX, TXT · Max 5MB
-            </p>
-            <span
-              className="mt-3 inline-flex rounded-full border px-2.5 py-0.5 text-xs font-semibold"
-              style={{
-                backgroundColor: `${GOLD_ACCENT}22`,
-                borderColor: `${GOLD_ACCENT}66`,
-                color: '#92400e',
-              }}
-            >
-              Coming in next release
-            </span>
-          </div>
+          <CareerResumeUploadSection variant="profile" />
         </SectionCard>
 
         {/* Section 4: Account & Security */}
