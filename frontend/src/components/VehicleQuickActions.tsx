@@ -8,7 +8,6 @@ import {
   Settings,
   Calendar,
   TrendingUp,
-  AlertTriangle,
   MapPin,
   Users
 } from 'lucide-react';
@@ -17,11 +16,13 @@ import { QuickAction } from '../types/vehicle';
 interface VehicleQuickActionsProps {
   actions: QuickAction[];
   onActionClick: (actionId: string) => void;
+  onRequestAddVehicle?: () => void;
 }
 
 const VehicleQuickActions: React.FC<VehicleQuickActionsProps> = ({ 
   actions, 
-  onActionClick 
+  onActionClick,
+  onRequestAddVehicle
 }) => {
   const defaultActions: QuickAction[] = [
     {
@@ -68,15 +69,6 @@ const VehicleQuickActions: React.FC<VehicleQuickActionsProps> = ({
       color: 'blue',
       enabled: true,
       href: '/vehicles/reports'
-    },
-    {
-      id: 'emergency_contact',
-      title: 'Emergency Contact',
-      description: 'Quick access to roadside assistance',
-      icon: 'AlertTriangle',
-      color: 'red',
-      enabled: true,
-      href: '/emergency'
     }
   ];
 
@@ -91,7 +83,6 @@ const VehicleQuickActions: React.FC<VehicleQuickActionsProps> = ({
       'Settings': Settings,
       'Calendar': Calendar,
       'TrendingUp': TrendingUp,
-      'AlertTriangle': AlertTriangle,
       'MapPin': MapPin,
       'Users': Users,
       'Plus': Plus
@@ -142,7 +133,19 @@ const VehicleQuickActions: React.FC<VehicleQuickActionsProps> = ({
           return (
             <button
               key={action.id}
-              onClick={() => action.enabled && onActionClick(action.id)}
+              type="button"
+              onClick={() => {
+                if (!action.enabled) return;
+                const aid = action.id;
+                if (
+                  (aid === 'add_vehicle' || aid === 'add-vehicle') &&
+                  onRequestAddVehicle
+                ) {
+                  onRequestAddVehicle();
+                } else {
+                  onActionClick(aid);
+                }
+              }}
               className={`
                 flex items-center gap-3 p-4 rounded-lg border transition-all duration-200
                 ${getColorClasses(action.color, action.enabled)}
@@ -195,20 +198,6 @@ const VehicleQuickActions: React.FC<VehicleQuickActionsProps> = ({
             icon={<DollarSign className="h-4 w-4" />}
             color="green"
           />
-        </div>
-      </div>
-
-      {/* Emergency Actions */}
-      <div className="mt-6 pt-4 border-t border-gray-200">
-        <h5 className="font-semibold text-gray-900 mb-3">Emergency</h5>
-        <div className="space-y-2">
-          <button className="w-full bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg font-medium transition-colors text-sm flex items-center justify-center gap-2">
-            <AlertTriangle className="h-4 w-4" />
-            Roadside Assistance
-          </button>
-          <button className="w-full bg-red-100 hover:bg-red-200 text-red-700 py-2 px-4 rounded-lg font-medium transition-colors text-sm">
-            Emergency Contact
-          </button>
         </div>
       </div>
     </div>

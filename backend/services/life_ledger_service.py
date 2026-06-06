@@ -59,7 +59,7 @@ def generate_insights(user_id: int, profile: LifeLedgerProfile) -> list[dict[str
                     "Your relationship wellness score suggests meaningful financial "
                     "drain risk—review shared money patterns before they compound."
                 ),
-                "action_url": "/dashboard/wellness",
+                "action_url": "/dashboard/vibe-checkups",
             }
         )
 
@@ -72,7 +72,7 @@ def generate_insights(user_id: int, profile: LifeLedgerProfile) -> list[dict[str
                     "Health habits that slip often show up as lost focus and "
                     "productivity—worth budgeting time and care like any other cost."
                 ),
-                "action_url": "/dashboard/wellness",
+                "action_url": "/dashboard/vibe-checkups",
             }
         )
 
@@ -98,7 +98,7 @@ def generate_insights(user_id: int, profile: LifeLedgerProfile) -> list[dict[str
                     "Vehicle upkeep risk is elevated—plan for maintenance spikes so "
                     "they do not derail cash flow."
                 ),
-                "action_url": "/dashboard/vehicle",
+                "action_url": "/dashboard/tools?tab=vehicle",
             }
         )
 
@@ -134,10 +134,14 @@ def _ensure_vibe_checkups_relationship_expense(user_id: int, lead: VibeCheckupsL
     db.session.add(row)
 
 
-def import_vibe_lead(user_id: int, vc_lead_id: str) -> LifeLedgerProfile:
+def import_vibe_lead(user_id: str, vc_lead_id: str) -> LifeLedgerProfile:
     """
     Link a converted Vibe Checkups lead to the user's Life Ledger profile and
     add the relationship recurring expense import line (idempotent on source).
+
+    Args:
+        user_id: External user identifier (``User.user_id``, UUID string).
+        vc_lead_id: Vibe Checkups lead UUID string.
     """
     try:
         lead_uuid = UUID(str(vc_lead_id).strip())
@@ -148,9 +152,10 @@ def import_vibe_lead(user_id: int, vc_lead_id: str) -> LifeLedgerProfile:
     if lead is None:
         raise ValueError("Vibe Checkups lead not found")
 
-    user = db.session.get(User, user_id)
+    user = db.session.query(User).filter_by(user_id=user_id).first()
     if user is None:
         raise ValueError("User not found")
+    uid = user.id
     if (lead.email or "").strip().lower() != (user.email or "").strip().lower():
         raise ValueError("Lead email does not match registered user")
     if not lead.mingus_converted:
@@ -158,14 +163,14 @@ def import_vibe_lead(user_id: int, vc_lead_id: str) -> LifeLedgerProfile:
             "Lead is not eligible for import (mingus_converted is false)"
         )
 
-    profile = get_or_create_profile(user_id)
+    profile = get_or_create_profile(uid)
     profile.vibe_lead_id = lead.id
     profile.vibe_score = int(round((lead.emotional_score + lead.financial_score) / 2))
     profile.vibe_annual_projection = lead.total_annual_projection
     profile.life_ledger_score = compute_life_ledger_score(profile)
 
-    _ensure_vibe_checkups_relationship_expense(user_id, lead)
-    sync_insights_for_user(user_id, profile)
+    _ensure_vibe_checkups_relationship_expense(uid, lead)
+    sync_insights_for_user(uid, profile)
     db.session.commit()
     return profile
 

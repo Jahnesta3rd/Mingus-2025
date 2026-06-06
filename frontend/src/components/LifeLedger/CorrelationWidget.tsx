@@ -42,6 +42,7 @@ const MID_PREVIEW_PLACEHOLDERS: LifeCorrelationItem[] = [
 
 const CorrelationWidget: React.FC = () => {
   const { user, isAuthenticated, loading: authLoading } = useAuth();
+  const upgradePlansTo = isAuthenticated ? '/dashboard/upgrade' : '/#pricing';
   const tier = resolveTier(user);
   const enabled = isAuthenticated && tier !== 'budget';
   const { summary, snapshots, loading, error, refetch } = useLifeCorrelation(enabled, tier);
@@ -88,7 +89,7 @@ const CorrelationWidget: React.FC = () => {
         </p>
         <p className="text-xs text-[#9a8f7e] mb-4">Available on Mid-tier and above</p>
         <Link
-          to="/settings/upgrade"
+          to={upgradePlansTo}
           className="inline-flex items-center justify-center rounded-lg bg-[#C4A064] px-4 py-2 text-sm font-semibold text-[#0d0a08] hover:bg-[#d4b074] transition-colors"
         >
           Upgrade
@@ -148,12 +149,16 @@ const CorrelationWidget: React.FC = () => {
               />
             </div>
           </div>
-          <Link
-            to="/dashboard/vibe-checkups"
-            className="inline-flex items-center justify-center rounded-lg bg-[#C4A064] px-4 py-2.5 text-sm font-semibold text-[#0d0a08] hover:bg-[#d4b074] transition-colors"
-          >
-            Complete a checkup
-          </Link>
+          {/* TODO: post-beta replace with per-job-home check-in entries per #99 */}
+          {/* (Roof Check → Home, Body Check → Wellness, Vibe Check → People per-person flow) */}
+          {isAuthenticated ? (
+            <Link
+              to="/dashboard/vibe-checkups"
+              className="inline-flex items-center justify-center rounded-lg bg-[#C4A064] px-4 py-2.5 text-sm font-semibold text-[#0d0a08] hover:bg-[#d4b074] transition-colors"
+            >
+              Complete a checkup
+            </Link>
+          ) : null}
         </section>
       )}
 
@@ -169,7 +174,7 @@ const CorrelationWidget: React.FC = () => {
             ))}
           </div>
           <Link
-            to="/settings/upgrade"
+            to={upgradePlansTo}
             className="inline-flex items-center justify-center rounded-lg bg-[#C4A064] px-4 py-2.5 text-sm font-semibold text-[#0d0a08] hover:bg-[#d4b074] transition-colors"
           >
             See the full picture

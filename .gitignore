@@ -19,8 +19,10 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
-lib64/
+venv/lib/
+venv/lib64/
+.venv/lib/
+.venv/lib64/
 parts/
 sdist/
 var/
@@ -126,6 +128,8 @@ seo_validation_*
 setup_*
 # Exception: financial_setup_api is source code, not a migration/setup file
 !backend/api/financial_setup_api.py
+# Exception: vehicle setup API routes (not a one-off migration script)
+!backend/api/vehicle_setup_endpoints.py
 
 # Requirements backup files
 requirements-*.txt
@@ -146,3 +150,17 @@ backend/cache/*.json
 *.bak
 alembic.ini
 frontend/dist/
+
+# Stray directories from earlier project layouts / developer workstations
+# (explicitly anchored to repo root — do NOT change to unanchored patterns,
+#  doing so would silently exclude frontend/src/lib/ and similar paths)
+/lib/
+/MINGUS Marketing/
+
+# Beta code verification batch artifacts (operator-generated, not source)
+backend/data/beta_codes_*.csv
+memes_source/
+static/memes/
+.env*
+playwright-report/
+test-results/

@@ -271,12 +271,15 @@ async function addDashboardMocks(page: Page, user: TestUser, state: MemorialStat
       contentType: 'application/json',
       body: JSON.stringify({
         life_ready_score: 72,
+        has_sufficient_data: true,
+        pillars_complete: 4,
+        pillars_total: 4,
         components: {
-          vibe: { score: 70, weight: 0.2 },
+          vibe: { score: 70, weight: 0.3 },
           body: { score: 75, weight: 0.2 },
-          wellness: { score: 68, weight: 0.2 },
-          financial: { score: 74, weight: 0.2 },
-          stability: { score: 73, weight: 0.2 },
+          wellness: { score: 68, weight: 0.15 },
+          financial: { score: 74, weight: 0.25 },
+          stability: { score: 73, weight: 0.1 },
         },
         trend: 'stable',
         headline: 'Memorial Day readiness snapshot',
@@ -954,7 +957,7 @@ test.describe('Memorial Day launch', () => {
     }
   });
 
-  test('MD-06: /dashboard shows HomeScreen with Life Ready Score', async ({ browser }) => {
+  test('MD-06: /dashboard shows HomeScreen with Whole-Life Score', async ({ browser }) => {
     const state: MemorialState = {
       incomeScheduleSaved: false,
       expenseScheduleSaved: false,
@@ -968,7 +971,7 @@ test.describe('Memorial Day launch', () => {
       await addDashboardMocks(page, MAYA, state);
       await loginAs(page, MAYA);
       await dismissOverlay(page);
-      await expect(page.getByRole('heading', { name: /Life Ready Score/i })).toBeVisible({ timeout: 20000 });
+      await expect(page.getByRole('heading', { name: /Whole-Life Score/i })).toBeVisible({ timeout: 20000 });
       ok = true;
     } finally {
       logMd('MD-06', ok);
@@ -976,7 +979,7 @@ test.describe('Memorial Day launch', () => {
     }
   });
 
-  test('MD-07: Life Ready Score between 0 and 100', async ({ browser }) => {
+  test('MD-07: Whole-Life Score between 0 and 100', async ({ browser }) => {
     const state: MemorialState = {
       incomeScheduleSaved: false,
       expenseScheduleSaved: false,

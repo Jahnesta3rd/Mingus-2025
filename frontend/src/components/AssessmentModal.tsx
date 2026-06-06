@@ -806,7 +806,12 @@ const AssessmentModal: React.FC<AssessmentModalProps> = ({
     let sanitizedValue = value;
     
     if (typeof value === 'string') {
-      sanitizedValue = Sanitizer.sanitizeString(value);
+      // Email must not pass through DOMPurify — stray `<` from paste can be parsed as HTML
+      // and truncate the local part or TLD (e.g. ...@gmail.co<m → ...@gmail.co).
+      sanitizedValue =
+        questionId === 'email'
+          ? Sanitizer.sanitizePlainText(value)
+          : Sanitizer.sanitizeString(value);
     } else if (Array.isArray(value)) {
       sanitizedValue = value.map(item => 
         typeof item === 'string' ? Sanitizer.sanitizeString(item) : item

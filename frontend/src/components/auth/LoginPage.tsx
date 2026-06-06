@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const LoginPage: React.FC = () => {
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
@@ -25,7 +26,7 @@ const LoginPage: React.FC = () => {
         throw new Error(errData.error || errData.message || 'Login failed');
       }
 
-      // Set auth token first so AuthGuard allows /vibe-check-meme on the next load
+      // Set auth token first so AuthGuard allows protected routes on the next load
       localStorage.setItem('auth_token', 'ok');
       sessionStorage.removeItem('prefetched_vibe');
       sessionStorage.removeItem('last_vibe_date');
@@ -36,37 +37,7 @@ const LoginPage: React.FC = () => {
         // ignore
       }
 
-      // Full page redirect so the app loads fresh and AuthGuard sees the token.
-      // Cache-bust so we don't get a cached HTML/JS bundle.
-      try {
-        const statusRes = await fetch('/api/profile/setup-status', {
-          method: 'GET',
-          credentials: 'include',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('mingus_token') || ''}`,
-          },
-        });
-        if (statusRes.ok) {
-          const statusData = await statusRes.json();
-          const steps = Array.isArray(statusData.steps_completed)
-            ? statusData.steps_completed
-            : Array.isArray(statusData.data?.steps_completed)
-              ? statusData.data.steps_completed
-              : [];
-          const isComplete =
-            statusData.setupCompleted === true ||
-            statusData.onboarding_complete === true ||
-            steps.length >= 3;
-          if (!isComplete) {
-            window.location.replace('/onboarding');
-            return;
-          }
-        }
-      } catch {
-        // silent — fall through to vibe-check-meme
-      }
-      window.location.replace('/vibe-check-meme?t=' + Date.now());
+      navigate('/welcome', { replace: true });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Invalid email or password');
     } finally {

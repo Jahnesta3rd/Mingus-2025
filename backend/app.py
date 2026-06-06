@@ -11,17 +11,33 @@ from backend.routes.life_ready_score import life_ready_score_bp
 from backend.routes.self_card import self_card_bp
 from backend.routes.telemetry import telemetry_bp
 from backend.routes.vibe_tracker import vibe_tracker_bp
+from backend.routes.relationship_check import relationship_check_bp
 from backend.routes.connection_trend import connection_trend_bp
 from backend.routes.alerts import alerts_bp
 from backend.routes.spirit_finance import spirit_finance_bp
 from backend.routes.transaction_schedule import transaction_schedule_bp
 from backend.routes.faith_card import faith_card_bp
 from backend.routes.bug_report import bug_report_bp
-from backend.routes.conversation_onboarding import conversation_onboarding_bp
+from backend.routes.modular_onboarding import modular_onboarding_bp
+from backend.routes.user import user_bp as user_agreement_bp
+from backend.routes.vehicle_dashboard_routes import vehicle_dashboard_public_bp
+from backend.routes.vibe_daily_routes import vibe_daily_public_bp
+from backend.routes.wellness_routes import wellness_public_bp
+from backend.routes.gamification_routes import gamification_public_bp
+from backend.routes.user_activity_routes import user_activity_public_bp
+from backend.routes.daily_outlook_routes import daily_outlook_public_bp
+from backend.models.onboarding_progress import OnboardingProgress  # noqa: F401
+from backend.models.database import db
 
 
 def register_backend_blueprints(app):
     """Register Flask blueprints owned by this package."""
+
+    @app.teardown_request
+    def rollback_on_exception(exception):
+        if exception is not None:
+            db.session.rollback()
+
     app.register_blueprint(admin_bp)
     app.register_blueprint(admin_beta_bp)
     app.register_blueprint(beta_bp)
@@ -35,6 +51,9 @@ def register_backend_blueprints(app):
     )
     app.register_blueprint(vibe_tracker_bp, url_prefix="/api/vibe-tracker")
     app.register_blueprint(
+        relationship_check_bp, url_prefix="/api/relationship-check"
+    )
+    app.register_blueprint(
         connection_trend_bp, url_prefix="/api/connection-trend"
     )
     app.register_blueprint(alerts_bp, url_prefix="/api/alerts")
@@ -44,4 +63,13 @@ def register_backend_blueprints(app):
     )
     app.register_blueprint(faith_card_bp)
     app.register_blueprint(bug_report_bp)
-    app.register_blueprint(conversation_onboarding_bp)
+    app.register_blueprint(modular_onboarding_bp)
+    app.register_blueprint(user_agreement_bp)
+    app.register_blueprint(wellness_public_bp)
+    app.register_blueprint(gamification_public_bp)
+    app.register_blueprint(user_activity_public_bp)
+    app.register_blueprint(daily_outlook_public_bp)
+    # Vehicle dashboard GET /api/vehicles/dashboard (alongside ``vehicle_api`` in root app).
+    app.register_blueprint(vehicle_dashboard_public_bp)
+    # Stub GET /api/vibe/daily — placeholder for #99.
+    app.register_blueprint(vibe_daily_public_bp)

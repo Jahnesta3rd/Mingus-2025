@@ -8,7 +8,8 @@ import {
   ChevronRight,
   Filter,
   SortAsc,
-  Car
+  Car,
+  TrendingUp
 } from 'lucide-react';
 import { MaintenanceItem, MaintenancePrediction } from '../types/vehicle';
 

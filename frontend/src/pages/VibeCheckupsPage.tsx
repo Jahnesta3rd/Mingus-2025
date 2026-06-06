@@ -1,6 +1,7 @@
 import { Helmet } from "react-helmet-async";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
 import SelfStateContextBanner from "../components/SelfStateContextBanner";
 import { FinalCta } from "../components/vibe-checkups/FinalCta";
 import { HowItWorks } from "../components/vibe-checkups/HowItWorks";
@@ -68,6 +69,8 @@ function readStoredJson<T>(key: string): T | null {
 
 export function VibeCheckupsPage() {
   useCaptureVibeCheckupsUtm();
+  const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
   const { vcPost } = useVibeCheckupsApi();
   const [searchParams] = useSearchParams();
 
@@ -225,28 +228,46 @@ export function VibeCheckupsPage() {
             <LandingSection className="py-16 sm:py-20">
               <div className="mx-auto max-w-xl">
                 {funnelPhase === "landing" && (
-                  <div className="rounded-2xl border border-[#2a2030] bg-[#1a1520]/50 px-6 py-10 text-center shadow-landing-card sm:px-10">
-                    <h2 className="font-display text-xl font-semibold text-[#f0e8d8] sm:text-2xl">
-                      Ready when you are
-                    </h2>
-                    <p className="mt-3 text-sm leading-relaxed text-[#9a8f7e]">
-                      Take the checkup below, or scroll back up to read how it works first.
-                    </p>
-                    {selfCardBanner && shouldShowSelfContextBanner(selfCardBanner) && (
-                      <SelfStateContextBanner
-                        selfScore={selfCardBanner.self_score}
-                        mindScore={selfCardBanner.mind_score ?? 50}
-                        mindTrend={selfCardBanner.mind_trend}
-                      />
-                    )}
-                    <button
-                      type="button"
-                      onClick={onCta}
-                      className="mt-6 flex min-h-11 w-full items-center justify-center rounded-xl bg-[#5B2D8E] px-4 py-3.5 text-sm font-semibold text-white transition hover:bg-[#4a2673]"
-                    >
-                      Start the checkup
-                    </button>
-                  </div>
+                  isAuthenticated ? (
+                    <div className="rounded-2xl border border-[#2a2030] bg-[#1a1520]/50 px-6 py-10 text-center shadow-landing-card sm:px-10">
+                      <h2 className="font-display text-xl font-semibold text-[#f0e8d8] sm:text-2xl">
+                        You&apos;re already set up!
+                      </h2>
+                      <p className="mt-3 text-sm leading-relaxed text-[#9a8f7e]">
+                        Continue relationship checkups from your dashboard hub.
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => navigate("/dashboard/vibe-checkups")}
+                        className="mt-6 flex min-h-11 w-full items-center justify-center rounded-xl bg-[#5B2D8E] px-4 py-3.5 text-sm font-semibold text-white transition hover:bg-[#4a2673]"
+                      >
+                        Go to Vibe Hub
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="rounded-2xl border border-[#2a2030] bg-[#1a1520]/50 px-6 py-10 text-center shadow-landing-card sm:px-10">
+                      <h2 className="font-display text-xl font-semibold text-[#f0e8d8] sm:text-2xl">
+                        Ready when you are
+                      </h2>
+                      <p className="mt-3 text-sm leading-relaxed text-[#9a8f7e]">
+                        Take the checkup below, or scroll back up to read how it works first.
+                      </p>
+                      {selfCardBanner && shouldShowSelfContextBanner(selfCardBanner) && (
+                        <SelfStateContextBanner
+                          selfScore={selfCardBanner.self_score}
+                          mindScore={selfCardBanner.mind_score ?? 50}
+                          mindTrend={selfCardBanner.mind_trend}
+                        />
+                      )}
+                      <button
+                        type="button"
+                        onClick={onCta}
+                        className="mt-6 flex min-h-11 w-full items-center justify-center rounded-xl bg-[#5B2D8E] px-4 py-3.5 text-sm font-semibold text-white transition hover:bg-[#4a2673]"
+                      >
+                        Start the checkup
+                      </button>
+                    </div>
+                  )
                 )}
 
                 {showOutcomes && (

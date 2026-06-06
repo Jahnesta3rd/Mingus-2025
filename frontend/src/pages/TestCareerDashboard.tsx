@@ -1,6 +1,5 @@
 import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
-import RiskStatusHero from '../components/RiskStatusHero';
 import RecommendationTiers from '../components/RecommendationTiers';
 import LocationIntelligenceMap from '../components/LocationIntelligenceMap';
 import AnalyticsDashboard from '../components/AnalyticsDashboard';
@@ -8,7 +7,6 @@ import HousingLocationTile from '../components/HousingLocationTile';
 import HousingNotificationSystem from '../components/HousingNotificationSystem';
 import HousingProfileIntegration from '../components/HousingProfileIntegration';
 import DashboardErrorBoundary from '../components/DashboardErrorBoundary';
-import QuickActionsPanel from '../components/QuickActionsPanel';
 import RecentActivityPanel from '../components/RecentActivityPanel';
 import UnlockRecommendationsPanel from '../components/UnlockRecommendationsPanel';
 import DashboardSkeleton from '../components/DashboardSkeleton';
@@ -90,14 +88,6 @@ const TestCareerDashboard: React.FC = () => {
     });
   };
 
-  const handleRiskLevelChange = (newRiskLevel: DashboardState['riskLevel']) => {
-    setDashboardState(prev => ({ 
-      ...prev, 
-      riskLevel: newRiskLevel,
-      emergencyMode: newRiskLevel === 'urgent'
-    }));
-  };
-
   return (
     <DashboardErrorBoundary>
       <div className="min-h-screen bg-gray-50">
@@ -145,11 +135,8 @@ const TestCareerDashboard: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="space-y-8">
             
-            {/* Risk Status Hero - Always Visible */}
-            <RiskStatusHero 
-              onRiskLevelChange={handleRiskLevelChange}
-            />
-            
+            {/* TODO(post-beta): Risk hero removed — replace with new career risk surface when available. */}
+
             {/* Tab Navigation */}
             <div className="border-b border-gray-200">
               <nav className="-mb-px flex space-x-2 sm:space-x-8 overflow-x-auto">
@@ -200,22 +187,11 @@ const TestCareerDashboard: React.FC = () => {
               {dashboardState.activeTab === 'daily-outlook' && (
                 <div className="space-y-6">
                   {/* Daily Outlook Card for Dashboard Overview */}
-                  <div className="grid gap-6 lg:grid-cols-2">
-                    <div className="lg:col-span-1">
-                      <DailyOutlookCard 
-                        onViewFullOutlook={handleViewFullDailyOutlook}
-                        compact={false}
-                      />
-                    </div>
-                    <div className="lg:col-span-1">
-                      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
-                        <QuickActionsPanel 
-                          riskLevel={dashboardState.riskLevel}
-                          hasRecommendations={dashboardState.hasUnlockedRecommendations}
-                        />
-                      </div>
-                    </div>
+                  <div>
+                    <DailyOutlookCard 
+                      onViewFullOutlook={handleViewFullDailyOutlook}
+                      compact={false}
+                    />
                   </div>
                   
                   {/* Recent Activity */}
@@ -228,19 +204,9 @@ const TestCareerDashboard: React.FC = () => {
 
               {dashboardState.activeTab === 'overview' && (
                 <div className="space-y-6">
-                  {/* Top Row - Quick Actions and Recent Activity */}
-                  <div className="grid gap-6 lg:gap-8 lg:grid-cols-2">
-                    <div>
-                      <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
-                      <QuickActionsPanel 
-                        riskLevel={dashboardState.riskLevel}
-                        hasRecommendations={dashboardState.hasUnlockedRecommendations}
-                      />
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h3>
-                      <RecentActivityPanel />
-                    </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h3>
+                    <RecentActivityPanel />
                   </div>
                   
                   {/* Bottom Row - Housing Location Tile */}

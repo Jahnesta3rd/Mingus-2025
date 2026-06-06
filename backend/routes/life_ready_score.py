@@ -25,4 +25,4 @@ def get_life_ready_score():
     user = _user_from_jwt()
     if not user:
         return jsonify({"error": "User not found"}), 404
-    return jsonify(compute_life_ready_score(user.id))
+    return jsonify(compute_life_ready_score(user.user_id))

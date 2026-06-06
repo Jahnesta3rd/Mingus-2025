@@ -14,17 +14,17 @@ import HomeScreen from './components/HomeScreen';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
 import AuthGuard from './guards/AuthGuard';
+import { TermsCheckGuard } from './components/Auth/TermsCheckGuard';
 import VibeGuard from './guards/VibeGuard';
 import { MCIProvider } from './context/MCIContext';
 import LandingPage from './components/LandingPage';
-import SignUpPage from './pages/SignUpPage';
 import CheckoutPage from './pages/CheckoutPage';
 import PreLaunchTracker from './pages/PreLaunchTracker';
-import BetaLanding from './pages/BetaLanding';
-import BetaWelcome from './pages/BetaWelcome';
+import { RedirectWithQuery } from './components/routing/RedirectWithQuery';
 import AdminRoute from './components/AdminRoute';
 import BetaAdminDashboard from './pages/BetaAdminDashboard';
 import VibeCheckupsPage from './pages/VibeCheckupsPage';
+import CheckupsHub from './components/CheckupsHub';
 import BodyCheckPage from './pages/BodyCheckPage';
 import RoofCheckPage from './pages/RoofCheckPage';
 import VehicleCheckPage from './pages/VehicleCheckPage';
@@ -33,9 +33,11 @@ import SpiritFinance from './pages/SpiritFinance';
 import SettingsPage from './pages/SettingsPage';
 import OnboardingRouter from './components/OnboardingRouter';
 import FinancialForecastPage from './pages/FinancialForecastPage';
+import UpgradePage from './pages/UpgradePage';
 import DashboardProfilePage from './pages/DashboardProfilePage';
 import SnapshotPage from './pages/SnapshotPage';
 import { useAuth } from './hooks/useAuth';
+import { LeadGenAssessment } from './pages/LeadGenAssessment';
 
 function localCalendarDateYmd(): string {
   const d = new Date();
@@ -57,6 +59,12 @@ const VibeCheckMemeWrapper: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const goToDashboard = () => {
+    void fetch('/api/profile/vibe-moment-shown', {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+    }).catch((err) => console.warn('vibe-moment-shown failed:', err));
+
     const userId = user?.id;
     if (!userId) {
       navigate('/dashboard', { replace: true });
@@ -78,17 +86,39 @@ const router = createBrowserRouter([
   // Public routes
   { path: '/', element: <LandingPage /> },
   { path: '/login', element: <LoginPage /> },
-  { path: '/signup', element: <SignUpPage /> },
+  { path: '/signup', element: <RedirectWithQuery toPath="/register" /> },
   { path: '/register', element: <RegisterPage /> },
   { path: '/forgot-password', element: <ForgotPasswordPage /> },
   { path: '/reset-password', element: <ResetPasswordPage /> },
   { path: '/checkout', element: <CheckoutPage /> },
-  { path: '/beta', element: <BetaLanding /> },
-  { path: '/beta/welcome', element: <BetaWelcome /> },
+  { path: '/beta', element: <Navigate to="/register?beta=1" replace /> },
+  { path: '/beta/welcome', element: <Navigate to="/welcome" replace /> },
+  { path: '/assessments', element: <LeadGenAssessment /> },
   { path: '/vibe-checkups', element: <VibeCheckupsPage /> },
-  { path: '/body-check', element: <BodyCheckPage /> },
-  { path: '/roof-check', element: <RoofCheckPage /> },
-  { path: '/vehicle-check', element: <VehicleCheckPage /> },
+  {
+    path: '/body-check',
+    element: (
+      <AuthGuard>
+        <BodyCheckPage />
+      </AuthGuard>
+    ),
+  },
+  {
+    path: '/roof-check',
+    element: (
+      <AuthGuard>
+        <RoofCheckPage />
+      </AuthGuard>
+    ),
+  },
+  {
+    path: '/vehicle-check',
+    element: (
+      <AuthGuard>
+        <VehicleCheckPage />
+      </AuthGuard>
+    ),
+  },
 
   // Pre-launch fix tracker (internal)
   { path: '/pre-launch', element: <PreLaunchTracker /> },
@@ -107,7 +137,9 @@ const router = createBrowserRouter([
     path: '/welcome',
     element: (
       <AuthGuard>
-        <LogoSplash />
+        <TermsCheckGuard>
+          <LogoSplash />
+        </TermsCheckGuard>
       </AuthGuard>
     ),
   },
@@ -115,7 +147,9 @@ const router = createBrowserRouter([
     path: '/vibe-check-meme',
     element: (
       <AuthGuard>
-        <VibeCheckMemeWrapper />
+        <TermsCheckGuard>
+          <VibeCheckMemeWrapper />
+        </TermsCheckGuard>
       </AuthGuard>
     ),
   },
@@ -125,7 +159,9 @@ const router = createBrowserRouter([
     path: '/vibe-check',
     element: (
       <AuthGuard>
-        <VibeCheckPage />
+        <TermsCheckGuard>
+          <VibeCheckPage />
+        </TermsCheckGuard>
       </AuthGuard>
     ),
   },
@@ -135,20 +171,24 @@ const router = createBrowserRouter([
     path: '/dashboard',
     element: (
       <AuthGuard>
-        <VibeGuard>
-          <MCIProvider>
-            <DashboardLayout />
-          </MCIProvider>
-        </VibeGuard>
+        <TermsCheckGuard>
+          <VibeGuard>
+            <MCIProvider>
+              <DashboardLayout />
+            </MCIProvider>
+          </VibeGuard>
+        </TermsCheckGuard>
       </AuthGuard>
     ),
     children: [
-      { index: true, element: <HomeScreen /> },
+      { index: true, element: <Navigate to="/dashboard/tools" replace /> },
       { path: 'roster', element: <VibeTrackerPage /> },
       { path: 'forecast', element: <FinancialForecastPage /> },
+      { path: 'upgrade', element: <UpgradePage /> },
       { path: 'tools', element: <CareerProtectionDashboard /> },
       { path: 'profile', element: <DashboardProfilePage /> },
-      { path: 'vibe-checkups', element: <VibeCheckupsPage /> },
+      { path: 'vibe-checkups', element: <CheckupsHub /> },
+      { path: 'checkups/relationships', element: <VibeCheckupsPage /> },
       { path: 'spirit', element: <SpiritFinance /> },
       { path: 'vibe-tracker', element: <Navigate to="/dashboard/roster" replace /> },
     ],
@@ -158,7 +198,9 @@ const router = createBrowserRouter([
     path: '/onboarding',
     element: (
       <AuthGuard>
-        <OnboardingRouteWrapper />
+        <TermsCheckGuard>
+          <OnboardingRouteWrapper />
+        </TermsCheckGuard>
       </AuthGuard>
     ),
   },
@@ -167,7 +209,9 @@ const router = createBrowserRouter([
     path: '/snapshot',
     element: (
       <AuthGuard>
-        <SnapshotPage />
+        <TermsCheckGuard>
+          <SnapshotPage />
+        </TermsCheckGuard>
       </AuthGuard>
     ),
   },
@@ -176,13 +220,16 @@ const router = createBrowserRouter([
     path: '/settings',
     element: (
       <AuthGuard>
-        <SettingsPage />
+        <TermsCheckGuard>
+          <SettingsPage />
+        </TermsCheckGuard>
       </AuthGuard>
     ),
   },
 
   // Redirects
   { path: '/career-dashboard', element: <Navigate to="/dashboard" replace /> },
+  { path: '/settings/upgrade', element: <Navigate to="/dashboard/upgrade" replace /> },
   { path: '*', element: <Navigate to="/" replace /> },
 ]);
 

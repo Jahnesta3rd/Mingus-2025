@@ -42,6 +42,7 @@ class User(db.Model):
     beta_batch = db.Column(db.String(30), nullable=True)
     is_admin = db.Column(db.Boolean, default=False, nullable=False)
     role = db.Column(db.String(32), nullable=True)
+    social_spend_monthly = db.Column(db.Float, nullable=True)
     
     # Referral system fields (from existing structure)
     referral_code = db.Column(db.String(50), unique=True, nullable=True)
@@ -55,6 +56,7 @@ class User(db.Model):
     # Timestamps
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    last_vibe_moment_shown_at = db.Column(db.DateTime, nullable=True)
     
     # Relationships
     vehicles = db.relationship('Vehicle', backref='user', lazy=True, cascade='all, delete-orphan')

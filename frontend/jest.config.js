@@ -1,13 +1,13 @@
 module.exports = {
   testEnvironment: 'jsdom',
   setupFilesAfterEnv: ['<rootDir>/src/setupTests.ts'],
-  moduleNameMapping: {
+  moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
     '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
   },
   transform: {
-    '^.+\\.(ts|tsx)$': ['ts-jest', {
-      tsconfig: 'tsconfig.json',
+    '^.+\\.(ts|tsx|js|jsx)$': ['ts-jest', {
+      tsconfig: '<rootDir>/tsconfig.jest.json',
     }],
   },
   testMatch: [
@@ -15,7 +15,7 @@ module.exports = {
     '<rootDir>/src/**/*.(test|spec).(ts|tsx)',
   ],
   collectCoverageFrom: [
-    'src/**/*.(ts|tsx)',
+    'src/**/*.(ts|tsx|js|jsx)',
     '!src/**/*.d.ts',
     '!src/setupTests.ts',
     '!src/**/__tests__/**',

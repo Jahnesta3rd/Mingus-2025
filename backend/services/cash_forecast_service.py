@@ -12,9 +12,10 @@ import json
 import logging
 import os
 from collections import defaultdict
+from dataclasses import dataclass
 from datetime import date, timedelta
 from decimal import Decimal, ROUND_HALF_UP
-from typing import Any
+from typing import Any, Iterator
 
 try:
     import psycopg2
@@ -26,6 +27,7 @@ from backend.models.database import db
 from backend.models.financial_setup import RecurringExpense
 from backend.models.transaction_schedule import IncomeStream, ScheduledExpense
 from backend.models.user_models import User
+from backend.models.vehicle_models import Vehicle
 from backend.models.vibe_checkups import VibeCheckupsLead
 from backend.models.vibe_tracker import VibePersonAssessment, VibeTrackedPerson
 
@@ -54,7 +56,7 @@ def _money_float(x: Decimal) -> float:
 def _get_pg_conn():
     if psycopg2 is None:
         return None
-    db_url = os.environ.get("DATABASE_URL")
+    db_url = os.environ.get("DATABASE_URL") or os.environ.get("TEST_DATABASE_URL")
     if not db_url:
         return None
     conn = psycopg2.connect(db_url)
@@ -62,13 +64,29 @@ def _get_pg_conn():
     return conn
 
 
-def _load_profile_balance_and_dates(email: str) -> tuple[Decimal, dict[str, Any]]:
-    """Return (current_balance, important_dates dict). Balance defaults to 0."""
+@dataclass(frozen=True)
+class ForecastResult:
+    daily_cashflow: list[dict[str, Any]]
+    monthly_summaries: list[dict[str, Any]]
+    relationship_cost_breakdown: list[dict[str, Any]]
+    balance_set: bool
+
+    def __iter__(self) -> Iterator[list[dict[str, Any]]]:
+        """Preserve existing three-value unpacking at call sites."""
+        yield self.daily_cashflow
+        yield self.monthly_summaries
+        yield self.relationship_cost_breakdown
+
+
+def _load_profile_balance_and_dates(
+    email: str,
+) -> tuple[Decimal, dict[str, Any], bool]:
+    """Return (current_balance, important_dates dict, balance_set)."""
     if not email:
-        return Decimal("0"), {}
+        return Decimal("0"), {}, False
     conn = _get_pg_conn()
     if not conn:
-        return Decimal("0"), {}
+        return Decimal("0"), {}, False
     try:
         cursor = conn.cursor()
         cursor.execute(
@@ -81,20 +99,21 @@ def _load_profile_balance_and_dates(email: str) -> tuple[Decimal, dict[str, Any]
         )
         row = cursor.fetchone()
         if not row:
-            return Decimal("0"), {}
+            return Decimal("0"), {}, False
         bal = row.get("current_balance")
         current = Decimal("0") if bal is None else _d(bal)
+        balance_set = bal is not None
         raw = row.get("important_dates")
         if raw is None or raw == "":
-            return current, {}
+            return current, {}, balance_set
         if isinstance(raw, dict):
             dates_obj = raw
         else:
             dates_obj = json.loads(raw)
-        return current, dates_obj if isinstance(dates_obj, dict) else {}
+        return current, dates_obj if isinstance(dates_obj, dict) else {}, balance_set
     except Exception as e:
         logger.warning("cash_forecast profile load failed for %s: %s", email, e)
-        return Decimal("0"), {}
+        return Decimal("0"), {}, False
     finally:
         conn.close()
 
@@ -170,6 +189,17 @@ def _dates_monthly_series(
         if d >= window_start:
             out.append(d)
         d = _add_months(d, 1)
+    return out
+
+
+def _month_starts_in_window(window_start: date, window_end: date) -> list[date]:
+    out: list[date] = []
+    cur = date(window_start.year, window_start.month, 1)
+    if cur < window_start:
+        cur = _add_months(cur, 1)
+    while cur <= window_end:
+        out.append(cur)
+        cur = _add_months(cur, 1)
     return out
 
 
@@ -516,20 +546,24 @@ def _relationship_cost_rows_for_user(
     rows: list[dict[str, Any]] = []
     for person in people:
         monthly = Decimal("0")
-        assn = (
-            VibePersonAssessment.query.filter(
-                VibePersonAssessment.tracked_person_id == person.id,
-                VibePersonAssessment.lead_id.isnot(None),
+
+        if person.estimated_monthly_cost is not None and person.estimated_monthly_cost > 0:
+            monthly = _money(Decimal(str(person.estimated_monthly_cost)))
+        else:
+            assn = (
+                VibePersonAssessment.query.filter(
+                    VibePersonAssessment.tracked_person_id == person.id,
+                    VibePersonAssessment.lead_id.isnot(None),
+                )
+                .order_by(VibePersonAssessment.completed_at.desc())
+                .first()
             )
-            .order_by(VibePersonAssessment.completed_at.desc())
-            .first()
-        )
-        if assn is not None and assn.lead_id is not None:
-            lead = db.session.get(VibeCheckupsLead, assn.lead_id)
-            if lead is not None:
-                monthly = _monthly_from_checkup_lead(lead)
-        if monthly <= 0:
-            monthly = _linked_thirty_day_cost_total(person.nickname, important_dates)
+            if assn is not None and assn.lead_id is not None:
+                lead = db.session.get(VibeCheckupsLead, assn.lead_id)
+                if lead is not None:
+                    monthly = _monthly_from_checkup_lead(lead)
+            if monthly <= 0:
+                monthly = _linked_thirty_day_cost_total(person.nickname, important_dates)
         monthly = _money(monthly)
         rows.append(
             {
@@ -553,28 +587,35 @@ def classify_status(closing: Decimal) -> str:
 
 
 def _forecast_bundle(
-    user_id: int, days: int
+    user_id: str, days: int
 ) -> tuple[
     list[dict[str, Any]],
     dict[str, Decimal],
     dict[str, Decimal],
     list[dict[str, Any]],
+    bool,
 ]:
     """
     Build daily rows plus per-month gross income and expense totals (from flows).
 
     Relationship costs (roster / Vibe Checkups) are added as a flat daily outflow:
     sum per person of (monthly_estimate / 30) on every forecast day.
+
+    Args:
+        user_id: External user identifier (``User.user_id``, UUID string).
     """
     if days < 1:
-        return [], {}, {}, []
+        return [], {}, {}, [], False
 
-    user = db.session.get(User, user_id)
+    user = db.session.query(User).filter_by(user_id=user_id).first()
     if not user:
-        return [], {}, {}, []
+        logger.warning("cash_forecast: no user row for user_id=%r", user_id)
+        return [], {}, {}, [], False
+
+    uid = user.id
 
     email = (user.email or "").strip().lower()
-    current_balance, important_dates = _load_profile_balance_and_dates(email)
+    current_balance, important_dates, balance_set = _load_profile_balance_and_dates(email)
     current_balance = _money(current_balance)
 
     today = date.today()
@@ -585,7 +626,7 @@ def _forecast_bundle(
     flows_out: dict[str, Decimal] = defaultdict(lambda: Decimal("0"))
 
     streams = (
-        IncomeStream.query.filter_by(user_id=user_id, is_active=True)
+        IncomeStream.query.filter_by(user_id=uid, is_active=True)
         .order_by(IncomeStream.created_at.asc())
         .all()
     )
@@ -599,7 +640,7 @@ def _forecast_bundle(
             flows_in[d0.isoformat()] += amt
 
     expenses = (
-        RecurringExpense.query.filter_by(user_id=user_id, is_active=True)
+        RecurringExpense.query.filter_by(user_id=uid, is_active=True)
         .order_by(RecurringExpense.created_at.asc())
         .all()
     )
@@ -611,7 +652,7 @@ def _forecast_bundle(
             flows_out[d0.isoformat()] += amt
 
     scheduled = (
-        ScheduledExpense.query.filter_by(user_id=user_id, is_active=True)
+        ScheduledExpense.query.filter_by(user_id=uid, is_active=True)
         .order_by(ScheduledExpense.created_at.asc())
         .all()
     )
@@ -627,7 +668,30 @@ def _forecast_bundle(
     ):
         flows_out[evd.isoformat()] += cost
 
-    rel_rows = _relationship_cost_rows_for_user(user_id, important_dates)
+    vehicles = (
+        Vehicle.query.filter_by(user_id=uid)
+        .order_by(Vehicle.created_date.asc())
+        .all()
+    )
+    vehicle_payment_dates = _month_starts_in_window(window_start, window_end)
+    vehicle_fuel_per_day = Decimal("0")
+    for vehicle in vehicles:
+        payment = _money(_d(vehicle.monthly_payment))
+        if payment > 0:
+            for d0 in vehicle_payment_dates:
+                flows_out[d0.isoformat()] += payment
+
+        fuel = _money(_d(vehicle.monthly_fuel_cost))
+        if fuel > 0:
+            vehicle_fuel_per_day += _money(fuel / Decimal("30"))
+
+    if vehicle_fuel_per_day > 0:
+        vehicle_fuel_per_day = _money(vehicle_fuel_per_day)
+        for i in range(days):
+            d0 = today + timedelta(days=i)
+            flows_out[d0.isoformat()] += vehicle_fuel_per_day
+
+    rel_rows = _relationship_cost_rows_for_user(uid, important_dates)
     rel_per_day = Decimal("0")
     for r in rel_rows:
         mdec = r["monthly_dec"]
@@ -693,21 +757,21 @@ def _forecast_bundle(
             }
         )
 
-    return result, dict(month_in), dict(month_out), relationship_cost_breakdown
+    return result, dict(month_in), dict(month_out), relationship_cost_breakdown, balance_set
 
 
 def build_forecast_for_user(
-    user_id: int, days: int = 90
-) -> tuple[list[dict[str, Any]], list[dict[str, Any]], list[dict[str, Any]]]:
+    user_id: str, days: int = 90
+) -> ForecastResult:
     """Run schedule expansion and return (daily_cashflow, monthly_summaries, relationship_cost_breakdown)."""
-    daily, mi, mo, rel_bd = _forecast_bundle(user_id, days)
+    daily, mi, mo, rel_bd, balance_set = _forecast_bundle(user_id, days)
     summaries = generate_monthly_summaries(
         daily, month_income_by_month=mi, month_expense_by_month=mo
     )
-    return daily, summaries, rel_bd
+    return ForecastResult(daily, summaries, rel_bd, balance_set)
 
 
-def generate_daily_forecast(user_id: int, days: int = 90) -> list[dict[str, Any]]:
+def generate_daily_forecast(user_id: str, days: int = 90) -> list[dict[str, Any]]:
     """
     Build per-day opening/closing balance from scheduled inflows/outflows.
 
@@ -717,7 +781,7 @@ def generate_daily_forecast(user_id: int, days: int = 90) -> list[dict[str, Any]
     Returns dicts: date, opening_balance, closing_balance, net_change, balance_status
     (numeric values as floats rounded to 2 decimals).
     """
-    daily, _, _, _ = _forecast_bundle(user_id, days)
+    daily, _, _, _, _ = _forecast_bundle(user_id, days)
     return daily
 
 

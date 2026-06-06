@@ -32,7 +32,7 @@ export function LandingHero({ onPrimaryCta }: Props) {
           </p>
           <div className="mt-10 flex flex-col items-center gap-4">
             <LandingPrimaryButton type="button" onClick={onPrimaryCta}>
-              Find Out Now — It&apos;s Free
+              Find out now
             </LandingPrimaryButton>
             <p className="text-sm text-[#9a8f7e]">
               Takes ~6 minutes · No account required · Used by 1,000+ people

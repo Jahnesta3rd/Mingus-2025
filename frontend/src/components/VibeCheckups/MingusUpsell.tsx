@@ -65,10 +65,10 @@ export function MingusUpsell({ leadId, vcPost }: MingusUpsellProps) {
         onClick={() => void handleCta()}
         className="mt-8 flex w-full items-center justify-center rounded-xl bg-[#C4A064] py-3.5 text-center text-sm font-semibold text-[#0d0a08] transition hover:bg-[#d4b074] disabled:cursor-not-allowed disabled:opacity-60"
       >
-        {busy ? "Taking you there…" : "Start My Free Mingus Trial"}
+        {busy ? "Taking you there…" : "Get started with Mingus"}
       </button>
       <p className="mt-3 text-center text-xs text-[#9a8f7e] sm:text-sm">
-        No credit card required · Cancel anytime · Takes 2 minutes
+        Plans from $15/mo · Cancel anytime · Takes about 2 minutes
       </p>
       {error && (
         <p className="mt-3 text-center text-sm text-rose-400" role="alert">

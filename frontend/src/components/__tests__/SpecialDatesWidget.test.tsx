@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import SpecialDatesWidget, { getNextBirthdayDate, getCountdownBadge } from '../SpecialDatesWidget';
 
@@ -55,6 +55,26 @@ describe('SpecialDatesWidget', () => {
 
       expect(screen.getByText('Future event')).toBeInTheDocument();
       expect(screen.queryByText('Past event')).not.toBeInTheDocument();
+    });
+
+    it('includes customEvents (camelCase) from GC2 commits', async () => {
+      const future = new Date();
+      future.setDate(future.getDate() + 20);
+      const futureStr = future.toISOString().slice(0, 10);
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () =>
+          mockProfileResponse({
+            birthday: null,
+            vacation: null,
+            car_inspection: null,
+            sisters_wedding: null,
+            customEvents: [{ name: 'Founders day', date: futureStr, cost: 200 }],
+          }),
+      });
+
+      render(<SpecialDatesWidget userId="user-1" userEmail="test@example.com" />);
+      await waitFor(() => expect(screen.getByText('Founders day')).toBeInTheDocument());
     });
 
     it('includes event on today’s date', async () => {
@@ -172,7 +192,7 @@ describe('SpecialDatesWidget', () => {
       render(<SpecialDatesWidget userId="user-1" userEmail="test@example.com" />);
       await waitFor(() => expect(screen.getByText('Event 1')).toBeInTheDocument());
 
-      const list = document.querySelector('ul[aria-label="Events list"]');
+      const list = document.querySelector('ul[aria-label="Important dates list"]');
       expect(list).toBeInTheDocument();
       expect(list?.className).toMatch(/max-h-\[320px\]|max-height/);
       expect(list?.className).toMatch(/overflow-y-auto/);
@@ -182,21 +202,29 @@ describe('SpecialDatesWidget', () => {
     });
   });
 
-  describe('5. Empty state button links to /profile#important-dates', () => {
-    it('Add Events button has href /profile#important-dates', async () => {
+  describe('5. Add date opens modal callback when provided', () => {
+    it('empty state + Add date button calls onRequestAddDate', async () => {
+      const onRequestAddDate = jest.fn();
       mockFetch.mockResolvedValueOnce({
         ok: true,
         json: async () => mockProfileResponse(null),
       });
 
-      render(<SpecialDatesWidget userId="user-1" userEmail="test@example.com" />);
-      await waitFor(() => expect(screen.getByText(/Add your upcoming events/)).toBeInTheDocument());
+      render(
+        <SpecialDatesWidget
+          userId="user-1"
+          userEmail="test@example.com"
+          onRequestAddDate={onRequestAddDate}
+        />
+      );
+      await waitFor(() => expect(screen.getByText(/No important dates yet/)).toBeInTheDocument());
 
-      const addButton = screen.getByRole('link', { name: /Add Events/i });
-      expect(addButton).toHaveAttribute('href', '/profile#important-dates');
+      fireEvent.click(screen.getByRole('button', { name: '+ Add date' }));
+      expect(onRequestAddDate).toHaveBeenCalledTimes(1);
     });
 
-    it('footer "Edit events" link has href /profile#important-dates when events exist', async () => {
+    it('header + Add date calls onRequestAddDate when events exist', async () => {
+      const onRequestAddDate = jest.fn();
       const future = new Date();
       future.setDate(future.getDate() + 14);
       const futureStr = future.toISOString().slice(0, 10);
@@ -212,11 +240,17 @@ describe('SpecialDatesWidget', () => {
           }),
       });
 
-      render(<SpecialDatesWidget userId="user-1" userEmail="test@example.com" />);
+      render(
+        <SpecialDatesWidget
+          userId="user-1"
+          userEmail="test@example.com"
+          onRequestAddDate={onRequestAddDate}
+        />
+      );
       await waitFor(() => expect(screen.getByText('Vacation')).toBeInTheDocument());
 
-      const editLink = screen.getByRole('link', { name: /Edit events in your profile/i });
-      expect(editLink).toHaveAttribute('href', '/profile#important-dates');
+      fireEvent.click(screen.getByRole('button', { name: '+ Add date' }));
+      expect(onRequestAddDate).toHaveBeenCalledTimes(1);
     });
   });
 });

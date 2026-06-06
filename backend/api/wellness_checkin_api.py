@@ -290,7 +290,7 @@ class CheckinRequestSchema(Schema):
     completion_time_seconds = fields.Integer(allow_none=True)
 
     @validates('sleep_hours')
-    def validate_sleep_hours(self, value):
+    def validate_sleep_hours(self, value, **_kwargs):
         if value is None:
             return
         if not (3 <= value <= 10):
@@ -777,7 +777,7 @@ def get_parenting_costs():
     coverage_status = None
     balance_after_parenting = None
     if total_monthly > 0:
-        daily = generate_daily_forecast(user_id, days=31)
+        daily = generate_daily_forecast(user.user_id, days=31)
         if daily:
             slice_rows = daily[:31]
             if slice_rows:

@@ -97,6 +97,15 @@ def require_auth(f):
     
     return decorated_function
 
+
+def jwt_required(f):
+    """
+    Require a valid JWT for the route (alias for :func:`require_auth`).
+    Named for parity with common Flask-JWT-Extended patterns.
+    """
+    return require_auth(f)
+
+
 def require_csrf(f):
     """
     Decorator to require CSRF token for state-changing operations

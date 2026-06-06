@@ -17,7 +17,7 @@ import psycopg2.extras
 # Add backend modules to path
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
-from models.referral_models import ReferralSystem
+from backend.models.referral_models import ReferralSystem
 from utils.mingus_job_recommendation_engine import MingusJobRecommendationEngine
 
 logger = logging.getLogger(__name__)

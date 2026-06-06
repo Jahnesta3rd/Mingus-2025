@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import MemeSettings, { MemePreferences } from '../components/MemeSettings';
 import NotificationSettings from '../components/NotificationSettings';
 import NotificationPrefsForm from '../components/spirit/NotificationPrefsForm';
@@ -12,6 +13,8 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
   userId = 'demo-user-123', // Default for demo purposes
   className = '',
 }) => {
+  const location = useLocation();
+  const showStandaloneDashboardLink = location.pathname === '/settings';
   const [activeTab, setActiveTab] = useState('memes');
   const [userPreferences, setUserPreferences] = useState<MemePreferences | null>(null);
 
@@ -52,6 +55,16 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
   return (
     <div className={`min-h-screen bg-gray-50 ${className}`}>
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {showStandaloneDashboardLink ? (
+          <div className="mt-4 mb-2">
+            <Link
+              to="/dashboard"
+              className="inline-flex min-h-[44px] items-center text-sm font-semibold text-[#C4A064] underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C4A064] focus-visible:ring-offset-2 focus-visible:ring-offset-gray-50"
+            >
+              ← Back to Dashboard
+            </Link>
+          </div>
+        ) : null}
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Settings</h1>

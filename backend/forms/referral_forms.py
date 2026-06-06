@@ -170,7 +170,7 @@ class FeatureUnlockForm(FlaskForm):
     unlock_method = SelectField('Unlock Method', choices=[
         ('referral', 'Complete 3 Referrals (Free)'),
         ('premium', 'Upgrade to Premium ($9.99/month)'),
-        ('trial', 'Start 7-Day Free Trial')
+        ('subscribe', 'Subscribe (plans from $15/mo)')
     ], validators=[DataRequired()])
     submit = SubmitField('Unlock Feature')
 

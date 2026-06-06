@@ -60,12 +60,14 @@ describe('useWellnessData', () => {
       const { result } = renderHook(() => useWellnessData());
       expect(result.current.loading).toBe(true);
       expect(result.current.scores).toBeNull();
+      expect(result.current.hasRealScores).toBe(false);
       expect(result.current.error).toBeNull();
 
       await waitFor(() => {
         expect(result.current.loading).toBe(false);
       });
       expect(result.current.scores).toEqual(mockScores);
+      expect(result.current.hasRealScores).toBe(true);
       expect(result.current.insights).toEqual(mockInsights.insights);
       expect(result.current.streak).toEqual(mockStreak);
       expect(result.current.currentWeekCheckin).toEqual(mockCurrentWeek);
@@ -108,6 +110,7 @@ describe('useWellnessData', () => {
       });
       expect(result.current.error).toMatch(/network error|unable to load wellness data/i);
       expect(result.current.scores).toBeNull();
+      expect(result.current.hasRealScores).toBe(false);
       expect(result.current.insights).toEqual([]);
     });
 
@@ -122,6 +125,7 @@ describe('useWellnessData', () => {
         expect(result.current.loading).toBe(false);
       });
       expect(result.current.scores).toBeNull();
+      expect(result.current.hasRealScores).toBe(false);
       expect(result.current.insights).toEqual([]);
       expect(result.current.streak).toBeNull();
       expect(result.current.currentWeekCheckin).toBeNull();
@@ -146,6 +150,51 @@ describe('useWellnessData', () => {
       const { result } = renderHook(() => useWellnessData());
       await waitFor(() => expect(result.current.loading).toBe(false));
       expect(result.current.weeksOfData).toBe(mockStreak.total_checkins);
+    });
+  });
+
+  describe('scores gating', () => {
+    function mockScoresAndRest(scoresBody: unknown) {
+      mockFetch
+        .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve(scoresBody) })
+        .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve({ insights: [] }) })
+        .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve(mockStreak) })
+        .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve(mockCurrentWeek) });
+    }
+
+    it('treats all-zero scores response as no data', async () => {
+      mockScoresAndRest({
+        week_ending_date: '2026-05-17',
+        physical_score: 0,
+        mental_score: 0,
+        relational_score: 0,
+        financial_feeling_score: 0,
+        overall_wellness_score: 0,
+        physical_change: 0,
+        mental_change: 0,
+        relational_change: 0,
+        overall_change: 0,
+      });
+      const { result } = renderHook(() => useWellnessData());
+      await waitFor(() => expect(result.current.loading).toBe(false));
+      expect(result.current.scores).toBeNull();
+      expect(result.current.hasRealScores).toBe(false);
+    });
+
+    it('treats empty JSON body as no data', async () => {
+      mockScoresAndRest({});
+      const { result } = renderHook(() => useWellnessData());
+      await waitFor(() => expect(result.current.loading).toBe(false));
+      expect(result.current.scores).toBeNull();
+      expect(result.current.hasRealScores).toBe(false);
+    });
+
+    it('treats error-shaped JSON as no data', async () => {
+      mockScoresAndRest({ error: 'Not found', message: 'No wellness scores yet.' });
+      const { result } = renderHook(() => useWellnessData());
+      await waitFor(() => expect(result.current.loading).toBe(false));
+      expect(result.current.scores).toBeNull();
+      expect(result.current.hasRealScores).toBe(false);
     });
   });
 });

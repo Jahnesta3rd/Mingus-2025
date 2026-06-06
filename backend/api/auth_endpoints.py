@@ -5,6 +5,7 @@ Handles user registration, login, and token verification
 """
 
 import os
+import json
 import secrets
 import uuid
 import jwt
@@ -13,11 +14,16 @@ from flask import Blueprint, request, jsonify
 from werkzeug.exceptions import BadRequest
 import logging
 
+from sqlalchemy import Column, DateTime, Integer, MetaData, Table, Text, select
+from sqlalchemy.dialects.postgresql import JSONB, insert as pg_insert
+
+from backend.constants.onboarding import MODULE_ORDER
 from backend.models.database import db
 from backend.models.user_models import User
 from backend.models.vibe_checkups import VibeCheckupsLead
 from backend.services import life_ledger_service as life_ledger_svc
 from backend.utils.password import hash_password, check_password, verify_password_strength
+from backend.auth.decorators import require_auth
 from loguru import logger as loguru_logger
 
  # Simple rate limiting (in-memory)
@@ -61,6 +67,34 @@ def validate_csrf_token(token: str) -> bool:
 
 logger = logging.getLogger(__name__)
 
+_register_user_profiles_table = Table(
+    "user_profiles",
+    MetaData(),
+    Column("id", Integer),
+    Column("email", Text),
+    Column("first_name", Text),
+    Column("personal_info", Text),
+    Column("financial_info", Text),
+    Column("monthly_expenses", Text),
+    Column("important_dates", Text),
+    Column("health_wellness", Text),
+    Column("goals", Text),
+    Column("created_at", DateTime),
+    Column("updated_at", DateTime),
+)
+
+_register_onboarding_progress_table = Table(
+    "onboarding_progress",
+    MetaData(),
+    Column("user_id", Integer, primary_key=True),
+    Column("completed_modules", JSONB),
+    Column("skipped_modules", JSONB),
+    Column("current_module", Text),
+    Column("started_at", DateTime),
+    Column("completed_at", DateTime),
+    Column("last_activity_at", DateTime),
+)
+
 # Create blueprint
 auth_api = Blueprint('auth_api', __name__, url_prefix='/api/auth')
 
@@ -102,7 +136,6 @@ def register():
         else:
             # Try to parse as JSON from raw data
             try:
-                import json
                 data = json.loads(request.data.decode('utf-8'))
             except:
                 data = request.form.to_dict()
@@ -155,9 +188,91 @@ def register():
             created_at=datetime.utcnow(),
             updated_at=datetime.utcnow()
         )
-        
-        db.session.add(new_user)
-        db.session.commit()
+
+        now = datetime.utcnow()
+        personal_info_dict = {
+            "firstName": first_name,
+            "lastName": last_name or "",
+            "dateOfBirth": (
+                data.get("dateOfBirth") or data.get("date_of_birth") or ""
+            ).strip(),
+            "employmentStatus": (
+                data.get("employmentStatus") or data.get("employment_status") or ""
+            ).strip(),
+            "occupation": (data.get("occupation") or "").strip(),
+            "city": (data.get("city") or "").strip(),
+            "state": (data.get("state") or "").strip(),
+            "zip": (data.get("zip") or data.get("zipCode") or "").strip(),
+            "phone": (data.get("phone") or data.get("phoneNumber") or "").strip(),
+        }
+        personal_info_json = json.dumps(personal_info_dict)
+
+        try:
+            db.session.add(new_user)
+            db.session.flush()
+
+            db.session.execute(
+                pg_insert(_register_user_profiles_table)
+                .values(
+                    email=email,
+                    first_name=first_name,
+                    personal_info=personal_info_json,
+                    financial_info="{}",
+                    monthly_expenses="{}",
+                    important_dates="{}",
+                    health_wellness="{}",
+                    goals="{}",
+                    created_at=now,
+                    updated_at=now,
+                )
+                .on_conflict_do_nothing(
+                    index_elements=[_register_user_profiles_table.c.email],
+                )
+            )
+
+            db.session.execute(
+                pg_insert(_register_onboarding_progress_table)
+                .values(
+                    user_id=new_user.id,
+                    completed_modules=[],
+                    skipped_modules=[],
+                    current_module=MODULE_ORDER[0],
+                    started_at=now,
+                    completed_at=None,
+                    last_activity_at=now,
+                )
+                .on_conflict_do_nothing(
+                    index_elements=[_register_onboarding_progress_table.c.user_id],
+                )
+            )
+
+            db.session.commit()
+        except Exception as txn_err:
+            db.session.rollback()
+            logger.error(
+                "signup_transaction_failed email=%s error=%s",
+                email,
+                txn_err,
+                exc_info=True,
+            )
+            err_msg = (
+                str(txn_err)
+                if os.environ.get("FLASK_ENV") == "development"
+                else "Registration could not be completed. Please try again."
+            )
+            return jsonify({"success": False, "error": err_msg}), 500
+
+        profile_row_id = db.session.execute(
+            select(_register_user_profiles_table.c.id).where(
+                _register_user_profiles_table.c.email == email
+            )
+        ).scalar_one()
+        logger.info(
+            "signup_complete user_id=%s profile_id=%s email=%s",
+            new_user.id,
+            profile_row_id,
+            email,
+        )
 
         vc_lead_id = (data.get("vc_lead_id") or data.get("vcLeadId") or "").strip()
         if not vc_lead_id:
@@ -185,7 +300,7 @@ def register():
                 db.session.rollback()
 
             try:
-                life_ledger_svc.import_vibe_lead(new_user.id, vc_lead_id)
+                life_ledger_svc.import_vibe_lead(new_user.user_id, vc_lead_id)
                 loguru_logger.info(
                     "Life Ledger Vibe import succeeded for user_id={} vc_lead_id={}",
                     new_user.id,
@@ -202,9 +317,7 @@ def register():
         # Generate JWT token (default 24 hours for new registrations)
         expiry = timedelta(hours=24)
         token = generate_jwt_token(user_id, email, expiry=expiry)
-        
-        logger.info(f"User registered successfully: {email}")
-        
+
         # Create response with token and user for frontend (cookie also set below)
         response = jsonify({
             'success': True,
@@ -331,6 +444,16 @@ def login():
     except Exception as e:
         logger.error(f"Login error: {e}")
         return jsonify({'success': False, 'error': 'Login failed. Please try again.'}), 500
+
+
+@auth_api.route('/session-ready', methods=['GET'])
+@require_auth
+def session_ready():
+    """
+    Minimal fail-closed session probe for post-auth cookie propagation.
+    @require_auth validates JWT before this handler runs; no user load or PII.
+    """
+    return jsonify({'ready': True}), 200
 
 
 @auth_api.route('/verify', methods=['GET'])

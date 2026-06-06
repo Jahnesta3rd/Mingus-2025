@@ -2,6 +2,7 @@ import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { X, ArrowLeft, ArrowRight, Check, Car, MapPin, Gauge, AlertCircle, Loader2 } from 'lucide-react';
 import { InputValidator } from '../utils/validation';
 import { Sanitizer } from '../utils/sanitize';
+import { csrfHeaders } from '../utils/csrfHeaders';
 import VehicleSetupSuccess, { VehicleSetupSuccessData } from './VehicleSetupSuccess';
 
 // Types
@@ -60,6 +61,32 @@ interface VehicleSetupProps {
   onSubmit: (data: VehicleSetupData) => void;
   onGoToDashboard?: () => void;
   className?: string;
+}
+
+/** Same header pattern as modularOnboarding / useOnboarding (Bearer + csrfHeaders). */
+function vehicleSetupPostHeaders(): Record<string, string> {
+  const token = localStorage.getItem('mingus_token');
+  return {
+    'Content-Type': 'application/json',
+    ...csrfHeaders(),
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  };
+}
+
+/** JSON body for POST /api/vehicle-setup/submit (snake_case API contract). */
+function buildVehicleSetupSubmitBody(data: VehicleSetupData): Record<string, unknown> {
+  return {
+    vin: data.vin,
+    year: data.year,
+    make: data.make,
+    model: data.model,
+    trim: data.trim,
+    current_mileage: data.currentMileage,
+    monthly_miles: data.monthlyMiles,
+    zipcode: data.zipcode,
+    msa: data.msa,
+    use_vin_lookup: data.useVinLookup,
+  };
 }
 
 // Popular vehicle data for target demographic
@@ -224,11 +251,9 @@ const VehicleSetup: React.FC<VehicleSetupProps> = ({
     try {
       const response = await fetch('/api/vehicle-setup/vin-lookup', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
-        },
-        body: JSON.stringify({ vin, use_cache: true })
+        credentials: 'include',
+        headers: vehicleSetupPostHeaders(),
+        body: JSON.stringify({ vin, use_cache: true }),
       });
 
       if (!response.ok) {
@@ -273,11 +298,9 @@ const VehicleSetup: React.FC<VehicleSetupProps> = ({
     try {
       const response = await fetch('/api/vehicle-setup/zipcode-to-msa', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
-        },
-        body: JSON.stringify({ zipcode })
+        credentials: 'include',
+        headers: vehicleSetupPostHeaders(),
+        body: JSON.stringify({ zipcode }),
       });
 
       if (!response.ok) {
@@ -432,11 +455,9 @@ const VehicleSetup: React.FC<VehicleSetupProps> = ({
       // Submit to API
       const response = await fetch('/api/vehicle-setup/submit', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
-        },
-        body: JSON.stringify(formData)
+        credentials: 'include',
+        headers: vehicleSetupPostHeaders(),
+        body: JSON.stringify(buildVehicleSetupSubmitBody(formData)),
       });
 
       if (!response.ok) {
@@ -457,17 +478,14 @@ const VehicleSetup: React.FC<VehicleSetupProps> = ({
             make: formData.make,
             model: formData.model,
             trim: formData.trim,
-            current_mileage: formData.current_mileage,
-            monthly_miles: formData.monthly_miles,
+            current_mileage: formData.currentMileage,
+            monthly_miles: formData.monthlyMiles,
             zipcode: formData.zipcode
           }
         };
 
         setSuccessData(successData);
         setShowSuccess(true);
-        
-        // Also call the original onSubmit callback
-        onSubmit(formData);
       } else {
         throw new Error(result.error || 'Failed to submit vehicle setup');
       }
@@ -476,7 +494,7 @@ const VehicleSetup: React.FC<VehicleSetupProps> = ({
     } finally {
       setLoading(false);
     }
-  }, [formData, onSubmit]);
+  }, [formData]);
 
   // Handle keyboard navigation
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
@@ -486,16 +504,15 @@ const VehicleSetup: React.FC<VehicleSetupProps> = ({
     }
   }, [handleNext]);
 
-  // Handle success flow actions
-  const handleGoToDashboard = useCallback(() => {
+  const finishSuccessDismissal = useCallback(() => {
+    onSubmit(formData);
+    onClose();
     if (onGoToDashboard) {
       onGoToDashboard();
     } else {
-      // Default behavior - close modal and redirect
-      onClose();
       window.location.href = '/dashboard';
     }
-  }, [onGoToDashboard, onClose]);
+  }, [formData, onSubmit, onClose, onGoToDashboard]);
 
   const handleAddAnotherVehicle = useCallback(() => {
     setShowSuccess(false);
@@ -526,11 +543,11 @@ const VehicleSetup: React.FC<VehicleSetupProps> = ({
         className={`fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 transition-all duration-300 ${
           isVisible ? 'opacity-100' : 'opacity-0'
         } ${className}`}
-        onClick={(e) => e.target === e.currentTarget && onClose()}
+        onClick={(e) => e.target === e.currentTarget && finishSuccessDismissal()}
       >
         <div 
           ref={modalRef}
-          className={`bg-gray-900 rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden transition-all duration-300 ${
+          className={`bg-gray-900 rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto overflow-x-hidden transition-all duration-300 ${
             isVisible ? 'scale-100' : 'scale-95'
           }`}
         >
@@ -547,7 +564,7 @@ const VehicleSetup: React.FC<VehicleSetupProps> = ({
                 </div>
               </div>
               <button
-                onClick={onClose}
+                onClick={finishSuccessDismissal}
                 className="text-green-200 hover:text-white transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-green-600 rounded p-1"
                 aria-label="Close vehicle setup"
               >
@@ -560,8 +577,8 @@ const VehicleSetup: React.FC<VehicleSetupProps> = ({
           <div className="p-6 overflow-y-auto max-h-[calc(90vh-200px)]">
             <VehicleSetupSuccess
               data={successData}
-              onClose={onClose}
-              onGoToDashboard={handleGoToDashboard}
+              onClose={finishSuccessDismissal}
+              onGoToDashboard={finishSuccessDismissal}
               onAddAnotherVehicle={handleAddAnotherVehicle}
             />
           </div>
@@ -579,7 +596,7 @@ const VehicleSetup: React.FC<VehicleSetupProps> = ({
     >
       <div 
         ref={modalRef}
-        className={`bg-gray-900 rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden transition-all duration-300 ${
+        className={`bg-gray-900 rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto overflow-x-hidden transition-all duration-300 ${
           isVisible ? 'scale-100' : 'scale-95'
         }`}
         onKeyDown={handleKeyDown}

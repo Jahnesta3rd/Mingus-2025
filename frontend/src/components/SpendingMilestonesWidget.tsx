@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Check } from 'lucide-react';
+import { useAuth } from '../hooks/useAuth';
 
 // ========================================
 // TYPES
@@ -25,6 +26,20 @@ interface SpendingMilestonesWidgetProps {
 
 const MILESTONE_DAYS = [3, 7, 14, 30, 60, 100] as const;
 const PRIMARY_PURPLE = '#5B2D8E';
+
+function SpendingMilestonesEmptyCta() {
+  const { isAuthenticated } = useAuth();
+  if (!isAuthenticated) return null;
+  return (
+    <a
+      href="/dashboard/tools?tab=daily-outlook"
+      className="inline-block rounded-lg px-4 py-2 text-white transition-colors hover:opacity-90"
+      style={{ backgroundColor: PRIMARY_PURPLE }}
+    >
+      Open Daily Outlook to check in
+    </a>
+  );
+}
 
 const MILESTONE_MESSAGES: Record<number, string> = {
   3: 'You started something. That is the hardest part. Keep going.',
@@ -149,7 +164,11 @@ function MilestoneBadge({
         className="flex flex-col items-center focus:outline-none focus:ring-2 focus:ring-offset-1 rounded-full focus:ring-[#5B2D8E]"
         onMouseEnter={() => achieved && setShowTooltip(true)}
         onMouseLeave={() => setShowTooltip(false)}
-        aria-label={achieved ? `Milestone ${days} days, achieved ${formattedDate}` : `${days} days milestone`}
+        aria-label={
+          achieved
+            ? `Streak checkpoint ${days} days, achieved ${formattedDate}`
+            : `${days}-day streak checkpoint, not yet reached`
+        }
       >
         <span
           className={`flex h-10 w-10 items-center justify-center rounded-full border-2 text-sm font-semibold ${
@@ -204,13 +223,13 @@ export default function SpendingMilestonesWidget({
       );
 
       if (!response.ok) {
-        throw new Error('Failed to fetch milestone data');
+        throw new Error('Failed to fetch streak data');
       }
 
       const json: MilestonesResponse = await response.json();
       setData(json);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unable to load milestone data');
+      setError(err instanceof Error ? err.message : 'Unable to load streak data');
     } finally {
       setLoading(false);
     }
@@ -239,10 +258,10 @@ export default function SpendingMilestonesWidget({
       <div
         className={`rounded-xl bg-white p-6 shadow-sm ${className}`}
         role="status"
-        aria-label="Loading milestone data"
+        aria-label="Loading streak achievements"
       >
+        <h2 className="mb-4 text-lg font-semibold text-gray-900">Streak achievements</h2>
         <div className="animate-pulse space-y-4">
-          <div className="h-6 w-32 bg-gray-200 rounded" />
           <div className="flex flex-col sm:flex-row gap-6">
             <div className="flex flex-col items-center sm:items-start space-y-3">
               <div className="h-24 w-24 rounded-full bg-gray-200" />
@@ -264,7 +283,8 @@ export default function SpendingMilestonesWidget({
   if (error) {
     return (
       <div className={`rounded-xl bg-white p-6 shadow-sm ${className}`}>
-        <p className="text-gray-700 mb-4">Unable to load milestone data</p>
+        <h2 className="mb-4 text-lg font-semibold text-gray-900">Streak achievements</h2>
+        <p className="text-gray-700 mb-4">Unable to load streak data</p>
         <button
           type="button"
           onClick={fetchMilestones}
@@ -281,14 +301,13 @@ export default function SpendingMilestonesWidget({
   if (data != null && data.current_streak === 0) {
     return (
       <div className={`rounded-xl bg-white p-6 shadow-sm ${className}`}>
+        <h2 className="mb-2 text-lg font-semibold text-gray-900">Streak achievements</h2>
+        <p className="mb-1 text-sm text-gray-500">
+          Check-in streak rewards for consistent financial check-ins.
+        </p>
         <p className="text-gray-700 mb-4">Complete your first check-in to start your streak</p>
-        <a
-          href="/daily-outlook"
-          className="inline-block rounded-lg px-4 py-2 text-white transition-colors hover:opacity-90"
-          style={{ backgroundColor: PRIMARY_PURPLE }}
-        >
-          Go to Daily Outlook
-        </a>
+        <SpendingMilestonesEmptyCta />
+        <p className="mt-4 text-xs text-gray-500">Your milestones and streaks are tracked here.</p>
       </div>
     );
   }
@@ -298,10 +317,19 @@ export default function SpendingMilestonesWidget({
   const milestoneByDays = Object.fromEntries(data.milestones.map((m) => [m.days, m]));
 
   return (
-    <div className={`relative rounded-xl bg-white p-6 shadow-sm ${className}`} role="region" aria-label="Spending milestones">
+    <div
+      className={`relative rounded-xl bg-white p-6 shadow-sm ${className}`}
+      role="region"
+      aria-label="Streak achievements from daily check-ins"
+    >
       {toastMessage != null && (
         <Toast message={toastMessage} onDismiss={() => setToastMessage(null)} />
       )}
+
+      <h2 className="mb-4 text-lg font-semibold text-gray-900">Streak achievements</h2>
+      <p className="mb-4 text-sm text-gray-500">
+        Rewards for your Daily Outlook check-in streak — separate from saving-goal milestones.
+      </p>
 
       <div className="flex flex-col sm:flex-row sm:items-center gap-6">
         {/* LEFT — Streak counter + ring */}
@@ -320,7 +348,7 @@ export default function SpendingMilestonesWidget({
             </div>
           </div>
           <p className="mt-2 text-sm text-gray-600">day streak</p>
-          <p className="text-sm text-gray-500">Next milestone: {data.next_milestone} days</p>
+          <p className="text-sm text-gray-500">Next streak checkpoint: {data.next_milestone} days</p>
         </div>
 
         {/* RIGHT — Badge row */}
@@ -338,6 +366,9 @@ export default function SpendingMilestonesWidget({
           })}
         </div>
       </div>
+      <p className="mt-6 border-t border-gray-100 pt-4 text-xs text-gray-500">
+        Your milestones and streaks are tracked here.
+      </p>
     </div>
   );
 }

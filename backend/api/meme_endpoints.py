@@ -106,7 +106,7 @@ def track_meme_analytics(meme_id, action, user_id=None, session_id=None):
                 action TEXT NOT NULL CHECK (action IN ('view', 'continue', 'skip', 'auto_advance')),
                 user_id TEXT,
                 session_id TEXT,
-                timestamp DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
                 ip_address TEXT,
                 user_agent TEXT,
                 FOREIGN KEY (meme_id) REFERENCES memes (id)

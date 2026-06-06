@@ -522,7 +522,7 @@ const AssessmentResults: React.FC<AssessmentResultsProps> = ({
                   if (result.email) params.set('email', result.email);
                   if (result.firstName) params.set('firstName', result.firstName);
                   setTimeout(() => {
-                    navigate(`/signup?${params.toString()}`);
+                    navigate(`/register?${params.toString()}`);
                   }, 100);
                 }}
                 className="px-8 py-3 bg-violet-600 hover:bg-violet-500 text-white font-semibold rounded-lg transition-colors text-center"
@@ -539,7 +539,7 @@ const AssessmentResults: React.FC<AssessmentResultsProps> = ({
             </div>
 
             <p className="text-gray-500 text-xs text-center mt-4">
-              Free 14-day trial • No credit card required
+              Paid plans from $15/mo · Cancel anytime
             </p>
           </div>
         </div>

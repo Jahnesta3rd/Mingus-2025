@@ -13,10 +13,16 @@ tier restrictions and rate limiting following MINGUS security patterns.
 import logging
 from flask import Blueprint, request, jsonify
 from flask_cors import cross_origin
-from backend.auth.decorators import require_auth, require_housing_feature, rate_limit_housing_searches
+from backend.auth.decorators import (
+    get_current_jwt_user,
+    require_auth,
+    require_housing_feature,
+    rate_limit_housing_searches,
+)
 from backend.models.database import db
 from backend.models.housing_models import HousingSearch, HousingScenario
-from backend.services.feature_flag_service import feature_flag_service
+from backend.models.housing_profile import HousingProfile
+from backend.services.feature_flag_service import feature_flag_service, FeatureFlag
 from datetime import datetime, timedelta
 from typing import Dict, Any, List
 
@@ -29,6 +35,85 @@ housing_api = Blueprint('housing_api', __name__, url_prefix='/api/housing')
 # ============================================================================
 # EXAMPLE ENDPOINTS USING HOUSING DECORATORS
 # ============================================================================
+
+def _housing_profile_complete(hp: HousingProfile) -> bool:
+    return (
+        hp.housing_type is not None
+        and hp.monthly_cost is not None
+        and hp.monthly_cost > 0
+    )
+
+
+def _empty_housing_profile_payload() -> Dict[str, Any]:
+    return {
+        'housing_type': None,
+        'monthly_cost': None,
+        'zip_or_city': None,
+        'has_buy_goal': False,
+        'target_price': None,
+        'target_timeline_months': None,
+        'profile_complete': False,
+    }
+
+
+@housing_api.route('/profile', methods=['GET', 'OPTIONS'])
+@cross_origin()
+@require_auth
+def get_housing_profile():
+    """Housing profile read for Snapshot action-card down payment CTA."""
+    if request.method == 'OPTIONS':
+        return jsonify({}), 200
+
+    user = get_current_jwt_user()
+    if not user:
+        return jsonify({'success': False, 'error': 'User not found'}), 404
+
+    hp = HousingProfile.query.filter_by(user_id=user.id).first()
+    if not hp:
+        return jsonify({
+            'has_buy_goal': False,
+            'target_price': None,
+            'target_timeline_months': None,
+            'down_payment_saved': 0,
+        }), 200
+
+    return jsonify({
+        'has_buy_goal': bool(hp.has_buy_goal),
+        'target_price': hp.target_price,
+        'target_timeline_months': hp.target_timeline_months,
+        'down_payment_saved': float(hp.down_payment_saved or 0),
+    }), 200
+
+
+@housing_api.route('/profile-summary', methods=['GET', 'OPTIONS'])
+@cross_origin()
+@require_auth
+def profile_summary():
+    """Lightweight housing_profile read for dashboard Housing Check-in card."""
+    if request.method == 'OPTIONS':
+        return jsonify({}), 200
+
+    user = get_current_jwt_user()
+    if not user:
+        return jsonify({'success': False, 'error': 'User not found'}), 404
+
+    hp = HousingProfile.query.filter_by(user_id=user.id).first()
+    if not hp:
+        return jsonify({'success': True, 'profile': _empty_housing_profile_payload()}), 200
+
+    return jsonify({
+        'success': True,
+        'profile': {
+            'housing_type': hp.housing_type,
+            'monthly_cost': hp.monthly_cost,
+            'zip_or_city': hp.zip_or_city,
+            'has_buy_goal': bool(hp.has_buy_goal),
+            'target_price': hp.target_price,
+            'target_timeline_months': hp.target_timeline_months,
+            'profile_complete': _housing_profile_complete(hp),
+        },
+    }), 200
+
 
 @housing_api.route('/analyze-career-scenarios', methods=['POST', 'OPTIONS'])
 @cross_origin()
@@ -349,8 +434,8 @@ def get_housing_tier_info():
             'tier_name': user_tier.value.replace('_', ' ').title(),
             'features': features,
             'has_optimal_location': feature_flag_service.has_feature_access(
-                user_id, 
-                feature_flag_service.FeatureFlag.OPTIMAL_LOCATION
+                user_id,
+                FeatureFlag.OPTIMAL_LOCATION
             ),
             'upgrade_options': upgrade_options
         }

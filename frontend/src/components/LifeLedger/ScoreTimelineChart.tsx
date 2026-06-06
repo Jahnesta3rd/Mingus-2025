@@ -155,7 +155,7 @@ const ScoreTimelineChart: React.FC<ScoreTimelineChartProps> = ({ snapshots }) =>
         </span>
         <span className="inline-flex items-center gap-1.5">
           <span className="inline-block w-3 h-0.5 rounded" style={{ background: COLOR_LEDGER }} />
-          Life Ledger Score
+          Historical composite
         </span>
         <span className="inline-flex items-center gap-1.5">
           <span className="inline-block w-3 h-0.5 rounded" style={{ background: COLOR_SAVINGS }} />

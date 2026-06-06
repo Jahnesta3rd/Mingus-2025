@@ -1,31 +1,43 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import LoadingSpinner from '../components/common/LoadingSpinner';
+import { useAuth } from '../hooks/useAuth';
 
 interface AuthGuardProps {
   children: React.ReactNode;
 }
 
+function hasClientAuthMarker(): boolean {
+  try {
+    return !!(
+      localStorage.getItem('auth_token') || localStorage.getItem('mingus_token')
+    );
+  } catch {
+    return false;
+  }
+}
+
 const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  // Initialize from localStorage so we don't flash spinner when token was just set (e.g. after login)
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(() =>
-    typeof window !== 'undefined' && localStorage.getItem('auth_token') ? true : null
-  );
+  const { isAuthenticated, loading } = useAuth();
+  const clientAuthed = hasClientAuthMarker();
+  const allowed = isAuthenticated || clientAuthed;
 
   useEffect(() => {
-    const token = localStorage.getItem('auth_token');
-    if (!token) {
+    if (loading) return;
+    if (!allowed) {
       sessionStorage.setItem('redirect_after_login', location.pathname);
       navigate('/login', { replace: true });
-      return;
     }
-    setIsAuthenticated(true);
-  }, [navigate, location.pathname]);
+  }, [loading, allowed, navigate, location.pathname]);
 
-  if (isAuthenticated === null) {
+  if (loading && !clientAuthed) {
     return <LoadingSpinner fullScreen message="Checking authentication..." />;
+  }
+
+  if (!allowed) {
+    return null;
   }
 
   return <>{children}</>;

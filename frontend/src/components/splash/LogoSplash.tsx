@@ -1,16 +1,40 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { getDailyVibe } from '../../services/vibeService';
-import type { VibeResponse } from '../../services/vibeService';
+import SessionSetupTerminalError from '../auth/SessionSetupTerminalError';
+
+const MIN_SPLASH_MS = 2000;
 
 const delay = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 const LogoSplash: React.FC = () => {
   const navigate = useNavigate();
-  const { getAccessToken } = useAuth();
+  const { getAccessToken, awaitSessionReady } = useAuth();
   const [phase, setPhase] = useState<'enter' | 'hold' | 'exit'>('enter');
   const [enterDone, setEnterDone] = useState(false);
+  const [gateError, setGateError] = useState(false);
+  const mountedRef = useRef(true);
+  const splashStartRef = useRef(Date.now());
+  const minSplashTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const waitForMinSplash = useCallback(async () => {
+    const remaining = MIN_SPLASH_MS - (Date.now() - splashStartRef.current);
+    if (remaining <= 0) return;
+    await new Promise<void>((resolve) => {
+      minSplashTimerRef.current = setTimeout(() => {
+        minSplashTimerRef.current = null;
+        resolve();
+      }, remaining);
+    });
+  }, []);
+
+  const clearMinSplashTimer = useCallback(() => {
+    if (minSplashTimerRef.current) {
+      clearTimeout(minSplashTimerRef.current);
+      minSplashTimerRef.current = null;
+    }
+  }, []);
 
   // Trigger enter animation on next frame so CSS transition runs
   useEffect(() => {
@@ -21,68 +45,92 @@ const LogoSplash: React.FC = () => {
     return () => cancelAnimationFrame(id);
   }, [phase]);
 
-  useEffect(() => {
-    let mounted = true;
+  const runGate = useCallback(async () => {
+    const showGateError = async () => {
+      await waitForMinSplash();
+      if (!mountedRef.current) return;
+      setGateError(true);
+    };
 
-    const runFlow = async () => {
-      const vibePromise = getDailyVibe().catch(() => null);
+    try {
+      await awaitSessionReady();
+    } catch (err) {
+      console.error('LogoSplash: session-ready failed', err);
+      await showGateError();
+      return;
+    }
 
-      await delay(300);
-      if (!mounted) return;
-      setPhase('hold');
+    try {
+      const token = getAccessToken ? getAccessToken() : null;
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+      if (token) headers.Authorization = `Bearer ${token}`;
 
-      const [vibeData] = await Promise.all([vibePromise, delay(1000)]);
-      if (!mounted) return;
+      const res = await fetch('/api/profile/setup-status', {
+        method: 'GET',
+        credentials: 'include',
+        headers,
+      });
 
+      if (!res.ok) {
+        console.error('LogoSplash: setup-status returned', res.status);
+        await showGateError();
+        return;
+      }
+
+      const data = await res.json();
+      const isComplete =
+        data.setupCompleted === true || data.onboarding_complete === true;
+
+      if (!mountedRef.current) return;
       setPhase('exit');
       await delay(200);
-      if (!mounted) return;
+      if (!mountedRef.current) return;
+      await waitForMinSplash();
+      if (!mountedRef.current) return;
 
-      const checkSetupAndNavigate = async () => {
-        try {
-          const token = getAccessToken ? getAccessToken() : null;
-          const headers: Record<string, string> = {
-            'Content-Type': 'application/json',
-          };
-          if (token) headers.Authorization = `Bearer ${token}`;
+      if (!isComplete) {
+        navigate('/onboarding', { replace: true });
+        return;
+      }
+      if (data.show_vibe_moment_today === true) {
+        navigate('/vibe-check-meme?t=' + Date.now(), { replace: true });
+        return;
+      }
+      navigate('/dashboard', { replace: true });
+    } catch (err) {
+      console.error('LogoSplash: setup-status failed', err);
+      await showGateError();
+    }
+  }, [awaitSessionReady, getAccessToken, navigate, waitForMinSplash]);
 
-          const res = await fetch('/api/profile/setup-status', {
-            method: 'GET',
-            credentials: 'include',
-            headers,
-          });
+  useEffect(() => {
+    mountedRef.current = true;
+    splashStartRef.current = Date.now();
 
-          if (res.ok) {
-            const data = await res.json();
-            const steps = Array.isArray(data.steps_completed)
-              ? data.steps_completed
-              : Array.isArray(data.data?.steps_completed)
-                ? data.data.steps_completed
-                : [];
-            const isComplete =
-              data.setupCompleted === true ||
-              data.onboarding_complete === true ||
-              steps.length >= 3;
+    void getDailyVibe().catch(() => null);
+    void runGate();
 
-            if (!isComplete) {
-              if (mounted) navigate('/onboarding', { replace: true });
-              return;
-            }
-          }
-        } catch {
-          // silent — fall through to vibe-check-meme on any error
-        }
-        if (mounted) navigate('/vibe-check-meme', { replace: true });
-      };
-
-      checkSetupAndNavigate();
+    const runHoldAnimation = async () => {
+      await delay(300);
+      if (!mountedRef.current) return;
+      setPhase('hold');
     };
 
-    runFlow();
+    void runHoldAnimation();
     return () => {
-      mounted = false;
+      mountedRef.current = false;
+      clearMinSplashTimer();
     };
-  }, [navigate, getAccessToken]);
+  }, [runGate, clearMinSplashTimer]);
+
+  const handleRetry = () => {
+    setGateError(false);
+    setPhase('hold');
+    setEnterDone(true);
+    void runGate();
+  };
 
   const isEnter = phase === 'enter';
   const isExit = phase === 'exit';
@@ -115,11 +163,18 @@ const LogoSplash: React.FC = () => {
         .animate-bounce-dot:nth-child(3) { animation-delay: 0.4s; }
       `}</style>
       <div className="min-h-screen bg-gray-900 flex flex-col items-center justify-center relative">
+        {gateError && (
+          <SessionSetupTerminalError variant="dark" onRetry={handleRetry} />
+        )}
         <div
           className={`flex flex-col items-center justify-center transition-all ease-out ${transitionClass} ${contentOpacityScale} ${pulseClass}`}
         >
-          <h1 className="text-6xl md:text-7xl font-bold text-white tracking-tight">MINGUS</h1>
-          <p className="mt-3 text-lg text-violet-400">Build Wealth. Live Well.</p>
+          <img
+            src="/mingus-logo.png"
+            alt="Mingus"
+            className="block max-w-[280px] w-full h-auto mb-3"
+          />
+          <p className="mt-3 text-2xl text-violet-400">Be. Do. Have...</p>
         </div>
 
         <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex items-center gap-1.5">

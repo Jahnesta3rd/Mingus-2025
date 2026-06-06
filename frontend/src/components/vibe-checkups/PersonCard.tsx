@@ -325,12 +325,15 @@ export function PersonCard({
   onDelete,
   onRestore,
 }: PersonCardProps) {
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
+  const upgradePlansTo = isAuthenticated ? '/dashboard/upgrade' : '/#pricing';
   const userTier = effectiveUserTier(user);
   const showConnectionPatternInsight = userTier !== 'budget';
 
   const cardType: VibeCardType =
-    person.card_type === 'kids' || person.card_type === 'social' ? person.card_type : 'person';
+    person.card_type === 'kids' || person.card_type === 'social' || person.card_type === 'family'
+      ? person.card_type
+      : 'person';
   const isKids = cardType === 'kids';
 
   const [menuOpen, setMenuOpen] = useState(false);
@@ -481,7 +484,7 @@ export function PersonCard({
               {!showConnectionPatternInsight ? (
                 <p className="text-sm text-[#9a8f7e]">
                   <Link
-                    to="/settings/upgrade"
+                    to={upgradePlansTo}
                     className="font-semibold text-[#A78BFA] underline underline-offset-2 hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A78BFA] focus-visible:ring-offset-2 focus-visible:ring-offset-[#1a1520]"
                   >
                     Upgrade to Mid-tier
@@ -544,12 +547,16 @@ export function PersonCard({
             Update costs →
           </Link>
         ) : (
-          <Link
-            to="/dashboard/vibe-checkups"
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              setObservationModalOpen(true);
+            }}
             className="flex-1 min-h-11 rounded-xl border border-[#A78BFA]/60 bg-transparent px-3 py-2.5 text-center text-sm font-semibold text-[#A78BFA] transition hover:border-[#A78BFA] hover:bg-[#A78BFA]/10"
           >
             Re-assess
-          </Link>
+          </button>
         )}
         <div className="relative" ref={menuRef}>
           <button

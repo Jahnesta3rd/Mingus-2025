@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
 import {
   AreaChart,
   Area,
@@ -37,18 +38,31 @@ interface RelationshipCostBreakdownRow {
   pct_of_total_expenses?: number;
 }
 
+/** One row from GET …/enhanced-forecast `forecast.monthly_summaries` (gross flows per month). */
+interface MonthlySummaryApiRow {
+  month?: string;
+  month_key: string;
+  month_label: string;
+  opening_balance: number;
+  total_income: number;
+  total_expenses: number;
+  closing_balance: number;
+  worst_status: 'healthy' | 'warning' | 'danger';
+}
+
 interface ForecastResponse {
   success: boolean;
+  balance_set: boolean;
   forecast?: {
     daily_cashflow?: DailyCashflowEntry[];
-    monthly_summaries?: { month_key: string; total: number }[];
+    monthly_summaries?: MonthlySummaryApiRow[];
     vehicle_expense_totals?: { total: number; routine: number; repair: number };
     relationship_cost_breakdown?: RelationshipCostBreakdownRow[];
     [key: string]: unknown;
   };
 }
 
-/** One row for the monthly breakdown table (derived from daily_cashflow or API). */
+/** One row for the Monthly Forecast Summary table (from `forecast.monthly_summaries`; not from net_change). */
 interface MonthlyTableRow {
   month: string;
   month_label: string;
@@ -129,45 +143,21 @@ function formatChartDate(isoDate: string): string {
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
 
-/** Build monthly table rows from daily_cashflow (group by month). */
-function buildMonthlyTableRows(daily: DailyCashflowEntry[]): MonthlyTableRow[] {
-  const byMonth = new Map<
-    string,
-    { opening_balance: number; closing_balance: number; income: number; expenses: number; statuses: ('healthy' | 'warning' | 'danger')[] }
-  >();
-  for (const e of daily) {
-    const monthKey = e.date.slice(0, 7);
-    const r = byMonth.get(monthKey);
-    if (!r) {
-      byMonth.set(monthKey, {
-        opening_balance: e.opening_balance,
-        closing_balance: e.closing_balance,
-        income: e.net_change > 0 ? e.net_change : 0,
-        expenses: e.net_change < 0 ? Math.abs(e.net_change) : 0,
-        statuses: [e.balance_status],
-      });
-    } else {
-      r.closing_balance = e.closing_balance;
-      r.statuses.push(e.balance_status);
-      if (e.net_change > 0) r.income += e.net_change;
-      else if (e.net_change < 0) r.expenses += Math.abs(e.net_change);
-    }
-  }
-  const order = { danger: 3, warning: 2, healthy: 1 };
-  return Array.from(byMonth.entries())
-    .sort(([a], [b]) => a.localeCompare(b))
-    .map(([month, r]) => {
-      const worst = r.statuses.reduce((a, s) => (order[s] > order[a] ? s : a), 'healthy' as const);
-      return {
-        month,
-        month_label: new Date(month + '-01').toLocaleDateString('en-US', { month: 'long', year: 'numeric' }),
-        opening_balance: r.opening_balance,
-        total_income: r.income,
-        total_expenses: r.expenses,
-        closing_balance: r.closing_balance,
-        worst_status: worst,
-      };
-    });
+/** Map API monthly_summaries to table rows. Chart / cards still use daily_cashflow only. */
+function monthlySummariesToTableRows(rows: MonthlySummaryApiRow[]): MonthlyTableRow[] {
+  return rows.map((s) => {
+    const worst = s.worst_status;
+    return {
+      month: s.month_key ?? s.month ?? '',
+      month_label: s.month_label,
+      opening_balance: s.opening_balance,
+      total_income: s.total_income,
+      total_expenses: s.total_expenses,
+      closing_balance: s.closing_balance,
+      worst_status:
+        worst === 'danger' || worst === 'warning' || worst === 'healthy' ? worst : 'healthy',
+    };
+  });
 }
 
 function formatMciMonthDay(isoDate: string): string {
@@ -218,6 +208,7 @@ function getDirectionArrow(direction: MCIDirection): string {
 function formatCardTypeLabel(cardType: string): string {
   const t = (cardType || '').trim().toLowerCase();
   if (t === 'kids') return 'Kids';
+  if (t === 'family') return 'Family';
   if (t === 'person') return 'Person';
   if (!t) return 'Person';
   return t.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
@@ -235,6 +226,8 @@ interface MCIForecastPanelProps {
 }
 
 function MCIForecastPanel({ userTier }: MCIForecastPanelProps) {
+  const { isAuthenticated } = useAuth();
+  const upgradePlansTo = isAuthenticated ? '/dashboard/upgrade' : '/#pricing';
   const { snapshot, loading, error } = useMCI();
 
   const renderSkeleton = () => (
@@ -301,7 +294,7 @@ function MCIForecastPanel({ userTier }: MCIForecastPanelProps) {
                 Upgrade to Mid-tier to see how market conditions affect your forecast
               </p>
               <a
-                href="/#pricing"
+                href={upgradePlansTo}
                 className="mt-3 inline-block rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800"
               >
                 View Plans
@@ -374,8 +367,10 @@ export default function FinancialForecastTab({
   userTier,
   className = '',
 }: FinancialForecastTabProps) {
+  const { isAuthenticated } = useAuth();
+  const upgradePlansTo = isAuthenticated ? '/dashboard/upgrade' : '/#pricing';
   const [dailyCashflow, setDailyCashflow] = useState<DailyCashflowEntry[]>([]);
-  const [monthlySummaries, setMonthlySummaries] = useState<{ month_key: string; total: number }[]>([]);
+  const [monthlySummaries, setMonthlySummaries] = useState<MonthlyTableRow[]>([]);
   const [vehicleExpenseTotals, setVehicleExpenseTotals] = useState<{
     total: number;
     routine: number;
@@ -393,8 +388,9 @@ export default function FinancialForecastTab({
   );
   const [vehicleDetails, setVehicleDetails] = useState<VehicleExpenseDetails | null>(null);
   const [vehicleDetailsLoading, setVehicleDetailsLoading] = useState(false);
-  const [currentBalance, setCurrentBalance] = useState<number>(5000);
+  const [currentBalance, setCurrentBalance] = useState<number | null>(null);
   const [balanceLastUpdated, setBalanceLastUpdated] = useState<string | null>(null);
+  const [balanceSet, setBalanceSet] = useState<boolean>(true);
   const [profileLoading, setProfileLoading] = useState<boolean>(true);
 
   const fetchForecast = useCallback(async () => {
@@ -427,8 +423,13 @@ export default function FinancialForecastTab({
       localStorage.setItem('mingus_last_balance_status', todayEntry?.balance_status ?? 'healthy');
 
       setDailyCashflow(daily);
-      setMonthlySummaries(forecast.monthly_summaries ?? []);
+      setMonthlySummaries(
+        monthlySummariesToTableRows(
+          Array.isArray(forecast.monthly_summaries) ? forecast.monthly_summaries : []
+        )
+      );
       setVehicleExpenseTotals(forecast.vehicle_expense_totals ?? null);
+      setBalanceSet(data.balance_set ?? true);
       const relRaw = forecast.relationship_cost_breakdown;
       setRelationshipCostBreakdown(Array.isArray(relRaw) ? relRaw : []);
     } catch {
@@ -470,12 +471,12 @@ export default function FinancialForecastTab({
         if (typeof rawBal === 'number' && Number.isFinite(rawBal)) {
           setCurrentBalance(rawBal);
         } else {
-          setCurrentBalance(5000);
+          setCurrentBalance(null);
         }
         setBalanceLastUpdated(typeof tsRaw === 'string' && tsRaw ? tsRaw : null);
       } catch {
         if (!cancelled) {
-          setCurrentBalance(5000);
+          setCurrentBalance(null);
           setBalanceLastUpdated(null);
         }
       } finally {
@@ -572,7 +573,10 @@ export default function FinancialForecastTab({
   const strokeColor =
     worstStatus90 === 'danger' ? '#DC2626' : worstStatus90 === 'warning' ? '#D97706' : '#16A34A';
 
-  const monthlyTableRows = buildMonthlyTableRows(dailyCashflow);
+  /** Which risk band the 90-day minimum balance falls into — matches chart area/stroke semantics. */
+  const activeForecastLegend: 'healthy' | 'warning' | 'danger' =
+    minBalance90 >= 1000 ? 'healthy' : minBalance90 >= 0 ? 'warning' : 'danger';
+
   const currentMonthKey = new Date().toISOString().slice(0, 7);
 
   if (loading) {
@@ -613,6 +617,22 @@ export default function FinancialForecastTab({
 
   return (
     <div className={`space-y-6 ${className}`}>
+      {!balanceSet && (
+        <div className="rounded-xl border border-purple-200 bg-purple-50 p-6 shadow-sm">
+          <div className="flex items-start gap-3">
+            <span className="mt-1 h-2.5 w-2.5 shrink-0 rounded-full bg-[#5B2D8E]" aria-hidden />
+            <div>
+              <p className="font-semibold text-[#1E293B]">
+                Set your starting balance to see your real forecast
+              </p>
+              <p className="mt-2 text-sm text-[#64748B]">
+                Your forecast currently uses a placeholder value. Update your current balance in the
+                Balance section below to see accurate projections for the next 90 days.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
       <BalanceEntryWidget
         userEmail={userEmail}
         initialBalance={currentBalance}
@@ -673,7 +693,7 @@ export default function FinancialForecastTab({
             Professional.
           </p>
           <Link
-            to="/settings/upgrade"
+            to={upgradePlansTo}
             className="mt-4 inline-flex min-h-11 items-center justify-center rounded-lg bg-[#5B2D8E] px-4 text-sm font-semibold text-white hover:opacity-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5B2D8E] focus-visible:ring-offset-2"
           >
             View upgrade options
@@ -751,7 +771,7 @@ export default function FinancialForecastTab({
       )}
 
       {/* 90-day balance chart — mid & professional only */}
-      {(userTier === 'mid' || userTier === 'professional') && chartData90.length > 0 && (
+      {(userTier === 'mid' || userTier === 'professional') && (chartData90.length > 0 || !balanceSet) && (
         <div className="rounded-xl bg-white p-6 shadow-sm">
           <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
             <div>
@@ -770,69 +790,125 @@ export default function FinancialForecastTab({
               </span>
             </div>
           </div>
-          <ResponsiveContainer width="100%" height={300}>
-            <AreaChart data={chartData90} margin={{ top: 8, right: 8, left: 8, bottom: 8 }}>
-              <defs>
-                <linearGradient id={areaGradientId} x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor={areaColor.from} stopOpacity={areaColor.fromOpacity} />
-                  <stop offset="100%" stopColor="white" stopOpacity={1} />
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-              <XAxis
-                dataKey="date"
-                tickFormatter={(dateStr) => formatChartDate(dateStr)}
-                tick={{ fontSize: 12, fill: '#6B7280' }}
-                interval={13}
-              />
-              <YAxis
-                tickFormatter={formatUsdShort}
-                tick={{ fontSize: 12, fill: '#6B7280' }}
-                width={52}
-              />
-              <Tooltip
-                content={({ active, payload }) => {
-                  if (!active || !payload?.length) return null;
-                  const p = payload[0].payload as {
-                    date: string;
-                    balance: number;
-                    status: 'healthy' | 'warning' | 'danger';
-                  };
-                  const dateFormatted = new Date(p.date + 'T00:00:00').toLocaleDateString('en-US', {
-                    month: 'long',
-                    day: 'numeric',
-                    year: 'numeric',
-                  });
-                  return (
-                    <div className="rounded-lg bg-white p-3 text-sm shadow-lg">
-                      <div className="font-medium text-gray-700">Date: {dateFormatted}</div>
-                      <div className="mt-1 text-gray-700">Balance: {formatUsd(p.balance)}</div>
-                      <div className="mt-2">
-                        <span
-                          className={`inline-block rounded px-2 py-0.5 text-xs font-medium ${getStatusClasses(p.status)}`}
-                        >
-                          {getStatusLabel(p.status)}
-                        </span>
-                      </div>
-                    </div>
-                  );
-                }}
-              />
-              <ReferenceLine
-                y={0}
-                stroke="#9CA3AF"
-                strokeDasharray="4 4"
-                label={{ value: '$0', position: 'right' }}
-              />
-              <Area
-                type="monotone"
-                dataKey="balance"
-                stroke={strokeColor}
-                strokeWidth={2}
-                fill={`url(#${areaGradientId})`}
-              />
-            </AreaChart>
-          </ResponsiveContainer>
+          {!balanceSet ? (
+            <div className="flex min-h-[300px] items-center justify-center text-center">
+              <p className="max-w-md text-sm text-gray-500">
+                Your 90-day forecast will appear here once you&apos;ve set a starting balance.
+              </p>
+            </div>
+          ) : (
+            <>
+              <ResponsiveContainer width="100%" height={300}>
+                <AreaChart data={chartData90} margin={{ top: 8, right: 8, left: 8, bottom: 8 }}>
+                  <defs>
+                    <linearGradient id={areaGradientId} x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor={areaColor.from} stopOpacity={areaColor.fromOpacity} />
+                      <stop offset="100%" stopColor="white" stopOpacity={1} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                  <XAxis
+                    dataKey="date"
+                    tickFormatter={(dateStr) => formatChartDate(dateStr)}
+                    tick={{ fontSize: 12, fill: '#6B7280' }}
+                    interval={13}
+                  />
+                  <YAxis
+                    tickFormatter={formatUsdShort}
+                    tick={{ fontSize: 12, fill: '#6B7280' }}
+                    width={52}
+                  />
+                  <Tooltip
+                    content={({ active, payload }) => {
+                      if (!active || !payload?.length) return null;
+                      const p = payload[0].payload as {
+                        date: string;
+                        balance: number;
+                        status: 'healthy' | 'warning' | 'danger';
+                      };
+                      const dateFormatted = new Date(p.date + 'T00:00:00').toLocaleDateString('en-US', {
+                        month: 'long',
+                        day: 'numeric',
+                        year: 'numeric',
+                      });
+                      return (
+                        <div className="rounded-lg bg-white p-3 text-sm shadow-lg">
+                          <div className="font-medium text-gray-700">Date: {dateFormatted}</div>
+                          <div className="mt-1 text-gray-700">Balance: {formatUsd(p.balance)}</div>
+                          <div className="mt-2">
+                            <span
+                              className={`inline-block rounded px-2 py-0.5 text-xs font-medium ${getStatusClasses(p.status)}`}
+                            >
+                              {getStatusLabel(p.status)}
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    }}
+                  />
+                  <ReferenceLine
+                    y={0}
+                    stroke="#9CA3AF"
+                    strokeDasharray="4 4"
+                    label={{ value: '$0', position: 'right' }}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="balance"
+                    stroke={strokeColor}
+                    strokeWidth={2}
+                    fill={`url(#${areaGradientId})`}
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+              {balanceSet && chartData90.length > 0 && (
+                <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-gray-600">
+                  <span
+                    className={`inline-flex min-w-0 max-w-full items-center gap-1.5 ${activeForecastLegend === 'healthy' ? 'font-semibold text-gray-900' : ''}`}
+                  >
+                    <span
+                      className="h-2.5 w-2.5 shrink-0 rounded-full bg-[#16A34A]"
+                      aria-label="Healthy band: projected balance stays above $1,000"
+                    />
+                    <span>
+                      Stays above $1,000 (healthy)
+                      {activeForecastLegend === 'healthy' && (
+                        <span className="ml-1 font-normal text-gray-500">← your forecast</span>
+                      )}
+                    </span>
+                  </span>
+                  <span
+                    className={`inline-flex min-w-0 max-w-full items-center gap-1.5 ${activeForecastLegend === 'warning' ? 'font-semibold text-gray-900' : ''}`}
+                  >
+                    <span
+                      className="h-2.5 w-2.5 shrink-0 rounded-full bg-[#D97706]"
+                      aria-label="Warning band: projected balance drops between $0 and $1,000"
+                    />
+                    <span>
+                      Drops between $0 and $1,000 (warning)
+                      {activeForecastLegend === 'warning' && (
+                        <span className="ml-1 font-normal text-gray-500">← your forecast</span>
+                      )}
+                    </span>
+                  </span>
+                  <span
+                    className={`inline-flex min-w-0 max-w-full items-center gap-1.5 ${activeForecastLegend === 'danger' ? 'font-semibold text-gray-900' : ''}`}
+                  >
+                    <span
+                      className="h-2.5 w-2.5 shrink-0 rounded-full bg-[#DC2626]"
+                      aria-label="Danger band: projected balance goes below $0"
+                    />
+                    <span>
+                      Goes below $0 (danger)
+                      {activeForecastLegend === 'danger' && (
+                        <span className="ml-1 font-normal text-gray-500">← your forecast</span>
+                      )}
+                    </span>
+                  </span>
+                </div>
+              )}
+            </>
+          )}
         </div>
       )}
 
@@ -842,7 +918,7 @@ export default function FinancialForecastTab({
             Upgrade to Mid-tier to see your 90-day forecast chart
           </p>
           <a
-            href="/#pricing"
+            href={upgradePlansTo}
             className="mt-3 inline-block rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800"
           >
             View Plans
@@ -874,14 +950,14 @@ export default function FinancialForecastTab({
             <>
               <div className="relative mt-4">
                 <div className="pointer-events-none select-none blur-sm opacity-50">
-                  <MonthlyTable rows={monthlyTableRows.slice(0, 3)} />
+                  <MonthlyTable rows={monthlySummaries.slice(0, 3)} />
                 </div>
                 <div className="absolute inset-0 flex flex-col items-center justify-center rounded-lg bg-white/80 p-6 text-center">
                   <p className="text-gray-700 font-medium">
                     Upgrade to Mid-tier to unlock the full 12-month forecast
                   </p>
                   <a
-                    href="/#pricing"
+                    href={upgradePlansTo}
                     className="mt-3 inline-block rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800"
                   >
                     View Plans
@@ -892,7 +968,7 @@ export default function FinancialForecastTab({
           )}
           {(userTier === 'mid' || userTier === 'professional') && (
             <div className="mt-4">
-              <MonthlyTable rows={monthlyTableRows} onSelectMonth={userTier === 'professional' ? setSelectedMonthKey : undefined} />
+              <MonthlyTable rows={monthlySummaries} onSelectMonth={userTier === 'professional' ? setSelectedMonthKey : undefined} />
             </div>
           )}
         </div>
@@ -905,7 +981,7 @@ export default function FinancialForecastTab({
             Upgrade to Professional to see vehicle expense detail by month
           </p>
           <a
-            href="/#pricing"
+            href={upgradePlansTo}
             className="mt-3 inline-block rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800"
           >
             View Plans
@@ -929,8 +1005,8 @@ export default function FinancialForecastTab({
               onChange={(e) => setSelectedMonthKey(e.target.value)}
               className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900"
             >
-              {monthlyTableRows.length > 0
-                ? monthlyTableRows.map((r) => (
+              {monthlySummaries.length > 0
+                ? monthlySummaries.map((r) => (
                     <option key={r.month} value={r.month}>
                       {r.month_label}
                     </option>

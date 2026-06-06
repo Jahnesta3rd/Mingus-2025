@@ -1,7 +1,6 @@
 import React from 'react';
 import { useAuth } from '../hooks/useAuth';
-import ConversationalOnboarding from './ConversationalOnboarding';
-import ExistingOnboardingForm from '../pages/OnboardingPage';
+import OnboardingWizard from './onboarding/wizard/OnboardingWizard';
 
 export interface OnboardingRouterProps {
   onComplete: () => void;
@@ -22,9 +21,9 @@ export default function OnboardingRouter({ onComplete }: OnboardingRouterProps) 
     );
   }
 
-  if (userTier === 'mid_tier' || userTier === 'professional') {
-    return <ConversationalOnboarding onComplete={onComplete} />;
+  if (userTier === 'budget' || userTier === 'mid_tier' || userTier === 'professional') {
+    return <OnboardingWizard onComplete={onComplete} />;
   }
 
-  return <ExistingOnboardingForm onComplete={onComplete} />;
+  return null;
 }

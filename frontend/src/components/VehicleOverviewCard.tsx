@@ -14,12 +14,14 @@ interface VehicleOverviewCardProps {
   vehicles: Vehicle[];
   stats: VehicleStats;
   loading?: boolean;
+  onRequestAddVehicle?: () => void;
 }
 
 const VehicleOverviewCard: React.FC<VehicleOverviewCardProps> = ({ 
   vehicles, 
   stats, 
-  loading = false 
+  loading = false,
+  onRequestAddVehicle
 }) => {
   if (loading) {
     return <VehicleOverviewSkeleton />;
@@ -34,7 +36,11 @@ const VehicleOverviewCard: React.FC<VehicleOverviewCardProps> = ({
           <p className="text-gray-600 text-sm mb-4">
             Add your first vehicle to start tracking maintenance and budget.
           </p>
-          <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+          <button
+            type="button"
+            onClick={() => onRequestAddVehicle?.()}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+          >
             Add Vehicle
           </button>
         </div>

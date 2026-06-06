@@ -90,7 +90,7 @@ const VibeCheckMeme: React.FC<VibeCheckMemeProps> = ({ onContinue, userId }) => 
         {meme.media_type === 'video' ? (
           <video
             src={meme.image_url}
-            className="w-full h-64 object-cover"
+            className="w-full h-96 object-contain bg-black"
             controls
             playsInline
             aria-label={meme.caption}

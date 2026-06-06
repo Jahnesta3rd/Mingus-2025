@@ -105,6 +105,17 @@ export interface ActionData {
   }>;
 }
 
+// ─── Housing Action ───────────────────────────────────────────
+export interface HousingActionData {
+  has_buy_goal: boolean;
+  target_price: number | null;
+  target_timeline_months: number | null;
+  down_payment_saved: number;
+  down_payment_target: number;
+  down_payment_gap: number;
+  monthly_needed: number | null;
+}
+
 // ─── Root Types ───────────────────────────────────────────────
 export interface SnapshotData {
   faith: FaithCardData | null;
@@ -114,6 +125,7 @@ export interface SnapshotData {
   roster: RosterData | null;
   milestones: MilestonesData | null;
   career: CareerData | null;
+  housing: HousingActionData | null;
   action: ActionData | null;
 }
 
@@ -127,5 +139,6 @@ export interface SnapshotLoadStates {
   roster: CardLoadState;
   milestones: CardLoadState;
   career: CardLoadState;
+  housing: CardLoadState;
   action: CardLoadState;
 }

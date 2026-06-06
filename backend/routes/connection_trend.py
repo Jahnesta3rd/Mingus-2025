@@ -238,7 +238,7 @@ def post_assess(person_id: uuid.UUID):
     db.session.add(row)
     db.session.commit()
 
-    check_for_alerts.delay(user.id, str(person.id))
+    check_for_alerts.delay(user.user_id, str(person.id))
     return jsonify({"assessment": _assessment_dict_for_user(row, user)}), 201
 
 

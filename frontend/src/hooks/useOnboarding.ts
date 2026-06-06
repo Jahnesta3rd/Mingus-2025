@@ -87,6 +87,11 @@ export interface OnboardingFlagsPatch {
   quick_vibe_skipped?: boolean;
 }
 
+/** When `syncCurrentStep` is true, `currentStep` is set from server (mount / resume). Post-save callers omit it so the UI step is not pulled backward. */
+export type RefreshSetupStatusOptions = {
+  syncCurrentStep?: boolean;
+};
+
 interface ProfileBundle {
   personalInfo: Record<string, unknown>;
   financialInfo: Record<string, unknown>;
@@ -144,23 +149,33 @@ export function useOnboarding() {
     };
   }, [user?.email, getAccessToken]);
 
-  const refreshSetupStatus = useCallback(async () => {
-    const res = await fetch('/api/profile/setup-status', {
-      method: 'GET',
-      credentials: 'include',
-      headers: buildHeaders(getAccessToken),
-    });
-    if (!res.ok) {
-      return;
-    }
-    const data = (await res.json()) as {
-      steps_completed?: string[];
-      data?: { steps_completed?: string[] };
-    };
-    const done = data.steps_completed ?? data.data?.steps_completed ?? [];
-    setStepsCompleted(done);
-    setCurrentStep(firstIncompleteStep(done));
-  }, [getAccessToken]);
+  const refreshSetupStatus = useCallback(
+    async (options?: RefreshSetupStatusOptions): Promise<boolean> => {
+      try {
+        const res = await fetch('/api/profile/setup-status', {
+          method: 'GET',
+          credentials: 'include',
+          headers: buildHeaders(getAccessToken),
+        });
+        if (!res.ok) {
+          return false;
+        }
+        const data = (await res.json()) as {
+          steps_completed?: string[];
+          data?: { steps_completed?: string[] };
+        };
+        const done = data.steps_completed ?? data.data?.steps_completed ?? [];
+        setStepsCompleted(done);
+        if (options?.syncCurrentStep) {
+          setCurrentStep(firstIncompleteStep(done));
+        }
+        return true;
+      } catch {
+        return false;
+      }
+    },
+    [getAccessToken]
+  );
 
   useEffect(() => {
     if (!user?.email) {
@@ -171,38 +186,18 @@ export function useOnboarding() {
     (async () => {
       setIsLoading(true);
       setError(null);
-      try {
-        const res = await fetch('/api/profile/setup-status', {
-          method: 'GET',
-          credentials: 'include',
-          headers: buildHeaders(getAccessToken),
-        });
-        if (!res.ok) {
-          throw new Error(await readErrorMessage(res));
-        }
-        const data = (await res.json()) as {
-          steps_completed?: string[];
-          data?: { steps_completed?: string[] };
-        };
-        const done = data.steps_completed ?? data.data?.steps_completed ?? [];
-        if (!cancelled) {
-          setStepsCompleted(done);
-          setCurrentStep(firstIncompleteStep(done));
-        }
-      } catch (e) {
-        if (!cancelled) {
-          setError(e instanceof Error ? e.message : 'Failed to load setup status');
-        }
-      } finally {
-        if (!cancelled) {
-          setIsLoading(false);
-        }
+      const ok = await refreshSetupStatus({ syncCurrentStep: true });
+      if (!cancelled && !ok) {
+        setError('Failed to load setup status');
+      }
+      if (!cancelled) {
+        setIsLoading(false);
       }
     })();
     return () => {
       cancelled = true;
     };
-  }, [user?.email, getAccessToken]);
+  }, [user?.email, refreshSetupStatus]);
 
   const goToStep = useCallback((n: number) => {
     if (n >= 1 && n <= ONBOARDING_STEP_KEYS.length) {

@@ -60,6 +60,12 @@ from .in_app_notification import InAppNotification
 from .transaction_schedule import IncomeStream, ScheduledExpense
 from .favorite_verse import FavoriteVerse
 from .bug_report import BugReport
+from .onboarding_progress import OnboardingProgress
+from .housing_profile import HousingProfile
+from .career_profile import CareerProfile
+from .llm_usage import LlmUsage
+from .agreement_acceptance import AgreementAcceptance
+from .job_posting import JobPosting
 
 __all__ = [
     'db',
@@ -122,4 +128,10 @@ __all__ = [
     'ScheduledExpense',
     'FavoriteVerse',
     'BugReport',
+    'OnboardingProgress',
+    'HousingProfile',
+    'CareerProfile',
+    'LlmUsage',
+    'AgreementAcceptance',
+    'JobPosting',
 ]

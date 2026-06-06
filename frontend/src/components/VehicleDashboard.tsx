@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { 
   Car, 
   Wrench, 
@@ -24,12 +24,17 @@ import VehicleOverviewCard from './VehicleOverviewCard';
 import UpcomingMaintenanceSection from './UpcomingMaintenanceSection';
 import MonthlyBudgetDisplay from './MonthlyBudgetDisplay';
 import VehicleQuickActions from './VehicleQuickActions';
+import VehicleSetup, { VehicleSetupData } from './VehicleSetup';
 
 interface VehicleDashboardProps {
   className?: string;
+  hideHeader?: boolean;
 }
 
-const VehicleDashboard: React.FC<VehicleDashboardProps> = ({ className = '' }) => {
+const VehicleDashboard: React.FC<VehicleDashboardProps> = ({
+  className = '',
+  hideHeader = false,
+}) => {
   const [dashboardState, setDashboardState] = useState<VehicleDashboardState>({
     loading: true,
     error: null,
@@ -55,20 +60,9 @@ const VehicleDashboard: React.FC<VehicleDashboardProps> = ({ className = '' }) =
     quickActions: []
   });
 
-  useEffect(() => {
-    fetchVehicleData();
-    
-    let interval: NodeJS.Timeout | null = null;
-    if (dashboardState.autoRefresh) {
-      interval = setInterval(fetchVehicleData, dashboardState.refreshInterval);
-    }
-    
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [dashboardState.autoRefresh, dashboardState.refreshInterval]);
+  const [addVehicleOpen, setAddVehicleOpen] = useState(false);
 
-  const fetchVehicleData = async () => {
+  const fetchVehicleData = useCallback(async () => {
     try {
       setDashboardState(prev => ({ ...prev, loading: true, error: null }));
 
@@ -98,133 +92,168 @@ const VehicleDashboard: React.FC<VehicleDashboardProps> = ({ className = '' }) =
         error: err instanceof Error ? err.message : 'Failed to load vehicle data' 
       }));
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    void fetchVehicleData();
+    
+    let interval: NodeJS.Timeout | null = null;
+    if (dashboardState.autoRefresh) {
+      interval = setInterval(() => {
+        void fetchVehicleData();
+      }, dashboardState.refreshInterval);
+    }
+    
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [dashboardState.autoRefresh, dashboardState.refreshInterval, fetchVehicleData]);
+
+  const handleVehicleAdded = useCallback((_data: VehicleSetupData) => {
+    void fetchVehicleData();
+  }, [fetchVehicleData]);
+
+  const handleQuickAction = useCallback((actionId: string) => {
+    if (actionId === 'add-vehicle' || actionId === 'add_vehicle') {
+      setAddVehicleOpen(true);
+      return;
+    }
+    console.log('Quick action clicked:', actionId);
+  }, []);
 
   const handleRefresh = () => {
-    fetchVehicleData();
+    void fetchVehicleData();
   };
 
   const handleAutoRefreshToggle = () => {
     setDashboardState(prev => ({ ...prev, autoRefresh: !prev.autoRefresh }));
   };
 
-  if (dashboardState.loading && dashboardData.vehicles.length === 0) {
-    return <VehicleDashboardSkeleton />;
-  }
-
-  if (dashboardState.error) {
-    return (
-      <div className={`bg-red-50 border border-red-200 rounded-lg p-6 ${className}`}>
-        <div className="flex items-center gap-3 mb-4">
-          <AlertTriangle className="h-6 w-6 text-red-600" />
-          <h3 className="text-lg font-semibold text-red-900">Failed to Load Vehicle Dashboard</h3>
-        </div>
-        <p className="text-red-700 mb-4">{dashboardState.error}</p>
-        <div className="flex gap-3">
-          <button
-            onClick={handleRefresh}
-            className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
-          >
-            Try Again
-          </button>
-          <button
-            onClick={handleAutoRefreshToggle}
-            className="bg-red-100 hover:bg-red-200 text-red-700 px-4 py-2 rounded-lg font-medium transition-colors"
-          >
-            {dashboardState.autoRefresh ? 'Disable Auto-Refresh' : 'Enable Auto-Refresh'}
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className={`space-y-6 ${className}`}>
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-blue-100 rounded-lg">
-            <Car className="h-6 w-6 text-blue-600" />
+    <>
+      {dashboardState.error ? (
+        <div className={`bg-red-50 border border-red-200 rounded-lg p-6 ${className}`}>
+          <div className="flex items-center gap-3 mb-4">
+            <AlertTriangle className="h-6 w-6 text-red-600" />
+            <h3 className="text-lg font-semibold text-red-900">Failed to Load Vehicle Dashboard</h3>
           </div>
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900">Vehicle Dashboard</h2>
-            <p className="text-gray-600 text-sm">
-              Manage your vehicles, maintenance, and budget
-            </p>
+          <p className="text-red-700 mb-4">{dashboardState.error}</p>
+          <div className="flex gap-3">
+            <button
+              onClick={handleRefresh}
+              className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+            >
+              Try Again
+            </button>
+            <button
+              onClick={handleAutoRefreshToggle}
+              className="bg-red-100 hover:bg-red-200 text-red-700 px-4 py-2 rounded-lg font-medium transition-colors"
+            >
+              {dashboardState.autoRefresh ? 'Disable Auto-Refresh' : 'Enable Auto-Refresh'}
+            </button>
           </div>
         </div>
-        
-        <div className="flex items-center gap-3">
-          {dashboardState.lastUpdated && (
-            <div className="flex items-center gap-2 text-sm text-gray-500">
-              <Clock className="h-4 w-4" />
-              <span>Updated {formatLastUpdated(dashboardState.lastUpdated)}</span>
+      ) : dashboardState.loading && dashboardData.vehicles.length === 0 ? (
+        <VehicleDashboardSkeleton />
+      ) : (
+        <div className={`space-y-6 ${className}`}>
+          {!hideHeader && (
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-blue-100 rounded-lg">
+                  <Car className="h-6 w-6 text-blue-600" />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900">Vehicle Dashboard</h2>
+                  <p className="text-gray-600 text-sm">
+                    Manage your vehicles, maintenance, and budget
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3">
+                {dashboardState.lastUpdated && (
+                  <div className="flex items-center gap-2 text-sm text-gray-500">
+                    <Clock className="h-4 w-4" />
+                    <span>Updated {formatLastUpdated(dashboardState.lastUpdated)}</span>
+                  </div>
+                )}
+
+                <button
+                  onClick={handleRefresh}
+                  disabled={dashboardState.loading}
+                  className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-lg font-medium transition-colors disabled:opacity-50"
+                >
+                  <RefreshCw className={`h-4 w-4 ${dashboardState.loading ? 'animate-spin' : ''}`} />
+                  Refresh
+                </button>
+
+                <button
+                  onClick={handleAutoRefreshToggle}
+                  className={`px-3 py-2 rounded-lg font-medium transition-colors ${
+                    dashboardState.autoRefresh
+                      ? 'bg-blue-100 text-blue-700 hover:bg-blue-200'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  Auto-refresh {dashboardState.autoRefresh ? 'ON' : 'OFF'}
+                </button>
+              </div>
             </div>
           )}
-          
-          <button
-            onClick={handleRefresh}
-            disabled={dashboardState.loading}
-            className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-lg font-medium transition-colors disabled:opacity-50"
-          >
-            <RefreshCw className={`h-4 w-4 ${dashboardState.loading ? 'animate-spin' : ''}`} />
-            Refresh
-          </button>
-          
-          <button
-            onClick={handleAutoRefreshToggle}
-            className={`px-3 py-2 rounded-lg font-medium transition-colors ${
-              dashboardState.autoRefresh 
-                ? 'bg-blue-100 text-blue-700 hover:bg-blue-200' 
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
-          >
-            Auto-refresh {dashboardState.autoRefresh ? 'ON' : 'OFF'}
-          </button>
-        </div>
-      </div>
 
-      {/* Overview Cards */}
-      <div className="grid gap-6 lg:gap-8 lg:grid-cols-2">
-        <div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Vehicle Overview</h3>
-          <VehicleOverviewCard 
-            vehicles={dashboardData.vehicles}
-            stats={dashboardData.stats}
-            loading={dashboardState.loading}
-          />
-        </div>
-        
-        <div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
-          <VehicleQuickActions 
-            actions={dashboardData.quickActions}
-            onActionClick={(actionId) => handleQuickAction(actionId)}
-          />
-        </div>
-      </div>
+          {/* Overview Cards */}
+          <div className="grid gap-6 lg:gap-8 lg:grid-cols-2">
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Vehicle Overview</h3>
+              <VehicleOverviewCard 
+                vehicles={dashboardData.vehicles}
+                stats={dashboardData.stats}
+                loading={dashboardState.loading}
+                onRequestAddVehicle={() => setAddVehicleOpen(true)}
+              />
+            </div>
+            
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
+              <VehicleQuickActions 
+                actions={dashboardData.quickActions}
+                onActionClick={(actionId) => handleQuickAction(actionId)}
+                onRequestAddVehicle={() => setAddVehicleOpen(true)}
+              />
+            </div>
+          </div>
 
-      {/* Maintenance and Budget Section */}
-      <div className="grid gap-6 lg:gap-8 lg:grid-cols-2">
-        <div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Upcoming Maintenance</h3>
-          <UpcomingMaintenanceSection 
-            maintenanceItems={dashboardData.upcomingMaintenance}
-            predictions={dashboardData.maintenancePredictions}
-            loading={dashboardState.loading}
-          />
+          {/* Maintenance and Budget Section */}
+          <div className="grid gap-6 lg:gap-8 lg:grid-cols-2">
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Upcoming Maintenance</h3>
+              <UpcomingMaintenanceSection 
+                maintenanceItems={dashboardData.upcomingMaintenance}
+                predictions={dashboardData.maintenancePredictions}
+                loading={dashboardState.loading}
+              />
+            </div>
+            
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Monthly Budget</h3>
+              <MonthlyBudgetDisplay 
+                budgets={dashboardData.budgets}
+                recentExpenses={dashboardData.recentExpenses}
+                loading={dashboardState.loading}
+              />
+            </div>
+          </div>
         </div>
-        
-        <div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Monthly Budget</h3>
-          <MonthlyBudgetDisplay 
-            budgets={dashboardData.budgets}
-            recentExpenses={dashboardData.recentExpenses}
-            loading={dashboardState.loading}
-          />
-        </div>
-      </div>
-    </div>
+      )}
+
+      <VehicleSetup
+        isOpen={addVehicleOpen}
+        onClose={() => setAddVehicleOpen(false)}
+        onSubmit={handleVehicleAdded}
+        onGoToDashboard={() => {}}
+      />
+    </>
   );
 };
 
@@ -283,12 +312,6 @@ const formatLastUpdated = (timestamp: string): string => {
   } else {
     return date.toLocaleTimeString();
   }
-};
-
-const handleQuickAction = (actionId: string) => {
-  // Handle quick action clicks
-  console.log('Quick action clicked:', actionId);
-  // Implement navigation or action handling
 };
 
 export default VehicleDashboard;

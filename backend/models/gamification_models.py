@@ -2,18 +2,21 @@
 """
 Gamification Models for Mingus Application
 
-Database models for streak tracking and gamification system.
-Includes user streaks, achievements, daily engagement metrics,
-milestone tracking, and weekly challenges.
+Streak and gamification ORM models (user streaks, engagement, challenges,
+recovery, leaderboard, points).
+
+Achievement, UserAchievement, Milestone, and MilestoneAchievement ORM classes
+were removed in #99 (architectural cleanup): none were queried in production
+code, and gamification UserAchievement collided with wellness.UserAchievement
+on the user_achievements table (wellness is canonical: UUID id, achievement_key).
+Streak tracking remains via UserStreak.
 """
 
 from datetime import datetime, date
 from enum import Enum
 from sqlalchemy import Column, Integer, String, DateTime, Date, Boolean, Text, Float, ForeignKey, JSON
-from sqlalchemy.orm import relationship
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import backref, relationship
 from backend.models.database import db
-import uuid
 
 # ============================================================================
 # ENUMS
@@ -79,9 +82,8 @@ class UserStreak(db.Model):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
     
     # Relationships
-    user = relationship("User", back_populates="streaks")
-    milestone_achievements = relationship("MilestoneAchievement", back_populates="streak")
-    
+    user = relationship("User", backref=backref("streaks", lazy="dynamic"))
+
     def to_dict(self):
         return {
             'id': self.id,
@@ -99,141 +101,6 @@ class UserStreak(db.Model):
             'grace_period_expires_at': self.grace_period_expires_at.isoformat() if self.grace_period_expires_at else None,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None
-        }
-
-# ============================================================================
-# ACHIEVEMENTS TABLE
-# ============================================================================
-
-class Achievement(db.Model):
-    """Define available achievements"""
-    __tablename__ = 'achievements'
-    
-    id = Column(String(100), primary_key=True)
-    name = Column(String(200), nullable=False)
-    description = Column(Text, nullable=False)
-    icon = Column(String(50), nullable=False)
-    color = Column(String(50), nullable=False)
-    points = Column(Integer, default=0, nullable=False)
-    category = Column(String(50), nullable=False)
-    unlock_conditions = Column(JSON, nullable=True)  # Store conditions as JSON
-    is_active = Column(Boolean, default=True, nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
-    
-    # Relationships
-    user_achievements = relationship("UserAchievement", back_populates="achievement")
-    
-    def to_dict(self):
-        return {
-            'id': self.id,
-            'name': self.name,
-            'description': self.description,
-            'icon': self.icon,
-            'color': self.color,
-            'points': self.points,
-            'category': self.category,
-            'unlock_conditions': self.unlock_conditions,
-            'is_active': self.is_active,
-            'created_at': self.created_at.isoformat() if self.created_at else None,
-            'updated_at': self.updated_at.isoformat() if self.updated_at else None
-        }
-
-class UserAchievement(db.Model):
-    """Track user achievement unlocks"""
-    __tablename__ = 'user_achievements'
-    
-    id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey('users.id'), nullable=False, index=True)
-    achievement_id = Column(String(100), ForeignKey('achievements.id'), nullable=False)
-    unlocked_at = Column(DateTime, default=datetime.utcnow, nullable=False)
-    claimed_at = Column(DateTime, nullable=True)
-    points_awarded = Column(Integer, default=0, nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
-    
-    # Relationships
-    user = relationship("User", back_populates="achievements")
-    achievement = relationship("Achievement", back_populates="user_achievements")
-    
-    def to_dict(self):
-        return {
-            'id': self.id,
-            'user_id': self.user_id,
-            'achievement_id': self.achievement_id,
-            'unlocked_at': self.unlocked_at.isoformat() if self.unlocked_at else None,
-            'claimed_at': self.claimed_at.isoformat() if self.claimed_at else None,
-            'points_awarded': self.points_awarded,
-            'created_at': self.created_at.isoformat() if self.created_at else None
-        }
-
-# ============================================================================
-# MILESTONES TABLE
-# ============================================================================
-
-class Milestone(db.Model):
-    """Define milestone configurations"""
-    __tablename__ = 'milestones'
-    
-    id = Column(String(100), primary_key=True)
-    name = Column(String(200), nullable=False)
-    days_required = Column(Integer, nullable=False)
-    description = Column(Text, nullable=False)
-    reward = Column(String(500), nullable=False)
-    icon = Column(String(50), nullable=False)
-    color = Column(String(50), nullable=False)
-    points_reward = Column(Integer, default=0, nullable=False)
-    tier_requirement = Column(String(50), nullable=True)  # Minimum tier required
-    is_active = Column(Boolean, default=True, nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
-    
-    # Relationships
-    milestone_achievements = relationship("MilestoneAchievement", back_populates="milestone")
-    
-    def to_dict(self):
-        return {
-            'id': self.id,
-            'name': self.name,
-            'days_required': self.days_required,
-            'description': self.description,
-            'reward': self.reward,
-            'icon': self.icon,
-            'color': self.color,
-            'points_reward': self.points_reward,
-            'tier_requirement': self.tier_requirement,
-            'is_active': self.is_active,
-            'created_at': self.created_at.isoformat() if self.created_at else None,
-            'updated_at': self.updated_at.isoformat() if self.updated_at else None
-        }
-
-class MilestoneAchievement(db.Model):
-    """Track user milestone achievements"""
-    __tablename__ = 'milestone_achievements'
-    
-    id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey('users.id'), nullable=False, index=True)
-    milestone_id = Column(String(100), ForeignKey('milestones.id'), nullable=False)
-    streak_id = Column(Integer, ForeignKey('user_streaks.id'), nullable=True)
-    achieved_at = Column(DateTime, default=datetime.utcnow, nullable=False)
-    points_awarded = Column(Integer, default=0, nullable=False)
-    reward_claimed = Column(Boolean, default=False, nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
-    
-    # Relationships
-    user = relationship("User", back_populates="milestone_achievements")
-    milestone = relationship("Milestone", back_populates="milestone_achievements")
-    streak = relationship("UserStreak", back_populates="milestone_achievements")
-    
-    def to_dict(self):
-        return {
-            'id': self.id,
-            'user_id': self.user_id,
-            'milestone_id': self.milestone_id,
-            'streak_id': self.streak_id,
-            'achieved_at': self.achieved_at.isoformat() if self.achieved_at else None,
-            'points_awarded': self.points_awarded,
-            'reward_claimed': self.reward_claimed,
-            'created_at': self.created_at.isoformat() if self.created_at else None
         }
 
 # ============================================================================

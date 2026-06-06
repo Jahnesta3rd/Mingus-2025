@@ -8,13 +8,15 @@ interface HeroSectionProps {
   onAssessmentKeyDown: (e: React.KeyboardEvent, assessmentType: AssessmentType) => void;
   isLoading: boolean;
   navigate: (path: string) => void;
+  isAuthenticated: boolean;
 }
 
 const HeroSection: React.FC<HeroSectionProps> = ({
   onAssessmentClick,
   onAssessmentKeyDown,
   isLoading,
-  navigate
+  navigate,
+  isAuthenticated,
 }) => {
   // Smooth scroll function for anchor navigation
   const scrollToAssessment = (assessmentType: AssessmentType) => {
@@ -219,13 +221,25 @@ const HeroSection: React.FC<HeroSectionProps> = ({
                   </div>
                   
                   {/* Bottom Action */}
-                  <button 
-                    onClick={() => navigate('/signup?source=cta')}
-                    className="w-full bg-gradient-to-r from-violet-500 to-purple-500 text-white py-2 sm:py-3 rounded-xl font-semibold text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-violet-400 focus:ring-offset-2 focus:ring-offset-gray-800"
-                    aria-label="Get started with Mingus"
-                  >
-                    Get Started
-                  </button>
+                  {isAuthenticated ? (
+                    <button
+                      type="button"
+                      onClick={() => navigate('/dashboard')}
+                      className="w-full bg-gradient-to-r from-violet-500 to-purple-500 text-white py-2 sm:py-3 rounded-xl font-semibold text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-violet-400 focus:ring-offset-2 focus:ring-offset-gray-800"
+                      aria-label="Go to Mingus dashboard"
+                    >
+                      Go to Dashboard
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => navigate('/assessments?type=vibe&source=marketing')}
+                      className="w-full bg-gradient-to-r from-violet-500 to-purple-500 text-white py-2 sm:py-3 rounded-xl font-semibold text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-violet-400 focus:ring-offset-2 focus:ring-offset-gray-800"
+                      aria-label="Get started with Mingus"
+                    >
+                      Get Started
+                    </button>
+                  )}
                   <p className="text-sm text-gray-500 mt-3 text-center">
                     Already have an account?{' '}
                     <Link to="/login" className="text-purple-700 font-medium hover:underline">

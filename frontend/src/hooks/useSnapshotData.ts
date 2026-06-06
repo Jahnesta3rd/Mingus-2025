@@ -6,10 +6,13 @@ import type {
   CardLoadState,
   CashNowData,
   FaithCardData,
-  JobOption,
+  HousingActionData,
+  MilestonesData,
   RosterData,
   SnapshotData,
   SnapshotLoadStates,
+  SpendingData,
+  VibeCheckData,
 } from '../types/snapshot';
 
 // ─── CONSTANTS (define at the top of the file, outside the hook) ────
@@ -38,6 +41,22 @@ const SUBSCRIPTION_COST: Record<string, number> = {
   professional: 1200,
 };
 
+function normalizeMonthly(amount: number, frequency: string): number {
+  switch ((frequency || 'monthly').toLowerCase()) {
+    case 'weekly':
+      return (amount * 52) / 12;
+    case 'biweekly':
+      return (amount * 26) / 12;
+    case 'semimonthly':
+      return amount * 2;
+    case 'annual':
+      return amount / 12;
+    case 'monthly':
+    default:
+      return amount;
+  }
+}
+
 function resolveSnapshotUserTier(user: ReturnType<typeof useAuth>['user']): string {
   if (user?.is_beta === true || user?.tier === 'professional') return 'professional';
   if (user?.tier === 'mid_tier') return 'mid_tier';
@@ -46,7 +65,8 @@ function resolveSnapshotUserTier(user: ReturnType<typeof useAuth>['user']): stri
 
 // ─── HOOK ────────────────────────────────────────────────────────────
 
-export function useSnapshotData() {
+export function useSnapshotData(opts?: { reloadKey?: number }) {
+  const reloadKey = opts?.reloadKey ?? 0;
   const { user, getAccessToken } = useAuth();
   const userId = user?.id;
   const userEmail = user?.email;
@@ -61,6 +81,7 @@ export function useSnapshotData() {
     roster: null,
     milestones: null,
     career: null,
+    housing: null,
     action: null,
   });
 
@@ -72,6 +93,7 @@ export function useSnapshotData() {
     roster: 'loading',
     milestones: 'loading',
     career: 'loading',
+    housing: 'loading',
     action: 'loading',
   });
 
@@ -96,20 +118,55 @@ export function useSnapshotData() {
         credentials: 'include',
         headers,
       })
-        .then((r) => r.json())
+        .then((r) => {
+          if (!r.ok) throw new Error(`${r.status}`);
+          return r.json();
+        })
         .then((d) => {
           setCard('faith', d as FaithCardData, 'ready');
         })
         .catch(() => setCard('faith', null, 'error')),
 
       // ── 2. Vibe Check ────────────────────────────────────────
-      fetch(`/api/vibe-tracker/correlation-summary?user_id=${userId}`, {
+      fetch('/api/life-ready-score', {
         credentials: 'include',
         headers,
       })
-        .then((r) => r.json())
+        .then((r) => {
+          if (!r.ok) throw new Error(`${r.status}`);
+          return r.json();
+        })
         .then((d) => {
-          setCard('vibe', d.has_sufficient_data ? d : null, 'ready');
+          if (!d.has_sufficient_data) {
+            setCard('vibe', null, 'ready');
+            return;
+          }
+          const vibeScore = d.components?.vibe?.score ?? 0;
+          const wellnessScore = d.components?.wellness?.score ?? 0;
+          const financialScore = d.components?.financial?.score ?? 0;
+          const overallScore =
+            d.life_ready_score ??
+            Math.round((vibeScore + wellnessScore + financialScore) / 3);
+          const verdict =
+            overallScore >= 75
+              ? 'On track'
+              : overallScore >= 50
+                ? 'Watch closely'
+                : overallScore >= 25
+                  ? 'Needs attention'
+                  : 'Critical';
+          setCard(
+            'vibe',
+            {
+              score: overallScore,
+              verdict,
+              wellness_score: wellnessScore,
+              financial_score: financialScore,
+              emotional_score: vibeScore,
+              headline_insight: d.headline ?? null,
+            } as VibeCheckData,
+            'ready',
+          );
         })
         .catch(() => setCard('vibe', null, 'error')),
 
@@ -119,14 +176,17 @@ export function useSnapshotData() {
         headers,
       })
         .then((r) => {
-          if (!r.ok) throw new Error();
+          if (!r.ok) throw new Error(`${r.status}`);
           return r.json();
         })
         .catch(() =>
           fetch(`/api/cash-flow/backward-compatibility/${userEmail}`, {
             credentials: 'include',
             headers,
-          }).then((r) => r.json()),
+          }).then((r) => {
+            if (!r.ok) throw new Error(`${r.status}`);
+            return r.json();
+          }),
         )
         .then((d) => {
           const thirtyDays = new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 10);
@@ -153,25 +213,52 @@ export function useSnapshotData() {
         .catch(() => setCard('cash', null, 'error')),
 
       // ── 4. Spending ──────────────────────────────────────────
-      fetch(`/api/expenses/summary/${userEmail}`, {
-        credentials: 'include',
-        headers,
-      })
-        .then((r) => r.json())
-        .then((d) => {
-          const cats = (d.categories ?? [])
-            .map((c: { name: string; amount: number }) => ({
-              name: c.name,
-              amount: c.amount,
-              pct_of_income: d.income_monthly > 0 ? c.amount / d.income_monthly : 0,
-            }))
-            .sort((a: { amount: number }, b: { amount: number }) => b.amount - a.amount)
-            .slice(0, 3);
-          setCard(
-            'spending',
-            { income_monthly: d.income_monthly, top_categories: cats },
-            'ready',
+      Promise.all([
+        fetch('/api/financial-setup/income', {
+          credentials: 'include',
+          headers,
+        }).then((r) => {
+          if (!r.ok) throw new Error(`${r.status}`);
+          return r.json();
+        }),
+        fetch('/api/financial-setup/expenses', {
+          credentials: 'include',
+          headers,
+        }).then((r) => {
+          if (!r.ok) throw new Error(`${r.status}`);
+          return r.json();
+        }),
+      ])
+        .then(([incomeData, expensesData]) => {
+          const incomeRows = incomeData.income ?? [];
+          const income_monthly = incomeRows.reduce(
+            (sum: number, row: { amount?: number; frequency?: string; is_active?: boolean }) => {
+              if (row.is_active === false) return sum;
+              const amount = Number(row.amount) || 0;
+              return sum + normalizeMonthly(amount, row.frequency ?? 'monthly');
+            },
+            0,
           );
+
+          const byCategory = new Map<string, number>();
+          for (const row of expensesData.expenses ?? []) {
+            if (row.is_active === false) continue;
+            const amount = Number(row.amount) || 0;
+            const monthly = normalizeMonthly(amount, row.frequency ?? 'monthly');
+            const cat = (row.category as string) || 'other';
+            byCategory.set(cat, (byCategory.get(cat) ?? 0) + monthly);
+          }
+
+          const top_categories = [...byCategory.entries()]
+            .map(([name, amount]) => ({
+              name,
+              amount,
+              pct_of_income: income_monthly > 0 ? amount / income_monthly : 0,
+            }))
+            .sort((a, b) => b.amount - a.amount)
+            .slice(0, 3);
+
+          setCard('spending', { income_monthly, top_categories } as SpendingData, 'ready');
         })
         .catch(() => setCard('spending', null, 'error')),
 
@@ -180,7 +267,10 @@ export function useSnapshotData() {
         credentials: 'include',
         headers,
       })
-        .then((r) => r.json())
+        .then((r) => {
+          if (!r.ok) throw new Error(`${r.status}`);
+          return r.json();
+        })
         .then((d) => {
           const people = d.people ?? d ?? [];
           const totalAnnual = people.reduce((s: number, p: { estimated_annual_cost?: number }) => s + (p.estimated_annual_cost ?? 0), 0);
@@ -210,98 +300,81 @@ export function useSnapshotData() {
 
       // ── 6. Milestones ────────────────────────────────────────
       Promise.all([
-        fetch(`/api/special-dates/${userId}`, {
+        fetch('/api/user/profile', {
           credentials: 'include',
           headers,
-        }).then((r) => r.json()),
-        fetch(`/api/cash-flow/backward-compatibility/${userEmail}`, {
+        }).then((r) => {
+          if (!r.ok) throw new Error(`${r.status}`);
+          return r.json();
+        }),
+        fetch(`/api/gamification/milestones?userId=${encodeURIComponent(String(userId))}`, {
           credentials: 'include',
           headers,
-        }).then((r) => r.json()),
+        })
+          .then((r) => {
+            if (!r.ok) return { current_streak: 0 };
+            return r.json();
+          })
+          .catch(() => ({ current_streak: 0 })),
       ])
-        .then(([dates, cashflow]) => {
+        .then(([profile, milestonesData]) => {
           const today = new Date();
-          const getForecastImpact = (dateStr: string, cost: number) => {
-            if (!cashflow?.daily_cashflow?.length || cost === 0) return null;
-            const day = cashflow.daily_cashflow.find((cf: { date: string }) => cf.date === dateStr);
-            if (!day) return null;
-            const after = day.closing_balance - cost;
-            if (after > 500) return 'covered';
-            if (after >= 0) return 'tight';
-            return 'shortfall';
-          };
-          const events = (dates.events ?? dates ?? [])
-            .filter((e: { cost: number; date: string }) => e.cost > 0 && new Date(e.date) > today)
+          today.setHours(0, 0, 0, 0);
+          const important =
+            profile?.profile?.important_dates ?? profile?.important_dates ?? {};
+          const customs = important.customEvents ?? important.custom_events ?? [];
+          const events = customs
+            .filter((e: { cost?: number; date?: string }) => (e.cost ?? 0) > 0 && e.date && new Date(e.date) > today)
             .sort((a: { date: string }, b: { date: string }) => new Date(a.date).getTime() - new Date(b.date).getTime())
             .slice(0, 3)
             .map((e: { name?: string; title?: string; date: string; cost: number }) => ({
-              title: e.name ?? e.title,
+              title: e.name ?? e.title ?? 'Event',
               date: e.date,
               cost: e.cost,
               days_away: Math.ceil((new Date(e.date).getTime() - today.getTime()) / 86400000),
-              impact: getForecastImpact(e.date, e.cost),
+              impact: null,
             }));
-          setCard('milestones', { upcoming: events, current_streak: dates.current_streak ?? 0 }, 'ready');
+          const current_streak =
+            milestonesData?.current_streak ?? milestonesData?.data?.current_streak ?? 0;
+          setCard('milestones', { upcoming: events, current_streak } as MilestonesData, 'ready');
         })
         .catch(() => setCard('milestones', null, 'error')),
 
       // ── 7. Career ────────────────────────────────────────────
-      fetch(`/api/career/recommendations/${userId}`, {
+      Promise.resolve().then(() => {
+        // Career card: no backend endpoint exists for this shape yet (see #155).
+        // Render the empty/CTA state until three-tier or resume pipeline exposes a GET.
+        setCard('career', null, 'ready');
+      }),
+
+      // ── 8. Housing ───────────────────────────────────────────
+      fetch('/api/housing/profile', {
         credentials: 'include',
         headers,
       })
-        .then((r) => r.json())
-        .then((d) => {
-          const currentSalary = d.current_salary ?? 0;
-          const taxMult = TAX_MULTIPLIER[userTier] ?? 0.72;
-          const jobProb = JOB_PROBABILITY[userTier] ?? 0.3;
-          const wellness = WELLNESS_SAVINGS[userTier] ?? 5406;
-          const subCost = SUBSCRIPTION_COST[userTier] ?? 420;
-
-          const jobs: JobOption[] = (d.recommendations ?? [])
-            .map(
-              (rec: {
-                id?: string;
-                title: string;
-                company_type?: string;
-                company?: string;
-                location: string;
-                salary_min: number;
-                salary_max: number;
-                match_score?: number;
-              }) => {
-                const midSalary = (rec.salary_min + rec.salary_max) / 2;
-                const grossUplift = midSalary - currentSalary;
-                const afterTaxUplift = grossUplift * taxMult;
-                const expectedCareer = afterTaxUplift * jobProb;
-                const totalExpectedReturn = Math.round(expectedCareer + wellness);
-                return {
-                  id: rec.id ?? String(Math.random()),
-                  title: rec.title,
-                  company_type: rec.company_type ?? rec.company ?? '',
-                  location: rec.location,
-                  salary_low: rec.salary_min,
-                  salary_high: rec.salary_max,
-                  match_score: rec.match_score ?? 0,
-                  income_lift_pct:
-                    currentSalary > 0 ? ((midSalary - currentSalary) / currentSalary) * 100 : 0,
-                  // Uses tier-specific tax rate (not flat 27%)
-                  monthly_takehome_delta: Math.round((grossUplift * taxMult) / 12),
-                  // ROI fields
-                  total_expected_return: totalExpectedReturn,
-                  roi_multiple: subCost > 0 ? Math.round(totalExpectedReturn / subCost) : 0,
-                  payback_days: totalExpectedReturn > 0 ? Math.round((subCost / totalExpectedReturn) * 365) : 365,
-                  capital_equivalent: Math.round(totalExpectedReturn / 0.104),
-                  job_probability: jobProb,
-                };
-              },
-            )
-            .sort((a: JobOption, b: JobOption) => b.income_lift_pct - a.income_lift_pct)
-            .slice(0, 3);
-
-          setCard('career', { current_salary: currentSalary, jobs }, 'ready');
+        .then((r) => {
+          if (!r.ok) throw new Error('housing fetch failed');
+          return r.json();
         })
-        .catch(() => setCard('career', null, 'error')),
+        .then((d) => {
+          const target_price = d.target_price ?? null;
+          const saved = d.down_payment_saved ?? 0;
+          const target = target_price ? target_price * 0.2 : 0;
+          const gap = Math.max(0, target - saved);
+          const timeline = d.target_timeline_months ?? null;
+          const housing: HousingActionData = {
+            has_buy_goal: d.has_buy_goal ?? false,
+            target_price,
+            target_timeline_months: timeline,
+            down_payment_saved: saved,
+            down_payment_target: target,
+            down_payment_gap: gap,
+            monthly_needed:
+              gap > 0 && timeline && timeline > 0 ? Math.round(gap / timeline) : null,
+          };
+          setCard('housing', housing, 'ready');
+        })
+        .catch(() => setCard('housing', null, 'ready')),
     ]).then(() => {
       // ── 8. Action (derived client-side after all fetches) ────
       setData((prev) => {
@@ -314,11 +387,27 @@ export function useSnapshotData() {
           source = 'milestones';
           text = 'You have an upcoming expense your forecast may not cover.';
           ctas.push({ label: 'Review your forecast', tab: 'financial-forecast', urgency: 'high' });
+        } else if (
+          d.housing?.has_buy_goal === true &&
+          (d.housing?.down_payment_gap ?? 0) > 0 &&
+          d.housing?.monthly_needed !== null
+        ) {
+          source = 'housing';
+          text = `You need $${d.housing.monthly_needed.toLocaleString()}/mo to reach your down payment goal${
+            d.housing.target_timeline_months
+              ? ` in ${d.housing.target_timeline_months} months`
+              : ''
+          }.`;
+          ctas.push({
+            label: 'See your down payment plan',
+            tab: 'housing',
+            urgency: 'high',
+          });
         } else if (d.roster?.has_financial_drag) {
           source = 'roster';
           text = 'Your roster costs have increased while your savings rate dropped.';
           ctas.push({ label: 'Review your forecast', tab: 'financial-forecast', urgency: 'high' });
-        } else if (d.career?.jobs?.[0]?.income_lift_pct && d.career.jobs[0].income_lift_pct >= 15) {
+        } else if (d.career && d.career.jobs?.length > 0 && d.career.jobs[0].income_lift_pct >= 15) {
           source = 'career';
           text = 'A career move could meaningfully change your financial picture.';
           ctas.push({ label: 'See job matches', tab: 'job-recommendations', urgency: 'high' });
@@ -329,7 +418,7 @@ export function useSnapshotData() {
         }
 
         // Always add 1-2 secondary CTAs
-        if (source !== 'career')
+        if (source !== 'career' && source !== 'housing')
           ctas.push({
             label: 'Check job matches',
             tab: 'job-recommendations',
@@ -346,7 +435,7 @@ export function useSnapshotData() {
       });
       setLoadStates((prev) => ({ ...prev, action: 'ready' }));
     });
-  }, [userId, userEmail, userTier]);
+  }, [userId, userEmail, userTier, reloadKey]);
 
   // ── saveFavorite ─────────────────────────────────────────────
   // Called by Faith Card when user taps the heart button.

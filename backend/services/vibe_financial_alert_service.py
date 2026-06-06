@@ -3,8 +3,11 @@
 
 from __future__ import annotations
 
+import logging
 import uuid
 from datetime import date, datetime, timedelta
+
+logger = logging.getLogger(__name__)
 
 from backend.models.alerts import UserAlert
 from backend.models.connection_trend import ConnectionTrendAssessment
@@ -29,7 +32,7 @@ def _format_money_monthly(value: float) -> str:
 
 
 def _monthly_cost_for_person_forecast(
-    user_id: int, person_nickname: str
+    user_id: str, person_nickname: str
 ) -> float | None:
     nick = (person_nickname or "").strip().lower()
     if not nick:
@@ -50,17 +53,17 @@ def _monthly_cost_for_person_forecast(
     return None
 
 
-def _thirty_day_linked_cost_for_nickname(user_id: int, nickname: str) -> float:
+def _thirty_day_linked_cost_for_nickname(user_id: str, nickname: str) -> float:
     """Sum important-date costs linked to nickname within the next 30 days."""
     from backend.routes import vibe_tracker as vtr
 
-    user = db.session.get(User, user_id)
+    user = db.session.query(User).filter_by(user_id=user_id).first()
     if not user:
         return 0.0
     email = (user.email or "").strip().lower()
     if not email:
         return 0.0
-    _bal, important = vtr._load_profile_balance_and_dates(email)
+    _bal, important, _balance_set = vtr._load_profile_balance_and_dates(email)
     if not isinstance(important, dict):
         important = {}
     nick = (nickname or "").strip()
@@ -88,13 +91,23 @@ def _thirty_day_linked_cost_for_nickname(user_id: int, nickname: str) -> float:
     return total
 
 
-def check_for_alerts(user_id: int, person_id: uuid.UUID) -> list[dict]:
+def check_for_alerts(user_id: str, person_id: uuid.UUID) -> list[dict]:
     """
     After a new Vibe Checkup or Connection Trend assessment, evaluate alert rules,
     insert UserAlert rows, and return serialized alert payloads (with id).
+
+    Args:
+        user_id: External user identifier (``User.user_id``, UUID string).
+        person_id: Tracked person row UUID.
     """
+    user = db.session.query(User).filter_by(user_id=user_id).first()
+    if user is None:
+        logger.warning("check_for_alerts: no user row for user_id=%r", user_id)
+        return []
+
+    uid = user.id
     person = db.session.get(VibeTrackedPerson, person_id)
-    if not person or person.user_id != user_id:
+    if not person or person.user_id != uid:
         return []
 
     to_persist: list[dict] = []
@@ -115,7 +128,7 @@ def check_for_alerts(user_id: int, person_id: uuid.UUID) -> list[dict]:
         c_prev = _combined_score(prev_a)
         if c_latest < c_prev - 10:
             delta = c_prev - c_latest
-            monthly = _monthly_cost_for_person_forecast(user_id, person.nickname)
+            monthly = _monthly_cost_for_person_forecast(user.user_id, person.nickname)
             if monthly is None:
                 monthly_str = "$0/mo"
             else:
@@ -137,7 +150,7 @@ def check_for_alerts(user_id: int, person_id: uuid.UUID) -> list[dict]:
     # --- ALERT 2: Connection Trend warning tiers ---
     ct = (
         ConnectionTrendAssessment.query.filter_by(
-            user_id=user_id,
+            user_id=uid,
             person_id=person_id,
         )
         .order_by(ConnectionTrendAssessment.assessed_at.desc())
@@ -161,7 +174,7 @@ def check_for_alerts(user_id: int, person_id: uuid.UUID) -> list[dict]:
             )
 
     # --- ALERT 3: savings vs relationship cost (same gate as Life Correlation Engine) ---
-    snapshots = get_snapshots(user_id, days=180)
+    snapshots = get_snapshots(uid, days=180)
     deltas = compute_score_deltas(snapshots)
     srd = deltas.get("savings_rate_delta")
     rcd = deltas.get("relationship_cost_delta")
@@ -190,7 +203,7 @@ def check_for_alerts(user_id: int, person_id: uuid.UUID) -> list[dict]:
     now = datetime.utcnow()
     for item in to_persist:
         row = UserAlert(
-            user_id=user_id,
+            user_id=uid,
             alert_type=item["type"],
             severity=item["severity"],
             message=item["message"],

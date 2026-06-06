@@ -14,6 +14,45 @@ export interface WellnessScoresResponse {
   overall_change: number | null;
 }
 
+/**
+ * True when the scores payload represents real weekly check-in data.
+ * Treats 404 (handled upstream), empty bodies, error-shaped JSON, missing week,
+ * or all-zero scores as non-real so the UI can show a placeholder instead of zeros.
+ */
+export function isRealWellnessScoresPayload(data: unknown): data is WellnessScoresResponse {
+  if (data == null || typeof data !== 'object' || Array.isArray(data)) {
+    return false;
+  }
+  const d = data as Record<string, unknown>;
+  if ('error' in d && d.error != null) {
+    return false;
+  }
+  const week = d.week_ending_date;
+  if (typeof week !== 'string' || week.trim() === '') {
+    return false;
+  }
+  const n = (v: unknown): number => {
+    if (v == null) return 0;
+    const x = Number(v);
+    return Number.isFinite(x) ? x : 0;
+  };
+  const physical = n(d.physical_score);
+  const mental = n(d.mental_score);
+  const relational = n(d.relational_score);
+  const financial = n(d.financial_feeling_score);
+  const overall = n(d.overall_wellness_score);
+  if (
+    physical === 0 &&
+    mental === 0 &&
+    relational === 0 &&
+    financial === 0 &&
+    overall === 0
+  ) {
+    return false;
+  }
+  return true;
+}
+
 /** Response from GET /api/wellness/insights */
 export interface WellnessInsightsResponse {
   insights: Array<{
@@ -46,6 +85,8 @@ export interface CurrentWeekCheckinResponse {
 
 export interface UseWellnessDataReturn {
   scores: WellnessScoresResponse | null;
+  /** True when ``scores`` is non-null and passed ``isRealWellnessScoresPayload`` (real weekly data). */
+  hasRealScores: boolean;
   insights: WellnessInsightsResponse['insights'];
   streak: WellnessStreakResponse | null;
   currentWeekCheckin: CurrentWeekCheckinResponse | null;
@@ -88,7 +129,7 @@ export function useWellnessData(): UseWellnessDataReturn {
 
       if (scoresRes.ok) {
         const data = await scoresRes.json();
-        setScores(data);
+        setScores(isRealWellnessScoresPayload(data) ? data : null);
       } else {
         setScores(null);
       }
@@ -137,6 +178,7 @@ export function useWellnessData(): UseWellnessDataReturn {
 
   return {
     scores,
+    hasRealScores: scores != null,
     insights,
     streak,
     currentWeekCheckin,

@@ -108,6 +108,59 @@ const LockOverlay: React.FC = () => {
   );
 };
 
+const HousingBreakdownRows: React.FC<{ raw: Record<string, unknown> }> = ({ raw }) => {
+  const rentYoy = typeof raw.rent_yoy_pct === "number" ? raw.rent_yoy_pct : null;
+  const mortgageRate = typeof raw.mortgage_rate === "number" ? raw.mortgage_rate : null;
+
+  if (rentYoy === null && mortgageRate === null) return null;
+
+  const rentSeverity: MCISeverity =
+    rentYoy === null ? "amber"
+    : rentYoy < 3.0 ? "green"
+    : rentYoy <= 5.5 ? "amber"
+    : "red";
+
+  const mortgageSeverity: MCISeverity =
+    mortgageRate === null ? "amber"
+    : mortgageRate < 6.0 ? "green"
+    : mortgageRate <= 7.5 ? "amber"
+    : "red";
+
+  const rentStyles = severityStyles[rentSeverity];
+  const mortgageStyles = severityStyles[mortgageSeverity];
+
+  return (
+    <div className="mt-3 pt-3 border-t border-gray-200 flex flex-col gap-2">
+      {rentYoy !== null && (
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-1.5">
+            <span className="text-base leading-none">🏠</span>
+            <span className="text-xs text-gray-600 font-medium">Rent Pressure</span>
+          </div>
+          <span
+            className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold ${rentStyles.badgeBg} ${rentStyles.badgeText}`}
+          >
+            {rentYoy > 0 ? "+" : ""}{rentYoy.toFixed(1)}% YoY
+          </span>
+        </div>
+      )}
+      {mortgageRate !== null && (
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-1.5">
+            <span className="text-base leading-none">🏦</span>
+            <span className="text-xs text-gray-600 font-medium">Mortgage Rate</span>
+          </div>
+          <span
+            className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold ${mortgageStyles.badgeBg} ${mortgageStyles.badgeText}`}
+          >
+            {mortgageRate.toFixed(2)}%
+          </span>
+        </div>
+      )}
+    </div>
+  );
+};
+
 const MCIConditionsStrip: React.FC<MCIConditionsStripProps> = ({
   userTier,
   className = "",
@@ -321,6 +374,11 @@ const MCIConditionsStrip: React.FC<MCIConditionsStripProps> = ({
                         <div>Source: {c.source}</div>
                         <div>As of {formatMonthYear(c.as_of)}</div>
                       </div>
+
+                      {/* Housing breakdown — rent + mortgage sub-indicators */}
+                      {c.slug === "housing_affordability_pressure" && c.raw && (
+                        <HousingBreakdownRows raw={c.raw as Record<string, unknown>} />
+                      )}
 
                       {/* Professional sparkline placeholder */}
                       {userTier === "professional" && (

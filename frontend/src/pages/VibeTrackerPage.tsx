@@ -14,9 +14,11 @@ import { StayOrGoSignal } from '../components/vibe-checkups/StayOrGoSignal';
 import SelfCard from '../components/roster/SelfCard';
 import { RosterSection } from '../components/roster/RosterSection';
 import ReEntryBanner from '../components/roster/ReEntryBanner';
+import ConnectionTrendAssessmentModal from '../components/roster/ConnectionTrendAssessmentModal';
 
 export default function VibeTrackerPage() {
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
+  const upgradePlansTo = isAuthenticated ? '/dashboard/upgrade' : '/#pricing';
   const {
     data,
     archivedData,
@@ -45,6 +47,9 @@ export default function VibeTrackerPage() {
   const [addEmoji, setAddEmoji] = useState('');
   const [addBusy, setAddBusy] = useState(false);
   const [addError, setAddError] = useState<string | null>(null);
+  const [reassessTarget, setReassessTarget] = useState<{ id: string; nickname: string } | null>(
+    null
+  );
   const [reEntryByPersonId, setReEntryByPersonId] = useState<
     Record<
       string,
@@ -62,6 +67,18 @@ export default function VibeTrackerPage() {
   const people = data ?? [];
   const archived = archivedData ?? [];
   const activeCount = people.length;
+
+  const rosterLimitMax: number | null = (() => {
+    if (!user) return null;
+    if (user.is_beta === true || user.tier === 'professional') return null;
+    if (user.tier === 'mid_tier' || user.tier === 'mid') return 6;
+    if (user.tier === 'budget') return 2;
+    return null;
+  })();
+  const rosterAtLimit = rosterLimitMax !== null && activeCount >= rosterLimitMax;
+  const showMidLimitBanner =
+    (user?.tier === 'mid_tier' || user?.tier === 'mid') && rosterAtLimit;
+  const showBudgetLimitBanner = user?.tier === 'budget' && rosterAtLimit;
 
   useEffect(() => {
     void getPeople().catch(() => {});
@@ -178,8 +195,6 @@ export default function VibeTrackerPage() {
     }
   }, [deleteBusy, deleteConfirm, deletePerson, deleteTarget, expandedId]);
 
-  const showMidLimitBanner = user?.tier === 'mid_tier' && activeCount >= 3;
-
   return (
     <div className="min-h-[calc(100vh-5rem)] bg-[#0d0a08] px-4 py-8 text-[#F0E8D8] sm:px-6 lg:px-8">
       <div className="mx-auto max-w-5xl">
@@ -190,13 +205,26 @@ export default function VibeTrackerPage() {
 
         {showMidLimitBanner ? (
           <div className="mb-8 rounded-2xl border border-[#A78BFA]/35 bg-[#A78BFA]/10 px-5 py-4 text-sm leading-relaxed text-[#F0E8D8]">
-            <p className="font-medium text-[#A78BFA]">You&apos;ve reached the 3-person limit on Mid-tier.</p>
+            <p className="font-medium text-[#A78BFA]">You&apos;ve reached the 6-person limit on Mid-tier.</p>
             <p className="mt-1 text-[#9a8f7e]">Upgrade to Professional for unlimited tracking.</p>
             <Link
-              to="/settings/upgrade"
+              to={upgradePlansTo}
               className="mt-3 inline-block text-sm font-semibold text-[#A78BFA] underline-offset-2 hover:underline"
             >
               Upgrade
+            </Link>
+          </div>
+        ) : null}
+
+        {showBudgetLimitBanner ? (
+          <div className="mb-8 rounded-2xl border border-[#A78BFA]/35 bg-[#A78BFA]/10 px-5 py-4 text-sm leading-relaxed text-[#F0E8D8]">
+            <p className="font-medium text-[#A78BFA]">You&apos;ve reached the 2-person roster limit on Budget.</p>
+            <p className="mt-1 text-[#9a8f7e]">Upgrade to Mid-tier or Professional to track more people.</p>
+            <Link
+              to={upgradePlansTo}
+              className="mt-3 inline-block text-sm font-semibold text-[#A78BFA] underline-offset-2 hover:underline"
+            >
+              View plans
             </Link>
           </div>
         ) : null}
@@ -221,7 +249,7 @@ export default function VibeTrackerPage() {
             <button
               type="button"
               onClick={openAddModal}
-              disabled={showMidLimitBanner}
+              disabled={rosterAtLimit}
               className="inline-flex min-h-11 items-center justify-center rounded-xl border border-[#A78BFA]/50 bg-transparent px-4 text-sm font-semibold text-[#A78BFA] transition hover:border-[#A78BFA] hover:bg-[#A78BFA]/10 disabled:cursor-not-allowed disabled:opacity-40"
             >
               Add someone
@@ -246,12 +274,15 @@ export default function VibeTrackerPage() {
               <p className="text-sm leading-relaxed text-[#F0E8D8]/90">
                 Start tracking someone — take a checkup and give them a nickname.
               </p>
-              <Link
-                to="/dashboard/vibe-checkups"
-                className="mt-6 inline-flex w-full items-center justify-center rounded-xl bg-[#5B2D8E] py-3.5 text-sm font-semibold text-white transition hover:opacity-95 sm:w-auto sm:px-8"
-              >
-                Take a Checkup
-              </Link>
+              {/* TODO: post-beta replace with authenticated vibe assessment flow per #99 People tab redesign */}
+              {isAuthenticated ? (
+                <Link
+                  to="/dashboard/vibe-checkups"
+                  className="mt-6 inline-flex w-full items-center justify-center rounded-xl bg-[#5B2D8E] py-3.5 text-sm font-semibold text-white transition hover:opacity-95 sm:w-auto sm:px-8"
+                >
+                  Take a Checkup
+                </Link>
+              ) : null}
             </div>
           ) : null}
 
@@ -287,12 +318,18 @@ export default function VibeTrackerPage() {
                           <AssessmentTimeline assessments={expandedDetail.assessments} />
                           {expandedDetail.trend ? <StayOrGoSignal trend={expandedDetail.trend} /> : null}
                           <div className="mt-6 text-center">
-                            <Link
-                              to="/dashboard/vibe-checkups"
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setReassessTarget({
+                                  id: expandedDetail.id,
+                                  nickname: expandedDetail.nickname,
+                                })
+                              }
                               className="inline-flex rounded-xl border border-[#A78BFA]/60 bg-transparent px-6 py-3 text-sm font-semibold text-[#A78BFA] transition hover:border-[#A78BFA] hover:bg-[#A78BFA]/10"
                             >
                               Re-assess this person
-                            </Link>
+                            </button>
                           </div>
                         </>
                       ) : (
@@ -345,12 +382,18 @@ export default function VibeTrackerPage() {
                                 <AssessmentTimeline assessments={expandedDetail.assessments} />
                                 {expandedDetail.trend ? <StayOrGoSignal trend={expandedDetail.trend} /> : null}
                                 <div className="mt-6 text-center">
-                                  <Link
-                                    to="/dashboard/vibe-checkups"
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      setReassessTarget({
+                                        id: expandedDetail.id,
+                                        nickname: expandedDetail.nickname,
+                                      })
+                                    }
                                     className="inline-flex rounded-xl border border-[#A78BFA]/60 bg-transparent px-6 py-3 text-sm font-semibold text-[#A78BFA] transition hover:border-[#A78BFA] hover:bg-[#A78BFA]/10"
                                   >
                                     Re-assess this person
-                                  </Link>
+                                  </button>
                                 </div>
                               </>
                             ) : (
@@ -398,6 +441,19 @@ export default function VibeTrackerPage() {
                 <button
                   type="button"
                   onClick={() => {
+                    setAddCardType('family');
+                    setAddStep('details');
+                  }}
+                  className="flex w-full min-h-11 items-center gap-3 rounded-xl border border-[#2a2030] bg-[#0d0a08] px-4 py-3 text-left text-sm text-[#F0E8D8] transition hover:border-[#A78BFA]/40"
+                >
+                  <span className="text-2xl" aria-hidden>
+                    👪
+                  </span>
+                  <span>Family (parent, sibling, …)</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
                     setAddCardType('kids');
                     setAddStep('details');
                   }}
@@ -424,7 +480,7 @@ export default function VibeTrackerPage() {
               </div>
             ) : (
               <div className="mt-6 space-y-4">
-                {addCardType === 'person' || addCardType === 'social' ? (
+                {addCardType === 'person' || addCardType === 'social' || addCardType === 'family' ? (
                   <div>
                     <label
                       className="block text-xs font-medium uppercase tracking-wider text-[#9a8f7e]"
@@ -458,7 +514,11 @@ export default function VibeTrackerPage() {
                     maxLength={30}
                     className="mt-2 w-full rounded-xl border border-[#2a2030] bg-[#0d0a08] px-4 py-3 text-[#F0E8D8] outline-none ring-[#A78BFA]/30 focus:ring-2"
                     placeholder={
-                      addCardType === 'kids' ? 'e.g. The kids, Leo…' : 'e.g. Alex, Best friend…'
+                      addCardType === 'kids'
+                        ? 'e.g. The kids, Leo…'
+                        : addCardType === 'family'
+                          ? 'e.g. Mom, Alex…'
+                          : 'e.g. Alex, Best friend…'
                     }
                   />
                 </div>
@@ -545,6 +605,18 @@ export default function VibeTrackerPage() {
             </div>
           </div>
         </div>
+      ) : null}
+
+      {reassessTarget ? (
+        <ConnectionTrendAssessmentModal
+          personId={reassessTarget.id}
+          nickname={reassessTarget.nickname}
+          onComplete={() => {
+            void getPeople().catch(() => {});
+            void getPerson(reassessTarget.id).catch(() => {});
+          }}
+          onClose={() => setReassessTarget(null)}
+        />
       ) : null}
     </div>
   );

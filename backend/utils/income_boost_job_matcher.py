@@ -65,6 +65,31 @@ class ExperienceLevel(Enum):
     SENIOR = "senior"
     EXECUTIVE = "executive"
 
+BLS_CAREER_FIELD_BY_ENUM = {
+    CareerField.TECHNOLOGY: "Technology",
+    CareerField.FINANCE: "Finance & Accounting",
+    CareerField.HEALTHCARE: "Healthcare (Clinical)",
+    CareerField.EDUCATION: "Education & Training",
+    CareerField.MARKETING: "Marketing & Communications",
+    CareerField.SALES: "Sales",
+    CareerField.CONSULTING: "Operations & Supply Chain",
+    CareerField.ENGINEERING: "Engineering (Civil/Mech/Ind)",
+    CareerField.DATA_SCIENCE: "Technology",
+    CareerField.PRODUCT_MANAGEMENT: "Technology",
+    CareerField.HUMAN_RESOURCES: "Human Resources",
+    CareerField.OPERATIONS: "Operations & Supply Chain",
+    CareerField.LEGAL: "Legal",
+    CareerField.MEDIA: "Media & Journalism",
+    CareerField.NONPROFIT: "Social Services & Nonprofit",
+}
+
+_EXPERIENCE_BY_SENIORITY = {
+    "entry": ExperienceLevel.ENTRY,
+    "mid": ExperienceLevel.MID,
+    "senior": ExperienceLevel.SENIOR,
+    "director": ExperienceLevel.EXECUTIVE,
+}
+
 @dataclass
 class JobOpportunity:
     """Represents a job opportunity with comprehensive scoring"""
@@ -145,6 +170,72 @@ def get_pg_connection():
     conn = psycopg2.connect(db_url)
     conn.cursor_factory = psycopg2.extras.RealDictCursor
     return conn
+
+def _resolve_bls_career_field(criteria: SearchCriteria) -> Optional[str]:
+    return BLS_CAREER_FIELD_BY_ENUM.get(criteria.career_field)
+
+def _resolve_msa_code(criteria: SearchCriteria) -> Optional[str]:
+    if criteria.preferred_msas:
+        return str(criteria.preferred_msas[0])
+    return None
+
+def _job_posting_row_to_opportunity(row: Dict[str, Any], job_board: JobBoard) -> JobOpportunity:
+    salary_min = row.get("salary_min")
+    salary_max = row.get("salary_max")
+    salary_median = None
+    if salary_min is not None and salary_max is not None:
+        salary_median = (salary_min + salary_max) // 2
+    seniority = row.get("seniority_level") or "mid"
+    location = row.get("location") or ""
+    return JobOpportunity(
+        job_id=str(row.get("id") or ""),
+        title=row.get("title") or "",
+        company=row.get("company") or "",
+        location=location,
+        msa=str(row.get("msa_code") or ""),
+        salary_min=salary_min,
+        salary_max=salary_max,
+        salary_median=salary_median,
+        salary_increase_potential=0.0,
+        remote_friendly=False,
+        job_board=job_board,
+        url="",
+        description=row.get("advancement_trajectory") or "",
+        requirements=[],
+        benefits=[],
+        diversity_score=0.0,
+        growth_score=0.0,
+        culture_score=0.0,
+        overall_score=0.0,
+        field=CareerField.TECHNOLOGY,
+        experience_level=_EXPERIENCE_BY_SENIORITY.get(seniority, ExperienceLevel.MID),
+        posted_date=datetime.now(),
+        application_deadline=None,
+        company_size=None,
+        company_industry=row.get("career_field"),
+        equity_offered=False,
+        bonus_potential=None,
+        career_advancement_score=0.0,
+        work_life_balance_score=0.0,
+    )
+
+def _query_job_postings(career_field: str, msa_code: str) -> List[Dict[str, Any]]:
+    conn = get_pg_connection()
+    cursor = conn.cursor()
+    cursor.execute(
+        '''
+        SELECT id, title, company, career_field, msa_code,
+               city || ', ' || state AS location,
+               salary_min, salary_max, seniority_level, advancement_trajectory
+        FROM job_postings
+        WHERE career_field = %s AND msa_code = %s AND is_active = true
+        ORDER BY salary_max DESC, title
+        ''',
+        (career_field, msa_code),
+    )
+    rows = cursor.fetchall()
+    conn.close()
+    return [dict(row) for row in rows]
 
 class IncomeBoostJobMatcher:
     """
@@ -592,23 +683,39 @@ class IncomeBoostJobMatcher:
         
         return min_salary <= job.salary_median <= max_salary
     
+    async def _search_job_postings(
+        self,
+        criteria: SearchCriteria,
+        job_board: JobBoard,
+    ) -> List[JobOpportunity]:
+        """Query seeded job_postings rows by BLS career field and CBSA code."""
+        career_field = _resolve_bls_career_field(criteria)
+        msa_code = _resolve_msa_code(criteria)
+        if not career_field or not msa_code:
+            return []
+        try:
+            rows = _query_job_postings(career_field, msa_code)
+        except Exception as exc:
+            logger.warning(
+                "Could not query job_postings for field=%s msa=%s: %s",
+                career_field,
+                msa_code,
+                exc,
+            )
+            return []
+        return [_job_posting_row_to_opportunity(row, job_board) for row in rows]
+
     async def _search_indeed(self, criteria: SearchCriteria, min_salary: int, max_salary: int) -> List[JobOpportunity]:
-        """Search Indeed for jobs"""
-        # This would integrate with Indeed API
-        # For now, return mock data
-        return []
-    
+        """Search Indeed for jobs via job_postings seed data."""
+        return await self._search_job_postings(criteria, JobBoard.INDEED)
+
     async def _search_linkedin(self, criteria: SearchCriteria, min_salary: int, max_salary: int) -> List[JobOpportunity]:
-        """Search LinkedIn for jobs"""
-        # This would integrate with LinkedIn API
-        # For now, return mock data
-        return []
-    
+        """Search LinkedIn for jobs via job_postings seed data."""
+        return await self._search_job_postings(criteria, JobBoard.LINKEDIN)
+
     async def _search_glassdoor(self, criteria: SearchCriteria, min_salary: int, max_salary: int) -> List[JobOpportunity]:
-        """Search Glassdoor for jobs"""
-        # This would integrate with Glassdoor API
-        # For now, return mock data
-        return []
+        """Search Glassdoor for jobs via job_postings seed data."""
+        return await self._search_job_postings(criteria, JobBoard.GLASSDOOR)
     
     def _get_glassdoor_data(self, company_name: str) -> Optional[Dict]:
         """Get company data from Glassdoor"""

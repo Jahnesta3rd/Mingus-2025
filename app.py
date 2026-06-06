@@ -27,9 +27,7 @@ import stripe
 
 # Load environment variables (CWD .env, then backend/.env overrides)
 load_dotenv()
-_backend_dotenv = os.path.join(_REPO_ROOT, 'backend', '.env')
-if os.path.isfile(_backend_dotenv):
-    load_dotenv(_backend_dotenv, override=True)
+
 
 # Configure Stripe
 stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
@@ -66,7 +64,6 @@ from backend.api.career_vehicle_optimization_api import career_vehicle_api
 from backend.api.housing_endpoints import housing_api
 from backend.api.subscription_endpoints import subscription_bp
 from backend.api.analytics_endpoints import analytics_bp
-from backend.api.activity_endpoints import activity_bp
 from backend.api.user_endpoints import user_bp
 from backend.api.financial_setup_api import financial_setup_bp
 from backend.api.career_endpoints import career_bp
@@ -280,7 +277,6 @@ app.register_blueprint(optimal_location_api)
 # Register additional API blueprints
 app.register_blueprint(subscription_bp)
 app.register_blueprint(analytics_bp)
-app.register_blueprint(activity_bp)
 app.register_blueprint(user_bp)
 app.register_blueprint(financial_setup_bp)
 app.register_blueprint(career_bp)

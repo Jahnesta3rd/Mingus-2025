@@ -123,7 +123,7 @@ class FeatureFlagService:
             }
         }
 
-    def get_user_tier(self, user_id: int) -> FeatureTier:
+    def get_user_tier(self, user_id: str) -> FeatureTier:
         """
         Get user's current subscription tier
         In a real implementation, this would query the billing system
@@ -139,7 +139,7 @@ class FeatureFlagService:
                 return FeatureTier.BUDGET
             
             # Use current session context
-            user = db.session.get(User, user_id)
+            user = db.session.query(User).filter_by(user_id=user_id).first()
             if user and user.tier:
                 # Map string tier to FeatureTier enum
                 tier_mapping = {
@@ -153,7 +153,7 @@ class FeatureFlagService:
         # Default fallback
         return FeatureTier.BUDGET
 
-    def has_feature_access(self, user_id: int, feature: FeatureFlag) -> bool:
+    def has_feature_access(self, user_id: str, feature: FeatureFlag) -> bool:
         """
         Check if user has access to a specific feature
         
@@ -172,7 +172,7 @@ class FeatureFlagService:
             logger.error(f"Error checking feature access for user {user_id}, feature {feature}: {e}")
             return False
 
-    def get_available_addons(self, user_id: int) -> List[Dict[str, Any]]:
+    def get_available_addons(self, user_id: str) -> List[Dict[str, Any]]:
         """
         Get available add-ons for user's current tier
         
@@ -205,7 +205,7 @@ class FeatureFlagService:
             logger.error(f"Error getting available addons for user {user_id}: {e}")
             return []
 
-    def get_tier_upgrade_options(self, user_id: int) -> List[Dict[str, Any]]:
+    def get_tier_upgrade_options(self, user_id: str) -> List[Dict[str, Any]]:
         """
         Get available tier upgrade options for user
         
@@ -234,7 +234,7 @@ class FeatureFlagService:
             logger.error(f"Error getting tier upgrade options for user {user_id}: {e}")
             return []
 
-    def get_feature_access_info(self, user_id: int, feature: FeatureFlag) -> Dict[str, Any]:
+    def get_feature_access_info(self, user_id: str, feature: FeatureFlag) -> Dict[str, Any]:
         """
         Get detailed access information for a specific feature
         
@@ -322,7 +322,7 @@ class FeatureFlagService:
             logger.error(f"Error getting all tiers info: {e}")
             return {}
     
-    def check_user_tier_access(self, user_id: int, required_tier: FeatureTier) -> bool:
+    def check_user_tier_access(self, user_id: str, required_tier: FeatureTier) -> bool:
         """
         Check if a user has access to a specific tier feature
         
@@ -354,7 +354,7 @@ class FeatureFlagService:
             logger.error(f"Error checking tier access for user {user_id}: {e}")
             return False
 
-    def simulate_addon_purchase(self, user_id: int, feature: FeatureFlag) -> Dict[str, Any]:
+    def simulate_addon_purchase(self, user_id: str, feature: FeatureFlag) -> Dict[str, Any]:
         """
         Simulate purchasing an add-on (for testing purposes)
         
@@ -397,7 +397,7 @@ class FeatureFlagService:
                 'error': str(e)
             }
 
-    def get_optimal_location_features(self, user_id: int) -> Dict[str, Any]:
+    def get_optimal_location_features(self, user_id: str) -> Dict[str, Any]:
         """
         Get optimal location feature configuration for user's tier
         
@@ -414,7 +414,7 @@ class FeatureFlagService:
             logger.error(f"Error getting optimal location features for user {user_id}: {e}")
             return {}
 
-    def check_housing_search_limit(self, user_id: int, current_searches_this_month: int) -> bool:
+    def check_housing_search_limit(self, user_id: str, current_searches_this_month: int) -> bool:
         """
         Check if user can perform more housing searches this month
         
@@ -438,7 +438,7 @@ class FeatureFlagService:
             logger.error(f"Error checking housing search limit for user {user_id}: {e}")
             return False
 
-    def check_scenario_save_limit(self, user_id: int, current_saved_scenarios: int) -> bool:
+    def check_scenario_save_limit(self, user_id: str, current_saved_scenarios: int) -> bool:
         """
         Check if user can save more housing scenarios
         
@@ -462,7 +462,7 @@ class FeatureFlagService:
             logger.error(f"Error checking scenario save limit for user {user_id}: {e}")
             return False
 
-    def has_optimal_location_feature(self, user_id: int, feature_name: str) -> bool:
+    def has_optimal_location_feature(self, user_id: str, feature_name: str) -> bool:
         """
         Check if user has access to a specific optimal location feature
         

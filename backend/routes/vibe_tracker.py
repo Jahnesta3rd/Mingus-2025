@@ -324,7 +324,7 @@ def list_person_linked_events(person_id: uuid.UUID):
         return jsonify({"error": "Not found"}), 404
 
     email = (user.email or "").strip().lower()
-    _bal, important = _load_profile_balance_and_dates(email)
+    _bal, important, _balance_set = _load_profile_balance_and_dates(email)
     if not isinstance(important, dict):
         important = {}
 
@@ -363,7 +363,7 @@ def list_person_linked_events(person_id: uuid.UUID):
         span = (last_ev - today).days + 1
         forecast_days = min(366, max(90, span))
 
-    daily = generate_daily_forecast(user.id, days=forecast_days)
+    daily = generate_daily_forecast(user.user_id, days=forecast_days)
 
     payload_events = []
     for ev in linked:
@@ -478,8 +478,8 @@ def create_person():
     if not isinstance(card_type_raw, str):
         return jsonify({"error": "card_type must be a string"}), 400
     card_type = card_type_raw.strip().lower()
-    if card_type not in ("person", "kids", "social"):
-        return jsonify({"error": "card_type must be person, kids, or social"}), 400
+    if card_type not in ("person", "kids", "social", "family"):
+        return jsonify({"error": "card_type must be person, kids, social, or family"}), 400
 
     prior_ct = _latest_archived_connection_trend_for_nickname(user.id, nickname)
 
@@ -682,7 +682,7 @@ def add_assessment(person_id: uuid.UUID):
     payload["latest_assessment"] = _assessment_summary(row)
     db.session.commit()
     record_life_snapshot.delay(str(user.id), "vibe_assessment")
-    check_for_alerts.delay(user.id, str(p.id))
+    check_for_alerts.delay(user.user_id, str(p.id))
     return jsonify(payload), 201
 
 

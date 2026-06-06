@@ -32,11 +32,17 @@ from backend.models.connection_trend import ConnectionTrendAssessment  # noqa: F
 from backend.models.alerts import UserAlert  # noqa: F401
 from backend.models.favorite_verse import FavoriteVerse  # noqa: F401
 from backend.models.bug_report import BugReport  # noqa: F401
+from backend.models.onboarding_progress import OnboardingProgress  # noqa: F401
 from backend.models.spirit_checkin import (
     SpiritCheckin,
     SpiritCheckinStreak,
     SpiritFinanceCorrelation,
 )
+from backend.models.agreement_acceptance import AgreementAcceptance  # noqa: F401
+from backend.models.career_profile import CareerProfile  # noqa: F401
+from backend.models.housing_profile import HousingProfile  # noqa: F401
+from backend.models.llm_usage import LlmUsage  # noqa: F401
+from backend.models.job_posting import JobPosting  # noqa: F401
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -80,6 +86,7 @@ def run_migrations_offline():
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
+        version_table_column_length=64,
     )
 
     with context.begin_transaction():
@@ -101,7 +108,9 @@ def run_migrations_online():
 
     with connectable.connect() as connection:
         context.configure(
-            connection=connection, target_metadata=target_metadata
+            connection=connection,
+            target_metadata=target_metadata,
+            version_table_column_length=64,
         )
 
         with context.begin_transaction():
