@@ -303,11 +303,11 @@ export default function SpendingMilestonesWidget({
       <div className={`rounded-xl bg-white p-6 shadow-sm ${className}`}>
         <h2 className="mb-2 text-lg font-semibold text-gray-900">Streak achievements</h2>
         <p className="mb-1 text-sm text-gray-500">
-          Check-in streak rewards — not financial goal milestones (those are coming later).
+          Check-in streak rewards for consistent financial check-ins.
         </p>
         <p className="text-gray-700 mb-4">Complete your first check-in to start your streak</p>
         <SpendingMilestonesEmptyCta />
-        <p className="mt-4 text-xs text-gray-500">Goal tracking and milestone management coming soon.</p>
+        <p className="mt-4 text-xs text-gray-500">Your milestones and streaks are tracked here.</p>
       </div>
     );
   }
@@ -367,7 +367,7 @@ export default function SpendingMilestonesWidget({
         </div>
       </div>
       <p className="mt-6 border-t border-gray-100 pt-4 text-xs text-gray-500">
-        Goal tracking and milestone management coming soon.
+        Your milestones and streaks are tracked here.
       </p>
     </div>
   );
