@@ -23,6 +23,7 @@ from backend.models.career_profile import CareerProfile
 from backend.models.database import db
 from backend.models.financial_setup import UserIncome
 from backend.models.housing_profile import HousingProfile
+from backend.models.transaction_schedule import IncomeStream
 from backend.models.user_models import User
 from backend.services.bls_oes_service import get_national_wage_percentiles
 from backend.utils.resume_format_handler import AdvancedResumeParserWithFormats
@@ -121,6 +122,15 @@ def _resolve_current_salary(user: User, cp: CareerProfile | None) -> int | None:
 
     if has_income and annual_total > 0:
         return int(round(annual_total))
+
+    stream_total = 0.0
+    has_stream = False
+    for row in IncomeStream.query.filter_by(user_id=user.id, is_active=True).all():
+        stream_total += _annualize_income_amount(row.amount, row.frequency)
+        has_stream = True
+
+    if has_stream and stream_total > 0:
+        return int(round(stream_total))
 
     if cp and cp.target_comp is not None and cp.target_comp > 0:
         return int(round(float(cp.target_comp)))

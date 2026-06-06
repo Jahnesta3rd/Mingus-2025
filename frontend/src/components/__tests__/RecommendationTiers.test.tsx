@@ -325,7 +325,7 @@ describe('RecommendationTiers', () => {
     expect(
       screen.getByText(/Add your income in Career Profile to see your percentile standing/)
     ).toBeInTheDocument();
-    expect(screen.getByText('Add income in Career Profile →')).toBeInTheDocument();
+    expect(screen.getByText('Add income sources →')).toBeInTheDocument();
     expect(screen.getByText('Add your zip for local data →')).toBeInTheDocument();
   });
 });

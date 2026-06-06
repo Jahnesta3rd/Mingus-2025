@@ -153,6 +153,7 @@ const CareerProtectionDashboard: React.FC = () => {
   const { openAddImportantDate, importantDatesRefreshKey } = useImportantDateModal();
   const { trackPageView, trackInteraction } = useAnalytics();
   const [showProfileModal, setShowProfileModal] = useState(false);
+  const [youTabFocusField, setYouTabFocusField] = useState<'zip_code' | 'income' | undefined>();
   
   // Use ref to track initialization - prevents double-initialization
   const hasInitializedRef = useRef(false);
@@ -278,6 +279,7 @@ const CareerProtectionDashboard: React.FC = () => {
   
   useEffect(() => {
     const tab = searchParams.get('tab');
+    const focus = searchParams.get('focus');
     const editProfile = searchParams.get('editProfile') === '1';
     const fromToday = searchParams.get('from') === 'today';
     const cardParam = searchParams.get('card');
@@ -289,7 +291,13 @@ const CareerProtectionDashboard: React.FC = () => {
       }
     }
 
-    if (!tab && !editProfile && !fromToday && cardParam === null) return;
+    if (!tab && !focus && !editProfile && !fromToday && cardParam === null) return;
+
+    if (focus === 'zip') {
+      setYouTabFocusField('zip_code');
+    } else if (focus === 'income') {
+      setYouTabFocusField('income');
+    }
 
     if (editProfile) {
       setShowProfileModal(true);
@@ -301,6 +309,9 @@ const CareerProtectionDashboard: React.FC = () => {
         setDashboardState((prev) => ({ ...prev, activeTab: mainTab }));
         setActiveTab(mainTabToStoreTab(mainTab));
       }
+    } else if (focus === 'zip' || focus === 'income') {
+      setDashboardState((prev) => ({ ...prev, activeTab: 'you' }));
+      setActiveTab(mainTabToStoreTab('you'));
     } else if (fromToday) {
       setDashboardState((prev) => ({ ...prev, activeTab: 'today' }));
       setActiveTab(mainTabToStoreTab('today'));
@@ -308,6 +319,7 @@ const CareerProtectionDashboard: React.FC = () => {
 
     const next = new URLSearchParams(searchParams);
     if (tab) next.delete('tab');
+    if (focus) next.delete('focus');
     if (editProfile) next.delete('editProfile');
     if (fromToday) next.delete('from');
     if (cardParam !== null) next.delete('card');
@@ -444,7 +456,12 @@ const CareerProtectionDashboard: React.FC = () => {
             </CardJobHome>
           )}
 
-          {dashboardState.activeTab === 'you' && <YouTab />}
+          {dashboardState.activeTab === 'you' && (
+            <YouTab
+              focusField={youTabFocusField}
+              onFocusConsumed={() => setYouTabFocusField(undefined)}
+            />
+          )}
 
           {dashboardState.activeTab === 'vehicle' && (
             <CardJobHome cardId="vehicle" onBack={handleDrillBack}>

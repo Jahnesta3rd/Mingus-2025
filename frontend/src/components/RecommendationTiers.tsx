@@ -837,7 +837,7 @@ const IncomeStandingBanner: React.FC<{ percentileData: PercentileData }> = ({
       {percentileData.zip_missing && (
         <p className="mt-1.5 text-xs text-slate-600">
           <Link
-            to="/dashboard/tools?editProfile=1"
+            to="/dashboard/tools?tab=you&focus=zip"
             className="font-medium text-purple-700 underline-offset-2 hover:text-purple-900 hover:underline"
           >
             Add your zip for local data →
@@ -867,16 +867,16 @@ const IncomeSalaryPromptBanner: React.FC<{ percentileData: PercentileData }> = (
       </p>
       <p className="mt-1.5 text-xs text-slate-600">
         <Link
-          to="/dashboard/tools?tab=you"
+          to="/dashboard/tools?tab=you&focus=income"
           className="font-medium text-purple-700 underline-offset-2 hover:text-purple-900 hover:underline"
         >
-          Add income in Career Profile →
+          Add income sources →
         </Link>
         {percentileData.zip_missing && (
           <>
             {' · '}
             <Link
-              to="/dashboard/tools?editProfile=1"
+              to="/dashboard/tools?tab=you&focus=zip"
               className="font-medium text-purple-700 underline-offset-2 hover:text-purple-900 hover:underline"
             >
               Add your zip for local data →

@@ -22,7 +22,7 @@ financial_setup_bp = Blueprint(
     url_prefix="/api/financial-setup",
 )
 
-ALLOWED_INCOME_FREQ = frozenset({"monthly", "biweekly", "weekly", "annual"})
+ALLOWED_INCOME_FREQ = frozenset({"monthly", "biweekly", "weekly", "semimonthly", "annual"})
 ALLOWED_EXPENSE_FREQ = frozenset({"monthly", "weekly", "biweekly", "annual"})
 # DB CHECK on recurring_expenses.category — canonical values
 ALLOWED_DB_EXPENSE_CATEGORIES = frozenset(

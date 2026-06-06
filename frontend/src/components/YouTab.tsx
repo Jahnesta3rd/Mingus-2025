@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   ChevronRight,
   ExternalLink,
@@ -11,6 +11,42 @@ import CareerResumeUploadSection from './career/CareerResumeUploadSection';
 import type { PercentileData } from './RecommendationTiers';
 
 const INCOME_PERCENTILE_API = '/api/career/income-percentile';
+const FINANCIAL_SETUP_INCOME_API = '/api/financial-setup/income';
+
+type IncomeFrequency = 'weekly' | 'biweekly' | 'semimonthly' | 'monthly' | 'annual';
+
+interface IncomeSourceRow {
+  id: string;
+  source_name: string;
+  amount: number;
+  frequency: IncomeFrequency;
+  pay_day?: number | null;
+}
+
+interface YouTabProps {
+  focusField?: 'zip_code' | 'income';
+  onFocusConsumed?: () => void;
+}
+
+const INCOME_FREQUENCY_OPTIONS: { value: IncomeFrequency; label: string }[] = [
+  { value: 'weekly', label: 'Weekly' },
+  { value: 'biweekly', label: 'Bi-weekly' },
+  { value: 'semimonthly', label: 'Semi-monthly' },
+  { value: 'monthly', label: 'Monthly' },
+  { value: 'annual', label: 'Annually' },
+];
+
+function formatIncomeCurrency(amount: number): string {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    maximumFractionDigits: 0,
+  }).format(amount);
+}
+
+function frequencyLabel(frequency: string): string {
+  return INCOME_FREQUENCY_OPTIONS.find((option) => option.value === frequency)?.label ?? frequency;
+}
 
 const MINGUS_PURPLE = '#5B2D8E';
 const DEEP_PURPLE = '#3b1f6e';
@@ -215,9 +251,11 @@ function HeaderSkeleton() {
   );
 }
 
-const YouTab: React.FC = () => {
+const YouTab: React.FC<YouTabProps> = ({ focusField, onFocusConsumed }) => {
   const navigate = useNavigate();
   const { user, userTier, getAccessToken } = useAuth();
+  const incomeSectionRef = useRef<HTMLElement | null>(null);
+  const focusAppliedRef = useRef<string | null>(null);
 
   const [loading, setLoading] = useState(true);
   const [firstName, setFirstName] = useState('');
@@ -245,6 +283,16 @@ const YouTab: React.FC = () => {
 
   const [signingOut, setSigningOut] = useState(false);
   const [percentileData, setPercentileData] = useState<PercentileData | null>(null);
+
+  const [incomeRows, setIncomeRows] = useState<IncomeSourceRow[]>([]);
+  const [incomeLoading, setIncomeLoading] = useState(true);
+  const [incomeLoadError, setIncomeLoadError] = useState(false);
+  const [showAddIncomeForm, setShowAddIncomeForm] = useState(false);
+  const [incomeLabel, setIncomeLabel] = useState('');
+  const [incomeAmount, setIncomeAmount] = useState('');
+  const [incomeFrequency, setIncomeFrequency] = useState<IncomeFrequency>('monthly');
+  const [incomeSaveStatus, setIncomeSaveStatus] = useState<'idle' | 'saving' | 'error'>('idle');
+  const [incomeSaveError, setIncomeSaveError] = useState<string | null>(null);
 
   const fetchProfile = useCallback(async () => {
     setLoading(true);
@@ -313,6 +361,127 @@ const YouTab: React.FC = () => {
       cancelled = true;
     };
   }, [getAccessToken]);
+
+  const fetchIncome = useCallback(async () => {
+    setIncomeLoading(true);
+    setIncomeLoadError(false);
+    try {
+      const res = await fetch(FINANCIAL_SETUP_INCOME_API, {
+        credentials: 'include',
+        headers: buildHeaders(getAccessToken),
+      });
+      if (!res.ok) {
+        throw new Error('Failed to load income');
+      }
+      const data = (await res.json()) as { income?: IncomeSourceRow[] };
+      setIncomeRows(Array.isArray(data.income) ? data.income : []);
+    } catch {
+      setIncomeRows([]);
+      setIncomeLoadError(true);
+    } finally {
+      setIncomeLoading(false);
+    }
+  }, [getAccessToken]);
+
+  useEffect(() => {
+    void fetchIncome();
+  }, [fetchIncome]);
+
+  useEffect(() => {
+    if (!focusField) {
+      focusAppliedRef.current = null;
+      return;
+    }
+    if (loading || focusAppliedRef.current === focusField) return;
+
+    if (focusField === 'zip_code') {
+      setEditingField('zip_code');
+      window.requestAnimationFrame(() => {
+        document.getElementById('you-zip_code')?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+        });
+      });
+    } else if (focusField === 'income') {
+      setShowAddIncomeForm(true);
+      window.requestAnimationFrame(() => {
+        incomeSectionRef.current?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start',
+        });
+      });
+    }
+
+    focusAppliedRef.current = focusField;
+    onFocusConsumed?.();
+  }, [focusField, loading, onFocusConsumed]);
+
+  const resetIncomeForm = () => {
+    setIncomeLabel('');
+    setIncomeAmount('');
+    setIncomeFrequency('monthly');
+    setIncomeSaveError(null);
+    setIncomeSaveStatus('idle');
+  };
+
+  const handleCancelIncomeForm = () => {
+    setShowAddIncomeForm(false);
+    resetIncomeForm();
+  };
+
+  const handleSaveIncome = async () => {
+    const label = incomeLabel.trim();
+    const amount = parseFloat(incomeAmount);
+    if (!label) {
+      setIncomeSaveStatus('error');
+      setIncomeSaveError('Enter a label for this income source.');
+      return;
+    }
+    if (!Number.isFinite(amount) || amount <= 0) {
+      setIncomeSaveStatus('error');
+      setIncomeSaveError('Enter an amount greater than zero.');
+      return;
+    }
+
+    setIncomeSaveStatus('saving');
+    setIncomeSaveError(null);
+
+    const sources = [
+      ...incomeRows.map((row) => ({
+        source_name: row.source_name,
+        amount: row.amount,
+        frequency: row.frequency,
+        pay_day: row.pay_day ?? null,
+      })),
+      {
+        source_name: label,
+        amount,
+        frequency: incomeFrequency,
+        pay_day: null,
+      },
+    ];
+
+    try {
+      const res = await fetch(FINANCIAL_SETUP_INCOME_API, {
+        method: 'POST',
+        credentials: 'include',
+        headers: buildHeaders(getAccessToken, true),
+        body: JSON.stringify({ sources }),
+      });
+      const data = (await res.json().catch(() => ({}))) as { error?: string; message?: string };
+      if (!res.ok) {
+        throw new Error(data.error || data.message || 'Could not save income');
+      }
+
+      await fetchIncome();
+      setShowAddIncomeForm(false);
+      resetIncomeForm();
+      setIncomeSaveStatus('idle');
+    } catch (err) {
+      setIncomeSaveStatus('error');
+      setIncomeSaveError(err instanceof Error ? err.message : 'Could not save income');
+    }
+  };
 
   const displayName = useMemo(() => {
     const full = [firstName, lastName].filter(Boolean).join(' ').trim();
@@ -582,6 +751,139 @@ const YouTab: React.FC = () => {
             )}
           </div>
         </SectionCard>
+
+        <section ref={incomeSectionRef} id="you-income-section">
+          <SectionCard title="Income Sources">
+            {incomeLoading ? (
+              <div className="flex items-center gap-2 text-sm" style={{ color: MUTED_TEXT }}>
+                <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+                Loading income sources…
+              </div>
+            ) : incomeLoadError ? (
+              <p className="text-sm" style={{ color: SLATE_TEXT }}>
+                Add income in the{' '}
+                <Link
+                  to="/dashboard/tools?tab=forecast"
+                  className="font-semibold underline-offset-2 hover:underline"
+                  style={{ color: MINGUS_PURPLE }}
+                >
+                  Forecast tab
+                </Link>
+                .
+              </p>
+            ) : (
+              <>
+                {incomeRows.length === 0 ? (
+                  <p className="mb-4 text-sm" style={{ color: MUTED_TEXT }}>
+                    No income sources yet. Add your take-home pay to see percentile standing on job
+                    recommendations.
+                  </p>
+                ) : (
+                  <ul className="mb-4 divide-y divide-[#E9D5FF]/60 rounded-lg border border-[#E9D5FF]/60">
+                    {incomeRows.map((row) => (
+                      <li
+                        key={row.id}
+                        className="flex items-center justify-between gap-3 px-3 py-3 text-sm"
+                      >
+                        <span className="font-medium" style={{ color: SLATE_TEXT }}>
+                          {row.source_name}
+                        </span>
+                        <span style={{ color: MUTED_TEXT }}>
+                          {formatIncomeCurrency(row.amount)} · {frequencyLabel(row.frequency)}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+
+                {showAddIncomeForm ? (
+                  <div className="space-y-3 rounded-lg border border-[#E9D5FF] bg-[#FAF5FF] p-4">
+                    <div>
+                      <label htmlFor="you-income-label" className="mb-1 block text-xs font-medium uppercase tracking-wide" style={{ color: MUTED_TEXT }}>
+                        Label
+                      </label>
+                      <input
+                        id="you-income-label"
+                        type="text"
+                        value={incomeLabel}
+                        onChange={(e) => setIncomeLabel(e.target.value)}
+                        placeholder="e.g. Primary Salary"
+                        className="w-full rounded-lg border border-[#E9D5FF] px-3 py-2 text-sm outline-none focus:border-[#5B2D8E] focus:ring-1 focus:ring-[#5B2D8E]"
+                        style={{ color: SLATE_TEXT }}
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="you-income-amount" className="mb-1 block text-xs font-medium uppercase tracking-wide" style={{ color: MUTED_TEXT }}>
+                        Amount
+                      </label>
+                      <input
+                        id="you-income-amount"
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        value={incomeAmount}
+                        onChange={(e) => setIncomeAmount(e.target.value)}
+                        placeholder="Monthly take-home"
+                        className="w-full rounded-lg border border-[#E9D5FF] px-3 py-2 text-sm outline-none focus:border-[#5B2D8E] focus:ring-1 focus:ring-[#5B2D8E]"
+                        style={{ color: SLATE_TEXT }}
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="you-income-frequency" className="mb-1 block text-xs font-medium uppercase tracking-wide" style={{ color: MUTED_TEXT }}>
+                        Frequency
+                      </label>
+                      <select
+                        id="you-income-frequency"
+                        value={incomeFrequency}
+                        onChange={(e) => setIncomeFrequency(e.target.value as IncomeFrequency)}
+                        className="w-full rounded-lg border border-[#E9D5FF] px-3 py-2 text-sm outline-none focus:border-[#5B2D8E] focus:ring-1 focus:ring-[#5B2D8E]"
+                        style={{ color: SLATE_TEXT }}
+                      >
+                        {INCOME_FREQUENCY_OPTIONS.map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    {incomeSaveStatus === 'error' && incomeSaveError && (
+                      <p className="text-sm text-red-600">{incomeSaveError}</p>
+                    )}
+                    <div className="flex flex-wrap gap-2 pt-1">
+                      <button
+                        type="button"
+                        onClick={() => void handleSaveIncome()}
+                        disabled={incomeSaveStatus === 'saving'}
+                        className="rounded-lg px-4 py-2 text-sm font-semibold text-white transition-opacity disabled:cursor-not-allowed disabled:opacity-50"
+                        style={{ backgroundColor: MINGUS_PURPLE }}
+                      >
+                        {incomeSaveStatus === 'saving' ? 'Saving…' : 'Save'}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleCancelIncomeForm}
+                        disabled={incomeSaveStatus === 'saving'}
+                        className="rounded-lg border border-[#E9D5FF] px-4 py-2 text-sm font-medium"
+                        style={{ color: SLATE_TEXT }}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setShowAddIncomeForm(true)}
+                    className="rounded-lg border border-[#E9D5FF] px-4 py-2 text-sm font-semibold transition-colors hover:bg-[#FAF5FF]"
+                    style={{ color: MINGUS_PURPLE }}
+                  >
+                    Add income source
+                  </button>
+                )}
+              </>
+            )}
+          </SectionCard>
+        </section>
 
         {/* Section 3: Resume */}
         <SectionCard title="Resume">
