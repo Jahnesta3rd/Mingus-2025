@@ -1367,15 +1367,20 @@ function MingusSnapshot({
       />
 
       <div
-        className="pointer-events-none fixed bottom-6 left-0 right-0 z-[60] flex justify-center gap-2"
-        aria-hidden
+        className="fixed bottom-6 left-0 right-0 z-[60] flex justify-center gap-2"
       >
         {Array.from({ length: TOTAL_CARDS }, (_, i) => (
-          <span
+          <button
             key={i}
-            className="block h-2 w-2 rounded-full"
+            type="button"
+            aria-label={`Go to card ${i + 1}`}
+            aria-current={i === index ? 'true' : undefined}
+            onClick={() => setIndex(i)}
+            className="block h-2 w-2 rounded-full cursor-pointer"
             style={{
               backgroundColor: i === index ? '#5B2D8E' : '#CBD5E1',
+              border: 'none',
+              padding: 0,
             }}
           />
         ))}
