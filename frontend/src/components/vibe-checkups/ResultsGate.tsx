@@ -266,7 +266,7 @@ export function ResultsGate({
                 See if your compatibility improves — or know when to move on.
               </p>
               <a
-                href="/settings/upgrade"
+                href="/dashboard/upgrade"
                 className="mt-4 inline-block text-sm font-semibold text-[#C4A064] underline-offset-2 hover:underline"
               >
                 Upgrade

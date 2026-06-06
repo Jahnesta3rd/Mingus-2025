@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
 import {
   AreaChart,
   Area,
@@ -225,6 +226,8 @@ interface MCIForecastPanelProps {
 }
 
 function MCIForecastPanel({ userTier }: MCIForecastPanelProps) {
+  const { isAuthenticated } = useAuth();
+  const upgradePlansTo = isAuthenticated ? '/dashboard/upgrade' : '/#pricing';
   const { snapshot, loading, error } = useMCI();
 
   const renderSkeleton = () => (
@@ -291,7 +294,7 @@ function MCIForecastPanel({ userTier }: MCIForecastPanelProps) {
                 Upgrade to Mid-tier to see how market conditions affect your forecast
               </p>
               <a
-                href="/#pricing"
+                href={upgradePlansTo}
                 className="mt-3 inline-block rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800"
               >
                 View Plans
@@ -364,6 +367,8 @@ export default function FinancialForecastTab({
   userTier,
   className = '',
 }: FinancialForecastTabProps) {
+  const { isAuthenticated } = useAuth();
+  const upgradePlansTo = isAuthenticated ? '/dashboard/upgrade' : '/#pricing';
   const [dailyCashflow, setDailyCashflow] = useState<DailyCashflowEntry[]>([]);
   const [monthlySummaries, setMonthlySummaries] = useState<MonthlyTableRow[]>([]);
   const [vehicleExpenseTotals, setVehicleExpenseTotals] = useState<{
@@ -688,7 +693,7 @@ export default function FinancialForecastTab({
             Professional.
           </p>
           <Link
-            to="/#pricing"
+            to={upgradePlansTo}
             className="mt-4 inline-flex min-h-11 items-center justify-center rounded-lg bg-[#5B2D8E] px-4 text-sm font-semibold text-white hover:opacity-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5B2D8E] focus-visible:ring-offset-2"
           >
             View upgrade options
@@ -913,7 +918,7 @@ export default function FinancialForecastTab({
             Upgrade to Mid-tier to see your 90-day forecast chart
           </p>
           <a
-            href="/#pricing"
+            href={upgradePlansTo}
             className="mt-3 inline-block rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800"
           >
             View Plans
@@ -952,7 +957,7 @@ export default function FinancialForecastTab({
                     Upgrade to Mid-tier to unlock the full 12-month forecast
                   </p>
                   <a
-                    href="/#pricing"
+                    href={upgradePlansTo}
                     className="mt-3 inline-block rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800"
                   >
                     View Plans
@@ -976,7 +981,7 @@ export default function FinancialForecastTab({
             Upgrade to Professional to see vehicle expense detail by month
           </p>
           <a
-            href="/#pricing"
+            href={upgradePlansTo}
             className="mt-3 inline-block rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800"
           >
             View Plans

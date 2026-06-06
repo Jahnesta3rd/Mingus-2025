@@ -151,6 +151,7 @@ interface OptimalLocationRouterProps {
 const OptimalLocationRouter: React.FC<OptimalLocationRouterProps> = ({ className = '' }) => {
   const navigate = useNavigate();
   const { user, isAuthenticated, loading: authLoading } = useAuth();
+  const upgradePlansTo = isAuthenticated ? '/dashboard/upgrade' : '/#pricing';
   const { trackPageView, trackInteraction, trackError } = useAnalytics();
   useFeatureTrack('housing_intelligence');
 
@@ -461,7 +462,7 @@ const OptimalLocationRouter: React.FC<OptimalLocationRouterProps> = ({ className
             The Optimal Living Location feature requires an active subscription.
           </p>
           <button
-            onClick={() => navigate('/#pricing')}
+            onClick={() => navigate(upgradePlansTo)}
             className="bg-violet-600 hover:bg-violet-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
           >
             View Pricing Plans

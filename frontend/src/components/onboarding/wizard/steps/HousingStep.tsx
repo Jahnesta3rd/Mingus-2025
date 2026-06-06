@@ -4,7 +4,14 @@ import { csrfHeaders } from '../../../../utils/csrfHeaders';
 import type { StepProps } from '../StepDefinitions';
 
 type Ownership = 'rent' | 'own_with_mortgage' | 'own_outright' | 'family' | 'other';
-type Field = 'ownership' | 'monthly_cost' | 'zip_code' | 'has_buy_goal' | 'target_timeline_months';
+type Field =
+  | 'ownership'
+  | 'monthly_cost'
+  | 'zip_code'
+  | 'has_buy_goal'
+  | 'target_price'
+  | 'target_timeline_months'
+  | 'down_payment_saved';
 type FieldErrors = Partial<Record<Field, string>>;
 
 const inputClass =
@@ -52,7 +59,9 @@ export default function HousingStep({ initialData, onSubmit, onSkip }: StepProps
         : ''
   );
   const [hasBuyGoal, setHasBuyGoal] = useState<'yes' | 'no' | ''>('');
+  const [targetPrice, setTargetPrice] = useState<string>('');
   const [targetTimelineMonths, setTargetTimelineMonths] = useState<string>('');
+  const [downPaymentSaved, setDownPaymentSaved] = useState<string>('0');
   const [includesUtilities, setIncludesUtilities] = useState<boolean>(
     typeof initialData.includes_utilities === 'boolean' ? initialData.includes_utilities : false
   );
@@ -171,23 +180,43 @@ export default function HousingStep({ initialData, onSubmit, onSkip }: StepProps
       return;
     }
     if (hasBuyGoal === 'yes') {
+      const price = Number.parseFloat(targetPrice);
+      if (targetPrice.trim() === '' || !Number.isFinite(price) || price <= 0) {
+        setErrors((prev) => ({
+          ...prev,
+          target_price: 'Enter your target home purchase price.',
+        }));
+        setShowValidationSummary(true);
+        document.getElementById('housing-target_price')?.focus();
+        return;
+      }
       if (targetTimelineMonths.trim() === '') {
         setErrors((prev) => ({
           ...prev,
-          target_timeline_months: "Please enter how many months until you'd like to buy.",
+          target_timeline_months: 'Enter how many months until you want to buy.',
         }));
         setShowValidationSummary(true);
         document.getElementById('housing-target_timeline_months')?.focus();
         return;
       }
       const months = Number.parseInt(targetTimelineMonths, 10);
-      if (Number.isNaN(months) || months < 1 || months > 36) {
+      if (Number.isNaN(months) || months < 1 || months > 360) {
         setErrors((prev) => ({
           ...prev,
-          target_timeline_months: 'Please enter a number of months between 1 and 36.',
+          target_timeline_months: 'Please enter a number of months between 1 and 360.',
         }));
         setShowValidationSummary(true);
         document.getElementById('housing-target_timeline_months')?.focus();
+        return;
+      }
+      const saved = Number.parseFloat(downPaymentSaved);
+      if (downPaymentSaved.trim() === '' || !Number.isFinite(saved) || saved < 0) {
+        setErrors((prev) => ({
+          ...prev,
+          down_payment_saved: 'Enter how much you have saved toward a down payment.',
+        }));
+        setShowValidationSummary(true);
+        document.getElementById('housing-down_payment_saved')?.focus();
         return;
       }
     }
@@ -200,14 +229,21 @@ export default function HousingStep({ initialData, onSubmit, onSkip }: StepProps
           effectiveMonthly
         );
       }
+      const parsedTargetPrice =
+        hasBuyGoal === 'yes' ? Number.parseFloat(targetPrice) : null;
+      const parsedDownPaymentSaved =
+        hasBuyGoal === 'yes' ? Number.parseFloat(downPaymentSaved) : 0;
+
       await onSubmit({
         housing_type: mapHousingType(ownership as Ownership),
         monthly_cost: hasRecurring ? parsedMonthly : 0,
         zip_or_city: zipCode.trim(),
         split_share_pct: splitSharePct,
         has_buy_goal: hasBuyGoal === 'yes',
-        target_price: null,
-        target_timeline_months: hasBuyGoal === 'yes' ? Number.parseInt(targetTimelineMonths, 10) : null,
+        target_price: parsedTargetPrice,
+        target_timeline_months:
+          hasBuyGoal === 'yes' ? Number.parseInt(targetTimelineMonths, 10) : null,
+        down_payment_saved: parsedDownPaymentSaved,
       });
     } catch (err) {
       setSubmitBanner(err instanceof Error ? err.message : 'Save failed');
@@ -410,11 +446,17 @@ export default function HousingStep({ initialData, onSubmit, onSkip }: StepProps
                     checked={hasBuyGoal === opt.value}
                     onChange={(e) => {
                       setHasBuyGoal(e.target.value as 'yes' | 'no');
-                      if (e.target.value === 'no') setTargetTimelineMonths('');
+                      if (e.target.value === 'no') {
+                        setTargetPrice('');
+                        setTargetTimelineMonths('');
+                        setDownPaymentSaved('0');
+                      }
                       setErrors((prev) => ({
                         ...prev,
                         has_buy_goal: undefined,
+                        target_price: undefined,
                         target_timeline_months: undefined,
+                        down_payment_saved: undefined,
                       }));
                     }}
                   />
@@ -426,28 +468,79 @@ export default function HousingStep({ initialData, onSubmit, onSkip }: StepProps
           </fieldset>
 
           {hasBuyGoal === 'yes' && (
-            <div>
-              <label className={labelClass} htmlFor="housing-target_timeline_months">
-                How many months until you'd like to buy? *
-              </label>
-              <input
-                id="housing-target_timeline_months"
-                className={inputClass}
-                type="number"
-                min={1}
-                max={36}
-                step={1}
-                inputMode="numeric"
-                value={targetTimelineMonths}
-                onChange={(e) => {
-                  setTargetTimelineMonths(e.target.value);
-                  setErrors((prev) => ({ ...prev, target_timeline_months: undefined }));
-                }}
-                placeholder="e.g. 18"
-              />
-              {errors.target_timeline_months && (
-                <p className="mt-1 text-sm text-red-600">{errors.target_timeline_months}</p>
-              )}
+            <div className="space-y-5">
+              <div>
+                <label className={labelClass} htmlFor="housing-target_price">
+                  What&apos;s your target home purchase price? *
+                </label>
+                <input
+                  id="housing-target_price"
+                  className={inputClass}
+                  type="number"
+                  min={0}
+                  step={1000}
+                  inputMode="numeric"
+                  value={targetPrice}
+                  onChange={(e) => {
+                    setTargetPrice(e.target.value);
+                    setErrors((prev) => ({ ...prev, target_price: undefined }));
+                  }}
+                  placeholder="e.g., 280000"
+                />
+                {errors.target_price && (
+                  <p className="mt-1 text-sm text-red-600">{errors.target_price}</p>
+                )}
+              </div>
+
+              <div>
+                <label className={labelClass} htmlFor="housing-target_timeline_months">
+                  How many months until you want to buy? *
+                </label>
+                <input
+                  id="housing-target_timeline_months"
+                  className={inputClass}
+                  type="number"
+                  min={1}
+                  max={360}
+                  step={1}
+                  inputMode="numeric"
+                  value={targetTimelineMonths}
+                  onChange={(e) => {
+                    setTargetTimelineMonths(e.target.value);
+                    setErrors((prev) => ({ ...prev, target_timeline_months: undefined }));
+                  }}
+                  placeholder="e.g., 24"
+                />
+                {errors.target_timeline_months && (
+                  <p className="mt-1 text-sm text-red-600">{errors.target_timeline_months}</p>
+                )}
+              </div>
+
+              <div>
+                <label className={labelClass} htmlFor="housing-down_payment_saved">
+                  How much have you saved toward a down payment so far? *
+                </label>
+                <p className="mb-1.5 text-sm text-[#64748B]">
+                  Enter $0 if you haven&apos;t started yet — that&apos;s okay.
+                </p>
+                <input
+                  id="housing-down_payment_saved"
+                  className={inputClass}
+                  type="number"
+                  min={0}
+                  step={100}
+                  inputMode="numeric"
+                  value={downPaymentSaved}
+                  onChange={(e) => {
+                    setDownPaymentSaved(e.target.value);
+                    setErrors((prev) => ({ ...prev, down_payment_saved: undefined }));
+                  }}
+                  placeholder="e.g., 5000"
+                />
+                {errors.down_payment_saved && (
+                  <p className="mt-1 text-sm text-red-600">{errors.down_payment_saved}</p>
+                )}
+              </div>
             </div>
           )}
         </div>

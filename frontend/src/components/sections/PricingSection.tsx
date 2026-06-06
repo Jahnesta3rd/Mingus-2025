@@ -17,7 +17,7 @@ interface PricingSectionProps {
   navigate: (path: string) => void;
 }
 
-const TIER_ORDER: Record<'budget' | 'mid_tier' | 'professional', number> = {
+export const TIER_ORDER: Record<'budget' | 'mid_tier' | 'professional', number> = {
   budget: 1,
   mid_tier: 2,
   professional: 3,
@@ -131,7 +131,7 @@ const PricingSection: React.FC<PricingSectionProps> = ({ pricingTiers, navigate 
               buttonClass += ` ${upgradeClass}`;
               label = `Upgrade to ${tier.name}`;
               ariaLabel = `Upgrade to ${tier.name} plan`;
-              onClick = openPlaceholderMessage;
+              onClick = () => navigate('/dashboard/upgrade');
             } else {
               buttonClass += ` ${downgradeClass}`;
               label = `Switch to ${tier.name}`;

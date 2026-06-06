@@ -1,6 +1,7 @@
 import React, { useId } from 'react';
 import { Link } from 'react-router-dom';
 import { Lock } from 'lucide-react';
+import { useAuth } from '../../hooks/useAuth';
 
 export interface TierGateOverlayProps {
   requiredTier: 'mid_tier' | 'professional';
@@ -21,6 +22,8 @@ export function TierGateOverlay({
   onDismiss,
   className = '',
 }: TierGateOverlayProps) {
+  const { isAuthenticated } = useAuth();
+  const upgradePlansTo = isAuthenticated ? '/dashboard/upgrade' : '/#pricing';
   const tierLabel = TIER_LABEL[requiredTier];
   const msgId = useId();
 
@@ -44,7 +47,7 @@ export function TierGateOverlay({
         Upgrade to {tierLabel} to unlock {feature}
       </p>
       <Link
-        to="/#pricing"
+        to={upgradePlansTo}
         className="inline-flex items-center justify-center rounded-lg bg-[#C4A064] px-5 py-2.5 text-sm font-semibold text-[#0f172a] shadow-sm transition-colors hover:bg-[#b08d52]"
       >
         Upgrade Now

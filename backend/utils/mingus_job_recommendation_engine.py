@@ -265,6 +265,7 @@ def _serialize_recommendation(job: Dict[str, Any]) -> Dict[str, Any]:
         'salary_min': job.get('salary_min'),
         'salary_max': job.get('salary_max'),
         'salary_median': job.get('salary_median'),
+        'advancement_trajectory': job.get('advancement_trajectory'),
         'overall_score': job.get('overall_score'),
         'url': job.get('url'),
         'remote_friendly': job.get('remote_friendly'),

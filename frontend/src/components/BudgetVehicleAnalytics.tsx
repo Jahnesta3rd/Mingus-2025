@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useAuth } from '../hooks/useAuth';
 import {
   Box,
   Grid,
@@ -71,6 +72,8 @@ const BudgetVehicleAnalytics: React.FC<BudgetVehicleAnalyticsProps> = ({
   className,
   userTier
 }) => {
+  const { isAuthenticated } = useAuth();
+  const upgradePlansTo = isAuthenticated ? '/dashboard/upgrade' : '/#pricing';
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<BasicAnalyticsData | null>(null);
   const [upgradeDialogOpen, setUpgradeDialogOpen] = useState(false);
@@ -341,7 +344,7 @@ const BudgetVehicleAnalytics: React.FC<BudgetVehicleAnalyticsProps> = ({
           <Button variant="contained" onClick={() => {
             setUpgradeDialogOpen(false);
             // Handle upgrade logic
-            window.location.href = '/#pricing';
+            window.location.href = upgradePlansTo;
           }}>
             Upgrade Now
           </Button>

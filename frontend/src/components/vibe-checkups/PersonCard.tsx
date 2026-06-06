@@ -325,7 +325,8 @@ export function PersonCard({
   onDelete,
   onRestore,
 }: PersonCardProps) {
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
+  const upgradePlansTo = isAuthenticated ? '/dashboard/upgrade' : '/#pricing';
   const userTier = effectiveUserTier(user);
   const showConnectionPatternInsight = userTier !== 'budget';
 
@@ -483,7 +484,7 @@ export function PersonCard({
               {!showConnectionPatternInsight ? (
                 <p className="text-sm text-[#9a8f7e]">
                   <Link
-                    to="/#pricing"
+                    to={upgradePlansTo}
                     className="font-semibold text-[#A78BFA] underline underline-offset-2 hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A78BFA] focus-visible:ring-offset-2 focus-visible:ring-offset-[#1a1520]"
                   >
                     Upgrade to Mid-tier

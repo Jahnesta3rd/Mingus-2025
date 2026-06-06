@@ -18,6 +18,7 @@ const NavigationBar: React.FC<NavigationBarProps> = ({ className = '' }) => {
   const { user, isAuthenticated, logout, userTier } = useAuth();
   const navigate = useNavigate();
   const showUpgradeInNav = isAuthenticated && userTier !== 'professional';
+  const upgradePlansTo = isAuthenticated ? '/dashboard/upgrade' : '/#pricing';
 
   // Handle scroll effect for navbar background
   useEffect(() => {
@@ -216,7 +217,7 @@ const NavigationBar: React.FC<NavigationBarProps> = ({ className = '' }) => {
               )}
               {showUpgradeInNav && (
                 <Link
-                  to="/#pricing"
+                  to={upgradePlansTo}
                   className="text-gray-300 hover:text-violet-400 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-900"
                   aria-label="View upgrade plans"
                 >
@@ -370,7 +371,7 @@ const NavigationBar: React.FC<NavigationBarProps> = ({ className = '' }) => {
                 ref={el => {
                   menuItemsRef.current[0] = el;
                 }}
-                to="/#pricing"
+                to={upgradePlansTo}
                 onClick={() => {
                   setIsMenuOpen(false);
                   setFocusedIndex(-1);

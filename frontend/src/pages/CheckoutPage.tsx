@@ -62,6 +62,7 @@ export function TierSelectionStep({
   onContinue,
   loading,
   hideContinue = false,
+  tiers = TIERS,
 }: {
   selectedTier: TierOption | null;
   onSelectTier: (tier: TierOption) => void;
@@ -69,6 +70,8 @@ export function TierSelectionStep({
   loading?: boolean;
   /** When true, only tier cards are shown (e.g. embedded in a larger form). */
   hideContinue?: boolean;
+  /** Subset of plans to display; defaults to all checkout tiers. */
+  tiers?: TierOption[];
 }) {
   return (
     <div className="min-w-0 space-y-8">
@@ -77,7 +80,7 @@ export function TierSelectionStep({
         <p className="text-gray-600 text-sm">Choose your plan.</p>
       </div>
       <div className="grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        {TIERS.map((tier) => {
+        {tiers.map((tier) => {
           const isSelected = selectedTier?.id === tier.id;
           return (
             <button

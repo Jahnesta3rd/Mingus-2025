@@ -18,6 +18,7 @@ import ConnectionTrendAssessmentModal from '../components/roster/ConnectionTrend
 
 export default function VibeTrackerPage() {
   const { user, isAuthenticated } = useAuth();
+  const upgradePlansTo = isAuthenticated ? '/dashboard/upgrade' : '/#pricing';
   const {
     data,
     archivedData,
@@ -207,7 +208,7 @@ export default function VibeTrackerPage() {
             <p className="font-medium text-[#A78BFA]">You&apos;ve reached the 6-person limit on Mid-tier.</p>
             <p className="mt-1 text-[#9a8f7e]">Upgrade to Professional for unlimited tracking.</p>
             <Link
-              to="/#pricing"
+              to={upgradePlansTo}
               className="mt-3 inline-block text-sm font-semibold text-[#A78BFA] underline-offset-2 hover:underline"
             >
               Upgrade
@@ -220,7 +221,7 @@ export default function VibeTrackerPage() {
             <p className="font-medium text-[#A78BFA]">You&apos;ve reached the 2-person roster limit on Budget.</p>
             <p className="mt-1 text-[#9a8f7e]">Upgrade to Mid-tier or Professional to track more people.</p>
             <Link
-              to="/#pricing"
+              to={upgradePlansTo}
               className="mt-3 inline-block text-sm font-semibold text-[#A78BFA] underline-offset-2 hover:underline"
             >
               View plans

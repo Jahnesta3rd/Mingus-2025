@@ -325,6 +325,16 @@ def _validate_and_cast(field_path: str, value: Any) -> tuple[Any | None, tuple[d
         if v < 0 or v > 60:
             return None, _validation_failed(field_path, "out_of_range", "[0, 60]", value)
         return v, None
+    if field_path == "down_payment_saved":
+        if value is None or value == "":
+            return 0.0, None
+        try:
+            v = float(value)
+        except (TypeError, ValueError):
+            return None, _validation_failed(field_path, "type_mismatch", "number", value)
+        if v < 0 or v > 10_000_000:
+            return None, _validation_failed(field_path, "out_of_range", "[0, 10000000]", value)
+        return v, None
     if field_path == "vehicle_count":
         if value is None or value == "":
             return None, _validation_failed(field_path, "type_mismatch", "int", value)
@@ -1963,6 +1973,7 @@ def _commit_housing_module(
         ("has_buy_goal", data.get("has_buy_goal")),
         ("target_price", data.get("target_price")),
         ("target_timeline_months", data.get("target_timeline_months")),
+        ("down_payment_saved", data.get("down_payment_saved", 0)),
     ]
     for fp, raw in field_specs:
         cast_v, err = _validate_and_cast(fp, raw)
@@ -2005,6 +2016,7 @@ def _commit_housing_module(
             else None
         )
         hp.target_timeline_months = validated["target_timeline_months"]
+        hp.down_payment_saved = float(validated["down_payment_saved"])
         applied.extend(
             [
                 "housing_type",
@@ -2014,6 +2026,7 @@ def _commit_housing_module(
                 "has_buy_goal",
                 "target_price",
                 "target_timeline_months",
+                "down_payment_saved",
             ]
         )
 

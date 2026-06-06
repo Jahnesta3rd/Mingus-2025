@@ -56,6 +56,35 @@ def _empty_housing_profile_payload() -> Dict[str, Any]:
     }
 
 
+@housing_api.route('/profile', methods=['GET', 'OPTIONS'])
+@cross_origin()
+@require_auth
+def get_housing_profile():
+    """Housing profile read for Snapshot action-card down payment CTA."""
+    if request.method == 'OPTIONS':
+        return jsonify({}), 200
+
+    user = get_current_jwt_user()
+    if not user:
+        return jsonify({'success': False, 'error': 'User not found'}), 404
+
+    hp = HousingProfile.query.filter_by(user_id=user.id).first()
+    if not hp:
+        return jsonify({
+            'has_buy_goal': False,
+            'target_price': None,
+            'target_timeline_months': None,
+            'down_payment_saved': 0,
+        }), 200
+
+    return jsonify({
+        'has_buy_goal': bool(hp.has_buy_goal),
+        'target_price': hp.target_price,
+        'target_timeline_months': hp.target_timeline_months,
+        'down_payment_saved': float(hp.down_payment_saved or 0),
+    }), 200
+
+
 @housing_api.route('/profile-summary', methods=['GET', 'OPTIONS'])
 @cross_origin()
 @require_auth

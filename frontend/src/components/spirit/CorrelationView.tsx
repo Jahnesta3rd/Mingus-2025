@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../../hooks/useAuth';
 import type { SpiritCorrelationData, SpiritWeeklyApiRow } from '../../hooks/useSpiritCorrelation';
 import { useSpiritCorrelation } from '../../hooks/useSpiritCorrelation';
 import { CorrelationBarCard, type SpiritCorrelationBarItem } from './CorrelationBarCard';
@@ -74,6 +75,9 @@ function buildBarItems(tier: 'budget' | 'mid_tier' | 'professional', data: Spiri
 }
 
 function BudgetExtraCorrelationsLock() {
+  const { isAuthenticated } = useAuth();
+  const upgradePlansTo = isAuthenticated ? '/dashboard/upgrade' : '/#pricing';
+
   return (
     <div className="relative mt-4 overflow-hidden rounded-xl border border-dashed border-slate-300 bg-white">
       <div className="pointer-events-none space-y-5 p-5 blur-sm select-none opacity-50" aria-hidden>
@@ -86,7 +90,7 @@ function BudgetExtraCorrelationsLock() {
             Upgrade to Mid-tier for impulse spend and bills on-time correlations
           </p>
           <Link
-            to="/#pricing"
+            to={upgradePlansTo}
             className="mt-2 inline-flex text-sm font-semibold text-[#C4A064] underline-offset-2 hover:underline"
           >
             Upgrade

@@ -6,6 +6,7 @@ import type {
   CardLoadState,
   CashNowData,
   FaithCardData,
+  HousingActionData,
   MilestonesData,
   RosterData,
   SnapshotData,
@@ -80,6 +81,7 @@ export function useSnapshotData(opts?: { reloadKey?: number }) {
     roster: null,
     milestones: null,
     career: null,
+    housing: null,
     action: null,
   });
 
@@ -91,6 +93,7 @@ export function useSnapshotData(opts?: { reloadKey?: number }) {
     roster: 'loading',
     milestones: 'loading',
     career: 'loading',
+    housing: 'loading',
     action: 'loading',
   });
 
@@ -343,6 +346,35 @@ export function useSnapshotData(opts?: { reloadKey?: number }) {
         // Render the empty/CTA state until three-tier or resume pipeline exposes a GET.
         setCard('career', null, 'ready');
       }),
+
+      // ── 8. Housing ───────────────────────────────────────────
+      fetch('/api/housing/profile', {
+        credentials: 'include',
+        headers,
+      })
+        .then((r) => {
+          if (!r.ok) throw new Error('housing fetch failed');
+          return r.json();
+        })
+        .then((d) => {
+          const target_price = d.target_price ?? null;
+          const saved = d.down_payment_saved ?? 0;
+          const target = target_price ? target_price * 0.2 : 0;
+          const gap = Math.max(0, target - saved);
+          const timeline = d.target_timeline_months ?? null;
+          const housing: HousingActionData = {
+            has_buy_goal: d.has_buy_goal ?? false,
+            target_price,
+            target_timeline_months: timeline,
+            down_payment_saved: saved,
+            down_payment_target: target,
+            down_payment_gap: gap,
+            monthly_needed:
+              gap > 0 && timeline && timeline > 0 ? Math.round(gap / timeline) : null,
+          };
+          setCard('housing', housing, 'ready');
+        })
+        .catch(() => setCard('housing', null, 'ready')),
     ]).then(() => {
       // ── 8. Action (derived client-side after all fetches) ────
       setData((prev) => {
@@ -355,6 +387,22 @@ export function useSnapshotData(opts?: { reloadKey?: number }) {
           source = 'milestones';
           text = 'You have an upcoming expense your forecast may not cover.';
           ctas.push({ label: 'Review your forecast', tab: 'financial-forecast', urgency: 'high' });
+        } else if (
+          d.housing?.has_buy_goal === true &&
+          (d.housing?.down_payment_gap ?? 0) > 0 &&
+          d.housing?.monthly_needed !== null
+        ) {
+          source = 'housing';
+          text = `You need $${d.housing.monthly_needed.toLocaleString()}/mo to reach your down payment goal${
+            d.housing.target_timeline_months
+              ? ` in ${d.housing.target_timeline_months} months`
+              : ''
+          }.`;
+          ctas.push({
+            label: 'See your down payment plan',
+            tab: 'housing',
+            urgency: 'high',
+          });
         } else if (d.roster?.has_financial_drag) {
           source = 'roster';
           text = 'Your roster costs have increased while your savings rate dropped.';
@@ -370,7 +418,7 @@ export function useSnapshotData(opts?: { reloadKey?: number }) {
         }
 
         // Always add 1-2 secondary CTAs
-        if (source !== 'career')
+        if (source !== 'career' && source !== 'housing')
           ctas.push({
             label: 'Check job matches',
             tab: 'job-recommendations',

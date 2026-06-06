@@ -25,6 +25,7 @@ class HousingProfile(db.Model):
     has_buy_goal = db.Column(db.Boolean, nullable=False, default=False)
     target_price = db.Column(db.Float, nullable=True)
     target_timeline_months = db.Column(db.Integer, nullable=True)
+    down_payment_saved = db.Column(db.Float, nullable=True, default=0.0)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     updated_at = db.Column(
         db.DateTime,
