@@ -13,7 +13,9 @@ Endpoints:
 """
 
 import logging
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, g
+from backend.auth.decorators import require_auth
+from backend.models.user_models import User
 from datetime import datetime, timedelta
 from typing import Dict, List, Any
 import json
@@ -196,6 +198,7 @@ def categorize_expenses_batch():
         return jsonify({'success': False, 'error': 'Internal server error'}), 500
 
 @vehicle_expense_api.route('/api/vehicle-expenses/summary', methods=['GET'])
+@require_auth
 def get_vehicle_expense_summary():
     """
     Get comprehensive vehicle expense summary for user
@@ -234,11 +237,12 @@ def get_vehicle_expense_summary():
     }
     """
     try:
-        user_email = request.args.get('user_email')
+        user_id = getattr(g, 'current_user_id', None)
+        user = User.query.filter_by(user_id=str(user_id)).first() if user_id else None
+        if not user:
+            return jsonify({'success': False, 'error': 'User not found'}), 404
+        user_email = user.email
         months = int(request.args.get('months', 12))
-        
-        if not user_email:
-            return jsonify({'success': False, 'error': 'user_email parameter required'}), 400
         
         # Get summary from categorizer
         summary = categorizer.get_vehicle_expense_summary(user_email, months)
@@ -256,6 +260,7 @@ def get_vehicle_expense_summary():
         return jsonify({'success': False, 'error': 'Internal server error'}), 500
 
 @vehicle_expense_api.route('/api/vehicle-expenses/analysis', methods=['GET'])
+@require_auth
 def get_vehicle_expense_analysis():
     """
     Get detailed vehicle expense analysis with insights
@@ -283,11 +288,12 @@ def get_vehicle_expense_analysis():
     }
     """
     try:
-        user_email = request.args.get('user_email')
+        user_id = getattr(g, 'current_user_id', None)
+        user = User.query.filter_by(user_id=str(user_id)).first() if user_id else None
+        if not user:
+            return jsonify({'success': False, 'error': 'User not found'}), 404
+        user_email = user.email
         months = int(request.args.get('months', 12))
-        
-        if not user_email:
-            return jsonify({'success': False, 'error': 'user_email parameter required'}), 400
         
         # Get basic summary first
         summary = categorizer.get_vehicle_expense_summary(user_email, months)
