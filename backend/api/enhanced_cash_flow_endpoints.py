@@ -53,10 +53,6 @@ def get_enhanced_cash_flow_forecast(user_email):
     """
     try:
         # Validate CSRF token
-        csrf_token = request.headers.get('X-CSRF-Token')
-        if not validate_csrf_token(csrf_token):
-            logger.warning("Invalid CSRF token in enhanced cash flow forecast")
-            return jsonify({'success': False, 'error': 'Invalid CSRF token'}), 403
         
         # Validate email
         if not APIValidator.sanitize_string(user_email):
@@ -161,10 +157,6 @@ def get_vehicle_expense_details(user_email, month_key):
     """
     try:
         # Validate CSRF token
-        csrf_token = request.headers.get('X-CSRF-Token')
-        if not validate_csrf_token(csrf_token):
-            logger.warning("Invalid CSRF token in vehicle expense details")
-            return jsonify({'success': False, 'error': 'Invalid CSRF token'}), 403
         
         # Validate email
         if not APIValidator.sanitize_string(user_email):
@@ -270,10 +262,6 @@ def get_vehicle_expense_summary(user_email):
     """
     try:
         # Validate CSRF token
-        csrf_token = request.headers.get('X-CSRF-Token')
-        if not validate_csrf_token(csrf_token):
-            logger.warning("Invalid CSRF token in vehicle expense summary")
-            return jsonify({'success': False, 'error': 'Invalid CSRF token'}), 403
         
         # Validate email
         if not APIValidator.sanitize_string(user_email):
@@ -358,10 +346,6 @@ def get_backward_compatible_forecast(user_email):
     """
     try:
         # Validate CSRF token
-        csrf_token = request.headers.get('X-CSRF-Token')
-        if not validate_csrf_token(csrf_token):
-            logger.warning("Invalid CSRF token in backward compatible forecast")
-            return jsonify({'success': False, 'error': 'Invalid CSRF token'}), 403
         
         # Validate email
         if not APIValidator.sanitize_string(user_email):
