@@ -60,17 +60,6 @@ function tierLabel(tier: AuthUserTier): string {
   }
 }
 
-function tierBadgeClass(tier: AuthUserTier): string {
-  switch (tier) {
-    case 'professional':
-      return 'bg-[#fbbf24]/20 text-[#92400e] border-[#fbbf24]/40';
-    case 'mid_tier':
-      return 'bg-[#5B2D8E]/15 text-[#5B2D8E] border-[#E9D5FF]';
-    default:
-      return 'bg-slate-100 text-slate-600 border-slate-200';
-  }
-}
-
 function initialsFromName(first: string, last: string, email: string): string {
   const f = first.trim();
   const l = last.trim();
@@ -496,7 +485,11 @@ const YouTab: React.FC = () => {
             <h1 className="mb-1 text-xl font-bold">{displayName}</h1>
             <p className="mb-3 text-sm text-white/80">{email}</p>
             <span
-              className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${tierBadgeClass(tier)}`}
+              className="inline-flex rounded-full px-3 py-1 text-xs font-bold backdrop-blur-[8px]"
+              style={{
+                backgroundColor: 'rgba(255, 255, 255, 0.92)',
+                color: DEEP_PURPLE,
+              }}
             >
               {tierLabel(tier)}
             </span>
