@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { computeForecastImpact } from '../utils/forecastImpact';
 
 // ========================================
 // TYPES (API shape: important_dates)
@@ -279,20 +280,6 @@ export default function SpecialDatesWidget({
     };
   }, [userEmail]);
 
-  const getForecastImpact = useCallback(
-    (eventDate: Date, eventCost: number): 'covered' | 'tight' | 'shortfall' | null => {
-      if (!cashflow.length || eventCost === 0) return null;
-      const dateStr = eventDate.toISOString().split('T')[0];
-      const dayData = cashflow.find((d) => d.date === dateStr);
-      if (!dayData) return null;
-      const afterEvent = dayData.closing_balance - eventCost;
-      if (afterEvent > 500) return 'covered';
-      if (afterEvent >= 0) return 'tight';
-      return 'shortfall';
-    },
-    [cashflow]
-  );
-
   const importantDates = profile?.profile?.important_dates ?? null;
   const events = normalizeEvents(importantDates);
   const isEmpty = events.length === 0 && !loading && !error;
@@ -384,7 +371,7 @@ export default function SpecialDatesWidget({
       <ul className="max-h-[320px] list-none space-y-0 overflow-y-auto py-0" aria-label="Important dates list">
         {events.map((ev, index) => {
           const badge = getCountdownBadge(ev.date);
-          const impact = ev.cost > 0 ? getForecastImpact(new Date(ev.date + 'T00:00:00'), ev.cost) : null;
+          const impact = ev.cost > 0 ? computeForecastImpact(ev.date, ev.cost, cashflow) : null;
           const showImpact = !cashflowLoading && impact != null;
           return (
             <li

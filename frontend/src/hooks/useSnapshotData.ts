@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useAuth } from './useAuth';
 import { csrfHeaders } from '../utils/csrfHeaders';
+import { computeForecastImpact, type DailyCashflowEntry } from '../utils/forecastImpact';
 import type {
   ActionData,
   CardLoadState,
@@ -112,6 +113,8 @@ export function useSnapshotData(opts?: { reloadKey?: number }) {
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     };
 
+    let dailyCashflowForImpact: DailyCashflowEntry[] = [];
+
     Promise.allSettled([
       // ── 1. Faith Card ────────────────────────────────────────
       fetch('/api/faith-card/today', {
@@ -189,19 +192,20 @@ export function useSnapshotData(opts?: { reloadKey?: number }) {
           }),
         )
         .then((d) => {
+          const flow = d.forecast?.daily_cashflow ?? d.daily_cashflow ?? [];
+          dailyCashflowForImpact = flow;
           const thirtyDays = new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 10);
-          const todayEntry = d.daily_cashflow?.[0];
-          const flow = d.daily_cashflow;
+          const todayEntry = flow[0];
           const entry30 =
-            flow?.find((e: { date: string }) => e.date >= thirtyDays) ??
-            (flow?.length ? flow[flow.length - 1] : undefined);
+            flow.find((e: { date: string }) => e.date >= thirtyDays) ??
+            (flow.length ? flow[flow.length - 1] : undefined);
           const cashData: CashNowData = {
             todays_balance: todayEntry?.opening_balance ?? 0,
             balance_30_day: entry30?.closing_balance ?? 0,
             net_change_30: (entry30?.closing_balance ?? 0) - (todayEntry?.opening_balance ?? 0),
             balance_status: todayEntry?.balance_status ?? 'healthy',
             worst_status_30:
-              d.daily_cashflow?.slice(0, 30).reduce((worst: string, e: { balance_status: string }) => {
+              flow.slice(0, 30).reduce((worst: string, e: { balance_status: string }) => {
                 const order = ['healthy', 'warning', 'danger'];
                 return order.indexOf(e.balance_status) > order.indexOf(worst) ? e.balance_status : worst;
               }, 'healthy') ?? 'healthy',
@@ -378,7 +382,14 @@ export function useSnapshotData(opts?: { reloadKey?: number }) {
     ]).then(() => {
       // ── 8. Action (derived client-side after all fetches) ────
       setData((prev) => {
-        const d = prev;
+        let d = prev;
+        if (d.milestones?.upcoming) {
+          const enriched = d.milestones.upcoming.map((ev) => ({
+            ...ev,
+            impact: computeForecastImpact(ev.date, ev.cost, dailyCashflowForImpact),
+          }));
+          d = { ...d, milestones: { ...d.milestones, upcoming: enriched } };
+        }
         let source = 'vibe';
         let text = 'Check in with your Vibe Checkup today.';
         const ctas: ActionData['ctas'] = [];
@@ -431,7 +442,7 @@ export function useSnapshotData(opts?: { reloadKey?: number }) {
           action_source: source,
           ctas,
         };
-        return { ...prev, action: actionData };
+        return { ...d, action: actionData };
       });
       setLoadStates((prev) => ({ ...prev, action: 'ready' }));
     });
