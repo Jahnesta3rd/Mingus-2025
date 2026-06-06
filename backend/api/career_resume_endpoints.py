@@ -281,9 +281,14 @@ def _apply_llm_classification_from_resume(
         db_session=db.session,
     )
     if classification.get('confidence', 0) >= 0.5:
+        raw_title = str(parsed['title']).strip()
+        role = raw_title.split('—')[0].split(' - ')[0].strip() or raw_title
+        cp.current_role = role
         cp.bls_career_field = classification['career_field']
         cp.seniority_level = classification['seniority_level']
         cp.is_management = classification['is_management']
+        if not cp.industry:
+            cp.industry = classification['career_field']
         cp.title_normalized_at = datetime.utcnow()
         cp.title_normalization_source = 'llm_resume'
         db.session.commit()

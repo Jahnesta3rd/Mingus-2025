@@ -48,6 +48,20 @@ beforeEach(() => {
         json: async () => ({ status: 'no_career_data' }),
       } as Response);
     }
+    if (String(url).includes('/api/career/profile-summary')) {
+      return Promise.resolve({
+        ok: true,
+        status: 200,
+        json: async () => ({
+          success: true,
+          profile: {
+            current_role: null,
+            industry: null,
+            profile_complete: false,
+          },
+        }),
+      } as Response);
+    }
     return Promise.resolve({
       ok: true,
       status: 200,
@@ -88,16 +102,52 @@ describe('RecommendationTiers', () => {
     expect(screen.getByText('Complete Profile')).toBeInTheDocument();
   });
 
-  it('shows holding state for professional tier with complete profile', async () => {
+  it('shows holding state for professional tier with complete profile from API', async () => {
+    (global.fetch as jest.Mock).mockImplementation((url: string) => {
+      if (String(url).includes('/api/career/income-percentile')) {
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          json: async () => ({ status: 'no_career_data' }),
+        });
+      }
+      if (String(url).includes('/api/career/profile-summary')) {
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          json: async () => ({
+            success: true,
+            profile: {
+              current_role: 'Program Manager',
+              industry: 'Government',
+              seniority_level: 'senior',
+              profile_complete: true,
+            },
+          }),
+        });
+      }
+      return Promise.resolve({
+        ok: true,
+        status: 200,
+        json: async () => emptyRecommendations,
+      });
+    });
+
     renderTiers({
       userTier: 'professional',
-      careerProfile: { current_role: 'Program Manager', industry: 'Government' },
     });
 
     await waitFor(() => {
-      expect(screen.getByText('Sourcing Roles for You')).toBeInTheDocument();
+      expect(screen.getByText(/We're matching roles to your profile/)).toBeInTheDocument();
     });
-    expect(screen.getByText(/We are sourcing roles that match your profile/)).toBeInTheDocument();
+    expect(screen.getByText('Your career field:')).toBeInTheDocument();
+    expect(screen.getByText('Government')).toBeInTheDocument();
+    expect(screen.getByText('Your level:')).toBeInTheDocument();
+    expect(screen.getByText('Senior')).toBeInTheDocument();
+    expect(screen.getByText('Edit Career Profile →')).toBeInTheDocument();
+    expect(
+      screen.getByText(/Job matches are based on your career field and seniority level/)
+    ).toBeInTheDocument();
     expect(screen.queryByText('Senior Marketing Coordinator')).not.toBeInTheDocument();
   });
 

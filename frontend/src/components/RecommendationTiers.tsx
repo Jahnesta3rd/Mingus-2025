@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { Clock, Star, ChevronDown, ChevronUp, ExternalLink, Target, Shield, Filter, RefreshCw } from 'lucide-react';
+import { Star, ChevronDown, ChevronUp, ExternalLink, Target, Shield, Filter, RefreshCw } from 'lucide-react';
 import { useAnalytics } from '../hooks/useAnalytics';
 import { useAuth, type AuthUserTier } from '../hooks/useAuth';
 import { csrfHeaders } from '../utils/csrfHeaders';
@@ -84,6 +84,9 @@ interface TierData {
 export interface CareerProfileSummary {
   current_role?: string | null;
   industry?: string | null;
+  bls_career_field?: string | null;
+  seniority_level?: string | null;
+  profile_complete?: boolean;
 }
 
 type RecommendationViewState = 'loading' | 'upsell' | 'complete_profile' | 'coming_soon';
@@ -115,6 +118,7 @@ interface ProcessResumeApiResponse {
 
 const RECOMMENDATIONS_API = '/api/recommendations/process-resume';
 const INCOME_PERCENTILE_API = '/api/career/income-percentile';
+const CAREER_PROFILE_SUMMARY_API = '/api/career/profile-summary';
 
 export interface PercentileData {
   status: 'ok' | 'no_career_data';
@@ -372,8 +376,12 @@ interface RecommendationTiersProps {
 }
 
 function isCareerProfileComplete(profile: CareerProfileSummary | null | undefined): boolean {
-  const role = profile?.current_role?.trim();
-  const industry = profile?.industry?.trim();
+  if (!profile) return false;
+  if (typeof profile.profile_complete === 'boolean') {
+    return profile.profile_complete;
+  }
+  const role = profile.current_role?.trim();
+  const industry = profile.industry?.trim();
   return Boolean(role && industry);
 }
 
@@ -410,12 +418,21 @@ const RecommendationTiers: React.FC<RecommendationTiersProps> = ({
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [percentileData, setPercentileData] = useState<PercentileData | null>(null);
+  const [fetchedCareerProfile, setFetchedCareerProfile] = useState<CareerProfileSummary | null>(
+    null
+  );
+
+  const effectiveCareerProfile = careerProfile ?? fetchedCareerProfile;
 
   const { trackInteraction, trackError } = useAnalytics();
 
   const viewState = useMemo(
-    () => resolveViewState(authLoading && userTierProp == null ? null : effectiveTier, careerProfile),
-    [authLoading, userTierProp, effectiveTier, careerProfile]
+    () =>
+      resolveViewState(
+        authLoading && userTierProp == null ? null : effectiveTier,
+        effectiveCareerProfile
+      ),
+    [authLoading, userTierProp, effectiveTier, effectiveCareerProfile]
   );
 
   const fetchRecommendations = useCallback(
@@ -566,6 +583,46 @@ const RecommendationTiers: React.FC<RecommendationTiersProps> = ({
       cancelled = true;
     };
   }, [getAccessToken]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const fetchCareerProfileSummary = async () => {
+      try {
+        const response = await fetch(CAREER_PROFILE_SUMMARY_API, {
+          credentials: 'include',
+          headers: buildAuthHeaders(getAccessToken),
+        });
+        if (!response.ok || cancelled) return;
+
+        const data = (await response.json()) as {
+          profile?: {
+            current_role?: string | null;
+            industry?: string | null;
+            seniority_level?: string | null;
+            profile_complete?: boolean;
+          };
+        };
+        if (!cancelled && data.profile) {
+          const industry = data.profile.industry ?? null;
+          setFetchedCareerProfile({
+            current_role: data.profile.current_role,
+            industry,
+            bls_career_field: industry,
+            seniority_level: data.profile.seniority_level ?? null,
+            profile_complete: data.profile.profile_complete,
+          });
+        }
+      } catch {
+        /* silent — fall back to prop or incomplete state */
+      }
+    };
+
+    void fetchCareerProfileSummary();
+    return () => {
+      cancelled = true;
+    };
+  }, [getAccessToken]);
   
   const handleTierExpansion = async (tierName: string) => {
     const newExpandedTier = expandedTier === tierName ? null : tierName;
@@ -690,11 +747,9 @@ const RecommendationTiers: React.FC<RecommendationTiersProps> = ({
         viewState !== 'complete_profile' &&
         (apiEmpty || viewState === 'coming_soon') &&
         !hasJobResults && (
-        <RecommendationStateCard
-          title="Sourcing Roles for You"
-          body="We are sourcing roles that match your profile — check back soon"
-          icon={<Clock className="h-10 w-10 text-gray-500" />}
-          variant="holding"
+        <SourcingRolesEmptyState
+          careerProfile={effectiveCareerProfile}
+          percentileCareerField={percentileData?.bls_career_field}
         />
       )}
 
@@ -781,6 +836,72 @@ const IncomeStandingBanner: React.FC<{ percentileData: PercentileData }> = ({
           </Link>
         </p>
       )}
+    </div>
+  );
+};
+
+function ProfileMatchField({ label, value }: { label: string; value: string | null | undefined }) {
+  const trimmed = value?.trim();
+  return (
+    <p className="text-sm text-slate-700">
+      {label}:{' '}
+      {trimmed ? (
+        <span className="font-medium text-slate-800">{trimmed}</span>
+      ) : (
+        <span className="font-medium text-amber-600">Not set ⚠️</span>
+      )}
+    </p>
+  );
+}
+
+const SourcingRolesEmptyState: React.FC<{
+  careerProfile: CareerProfileSummary | null | undefined;
+  percentileCareerField?: string | null;
+}> = ({ careerProfile, percentileCareerField }) => {
+  const careerField =
+    careerProfile?.bls_career_field?.trim() ||
+    careerProfile?.industry?.trim() ||
+    percentileCareerField?.trim() ||
+    null;
+  const seniority = careerProfile?.seniority_level?.trim() || null;
+
+  return (
+    <div className="rounded-xl border border-purple-100 bg-white p-6 shadow-sm sm:p-8">
+      <div className="mx-auto max-w-lg text-left">
+        <div className="mb-4 flex items-center gap-2">
+          <Target className="h-6 w-6 shrink-0 text-purple-600" aria-hidden />
+          <h3 className="text-lg font-semibold text-slate-900">
+            🎯 We&apos;re matching roles to your profile
+          </h3>
+        </div>
+
+        <div className="mb-5 space-y-1 rounded-lg border border-slate-100 bg-slate-50/80 px-4 py-3">
+          <ProfileMatchField label="Your career field" value={careerField} />
+          <ProfileMatchField
+            label="Your level"
+            value={seniority ? formatSeniorityLabel(seniority) : null}
+          />
+        </div>
+
+        <p className="mb-2 text-sm font-medium text-slate-800">To improve your matches:</p>
+        <ul className="mb-5 list-disc space-y-1 pl-5 text-sm text-slate-700">
+          <li>Make sure your career field is set correctly</li>
+          <li>Add your current role title if it&apos;s missing</li>
+          <li>Check back — we add new roles weekly</li>
+        </ul>
+
+        <Link
+          to="/dashboard/tools?tab=you"
+          className="inline-flex items-center text-sm font-semibold text-purple-700 underline-offset-2 hover:text-purple-900 hover:underline"
+        >
+          Edit Career Profile →
+        </Link>
+
+        <p className="mt-5 text-xs leading-relaxed text-slate-500">
+          Job matches are based on your career field and seniority level. The more complete your
+          profile, the better your matches.
+        </p>
+      </div>
     </div>
   );
 };
