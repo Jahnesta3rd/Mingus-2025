@@ -114,6 +114,32 @@ interface ProcessResumeApiResponse {
 }
 
 const RECOMMENDATIONS_API = '/api/recommendations/process-resume';
+const INCOME_PERCENTILE_API = '/api/career/income-percentile';
+
+export interface PercentileData {
+  status: 'ok' | 'no_career_data';
+  current_salary?: number;
+  percentile_bracket?: number;
+  percentile_label?: string;
+  percentiles?: { p10: number; p25: number; p50: number; p75: number; p90: number };
+  zip_missing?: boolean;
+  zip_prompt?: string;
+  bls_career_field?: string;
+}
+
+export function computePercentileBracket(
+  salary: number,
+  percentiles: PercentileData['percentiles']
+): { bracket: number; label: string } | null {
+  if (!percentiles || !salary) return null;
+  const { p10, p25, p50, p75, p90 } = percentiles;
+  if (salary >= p90) return { bracket: 90, label: '90th+ percentile' };
+  if (salary >= p75) return { bracket: 75, label: '75th–90th percentile' };
+  if (salary >= p50) return { bracket: 50, label: '50th–75th percentile' };
+  if (salary >= p25) return { bracket: 25, label: '25th–50th percentile' };
+  if (salary >= p10) return { bracket: 10, label: '10th–25th percentile' };
+  return { bracket: 0, label: 'Below 10th percentile' };
+}
 
 /** E2E / verify shim stored in localStorage when the session is cookie-backed. */
 const PLACEHOLDER_ACCESS_TOKENS = new Set(['ok', '']);
@@ -383,6 +409,7 @@ const RecommendationTiers: React.FC<RecommendationTiersProps> = ({
   const [needsSignIn, setNeedsSignIn] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [percentileData, setPercentileData] = useState<PercentileData | null>(null);
 
   const { trackInteraction, trackError } = useAnalytics();
 
@@ -513,6 +540,32 @@ const RecommendationTiers: React.FC<RecommendationTiersProps> = ({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- refetch only when tier/user changes
   }, [authLoading, userTierProp, effectiveTier, userId]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const fetchPercentileData = async () => {
+      try {
+        const response = await fetch(INCOME_PERCENTILE_API, {
+          credentials: 'include',
+          headers: buildAuthHeaders(getAccessToken),
+        });
+        if (!response.ok || cancelled) return;
+
+        const data = (await response.json()) as PercentileData;
+        if (!cancelled && data.status === 'ok') {
+          setPercentileData(data);
+        }
+      } catch {
+        /* silent — percentile UI stays hidden */
+      }
+    };
+
+    void fetchPercentileData();
+    return () => {
+      cancelled = true;
+    };
+  }, [getAccessToken]);
   
   const handleTierExpansion = async (tierName: string) => {
     const newExpandedTier = expandedTier === tierName ? null : tierName;
@@ -647,6 +700,10 @@ const RecommendationTiers: React.FC<RecommendationTiersProps> = ({
 
       {hasJobResults && (
         <>
+          {percentileData?.status === 'ok' && (
+            <IncomeStandingBanner percentileData={percentileData} />
+          )}
+
           <div className="flex flex-col sm:flex-row sm:items-center justify-end gap-3">
             <div className="flex items-center gap-2">
               <Filter className="h-4 w-4 text-gray-500" />
@@ -690,10 +747,39 @@ const RecommendationTiers: React.FC<RecommendationTiersProps> = ({
                 isFeatured={tier.tier_name === 'same_level'}
                 onExpand={() => handleTierExpansion(tier.tier_name)}
                 onJobInteraction={handleJobInteraction}
+                percentileData={percentileData}
               />
             ))}
           </div>
         </>
+      )}
+    </div>
+  );
+};
+
+const IncomeStandingBanner: React.FC<{ percentileData: PercentileData }> = ({
+  percentileData,
+}) => {
+  const field = percentileData.bls_career_field ?? 'your field';
+  const label = percentileData.percentile_label ?? 'your percentile range';
+
+  return (
+    <div className="rounded-lg border border-purple-100 bg-purple-50/80 px-4 py-3 text-sm text-slate-700">
+      <p>
+        You&apos;re currently in the{' '}
+        <span className="font-medium text-purple-900">{label}</span> for{' '}
+        <span className="font-medium text-slate-800">{field}</span>. The roles below could move
+        you up.
+      </p>
+      {percentileData.zip_missing && (
+        <p className="mt-1.5 text-xs text-slate-600">
+          <Link
+            to="/dashboard/tools?editProfile=1"
+            className="font-medium text-purple-700 underline-offset-2 hover:text-purple-900 hover:underline"
+          >
+            Add your zip for local data →
+          </Link>
+        </p>
       )}
     </div>
   );
@@ -742,7 +828,8 @@ const TierCard: React.FC<{
   isFeatured: boolean;
   onExpand: () => void;
   onJobInteraction: (job: JobRecommendation, action: string) => void;
-}> = ({ tier, isExpanded, isComparison, isFeatured, onExpand, onJobInteraction }) => {
+  percentileData: PercentileData | null;
+}> = ({ tier, isExpanded, isComparison, isFeatured, onExpand, onJobInteraction, percentileData }) => {
   
   return (
     <div 
@@ -823,6 +910,7 @@ const TierCard: React.FC<{
                 job={job}
                 onInteraction={onJobInteraction}
                 compact={isComparison}
+                percentileData={percentileData}
               />
             ))}
           </div>
@@ -858,6 +946,7 @@ const TierCard: React.FC<{
                 job={job}
                 onInteraction={onJobInteraction}
                 compact={false}
+                percentileData={percentileData}
               />
             ))}
           </div>
@@ -872,7 +961,8 @@ const JobPreviewCard: React.FC<{
   job: JobRecommendation;
   onInteraction: (job: JobRecommendation, action: string) => void;
   compact: boolean;
-}> = ({ job, onInteraction, compact }) => {
+  percentileData: PercentileData | null;
+}> = ({ job, onInteraction, compact, percentileData }) => {
   const getTierColor = (tier: string) => {
     switch (tier) {
       case 'conservative': return 'blue';
@@ -886,6 +976,41 @@ const JobPreviewCard: React.FC<{
 
   const tierColor = getTierColor(job.tier);
   const advancement = job.job.description?.trim();
+
+  const percentileChip = useMemo(() => {
+    if (
+      percentileData?.status !== 'ok' ||
+      !percentileData.percentiles ||
+      !job.job.salary_median ||
+      job.job.salary_median <= 0
+    ) {
+      return null;
+    }
+
+    const jobBracket = computePercentileBracket(
+      job.job.salary_median,
+      percentileData.percentiles
+    );
+    if (!jobBracket) return null;
+
+    const currentBracket = percentileData.percentile_bracket ?? 0;
+
+    if (jobBracket.bracket > currentBracket) {
+      return {
+        tone: 'up' as const,
+        text: `↑ Moves you to ${jobBracket.label}`,
+      };
+    }
+
+    if (jobBracket.bracket === currentBracket) {
+      return {
+        tone: 'same' as const,
+        text: `Stays at ${jobBracket.label}`,
+      };
+    }
+
+    return null;
+  }, [job.job.salary_median, percentileData]);
 
   return (
     <div 
@@ -915,6 +1040,17 @@ const JobPreviewCard: React.FC<{
         <p className="font-medium text-gray-900">
           {formatSalaryK(job.job.salary_min, job.job.salary_max)}
         </p>
+        {percentileChip ? (
+          <p
+            className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${
+              percentileChip.tone === 'up'
+                ? 'border border-green-200 bg-green-50 text-green-700'
+                : 'border border-slate-200 bg-slate-100 text-slate-600'
+            }`}
+          >
+            {percentileChip.text}
+          </p>
+        ) : null}
         {advancement ? (
           <p className="text-gray-600">
             <span className="font-medium text-gray-700">Next step: </span>

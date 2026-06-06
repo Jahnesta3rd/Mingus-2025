@@ -8,6 +8,9 @@ import {
 import { useAuth, type AuthUserTier } from '../hooks/useAuth';
 import { csrfHeaders } from '../utils/csrfHeaders';
 import CareerResumeUploadSection from './career/CareerResumeUploadSection';
+import type { PercentileData } from './RecommendationTiers';
+
+const INCOME_PERCENTILE_API = '/api/career/income-percentile';
 
 const MINGUS_PURPLE = '#5B2D8E';
 const DEEP_PURPLE = '#3b1f6e';
@@ -241,6 +244,7 @@ const YouTab: React.FC = () => {
   const [passwordError, setPasswordError] = useState<string | null>(null);
 
   const [signingOut, setSigningOut] = useState(false);
+  const [percentileData, setPercentileData] = useState<PercentileData | null>(null);
 
   const fetchProfile = useCallback(async () => {
     setLoading(true);
@@ -283,6 +287,32 @@ const YouTab: React.FC = () => {
   useEffect(() => {
     void fetchProfile();
   }, [fetchProfile]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const fetchPercentileData = async () => {
+      try {
+        const res = await fetch(INCOME_PERCENTILE_API, {
+          credentials: 'include',
+          headers: buildHeaders(getAccessToken),
+        });
+        if (!res.ok || cancelled) return;
+
+        const data = (await res.json()) as PercentileData;
+        if (!cancelled && data.status === 'ok') {
+          setPercentileData(data);
+        }
+      } catch {
+        /* silent */
+      }
+    };
+
+    void fetchPercentileData();
+    return () => {
+      cancelled = true;
+    };
+  }, [getAccessToken]);
 
   const displayName = useMemo(() => {
     const full = [firstName, lastName].filter(Boolean).join(' ').trim();
@@ -500,6 +530,19 @@ const YouTab: React.FC = () => {
       <div className="px-4">
         {/* Section 2: Profile */}
         <SectionCard title="Profile">
+          {percentileData?.zip_missing && (
+            <div className="mb-4 rounded-lg border border-[#E9D5FF] bg-[#FAF5FF] px-3 py-2.5 text-sm" style={{ color: SLATE_TEXT }}>
+              <span>Add your zip code to see how your income compares in your local market.</span>{' '}
+              <button
+                type="button"
+                className="font-semibold underline-offset-2 hover:underline"
+                style={{ color: MINGUS_PURPLE }}
+                onClick={() => setEditingField('zip_code')}
+              >
+                Add zip code
+              </button>
+            </div>
+          )}
           {renderProfileField(
             'first_name',
             'First name',

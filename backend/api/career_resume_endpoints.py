@@ -5,19 +5,26 @@ Career resume upload API (CareerStep Phase R1).
 POST /api/career/resume — JWT-authenticated multipart upload, disk storage, parse preview.
 """
 
+import json
 import logging
 import os
+import re
 from datetime import datetime
+from decimal import Decimal
 from pathlib import Path
 
 from flask import Blueprint, g, jsonify, request
 from flask_cors import cross_origin
 from werkzeug.utils import secure_filename
 
+from backend.api.profile_endpoints import get_db_connection
 from backend.auth.decorators import require_auth
 from backend.models.career_profile import CareerProfile
 from backend.models.database import db
+from backend.models.financial_setup import UserIncome
+from backend.models.housing_profile import HousingProfile
 from backend.models.user_models import User
+from backend.services.bls_oes_service import get_national_wage_percentiles
 from backend.utils.resume_format_handler import AdvancedResumeParserWithFormats
 
 logger = logging.getLogger(__name__)
@@ -29,6 +36,121 @@ MAX_FILE_SIZE = 5 * 1024 * 1024  # 5MB
 
 _REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 UPLOAD_ROOT = os.path.join(_REPO_ROOT, 'static', 'uploads', 'resumes')
+
+_ZIP_RE = re.compile(r'\b(\d{5})\b')
+
+_INCOME_ANNUAL_MULTIPLIERS = {
+    'weekly': 52,
+    'biweekly': 26,
+    'semimonthly': 24,
+    'monthly': 12,
+    'annual': 1,
+}
+
+
+def _extract_zip_from_text(text: str | None) -> str | None:
+    if not text:
+        return None
+    match = _ZIP_RE.search(str(text).strip())
+    return match.group(1) if match else None
+
+
+def _parse_json_object(raw) -> dict:
+    if raw is None or raw == '':
+        return {}
+    if isinstance(raw, dict):
+        return dict(raw)
+    if isinstance(raw, str):
+        try:
+            parsed = json.loads(raw)
+            return dict(parsed) if isinstance(parsed, dict) else {}
+        except (TypeError, ValueError, json.JSONDecodeError):
+            return {}
+    return {}
+
+
+def _resolve_user_zip_code(user: User) -> str | None:
+    conn = get_db_connection()
+    try:
+        with conn.cursor() as cursor:
+            cursor.execute(
+                '''
+                SELECT column_name FROM information_schema.columns
+                WHERE table_name = %s
+                ''',
+                ('user_profiles',),
+            )
+            profiles_columns = {row['column_name'] for row in cursor.fetchall()}
+            cursor.execute(
+                'SELECT * FROM user_profiles WHERE email = %s LIMIT 1',
+                (user.email,),
+            )
+            profile_row = cursor.fetchone()
+    finally:
+        conn.close()
+
+    personal_info = _parse_json_object(
+        profile_row.get('personal_info') if profile_row else None
+    )
+    zip_code = None
+    if profile_row and 'zip_code' in profiles_columns and profile_row.get('zip_code'):
+        zip_code = _extract_zip_from_text(str(profile_row['zip_code']))
+    if not zip_code:
+        zip_code = _extract_zip_from_text(personal_info.get('zip_code'))
+    if not zip_code:
+        zip_code = _extract_zip_from_text(personal_info.get('zipCode'))
+
+    if not zip_code:
+        hp = HousingProfile.query.filter_by(user_id=user.id).first()
+        zip_code = _extract_zip_from_text(hp.zip_or_city if hp else None)
+
+    return zip_code
+
+
+def _annualize_income_amount(amount: Decimal | float, frequency: str) -> float:
+    multiplier = _INCOME_ANNUAL_MULTIPLIERS.get((frequency or '').lower(), 12)
+    return float(amount) * multiplier
+
+
+def _resolve_current_salary(user: User, cp: CareerProfile | None) -> int | None:
+    annual_total = 0.0
+    has_income = False
+    for row in UserIncome.query.filter_by(user_id=user.id, is_active=True).all():
+        annual_total += _annualize_income_amount(row.amount, row.frequency)
+        has_income = True
+
+    if has_income and annual_total > 0:
+        return int(round(annual_total))
+
+    if cp and cp.target_comp is not None and cp.target_comp > 0:
+        return int(round(float(cp.target_comp)))
+
+    return None
+
+
+def _compute_percentile_bracket(
+    current_salary: int, percentiles: dict
+) -> tuple[int | None, str | None]:
+    p10 = percentiles.get('p10')
+    p25 = percentiles.get('p25')
+    p50 = percentiles.get('p50')
+    p75 = percentiles.get('p75')
+    p90 = percentiles.get('p90')
+    if None in (p10, p25, p50, p75, p90):
+        return None, None
+
+    salary = float(current_salary)
+    if salary < p10:
+        return 0, 'Below 10th percentile'
+    if salary < p25:
+        return 10, '10th–25th percentile'
+    if salary < p50:
+        return 25, '25th–50th percentile'
+    if salary < p75:
+        return 50, '50th–75th percentile'
+    if salary < p90:
+        return 75, '75th–90th percentile'
+    return 90, '90th percentile or above'
 
 
 def _invalid_file(message: str):
@@ -165,6 +287,65 @@ def _apply_llm_classification_from_resume(
         cp.title_normalized_at = datetime.utcnow()
         cp.title_normalization_source = 'llm_resume'
         db.session.commit()
+
+
+@career_resume_api.route('/income-percentile', methods=['GET', 'OPTIONS'])
+@cross_origin()
+@require_auth
+def get_income_percentile():
+    """Return national BLS OES wage percentiles for the user's career field."""
+    if request.method == 'OPTIONS':
+        return jsonify({}), 200
+
+    user = User.query.filter_by(user_id=str(g.current_user_id)).first()
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+
+    cp = CareerProfile.query.filter_by(user_id=user.id).first()
+    if not cp or not cp.bls_career_field:
+        return jsonify({
+            'status': 'no_career_data',
+            'prompt': (
+                'Upload your resume or complete CareerStep to see your income percentile'
+            ),
+        }), 200
+
+    wage_data = get_national_wage_percentiles(cp.bls_career_field)
+    percentiles = {
+        key: wage_data[key]
+        for key in ('p10', 'p25', 'p50', 'p75', 'p90')
+        if key in wage_data
+    }
+
+    current_salary = _resolve_current_salary(user, cp)
+    percentile_bracket = None
+    percentile_label = None
+    if current_salary is not None:
+        percentile_bracket, percentile_label = _compute_percentile_bracket(
+            current_salary, percentiles
+        )
+
+    zip_code = _resolve_user_zip_code(user)
+    zip_missing = not bool(zip_code)
+
+    payload = {
+        'status': 'ok',
+        'bls_career_field': cp.bls_career_field,
+        'current_salary': current_salary,
+        'percentile_bracket': percentile_bracket,
+        'percentile_label': percentile_label,
+        'percentiles': percentiles,
+        'as_of': wage_data.get('as_of'),
+        'source': wage_data.get('source'),
+        'zip_missing': zip_missing,
+        'regional_available': False,
+    }
+    if zip_missing:
+        payload['zip_prompt'] = (
+            'Add your zip code to see how your income compares locally'
+        )
+
+    return jsonify(payload), 200
 
 
 @career_resume_api.route('/resume', methods=['POST', 'OPTIONS'])
