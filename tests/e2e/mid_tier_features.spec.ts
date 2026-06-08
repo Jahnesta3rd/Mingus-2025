@@ -300,11 +300,34 @@ async function addAllMocks(p: Page) {
       status: 200,
       contentType: 'application/json',
       body: JSON.stringify({
-        summary: 'Strong day ahead. Your income diversification is paying off.',
-        financial_tip: 'Consider increasing your investment contributions.',
+        user_name: 'Marcus',
+        balance_score: {
+          value: 74,
+          trend: 'improving',
+          change_percentage: 2,
+          previous_value: 72,
+        },
+        primary_insight: {
+          title: 'Strong day ahead',
+          message: 'Your income diversification is paying off.',
+          type: 'positive',
+          icon: 'sun',
+        },
+        quick_actions: [],
+        encouragement_message: {
+          text: 'Consider increasing your investment contributions.',
+          type: 'reminder',
+          emoji: '📈',
+        },
+        streak_data: {
+          current_streak: 0,
+          longest_streak: 0,
+          milestone_reached: false,
+          next_milestone: 3,
+          progress_percentage: 0,
+        },
+        user_tier: 'mid_tier',
         risk_level: 'low',
-        score: 74,
-        trend: 'improving',
         stress_spending: WELLNESS_DATA.stress_spending,
         wellness_roi: WELLNESS_DATA.wellness_roi,
         activity_analysis: WELLNESS_DATA.activity,
@@ -357,26 +380,6 @@ async function addAllMocks(p: Page) {
           years_experience: 8,
           target_comp: 120000,
           open_to_move: true,
-          profile_complete: true,
-        },
-      }),
-    });
-  });
-
-  await p.route('**/api/housing/profile-summary**', async (route) => {
-    if (route.request().method() !== 'GET') return route.fallback();
-    await route.fulfill({
-      status: 200,
-      contentType: 'application/json',
-      body: JSON.stringify({
-        success: true,
-        profile: {
-          housing_type: 'rent',
-          monthly_cost: 1400,
-          zip_or_city: 'Spring, TX',
-          has_buy_goal: true,
-          target_price: 285000,
-          target_timeline_months: 18,
           profile_complete: true,
         },
       }),
@@ -444,6 +447,26 @@ async function addAllMocks(p: Page) {
       status: 200,
       contentType: 'application/json',
       body: JSON.stringify({ ...VEHICLE_DASHBOARD_DATA.maintenance_prediction, tier: 'mid' }),
+    });
+  });
+
+  await p.route('**/api/housing/profile-summary**', async (route) => {
+    if (route.request().method() !== 'GET') return route.fallback();
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        success: true,
+        profile: {
+          housing_type: 'rent',
+          monthly_cost: 1400,
+          zip_or_city: 'Spring, TX',
+          has_buy_goal: true,
+          target_price: 285000,
+          target_timeline_months: 18,
+          profile_complete: true,
+        },
+      }),
     });
   });
 
@@ -648,9 +671,27 @@ async function navigateToTab(p: Page, tabName: string) {
 
 async function navigateToTodayCard(p: Page, cardNumber: number) {
   await navigateToTab(p, 'Today');
+  // Wait for card stack to mount
+  await p.getByRole('tab', { name: 'Card 1 of 7' }).waitFor({ state: 'visible', timeout: 10000 }).catch(() => {});
+  // Click the target card dot
   const cardTab = p.getByRole('tab', { name: `Card ${cardNumber} of 7` });
-  await cardTab.click({ timeout: 8000 }).catch(() => {});
+  await cardTab.click({ timeout: 8000, force: true }).catch(() => {});
   await p.waitForTimeout(800);
+}
+
+async function navigateToHousingCard(p: Page) {
+  await navigateToTab(p, 'Today');
+  await p.getByRole('tab', { name: 'Card 1 of 7' }).waitFor({ state: 'visible', timeout: 10000 }).catch(() => {});
+  // Swipe through cards until housing content appears
+  for (let i = 2; i <= 7; i++) {
+    const cardTab = p.getByRole('tab', { name: `Card ${i} of 7` });
+    await cardTab.click({ timeout: 5000, force: true }).catch(() => {});
+    await p.waitForTimeout(600);
+    const body = (await p.locator('body').innerText()).toLowerCase();
+    if (body.includes('housing check-in') || body.includes('renting') || body.includes('buy goal') || body.includes('1,400')) {
+      return;
+    }
+  }
 }
 
 async function pageContainsAny(p: Page, terms: string[]): Promise<{ found: boolean; matched: string }> {
@@ -718,7 +759,7 @@ test.describe('Mid-tier features', () => {
 
   test('MT-V01: Today tab loads with vehicle content for mid-tier', async () => {
     await ensureOnDashboard(page);
-    await navigateToTodayCard(page, 5);
+    await navigateToTodayCard(page, 4);
 
     await page
       .getByText(/Toyota|Camry|vehicle|mileage|maintenance|oil change|\$550|YOUR VEHICLE/i)
@@ -750,7 +791,7 @@ test.describe('Mid-tier features', () => {
 
   test('MT-V02: Basic cost trends present (inherited from budget)', async () => {
     await ensureOnDashboard(page);
-    await navigateToTodayCard(page, 5);
+    await navigateToTodayCard(page, 4);
 
     const costTerms = ['cost', 'trend', 'monthly', 'total', 'expense', '$', 'fuel', 'chart', '$550', 'budget'];
     const { found, matched } = await pageContainsAny(page, costTerms);
@@ -764,7 +805,7 @@ test.describe('Mid-tier features', () => {
 
   test('MT-V03: Fuel efficiency monitoring present (inherited from budget)', async () => {
     await ensureOnDashboard(page);
-    await navigateToTodayCard(page, 5);
+    await navigateToTodayCard(page, 4);
 
     const fuelTerms = [
       'fuel',
@@ -791,7 +832,7 @@ test.describe('Mid-tier features', () => {
 
   test('MT-V04: Monthly summary cards present (inherited from budget)', async () => {
     await ensureOnDashboard(page);
-    await navigateToTodayCard(page, 5);
+    await navigateToTodayCard(page, 4);
 
     const { found, matched } = await pageContainsAny(page, [
       'monthly',
@@ -816,7 +857,7 @@ test.describe('Mid-tier features', () => {
 
   test('MT-V05: Advanced cost analysis present (mid-tier+)', async () => {
     await ensureOnDashboard(page);
-    await navigateToTodayCard(page, 5);
+    await navigateToTodayCard(page, 4);
 
     const advancedTerms = [
       'advanced',
@@ -844,7 +885,7 @@ test.describe('Mid-tier features', () => {
 
   test('MT-V06: Maintenance prediction accuracy tracking present (mid-tier+)', async () => {
     await ensureOnDashboard(page);
-    await navigateToTodayCard(page, 5);
+    await navigateToTodayCard(page, 4);
 
     const maintTerms = [
       'maintenance',
@@ -871,7 +912,7 @@ test.describe('Mid-tier features', () => {
 
   test('MT-V07: Peer comparison unlocked for mid-tier', async () => {
     await ensureOnDashboard(page);
-    await navigateToTodayCard(page, 5);
+    await navigateToTodayCard(page, 4);
 
     const peerTerms = [
       'peer comparison',
@@ -901,7 +942,7 @@ test.describe('Mid-tier features', () => {
 
   test('MT-V08: ROI analysis features present and unlocked (mid-tier+)', async () => {
     await ensureOnDashboard(page);
-    await navigateToTodayCard(page, 5);
+    await navigateToTodayCard(page, 4);
 
     const roiTerms = [
       'roi',
@@ -934,7 +975,7 @@ test.describe('Mid-tier features', () => {
 
   test('MT-H01: Today tab shows housing content for mid-tier', async () => {
     await ensureOnDashboard(page);
-    await navigateToTodayCard(page, 6);
+    await navigateToHousingCard(page);
 
     const body = await page.locator('body').innerText();
     expect(body.trim().length).toBeGreaterThan(100);
@@ -963,7 +1004,7 @@ test.describe('Mid-tier features', () => {
 
   test('MT-H02: Rent vs buy calculator present (inherited from budget)', async () => {
     await ensureOnDashboard(page);
-    await navigateToTodayCard(page, 6);
+    await navigateToHousingCard(page);
 
     const bodyText = (await page.locator('body').innerText()).toLowerCase();
     const hasRent = bodyText.includes('rent');
@@ -990,7 +1031,7 @@ test.describe('Mid-tier features', () => {
 
   test('MT-H03: Down payment planning tool present (inherited from budget)', async () => {
     await ensureOnDashboard(page);
-    await navigateToTodayCard(page, 6);
+    await navigateToHousingCard(page);
 
     const dpTerms = [
       'down payment',
@@ -1016,7 +1057,9 @@ test.describe('Mid-tier features', () => {
 
   test('MT-H04: Housing profile data without upgrade prompt (mid-tier)', async () => {
     await ensureOnDashboard(page);
-    await navigateToTodayCard(page, 6);
+    await navigateToHousingCard(page);
+    const bodyText2 = await page.locator('body').innerText();
+    console.log('MT-H04 body (first 500):', bodyText2.slice(0, 500));
 
     const { found, matched } = await pageContainsAny(page, [
       'renting',
@@ -1041,7 +1084,7 @@ test.describe('Mid-tier features', () => {
 
   test('MT-H05: Mortgage pre-qualification present (inherited from budget)', async () => {
     await ensureOnDashboard(page);
-    await navigateToTodayCard(page, 6);
+    await navigateToHousingCard(page);
 
     const mortgageTerms = [
       'mortgage',
@@ -1069,7 +1112,7 @@ test.describe('Mid-tier features', () => {
 
   test('MT-H06: Joint financial planning tools present (mid-tier+)', async () => {
     await ensureOnDashboard(page);
-    await navigateToTodayCard(page, 6);
+    await navigateToHousingCard(page);
 
     const jointTerms = [
       'joint',
@@ -1095,7 +1138,7 @@ test.describe('Mid-tier features', () => {
 
   test('MT-H07: Market analysis for Spring TX area present (mid-tier+)', async () => {
     await ensureOnDashboard(page);
-    await navigateToTodayCard(page, 6);
+    await navigateToHousingCard(page);
 
     const marketTerms = [
       'market analysis',
@@ -1125,7 +1168,7 @@ test.describe('Mid-tier features', () => {
 
   test('MT-H08: Mortgage affordability calculator present (mid-tier+)', async () => {
     await ensureOnDashboard(page);
-    await navigateToTodayCard(page, 6);
+    await navigateToHousingCard(page);
 
     const affordTerms = [
       'affordability',

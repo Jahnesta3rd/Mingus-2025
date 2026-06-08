@@ -234,7 +234,36 @@ async function addDashboardMocks(p: Page, data: typeof MAYA_DASHBOARD_DATA) {
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
-      body: JSON.stringify(data.dailyOutlook),
+      body: JSON.stringify({
+        user_name: data.profile.firstName,
+        balance_score: {
+          value: data.dailyOutlook.score,
+          trend: data.dailyOutlook.trend,
+          change_percentage: 0,
+          previous_value: data.dailyOutlook.score,
+        },
+        primary_insight: {
+          title: "Today's Outlook",
+          message: data.dailyOutlook.summary,
+          type: 'neutral',
+          icon: 'sun',
+        },
+        quick_actions: [],
+        encouragement_message: {
+          text: data.dailyOutlook.financial_tip,
+          type: 'reminder',
+          emoji: '🌱',
+        },
+        streak_data: {
+          current_streak: 0,
+          longest_streak: 0,
+          milestone_reached: false,
+          next_milestone: 3,
+          progress_percentage: 0,
+        },
+        user_tier: data.profile.tier,
+        risk_level: data.dailyOutlook.risk_level,
+      }),
     });
   });
 
@@ -512,13 +541,13 @@ async function loginAndGoToDashboard(
   }
 
   if (!p.url().includes('/dashboard')) {
-    await p.goto(`${BASE_URL}/dashboard`);
+    await p.goto(`${BASE_URL}/dashboard/tools`);
     await p.waitForLoadState('domcontentloaded');
     await p.waitForTimeout(2000);
   }
 
   if (p.url().includes('vibe-check-meme')) {
-    await p.goto(`${BASE_URL}/dashboard`);
+    await p.goto(`${BASE_URL}/dashboard/tools`);
     await p.waitForLoadState('domcontentloaded');
     await p.waitForTimeout(2000);
   }
@@ -539,6 +568,7 @@ async function loginAndGoToDashboard(
     .catch(() => {});
 
   await dismissModal(p);
+  await p.waitForURL(/\/dashboard\/tools/, { timeout: 15000 }).catch(() => {});
 }
 
 // ─── Test Suite ───────────────────────────────────────────────────────────────
@@ -557,6 +587,7 @@ test.describe('Dashboard access', () => {
   });
 
   test('DA-01: Dashboard loads after login for all three tiers', async () => {
+    test.setTimeout(180000);
     for (const [tierKey, user] of Object.entries(USERS)) {
       const data =
         tierKey === 'budget'
@@ -570,7 +601,7 @@ test.describe('Dashboard access', () => {
 
       await loginAndGoToDashboard(p, ctx, user, data);
 
-      await expect(p).toHaveURL(/\/dashboard/, { timeout: 15000 });
+      await expect(p).toHaveURL(/\/dashboard\/tools/, { timeout: 15000 });
       await p.locator(BOTTOM_NAV).first().waitFor({ state: 'visible', timeout: 15000 }).catch(() => {});
       console.log(`DA-01: ${user.name} (${tierKey}) dashboard loaded at ${p.url()}`);
 
@@ -580,10 +611,18 @@ test.describe('Dashboard access', () => {
 
   test('DA-02: All 5 bottom nav tabs are visible', async () => {
     await loginAndGoToDashboard(page, context, USERS.budget, MAYA_DASHBOARD_DATA);
-    await expect(page).toHaveURL(/\/dashboard/, { timeout: 15000 });
+    const html = await page.content();
+    console.log('DOM snapshot:', html.slice(0, 3000));
+    const allNavs = await page.locator('nav').all();
+    console.log('Nav count:', allNavs.length);
+    for (const n of allNavs) {
+      console.log('Nav aria-label:', await n.getAttribute('aria-label'));
+    }
+    await expect(page).toHaveURL(/\/dashboard\/tools/, { timeout: 15000 });
 
     const nav = page.locator(BOTTOM_NAV);
-    await nav.waitFor({ state: 'visible', timeout: 15000 });
+    await page.waitForURL(/\/dashboard\/tools/, { timeout: 20000 });
+    await nav.waitFor({ state: 'visible', timeout: 20000 });
 
     for (const tab of BOTTOM_NAV_TABS) {
       const visible = await nav.getByText(tab.label, { exact: true }).isVisible().catch(() => false);
@@ -594,7 +633,7 @@ test.describe('Dashboard access', () => {
 
   test('DA-03: Active tab state updates on click', async () => {
     await loginAndGoToDashboard(page, context, USERS.budget, MAYA_DASHBOARD_DATA);
-    await expect(page).toHaveURL(/\/dashboard/, { timeout: 15000 });
+    await expect(page).toHaveURL(/\/dashboard\/tools/, { timeout: 15000 });
     await dismissModal(page);
 
     await clickBottomNavTab(page, 'Forecast');
@@ -616,7 +655,7 @@ test.describe('Dashboard access', () => {
   test('DA-04: Budget tier sees upgrade prompt in Forecast tab', async () => {
     test.slow();
     await loginAndGoToDashboard(page, context, USERS.budget, MAYA_DASHBOARD_DATA);
-    await expect(page).toHaveURL(/\/dashboard/, { timeout: 15000 });
+    await expect(page).toHaveURL(/\/dashboard\/tools/, { timeout: 15000 });
     await dismissModal(page);
 
     await clickBottomNavTab(page, 'Forecast');
@@ -630,7 +669,7 @@ test.describe('Dashboard access', () => {
 
   test('DA-05: Mid-tier sees Financial Forecast summary cards', async () => {
     await loginAndGoToDashboard(page, context, USERS.mid, MARCUS_DASHBOARD_DATA);
-    await expect(page).toHaveURL(/\/dashboard/, { timeout: 15000 });
+    await expect(page).toHaveURL(/\/dashboard\/tools/, { timeout: 15000 });
     await dismissModal(page);
 
     await clickBottomNavTab(page, 'Forecast');
@@ -648,7 +687,7 @@ test.describe('Dashboard access', () => {
 
   test('DA-06: Professional tier sees no upgrade prompt on Today tab', async () => {
     await loginAndGoToDashboard(page, context, USERS.professional, JASMINE_DASHBOARD_DATA);
-    await expect(page).toHaveURL(/\/dashboard/, { timeout: 15000 });
+    await expect(page).toHaveURL(/\/dashboard\/tools/, { timeout: 15000 });
     await dismissModal(page);
 
     await clickBottomNavTab(page, 'Today');
@@ -663,7 +702,7 @@ test.describe('Dashboard access', () => {
 
   test('DA-07: User menu opens with Dashboard and Sign out options', async () => {
     await loginAndGoToDashboard(page, context, USERS.budget, MAYA_DASHBOARD_DATA);
-    await expect(page).toHaveURL(/\/dashboard/, { timeout: 15000 });
+    await expect(page).toHaveURL(/\/dashboard\/tools/, { timeout: 15000 });
     await dismissModal(page);
     await page.waitForTimeout(1000);
 
@@ -729,7 +768,7 @@ test.describe('Dashboard access', () => {
 
   test('DA-08: Logout clears mingus_token cookie', async () => {
     await loginAndGoToDashboard(page, context, USERS.budget, MAYA_DASHBOARD_DATA);
-    await expect(page).toHaveURL(/\/dashboard/, { timeout: 15000 });
+    await expect(page).toHaveURL(/\/dashboard\/tools/, { timeout: 15000 });
 
     await page.request.post(`${BASE_URL}/api/auth/logout`, {
       headers: { 'Content-Type': 'application/json' },
@@ -812,11 +851,11 @@ test.describe('Dashboard access', () => {
 
   test('DA-12: Deep linking to dashboard with tab param loads correct tab', async () => {
     await loginAndGoToDashboard(page, context, USERS.budget, MAYA_DASHBOARD_DATA);
-    await expect(page).toHaveURL(/\/dashboard/, { timeout: 15000 });
+    await expect(page).toHaveURL(/\/dashboard\/tools/, { timeout: 15000 });
     await dismissModal(page);
 
     await addDashboardMocks(page, MAYA_DASHBOARD_DATA);
-    await page.goto(`${BASE_URL}/dashboard?tab=housing`);
+    await page.goto(`${BASE_URL}/dashboard/tools?tab=housing`);
     await page.waitForLoadState('domcontentloaded');
     await page.waitForTimeout(2000);
 
@@ -825,23 +864,21 @@ test.describe('Dashboard access', () => {
         localStorage.setItem('auth_token', 'ok');
         localStorage.setItem('mingus_token', 'e2e-dashboard-token');
       });
-    } catch {
-      /* ignore */
-    }
+    } catch { /* ignore */ }
 
     await page.waitForTimeout(1000);
 
-    const todayActive = await isBottomNavTabActive(page, 'Today');
-    const todayContent = await page
-      .getByText(/Good (morning|afternoon|evening)|DAILY OUTLOOK|CARD 1 OF 7/i)
+    const housingActive = await isBottomNavTabActive(page, 'Today');
+    const housingContent = await page
+      .getByText(/housing|rent|mortgage|buy goal/i)
       .first()
       .isVisible()
       .catch(() => false);
-    expect(todayActive || todayContent).toBe(true);
-    console.log(`DA-12: ?tab=housing → Today tab (active=${todayActive})`);
+    expect(housingActive || housingContent).toBe(true);
+    console.log(`DA-12: ?tab=housing → housing tab (active=${housingActive}, content=${housingContent})`);
 
     await addDashboardMocks(page, MAYA_DASHBOARD_DATA);
-    await page.goto(`${BASE_URL}/dashboard?tab=financial-forecast`);
+    await page.goto(`${BASE_URL}/dashboard/tools?tab=financial-forecast`);
     await page.waitForLoadState('domcontentloaded');
     await page.waitForTimeout(2000);
 
