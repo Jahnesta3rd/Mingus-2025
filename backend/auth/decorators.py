@@ -194,6 +194,23 @@ def get_current_user_id() -> int:
     """
     return getattr(g, 'current_user_id', None)
 
+
+def get_current_user_db_id() -> int | None:
+    """
+    Return the current user's internal integer primary key (users.id).
+
+    JWT auth stores the external UUID string on g.current_user_id; housing and
+    other ORM models FK to users.id (integer).
+    """
+    ext = getattr(g, 'current_user_id', None)
+    if ext is None:
+        return None
+    if isinstance(ext, int):
+        return ext
+    user = get_current_jwt_user()
+    return user.id if user is not None else None
+
+
 def get_current_user_email() -> str:
     """
     Get the current authenticated user email
@@ -220,10 +237,10 @@ def require_housing_feature(feature_name: str):
             user_id = g.current_user_id
             
             # Import here to avoid circular imports
-            from backend.services.feature_flag_service import feature_flag_service
+            from backend.services.feature_flag_service import feature_flag_service, FeatureFlag
             
             # Check if user has access to optimal location features
-            if not feature_flag_service.has_feature_access(user_id, feature_flag_service.FeatureFlag.OPTIMAL_LOCATION):
+            if not feature_flag_service.has_feature_access(user_id, FeatureFlag.OPTIMAL_LOCATION):
                 return jsonify({
                     'error': 'Feature not available',
                     'message': 'Optimal Location features are available in Mid-tier and Professional tiers.',
@@ -259,15 +276,21 @@ def rate_limit_housing_searches():
                     'message': 'Rate limiting requires authentication'
                 }), 401
             
-            user_id = g.current_user_id
+            ext_user_id = g.current_user_id
+            db_user_id = get_current_user_db_id()
+            if db_user_id is None:
+                return jsonify({
+                    'error': 'Authentication required',
+                    'message': 'User not found'
+                }), 401
             
             # Import here to avoid circular imports
-            from backend.services.feature_flag_service import feature_flag_service
+            from backend.services.feature_flag_service import feature_flag_service, FeatureFlag
             from backend.models.housing_models import HousingSearch
             from datetime import datetime, timedelta
             
             # Check if user has access to optimal location features
-            if not feature_flag_service.has_feature_access(user_id, feature_flag_service.FeatureFlag.OPTIMAL_LOCATION):
+            if not feature_flag_service.has_feature_access(ext_user_id, FeatureFlag.OPTIMAL_LOCATION):
                 return jsonify({
                     'error': 'Feature not available',
                     'message': 'Optimal Location features are available in Mid-tier and Professional tiers.',
@@ -278,13 +301,13 @@ def rate_limit_housing_searches():
             # Count searches this month
             current_month = datetime.now().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
             searches_this_month = HousingSearch.query.filter(
-                HousingSearch.user_id == user_id,
+                HousingSearch.user_id == db_user_id,
                 HousingSearch.created_at >= current_month
             ).count()
             
             # Check search limit
-            if not feature_flag_service.check_housing_search_limit(user_id, searches_this_month):
-                features = feature_flag_service.get_optimal_location_features(user_id)
+            if not feature_flag_service.check_housing_search_limit(ext_user_id, searches_this_month):
+                features = feature_flag_service.get_optimal_location_features(ext_user_id)
                 limit = features.get('housing_searches_per_month', 0)
                 
                 return jsonify({

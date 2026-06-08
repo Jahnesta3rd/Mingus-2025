@@ -207,10 +207,7 @@ const OptimalLocationRouter: React.FC<OptimalLocationRouterProps> = ({ className
 
       // Fetch user tier
       const tierResponse = await fetch('/api/user/tier', {
-        headers: {
-          'Authorization': `Bearer ${user?.token}`,
-          'Content-Type': 'application/json'
-        }
+        credentials: 'include',
       });
 
       if (!tierResponse.ok) {
@@ -224,11 +221,11 @@ const OptimalLocationRouter: React.FC<OptimalLocationRouterProps> = ({ className
       setUserTier({ tier, features });
 
       // Fetch existing scenarios
-      const scenariosResponse = await fetch('/api/optimal-location/scenarios', {
+      const scenariosResponse = await fetch('/api/housing/scenarios', {
+        credentials: 'include',
         headers: {
-          'Authorization': `Bearer ${user?.token}`,
-          'Content-Type': 'application/json'
-        }
+          'X-CSRF-Token': 'test-token',
+        },
       });
 
       if (scenariosResponse.ok) {
@@ -303,13 +300,26 @@ const OptimalLocationRouter: React.FC<OptimalLocationRouterProps> = ({ className
         housingSearch: { ...prev.housingSearch, loading: true, error: null }
       }));
 
-      const response = await fetch('/api/optimal-location/housing-search', {
+      const mappedPayload = {
+        max_rent: searchData.budget?.max ?? 2000,
+        bedrooms: searchData.preferences?.bedrooms ?? 2,
+        zip_code: searchData.location ?? '',
+        commute_time: 30,
+        housing_type: searchData.preferences?.propertyType === 'any'
+          ? 'apartment'
+          : (searchData.preferences?.propertyType ?? 'apartment'),
+        min_bathrooms: searchData.preferences?.bathrooms ?? 1,
+        max_distance_from_work: 15,
+      };
+
+      const response = await fetch('/api/housing/search-locations', {
         method: 'POST',
+        credentials: 'include',
         headers: {
-          'Authorization': `Bearer ${user?.token}`,
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': 'test-token',
         },
-        body: JSON.stringify(searchData)
+        body: JSON.stringify(mappedPayload),
       });
 
       if (!response.ok) {
@@ -323,7 +333,7 @@ const OptimalLocationRouter: React.FC<OptimalLocationRouterProps> = ({ className
         housingSearch: {
           ...prev.housingSearch,
           ...searchData,
-          searchResults: data.results || [],
+          searchResults: data.data?.locations || [],
           loading: false,
           error: null
         }
@@ -332,7 +342,7 @@ const OptimalLocationRouter: React.FC<OptimalLocationRouterProps> = ({ className
       await trackInteraction('housing_search_completed', {
         location: searchData.location,
         budget_range: searchData.budget,
-        results_count: data.results?.length || 0,
+        results_count: data.data?.locations?.length || 0,
         user_tier: userTier?.tier
       });
 
@@ -352,7 +362,7 @@ const OptimalLocationRouter: React.FC<OptimalLocationRouterProps> = ({ className
         action: 'housing_search'
       });
     }
-  }, [userTier, user?.token, trackInteraction, trackError]);
+  }, [userTier, trackInteraction, trackError]);
 
   // ========================================
   // SCENARIO MANAGEMENT
@@ -369,13 +379,14 @@ const OptimalLocationRouter: React.FC<OptimalLocationRouterProps> = ({ className
     }
 
     try {
-      const response = await fetch('/api/optimal-location/scenarios', {
+      const response = await fetch('/api/housing/scenario', {
         method: 'POST',
+        credentials: 'include',
         headers: {
-          'Authorization': `Bearer ${user?.token}`,
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': 'test-token',
         },
-        body: JSON.stringify(scenarioData)
+        body: JSON.stringify(scenarioData),
       });
 
       if (!response.ok) {
@@ -406,7 +417,7 @@ const OptimalLocationRouter: React.FC<OptimalLocationRouterProps> = ({ className
         action: 'create_scenario'
       });
     }
-  }, [userTier, user?.token, trackInteraction, trackError]);
+  }, [userTier, trackInteraction, trackError]);
 
   // ========================================
   // LOADING & ERROR STATES

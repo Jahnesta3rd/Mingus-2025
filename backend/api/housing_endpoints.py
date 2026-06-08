@@ -11,6 +11,7 @@ tier restrictions and rate limiting following MINGUS security patterns.
 """
 
 import logging
+import random
 from flask import Blueprint, request, jsonify
 from flask_cors import cross_origin
 from backend.auth.decorators import (
@@ -146,13 +147,16 @@ def analyze_career_scenarios():
         time_horizon = data.get('time_horizon', 12)
         
         # Get current user
-        from backend.auth.decorators import get_current_user_id
+        from backend.auth.decorators import get_current_user_id, get_current_user_db_id
         user_id = get_current_user_id()
+        db_user_id = get_current_user_db_id()
+        if db_user_id is None:
+            return jsonify({'error': 'User not found'}), 404
         
         # Get scenario
         scenario = HousingScenario.query.filter_by(
             id=scenario_id, 
-            user_id=user_id
+            user_id=db_user_id
         ).first()
         
         if not scenario:
@@ -229,8 +233,11 @@ def search_locations():
                 return jsonify({'error': f'Missing required field: {field}'}), 400
         
         # Get current user
-        from backend.auth.decorators import get_current_user_id
+        from backend.auth.decorators import get_current_user_id, get_current_user_db_id
         user_id = get_current_user_id()
+        db_user_id = get_current_user_db_id()
+        if db_user_id is None:
+            return jsonify({'error': 'User not found'}), 404
         
         # Create search record
         search_criteria = {
@@ -245,7 +252,7 @@ def search_locations():
         
         # Create housing search record
         housing_search = HousingSearch(
-            user_id=user_id,
+            user_id=db_user_id,
             search_criteria=search_criteria,
             msa_area=data.get('zip_code', '')[:5],  # Use first 5 digits as MSA
             lease_end_date=data.get('lease_end_date'),
@@ -256,41 +263,56 @@ def search_locations():
         db.session.commit()
         
         # Simulate location search
+        zip_code = search_criteria.get('zip_code', '00000')
+        max_rent = search_criteria.get('max_rent', 2000)
+        bedrooms = search_criteria.get('bedrooms', 2)
+        bathrooms = search_criteria.get('min_bathrooms', 1)
+        housing_type = search_criteria.get('housing_type', 'apartment')
+
+        STREET_NAMES = [
+            'Main St', 'Oak Ave', 'Maple Dr', 'Park Blvd', 'Cedar Ln',
+            'Elm St', 'Willow Way', 'Highland Ave', 'Riverside Dr', 'Sunset Blvd'
+        ]
+        PROPERTY_NAMES = [
+            'The {street} Residences', '{street} Commons', 'Park at {street}',
+            '{street} Place', 'The {street} Apartments'
+        ]
+
+        def make_mock_location(i):
+            street_num = random.randint(100, 999)
+            street = random.choice(STREET_NAMES)
+            base_rent = int(max_rent * random.uniform(0.75, 0.98))
+            name_template = random.choice(PROPERTY_NAMES)
+            property_name = name_template.format(street=street.split()[0])
+            return {
+                'id': f'mock-{i+1}',
+                'title': property_name,
+                'location': f'{street_num} {street}, {zip_code}',
+                'price': base_rent,
+                'bedrooms': bedrooms,
+                'bathrooms': bathrooms,
+                'housing_type': housing_type,
+                'score': round(random.uniform(72, 96), 1),
+                'commute_time_minutes': random.randint(15, 45),
+                'distance_miles': round(random.uniform(1.2, 12.5), 1),
+                'amenities': random.sample(
+                    ['Parking', 'Gym', 'Pool', 'Pet Friendly', 'In-Unit Laundry',
+                     'Rooftop', 'Concierge', 'Storage'],
+                    k=random.randint(2, 4)
+                ),
+                'available': True,
+                'source': 'Mingus Housing Search (beta)',
+            }
+
+        mock_count = random.randint(3, 6)
+        locations = [make_mock_location(i) for i in range(mock_count)]
+
         search_results = {
             'search_id': housing_search.id,
-            'criteria': search_criteria,
-            'locations': [
-                {
-                    'id': 1,
-                    'address': '123 Main St, Atlanta, GA 30309',
-                    'rent': 1850,
-                    'bedrooms': 2,
-                    'bathrooms': 2,
-                    'commute_time': 25,
-                    'walk_score': 78,
-                    'transit_score': 65,
-                    'bike_score': 72,
-                    'affordability_score': 0.85
-                },
-                {
-                    'id': 2,
-                    'address': '456 Oak Ave, Atlanta, GA 30309',
-                    'rent': 1950,
-                    'bedrooms': 2,
-                    'bathrooms': 2,
-                    'commute_time': 20,
-                    'walk_score': 82,
-                    'transit_score': 71,
-                    'bike_score': 68,
-                    'affordability_score': 0.78
-                }
-            ],
-            'total_results': 2,
-            'search_metadata': {
-                'search_time_ms': 1250,
-                'api_calls_made': 3,
-                'cache_hits': 1
-            }
+            'locations': locations,
+            'total_results': len(locations),
+            'search_criteria': search_criteria,
+            'note': 'Beta: results are illustrative. Live listings coming soon.'
         }
         
         # Update search record with results count
@@ -300,7 +322,7 @@ def search_locations():
         # Get user's remaining searches for the month
         current_month = datetime.now().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
         searches_this_month = HousingSearch.query.filter(
-            HousingSearch.user_id == user_id,
+            HousingSearch.user_id == db_user_id,
             HousingSearch.created_at >= current_month
         ).count()
         
@@ -350,11 +372,14 @@ def get_housing_scenarios():
         return jsonify({}), 200
     
     try:
-        from backend.auth.decorators import get_current_user_id
+        from backend.auth.decorators import get_current_user_id, get_current_user_db_id
         user_id = get_current_user_id()
+        db_user_id = get_current_user_db_id()
+        if db_user_id is None:
+            return jsonify({'error': 'User not found'}), 404
         
         # Get user's scenarios
-        scenarios = HousingScenario.query.filter_by(user_id=user_id).order_by(
+        scenarios = HousingScenario.query.filter_by(user_id=db_user_id).order_by(
             HousingScenario.created_at.desc()
         ).all()
         
@@ -472,11 +497,14 @@ def get_recent_searches():
         return jsonify({}), 200
     
     try:
-        from backend.auth.decorators import get_current_user_id
+        from backend.auth.decorators import get_current_user_id, get_current_user_db_id
         user_id = get_current_user_id()
+        db_user_id = get_current_user_db_id()
+        if db_user_id is None:
+            return jsonify({'error': 'User not found'}), 404
         
         # Get recent searches (last 10)
-        recent_searches = HousingSearch.query.filter_by(user_id=user_id).order_by(
+        recent_searches = HousingSearch.query.filter_by(user_id=db_user_id).order_by(
             HousingSearch.created_at.desc()
         ).limit(10).all()
         

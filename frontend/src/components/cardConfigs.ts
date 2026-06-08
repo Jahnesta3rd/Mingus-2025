@@ -20,7 +20,7 @@ export const CARD_CONFIGS: CardConfig[] = [
     accentColor: '#c4b5fd',
     iconPath:
       'M12 2v2 M12 20v2 M4.22 4.22l1.42 1.42 M18.36 18.36l1.42 1.42 M2 12h2 M20 12h2 M4.22 19.78l1.42-1.42 M18.36 5.64l1.42-1.42 M12 6a6 6 0 1 0 0 12 6 6 0 0 0 0-12z',
-    drillRoute: '/dashboard/tools?tab=daily-outlook',
+    drillRoute: '/dashboard/tools?openOverlay=daily-outlook',
     placeholder: '',
     originalOrder: 0,
   },

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   HomeIcon, 
   MapPinIcon, 
@@ -60,6 +61,7 @@ interface HousingLocationTileProps {
 
 const HousingLocationTile: React.FC<HousingLocationTileProps> = ({ className = '' }) => {
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const navigate = useNavigate();
   
   // Use dashboard store
   const { 
@@ -83,12 +85,27 @@ const HousingLocationTile: React.FC<HousingLocationTileProps> = ({ className = '
     canUseCareerIntegration,
     getSearchQuotaInfo,
     getScenarioQuotaInfo,
-    hasOptimalLocation
+    hasOptimalLocation,
+    refreshTierInfo
   } = useHousingRestrictions();
+
+  const handleStartSearch = () => {
+    navigate('/dashboard/tools?tab=housing-search');
+  };
 
   useEffect(() => {
     fetchHousingData();
   }, [fetchHousingData]);
+
+  useEffect(() => {
+    const handleFocus = () => {
+      if (typeof refreshTierInfo === 'function') {
+        refreshTierInfo();
+      }
+    };
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
+  }, [refreshTierInfo]);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -191,13 +208,15 @@ const HousingLocationTile: React.FC<HousingLocationTileProps> = ({ className = '
               )}
             </div>
           </div>
-          <button
-            onClick={() => setShowUpgradeModal(true)}
-            className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center space-x-1"
-          >
-            <span>Upgrade</span>
-            <ArrowUpRightIcon className="h-4 w-4" />
-          </button>
+          {tierInfo && tierInfo.upgrade_options && tierInfo.upgrade_options.length > 0 && (
+            <button
+              onClick={() => setShowUpgradeModal(true)}
+              className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center space-x-1"
+            >
+              <span>Upgrade</span>
+              <ArrowUpRightIcon className="h-4 w-4" />
+            </button>
+          )}
         </div>
       </div>
 
@@ -249,7 +268,10 @@ const HousingLocationTile: React.FC<HousingLocationTileProps> = ({ className = '
         <div>
           <div className="flex items-center justify-between mb-3">
             <h4 className="text-sm font-medium text-gray-900">Recent Searches</h4>
-            <button className="text-xs text-blue-600 hover:text-blue-700 font-medium">
+            <button
+              onClick={handleStartSearch}
+              className="text-xs text-blue-600 hover:text-blue-700 font-medium"
+            >
               View all
             </button>
           </div>
@@ -278,7 +300,10 @@ const HousingLocationTile: React.FC<HousingLocationTileProps> = ({ className = '
             <div className="text-center py-4">
               <MapPinIcon className="h-8 w-8 text-gray-300 mx-auto mb-2" />
               <p className="text-sm text-gray-500">No recent searches</p>
-              <button className="mt-2 text-xs text-blue-600 hover:text-blue-700 font-medium">
+              <button
+                onClick={handleStartSearch}
+                className="mt-2 text-xs text-blue-600 hover:text-blue-700 font-medium"
+              >
                 Start searching
               </button>
             </div>
@@ -320,7 +345,10 @@ const HousingLocationTile: React.FC<HousingLocationTileProps> = ({ className = '
             <div className="text-center py-4">
               <HomeIcon className="h-8 w-8 text-gray-300 mx-auto mb-2" />
               <p className="text-sm text-gray-500">No saved scenarios</p>
-              <button className="mt-2 text-xs text-blue-600 hover:text-blue-700 font-medium">
+              <button
+                onClick={handleStartSearch}
+                className="mt-2 text-xs text-blue-600 hover:text-blue-700 font-medium"
+              >
                 Create scenario
               </button>
             </div>
@@ -342,7 +370,12 @@ const HousingLocationTile: React.FC<HousingLocationTileProps> = ({ className = '
                 </button>
               }
             >
-              <button 
+              <button
+                onClick={
+                  !canSearchHousing(housingSearches.length)
+                    ? undefined
+                    : handleStartSearch
+                }
                 disabled={!canSearchHousing(housingSearches.length)}
                 className={`flex items-center justify-center space-x-2 p-3 rounded-lg transition-colors ${
                   canSearchHousing(housingSearches.length)
@@ -361,7 +394,10 @@ const HousingLocationTile: React.FC<HousingLocationTileProps> = ({ className = '
               </button>
             </TierGate>
             
-            <button className="flex items-center justify-center space-x-2 p-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors">
+            <button
+              onClick={() => navigate('/dashboard/tools?tab=housing-history')}
+              className="flex items-center justify-center space-x-2 p-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors"
+            >
               <ClockIcon className="h-4 w-4 text-gray-600" />
               <span className="text-sm font-medium text-gray-600">View History</span>
             </button>

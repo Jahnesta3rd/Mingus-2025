@@ -17,6 +17,7 @@ import { useAnalytics } from '../hooks/useAnalytics';
 import { useDashboardStore } from '../stores/dashboardStore';
 import VehicleDashboard from '../components/VehicleDashboard';
 import HousingLocationTile from '../components/HousingLocationTile';
+import OptimalLocationRouter from '../components/OptimalLocation/OptimalLocationRouter';
 import DashboardWellnessSection from '../components/DashboardWellnessSection';
 import YouTab from '../components/YouTab';
 
@@ -32,6 +33,8 @@ type MainTabId =
   | 'you'
   | 'vehicle'
   | 'housing'
+  | 'housing-search'
+  | 'housing-history'
   | 'wellness';
 
 interface DashboardState {
@@ -53,6 +56,8 @@ type LegacyStoreTab =
   | 'location'
   | 'analytics'
   | 'housing'
+  | 'housing-search'
+  | 'housing-history'
   | 'life-ledger';
 
 function storeTabToMainTab(storeTab: string): MainTabId {
@@ -101,6 +106,10 @@ function legacyQueryTabToMainTab(tab: string): MainTabId | null {
       return 'vehicle';
     case 'housing':
       return 'housing';
+    case 'housing-search':
+      return 'housing-search';
+    case 'housing-history':
+      return 'housing-search';
     case 'wellness':
       return 'wellness';
     case 'financial-forecast':
@@ -276,6 +285,14 @@ const CareerProtectionDashboard: React.FC = () => {
     return () => clearInterval(interval);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authLoading, isAuthenticated]); // Run when auth is ready, then once (ref guards re-run)
+
+  const handleViewFullDailyOutlook = () => {
+    setDashboardState(prev => ({ ...prev, showFullDailyOutlook: true }));
+    trackInteraction('daily_outlook_view_full', {
+      user_tier: (user as { tier?: string })?.tier,
+      is_mobile: dashboardState.isMobile
+    });
+  };
   
   useEffect(() => {
     const tab = searchParams.get('tab');
@@ -283,6 +300,7 @@ const CareerProtectionDashboard: React.FC = () => {
     const editProfile = searchParams.get('editProfile') === '1';
     const fromToday = searchParams.get('from') === 'today';
     const cardParam = searchParams.get('card');
+    const openOverlay = searchParams.get('openOverlay');
 
     if (cardParam !== null) {
       const idx = parseInt(cardParam, 10);
@@ -291,7 +309,7 @@ const CareerProtectionDashboard: React.FC = () => {
       }
     }
 
-    if (!tab && !focus && !editProfile && !fromToday && cardParam === null) return;
+    if (!tab && !focus && !editProfile && !fromToday && cardParam === null && !openOverlay) return;
 
     if (focus === 'zip') {
       setYouTabFocusField('zip_code');
@@ -317,12 +335,17 @@ const CareerProtectionDashboard: React.FC = () => {
       setActiveTab(mainTabToStoreTab('today'));
     }
 
+    if (openOverlay === 'daily-outlook') {
+      handleViewFullDailyOutlook();
+    }
+
     const next = new URLSearchParams(searchParams);
     if (tab) next.delete('tab');
     if (focus) next.delete('focus');
     if (editProfile) next.delete('editProfile');
     if (fromToday) next.delete('from');
     if (cardParam !== null) next.delete('card');
+    if (openOverlay) next.delete('openOverlay');
     setSearchParams(next, { replace: true });
   }, [searchParams, setActiveTab, setSearchParams]);
 
@@ -341,14 +364,6 @@ const CareerProtectionDashboard: React.FC = () => {
       new_tab: tab,
       risk_level: dashboardState.riskLevel
     }).catch(err => console.error('Failed to track tab change:', err));
-  };
-
-  const handleViewFullDailyOutlook = () => {
-    setDashboardState(prev => ({ ...prev, showFullDailyOutlook: true }));
-    trackInteraction('daily_outlook_view_full', {
-      user_tier: (user as { tier?: string })?.tier,
-      is_mobile: dashboardState.isMobile
-    });
   };
 
   const handleCloseFullDailyOutlook = () => {
@@ -474,6 +489,12 @@ const CareerProtectionDashboard: React.FC = () => {
               <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
                 <HousingLocationTile />
               </div>
+            </CardJobHome>
+          )}
+
+          {dashboardState.activeTab === 'housing-search' && (
+            <CardJobHome cardId="housing" onBack={handleDrillBack}>
+              <OptimalLocationRouter />
             </CardJobHome>
           )}
 

@@ -40,8 +40,8 @@ export const useTierRestrictions = (): TierRestrictions => {
       setError(null);
       
       const response = await fetch('/api/housing/tier-info', {
+        credentials: 'include',
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
           'X-CSRF-Token': 'test-token'
         }
       });
@@ -132,7 +132,7 @@ export const useTierRestrictions = (): TierRestrictions => {
 
 // Hook for specific housing feature restrictions
 export const useHousingRestrictions = () => {
-  const { tierInfo, hasFeatureAccess, canPerformAction, getRemainingQuota } = useTierRestrictions();
+  const { tierInfo, hasFeatureAccess, canPerformAction, getRemainingQuota, refreshTierInfo } = useTierRestrictions();
   
   const canSearchHousing = useCallback((currentSearches: number) => {
     return canPerformAction('housing_search', currentSearches);
@@ -186,7 +186,8 @@ export const useHousingRestrictions = () => {
     canExportData,
     getSearchQuotaInfo,
     getScenarioQuotaInfo,
-    hasOptimalLocation: hasFeatureAccess('optimal_location')
+    hasOptimalLocation: hasFeatureAccess('optimal_location'),
+    refreshTierInfo
   };
 };
 

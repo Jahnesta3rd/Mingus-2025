@@ -565,13 +565,16 @@ function MingusSnapshot({
             aria-label={`Go to card ${i + 1}`}
             aria-current={i === index ? 'true' : undefined}
             onClick={() => setIndex(i)}
-            className="block h-2 w-2 rounded-full cursor-pointer"
-            style={{
-              backgroundColor: i === index ? '#5B2D8E' : '#CBD5E1',
-              border: 'none',
-              padding: 0,
-            }}
-          />
+            className="flex h-11 w-11 cursor-pointer items-center justify-center border-none bg-transparent p-0"
+          >
+            <div
+              className="h-2 w-2 rounded-full"
+              style={{
+                backgroundColor: i === index ? '#5B2D8E' : '#CBD5E1',
+              }}
+              aria-hidden
+            />
+          </button>
         ))}
       </div>
     </>
