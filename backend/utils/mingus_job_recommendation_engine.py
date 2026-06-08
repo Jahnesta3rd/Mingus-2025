@@ -38,7 +38,15 @@ from functools import lru_cache
 # Import existing components
 from .advanced_resume_parser import AdvancedResumeParser, IncomePotential, LeadershipIndicator
 from .resume_format_handler import AdvancedResumeParserWithFormats
-from .income_boost_job_matcher import IncomeBoostJobMatcher, SearchCriteria, CareerField, ExperienceLevel, JobOpportunity, JobBoard
+from .income_boost_job_matcher import (
+    BLS_CAREER_FIELD_BY_ENUM,
+    IncomeBoostJobMatcher,
+    SearchCriteria,
+    CareerField,
+    ExperienceLevel,
+    JobOpportunity,
+    JobBoard,
+)
 from .three_tier_job_selector import ThreeTierJobSelector, JobTier, TieredJobRecommendation
 from backend.services.career_title_classifier import classify_by_rules
 
@@ -109,11 +117,22 @@ def _salary_in_range(job: Dict[str, Any], salary_target: Optional[int]) -> bool:
     return salary_min <= salary_target <= salary_max
 
 
+def _bls_career_field_to_enum(bls_field: str) -> CareerField:
+    """Map BLS career_field string to CareerField enum.
+    Falls back to TECHNOLOGY if no match found."""
+    normalized = (bls_field or '').strip()
+    for enum_val, bls_name in BLS_CAREER_FIELD_BY_ENUM.items():
+        if bls_name == normalized:
+            return enum_val
+    return CareerField.TECHNOLOGY
+
+
 def _tier_for_job(
     job: Dict[str, Any],
     user_field: str,
     user_seniority: str,
     salary_target: Optional[int],
+    open_to_move: bool = False,
 ) -> Optional[str]:
     """Assign a single tier to a job, or None if it does not qualify."""
     job_field = job.get('career_field')
@@ -134,7 +153,7 @@ def _tier_for_job(
         return None
 
     affinity_fields = TRANSITION_AFFINITY.get(user_field, [])
-    if job_field in affinity_fields and job_seniority == user_seniority:
+    if open_to_move and job_field in affinity_fields and job_seniority == user_seniority:
         return 'conservative'
     return None
 
@@ -179,6 +198,7 @@ def _build_search_criteria(
     career_profile: Dict[str, Any],
     user_seniority: str,
 ) -> SearchCriteria:
+    user_field = _resolve_user_career_field(career_profile)
     salary_target = career_profile.get('salary_target') or career_profile.get('target_comp')
     current_salary = int(salary_target) if salary_target is not None else 75000
     experience_level = _SENIORITY_TO_EXPERIENCE.get(user_seniority, ExperienceLevel.MID)
@@ -186,7 +206,7 @@ def _build_search_criteria(
     return SearchCriteria(
         current_salary=current_salary,
         target_salary_increase=0.25,
-        career_field=CareerField.TECHNOLOGY,
+        career_field=_bls_career_field_to_enum(user_field),
         experience_level=experience_level,
         preferred_msas=[str(msa)] if msa else [],
         remote_ok=True,
@@ -217,6 +237,8 @@ def _curated_row_to_job_opportunity(row: Dict[str, Any]) -> JobOpportunity:
     if salary_median is None and row.get('salary_min') and row.get('salary_max'):
         salary_median = (row['salary_min'] + row['salary_max']) // 2
 
+    row_field = row.get('career_field') or ''
+
     return JobOpportunity(
         job_id=str(row.get('job_id') or row.get('id') or ''),
         title=row.get('title') or '',
@@ -237,7 +259,7 @@ def _curated_row_to_job_opportunity(row: Dict[str, Any]) -> JobOpportunity:
         growth_score=0.0,
         culture_score=0.0,
         overall_score=0.0,
-        field=CareerField.TECHNOLOGY,
+        field=_bls_career_field_to_enum(row_field),
         experience_level=_SENIORITY_TO_EXPERIENCE.get(
             row.get('seniority_level') or 'mid',
             ExperienceLevel.MID,
@@ -253,7 +275,18 @@ def _curated_row_to_job_opportunity(row: Dict[str, Any]) -> JobOpportunity:
     )
 
 
+def _tier_success_probability(tier: Optional[str]) -> float:
+    """Fallback success probability by tier when overall_score is 0."""
+    return {
+        'conservative': 72.0,
+        'same_level': 58.0,
+        'reach': 43.0,
+    }.get(tier or '', 55.0)
+
+
 def _serialize_recommendation(job: Dict[str, Any]) -> Dict[str, Any]:
+    tier = job.get('tier')
+    overall_score = job.get('overall_score')
     return {
         'job_id': job.get('job_id') or job.get('id'),
         'title': job.get('title'),
@@ -266,7 +299,16 @@ def _serialize_recommendation(job: Dict[str, Any]) -> Dict[str, Any]:
         'salary_max': job.get('salary_max'),
         'salary_median': job.get('salary_median'),
         'advancement_trajectory': job.get('advancement_trajectory'),
-        'overall_score': job.get('overall_score'),
+        'overall_score': overall_score,
+        'salary_increase_potential': round(
+            (job.get('salary_increase_potential') or 0.0) * 100, 1
+        ),
+        'success_probability': round(
+            min((overall_score or 0.0) * 0.85, 100)
+            if overall_score
+            else _tier_success_probability(tier),
+            1
+        ),
         'url': job.get('url'),
         'remote_friendly': job.get('remote_friendly'),
     }
@@ -384,6 +426,7 @@ class MingusJobRecommendationEngine:
         user_field = _resolve_user_career_field(career_profile)
         user_seniority = career_profile.get('seniority_level') or 'mid'
         msa = career_profile.get('msa')
+        open_to_move = bool(career_profile.get('open_to_move'))
         salary_target = career_profile.get('salary_target') or career_profile.get('target_comp')
         if salary_target is not None:
             salary_target = int(salary_target)
@@ -403,7 +446,9 @@ class MingusJobRecommendationEngine:
         }
 
         for row in raw_jobs:
-            tier = _tier_for_job(row, user_field, user_seniority, salary_target)
+            tier = _tier_for_job(
+                row, user_field, user_seniority, salary_target, open_to_move
+            )
             if tier is None:
                 continue
             scored = self.job_matcher.multi_dimensional_scoring(
@@ -412,11 +457,18 @@ class MingusJobRecommendationEngine:
             )
             enriched = dict(row)
             enriched['overall_score'] = scored.overall_score
+            enriched['salary_increase_potential'] = scored.salary_increase_potential
+            enriched['tier'] = tier
             tier_buckets[tier].append(enriched)
 
         result: Dict[str, List[Dict[str, Any]]] = {}
         for tier_name, jobs in tier_buckets.items():
             jobs.sort(key=lambda j: j.get('overall_score') or 0, reverse=True)
+            if tier_name == 'reach':
+                jobs = [
+                    j for j in jobs
+                    if j.get('career_field') == user_field
+                ]
             result[tier_name] = [_serialize_recommendation(j) for j in jobs[:5]]
 
         return result

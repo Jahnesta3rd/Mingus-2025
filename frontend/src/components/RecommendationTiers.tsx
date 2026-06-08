@@ -103,6 +103,8 @@ interface ApiJobItem {
   advancement_trajectory?: string;
   url?: string;
   overall_score?: number;
+  salary_increase_potential?: number;
+  success_probability?: number;
 }
 
 interface ProcessResumeApiResponse {
@@ -274,8 +276,8 @@ function mapApiJobToRecommendation(
       work_life_balance_score: 0,
     },
     tier,
-    success_probability: 0,
-    salary_increase_potential: 0,
+    success_probability: raw.success_probability ?? 0,
+    salary_increase_potential: raw.salary_increase_potential ?? 0,
     skills_gap_analysis: [],
     application_strategy: {
       approach: '',

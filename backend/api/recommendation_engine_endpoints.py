@@ -217,6 +217,7 @@ def _build_career_profile_dict(cp: CareerProfile | None, msa: str) -> dict:
         'salary_target': salary_target,
         'current_role': cp.current_role if cp else None,
         'msa': msa,
+        'open_to_move': bool(cp.open_to_move) if cp else False,
     }
 
 
@@ -252,6 +253,7 @@ def process_resume_complete():
                 'seniority_level': career_profile.get('seniority_level'),
                 'target_comp': career_profile.get('target_comp'),
                 'msa': career_profile.get('msa'),
+                'open_to_move': bool(cp.open_to_move) if cp else False,
             },
         }), 200
 
