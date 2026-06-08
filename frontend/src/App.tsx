@@ -25,6 +25,13 @@ import AdminRoute from './components/AdminRoute';
 import BetaAdminDashboard from './pages/BetaAdminDashboard';
 import VibeCheckupsPage from './pages/VibeCheckupsPage';
 import CheckupsHub from './components/CheckupsHub';
+import {
+  DashBodyWellnessCheckup,
+  DashHousingRoofCheckup,
+  DashMindMoodCheckup,
+  DashRelationshipsCheckup,
+  DashSpiritCalmCheckup,
+} from './components/checkups';
 import BodyCheckPage from './pages/BodyCheckPage';
 import RoofCheckPage from './pages/RoofCheckPage';
 import VehicleCheckPage from './pages/VehicleCheckPage';
@@ -188,7 +195,11 @@ const router = createBrowserRouter([
       { path: 'tools', element: <CareerProtectionDashboard /> },
       { path: 'profile', element: <DashboardProfilePage /> },
       { path: 'vibe-checkups', element: <CheckupsHub /> },
-      { path: 'checkups/relationships', element: <VibeCheckupsPage /> },
+      { path: 'checkups/body', element: <DashBodyWellnessCheckup /> },
+      { path: 'checkups/mind-mood', element: <DashMindMoodCheckup /> },
+      { path: 'checkups/spirit-calm', element: <DashSpiritCalmCheckup /> },
+      { path: 'checkups/housing-roof', element: <DashHousingRoofCheckup /> },
+      { path: 'checkups/relationships', element: <DashRelationshipsCheckup /> },
       { path: 'spirit', element: <SpiritFinance /> },
       { path: 'vibe-tracker', element: <Navigate to="/dashboard/roster" replace /> },
     ],

@@ -124,15 +124,16 @@ const LifeLedgerWidget: React.FC<LifeLedgerWidgetProps> = ({
               label="Body"
               icon="💪"
               score={profile.body_score}
-              actionUrl="/body-check"
+              actionUrl="/dashboard/checkups/body"
             />
             <ModuleScoreCard
               module="roof"
               label="Roof"
               icon="🏠"
               score={profile.roof_score}
-              actionUrl="/roof-check"
+              actionUrl="/dashboard/checkups/housing-roof"
             />
+            {/* TODO #170-vehicle: rewire to /dashboard/checkups/vehicle when DashVehicleHealthCheckup is built */}
             <ModuleScoreCard
               module="vehicle"
               label="Vehicle"

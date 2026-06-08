@@ -1,0 +1,147 @@
+/* Dashboard checkup hub design tokens (#170) */
+.dash-checkup-root {
+  --mingus-purple: #5b2d8e;
+  --mingus-purple-deep: #3b1f6e;
+  --whisper-purple: #faf5ff;
+  --soft-purple: #ede9fe;
+  --lavender-300: #c4b5fd;
+  --ink: #1a1815;
+  --ink-mid: #5c5751;
+  --line: #e8e1f0;
+  min-height: 100%;
+  background: var(--whisper-purple);
+  color: var(--ink);
+  font-family: Manrope, system-ui, sans-serif;
+}
+
+.dash-checkup-root .font-display,
+.dash-checkup-root h1,
+.dash-checkup-root h2,
+.dash-checkup-root h3 {
+  font-family: Fraunces, Georgia, serif;
+}
+
+/* #170 — Override dark skin tokens from delegated components.
+   These selectors neutralize dark values imported from quiz panels
+   and VibeTrackerPage. They are intentional, not leakage.
+   DO NOT remove without verifying delegated component reskin. */
+.dash-checkup-theme {
+  color: var(--ink);
+}
+
+.dash-checkup-theme p,
+.dash-checkup-theme span,
+.dash-checkup-theme h3,
+.dash-checkup-theme label {
+  color: var(--ink) !important;
+}
+
+.dash-checkup-theme .text-xs.uppercase {
+  color: var(--ink-mid) !important;
+}
+
+.dash-checkup-theme button[type='button'] {
+  background: #fff !important;
+  border-color: var(--line) !important;
+  color: var(--ink) !important;
+}
+
+.dash-checkup-theme button[type='button']:hover:not(:disabled) {
+  border-color: var(--lavender-300) !important;
+  background: var(--soft-purple) !important;
+}
+
+.dash-checkup-theme button[type='button'].dash-checkup-primary,
+.dash-checkup-theme .dash-checkup-primary {
+  background: var(--mingus-purple) !important;
+  border-color: var(--mingus-purple) !important;
+  color: #fff !important;
+}
+
+.dash-checkup-theme button[type='button'].dash-checkup-primary:hover:not(:disabled) {
+  background: var(--mingus-purple-deep) !important;
+  border-color: var(--mingus-purple-deep) !important;
+}
+
+.dash-checkup-theme .h-1\\.5.overflow-hidden.rounded-full,
+.dash-checkup-theme div[class*='bg-[#2a2030]'] {
+  background: var(--line) !important;
+}
+
+.dash-checkup-theme div[class*='bg-[#C4A064]'] {
+  background: var(--mingus-purple) !important;
+}
+
+.dash-checkup-theme span[class*='text-[#C4A064]'] {
+  color: var(--mingus-purple) !important;
+}
+
+/* VibeTrackerPage dark-skin overrides inside relationships wrapper */
+.dash-roster-skin {
+  --roster-bg: var(--whisper-purple);
+  --roster-surface: #fff;
+  --roster-ink: var(--ink);
+  --roster-ink-muted: var(--ink-mid);
+  --roster-border: var(--line);
+  --roster-accent: var(--mingus-purple);
+}
+
+.dash-roster-skin > div {
+  background: var(--roster-bg) !important;
+  color: var(--roster-ink) !important;
+}
+
+.dash-roster-skin h1,
+.dash-roster-skin h2,
+.dash-roster-skin h3,
+.dash-roster-skin p,
+.dash-roster-skin span,
+.dash-roster-skin label {
+  color: var(--roster-ink) !important;
+}
+
+.dash-roster-skin p.text-sm {
+  color: var(--roster-ink-muted) !important;
+}
+
+.dash-roster-skin [class*='border-[#2a2030]'],
+.dash-roster-skin [class*='bg-[#1a1520]'],
+.dash-roster-skin [class*='bg-[#0d0a08]'] {
+  background: var(--roster-surface) !important;
+  border-color: var(--roster-border) !important;
+}
+
+.dash-roster-skin [class*='text-[#9a8f7e]'],
+.dash-roster-skin [class*='text-[#F0E8D8]'] {
+  color: var(--roster-ink-muted) !important;
+}
+
+.dash-roster-skin [class*='text-[#A78BFA]'],
+.dash-roster-skin [class*='border-[#A78BFA]'],
+.dash-roster-skin [class*='bg-[#A78BFA]'],
+.dash-roster-skin [class*='bg-[#5B2D8E]'] {
+  color: var(--roster-accent) !important;
+  border-color: var(--roster-accent) !important;
+}
+
+.dash-roster-skin button[class*='bg-[#5B2D8E]'] {
+  background: var(--mingus-purple) !important;
+  color: #fff !important;
+}
+
+/* SpiritFinance cream background override */
+.dash-spirit-wrap a[href='/dashboard'] {
+  display: none !important;
+}
+
+.dash-spirit-wrap [class*='bg-[#FFF8EC]'] {
+  background: transparent !important;
+}
+
+.dash-spirit-wrap [class*='text-[#C4A064]'] {
+  color: var(--mingus-purple) !important;
+}
+
+.dash-spirit-wrap [class*='border-[#C4A064]'] {
+  border-color: var(--lavender-300) !important;
+}
