@@ -46,6 +46,13 @@
   color: var(--ink) !important;
 }
 
+.dash-checkup-theme button[type='button'][aria-pressed='true'] {
+  background: var(--soft-purple) !important;
+  border-color: var(--mingus-purple) !important;
+  color: var(--mingus-purple) !important;
+  font-weight: 600;
+}
+
 .dash-checkup-theme button[type='button']:hover:not(:disabled) {
   border-color: var(--lavender-300) !important;
   background: var(--soft-purple) !important;
