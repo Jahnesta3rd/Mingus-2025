@@ -31,6 +31,7 @@ import {
   DashMindMoodCheckup,
   DashRelationshipsCheckup,
   DashSpiritCalmCheckup,
+  DashVehicleHealthCheckup,
 } from './components/checkups';
 import BodyCheckPage from './pages/BodyCheckPage';
 import RoofCheckPage from './pages/RoofCheckPage';
@@ -200,6 +201,7 @@ const router = createBrowserRouter([
       { path: 'checkups/spirit-calm', element: <DashSpiritCalmCheckup /> },
       { path: 'checkups/housing-roof', element: <DashHousingRoofCheckup /> },
       { path: 'checkups/relationships', element: <DashRelationshipsCheckup /> },
+      { path: 'checkups/vehicle', element: <DashVehicleHealthCheckup /> },
       { path: 'spirit', element: <SpiritFinance /> },
       { path: 'vibe-tracker', element: <Navigate to="/dashboard/roster" replace /> },
     ],

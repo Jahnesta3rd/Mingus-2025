@@ -4,3 +4,4 @@ export { DashMindMoodCheckup } from './DashMindMoodCheckup';
 export { DashSpiritCalmCheckup } from './DashSpiritCalmCheckup';
 export { DashHousingRoofCheckup } from './DashHousingRoofCheckup';
 export { DashRelationshipsCheckup } from './DashRelationshipsCheckup';
+export { default as DashVehicleHealthCheckup } from './DashVehicleHealthCheckup';

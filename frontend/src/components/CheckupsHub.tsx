@@ -90,7 +90,7 @@ const CHECKUP_ITEMS = [
     id: 'vehicle',
     title: 'Vehicle health',
     description: 'Ten questions on your vehicle and surprise costs — feeds Vehicle Health in your ledger.',
-    to: '/vehicle-check',
+    to: '/dashboard/checkups/vehicle', // #170-vehicle: resolved
     Icon: Car,
     timestampKey: null as const,
   },

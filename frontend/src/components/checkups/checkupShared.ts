@@ -84,6 +84,28 @@ export async function submitRoofCheckAnswers(
   return (await res.json()) as { roof_score: number };
 }
 
+export async function submitVehicleCheckAnswers(
+  answers: Record<string, number>
+): Promise<{ vehicle_score: number }> {
+  const res = await fetch('/api/life-ledger/vehicle-check/submit', {
+    method: 'POST',
+    headers: authJsonHeaders(),
+    credentials: 'include',
+    body: JSON.stringify({ answers }),
+  });
+  if (!res.ok) {
+    let msg = `Could not save Vehicle Check (${res.status})`;
+    try {
+      const j = (await res.json()) as { error?: string };
+      if (j.error) msg = j.error;
+    } catch {
+      /* ignore */
+    }
+    throw new Error(msg);
+  }
+  return (await res.json()) as { vehicle_score: number };
+}
+
 export type MindMoodPayload = {
   mood_rating: number;
   stress_level: number;
