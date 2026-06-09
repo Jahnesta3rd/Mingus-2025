@@ -11,6 +11,7 @@ import {
   QuestionLabel,
   ScaleButtons,
   SubmitButton,
+  TextInput,
   YesNoButtons,
 } from './dashCheckupUi';
 import { useLifeLedger } from '../../hooks/useLifeLedger';
@@ -23,6 +24,14 @@ import {
 } from '../fluency';
 
 type RosterPerson = { id: string; nickname: string; emoji: string | null };
+
+const RELATIONSHIP_QUICK_ADD_OPTIONS = [
+  { value: 'partner', label: 'Partner' },
+  { value: 'family', label: 'Family' },
+  { value: 'friend', label: 'Friend' },
+  { value: 'coworker', label: 'Coworker' },
+  { value: 'other', label: 'Other' },
+] as const;
 
 const FRICTION_OPTIONS = [
   { value: 'financial', label: 'Yes financial' },
@@ -106,6 +115,117 @@ function shouldShowStayOrGo(recentDirections: string[]): boolean {
   return watch.length >= 2;
 }
 
+function RosterQuickAddForm({
+  onAdded,
+}: {
+  onAdded: (person: RosterPerson) => void;
+}) {
+  const [name, setName] = useState('');
+  const [relationship, setRelationship] = useState<string | null>(null);
+  const [monthlySpend, setMonthlySpend] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const canSave = name.trim().length > 0 && relationship != null;
+
+  const handleAdd = async () => {
+    if (!canSave || relationship == null) return;
+    setBusy(true);
+    setError(null);
+    try {
+      const spendTrimmed = monthlySpend.trim();
+      const spendNum = spendTrimmed !== '' ? Number(spendTrimmed) : null;
+      const res = await fetch('/api/vibe-tracker/people', {
+        method: 'POST',
+        credentials: 'include',
+        headers: authJsonHeaders(),
+        body: JSON.stringify({
+          nickname: name.trim(),
+          relationship_type: relationship,
+          estimated_monthly_cost: spendNum != null && !Number.isNaN(spendNum) ? spendNum : null,
+          card_type: 'person',
+        }),
+      });
+      if (!res.ok) throw new Error('save failed');
+      const data = (await res.json()) as { person?: RosterPerson };
+      const person = data.person;
+      if (!person?.id || !person.nickname) throw new Error('save failed');
+      onAdded({
+        id: person.id,
+        nickname: person.nickname,
+        emoji: person.emoji ?? null,
+      });
+      setName('');
+      setRelationship(null);
+      setMonthlySpend('');
+    } catch {
+      setError("Couldn't save — try again");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="space-y-4 rounded-xl border p-4" style={{ borderColor: 'var(--line)' }}>
+      <div>
+        <p
+          className="text-[14px] font-bold"
+          style={{ color: 'var(--ink)', fontFamily: 'Manrope, system-ui, sans-serif' }}
+        >
+          Add someone to check in on
+        </p>
+        <p
+          className="mt-1 text-[13px]"
+          style={{ color: 'var(--ink-mid)', fontFamily: 'Manrope, system-ui, sans-serif' }}
+        >
+          They&apos;ll be saved to your Roster for future check-ins.
+        </p>
+      </div>
+
+      <div className="space-y-2">
+        <QuestionLabel>Name</QuestionLabel>
+        <TextInput
+          value={name}
+          onChange={setName}
+          placeholder="First name or nickname"
+        />
+      </div>
+
+      <div className="space-y-2">
+        <QuestionLabel>Relationship</QuestionLabel>
+        <OptionButtons
+          options={RELATIONSHIP_QUICK_ADD_OPTIONS}
+          value={relationship}
+          onChange={setRelationship}
+        />
+      </div>
+
+      <div className="space-y-2">
+        <QuestionLabel>
+          Roughly how much do you spend on or with this person per month? (optional)
+        </QuestionLabel>
+        <DollarInput value={monthlySpend} onChange={setMonthlySpend} />
+      </div>
+
+      {error ? (
+        <p className="text-sm text-red-700" role="alert">
+          {error}
+        </p>
+      ) : null}
+
+      <button
+        type="button"
+        onClick={() => void handleAdd()}
+        disabled={busy || !canSave}
+        className="dash-checkup-primary min-h-11 w-full rounded-xl px-4 py-3 text-sm font-semibold text-white disabled:opacity-40"
+        style={{ background: 'var(--mingus-purple)' }}
+      >
+        {busy ? 'Saving...' : 'Add to Roster'}
+      </button>
+    </div>
+  );
+}
+
 export function DashRelationshipsCheckup() {
   const navigate = useNavigate();
   const { isAuthenticated, user } = useAuth();
@@ -114,6 +234,7 @@ export function DashRelationshipsCheckup() {
   const [waterfallContext, setWaterfallContext] = useState<WaterfallContext | null>(null);
   const [roster, setRoster] = useState<RosterPerson[]>([]);
   const [rosterLoading, setRosterLoading] = useState(true);
+  const [showQuickAdd, setShowQuickAdd] = useState(false);
   const [selectedPersonId, setSelectedPersonId] = useState<string | null>(null);
   const [emotionalScore, setEmotionalScore] = useState(3);
   const [frictionType, setFrictionType] = useState<string | null>(null);
@@ -131,6 +252,12 @@ export function DashRelationshipsCheckup() {
   const selectedPerson = roster.find((p) => p.id === selectedPersonId) ?? null;
   const personName = selectedPerson?.nickname ?? 'them';
   const hasRoster = roster.length > 0;
+
+  const handlePersonAdded = useCallback((person: RosterPerson) => {
+    setRoster((prev) => [...prev, person]);
+    setSelectedPersonId(person.id);
+    setShowQuickAdd(false);
+  }, []);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -150,10 +277,14 @@ export function DashRelationshipsCheckup() {
         const people = (data.people ?? []).filter((p) => p?.id && p?.nickname);
         if (!cancelled) {
           setRoster(people);
+          setShowQuickAdd(people.length === 0);
           if (people.length === 1) setSelectedPersonId(people[0].id);
         }
       } catch {
-        if (!cancelled) setRoster([]);
+        if (!cancelled) {
+          setRoster([]);
+          setShowQuickAdd(true);
+        }
       } finally {
         if (!cancelled) setRosterLoading(false);
       }
@@ -273,34 +404,50 @@ export function DashRelationshipsCheckup() {
           <CheckupForm>
             <CheckupQuestionBlock>
               <QuestionLabel>Who are you checking in on today?</QuestionLabel>
-              {!hasRoster ? (
-                <p className="text-sm" style={{ color: 'var(--ink-mid)' }}>
-                  Add someone to your roster first to complete this check-in.
-                </p>
-              ) : (
-                <div className="flex flex-wrap gap-2">
-                  {roster.map((person) => {
-                    const active = selectedPersonId === person.id;
-                    return (
-                      <button
-                        key={person.id}
-                        type="button"
-                        onClick={() => setSelectedPersonId(person.id)}
-                        className={`rounded-full border px-4 py-2 text-sm transition ${
-                          active
-                            ? 'border-[var(--mingus-purple)] bg-[var(--soft-purple)] font-medium'
-                            : ''
-                        }`}
-                        style={{ borderColor: active ? undefined : 'var(--line)' }}
-                        aria-pressed={active}
-                      >
-                        {person.emoji ? `${person.emoji} ` : ''}
-                        {person.nickname}
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
+
+              {showQuickAdd || !hasRoster ? (
+                <RosterQuickAddForm onAdded={handlePersonAdded} />
+              ) : null}
+
+              {hasRoster ? (
+                <>
+                  <div className="flex flex-wrap gap-2">
+                    {roster.map((person) => {
+                      const active = selectedPersonId === person.id;
+                      return (
+                        <button
+                          key={person.id}
+                          type="button"
+                          onClick={() => setSelectedPersonId(person.id)}
+                          className={`rounded-full border px-4 py-2 text-sm transition ${
+                            active
+                              ? 'border-[var(--mingus-purple)] bg-[var(--soft-purple)] font-medium'
+                              : ''
+                          }`}
+                          style={{ borderColor: active ? undefined : 'var(--line)' }}
+                          aria-pressed={active}
+                        >
+                          {person.emoji ? `${person.emoji} ` : ''}
+                          {person.nickname}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  {!showQuickAdd ? (
+                    <button
+                      type="button"
+                      onClick={() => setShowQuickAdd(true)}
+                      className="text-left text-[13px] hover:underline"
+                      style={{
+                        color: 'var(--mingus-purple)',
+                        fontFamily: 'Manrope, system-ui, sans-serif',
+                      }}
+                    >
+                      + Add someone new
+                    </button>
+                  ) : null}
+                </>
+              ) : null}
             </CheckupQuestionBlock>
 
             {hasRoster && selectedPersonId ? (
