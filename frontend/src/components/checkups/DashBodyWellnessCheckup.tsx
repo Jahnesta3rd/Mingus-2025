@@ -3,11 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { CheckupWrapperShell } from './CheckupWrapperShell';
 import { CHECKUPS_HUB_PATH, submitBodyCheckup } from './checkupShared';
 import {
+  CheckupForm,
+  CheckupQuestionBlock,
+  NumericStepper,
   OptionButtons,
-  RangeStep,
-  StepLabel,
-  StepNav,
-  StepTitle,
+  QuestionLabel,
+  ScaleButtons,
+  SkipLink,
+  SubmitButton,
   YesNoButtons,
 } from './dashCheckupUi';
 import { useLifeLedger } from '../../hooks/useLifeLedger';
@@ -20,44 +23,38 @@ import {
 } from '../fluency';
 
 const WORK_IMPACT_OPTIONS = [
-  { value: 'none', label: 'No noticeable impact' },
-  { value: 'minor', label: 'Minor — occasional low energy' },
-  { value: 'moderate', label: 'Moderate — affecting some tasks' },
-  { value: 'major', label: 'Major — missing work or commitments' },
-  { value: 'severe', label: 'Severe — unable to function normally' },
+  { value: 'yes', label: 'Yes' },
+  { value: 'somewhat', label: 'Somewhat' },
+  { value: 'no', label: 'No' },
 ] as const;
 
-/**
- * Body Wellness check-in (#170) — 3-question set → LifeLedgerProfile.
- */
+const WORK_IMPACT_API: Record<string, string> = {
+  yes: 'moderate',
+  somewhat: 'minor',
+  no: 'none',
+};
+
 export function DashBodyWellnessCheckup() {
   const navigate = useNavigate();
   const { isAuthenticated, user } = useAuth();
   const { profile, loading: profileLoading, refetch } = useLifeLedger(isAuthenticated);
   const userTier = deriveUserTier(user);
   const [waterfallContext, setWaterfallContext] = useState<WaterfallContext | null>(null);
-  const [step, setStep] = useState(0);
+  const [physicalRating, setPhysicalRating] = useState(3);
+  const [activityFrequency, setActivityFrequency] = useState(0);
+  const [avgSleepHours, setAvgSleepHours] = useState('7');
   const [energyRating, setEnergyRating] = useState(3);
-  const [workImpact, setWorkImpact] = useState<string | null>(null);
   const [ongoingHealthCost, setOngoingHealthCost] = useState<boolean | null>(null);
+  const [workImpact, setWorkImpact] = useState<string | null>(null);
+  const [deferredPrompt, setDeferredPrompt] = useState<boolean | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  const totalSteps = 3;
-
-  const canAdvance = useMemo(() => {
-    switch (step) {
-      case 0:
-        return true;
-      case 1:
-        return workImpact != null;
-      case 2:
-        return ongoingHealthCost != null;
-      default:
-        return false;
-    }
-  }, [ongoingHealthCost, step, workImpact]);
+  const canSubmit = useMemo(
+    () => ongoingHealthCost != null && workImpact != null,
+    [ongoingHealthCost, workImpact]
+  );
 
   const submit = useCallback(async () => {
     if (workImpact == null || ongoingHealthCost == null) return;
@@ -66,7 +63,7 @@ export function DashBodyWellnessCheckup() {
     try {
       const data = await submitBodyCheckup({
         body_energy_rating: energyRating,
-        body_work_impact: workImpact,
+        body_work_impact: WORK_IMPACT_API[workImpact] ?? 'none',
         body_ongoing_health_cost: ongoingHealthCost,
       });
       await refetch();
@@ -79,14 +76,6 @@ export function DashBodyWellnessCheckup() {
       setBusy(false);
     }
   }, [energyRating, navigate, ongoingHealthCost, refetch, workImpact]);
-
-  const next = () => {
-    if (step < totalSteps - 1) {
-      if (canAdvance) setStep((s) => s + 1);
-      return;
-    }
-    void submit();
-  };
 
   const lastAt = profile?.body_score != null ? profile.updated_at : null;
 
@@ -110,51 +99,84 @@ export function DashBodyWellnessCheckup() {
 
       {!successMessage ? (
         <div
-          className="dash-checkup-theme space-y-6 rounded-2xl border bg-white p-6 shadow-sm sm:p-8"
+          className="dash-checkup-theme max-h-[70vh] overflow-y-auto rounded-2xl border bg-white p-6 shadow-sm sm:max-h-none sm:overflow-visible sm:p-8"
           style={{ borderColor: 'var(--line)' }}
         >
-          <StepLabel step={step} total={totalSteps} />
+          <CheckupForm>
+            <CheckupQuestionBlock>
+              <QuestionLabel>How good did you feel physically this week, overall?</QuestionLabel>
+              <ScaleButtons
+                min={1}
+                max={5}
+                value={physicalRating}
+                onChange={setPhysicalRating}
+                labels={{ 1: 'Rough', 5: 'Great' }}
+              />
+            </CheckupQuestionBlock>
 
-          {step === 0 ? (
-            <RangeStep
-              label="How would you rate your physical energy this week?"
-              min={1}
-              max={5}
-              value={energyRating}
-              onChange={setEnergyRating}
-              lowLabel="Exhausted"
-              highLabel="Energized"
-            />
-          ) : null}
+            <CheckupQuestionBlock>
+              <QuestionLabel>How many times did you move intentionally this week?</QuestionLabel>
+              <NumericStepper
+                min={0}
+                max={14}
+                value={activityFrequency}
+                onChange={setActivityFrequency}
+              />
+            </CheckupQuestionBlock>
 
-          {step === 1 ? (
-            <section className="space-y-4">
-              <StepTitle>
-                How much is your physical health affecting your ability to work or handle daily
-                responsibilities?
-              </StepTitle>
-              <OptionButtons options={WORK_IMPACT_OPTIONS} value={workImpact} onChange={setWorkImpact} />
-            </section>
-          ) : null}
+            <CheckupQuestionBlock>
+              <QuestionLabel>How many hours of sleep did you average per night?</QuestionLabel>
+              <input
+                type="number"
+                min={0}
+                max={12}
+                step={0.5}
+                value={avgSleepHours}
+                onChange={(e) => setAvgSleepHours(e.target.value)}
+                className="w-full rounded-xl border px-4 py-3 text-sm"
+                style={{ borderColor: 'var(--line)' }}
+              />
+            </CheckupQuestionBlock>
 
-          {step === 2 ? (
-            <section className="space-y-4">
-              <StepTitle>
-                Are you currently dealing with ongoing health costs — prescriptions, therapy,
-                copays, or similar?
-              </StepTitle>
+            <CheckupQuestionBlock>
+              <QuestionLabel>
+                How would you rate your energy level throughout the day this week?
+              </QuestionLabel>
+              <ScaleButtons
+                min={1}
+                max={5}
+                value={energyRating}
+                onChange={setEnergyRating}
+                labels={{ 1: 'Depleted', 3: 'Steady', 5: 'Energized' }}
+              />
+            </CheckupQuestionBlock>
+
+            <CheckupQuestionBlock>
+              <QuestionLabel>
+                Did managing your physical health cost you money this week — gym, medication,
+                supplements, appointments?
+              </QuestionLabel>
               <YesNoButtons value={ongoingHealthCost} onChange={setOngoingHealthCost} />
-            </section>
-          ) : null}
+            </CheckupQuestionBlock>
 
-          <StepNav
-            step={step}
-            busy={busy || profileLoading}
-            canAdvance={canAdvance}
-            onBack={() => setStep((s) => s - 1)}
-            onNext={next}
-            isLast={step === totalSteps - 1}
-          />
+            <CheckupQuestionBlock>
+              <QuestionLabel>
+                Did your physical state affect your performance or output at work this week?
+              </QuestionLabel>
+              <OptionButtons options={WORK_IMPACT_OPTIONS} value={workImpact} onChange={setWorkImpact} />
+            </CheckupQuestionBlock>
+
+            <CheckupQuestionBlock>
+              <QuestionLabel>
+                Is there anything about your body you&apos;ve been meaning to address but keep
+                putting off?
+              </QuestionLabel>
+              <YesNoButtons value={deferredPrompt} onChange={setDeferredPrompt} />
+              <SkipLink onClick={() => setDeferredPrompt(null)} />
+            </CheckupQuestionBlock>
+
+            <SubmitButton busy={busy || profileLoading} disabled={!canSubmit} onClick={() => void submit()} />
+          </CheckupForm>
         </div>
       ) : null}
     </CheckupWrapperShell>

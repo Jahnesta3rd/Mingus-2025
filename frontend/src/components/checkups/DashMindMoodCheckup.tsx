@@ -1,18 +1,16 @@
 import { useCallback, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CheckupWrapperShell } from './CheckupWrapperShell';
+import { CHECKUPS_HUB_PATH, submitMindMoodCheckin } from './checkupShared';
 import {
-  CHECKUPS_HUB_PATH,
-  formatRelativeLastUpdate,
-  submitMindMoodCheckin,
-} from './checkupShared';
-import {
+  CheckupForm,
+  CheckupQuestionBlock,
+  EmojiMoodPicker,
   MultiSelectChips,
   OptionButtons,
+  QuestionLabel,
   RangeStep,
-  StepLabel,
-  StepNav,
-  StepTitle,
+  SubmitButton,
   YesNoButtons,
 } from './dashCheckupUi';
 import { useLifeLedger } from '../../hooks/useLifeLedger';
@@ -39,16 +37,14 @@ const COPING_OPTIONS = [
   'Other',
 ] as const;
 
-/**
- * Mind & Mood check-in — 4-question set (#170) → LifeLedgerProfile.
- */
 export function DashMindMoodCheckup() {
   const navigate = useNavigate();
   const { isAuthenticated, user } = useAuth();
   const { profile, loading: profileLoading } = useLifeLedger(isAuthenticated);
   const userTier = deriveUserTier(user);
   const [waterfallContext, setWaterfallContext] = useState<WaterfallContext | null>(null);
-  const [step, setStep] = useState(0);
+  const [moodRating, setMoodRating] = useState(3);
+  const [stressLevel, setStressLevel] = useState(3);
   const [triggerPurchase, setTriggerPurchase] = useState<string | null>(null);
   const [avoidedFinances, setAvoidedFinances] = useState<boolean | null>(null);
   const [copingMethods, setCopingMethods] = useState<string[]>([]);
@@ -57,31 +53,25 @@ export function DashMindMoodCheckup() {
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  const totalSteps = 4;
-
   const toggleCoping = (label: string) => {
-    setCopingMethods((prev) =>
-      prev.includes(label) ? prev.filter((x) => x !== label) : [...prev, label]
-    );
+    setCopingMethods((prev) => {
+      if (label === 'Nothing worked') {
+        return prev.includes(label) ? [] : [label];
+      }
+      const without = prev.filter((x) => x !== 'Nothing worked');
+      return without.includes(label)
+        ? without.filter((x) => x !== label)
+        : [...without, label];
+    });
   };
 
-  const canAdvance = useMemo(() => {
-    switch (step) {
-      case 0:
-        return triggerPurchase != null;
-      case 1:
-        return avoidedFinances != null;
-      case 2:
-        return copingMethods.length > 0;
-      case 3:
-        return true;
-      default:
-        return false;
-    }
-  }, [avoidedFinances, copingMethods.length, step, triggerPurchase]);
+  const canSubmit = useMemo(
+    () => triggerPurchase != null && avoidedFinances != null && copingMethods.length > 0,
+    [avoidedFinances, copingMethods.length, triggerPurchase]
+  );
 
   const submit = useCallback(async () => {
-    if (triggerPurchase == null || avoidedFinances == null) return;
+    if (triggerPurchase == null || avoidedFinances == null || copingMethods.length === 0) return;
     setBusy(true);
     setError(null);
     try {
@@ -101,17 +91,7 @@ export function DashMindMoodCheckup() {
     }
   }, [avoidedFinances, copingMethods, navigate, spendingIntentionality, triggerPurchase]);
 
-  const next = () => {
-    if (step < totalSteps - 1) {
-      if (canAdvance) setStep((s) => s + 1);
-      return;
-    }
-    void submit();
-  };
-
-  const lastAt =
-    profile?.mood_stress_triggered_purchase != null ? profile.updated_at : null;
-  const relative = formatRelativeLastUpdate(lastAt);
+  const lastAt = profile?.mood_stress_triggered_purchase != null ? profile.updated_at : null;
 
   return (
     <CheckupWrapperShell
@@ -133,52 +113,55 @@ export function DashMindMoodCheckup() {
 
       {!successMessage ? (
         <div
-          className="dash-checkup-theme space-y-6 rounded-2xl border bg-white p-6 shadow-sm sm:p-8"
+          className="dash-checkup-theme max-h-[70vh] overflow-y-auto rounded-2xl border bg-white p-6 shadow-sm sm:max-h-none sm:overflow-visible sm:p-8"
           style={{ borderColor: 'var(--line)' }}
         >
-          <StepLabel step={step} total={totalSteps} />
+          <CheckupForm>
+            <CheckupQuestionBlock>
+              <QuestionLabel>What&apos;s your overall mood been this week?</QuestionLabel>
+              <EmojiMoodPicker value={moodRating} onChange={setMoodRating} />
+            </CheckupQuestionBlock>
 
-          {step === 0 ? (
-            <section className="space-y-4">
-              <StepTitle>
+            <RangeStep
+              label="How would you rate your stress level this week?"
+              min={1}
+              max={5}
+              value={stressLevel}
+              onChange={setStressLevel}
+              lowLabel="Calm"
+              highLabel="Overwhelmed"
+            />
+
+            <CheckupQuestionBlock>
+              <QuestionLabel>
                 Think back to the last time you bought something you didn&apos;t plan to. What was
-                going on for you right before — even subtle things like feeling overlooked at work,
-                scrolling past something that made you feel behind, or just a quiet restless feeling
-                you couldn&apos;t name? (That counts.)
-              </StepTitle>
+                going on for you right before?
+              </QuestionLabel>
               <OptionButtons
                 options={TRIGGER_OPTIONS}
                 value={triggerPurchase}
                 onChange={setTriggerPurchase}
               />
-            </section>
-          ) : null}
+            </CheckupQuestionBlock>
 
-          {step === 1 ? (
-            <section className="space-y-4">
-              <StepTitle>
-                Did you avoid looking at your finances at any point this week — not opening the app,
-                skipping a statement, or putting off a money decision?
-              </StepTitle>
+            <CheckupQuestionBlock>
+              <QuestionLabel>
+                Did you avoid looking at your finances at any point this week?
+              </QuestionLabel>
               <YesNoButtons value={avoidedFinances} onChange={setAvoidedFinances} />
-            </section>
-          ) : null}
+            </CheckupQuestionBlock>
 
-          {step === 2 ? (
-            <section className="space-y-4">
-              <StepTitle>What helped you manage your energy or stress this week, if anything?</StepTitle>
-              <p className="text-xs" style={{ color: 'var(--ink-mid)' }}>
-                Select all that apply
-              </p>
+            <CheckupQuestionBlock>
+              <QuestionLabel>
+                What helped you manage your energy or stress this week, if anything?
+              </QuestionLabel>
               <MultiSelectChips
                 options={COPING_OPTIONS}
                 selected={copingMethods}
                 onToggle={toggleCoping}
               />
-            </section>
-          ) : null}
+            </CheckupQuestionBlock>
 
-          {step === 3 ? (
             <RangeStep
               label="How intentional were your spending decisions this week?"
               min={1}
@@ -188,22 +171,9 @@ export function DashMindMoodCheckup() {
               lowLabel="All reactive"
               highLabel="All intentional"
             />
-          ) : null}
 
-          <StepNav
-            step={step}
-            busy={busy}
-            canAdvance={canAdvance}
-            onBack={() => setStep((s) => s - 1)}
-            onNext={next}
-            isLast={step === totalSteps - 1}
-          />
-
-          {relative ? (
-            <p className="text-center text-xs" style={{ color: 'var(--ink-mid)' }}>
-              Previous mood check-in: {relative}
-            </p>
-          ) : null}
+            <SubmitButton busy={busy} disabled={!canSubmit} onClick={() => void submit()} />
+          </CheckupForm>
         </div>
       ) : null}
     </CheckupWrapperShell>

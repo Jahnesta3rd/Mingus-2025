@@ -1,89 +1,67 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CheckupWrapperShell } from './CheckupWrapperShell';
 import { CHECKUPS_HUB_PATH, submitVehicleCheckup } from './checkupShared';
 import {
+  CheckupForm,
+  CheckupQuestionBlock,
+  DollarInput,
   OptionButtons,
-  RangeStep,
-  StepLabel,
-  StepNav,
-  StepTitle,
+  QuestionLabel,
+  ScaleButtons,
+  SubmitButton,
+  TextInput,
   YesNoButtons,
 } from './dashCheckupUi';
 import { useLifeLedger } from '../../hooks/useLifeLedger';
 import { useAuth } from '../../hooks/useAuth';
 
 const SERVICE_OPTIONS = [
-  { value: 'under_3mo', label: 'Within 3 months' },
-  { value: '3_6mo', label: '3–6 months ago' },
-  { value: '6_12mo', label: '6–12 months ago' },
-  { value: 'over_12mo', label: 'Over a year ago' },
-  { value: 'never', label: 'Never or not sure' },
+  { value: 'under_3mo', label: 'Within 1 month' },
+  { value: '3_6mo', label: '1–3 months ago' },
+  { value: '6_12mo', label: '3–6 months ago' },
+  { value: 'over_12mo', label: 'More than 6 months ago' },
+  { value: 'never', label: 'Not sure' },
 ] as const;
 
 const INSURANCE_SHOPPED_OPTIONS = [
+  { value: 'never', label: 'Never' },
+  { value: 'over_2yr', label: '2+ years' },
+  { value: '1_2yr', label: '1–2 years' },
+  { value: '6_12mo', label: 'Within 1 year' },
   { value: 'under_6mo', label: 'Within 6 months' },
-  { value: '6_12mo', label: '6–12 months ago' },
-  { value: '1_2yr', label: '1–2 years ago' },
-  { value: 'over_2yr', label: 'Over 2 years ago' },
-  { value: 'never', label: 'Never shopped' },
 ] as const;
 
 const DECISION_OPTIONS = [
-  { value: 'keeping_years', label: 'Keeping it for years' },
-  { value: 'considering_replace', label: 'Considering replacing soon' },
-  { value: 'actively_shopping', label: 'Actively shopping for another vehicle' },
+  { value: 'keeping', label: "I'm keeping it" },
   { value: 'unsure', label: 'Not sure yet' },
+  { value: 'selling', label: 'Planning to sell or replace' },
 ] as const;
 
-type VehicleStep =
-  | 'satisfaction'
-  | 'maintenance_confidence'
-  | 'recent_concern'
-  | 'concern_description'
-  | 'weekly_miles'
-  | 'last_service'
-  | 'insurance_known'
-  | 'insurance_premium'
-  | 'insurance_shopped'
-  | 'decision_horizon'
-  | 'reliability'
-  | 'value_perception';
+const DECISION_API: Record<string, string> = {
+  keeping: 'keeping_years',
+  unsure: 'unsure',
+  selling: 'considering_replace',
+};
 
-function buildVehicleSteps(
-  recentConcern: boolean | null,
-  insuranceKnown: boolean | null
-): VehicleStep[] {
-  const steps: VehicleStep[] = [
-    'satisfaction',
-    'maintenance_confidence',
-    'recent_concern',
-  ];
-  if (recentConcern === true) steps.push('concern_description');
-  steps.push('weekly_miles', 'last_service', 'insurance_known');
-  if (insuranceKnown === true) {
-    steps.push('insurance_premium', 'insurance_shopped');
-  }
-  steps.push('decision_horizon', 'reliability', 'value_perception');
-  return steps;
-}
+const SUCCESS_BY_DECISION: Record<string, string> = {
+  keeping: "We're tracking your maintenance calendar and cost profile.",
+  unsure: "We'll show you the numbers on keeping vs. selling when you're ready.",
+  selling: "We'll flag the best window to sell based on your depreciation curve.",
+};
 
-/**
- * Vehicle Health check-in — 12-field set; concern trigger (#170) → LifeLedgerProfile.
- */
 export function DashVehicleHealthCheckup() {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
   const { profile, loading: profileLoading, refetch } = useLifeLedger(isAuthenticated);
-  const [step, setStep] = useState(0);
   const [satisfaction, setSatisfaction] = useState(3);
   const [maintenanceConfidence, setMaintenanceConfidence] = useState(3);
   const [recentConcern, setRecentConcern] = useState<boolean | null>(null);
   const [concernDescription, setConcernDescription] = useState('');
-  const [weeklyMiles, setWeeklyMiles] = useState<string>('100');
+  const [weeklyMiles, setWeeklyMiles] = useState('100');
   const [lastService, setLastService] = useState<string | null>(null);
   const [insuranceKnown, setInsuranceKnown] = useState<boolean | null>(null);
-  const [insurancePremium, setInsurancePremium] = useState<string>('');
+  const [insurancePremium, setInsurancePremium] = useState('');
   const [insuranceShopped, setInsuranceShopped] = useState<string | null>(null);
   const [decisionHorizon, setDecisionHorizon] = useState<string | null>(null);
   const [reliability, setReliability] = useState(3);
@@ -92,59 +70,29 @@ export function DashVehicleHealthCheckup() {
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  const steps = useMemo(
-    () => buildVehicleSteps(recentConcern, insuranceKnown),
-    [insuranceKnown, recentConcern]
-  );
-  useEffect(() => {
-    if (step >= steps.length) setStep(Math.max(0, steps.length - 1));
-  }, [step, steps.length]);
-  const current = steps[step] ?? 'satisfaction';
-
-  const canAdvance = useMemo(() => {
-    switch (current) {
-      case 'satisfaction':
-      case 'maintenance_confidence':
-      case 'reliability':
-      case 'value_perception':
-        return true;
-      case 'recent_concern':
-        return recentConcern != null;
-      case 'concern_description':
-        return concernDescription.trim().length > 0;
-      case 'weekly_miles': {
-        const n = Number(weeklyMiles);
-        return weeklyMiles.trim() !== '' && !Number.isNaN(n) && n >= 0;
-      }
-      case 'last_service':
-        return lastService != null;
-      case 'insurance_known':
-        return insuranceKnown != null;
-      case 'insurance_premium': {
-        const n = Number(insurancePremium);
-        return insurancePremium.trim() !== '' && !Number.isNaN(n) && n >= 0;
-      }
-      case 'insurance_shopped':
-        return insuranceShopped != null;
-      case 'decision_horizon':
-        return decisionHorizon != null;
-      default:
-        return false;
-    }
-  }, [
-    concernDescription,
-    current,
-    decisionHorizon,
-    insuranceKnown,
-    insurancePremium,
-    insuranceShopped,
-    lastService,
-    recentConcern,
-    weeklyMiles,
-  ]);
+  const canSubmit = useMemo(() => {
+    const miles = Number(weeklyMiles);
+    return (
+      recentConcern != null &&
+      lastService != null &&
+      insuranceKnown != null &&
+      insuranceShopped != null &&
+      decisionHorizon != null &&
+      weeklyMiles.trim() !== '' &&
+      !Number.isNaN(miles) &&
+      miles >= 0 &&
+      miles <= 1000
+    );
+  }, [decisionHorizon, insuranceKnown, insuranceShopped, lastService, recentConcern, weeklyMiles]);
 
   const submit = useCallback(async () => {
-    if (recentConcern == null || lastService == null || insuranceKnown == null || decisionHorizon == null) {
+    if (
+      recentConcern == null ||
+      lastService == null ||
+      insuranceKnown == null ||
+      insuranceShopped == null ||
+      decisionHorizon == null
+    ) {
       return;
     }
     setBusy(true);
@@ -154,18 +102,27 @@ export function DashVehicleHealthCheckup() {
         vehicle_satisfaction_rating: satisfaction,
         vehicle_maintenance_confidence: maintenanceConfidence,
         vehicle_recent_concern: recentConcern,
-        vehicle_concern_description: recentConcern ? concernDescription.trim() : null,
+        vehicle_concern_description: recentConcern
+          ? concernDescription.trim() || 'Unspecified'
+          : null,
         vehicle_weekly_miles: Number(weeklyMiles),
         vehicle_last_service_horizon: lastService,
         vehicle_insurance_known: insuranceKnown,
-        vehicle_insurance_premium: insuranceKnown ? Number(insurancePremium) : null,
+        vehicle_insurance_premium: insuranceKnown
+          ? insurancePremium.trim() !== ''
+            ? Number(insurancePremium)
+            : 0
+          : null,
         vehicle_insurance_last_shopped: insuranceKnown ? insuranceShopped : null,
-        vehicle_decision_horizon: decisionHorizon,
+        vehicle_decision_horizon: DECISION_API[decisionHorizon] ?? 'unsure',
         vehicle_reliability_rating: reliability,
         vehicle_value_perception: valuePerception,
       });
       await refetch();
-      setSuccessMessage(`Vehicle Health updated — ${data.vehicle_score} / 100`);
+      const banner =
+        SUCCESS_BY_DECISION[decisionHorizon] ??
+        `Vehicle Health updated — ${data.vehicle_score} / 100`;
+      setSuccessMessage(banner);
       window.setTimeout(() => navigate(CHECKUPS_HUB_PATH, { replace: true }), 2000);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Submit failed');
@@ -189,14 +146,6 @@ export function DashVehicleHealthCheckup() {
     weeklyMiles,
   ]);
 
-  const next = () => {
-    if (step < steps.length - 1) {
-      if (canAdvance) setStep((s) => s + 1);
-      return;
-    }
-    void submit();
-  };
-
   const onConcernChange = (val: boolean) => {
     setRecentConcern(val);
     if (!val) setConcernDescription('');
@@ -204,10 +153,7 @@ export function DashVehicleHealthCheckup() {
 
   const onInsuranceKnownChange = (val: boolean) => {
     setInsuranceKnown(val);
-    if (!val) {
-      setInsurancePremium('');
-      setInsuranceShopped(null);
-    }
+    if (!val) setInsurancePremium('');
   };
 
   const lastAt = profile?.vehicle_score != null ? profile.updated_at : null;
@@ -223,158 +169,109 @@ export function DashVehicleHealthCheckup() {
     >
       {!successMessage ? (
         <div
-          className="dash-checkup-theme space-y-6 rounded-2xl border bg-white p-6 shadow-sm sm:p-8"
+          className="dash-checkup-theme max-h-[70vh] overflow-y-auto rounded-2xl border bg-white p-6 shadow-sm sm:max-h-none sm:overflow-visible sm:p-8"
           style={{ borderColor: 'var(--line)' }}
         >
-          <StepLabel step={step} total={steps.length} />
+          <CheckupForm>
+            <CheckupQuestionBlock>
+              <QuestionLabel>Overall, how satisfied are you with your vehicle?</QuestionLabel>
+              <ScaleButtons min={1} max={5} value={satisfaction} onChange={setSatisfaction} />
+            </CheckupQuestionBlock>
 
-          {current === 'satisfaction' ? (
-            <RangeStep
-              label="How satisfied are you with your vehicle right now?"
-              min={1}
-              max={5}
-              value={satisfaction}
-              onChange={setSatisfaction}
-              lowLabel="Very dissatisfied"
-              highLabel="Very satisfied"
-            />
-          ) : null}
-
-          {current === 'maintenance_confidence' ? (
-            <RangeStep
-              label="How confident are you that you can handle upcoming maintenance costs?"
-              min={1}
-              max={5}
-              value={maintenanceConfidence}
-              onChange={setMaintenanceConfidence}
-              lowLabel="Not confident"
-              highLabel="Very confident"
-            />
-          ) : null}
-
-          {current === 'recent_concern' ? (
-            <section className="space-y-4">
-              <StepTitle>
-                Has anything about your vehicle worried you recently — sounds, warning lights, or
-                reliability?
-              </StepTitle>
-              <YesNoButtons value={recentConcern} onChange={onConcernChange} />
-            </section>
-          ) : null}
-
-          {current === 'concern_description' ? (
-            <section className="space-y-4">
-              <StepTitle>What&apos;s the concern? A sentence is enough.</StepTitle>
-              <textarea
-                value={concernDescription}
-                onChange={(e) => setConcernDescription(e.target.value)}
-                rows={4}
-                className="w-full rounded-xl border px-4 py-3 text-sm"
-                style={{ borderColor: 'var(--line)' }}
-                placeholder="e.g. brakes squeaking, check engine light"
+            <CheckupQuestionBlock>
+              <QuestionLabel>
+                How confident are you that your vehicle has no deferred maintenance needs?
+              </QuestionLabel>
+              <ScaleButtons
+                min={1}
+                max={5}
+                value={maintenanceConfidence}
+                onChange={setMaintenanceConfidence}
               />
-            </section>
-          ) : null}
+            </CheckupQuestionBlock>
 
-          {current === 'weekly_miles' ? (
-            <section className="space-y-4">
-              <StepTitle>About how many miles do you drive per week?</StepTitle>
+            <CheckupQuestionBlock>
+              <QuestionLabel>Have you had any unexpected vehicle concerns this week?</QuestionLabel>
+              <YesNoButtons value={recentConcern} onChange={onConcernChange} />
+            </CheckupQuestionBlock>
+
+            {recentConcern === true ? (
+              <CheckupQuestionBlock conditional>
+                <QuestionLabel>Briefly, what happened? (optional)</QuestionLabel>
+                <TextInput
+                  value={concernDescription}
+                  onChange={setConcernDescription}
+                  placeholder="Optional description"
+                />
+              </CheckupQuestionBlock>
+            ) : null}
+
+            <CheckupQuestionBlock>
+              <QuestionLabel>How many miles do you typically drive in a week?</QuestionLabel>
               <input
                 type="number"
                 min={0}
-                max={2000}
+                max={1000}
                 value={weeklyMiles}
                 onChange={(e) => setWeeklyMiles(e.target.value)}
                 className="w-full rounded-xl border px-4 py-3 text-sm"
                 style={{ borderColor: 'var(--line)' }}
               />
-            </section>
-          ) : null}
+            </CheckupQuestionBlock>
 
-          {current === 'last_service' ? (
-            <section className="space-y-4">
-              <StepTitle>When was your last oil change or major service?</StepTitle>
+            <CheckupQuestionBlock>
+              <QuestionLabel>When did you last have your vehicle serviced?</QuestionLabel>
               <OptionButtons options={SERVICE_OPTIONS} value={lastService} onChange={setLastService} />
-            </section>
-          ) : null}
+            </CheckupQuestionBlock>
 
-          {current === 'insurance_known' ? (
-            <section className="space-y-4">
-              <StepTitle>Do you know your current monthly auto insurance premium?</StepTitle>
+            <CheckupQuestionBlock>
+              <QuestionLabel>
+                Do you know what you&apos;re paying for vehicle insurance per month?
+              </QuestionLabel>
               <YesNoButtons value={insuranceKnown} onChange={onInsuranceKnownChange} />
-            </section>
-          ) : null}
+            </CheckupQuestionBlock>
 
-          {current === 'insurance_premium' ? (
-            <section className="space-y-4">
-              <StepTitle>What is your monthly auto insurance premium?</StepTitle>
-              <input
-                type="number"
-                min={0}
-                step={1}
-                value={insurancePremium}
-                onChange={(e) => setInsurancePremium(e.target.value)}
-                placeholder="Monthly premium in dollars"
-                className="w-full rounded-xl border px-4 py-3 text-sm"
-                style={{ borderColor: 'var(--line)' }}
-              />
-            </section>
-          ) : null}
+            {insuranceKnown === true ? (
+              <CheckupQuestionBlock conditional>
+                <QuestionLabel>What&apos;s your monthly premium? (optional)</QuestionLabel>
+                <DollarInput value={insurancePremium} onChange={setInsurancePremium} />
+              </CheckupQuestionBlock>
+            ) : null}
 
-          {current === 'insurance_shopped' ? (
-            <section className="space-y-4">
-              <StepTitle>When did you last shop around for auto insurance?</StepTitle>
+            <CheckupQuestionBlock>
+              <QuestionLabel>How long ago did you last compare insurance rates?</QuestionLabel>
               <OptionButtons
                 options={INSURANCE_SHOPPED_OPTIONS}
                 value={insuranceShopped}
                 onChange={setInsuranceShopped}
               />
-            </section>
-          ) : null}
+            </CheckupQuestionBlock>
 
-          {current === 'decision_horizon' ? (
-            <section className="space-y-4">
-              <StepTitle>What are your plans for this vehicle over the next year or two?</StepTitle>
+            <CheckupQuestionBlock>
+              <QuestionLabel>What&apos;s your plan for this vehicle?</QuestionLabel>
               <OptionButtons
                 options={DECISION_OPTIONS}
                 value={decisionHorizon}
                 onChange={setDecisionHorizon}
               />
-            </section>
-          ) : null}
+            </CheckupQuestionBlock>
 
-          {current === 'reliability' ? (
-            <RangeStep
-              label="How reliable has your vehicle been lately?"
-              min={1}
-              max={5}
-              value={reliability}
-              onChange={setReliability}
-              lowLabel="Unreliable"
-              highLabel="Very reliable"
+            <CheckupQuestionBlock>
+              <QuestionLabel>How reliable has your vehicle been recently?</QuestionLabel>
+              <ScaleButtons min={1} max={5} value={reliability} onChange={setReliability} />
+            </CheckupQuestionBlock>
+
+            <CheckupQuestionBlock>
+              <QuestionLabel>Does your vehicle feel worth what you&apos;re paying for it?</QuestionLabel>
+              <ScaleButtons min={1} max={5} value={valuePerception} onChange={setValuePerception} />
+            </CheckupQuestionBlock>
+
+            <SubmitButton
+              busy={busy || profileLoading}
+              disabled={!canSubmit}
+              onClick={() => void submit()}
             />
-          ) : null}
-
-          {current === 'value_perception' ? (
-            <RangeStep
-              label="How good a financial deal does this vehicle feel like for you?"
-              min={1}
-              max={5}
-              value={valuePerception}
-              onChange={setValuePerception}
-              lowLabel="Poor value"
-              highLabel="Great value"
-            />
-          ) : null}
-
-          <StepNav
-            step={step}
-            busy={busy || profileLoading}
-            canAdvance={canAdvance}
-            onBack={() => setStep((s) => Math.max(0, s - 1))}
-            onNext={next}
-            isLast={step === steps.length - 1}
-          />
+          </CheckupForm>
         </div>
       ) : null}
     </CheckupWrapperShell>

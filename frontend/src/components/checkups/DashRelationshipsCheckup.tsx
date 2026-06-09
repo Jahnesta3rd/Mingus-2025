@@ -1,12 +1,16 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CheckupWrapperShell } from './CheckupWrapperShell';
-import { CHECKUPS_HUB_PATH, submitRelationshipsCheckup } from './checkupShared';
+import { authJsonHeaders, CHECKUPS_HUB_PATH, submitRelationshipsCheckup } from './checkupShared';
+import { StayOrGoPrompt } from './StayOrGoPrompt';
 import {
+  CheckupForm,
+  CheckupQuestionBlock,
+  DollarInput,
   OptionButtons,
-  StepLabel,
-  StepNav,
-  StepTitle,
+  QuestionLabel,
+  ScaleButtons,
+  SubmitButton,
   YesNoButtons,
 } from './dashCheckupUi';
 import { useLifeLedger } from '../../hooks/useLifeLedger';
@@ -18,169 +22,215 @@ import {
   type WaterfallContext,
 } from '../fluency';
 
+type RosterPerson = { id: string; nickname: string; emoji: string | null };
+
 const FRICTION_OPTIONS = [
-  { value: 'none', label: 'No real friction this week' },
-  { value: 'communication', label: 'Communication' },
-  { value: 'money', label: 'Money or spending' },
-  { value: 'time', label: 'Time or priorities' },
-  { value: 'trust', label: 'Trust or boundaries' },
-  { value: 'other', label: 'Something else' },
+  { value: 'financial', label: 'Yes financial' },
+  { value: 'emotional', label: 'Yes emotional' },
+  { value: 'both', label: 'Yes both' },
+  { value: 'no', label: 'No' },
 ] as const;
+
+const FRICTION_API: Record<string, string> = {
+  financial: 'money',
+  emotional: 'communication',
+  both: 'money',
+  no: 'none',
+};
 
 const SPENDING_TYPE_OPTIONS = [
-  { value: 'gifts', label: 'Gifts' },
-  { value: 'dates', label: 'Dates or outings' },
-  { value: 'travel', label: 'Travel' },
-  { value: 'shared_bills', label: 'Shared bills' },
-  { value: 'other', label: 'Other' },
+  { value: 'planned', label: 'Planned' },
+  { value: 'reactive', label: 'Reactive' },
+  { value: 'mix', label: 'Mix' },
+  { value: 'na', label: 'N/A' },
 ] as const;
+
+const SPENDING_TYPE_API: Record<string, string> = {
+  planned: 'gifts',
+  reactive: 'other',
+  mix: 'other',
+  na: 'other',
+};
 
 const DIRECTION_OPTIONS = [
-  { value: 'improving', label: 'Improving' },
-  { value: 'stable', label: 'Stable' },
-  { value: 'uncertain', label: 'Uncertain' },
-  { value: 'declining', label: 'Declining' },
+  { value: 'definitely_yes', label: 'Definitely yes' },
+  { value: 'mostly_yes', label: 'Mostly yes' },
+  { value: 'unsure', label: 'Unsure' },
+  { value: 'not_really', label: 'Not really' },
 ] as const;
+
+const DIRECTION_API: Record<string, string> = {
+  definitely_yes: 'improving',
+  mostly_yes: 'stable',
+  unsure: 'uncertain',
+  not_really: 'declining',
+};
 
 const AWARENESS_OPTIONS = [
-  { value: 'very_aware', label: 'Very aware of what I spend' },
-  { value: 'somewhat', label: 'Somewhat aware' },
-  { value: 'rarely', label: 'Rarely think about it' },
-  { value: 'unaware', label: 'Not aware until later' },
+  { value: 'yes', label: 'Yes' },
+  { value: 'somewhat', label: 'Somewhat' },
+  { value: 'no', label: 'No' },
 ] as const;
 
-const INTENTION_OPTIONS = [
-  { value: 'invest_more', label: 'Invest more time and energy' },
-  { value: 'maintain', label: 'Keep things as they are' },
-  { value: 'reevaluate', label: 'Reevaluate where this is going' },
-  { value: 'step_back', label: 'Step back or set boundaries' },
-] as const;
+const AWARENESS_API: Record<string, string> = {
+  yes: 'very_aware',
+  somewhat: 'somewhat',
+  no: 'unaware',
+};
 
-type RelStep =
-  | 'friction'
-  | 'spending_this_week'
-  | 'spending_amount'
-  | 'spending_type'
-  | 'direction'
-  | 'cost_awareness'
-  | 'future_intention';
+const DIRECTION_HISTORY_KEY = (personId: string) => `rel_direction_history_${personId}`;
 
-function buildRelSteps(spendingThisWeek: boolean | null): RelStep[] {
-  const steps: RelStep[] = ['friction', 'spending_this_week'];
-  if (spendingThisWeek === true) {
-    steps.push('spending_amount', 'spending_type');
+function readDirectionHistory(personId: string): string[] {
+  try {
+    const raw = localStorage.getItem(DIRECTION_HISTORY_KEY(personId));
+    if (!raw) return [];
+    const parsed = JSON.parse(raw) as unknown;
+    return Array.isArray(parsed) ? parsed.filter((x) => typeof x === 'string') : [];
+  } catch {
+    return [];
   }
-  steps.push('direction', 'cost_awareness', 'future_intention');
-  return steps;
 }
 
-/**
- * Relationships check-in — 7-field set; spending trigger (#170) → LifeLedgerProfile.
- */
+function appendDirectionHistory(personId: string, direction: string): string[] {
+  const next = [direction, ...readDirectionHistory(personId)].slice(0, 4);
+  try {
+    localStorage.setItem(DIRECTION_HISTORY_KEY(personId), JSON.stringify(next));
+  } catch {
+    /* ignore */
+  }
+  return next;
+}
+
+function shouldShowStayOrGo(recentDirections: string[]): boolean {
+  const watch = recentDirections.filter((d) => d === 'not_really' || d === 'unsure');
+  return watch.length >= 2;
+}
+
 export function DashRelationshipsCheckup() {
   const navigate = useNavigate();
   const { isAuthenticated, user } = useAuth();
   const { profile, loading: profileLoading } = useLifeLedger(isAuthenticated);
   const userTier = deriveUserTier(user);
   const [waterfallContext, setWaterfallContext] = useState<WaterfallContext | null>(null);
-  const [step, setStep] = useState(0);
+  const [roster, setRoster] = useState<RosterPerson[]>([]);
+  const [rosterLoading, setRosterLoading] = useState(true);
+  const [selectedPersonId, setSelectedPersonId] = useState<string | null>(null);
+  const [emotionalScore, setEmotionalScore] = useState(3);
   const [frictionType, setFrictionType] = useState<string | null>(null);
   const [spendingThisWeek, setSpendingThisWeek] = useState<boolean | null>(null);
-  const [spendingAmount, setSpendingAmount] = useState<string>('');
+  const [spendingAmount, setSpendingAmount] = useState('');
   const [spendingType, setSpendingType] = useState<string | null>(null);
   const [direction, setDirection] = useState<string | null>(null);
   const [costAwareness, setCostAwareness] = useState<string | null>(null);
-  const [futureIntention, setFutureIntention] = useState<string | null>(null);
+  const [showStayOrGo, setShowStayOrGo] = useState(false);
+  const [pendingNavigate, setPendingNavigate] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  const steps = useMemo(() => buildRelSteps(spendingThisWeek), [spendingThisWeek]);
-  useEffect(() => {
-    if (step >= steps.length) setStep(Math.max(0, steps.length - 1));
-  }, [step, steps.length]);
-  const current = steps[step] ?? 'friction';
+  const selectedPerson = roster.find((p) => p.id === selectedPersonId) ?? null;
+  const personName = selectedPerson?.nickname ?? 'them';
+  const hasRoster = roster.length > 0;
 
-  const canAdvance = useMemo(() => {
-    switch (current) {
-      case 'friction':
-        return frictionType != null;
-      case 'spending_this_week':
-        return spendingThisWeek != null;
-      case 'spending_amount': {
-        const n = Number(spendingAmount);
-        return spendingAmount.trim() !== '' && !Number.isNaN(n) && n >= 0;
-      }
-      case 'spending_type':
-        return spendingType != null;
-      case 'direction':
-        return direction != null;
-      case 'cost_awareness':
-        return costAwareness != null;
-      case 'future_intention':
-        return futureIntention != null;
-      default:
-        return false;
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setRosterLoading(false);
+      return;
     }
+    let cancelled = false;
+    void (async () => {
+      setRosterLoading(true);
+      try {
+        const res = await fetch('/api/vibe-tracker/people', {
+          credentials: 'include',
+          headers: authJsonHeaders(),
+        });
+        if (!res.ok) throw new Error('roster');
+        const data = (await res.json()) as { people?: RosterPerson[] };
+        const people = (data.people ?? []).filter((p) => p?.id && p?.nickname);
+        if (!cancelled) {
+          setRoster(people);
+          if (people.length === 1) setSelectedPersonId(people[0].id);
+        }
+      } catch {
+        if (!cancelled) setRoster([]);
+      } finally {
+        if (!cancelled) setRosterLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [isAuthenticated]);
+
+  const canSubmit = useMemo(() => {
+    if (!hasRoster || selectedPersonId == null) return false;
+    if (frictionType == null || spendingThisWeek == null || direction == null || costAwareness == null) {
+      return false;
+    }
+    if (spendingThisWeek && spendingType == null) return false;
+    return true;
   }, [
     costAwareness,
-    current,
     direction,
     frictionType,
-    futureIntention,
-    spendingAmount,
+    hasRoster,
+    selectedPersonId,
     spendingThisWeek,
     spendingType,
   ]);
 
+  const finishFlow = useCallback(() => {
+    setShowStayOrGo(false);
+    setPendingNavigate(true);
+    setSuccessMessage('Check-in saved');
+    void fetchWaterfallContext().then(setWaterfallContext).catch(() => {});
+    window.setTimeout(() => navigate(CHECKUPS_HUB_PATH, { replace: true }), 2000);
+  }, [navigate]);
+
   const submit = useCallback(async () => {
-    if (
-      frictionType == null ||
-      spendingThisWeek == null ||
-      direction == null ||
-      costAwareness == null ||
-      futureIntention == null
-    ) {
-      return;
-    }
+    if (!canSubmit || selectedPersonId == null || direction == null) return;
     setBusy(true);
     setError(null);
     try {
       await submitRelationshipsCheckup({
-        relationship_friction_type: frictionType,
-        relationship_spending_this_week: spendingThisWeek,
-        relationship_spending_amount: spendingThisWeek ? Number(spendingAmount) : null,
-        relationship_spending_type: spendingThisWeek ? spendingType : null,
-        relationship_direction: direction,
-        relationship_cost_awareness: costAwareness,
-        relationship_future_intention: futureIntention,
+        relationship_friction_type: FRICTION_API[frictionType!] ?? 'none',
+        relationship_spending_this_week: spendingThisWeek!,
+        relationship_spending_amount: spendingThisWeek
+          ? spendingAmount.trim() !== ''
+            ? Number(spendingAmount)
+            : 0
+          : null,
+        relationship_spending_type: spendingThisWeek
+          ? SPENDING_TYPE_API[spendingType ?? 'na'] ?? 'other'
+          : null,
+        relationship_direction: DIRECTION_API[direction] ?? 'stable',
+        relationship_cost_awareness: AWARENESS_API[costAwareness!] ?? 'somewhat',
+        relationship_future_intention: 'maintain',
       });
-      setSuccessMessage('Check-in saved');
-      void fetchWaterfallContext().then(setWaterfallContext).catch(() => {});
-      window.setTimeout(() => navigate(CHECKUPS_HUB_PATH, { replace: true }), 2000);
+
+      const history = appendDirectionHistory(selectedPersonId, direction);
+      if (shouldShowStayOrGo(history)) {
+        setShowStayOrGo(true);
+      } else {
+        finishFlow();
+      }
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Submit failed');
     } finally {
       setBusy(false);
     }
   }, [
+    canSubmit,
     costAwareness,
     direction,
+    finishFlow,
     frictionType,
-    futureIntention,
-    navigate,
+    selectedPersonId,
     spendingAmount,
     spendingThisWeek,
     spendingType,
   ]);
-
-  const next = () => {
-    if (step < steps.length - 1) {
-      if (canAdvance) setStep((s) => s + 1);
-      return;
-    }
-    void submit();
-  };
 
   const onSpendingThisWeekChange = (val: boolean) => {
     setSpendingThisWeek(val);
@@ -190,18 +240,23 @@ export function DashRelationshipsCheckup() {
     }
   };
 
-  const lastAt =
-    profile?.relationship_friction_type != null ? profile.updated_at : null;
+  const lastAt = profile?.relationship_friction_type != null ? profile.updated_at : null;
 
   return (
     <CheckupWrapperShell
       title="Relationships Check-in"
       lastCompletedAt={lastAt}
-      loading={profileLoading}
+      loading={profileLoading || rosterLoading}
       error={error}
       successMessage={successMessage}
     >
-      {successMessage && waterfallContext ? (
+      <StayOrGoPrompt
+        open={showStayOrGo}
+        personName={personName}
+        onDismiss={finishFlow}
+      />
+
+      {successMessage && waterfallContext && pendingNavigate ? (
         <FluencyCue
           context={waterfallContext}
           domain="relationships"
@@ -210,100 +265,119 @@ export function DashRelationshipsCheckup() {
         />
       ) : null}
 
-      {!successMessage ? (
+      {!successMessage && !showStayOrGo ? (
         <div
-          className="dash-checkup-theme space-y-6 rounded-2xl border bg-white p-6 shadow-sm sm:p-8"
+          className="dash-checkup-theme max-h-[70vh] overflow-y-auto rounded-2xl border bg-white p-6 shadow-sm sm:max-h-none sm:overflow-visible sm:p-8"
           style={{ borderColor: 'var(--line)' }}
         >
-          <StepLabel step={step} total={steps.length} />
+          <CheckupForm>
+            <CheckupQuestionBlock>
+              <QuestionLabel>Who are you checking in on today?</QuestionLabel>
+              {!hasRoster ? (
+                <p className="text-sm" style={{ color: 'var(--ink-mid)' }}>
+                  Add someone to your roster first to complete this check-in.
+                </p>
+              ) : (
+                <div className="flex flex-wrap gap-2">
+                  {roster.map((person) => {
+                    const active = selectedPersonId === person.id;
+                    return (
+                      <button
+                        key={person.id}
+                        type="button"
+                        onClick={() => setSelectedPersonId(person.id)}
+                        className={`rounded-full border px-4 py-2 text-sm transition ${
+                          active
+                            ? 'border-[var(--mingus-purple)] bg-[var(--soft-purple)] font-medium'
+                            : ''
+                        }`}
+                        style={{ borderColor: active ? undefined : 'var(--line)' }}
+                        aria-pressed={active}
+                      >
+                        {person.emoji ? `${person.emoji} ` : ''}
+                        {person.nickname}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </CheckupQuestionBlock>
 
-          {current === 'friction' ? (
-            <section className="space-y-4">
-              <StepTitle>
-                What kind of friction showed up in your closest relationship this week, if any?
-              </StepTitle>
-              <OptionButtons
-                options={FRICTION_OPTIONS}
-                value={frictionType}
-                onChange={setFrictionType}
-              />
-            </section>
-          ) : null}
+            {hasRoster && selectedPersonId ? (
+              <>
+                <CheckupQuestionBlock conditional>
+                  <QuestionLabel>
+                    How connected did you feel to {personName} this week?
+                  </QuestionLabel>
+                  <ScaleButtons
+                    min={1}
+                    max={5}
+                    value={emotionalScore}
+                    onChange={setEmotionalScore}
+                    labels={{ 1: 'Distant', 3: 'Present', 5: 'Close' }}
+                  />
+                </CheckupQuestionBlock>
 
-          {current === 'spending_this_week' ? (
-            <section className="space-y-4">
-              <StepTitle>
-                Did you spend money on this relationship this week — dates, gifts, travel, or
-                shared costs?
-              </StepTitle>
-              <YesNoButtons value={spendingThisWeek} onChange={onSpendingThisWeekChange} />
-            </section>
-          ) : null}
+                <CheckupQuestionBlock>
+                  <QuestionLabel>
+                    Were there any points of friction — financial, emotional, or both — between you
+                    and {personName} this week?
+                  </QuestionLabel>
+                  <OptionButtons
+                    options={FRICTION_OPTIONS}
+                    value={frictionType}
+                    onChange={setFrictionType}
+                  />
+                </CheckupQuestionBlock>
 
-          {current === 'spending_amount' ? (
-            <section className="space-y-4">
-              <StepTitle>Roughly how much did you spend?</StepTitle>
-              <input
-                type="number"
-                min={0}
-                step={1}
-                value={spendingAmount}
-                onChange={(e) => setSpendingAmount(e.target.value)}
-                placeholder="Amount in dollars"
-                className="w-full rounded-xl border px-4 py-3 text-sm"
-                style={{ borderColor: 'var(--line)' }}
-              />
-            </section>
-          ) : null}
+                <CheckupQuestionBlock>
+                  <QuestionLabel>
+                    Did you spend money on or because of {personName} this week?
+                  </QuestionLabel>
+                  <YesNoButtons value={spendingThisWeek} onChange={onSpendingThisWeekChange} />
+                </CheckupQuestionBlock>
 
-          {current === 'spending_type' ? (
-            <section className="space-y-4">
-              <StepTitle>What was most of that spending for?</StepTitle>
-              <OptionButtons
-                options={SPENDING_TYPE_OPTIONS}
-                value={spendingType}
-                onChange={setSpendingType}
-              />
-            </section>
-          ) : null}
+                {spendingThisWeek === true ? (
+                  <>
+                    <CheckupQuestionBlock conditional>
+                      <QuestionLabel>Roughly how much? (optional)</QuestionLabel>
+                      <DollarInput value={spendingAmount} onChange={setSpendingAmount} />
+                    </CheckupQuestionBlock>
 
-          {current === 'direction' ? (
-            <section className="space-y-4">
-              <StepTitle>Overall, which way is this relationship heading?</StepTitle>
-              <OptionButtons options={DIRECTION_OPTIONS} value={direction} onChange={setDirection} />
-            </section>
-          ) : null}
+                    <CheckupQuestionBlock conditional>
+                      <QuestionLabel>Was that spending planned or reactive?</QuestionLabel>
+                      <OptionButtons
+                        options={SPENDING_TYPE_OPTIONS}
+                        value={spendingType}
+                        onChange={setSpendingType}
+                      />
+                    </CheckupQuestionBlock>
+                  </>
+                ) : null}
 
-          {current === 'cost_awareness' ? (
-            <section className="space-y-4">
-              <StepTitle>How aware are you of what this relationship costs you financially?</StepTitle>
-              <OptionButtons
-                options={AWARENESS_OPTIONS}
-                value={costAwareness}
-                onChange={setCostAwareness}
-              />
-            </section>
-          ) : null}
+                <CheckupQuestionBlock>
+                  <QuestionLabel>
+                    Is this relationship moving in the direction you want?
+                  </QuestionLabel>
+                  <OptionButtons options={DIRECTION_OPTIONS} value={direction} onChange={setDirection} />
+                </CheckupQuestionBlock>
 
-          {current === 'future_intention' ? (
-            <section className="space-y-4">
-              <StepTitle>What do you want to do with this relationship going forward?</StepTitle>
-              <OptionButtons
-                options={INTENTION_OPTIONS}
-                value={futureIntention}
-                onChange={setFutureIntention}
-              />
-            </section>
-          ) : null}
+                <CheckupQuestionBlock>
+                  <QuestionLabel>
+                    Do you feel like {personName} understands or respects your financial situation
+                    and goals?
+                  </QuestionLabel>
+                  <OptionButtons
+                    options={AWARENESS_OPTIONS}
+                    value={costAwareness}
+                    onChange={setCostAwareness}
+                  />
+                </CheckupQuestionBlock>
 
-          <StepNav
-            step={step}
-            busy={busy}
-            canAdvance={canAdvance}
-            onBack={() => setStep((s) => Math.max(0, s - 1))}
-            onNext={next}
-            isLast={step === steps.length - 1}
-          />
+                <SubmitButton busy={busy} disabled={!canSubmit} onClick={() => void submit()} />
+              </>
+            ) : null}
+          </CheckupForm>
         </div>
       ) : null}
     </CheckupWrapperShell>

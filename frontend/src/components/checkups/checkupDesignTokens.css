@@ -152,3 +152,16 @@
 .dash-spirit-wrap [class*='border-[#C4A064]'] {
   border-color: var(--lavender-300) !important;
 }
+
+@keyframes checkupFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.checkup-conditional-enter {
+  animation: checkupFadeIn 100ms ease-out;
+}

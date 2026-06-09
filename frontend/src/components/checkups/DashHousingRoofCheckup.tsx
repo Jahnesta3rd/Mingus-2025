@@ -1,13 +1,16 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CheckupWrapperShell } from './CheckupWrapperShell';
 import { CHECKUPS_HUB_PATH, submitHousingCheckup } from './checkupShared';
+import { RenewalPrompt } from './RenewalPrompt';
 import {
+  CheckupForm,
+  CheckupQuestionBlock,
+  DollarInput,
   OptionButtons,
-  RangeStep,
-  StepLabel,
-  StepNav,
-  StepTitle,
+  QuestionLabel,
+  ScaleButtons,
+  SubmitButton,
   YesNoButtons,
 } from './dashCheckupUi';
 import { useLifeLedger } from '../../hooks/useLifeLedger';
@@ -20,133 +23,127 @@ import {
 } from '../fluency';
 
 const TENURE_OPTIONS = [
-  { value: 'rent', label: 'Rent' },
-  { value: 'own', label: 'Own' },
+  { value: 'renting', label: 'Renting' },
+  { value: 'own', label: 'I own' },
+  { value: 'other', label: 'Other' },
 ] as const;
 
 const LEASE_OPTIONS = [
-  { value: 'under_3mo', label: 'Under 3 months' },
+  { value: 'under_3mo', label: 'Within 3 months' },
   { value: '3_6mo', label: '3–6 months' },
   { value: '6_12mo', label: '6–12 months' },
-  { value: 'over_12mo', label: 'Over 12 months' },
+  { value: 'over_12mo', label: 'More than a year away' },
   { value: 'month_to_month', label: 'Month-to-month' },
 ] as const;
 
 const COST_CHANGED_OPTIONS = [
   { value: 'increased', label: 'Increased' },
   { value: 'decreased', label: 'Decreased' },
-  { value: 'same', label: 'About the same' },
-  { value: 'not_sure', label: 'Not sure' },
+  { value: 'same', label: 'No change' },
+  { value: 'na_own', label: 'N/A — I own' },
 ] as const;
 
 const DOWN_PAYMENT_OPTIONS = [
-  { value: 'not_saving', label: 'Not saving yet' },
-  { value: 'started', label: 'Started saving' },
-  { value: 'on_track', label: 'On track for my goal' },
-  { value: 'ready', label: 'Ready or already saved' },
+  { value: 'not_saving', label: "Haven't started yet" },
+  { value: 'started', label: 'Started but behind' },
+  { value: 'on_track', label: 'On track' },
+  { value: 'not_goal', label: 'Not a goal right now' },
 ] as const;
 
-type HousingStep =
-  | 'stability'
-  | 'tenure'
-  | 'lease'
-  | 'down_payment'
-  | 'cost_changed'
-  | 'unexpected'
-  | 'unexpected_amount';
+const DOWN_PAYMENT_API: Record<string, string> = {
+  not_saving: 'not_saving',
+  started: 'started',
+  on_track: 'on_track',
+  not_goal: 'not_saving',
+};
 
-function buildSteps(tenure: string | null, unexpectedCost: boolean | null): HousingStep[] {
-  const steps: HousingStep[] = ['stability', 'tenure'];
-  if (tenure === 'rent') steps.push('lease');
-  if (tenure === 'own') steps.push('down_payment');
-  steps.push('cost_changed', 'unexpected');
-  if (unexpectedCost === true) steps.push('unexpected_amount');
-  return steps;
-}
-
-/**
- * Housing & Roof check-in — 7-field set with tenure branch + unexpected-cost trigger (#170).
- */
 export function DashHousingRoofCheckup() {
   const navigate = useNavigate();
   const { isAuthenticated, user } = useAuth();
   const { profile, loading: profileLoading, refetch } = useLifeLedger(isAuthenticated);
   const userTier = deriveUserTier(user);
   const [waterfallContext, setWaterfallContext] = useState<WaterfallContext | null>(null);
-  const [step, setStep] = useState(0);
   const [stabilityRating, setStabilityRating] = useState(3);
   const [tenure, setTenure] = useState<string | null>(null);
   const [leaseHorizon, setLeaseHorizon] = useState<string | null>(null);
-  const [downPaymentStatus, setDownPaymentStatus] = useState<string | null>(null);
   const [costChanged, setCostChanged] = useState<string | null>(null);
   const [unexpectedCost, setUnexpectedCost] = useState<boolean | null>(null);
-  const [unexpectedAmount, setUnexpectedAmount] = useState<string>('');
+  const [unexpectedAmount, setUnexpectedAmount] = useState('');
+  const [downPaymentStatus, setDownPaymentStatus] = useState<string | null>(null);
+  const [renewalVariant, setRenewalVariant] = useState<'renewal' | 'increased' | null>(null);
+  const [pendingIncreasedPrompt, setPendingIncreasedPrompt] = useState(false);
+  const [submittedRoofScore, setSubmittedRoofScore] = useState<number | null>(null);
+  const [pendingNavigate, setPendingNavigate] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  const steps = useMemo(
-    () => buildSteps(tenure, unexpectedCost),
-    [tenure, unexpectedCost]
-  );
-  useEffect(() => {
-    if (step >= steps.length) setStep(Math.max(0, steps.length - 1));
-  }, [step, steps.length]);
-  const current = steps[step] ?? 'stability';
+  const isRenting = tenure === 'renting';
+  const apiTenure = tenure === 'renting' ? 'rent' : 'own';
 
-  const canAdvance = useMemo(() => {
-    switch (current) {
-      case 'stability':
-        return true;
-      case 'tenure':
-        return tenure != null;
-      case 'lease':
-        return leaseHorizon != null;
-      case 'down_payment':
-        return downPaymentStatus != null;
-      case 'cost_changed':
-        return costChanged != null;
-      case 'unexpected':
-        return unexpectedCost != null;
-      case 'unexpected_amount': {
-        const n = Number(unexpectedAmount);
-        return unexpectedAmount.trim() !== '' && !Number.isNaN(n) && n >= 0;
-      }
-      default:
-        return false;
-    }
-  }, [costChanged, current, downPaymentStatus, leaseHorizon, tenure, unexpectedAmount, unexpectedCost]);
+  const canSubmit = useMemo(() => {
+    if (tenure == null || costChanged == null || unexpectedCost == null) return false;
+    if (isRenting && (leaseHorizon == null || downPaymentStatus == null)) return false;
+    return true;
+  }, [costChanged, downPaymentStatus, isRenting, leaseHorizon, tenure, unexpectedCost]);
+
+  const finishFlow = useCallback(
+    (roofScore: number) => {
+      setRenewalVariant(null);
+      setPendingNavigate(true);
+      setSuccessMessage(`Roof score updated — ${roofScore} / 100`);
+      void fetchWaterfallContext().then(setWaterfallContext).catch(() => {});
+      window.setTimeout(() => navigate(CHECKUPS_HUB_PATH, { replace: true }), 2000);
+    },
+    [navigate]
+  );
 
   const submit = useCallback(async () => {
-    if (tenure == null || costChanged == null || unexpectedCost == null) return;
+    if (!canSubmit || tenure == null || costChanged == null || unexpectedCost == null) return;
     setBusy(true);
     setError(null);
     try {
+      const apiCostChanged = costChanged === 'na_own' ? 'same' : costChanged;
       const data = await submitHousingCheckup({
         housing_stability_rating: stabilityRating,
-        housing_tenure: tenure,
-        housing_lease_end_horizon: tenure === 'rent' ? leaseHorizon : null,
-        housing_cost_changed: costChanged,
-        housing_down_payment_status: tenure === 'own' ? downPaymentStatus : null,
+        housing_tenure: apiTenure,
+        housing_lease_end_horizon: isRenting ? leaseHorizon : null,
+        housing_cost_changed: apiCostChanged,
+        housing_down_payment_status: isRenting
+          ? DOWN_PAYMENT_API[downPaymentStatus ?? 'not_saving'] ?? 'not_saving'
+          : 'not_saving',
         housing_unexpected_cost: unexpectedCost,
         housing_unexpected_cost_amount: unexpectedCost
-          ? Number(unexpectedAmount)
+          ? unexpectedAmount.trim() !== ''
+            ? Number(unexpectedAmount)
+            : 0
           : null,
       });
       await refetch();
-      setSuccessMessage(`Roof score updated — ${data.roof_score} / 100`);
-      void fetchWaterfallContext().then(setWaterfallContext).catch(() => {});
-      window.setTimeout(() => navigate(CHECKUPS_HUB_PATH, { replace: true }), 2000);
+      setSubmittedRoofScore(data.roof_score);
+
+      const showRenewal = isRenting && leaseHorizon === 'under_3mo';
+      const showIncreased = apiCostChanged === 'increased';
+      if (showRenewal) {
+        setRenewalVariant('renewal');
+        if (showIncreased) setPendingIncreasedPrompt(true);
+      } else if (showIncreased) {
+        setRenewalVariant('increased');
+      } else {
+        finishFlow(data.roof_score);
+      }
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Submit failed');
     } finally {
       setBusy(false);
     }
   }, [
+    canSubmit,
     costChanged,
     downPaymentStatus,
+    finishFlow,
+    isRenting,
     leaseHorizon,
-    navigate,
     refetch,
     stabilityRating,
     tenure,
@@ -154,12 +151,12 @@ export function DashHousingRoofCheckup() {
     unexpectedCost,
   ]);
 
-  const next = () => {
-    if (step < steps.length - 1) {
-      if (canAdvance) setStep((s) => s + 1);
-      return;
+  const onTenureChange = (val: string) => {
+    setTenure(val);
+    if (val !== 'renting') {
+      setLeaseHorizon(null);
+      setDownPaymentStatus(null);
     }
-    void submit();
   };
 
   const onUnexpectedChange = (val: boolean) => {
@@ -178,7 +175,20 @@ export function DashHousingRoofCheckup() {
       error={error}
       successMessage={successMessage}
     >
-      {successMessage && waterfallContext ? (
+      <RenewalPrompt
+        variant={renewalVariant ?? 'renewal'}
+        open={renewalVariant != null}
+        onDismiss={() => {
+          if (pendingIncreasedPrompt && renewalVariant === 'renewal') {
+            setPendingIncreasedPrompt(false);
+            setRenewalVariant('increased');
+            return;
+          }
+          finishFlow(submittedRoofScore ?? profile?.roof_score ?? 0);
+        }}
+      />
+
+      {successMessage && waterfallContext && pendingNavigate ? (
         <FluencyCue
           context={waterfallContext}
           domain="housing"
@@ -187,95 +197,75 @@ export function DashHousingRoofCheckup() {
         />
       ) : null}
 
-      {!successMessage ? (
+      {!successMessage && renewalVariant == null ? (
         <div
-          className="dash-checkup-theme space-y-6 rounded-2xl border bg-white p-6 shadow-sm sm:p-8"
+          className="dash-checkup-theme max-h-[70vh] overflow-y-auto rounded-2xl border bg-white p-6 shadow-sm sm:max-h-none sm:overflow-visible sm:p-8"
           style={{ borderColor: 'var(--line)' }}
         >
-          <StepLabel step={step} total={steps.length} />
-
-          {current === 'stability' ? (
-            <RangeStep
-              label="How stable does your housing situation feel right now?"
-              min={1}
-              max={5}
-              value={stabilityRating}
-              onChange={setStabilityRating}
-              lowLabel="Very unstable"
-              highLabel="Very stable"
-            />
-          ) : null}
-
-          {current === 'tenure' ? (
-            <section className="space-y-4">
-              <StepTitle>Do you rent or own your home?</StepTitle>
-              <OptionButtons options={TENURE_OPTIONS} value={tenure} onChange={setTenure} />
-            </section>
-          ) : null}
-
-          {current === 'lease' ? (
-            <section className="space-y-4">
-              <StepTitle>When does your lease end or come up for renewal?</StepTitle>
-              <OptionButtons options={LEASE_OPTIONS} value={leaseHorizon} onChange={setLeaseHorizon} />
-            </section>
-          ) : null}
-
-          {current === 'down_payment' ? (
-            <section className="space-y-4">
-              <StepTitle>Where are you with saving for maintenance or your next housing move?</StepTitle>
-              <OptionButtons
-                options={DOWN_PAYMENT_OPTIONS}
-                value={downPaymentStatus}
-                onChange={setDownPaymentStatus}
+          <CheckupForm>
+            <CheckupQuestionBlock>
+              <QuestionLabel>How stable does your housing situation feel right now?</QuestionLabel>
+              <ScaleButtons
+                min={1}
+                max={5}
+                value={stabilityRating}
+                onChange={setStabilityRating}
+                labels={{ 1: 'Very uncertain', 3: 'Manageable', 5: 'Rock solid' }}
               />
-            </section>
-          ) : null}
+            </CheckupQuestionBlock>
 
-          {current === 'cost_changed' ? (
-            <section className="space-y-4">
-              <StepTitle>How have your housing costs changed recently?</StepTitle>
+            <CheckupQuestionBlock>
+              <QuestionLabel>What&apos;s your current housing situation?</QuestionLabel>
+              <OptionButtons options={TENURE_OPTIONS} value={tenure} onChange={onTenureChange} />
+            </CheckupQuestionBlock>
+
+            {isRenting ? (
+              <CheckupQuestionBlock conditional>
+                <QuestionLabel>
+                  When does your current lease end or come up for renewal?
+                </QuestionLabel>
+                <OptionButtons options={LEASE_OPTIONS} value={leaseHorizon} onChange={setLeaseHorizon} />
+              </CheckupQuestionBlock>
+            ) : null}
+
+            <CheckupQuestionBlock>
+              <QuestionLabel>Has your rent or housing cost changed in the last 3 months?</QuestionLabel>
               <OptionButtons options={COST_CHANGED_OPTIONS} value={costChanged} onChange={setCostChanged} />
-            </section>
-          ) : null}
+            </CheckupQuestionBlock>
 
-          {current === 'unexpected' ? (
-            <section className="space-y-4">
-              <StepTitle>
-                Did you face any unexpected housing costs this month — repairs, fees, or
-                emergencies?
-              </StepTitle>
+            <CheckupQuestionBlock>
+              <QuestionLabel>Were there any unexpected housing costs this week?</QuestionLabel>
               <YesNoButtons value={unexpectedCost} onChange={onUnexpectedChange} />
-            </section>
-          ) : null}
+            </CheckupQuestionBlock>
 
-          {current === 'unexpected_amount' ? (
-            <section className="space-y-4">
-              <StepTitle>Roughly how much was that unexpected housing cost?</StepTitle>
-              <label htmlFor="housing-unexpected-amount" className="sr-only">
-                Unexpected housing cost amount
-              </label>
-              <input
-                id="housing-unexpected-amount"
-                type="number"
-                min={0}
-                step={1}
-                value={unexpectedAmount}
-                onChange={(e) => setUnexpectedAmount(e.target.value)}
-                placeholder="Amount in dollars"
-                className="w-full rounded-xl border px-4 py-3 text-sm"
-                style={{ borderColor: 'var(--line)' }}
-              />
-            </section>
-          ) : null}
+            {unexpectedCost === true ? (
+              <CheckupQuestionBlock conditional>
+                <QuestionLabel>Roughly how much? (optional)</QuestionLabel>
+                <DollarInput
+                  id="housing-unexpected-amount"
+                  value={unexpectedAmount}
+                  onChange={setUnexpectedAmount}
+                />
+              </CheckupQuestionBlock>
+            ) : null}
 
-          <StepNav
-            step={step}
-            busy={busy || profileLoading}
-            canAdvance={canAdvance}
-            onBack={() => setStep((s) => Math.max(0, s - 1))}
-            onNext={next}
-            isLast={step === steps.length - 1}
-          />
+            {isRenting ? (
+              <CheckupQuestionBlock conditional>
+                <QuestionLabel>Where are you on saving for a down payment?</QuestionLabel>
+                <OptionButtons
+                  options={DOWN_PAYMENT_OPTIONS}
+                  value={downPaymentStatus}
+                  onChange={setDownPaymentStatus}
+                />
+              </CheckupQuestionBlock>
+            ) : null}
+
+            <SubmitButton
+              busy={busy || profileLoading}
+              disabled={!canSubmit}
+              onClick={() => void submit()}
+            />
+          </CheckupForm>
         </div>
       ) : null}
     </CheckupWrapperShell>
