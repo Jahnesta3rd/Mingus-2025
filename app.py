@@ -680,6 +680,11 @@ def internal_error(error):
         'status_code': 500
     }), 500
 
+@app.errorhandler(405)
+def method_not_allowed(e):
+    return jsonify({'error': 'Method not allowed'}), 405
+
+
 @app.errorhandler(Exception)
 def handle_exception(e):
     """Handle all unhandled exceptions"""

@@ -1,163 +1,142 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import SpiritFinance from '../../pages/SpiritFinance';
 import { CheckupWrapperShell } from './CheckupWrapperShell';
-import {
-  CHECKUPS_HUB_PATH,
-  authJsonHeaders,
-  submitSpiritCalmSupplement,
-} from './checkupShared';
+import { CHECKUPS_HUB_PATH, submitSpiritCalmCheckin } from './checkupShared';
+import { OptionButtons, StepLabel, StepNav, StepTitle, YesNoButtons } from './dashCheckupUi';
+import { useLifeLedger } from '../../hooks/useLifeLedger';
 import { useAuth } from '../../hooks/useAuth';
 
-type SpiritStreak = {
-  last_checkin_date: string | null;
-};
+const FINANCE_IMPACT_OPTIONS = [
+  { value: 'not_at_all', label: 'Not at all' },
+  { value: 'slightly', label: 'Slightly — small shifts in mood or spending' },
+  { value: 'moderately', label: 'Moderately — noticed real money decisions' },
+  { value: 'significantly', label: 'Significantly — major calm or anxiety about money' },
+] as const;
+
+const ANXIOUS_OPTIONS = [
+  { value: 'yes', label: 'Yes' },
+  { value: 'no', label: 'No' },
+  { value: 'unsure', label: "I'm not sure" },
+] as const;
 
 /**
- * Thin wrapper around SpiritFinance (#170) — adds dashboard chrome without editing SpiritFinance.tsx.
- * Supplemental grounding capture writes to WeeklyCheckin via POST /api/checkups/spirit-calm.
+ * Spirit & Calm check-in — 3-question set (#170) → LifeLedgerProfile.
  */
 export function DashSpiritCalmCheckup() {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
-  const [lastCompletedAt, setLastCompletedAt] = useState<string | null>(null);
-  const [historyLoading, setHistoryLoading] = useState(true);
-  const [practiceFeltGrounding, setPracticeFeltGrounding] = useState<boolean | null>(null);
-  const [meditationMinutes, setMeditationMinutes] = useState<number>(10);
+  const { profile, loading: profileLoading } = useLifeLedger(isAuthenticated);
+  const [step, setStep] = useState(0);
+  const [hadMoments, setHadMoments] = useState<boolean | null>(null);
+  const [affectedFinances, setAffectedFinances] = useState<string | null>(null);
+  const [financiallyAnxious, setFinanciallyAnxious] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!isAuthenticated) return;
-    let cancelled = false;
-    (async () => {
-      setHistoryLoading(true);
-      try {
-        const res = await fetch('/api/spirit/streak', {
-          credentials: 'include',
-          headers: authJsonHeaders(),
-        });
-        if (res.ok) {
-          const row = (await res.json()) as SpiritStreak;
-          if (!cancelled && row.last_checkin_date) {
-            setLastCompletedAt(row.last_checkin_date);
-          }
-        }
-      } catch {
-        /* optional */
-      } finally {
-        if (!cancelled) setHistoryLoading(false);
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [isAuthenticated]);
+  const totalSteps = 3;
 
-  const submitSupplement = useCallback(async () => {
-    if (practiceFeltGrounding == null) {
-      setError('Please indicate whether your practice felt grounding.');
-      return;
+  const canAdvance = useMemo(() => {
+    switch (step) {
+      case 0:
+        return hadMoments != null;
+      case 1:
+        return affectedFinances != null;
+      case 2:
+        return financiallyAnxious != null;
+      default:
+        return false;
     }
+  }, [affectedFinances, financiallyAnxious, hadMoments, step]);
+
+  const submit = useCallback(async () => {
+    if (hadMoments == null || affectedFinances == null || financiallyAnxious == null) return;
     setBusy(true);
     setError(null);
     try {
-      await submitSpiritCalmSupplement({
-        practice_felt_grounding: practiceFeltGrounding,
-        meditation_minutes_total: meditationMinutes,
+      await submitSpiritCalmCheckin({
+        practice_had_moments: hadMoments,
+        practice_affected_finances: affectedFinances,
+        spirit_financially_anxious: financiallyAnxious,
       });
-      setSuccessMessage('Practice logged.');
-      window.setTimeout(() => {
-        navigate(CHECKUPS_HUB_PATH, { replace: true });
-      }, 2000);
+      setSuccessMessage('Check-in saved');
+      window.setTimeout(() => navigate(CHECKUPS_HUB_PATH, { replace: true }), 2000);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Submit failed');
     } finally {
       setBusy(false);
     }
-  }, [meditationMinutes, navigate, practiceFeltGrounding]);
+  }, [affectedFinances, financiallyAnxious, hadMoments, navigate]);
+
+  const next = () => {
+    if (step < totalSteps - 1) {
+      if (canAdvance) setStep((s) => s + 1);
+      return;
+    }
+    void submit();
+  };
+
+  const lastAt = profile?.practice_had_moments != null ? profile.updated_at : null;
 
   return (
     <CheckupWrapperShell
       title="Spirit & Calm Check-in"
       score={null}
-      lastCompletedAt={lastCompletedAt}
-      loading={historyLoading}
+      lastCompletedAt={lastAt}
+      loading={profileLoading}
       error={error}
       successMessage={successMessage}
     >
-      <div className="dash-spirit-wrap space-y-6">
+      {!successMessage ? (
         <div
-          className="overflow-hidden rounded-2xl border bg-white shadow-sm"
-          style={{ borderColor: 'var(--line)', background: 'var(--whisper-purple)' }}
+          className="dash-checkup-theme space-y-6 rounded-2xl border bg-white p-6 shadow-sm sm:p-8"
+          style={{ borderColor: 'var(--line)' }}
         >
-          <SpiritFinance />
-        </div>
+          <StepLabel step={step} total={totalSteps} />
 
-        {!successMessage ? (
-          <section
-            className="dash-checkup-theme space-y-4 rounded-2xl border bg-white p-6 shadow-sm sm:p-8"
-            style={{ borderColor: 'var(--line)' }}
-            aria-labelledby="spirit-supplement-title"
-          >
-            <h2 id="spirit-supplement-title" className="font-display text-lg font-semibold">
-              After your practice
-            </h2>
-            <p className="text-sm" style={{ color: 'var(--ink-mid)' }}>
-              SpiritFinance does not capture grounding or weekly meditation totals — save these to your wellness
-              record.
-            </p>
+          {step === 0 ? (
+            <section className="space-y-4">
+              <StepTitle>
+                Did you have moments of calm, prayer, meditation, or spiritual grounding this week?
+              </StepTitle>
+              <YesNoButtons value={hadMoments} onChange={setHadMoments} />
+            </section>
+          ) : null}
 
-            <fieldset className="space-y-2">
-              <legend className="text-sm font-medium">Did this practice feel grounding?</legend>
-              <div className="flex gap-3">
-                {[true, false].map((val) => (
-                  <button
-                    key={String(val)}
-                    type="button"
-                    onClick={() => setPracticeFeltGrounding(val)}
-                    className={`min-h-11 flex-1 rounded-xl border px-4 py-3 text-sm font-medium transition ${
-                      practiceFeltGrounding === val
-                        ? 'border-[var(--mingus-purple)] bg-[var(--soft-purple)]'
-                        : ''
-                    }`}
-                    style={{ borderColor: practiceFeltGrounding === val ? undefined : 'var(--line)' }}
-                  >
-                    {val ? 'Yes' : 'No'}
-                  </button>
-                ))}
-              </div>
-            </fieldset>
-
-            <div className="space-y-2">
-              <label htmlFor="meditation-minutes-total" className="text-sm font-medium">
-                Total meditation or calm minutes this week
-              </label>
-              <input
-                id="meditation-minutes-total"
-                type="number"
-                min={0}
-                max={999}
-                value={meditationMinutes}
-                onChange={(e) => setMeditationMinutes(Math.max(0, Number(e.target.value) || 0))}
-                className="w-full rounded-xl border px-4 py-3 text-sm"
-                style={{ borderColor: 'var(--line)' }}
+          {step === 1 ? (
+            <section className="space-y-4">
+              <StepTitle>Did your spiritual or calm practice affect your financial decisions?</StepTitle>
+              <OptionButtons
+                options={FINANCE_IMPACT_OPTIONS}
+                value={affectedFinances}
+                onChange={setAffectedFinances}
               />
-            </div>
+            </section>
+          ) : null}
 
-            <button
-              type="button"
-              onClick={() => void submitSupplement()}
-              disabled={busy}
-              className="dash-checkup-primary min-h-11 w-full rounded-xl px-4 py-3 text-sm font-semibold text-white disabled:opacity-40"
-              style={{ background: 'var(--mingus-purple)' }}
-            >
-              {busy ? 'Saving…' : 'Save practice notes'}
-            </button>
-          </section>
-        ) : null}
-      </div>
+          {step === 2 ? (
+            <section className="space-y-4">
+              <StepTitle>
+                When you think about money right now, do you feel spiritually or emotionally anxious?
+              </StepTitle>
+              <OptionButtons
+                options={ANXIOUS_OPTIONS}
+                value={financiallyAnxious}
+                onChange={setFinanciallyAnxious}
+              />
+            </section>
+          ) : null}
+
+          <StepNav
+            step={step}
+            busy={busy}
+            canAdvance={canAdvance}
+            onBack={() => setStep((s) => s - 1)}
+            onNext={next}
+            isLast={step === totalSteps - 1}
+          />
+        </div>
+      ) : null}
     </CheckupWrapperShell>
   );
 }

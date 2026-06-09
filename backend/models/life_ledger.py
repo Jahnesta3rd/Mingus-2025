@@ -60,6 +60,49 @@ class LifeLedgerProfile(db.Model):
     roof_housing_wealth_gap = db.Column(db.Integer, nullable=True)
     vehicle_annual_maintenance = db.Column(db.Integer, nullable=True)
 
+    # Dashboard checkup hub fields (#170) — all nullable
+    body_energy_rating = db.Column(db.Integer, nullable=True)
+    body_work_impact = db.Column(db.String(20), nullable=True)
+    body_ongoing_health_cost = db.Column(db.Boolean, nullable=True)
+
+    mood_stress_triggered_purchase = db.Column(db.String(10), nullable=True)
+    mood_avoided_finances = db.Column(db.Boolean, nullable=True)
+    mood_coping_methods = db.Column(db.Text, nullable=True)
+    spending_intentionality_rating = db.Column(db.Integer, nullable=True)
+
+    practice_had_moments = db.Column(db.Boolean, nullable=True)
+    practice_affected_finances = db.Column(db.String(20), nullable=True)
+    spirit_financially_anxious = db.Column(db.String(10), nullable=True)
+
+    housing_stability_rating = db.Column(db.Integer, nullable=True)
+    housing_tenure = db.Column(db.String(10), nullable=True)
+    housing_lease_end_horizon = db.Column(db.String(20), nullable=True)
+    housing_cost_changed = db.Column(db.String(15), nullable=True)
+    housing_down_payment_status = db.Column(db.String(20), nullable=True)
+    housing_unexpected_cost = db.Column(db.Boolean, nullable=True)
+    housing_unexpected_cost_amount = db.Column(db.Float, nullable=True)
+
+    vehicle_satisfaction_rating = db.Column(db.Integer, nullable=True)
+    vehicle_maintenance_confidence = db.Column(db.Integer, nullable=True)
+    vehicle_recent_concern = db.Column(db.Boolean, nullable=True)
+    vehicle_concern_description = db.Column(db.Text, nullable=True)
+    vehicle_weekly_miles = db.Column(db.Integer, nullable=True)
+    vehicle_last_service_horizon = db.Column(db.String(15), nullable=True)
+    vehicle_insurance_known = db.Column(db.Boolean, nullable=True)
+    vehicle_insurance_premium = db.Column(db.Float, nullable=True)
+    vehicle_insurance_last_shopped = db.Column(db.String(15), nullable=True)
+    vehicle_decision_horizon = db.Column(db.String(25), nullable=True)
+    vehicle_reliability_rating = db.Column(db.Integer, nullable=True)
+    vehicle_value_perception = db.Column(db.Integer, nullable=True)
+
+    relationship_friction_type = db.Column(db.String(20), nullable=True)
+    relationship_spending_this_week = db.Column(db.Boolean, nullable=True)
+    relationship_spending_amount = db.Column(db.Float, nullable=True)
+    relationship_spending_type = db.Column(db.String(20), nullable=True)
+    relationship_direction = db.Column(db.String(20), nullable=True)
+    relationship_cost_awareness = db.Column(db.String(20), nullable=True)
+    relationship_future_intention = db.Column(db.String(20), nullable=True)
+
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     updated_at = db.Column(
         db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False

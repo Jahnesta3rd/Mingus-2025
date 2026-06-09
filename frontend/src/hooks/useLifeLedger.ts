@@ -43,6 +43,9 @@ export interface LifeLedgerProfile {
   body_health_cost_projection: number | null;
   roof_housing_wealth_gap: number | null;
   vehicle_annual_maintenance: number | null;
+  mood_stress_triggered_purchase?: string | null;
+  practice_had_moments?: boolean | null;
+  relationship_friction_type?: string | null;
   created_at: string | null;
   updated_at: string | null;
 }

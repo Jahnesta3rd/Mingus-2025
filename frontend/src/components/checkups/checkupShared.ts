@@ -40,83 +40,8 @@ export function formatRelativeLastUpdate(iso: string | null | undefined): string
   return `${Math.round(days / 365)} years ago`;
 }
 
-export async function submitBodyCheckAnswers(
-  answers: Record<string, number>
-): Promise<{ body_score: number }> {
-  const res = await fetch('/api/life-ledger/body-check/submit', {
-    method: 'POST',
-    headers: authJsonHeaders(),
-    credentials: 'include',
-    body: JSON.stringify({ answers }),
-  });
-  if (!res.ok) {
-    let msg = `Could not save Body Check (${res.status})`;
-    try {
-      const j = (await res.json()) as { error?: string };
-      if (j.error) msg = j.error;
-    } catch {
-      /* ignore */
-    }
-    throw new Error(msg);
-  }
-  return (await res.json()) as { body_score: number };
-}
-
-export async function submitRoofCheckAnswers(
-  answers: Record<string, number>
-): Promise<{ roof_score: number }> {
-  const res = await fetch('/api/life-ledger/roof-check/submit', {
-    method: 'POST',
-    headers: authJsonHeaders(),
-    credentials: 'include',
-    body: JSON.stringify({ answers }),
-  });
-  if (!res.ok) {
-    let msg = `Could not save Roof Check (${res.status})`;
-    try {
-      const j = (await res.json()) as { error?: string };
-      if (j.error) msg = j.error;
-    } catch {
-      /* ignore */
-    }
-    throw new Error(msg);
-  }
-  return (await res.json()) as { roof_score: number };
-}
-
-export async function submitVehicleCheckAnswers(
-  answers: Record<string, number>
-): Promise<{ vehicle_score: number }> {
-  const res = await fetch('/api/life-ledger/vehicle-check/submit', {
-    method: 'POST',
-    headers: authJsonHeaders(),
-    credentials: 'include',
-    body: JSON.stringify({ answers }),
-  });
-  if (!res.ok) {
-    let msg = `Could not save Vehicle Check (${res.status})`;
-    try {
-      const j = (await res.json()) as { error?: string };
-      if (j.error) msg = j.error;
-    } catch {
-      /* ignore */
-    }
-    throw new Error(msg);
-  }
-  return (await res.json()) as { vehicle_score: number };
-}
-
-export type MindMoodPayload = {
-  mood_rating: number;
-  stress_level: number;
-  mood_stress_triggered_purchase: string;
-  mood_avoided_finances: boolean;
-  mood_coping_methods: string[];
-  spending_intentionality_rating: number;
-};
-
-export async function submitMindMoodCheckin(payload: MindMoodPayload): Promise<void> {
-  const res = await fetch('/api/checkups/mind-mood', {
+async function postCheckup<T>(path: string, payload: unknown): Promise<T> {
+  const res = await fetch(path, {
     method: 'POST',
     headers: authJsonHeaders(),
     credentials: 'include',
@@ -132,30 +57,89 @@ export async function submitMindMoodCheckin(payload: MindMoodPayload): Promise<v
     }
     throw new Error(msg);
   }
+  return (await res.json()) as T;
 }
 
-export type SpiritCalmSupplementPayload = {
-  practice_felt_grounding: boolean;
-  meditation_minutes_total: number;
+export type BodyCheckupPayload = {
+  body_energy_rating: number;
+  body_work_impact: string;
+  body_ongoing_health_cost: boolean;
 };
 
-export async function submitSpiritCalmSupplement(
-  payload: SpiritCalmSupplementPayload
-): Promise<void> {
-  const res = await fetch('/api/checkups/spirit-calm', {
-    method: 'POST',
-    headers: authJsonHeaders(),
-    credentials: 'include',
-    body: JSON.stringify(payload),
-  });
-  if (!res.ok) {
-    let msg = `Could not save practice notes (${res.status})`;
-    try {
-      const j = (await res.json()) as { error?: string };
-      if (j.error) msg = j.error;
-    } catch {
-      /* ignore */
-    }
-    throw new Error(msg);
-  }
+export async function submitBodyCheckup(
+  payload: BodyCheckupPayload
+): Promise<{ body_score: number }> {
+  return postCheckup('/api/checkups/body', payload);
+}
+
+export type MindMoodPayload = {
+  mood_stress_triggered_purchase: string;
+  mood_avoided_finances: boolean;
+  mood_coping_methods: string[];
+  spending_intentionality_rating: number;
+};
+
+export async function submitMindMoodCheckin(payload: MindMoodPayload): Promise<void> {
+  await postCheckup('/api/checkups/mind-mood', payload);
+}
+
+export type SpiritCalmPayload = {
+  practice_had_moments: boolean;
+  practice_affected_finances: string;
+  spirit_financially_anxious: string;
+};
+
+export async function submitSpiritCalmCheckin(payload: SpiritCalmPayload): Promise<void> {
+  await postCheckup('/api/checkups/spirit-calm', payload);
+}
+
+export type HousingCheckupPayload = {
+  housing_stability_rating: number;
+  housing_tenure: string;
+  housing_lease_end_horizon?: string | null;
+  housing_cost_changed: string;
+  housing_down_payment_status?: string | null;
+  housing_unexpected_cost: boolean;
+  housing_unexpected_cost_amount?: number | null;
+};
+
+export async function submitHousingCheckup(
+  payload: HousingCheckupPayload
+): Promise<{ roof_score: number }> {
+  return postCheckup('/api/checkups/housing-roof', payload);
+}
+
+export type VehicleCheckupPayload = {
+  vehicle_satisfaction_rating: number;
+  vehicle_maintenance_confidence: number;
+  vehicle_recent_concern: boolean;
+  vehicle_concern_description?: string | null;
+  vehicle_weekly_miles: number;
+  vehicle_last_service_horizon: string;
+  vehicle_insurance_known: boolean;
+  vehicle_insurance_premium?: number | null;
+  vehicle_insurance_last_shopped?: string | null;
+  vehicle_decision_horizon: string;
+  vehicle_reliability_rating: number;
+  vehicle_value_perception: number;
+};
+
+export async function submitVehicleCheckup(
+  payload: VehicleCheckupPayload
+): Promise<{ vehicle_score: number }> {
+  return postCheckup('/api/checkups/vehicle', payload);
+}
+
+export type RelationshipsCheckupPayload = {
+  relationship_friction_type: string;
+  relationship_spending_this_week: boolean;
+  relationship_spending_amount?: number | null;
+  relationship_spending_type?: string | null;
+  relationship_direction: string;
+  relationship_cost_awareness: string;
+  relationship_future_intention: string;
+};
+
+export async function submitRelationshipsCheckup(payload: RelationshipsCheckupPayload): Promise<void> {
+  await postCheckup('/api/checkups/relationships', payload);
 }
