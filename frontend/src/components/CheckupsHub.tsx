@@ -182,6 +182,13 @@ export function CheckupsHub() {
   const hubContent = (
     <div className="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6 lg:px-8">
       <header className="space-y-2">
+        <Link
+          to="/dashboard"
+          className="inline-flex min-h-11 items-center text-[13px] font-semibold transition hover:opacity-80"
+          style={{ color: 'var(--ink-mid, #5c5751)', fontFamily: 'Manrope, system-ui, sans-serif' }}
+        >
+          ← Dashboard
+        </Link>
         <h1 className="text-2xl font-semibold text-[#1E293B] sm:text-3xl">Your check-up hub</h1>
         <p className="max-w-2xl text-sm text-[#64748B] sm:text-base">
           Update each area to keep your forecast and insights current. Pick any card — each opens its own
