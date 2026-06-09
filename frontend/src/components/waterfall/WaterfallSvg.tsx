@@ -3,7 +3,7 @@ import { bucketAmount, formatUsd, type AllocationPercents } from './waterfallUti
 
 type BucketKey = keyof AllocationPercents;
 
-const SVG_W = 400;
+const SVG_W = 640;
 const CENTER_X = SVG_W / 2;
 const MARGIN_TOP = 16;
 const MARGIN_BOTTOM = 20;
@@ -146,7 +146,7 @@ export const WaterfallSvg: React.FC<WaterfallSvgProps> = ({
   return (
     <svg
       viewBox={`0 0 ${SVG_W} ${layout.totalHeight}`}
-      className="w-full max-w-md mx-auto"
+      className="w-full mx-auto"
       role="img"
       aria-label="Income waterfall visualization"
     >
@@ -235,10 +235,6 @@ export const WaterfallSvg: React.FC<WaterfallSvgProps> = ({
         const fillY = bucketY + b.height - fillH;
         const tapEndX = b.side === 'left' ? b.x + b.width : b.x;
 
-        if (index === 0) {
-          console.log('[WaterfallSvg] first bucket bucketY:', bucketY, 'rect y:', bucketY);
-        }
-
         return (
           <g key={b.key}>
             {/* Horizontal tap */}
@@ -294,7 +290,7 @@ export const WaterfallSvg: React.FC<WaterfallSvgProps> = ({
             {/* Bucket label — drawn after rects so it sits on top of fill */}
             <text
               x={b.x + b.width / 2}
-              y={bucketY + 18}
+              y={bucketY + 32}
               textAnchor="middle"
               fill="#1A1815"
               fontSize={10}
