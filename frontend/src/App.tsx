@@ -41,6 +41,7 @@ import SpiritFinance from './pages/SpiritFinance';
 import SettingsPage from './pages/SettingsPage';
 import OnboardingRouter from './components/OnboardingRouter';
 import FinancialForecastPage from './pages/FinancialForecastPage';
+import WaterfallPage from './pages/WaterfallPage';
 import UpgradePage from './pages/UpgradePage';
 import DashboardProfilePage from './pages/DashboardProfilePage';
 import SnapshotPage from './pages/SnapshotPage';
@@ -192,6 +193,7 @@ const router = createBrowserRouter([
       { index: true, element: <Navigate to="/dashboard/tools" replace /> },
       { path: 'roster', element: <VibeTrackerPage /> },
       { path: 'forecast', element: <FinancialForecastPage /> },
+      { path: 'waterfall', element: <WaterfallPage /> },
       { path: 'upgrade', element: <UpgradePage /> },
       { path: 'tools', element: <CareerProtectionDashboard /> },
       { path: 'profile', element: <DashboardProfilePage /> },

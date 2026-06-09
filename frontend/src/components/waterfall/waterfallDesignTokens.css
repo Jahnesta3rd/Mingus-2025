@@ -1,0 +1,17 @@
+.waterfall-root {
+  --mingus-purple: #5b2d8e;
+  --mingus-purple-deep: #3b1f6e;
+  --whisper-purple: #faf5ff;
+  --soft-purple: #ede9fe;
+  --lavender-300: #c4b5fd;
+  --ink: #1a1815;
+  --ink-mid: #5c5751;
+  --line: #e8e1f0;
+  color: var(--ink);
+  font-family: Manrope, system-ui, sans-serif;
+}
+
+.waterfall-root h1,
+.waterfall-root h2 {
+  font-family: Fraunces, Georgia, serif;
+}
