@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { CheckupWrapperShell } from './CheckupWrapperShell';
-import { CHECKUPS_HUB_PATH, submitBodyCheckup } from './checkupShared';
+import { submitBodyCheckup } from './checkupShared';
+import { useCheckupFluencyNavigation } from './useCheckupFluencyNavigation';
 import {
   CheckupForm,
   CheckupQuestionBlock,
@@ -17,9 +17,7 @@ import { useLifeLedger } from '../../hooks/useLifeLedger';
 import { useAuth } from '../../hooks/useAuth';
 import {
   deriveUserTier,
-  fetchWaterfallContext,
   FluencyCue,
-  type WaterfallContext,
 } from '../fluency';
 
 const WORK_IMPACT_OPTIONS = [
@@ -35,11 +33,15 @@ const WORK_IMPACT_API: Record<string, string> = {
 };
 
 export function DashBodyWellnessCheckup() {
-  const navigate = useNavigate();
   const { isAuthenticated, user } = useAuth();
   const { profile, loading: profileLoading, refetch } = useLifeLedger(isAuthenticated);
   const userTier = deriveUserTier(user);
-  const [waterfallContext, setWaterfallContext] = useState<WaterfallContext | null>(null);
+  const {
+    waterfallContext,
+    loadFluencyContext,
+    onCueActionRoute,
+    onCueDismiss,
+  } = useCheckupFluencyNavigation('body', userTier);
   const [physicalRating, setPhysicalRating] = useState(3);
   const [activityFrequency, setActivityFrequency] = useState(0);
   const [avgSleepHours, setAvgSleepHours] = useState('7');
@@ -68,14 +70,13 @@ export function DashBodyWellnessCheckup() {
       });
       await refetch();
       setSuccessMessage(`Body score updated — ${data.body_score} / 100`);
-      void fetchWaterfallContext().then(setWaterfallContext).catch(() => {});
-      window.setTimeout(() => navigate(CHECKUPS_HUB_PATH, { replace: true }), 2000);
+      void loadFluencyContext();
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Submit failed');
     } finally {
       setBusy(false);
     }
-  }, [energyRating, navigate, ongoingHealthCost, refetch, workImpact]);
+  }, [energyRating, loadFluencyContext, ongoingHealthCost, refetch, workImpact]);
 
   const lastAt = profile?.body_score != null ? profile.updated_at : null;
 
@@ -93,7 +94,8 @@ export function DashBodyWellnessCheckup() {
           context={waterfallContext}
           domain="body"
           userTier={userTier}
-          onActionRoute={(route) => navigate(route, { replace: true })}
+          onActionRoute={onCueActionRoute}
+          onDismiss={onCueDismiss}
         />
       ) : null}
 

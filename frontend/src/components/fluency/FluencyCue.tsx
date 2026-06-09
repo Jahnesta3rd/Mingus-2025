@@ -41,12 +41,33 @@ function dismissCue(cueId: string): void {
   }
 }
 
+export function findFluencyCue(
+  context: WaterfallContext,
+  domain: FluencyDomain | string,
+  userTier: UserTier | string
+): FluencyCueEntry | null {
+  if (context.data_completeness < MIN_DATA_COMPLETENESS) {
+    return null;
+  }
+  return (
+    FLUENCY_CUES.find(
+      (entry) =>
+        entry.domain === domain &&
+        tierMatches(entry.tier, userTier) &&
+        triggerMatches(entry, context) &&
+        !isDismissed(entry.id)
+    ) ?? null
+  );
+}
+
 export interface FluencyCueProps {
   context: WaterfallContext;
   domain: FluencyDomain | string;
   userTier: UserTier | string;
   /** Called when user taps an action CTA — wrapper should navigate immediately. */
   onActionRoute?: (route: string) => void;
+  /** Called after the user dismisses the cue (localStorage already updated). */
+  onDismiss?: () => void;
 }
 
 export const FluencyCue: React.FC<FluencyCueProps> = ({
@@ -54,30 +75,22 @@ export const FluencyCue: React.FC<FluencyCueProps> = ({
   domain,
   userTier,
   onActionRoute,
+  onDismiss,
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [dismissed, setDismissed] = useState(false);
 
-  const cue = useMemo(() => {
-    if (context.data_completeness < MIN_DATA_COMPLETENESS) {
-      return null;
-    }
-    return (
-      FLUENCY_CUES.find(
-        (entry) =>
-          entry.domain === domain &&
-          tierMatches(entry.tier, userTier) &&
-          triggerMatches(entry, context) &&
-          !isDismissed(entry.id)
-      ) ?? null
-    );
-  }, [context, domain, userTier]);
+  const cue = useMemo(
+    () => findFluencyCue(context, domain, userTier),
+    [context, domain, userTier]
+  );
 
   const handleDismiss = useCallback(() => {
     if (!cue) return;
     dismissCue(cue.id);
     setDismissed(true);
-  }, [cue]);
+    onDismiss?.();
+  }, [cue, onDismiss]);
 
   const handleAction = useCallback(() => {
     if (!cue?.actionRoute || !onActionRoute) return;

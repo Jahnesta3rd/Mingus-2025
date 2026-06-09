@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { CheckupWrapperShell } from './CheckupWrapperShell';
-import { CHECKUPS_HUB_PATH, submitMindMoodCheckin } from './checkupShared';
+import { submitMindMoodCheckin } from './checkupShared';
+import { useCheckupFluencyNavigation } from './useCheckupFluencyNavigation';
 import {
   CheckupForm,
   CheckupQuestionBlock,
@@ -17,9 +17,7 @@ import { useLifeLedger } from '../../hooks/useLifeLedger';
 import { useAuth } from '../../hooks/useAuth';
 import {
   deriveUserTier,
-  fetchWaterfallContext,
   FluencyCue,
-  type WaterfallContext,
 } from '../fluency';
 
 const TRIGGER_OPTIONS = [
@@ -38,11 +36,15 @@ const COPING_OPTIONS = [
 ] as const;
 
 export function DashMindMoodCheckup() {
-  const navigate = useNavigate();
   const { isAuthenticated, user } = useAuth();
   const { profile, loading: profileLoading } = useLifeLedger(isAuthenticated);
   const userTier = deriveUserTier(user);
-  const [waterfallContext, setWaterfallContext] = useState<WaterfallContext | null>(null);
+  const {
+    waterfallContext,
+    loadFluencyContext,
+    onCueActionRoute,
+    onCueDismiss,
+  } = useCheckupFluencyNavigation('mood', userTier);
   const [moodRating, setMoodRating] = useState(3);
   const [stressLevel, setStressLevel] = useState(3);
   const [triggerPurchase, setTriggerPurchase] = useState<string | null>(null);
@@ -82,14 +84,13 @@ export function DashMindMoodCheckup() {
         spending_intentionality_rating: spendingIntentionality,
       });
       setSuccessMessage('Check-in saved');
-      void fetchWaterfallContext().then(setWaterfallContext).catch(() => {});
-      window.setTimeout(() => navigate(CHECKUPS_HUB_PATH, { replace: true }), 2000);
+      void loadFluencyContext();
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Submit failed');
     } finally {
       setBusy(false);
     }
-  }, [avoidedFinances, copingMethods, navigate, spendingIntentionality, triggerPurchase]);
+  }, [avoidedFinances, copingMethods, loadFluencyContext, spendingIntentionality, triggerPurchase]);
 
   const lastAt = profile?.mood_stress_triggered_purchase != null ? profile.updated_at : null;
 
@@ -107,7 +108,8 @@ export function DashMindMoodCheckup() {
           context={waterfallContext}
           domain="mood"
           userTier={userTier}
-          onActionRoute={(route) => navigate(route, { replace: true })}
+          onActionRoute={onCueActionRoute}
+          onDismiss={onCueDismiss}
         />
       ) : null}
 

@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { CheckupWrapperShell } from './CheckupWrapperShell';
-import { CHECKUPS_HUB_PATH, submitSpiritCalmCheckin } from './checkupShared';
+import { submitSpiritCalmCheckin } from './checkupShared';
+import { useCheckupFluencyNavigation } from './useCheckupFluencyNavigation';
 import { BreathingExerciseModal } from './BreathingExerciseModal';
 import {
   CheckupForm,
@@ -17,9 +17,7 @@ import { useLifeLedger } from '../../hooks/useLifeLedger';
 import { useAuth } from '../../hooks/useAuth';
 import {
   deriveUserTier,
-  fetchWaterfallContext,
   FluencyCue,
-  type WaterfallContext,
 } from '../fluency';
 
 const FINANCE_IMPACT_OPTIONS = [
@@ -49,11 +47,15 @@ const ANXIOUS_API: Record<string, string> = {
 };
 
 export function DashSpiritCalmCheckup() {
-  const navigate = useNavigate();
   const { isAuthenticated, user } = useAuth();
   const { profile, loading: profileLoading } = useLifeLedger(isAuthenticated);
   const userTier = deriveUserTier(user);
-  const [waterfallContext, setWaterfallContext] = useState<WaterfallContext | null>(null);
+  const {
+    waterfallContext,
+    loadFluencyContext,
+    onCueActionRoute,
+    onCueDismiss,
+  } = useCheckupFluencyNavigation('spirit', userTier);
   const [hadMoments, setHadMoments] = useState<boolean | null>(null);
   const [meditationMinutes, setMeditationMinutes] = useState(0);
   const [affectedFinances, setAffectedFinances] = useState<string | null>(null);
@@ -74,9 +76,8 @@ export function DashSpiritCalmCheckup() {
     setShowBreathing(false);
     setPendingNavigate(true);
     setSuccessMessage('Check-in saved');
-    void fetchWaterfallContext().then(setWaterfallContext).catch(() => {});
-    window.setTimeout(() => navigate(CHECKUPS_HUB_PATH, { replace: true }), 2000);
-  }, [navigate]);
+    void loadFluencyContext();
+  }, [loadFluencyContext]);
 
   const submit = useCallback(async () => {
     if (hadMoments == null || affectedFinances == null || financiallyAnxious == null) return;
@@ -118,7 +119,8 @@ export function DashSpiritCalmCheckup() {
           context={waterfallContext}
           domain="spirit"
           userTier={userTier}
-          onActionRoute={(route) => navigate(route, { replace: true })}
+          onActionRoute={onCueActionRoute}
+          onDismiss={onCueDismiss}
         />
       ) : null}
 

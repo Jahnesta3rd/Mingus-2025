@@ -1,8 +1,8 @@
 import { useCallback, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { CheckupWrapperShell } from './CheckupWrapperShell';
-import { CHECKUPS_HUB_PATH, submitHousingCheckup } from './checkupShared';
+import { submitHousingCheckup } from './checkupShared';
 import { RenewalPrompt } from './RenewalPrompt';
+import { useCheckupFluencyNavigation } from './useCheckupFluencyNavigation';
 import {
   CheckupForm,
   CheckupQuestionBlock,
@@ -17,9 +17,7 @@ import { useLifeLedger } from '../../hooks/useLifeLedger';
 import { useAuth } from '../../hooks/useAuth';
 import {
   deriveUserTier,
-  fetchWaterfallContext,
   FluencyCue,
-  type WaterfallContext,
 } from '../fluency';
 
 const TENURE_OPTIONS = [
@@ -58,11 +56,15 @@ const DOWN_PAYMENT_API: Record<string, string> = {
 };
 
 export function DashHousingRoofCheckup() {
-  const navigate = useNavigate();
   const { isAuthenticated, user } = useAuth();
   const { profile, loading: profileLoading, refetch } = useLifeLedger(isAuthenticated);
   const userTier = deriveUserTier(user);
-  const [waterfallContext, setWaterfallContext] = useState<WaterfallContext | null>(null);
+  const {
+    waterfallContext,
+    loadFluencyContext,
+    onCueActionRoute,
+    onCueDismiss,
+  } = useCheckupFluencyNavigation('housing', userTier);
   const [stabilityRating, setStabilityRating] = useState(3);
   const [tenure, setTenure] = useState<string | null>(null);
   const [leaseHorizon, setLeaseHorizon] = useState<string | null>(null);
@@ -92,10 +94,9 @@ export function DashHousingRoofCheckup() {
       setRenewalVariant(null);
       setPendingNavigate(true);
       setSuccessMessage(`Roof score updated — ${roofScore} / 100`);
-      void fetchWaterfallContext().then(setWaterfallContext).catch(() => {});
-      window.setTimeout(() => navigate(CHECKUPS_HUB_PATH, { replace: true }), 2000);
+      void loadFluencyContext();
     },
-    [navigate]
+    [loadFluencyContext]
   );
 
   const submit = useCallback(async () => {
@@ -193,7 +194,8 @@ export function DashHousingRoofCheckup() {
           context={waterfallContext}
           domain="housing"
           userTier={userTier}
-          onActionRoute={(route) => navigate(route, { replace: true })}
+          onActionRoute={onCueActionRoute}
+          onDismiss={onCueDismiss}
         />
       ) : null}
 

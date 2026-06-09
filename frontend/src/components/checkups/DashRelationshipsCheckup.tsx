@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { CheckupWrapperShell } from './CheckupWrapperShell';
-import { authJsonHeaders, CHECKUPS_HUB_PATH, submitRelationshipsCheckup } from './checkupShared';
+import { authJsonHeaders, submitRelationshipsCheckup } from './checkupShared';
 import { StayOrGoPrompt } from './StayOrGoPrompt';
+import { useCheckupFluencyNavigation } from './useCheckupFluencyNavigation';
 import {
   CheckupForm,
   CheckupQuestionBlock,
@@ -18,9 +18,7 @@ import { useLifeLedger } from '../../hooks/useLifeLedger';
 import { useAuth } from '../../hooks/useAuth';
 import {
   deriveUserTier,
-  fetchWaterfallContext,
   FluencyCue,
-  type WaterfallContext,
 } from '../fluency';
 
 type RosterPerson = { id: string; nickname: string; emoji: string | null };
@@ -227,11 +225,15 @@ function RosterQuickAddForm({
 }
 
 export function DashRelationshipsCheckup() {
-  const navigate = useNavigate();
   const { isAuthenticated, user } = useAuth();
   const { profile, loading: profileLoading } = useLifeLedger(isAuthenticated);
   const userTier = deriveUserTier(user);
-  const [waterfallContext, setWaterfallContext] = useState<WaterfallContext | null>(null);
+  const {
+    waterfallContext,
+    loadFluencyContext,
+    onCueActionRoute,
+    onCueDismiss,
+  } = useCheckupFluencyNavigation('relationships', userTier);
   const [roster, setRoster] = useState<RosterPerson[]>([]);
   const [rosterLoading, setRosterLoading] = useState(true);
   const [showQuickAdd, setShowQuickAdd] = useState(false);
@@ -315,9 +317,8 @@ export function DashRelationshipsCheckup() {
     setShowStayOrGo(false);
     setPendingNavigate(true);
     setSuccessMessage('Check-in saved');
-    void fetchWaterfallContext().then(setWaterfallContext).catch(() => {});
-    window.setTimeout(() => navigate(CHECKUPS_HUB_PATH, { replace: true }), 2000);
-  }, [navigate]);
+    void loadFluencyContext();
+  }, [loadFluencyContext]);
 
   const submit = useCallback(async () => {
     if (!canSubmit || selectedPersonId == null || direction == null) return;
@@ -392,7 +393,8 @@ export function DashRelationshipsCheckup() {
           context={waterfallContext}
           domain="relationships"
           userTier={userTier}
-          onActionRoute={(route) => navigate(route, { replace: true })}
+          onActionRoute={onCueActionRoute}
+          onDismiss={onCueDismiss}
         />
       ) : null}
 
