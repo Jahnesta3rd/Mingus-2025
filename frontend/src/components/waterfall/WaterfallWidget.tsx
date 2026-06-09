@@ -8,17 +8,65 @@ import {
   type WaterfallContext,
 } from '../fluency';
 import './waterfallDesignTokens.css';
+import { WaterfallSvg } from './WaterfallSvg';
 import {
   bucketAmount,
   computeOptimizedAllocations,
   DEFAULT_ALLOCATIONS,
-  fiveYearCompoundedSurplus,
   formatUsd,
   isDownPaymentNotStarted,
   isVehicleSellTimeline,
   surplusPercent,
   type AllocationPercents,
 } from './waterfallUtils';
+
+function hexToRgb(hex: string): string {
+  const n = hex.replace('#', '');
+  const r = parseInt(n.slice(0, 2), 16);
+  const g = parseInt(n.slice(2, 4), 16);
+  const b = parseInt(n.slice(4, 6), 16);
+  return `${r}, ${g}, ${b}`;
+}
+
+function poolFiveYearLumpSum(monthlyPool: number): number {
+  if (monthlyPool <= 0) return 0;
+  return Math.round(monthlyPool * 12 * ((Math.pow(1.07, 5) - 1) / 0.07));
+}
+
+function poolDescription(poolPct: number, poolAmt: number): string {
+  if (poolPct <= 0) {
+    return 'Nothing left — your outflows exceed your income at these settings. Reduce discretionary or fixed spending to create any surplus.';
+  }
+  if (poolPct < 10) {
+    return `${poolPct}% of income left — tight, but it's a start. Even ${formatUsd(poolAmt)} invested monthly is better than zero.`;
+  }
+  if (poolPct < 20) {
+    return `${poolPct}% of income flowing to you — decent foundation. This is the money that can compound into savings, investments, and future security.`;
+  }
+  const fiveYearAmt = poolFiveYearLumpSum(poolAmt);
+  return `${poolPct}% of income reaching your pool — strong position. At 7% average annual growth, ${formatUsd(poolAmt)}/month invested becomes ${formatUsd(fiveYearAmt)} in 5 years.`;
+}
+
+const POOL_USE_PILLS = [
+  {
+    label: '📈 Index funds',
+    bg: 'rgba(91,45,142,0.08)',
+    color: '#5B2D8E',
+    border: 'rgba(91,45,142,0.2)',
+  },
+  {
+    label: '🛡️ Safety net',
+    bg: 'rgba(16,185,129,0.08)',
+    color: '#10B981',
+    border: 'rgba(16,185,129,0.2)',
+  },
+  {
+    label: '🏠 Future goals',
+    bg: 'rgba(59,130,246,0.08)',
+    color: '#3B82F6',
+    border: 'rgba(59,130,246,0.2)',
+  },
+] as const;
 
 const MIN_ANNOTATION_COMPLETENESS = 0.2;
 const MIN_OPTIMIZED_COMPLETENESS = 0.3;
@@ -27,34 +75,19 @@ type BucketKey = keyof AllocationPercents;
 
 const BUCKET_META: Record<
   BucketKey,
-  { label: string; fillClass: string; sliderAccent: string }
+  { label: string; color: string }
 > = {
-  fixed: {
-    label: 'Fixed Bills',
-    fillClass: 'bg-amber-400',
-    sliderAccent: 'accent-amber-500',
-  },
-  discretionary: {
-    label: 'Discretionary',
-    fillClass: 'bg-rose-400',
-    sliderAccent: 'accent-rose-500',
-  },
-  debt: {
-    label: 'Debt',
-    fillClass: 'bg-violet-500',
-    sliderAccent: 'accent-violet-600',
-  },
-  savings: {
-    label: 'Savings',
-    fillClass: 'bg-emerald-500',
-    sliderAccent: 'accent-emerald-600',
-  },
+  fixed: { label: 'Fixed Bills', color: '#3B82F6' },
+  discretionary: { label: 'Discretionary', color: '#F97316' },
+  debt: { label: 'Debt', color: '#EF4444' },
+  savings: { label: 'Savings', color: '#10B981' },
 };
 
-function PressureDot({ colorClass }: { colorClass: string }) {
+function PressureDot({ color }: { color: string }) {
   return (
     <span
-      className={`mr-1 inline-block h-2 w-2 shrink-0 rounded-full ${colorClass}`}
+      className="mr-1 inline-block h-2 w-2 shrink-0 rounded-full"
+      style={{ background: color }}
       aria-hidden
     />
   );
@@ -67,62 +100,34 @@ function BucketAnnotations({
   bucket: BucketKey;
   ctx: WaterfallContext;
 }) {
-  const lines: { text: string; dot: string; textColor: string }[] = [];
+  const lines: { text: string; dot: string }[] = [];
 
   if (bucket === 'fixed') {
     if (ctx.fixed_bills_pressure === 'elevated') {
-      lines.push({
-        text: 'Unexpected housing cost this week',
-        dot: 'bg-amber-500',
-        textColor: 'text-amber-600',
-      });
+      lines.push({ text: 'Unexpected housing cost this week', dot: '#F59E0B' });
     }
     if (ctx.lease_renewal_imminent) {
-      lines.push({
-        text: 'Renewal window open',
-        dot: 'bg-amber-500',
-        textColor: 'text-amber-600',
-      });
+      lines.push({ text: 'Renewal window open', dot: '#F59E0B' });
     }
   }
 
   if (bucket === 'discretionary') {
     if (ctx.discretionary_risk === 'high') {
-      lines.push({
-        text: 'Stress pattern detected this week',
-        dot: 'bg-red-500',
-        textColor: 'text-red-600',
-      });
+      lines.push({ text: 'Stress pattern detected this week', dot: '#EF4444' });
     } else if (ctx.discretionary_risk === 'watch') {
-      lines.push({
-        text: 'Possible stress spending this week',
-        dot: 'bg-amber-500',
-        textColor: 'text-amber-600',
-      });
+      lines.push({ text: 'Possible stress spending this week', dot: '#F59E0B' });
     }
   }
 
   if (bucket === 'debt' && isVehicleSellTimeline(ctx.vehicle_decision)) {
-    lines.push({
-      text: 'Vehicle sell timeline active',
-      dot: 'bg-purple-500',
-      textColor: 'text-purple-600',
-    });
+    lines.push({ text: 'Vehicle sell timeline active', dot: '#5B2D8E' });
   }
 
   if (bucket === 'savings') {
     if (isDownPaymentNotStarted(ctx.down_payment_status)) {
-      lines.push({
-        text: 'Down payment savings not started',
-        dot: 'bg-gray-400',
-        textColor: 'text-gray-600',
-      });
+      lines.push({ text: 'Down payment savings not started', dot: '#9CA3AF' });
     } else if (ctx.down_payment_status === 'on_track') {
-      lines.push({
-        text: 'Down payment savings on track',
-        dot: 'bg-green-500',
-        textColor: 'text-green-600',
-      });
+      lines.push({ text: 'Down payment savings on track', dot: '#10B981' });
     }
   }
 
@@ -133,9 +138,10 @@ function BucketAnnotations({
       {lines.map((line) => (
         <p
           key={line.text}
-          className={`flex items-center gap-1 text-xs ${line.textColor}`}
+          className="flex items-center gap-1 text-[11px]"
+          style={{ color: 'var(--ink-mid)', fontFamily: 'Manrope, system-ui, sans-serif' }}
         >
-          <PressureDot colorClass={line.dot} />
+          <PressureDot color={line.dot} />
           {line.text}
         </p>
       ))}
@@ -170,7 +176,7 @@ function BucketRow({
   const amount = bucketAmount(monthlyIncome, displayPct);
 
   return (
-    <section className="space-y-2 rounded-xl border bg-white p-4 shadow-sm" style={{ borderColor: 'var(--line)' }}>
+    <section className="space-y-2 py-3 first:pt-0 last:pb-0">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <div className="min-w-0">
           <h3 className="text-sm font-semibold" style={{ color: 'var(--ink)' }}>
@@ -181,9 +187,13 @@ function BucketRow({
           ) : null}
         </div>
         <div className="text-right">
-          <p className="text-sm font-semibold tabular-nums" style={{ color: 'var(--ink)' }}>
-            {displayPct}% · {formatUsd(amount)}
+          <p
+            className="text-sm font-semibold tabular-nums"
+            style={{ color: meta.color, fontFamily: "'DM Mono', 'Courier New', monospace" }}
+          >
+            {displayPct}%
           </p>
+          <p className="text-xs tabular-nums text-[#9CA3AF]">{formatUsd(amount)}</p>
           {delta != null && delta !== 0 ? (
             <p className="text-xs font-medium text-[var(--mingus-purple)]">
               {delta > 0 ? '+' : ''}
@@ -191,17 +201,6 @@ function BucketRow({
             </p>
           ) : null}
         </div>
-      </div>
-
-      <div
-        className="h-3 w-full overflow-hidden rounded-full"
-        style={{ background: 'var(--line)' }}
-        aria-hidden
-      >
-        <div
-          className={`h-full rounded-full transition-all duration-300 ${meta.fillClass}`}
-          style={{ width: `${Math.min(100, Math.max(0, displayPct))}%` }}
-        />
       </div>
 
       {showSlider && onPctChange ? (
@@ -214,7 +213,13 @@ function BucketRow({
             step={1}
             value={pct}
             onChange={(e) => onPctChange(Number(e.target.value))}
-            className={`h-2 w-full cursor-pointer ${meta.sliderAccent}`}
+            className="waterfall-bucket-slider"
+            style={
+              {
+                '--bucket-color': meta.color,
+                background: `rgba(${hexToRgb(meta.color)}, 0.15)`,
+              } as React.CSSProperties
+            }
           />
         </label>
       ) : null}
@@ -246,7 +251,6 @@ export const WaterfallWidget: React.FC = () => {
   const activeAllocations = showOptimized ? optimizedAllocations : allocations;
   const surplusPct = surplusPercent(activeAllocations);
   const surplusAmount = bucketAmount(monthlyIncome, surplusPct);
-  const fiveYearFv = fiveYearCompoundedSurplus(surplusAmount);
 
   const showAnnotations =
     waterfallCtx != null && waterfallCtx.data_completeness >= MIN_ANNOTATION_COMPLETENESS;
@@ -262,24 +266,32 @@ export const WaterfallWidget: React.FC = () => {
 
   return (
     <div className="waterfall-root space-y-6">
-      <header className="space-y-2">
-        <h1 className="text-2xl font-semibold sm:text-3xl">Money waterfall</h1>
-        <p className="text-sm leading-relaxed" style={{ color: 'var(--ink-mid)' }}>
-          Slide your monthly income through four buckets. What remains is your surplus — the pool
-          that funds goals, cushions shocks, and compounds over time.
+      <header className="space-y-3">
+        <button
+          type="button"
+          onClick={() => navigate('/dashboard')}
+          className="waterfall-back-link"
+        >
+          ← Financial Forecast
+        </button>
+        <h1 className="text-[28px] font-semibold leading-tight" style={{ color: 'var(--ink)' }}>
+          Your Money Waterfall
+        </h1>
+        <p className="text-[13px] leading-relaxed" style={{ color: 'var(--ink-mid)' }}>
+          Income enters at the top. Each bucket captures its share. What flows down is yours.
         </p>
       </header>
 
-      <section
-        className="rounded-xl border bg-white p-5 shadow-sm"
-        style={{ borderColor: 'var(--line)' }}
-      >
+      <section className="rounded-xl border border-[#E2E8F0] bg-white p-5 shadow-sm">
         <label className="block space-y-3">
           <div className="flex items-baseline justify-between gap-3">
-            <span className="text-sm font-semibold" style={{ color: 'var(--ink)' }}>
+            <span className="text-sm font-semibold" style={{ color: 'var(--ink-mid)' }}>
               Monthly income
             </span>
-            <span className="text-lg font-bold tabular-nums" style={{ color: 'var(--mingus-purple)' }}>
+            <span
+              className="text-[30px] font-semibold tabular-nums leading-none"
+              style={{ color: 'var(--mingus-purple)', fontFamily: 'Fraunces, Georgia, serif' }}
+            >
               {formatUsd(monthlyIncome)}
             </span>
           </div>
@@ -290,7 +302,7 @@ export const WaterfallWidget: React.FC = () => {
             step={100}
             value={monthlyIncome}
             onChange={(e) => setMonthlyIncome(Number(e.target.value))}
-            className="h-2 w-full cursor-pointer accent-[#5b2d8e]"
+            className="waterfall-income-slider"
           />
           <div className="flex justify-between text-xs" style={{ color: 'var(--ink-mid)' }}>
             <span>$2,000</span>
@@ -318,8 +330,8 @@ export const WaterfallWidget: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setShowOptimized(false)}
-                className="rounded-lg border px-4 py-2 text-sm font-semibold transition hover:bg-[var(--soft-purple)]"
-                style={{ borderColor: 'var(--line)', color: 'var(--mingus-purple)' }}
+                className="rounded-lg border border-[#E2E8F0] px-4 py-2 text-sm font-semibold transition hover:bg-[rgba(91,45,142,0.05)]"
+                style={{ color: 'var(--mingus-purple)' }}
               >
                 Back to my actual split
               </button>
@@ -328,62 +340,91 @@ export const WaterfallWidget: React.FC = () => {
         </div>
       ) : null}
 
-      <div className="space-y-4">
-        {bucketOrder.map((key) => (
-          <BucketRow
-            key={key}
-            bucketKey={key}
-            pct={allocations[key]}
-            displayPct={activeAllocations[key]}
-            monthlyIncome={monthlyIncome}
-            onPctChange={showOptimized ? undefined : (v) => setBucket(key, v)}
-            showSlider={!showOptimized}
-            delta={
-              showOptimized ? activeAllocations[key] - allocations[key] : null
-            }
-            ctx={waterfallCtx}
-            showAnnotations={showAnnotations && !showOptimized}
-          />
-        ))}
-      </div>
-
-      <section
-        className="rounded-xl border-2 p-5"
-        style={{
-          borderColor: 'var(--lavender-300)',
-          background: 'var(--soft-purple)',
-        }}
-      >
-        <div className="flex flex-wrap items-baseline justify-between gap-2">
-          <h2 className="text-lg font-semibold" style={{ color: 'var(--mingus-purple-deep)' }}>
-            Surplus pool
-          </h2>
-          <p className="text-xl font-bold tabular-nums" style={{ color: 'var(--mingus-purple)' }}>
-            {formatUsd(surplusAmount)}
-            <span className="ml-2 text-sm font-medium" style={{ color: 'var(--ink-mid)' }}>
-              ({surplusPct}% of income)
-            </span>
-          </p>
-        </div>
-        <p className="mt-2 text-sm leading-relaxed" style={{ color: 'var(--ink-mid)' }}>
-          Income not allocated to the four buckets flows here — your flexible margin for goals,
-          emergencies, and growth.
-        </p>
+      <section className="rounded-xl border border-[#E2E8F0] bg-white p-6 shadow-sm">
+        <WaterfallSvg
+          monthlyIncome={monthlyIncome}
+          allocations={activeAllocations}
+          poolPct={surplusPct}
+        />
       </section>
 
       <section
-        className="rounded-xl border bg-white p-5 shadow-sm"
-        style={{ borderColor: 'var(--line)' }}
+        className="flex gap-4"
+        style={{
+          background: 'rgba(91,45,142,0.05)',
+          border: '1px solid rgba(91,45,142,0.2)',
+          borderRadius: 12,
+          padding: '20px 22px',
+        }}
       >
-        <h3 className="text-sm font-semibold uppercase tracking-wide" style={{ color: 'var(--ink-mid)' }}>
-          5-year compounding callout
-        </h3>
-        <p className="mt-2 text-sm leading-relaxed" style={{ color: 'var(--ink)' }}>
-          If you directed this month&apos;s surplus ({formatUsd(surplusAmount)}/mo) into savings at
-          roughly 7% annual growth, you&apos;d have about{' '}
-          <span className="font-semibold text-[var(--mingus-purple)]">{formatUsd(fiveYearFv)}</span>{' '}
-          in five years — before adding future raises or tighter spending.
+        <span className="shrink-0 text-[32px] leading-none" aria-hidden>
+          💧
+        </span>
+        <div className="min-w-0 flex-1">
+          <h2
+            className="font-semibold"
+            style={{
+              fontFamily: 'Fraunces, Georgia, serif',
+              fontSize: 15,
+              color: 'var(--ink)',
+            }}
+          >
+            What flows to you
+          </h2>
+          <p
+            className="mt-1 tabular-nums"
+            style={{
+              fontFamily: 'Fraunces, Georgia, serif',
+              fontSize: 28,
+              color: 'var(--mingus-purple)',
+            }}
+          >
+            {formatUsd(surplusAmount)} / month
+          </p>
+          <p className="mt-2 text-sm leading-relaxed" style={{ color: 'var(--ink-mid)' }}>
+            {poolDescription(surplusPct, surplusAmount)}
+          </p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {POOL_USE_PILLS.map((pill) => (
+              <span
+                key={pill.label}
+                className="rounded-full px-3 py-1 text-xs font-semibold"
+                style={{
+                  background: pill.bg,
+                  color: pill.color,
+                  border: `1px solid ${pill.border}`,
+                }}
+              >
+                {pill.label}
+              </span>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="rounded-xl border border-[#E2E8F0] bg-white p-5">
+        <h2 className="mb-1 text-sm font-semibold" style={{ color: 'var(--ink)' }}>
+          Adjust allocations
+        </h2>
+        <p className="mb-4 text-xs" style={{ color: 'var(--ink-mid)' }}>
+          Drag each slider to see how your waterfall reshapes in real time.
         </p>
+        <div className="divide-y divide-[#E2E8F0]">
+          {bucketOrder.map((key) => (
+            <BucketRow
+              key={key}
+              bucketKey={key}
+              pct={allocations[key]}
+              displayPct={activeAllocations[key]}
+              monthlyIncome={monthlyIncome}
+              onPctChange={showOptimized ? undefined : (v) => setBucket(key, v)}
+              showSlider={!showOptimized}
+              delta={showOptimized ? activeAllocations[key] - allocations[key] : null}
+              ctx={waterfallCtx}
+              showAnnotations={showAnnotations && !showOptimized}
+            />
+          ))}
+        </div>
       </section>
 
       {waterfallCtx ? (
