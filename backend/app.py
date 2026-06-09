@@ -23,6 +23,7 @@ from backend.routes.user import user_bp as user_agreement_bp
 from backend.routes.vehicle_dashboard_routes import vehicle_dashboard_public_bp
 from backend.routes.vibe_daily_routes import vibe_daily_public_bp
 from backend.routes.checkups_hub_api import checkups_hub_bp
+from backend.routes.waterfall_context_api import waterfall_context_bp
 from backend.routes.wellness_routes import wellness_public_bp
 from backend.routes.gamification_routes import gamification_public_bp
 from backend.routes.user_activity_routes import user_activity_public_bp
@@ -75,3 +76,4 @@ def register_backend_blueprints(app):
     # Stub GET /api/vibe/daily — placeholder for #99.
     app.register_blueprint(vibe_daily_public_bp)
     app.register_blueprint(checkups_hub_bp)
+    app.register_blueprint(waterfall_context_bp)
