@@ -926,6 +926,21 @@ export default function FinancialForecastTab({
         </div>
       )}
 
+      {isAuthenticated && (
+        <div className="rounded-xl border border-[#E2E8F0] bg-white p-6 shadow-sm">
+          <p className="text-sm font-medium text-[#1E293B]">Income Waterfall</p>
+          <p className="mt-2 text-sm text-[#64748B]">
+            See where your money goes — and where it could go.
+          </p>
+          <Link
+            to="/dashboard/waterfall"
+            className="mt-4 inline-flex min-h-11 items-center justify-center rounded-lg bg-[#5B2D8E] px-4 text-sm font-semibold text-white hover:opacity-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5B2D8E] focus-visible:ring-offset-2"
+          >
+            Open Income Waterfall
+          </Link>
+        </div>
+      )}
+
       {/* Monthly breakdown table — all tiers; budget sees locked (first 3 blurred), mid/pro see full */}
       <div className="rounded-xl bg-white p-6 shadow-sm">
         <button
