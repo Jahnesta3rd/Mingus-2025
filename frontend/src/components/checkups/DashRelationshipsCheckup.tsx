@@ -11,6 +11,12 @@ import {
 } from './dashCheckupUi';
 import { useLifeLedger } from '../../hooks/useLifeLedger';
 import { useAuth } from '../../hooks/useAuth';
+import {
+  deriveUserTier,
+  fetchWaterfallContext,
+  FluencyCue,
+  type WaterfallContext,
+} from '../fluency';
 
 const FRICTION_OPTIONS = [
   { value: 'none', label: 'No real friction this week' },
@@ -73,8 +79,10 @@ function buildRelSteps(spendingThisWeek: boolean | null): RelStep[] {
  */
 export function DashRelationshipsCheckup() {
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const { profile, loading: profileLoading } = useLifeLedger(isAuthenticated);
+  const userTier = deriveUserTier(user);
+  const [waterfallContext, setWaterfallContext] = useState<WaterfallContext | null>(null);
   const [step, setStep] = useState(0);
   const [frictionType, setFrictionType] = useState<string | null>(null);
   const [spendingThisWeek, setSpendingThisWeek] = useState<boolean | null>(null);
@@ -148,6 +156,7 @@ export function DashRelationshipsCheckup() {
         relationship_future_intention: futureIntention,
       });
       setSuccessMessage('Check-in saved');
+      void fetchWaterfallContext().then(setWaterfallContext).catch(() => {});
       window.setTimeout(() => navigate(CHECKUPS_HUB_PATH, { replace: true }), 2000);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Submit failed');
@@ -192,6 +201,15 @@ export function DashRelationshipsCheckup() {
       error={error}
       successMessage={successMessage}
     >
+      {successMessage && waterfallContext ? (
+        <FluencyCue
+          context={waterfallContext}
+          domain="relationships"
+          userTier={userTier}
+          onActionRoute={(route) => navigate(route, { replace: true })}
+        />
+      ) : null}
+
       {!successMessage ? (
         <div
           className="dash-checkup-theme space-y-6 rounded-2xl border bg-white p-6 shadow-sm sm:p-8"

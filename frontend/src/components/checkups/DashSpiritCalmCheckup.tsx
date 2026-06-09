@@ -5,6 +5,12 @@ import { CHECKUPS_HUB_PATH, submitSpiritCalmCheckin } from './checkupShared';
 import { OptionButtons, StepLabel, StepNav, StepTitle, YesNoButtons } from './dashCheckupUi';
 import { useLifeLedger } from '../../hooks/useLifeLedger';
 import { useAuth } from '../../hooks/useAuth';
+import {
+  deriveUserTier,
+  fetchWaterfallContext,
+  FluencyCue,
+  type WaterfallContext,
+} from '../fluency';
 
 const FINANCE_IMPACT_OPTIONS = [
   { value: 'not_at_all', label: 'Not at all' },
@@ -24,8 +30,10 @@ const ANXIOUS_OPTIONS = [
  */
 export function DashSpiritCalmCheckup() {
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const { profile, loading: profileLoading } = useLifeLedger(isAuthenticated);
+  const userTier = deriveUserTier(user);
+  const [waterfallContext, setWaterfallContext] = useState<WaterfallContext | null>(null);
   const [step, setStep] = useState(0);
   const [hadMoments, setHadMoments] = useState<boolean | null>(null);
   const [affectedFinances, setAffectedFinances] = useState<string | null>(null);
@@ -60,6 +68,7 @@ export function DashSpiritCalmCheckup() {
         spirit_financially_anxious: financiallyAnxious,
       });
       setSuccessMessage('Check-in saved');
+      void fetchWaterfallContext().then(setWaterfallContext).catch(() => {});
       window.setTimeout(() => navigate(CHECKUPS_HUB_PATH, { replace: true }), 2000);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Submit failed');
@@ -87,6 +96,15 @@ export function DashSpiritCalmCheckup() {
       error={error}
       successMessage={successMessage}
     >
+      {successMessage && waterfallContext ? (
+        <FluencyCue
+          context={waterfallContext}
+          domain="spirit"
+          userTier={userTier}
+          onActionRoute={(route) => navigate(route, { replace: true })}
+        />
+      ) : null}
+
       {!successMessage ? (
         <div
           className="dash-checkup-theme space-y-6 rounded-2xl border bg-white p-6 shadow-sm sm:p-8"

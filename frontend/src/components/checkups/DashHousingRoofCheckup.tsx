@@ -12,6 +12,12 @@ import {
 } from './dashCheckupUi';
 import { useLifeLedger } from '../../hooks/useLifeLedger';
 import { useAuth } from '../../hooks/useAuth';
+import {
+  deriveUserTier,
+  fetchWaterfallContext,
+  FluencyCue,
+  type WaterfallContext,
+} from '../fluency';
 
 const TENURE_OPTIONS = [
   { value: 'rent', label: 'Rent' },
@@ -63,8 +69,10 @@ function buildSteps(tenure: string | null, unexpectedCost: boolean | null): Hous
  */
 export function DashHousingRoofCheckup() {
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const { profile, loading: profileLoading, refetch } = useLifeLedger(isAuthenticated);
+  const userTier = deriveUserTier(user);
+  const [waterfallContext, setWaterfallContext] = useState<WaterfallContext | null>(null);
   const [step, setStep] = useState(0);
   const [stabilityRating, setStabilityRating] = useState(3);
   const [tenure, setTenure] = useState<string | null>(null);
@@ -127,6 +135,7 @@ export function DashHousingRoofCheckup() {
       });
       await refetch();
       setSuccessMessage(`Roof score updated — ${data.roof_score} / 100`);
+      void fetchWaterfallContext().then(setWaterfallContext).catch(() => {});
       window.setTimeout(() => navigate(CHECKUPS_HUB_PATH, { replace: true }), 2000);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Submit failed');
@@ -169,6 +178,15 @@ export function DashHousingRoofCheckup() {
       error={error}
       successMessage={successMessage}
     >
+      {successMessage && waterfallContext ? (
+        <FluencyCue
+          context={waterfallContext}
+          domain="housing"
+          userTier={userTier}
+          onActionRoute={(route) => navigate(route, { replace: true })}
+        />
+      ) : null}
+
       {!successMessage ? (
         <div
           className="dash-checkup-theme space-y-6 rounded-2xl border bg-white p-6 shadow-sm sm:p-8"
