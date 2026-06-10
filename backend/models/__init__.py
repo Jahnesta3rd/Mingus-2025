@@ -67,6 +67,7 @@ from .career_profile import CareerProfile
 from .llm_usage import LlmUsage
 from .agreement_acceptance import AgreementAcceptance
 from .job_posting import JobPosting
+from .transaction import Transaction
 
 __all__ = [
     'db',
@@ -136,4 +137,5 @@ __all__ = [
     'LlmUsage',
     'AgreementAcceptance',
     'JobPosting',
+    'Transaction',
 ]

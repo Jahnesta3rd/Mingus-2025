@@ -7,13 +7,19 @@ GET /api/waterfall/context — single structured object from latest check-in sta
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timedelta, date
 from typing import Any
 
 from flask import Blueprint, jsonify
 from sqlalchemy import desc
 
 from backend.auth.decorators import get_current_user_db_id, require_auth
+from backend.services.correlation_engine_service import (
+    compute_spending_deltas,
+    has_transaction_weeks_history,
+    weekly_actual_spend,
+    weekly_baseline_before,
+)
 from backend.models.life_ledger import LifeLedgerProfile
 from backend.models.user_models import User
 from backend.models.vibe_tracker import VibeTrackedPerson
@@ -295,7 +301,7 @@ def _normalize_discipline_value(raw: Any) -> float | None:
     return v
 
 
-def _stress_spend_pattern_detected(checkins: list[WeeklyCheckin]) -> bool:
+def _stress_spend_from_checkins(checkins: list[WeeklyCheckin]) -> bool:
     try:
         if len(checkins) < 3:
             return False
@@ -326,6 +332,56 @@ def _stress_spend_pattern_detected(checkins: list[WeeklyCheckin]) -> bool:
         return hits >= 2
     except Exception:
         return False
+
+
+def _monday_of_week(d: date) -> date:
+    return d - timedelta(days=d.weekday())
+
+
+def _stress_spend_from_transactions(user_id: int, checkins: list[WeeklyCheckin]) -> bool:
+    try:
+        if not has_transaction_weeks_history(user_id, min_weeks=4):
+            return False
+
+        today = date.today()
+        this_week_start = _monday_of_week(today)
+        hits = 0
+
+        for i in range(4):
+            week_start = this_week_start - timedelta(weeks=i)
+            week_end = week_start + timedelta(days=6)
+
+            stress = None
+            for row in checkins:
+                week_ending = _safe_getattr(row, "week_ending_date")
+                if week_ending is not None and week_start <= week_ending <= week_end:
+                    stress = _safe_getattr(row, "stress_level")
+                    break
+
+            if stress is None or stress < 7:
+                continue
+
+            actual_spend = weekly_actual_spend(user_id, week_start)
+            baseline = weekly_baseline_before(user_id, week_start, weeks=8)
+            if baseline is not None and baseline > 0 and actual_spend > baseline * 1.2:
+                hits += 1
+
+        return hits >= 2
+    except Exception:
+        return False
+
+
+def _stress_spend_pattern_detected(user_id: int, checkins: list[WeeklyCheckin]) -> bool:
+    try:
+        from backend.models.transaction import Transaction
+
+        if Transaction.query.filter_by(user_id=user_id).count() > 0:
+            txn_result = _stress_spend_from_transactions(user_id, checkins)
+            if has_transaction_weeks_history(user_id, min_weeks=4):
+                return txn_result
+        return _stress_spend_from_checkins(checkins)
+    except Exception:
+        return _stress_spend_from_checkins(checkins)
 
 
 def _source_value(profile: LifeLedgerProfile | None, field: str) -> Any:
@@ -382,7 +438,8 @@ def build_waterfall_context(user: User) -> dict[str, Any]:
         "body_ongoing_health_cost": _body_ongoing_health_cost(profile),
         "financially_anxious": _financially_anxious(profile),
         "relationship_direction_signal": _relationship_direction_signal(user.id, profile),
-        "stress_spend_pattern_detected": _stress_spend_pattern_detected(checkins),
+        "stress_spend_pattern_detected": _stress_spend_pattern_detected(user.id, checkins),
+        "actual_spending_delta": compute_spending_deltas(user.id),
         "user_tier": _derive_user_tier(user),
         "data_completeness": _data_completeness(profile),
         "last_updated": _last_updated(profile, checkins),

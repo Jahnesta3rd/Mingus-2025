@@ -8,6 +8,7 @@ import {
 import { useAuth, type AuthUserTier } from '../hooks/useAuth';
 import { csrfHeaders } from '../utils/csrfHeaders';
 import CareerResumeUploadSection from './career/CareerResumeUploadSection';
+import { BankConnector } from './plaid';
 import type { PercentileData } from './RecommendationTiers';
 
 const INCOME_PERCENTILE_API = '/api/career/income-percentile';
@@ -751,6 +752,20 @@ const YouTab: React.FC<YouTabProps> = ({ focusField, onFocusConsumed }) => {
             )}
           </div>
         </SectionCard>
+
+        <section className="mb-4 rounded-xl border border-[#E2E8F0] bg-white p-5">
+          <h2
+            className="mb-4 text-[13px] font-bold uppercase"
+            style={{
+              color: 'var(--ink)',
+              fontFamily: 'Manrope, system-ui, sans-serif',
+              letterSpacing: '0.1em',
+            }}
+          >
+            Bank Connection
+          </h2>
+          <BankConnector onSuccess={() => {}} />
+        </section>
 
         <section ref={incomeSectionRef} id="you-income-section">
           <SectionCard title="Income Sources">

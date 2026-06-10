@@ -8,9 +8,21 @@ Used by InsightGenerator for correlation-based insights.
 
 import logging
 from dataclasses import dataclass
+from datetime import date, timedelta
 from typing import Dict, List, Any, Optional
 
+from sqlalchemy import func
+
 logger = logging.getLogger(__name__)
+
+_SPENDING_DELTA_UNAVAILABLE: Dict[str, Any] = {
+    "available": False,
+    "total_this_week": None,
+    "baseline_avg": None,
+    "delta_amount": None,
+    "delta_pct": None,
+    "by_category": None,
+}
 
 
 @dataclass
@@ -191,3 +203,141 @@ class WellnessFinanceCorrelator:
                 dollar_impact=dollar_impact,
             )
         return results
+
+
+def _monday_of_week(d: date) -> date:
+    return d - timedelta(days=d.weekday())
+
+
+def _weekly_debit_total(user_id: int, week_start: date, week_end: date) -> float:
+    from backend.models.database import db
+    from backend.models.transaction import Transaction
+
+    try:
+        total = (
+            db.session.query(func.coalesce(func.sum(Transaction.amount), 0.0))
+            .filter(
+                Transaction.user_id == user_id,
+                Transaction.is_debit.is_(True),
+                Transaction.date >= week_start,
+                Transaction.date <= week_end,
+            )
+            .scalar()
+        )
+        return float(total or 0.0)
+    except Exception:
+        return 0.0
+
+
+def _weekly_debit_by_category(user_id: int, week_start: date, week_end: date) -> Dict[str, float]:
+    from backend.models.database import db
+    from backend.models.transaction import Transaction
+
+    try:
+        rows = (
+            db.session.query(Transaction.category, func.sum(Transaction.amount))
+            .filter(
+                Transaction.user_id == user_id,
+                Transaction.is_debit.is_(True),
+                Transaction.date >= week_start,
+                Transaction.date <= week_end,
+                Transaction.category.isnot(None),
+            )
+            .group_by(Transaction.category)
+            .all()
+        )
+        return {str(cat): float(total or 0.0) for cat, total in rows if cat}
+    except Exception:
+        return {}
+
+
+def _complete_week_totals(user_id: int, this_week_start: date, weeks_back: int) -> List[float]:
+    totals: List[float] = []
+    for i in range(1, weeks_back + 1):
+        ws = this_week_start - timedelta(weeks=i)
+        we = ws + timedelta(days=6)
+        totals.append(_weekly_debit_total(user_id, ws, we))
+    return totals
+
+
+def compute_spending_deltas(user_id: int) -> Dict[str, Any]:
+    """
+    Compare this week's measured debit spend to an 8-week complete-week baseline.
+    Returns unavailable payload when no transactions exist or on error.
+    """
+    from backend.models.transaction import Transaction
+
+    try:
+        txn_count = Transaction.query.filter_by(user_id=user_id).count()
+        if txn_count == 0:
+            return dict(_SPENDING_DELTA_UNAVAILABLE)
+
+        today = date.today()
+        this_week_start = _monday_of_week(today)
+        this_week_end = today
+        total_this_week = _weekly_debit_total(user_id, this_week_start, this_week_end)
+
+        complete_totals = _complete_week_totals(user_id, this_week_start, 8)
+        weeks_with_data = sum(1 for t in complete_totals if t > 0)
+
+        if weeks_with_data < 2:
+            return {
+                "available": True,
+                "total_this_week": round(total_this_week, 2),
+                "baseline_avg": None,
+                "delta_amount": None,
+                "delta_pct": None,
+                "by_category": None,
+            }
+
+        baseline_avg = sum(complete_totals) / len(complete_totals)
+        delta_amount = total_this_week - baseline_avg
+        delta_pct = (delta_amount / baseline_avg * 100.0) if baseline_avg > 0 else None
+        by_category = _weekly_debit_by_category(user_id, this_week_start, this_week_end)
+
+        return {
+            "available": True,
+            "total_this_week": round(total_this_week, 2),
+            "baseline_avg": round(baseline_avg, 2),
+            "delta_amount": round(delta_amount, 2),
+            "delta_pct": round(delta_pct, 2) if delta_pct is not None else None,
+            "by_category": by_category or None,
+        }
+    except Exception:
+        logger.exception("compute_spending_deltas failed user_id=%s", user_id)
+        return dict(_SPENDING_DELTA_UNAVAILABLE)
+
+
+def weekly_actual_spend(user_id: int, week_start: date) -> float:
+    """Debit spend for one ISO week (Mon–Sun)."""
+    return _weekly_debit_total(user_id, week_start, week_start + timedelta(days=6))
+
+
+def weekly_baseline_before(user_id: int, week_start: date, weeks: int = 8) -> float | None:
+    """Average weekly debit spend for `weeks` complete weeks before `week_start`."""
+    totals = []
+    for i in range(1, weeks + 1):
+        ws = week_start - timedelta(weeks=i)
+        we = ws + timedelta(days=6)
+        totals.append(_weekly_debit_total(user_id, ws, we))
+    if not totals:
+        return None
+    return sum(totals) / len(totals)
+
+
+def has_transaction_weeks_history(user_id: int, min_weeks: int = 4) -> bool:
+    from backend.models.transaction import Transaction
+
+    try:
+        earliest = (
+            Transaction.query.filter_by(user_id=user_id)
+            .order_by(Transaction.date.asc())
+            .with_entities(Transaction.date)
+            .first()
+        )
+        if earliest is None or earliest[0] is None:
+            return False
+        days_span = (date.today() - earliest[0]).days
+        return days_span >= (min_weeks * 7)
+    except Exception:
+        return False
