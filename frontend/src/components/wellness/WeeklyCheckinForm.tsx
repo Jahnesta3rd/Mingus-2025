@@ -108,6 +108,7 @@ export const WeeklyCheckinForm: React.FC<WeeklyCheckinFormProps> = ({
   const [socialSpendingAmount, setSocialSpendingAmount] = useState('');
   const [financialReflection, setFinancialReflection] = useState('');
   const [weeklyReflectionChange, setWeeklyReflectionChange] = useState('');
+  const [z1Skipped, setZ1Skipped] = useState(false);
   const [rotatingAnswers, setRotatingAnswers] = useState<Record<string, number>>({});
 
   const [submitting, setSubmitting] = useState(false);
@@ -160,6 +161,11 @@ export const WeeklyCheckinForm: React.FC<WeeklyCheckinFormProps> = ({
 
   const setRotatingAnswer = useCallback((id: string, value: number) => {
     setRotatingAnswers((prev) => ({ ...prev, [id]: value }));
+  }, []);
+
+  const handleSkipZ1 = useCallback(() => {
+    setWeeklyReflectionChange('');
+    setZ1Skipped(true);
   }, []);
 
   const handleSubmit = useCallback(async () => {
@@ -579,11 +585,41 @@ export const WeeklyCheckinForm: React.FC<WeeklyCheckinFormProps> = ({
 
             {/* Closing — Z1 */}
             <section className="space-y-3 border-t pt-6" style={{ borderColor: 'var(--line)' }}>
-              <div className="flex items-start justify-between gap-2">
-                <QuestionLabel>
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  marginBottom: '8px',
+                }}
+              >
+                <label
+                  style={{
+                    fontFamily: 'Manrope, system-ui, sans-serif',
+                    fontSize: '15px',
+                    fontWeight: 500,
+                    color: 'var(--ink)',
+                  }}
+                >
                   If you could change one thing about how you managed your money or your energy this week, what would it be?
-                </QuestionLabel>
-                <SkipLink onClick={() => setWeeklyReflectionChange('')} />
+                </label>
+                <button
+                  type="button"
+                  onClick={handleSkipZ1}
+                  style={{
+                    fontFamily: 'Manrope, system-ui, sans-serif',
+                    fontSize: '13px',
+                    color: 'var(--ink-mid)',
+                    textDecoration: 'underline',
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    flexShrink: 0,
+                    marginLeft: '16px',
+                  }}
+                >
+                  Skip
+                </button>
               </div>
               <textarea
                 value={weeklyReflectionChange}
