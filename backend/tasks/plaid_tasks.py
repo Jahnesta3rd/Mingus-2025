@@ -71,7 +71,7 @@ def _sync_transactions_worker(user_id: int) -> None:
 def sync_user_transactions(user_id: int) -> None:
     """Fetch last 30 days of Plaid transactions and upsert into Transaction table."""
     try:
-        from app import app as flask_app
+        from backend.tasks.spirit_reminder import _minimal_task_app; flask_app = _minimal_task_app()
 
         with flask_app.app_context():
             try:
