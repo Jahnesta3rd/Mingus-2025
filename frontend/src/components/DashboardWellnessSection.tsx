@@ -8,7 +8,7 @@ import {
 } from './wellness';
 import type { WellnessScores } from './wellness/WellnessScoreCard';
 import type { WellnessInsight } from './wellness/InsightCard';
-import type { CheckinResponse } from './wellness/types';
+import type { WeeklyCheckinSubmitResponse } from './wellness/WeeklyCheckinForm';
 import { useWellnessData } from '../hooks/useWellnessData';
 import { RefreshCw } from 'lucide-react';
 
@@ -76,7 +76,7 @@ export const DashboardWellnessSection: React.FC<DashboardWellnessSectionProps> =
   }, []);
 
   const handleCheckinSuccess = useCallback(
-    (response: CheckinResponse) => {
+    (_response: WeeklyCheckinSubmitResponse) => {
       setCheckinSuccessMessage('Check-in complete! Your wellness scores have been updated.');
       refetch();
       setCheckinModalOpen(false);
@@ -211,7 +211,7 @@ function WellnessImpactCardSkeleton() {
 
 interface CheckinModalProps {
   onClose: () => void;
-  onSuccess: (response: CheckinResponse) => void;
+  onSuccess: (response: WeeklyCheckinSubmitResponse) => void;
 }
 
 function CheckinModal({ onClose, onSuccess }: CheckinModalProps) {

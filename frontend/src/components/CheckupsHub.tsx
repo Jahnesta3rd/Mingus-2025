@@ -113,8 +113,8 @@ const CHECKUP_ITEMS = [
   {
     id: 'weekly-wellness',
     title: 'Weekly wellness check-in',
-    description: 'Holistic week snapshot (body, mind, money feelings) that powers wellness–finance insights on Tools.',
-    to: '/dashboard/tools?tab=wellness',
+    description: 'Holistic week snapshot (body, mind, money feelings) that powers wellness–finance insights.',
+    to: '/dashboard/weekly-checkin',
     Icon: ClipboardList,
     timestampKey: 'weekly' as const,
   },

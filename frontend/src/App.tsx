@@ -25,6 +25,7 @@ import AdminRoute from './components/AdminRoute';
 import BetaAdminDashboard from './pages/BetaAdminDashboard';
 import VibeCheckupsPage from './pages/VibeCheckupsPage';
 import CheckupsHub from './components/CheckupsHub';
+import { WeeklyCheckinForm } from './components/wellness/WeeklyCheckinForm';
 import {
   DashBodyWellnessCheckup,
   DashHousingRoofCheckup,
@@ -198,6 +199,7 @@ const router = createBrowserRouter([
       { path: 'tools', element: <CareerProtectionDashboard /> },
       { path: 'profile', element: <DashboardProfilePage /> },
       { path: 'vibe-checkups', element: <CheckupsHub /> },
+      { path: 'weekly-checkin', element: <WeeklyCheckinForm /> },
       { path: 'checkups/body', element: <DashBodyWellnessCheckup /> },
       { path: 'checkups/mind-mood', element: <DashMindMoodCheckup /> },
       { path: 'checkups/spirit-calm', element: <DashSpiritCalmCheckup /> },

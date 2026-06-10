@@ -15,7 +15,7 @@ from backend.models.beta_code import BetaCode
 from backend.models.beta_invite_log import BetaInviteLog
 from backend.models.vehicle_models import Vehicle, MaintenancePrediction, CommuteScenario, MSAGasPrice
 from backend.models.housing_models import HousingSearch, HousingScenario, UserHousingPreferences, CommuteRouteCache, HousingType
-from backend.models.wellness import WeeklyCheckin, WellnessScore, WellnessFinanceCorrelation, WellnessCheckinStreak, UserSpendingBaseline
+from backend.models.wellness import WeeklyCheckin, WellnessScore, WellnessFinanceCorrelation, WellnessCheckinStreak, UserSpendingBaseline, CheckinQuestionLog
 from backend.models.financial_setup import RecurringExpense, UserIncome
 from backend.models.feedback import FeatureRating, NPSSurvey
 from backend.models.vibe_checkups import (

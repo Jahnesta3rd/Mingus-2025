@@ -29,6 +29,7 @@ from .wellness import (
     WellnessCheckinStreak,
     UserSpendingBaseline,
     UserAchievement,
+    CheckinQuestionLog,
 )
 from .financial_setup import RecurringExpense, UserIncome
 from .feedback import FeatureRating, NPSSurvey
@@ -102,6 +103,7 @@ __all__ = [
     'WellnessCheckinStreak',
     'UserSpendingBaseline',
     'UserAchievement',
+    'CheckinQuestionLog',
     'RecurringExpense',
     'UserIncome',
     'FeatureRating',

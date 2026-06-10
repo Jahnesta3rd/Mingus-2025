@@ -283,21 +283,46 @@ def _relationship_direction_signal(user_id: int, profile: LifeLedgerProfile | No
         return None
 
 
+def _normalize_discipline_value(raw: Any) -> float | None:
+    if raw is None:
+        return None
+    try:
+        v = float(raw)
+    except (TypeError, ValueError):
+        return None
+    if v > 10:
+        return v / 10.0
+    return v
+
+
 def _stress_spend_pattern_detected(checkins: list[WeeklyCheckin]) -> bool:
     try:
-        if not hasattr(WeeklyCheckin, "spending_discipline_rating"):
-            return False
         if len(checkins) < 3:
             return False
 
         hits = 0
         for row in checkins[:4]:
             stress = _safe_getattr(row, "stress_level")
-            discipline = _safe_getattr(row, "spending_discipline_rating")
-            if stress is None or discipline is None:
+            if stress is None or stress < 7:
                 continue
-            if stress >= 7 and discipline <= 4:
+
+            discipline_raw = _safe_getattr(row, "spending_discipline_rating")
+            control_raw = _safe_getattr(row, "spending_control")
+            if discipline_raw is None:
+                discipline_raw = control_raw
+
+            discipline_norm = _normalize_discipline_value(discipline_raw)
+            control_low = False
+            if control_raw is not None:
+                try:
+                    control_low = float(control_raw) <= 40
+                except (TypeError, ValueError):
+                    control_low = False
+
+            discipline_low = discipline_norm is not None and discipline_norm <= 4
+            if discipline_low or control_low:
                 hits += 1
+
         return hits >= 2
     except Exception:
         return False

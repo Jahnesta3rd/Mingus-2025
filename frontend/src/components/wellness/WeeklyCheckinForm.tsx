@@ -1,88 +1,73 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { ChevronLeft, Loader2, CheckCircle2, DollarSign, TrendingUp, Sparkles } from 'lucide-react';
-import { StepIndicator } from './StepIndicator';
-import { SliderInput } from './SliderInput';
-import { EmojiSelector } from './EmojiSelector';
-import { NumberSelector } from './NumberSelector';
-import { SpendingCategory } from './SpendingCategory';
-import { ToggleWithAmount } from './ToggleWithAmount';
-import type { CheckinPayload, CheckinResponse, SpendingBaselines } from './types';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Loader2, CheckCircle2 } from 'lucide-react';
+import { useAuth } from '../../hooks/useAuth';
+import { deriveUserTier } from '../fluency';
+import {
+  CheckupForm,
+  CheckupQuestionBlock,
+  DollarInput,
+  EmojiMoodPicker,
+  NumericStepper,
+  QuestionLabel,
+  RangeStep,
+  ScaleButtons,
+  SkipLink,
+  SubmitButton,
+  YesNoButtons,
+} from '../checkups/dashCheckupUi';
+import '../checkups/checkupDesignTokens.css';
 
-const STORAGE_KEY = 'mingus_weekly_checkin_draft';
-const TOTAL_STEPS = 6;
-
-const MOOD_OPTIONS = [
-  { emoji: '😢', value: 2, label: 'Low (2)' },
-  { emoji: '😕', value: 4, label: 'Below average (4)' },
-  { emoji: '😐', value: 6, label: 'Average (6)' },
-  { emoji: '🙂', value: 8, label: 'Good (8)' },
-  { emoji: '😊', value: 10, label: 'Great (10)' },
-];
-
-const SOCIAL_OPTIONS = [
-  { label: '0', value: 0 },
-  { label: '1-2', value: 2 },
-  { label: '3-5', value: 4 },
-  { label: '6-10', value: 8 },
-  { label: '10+', value: 12 },
-];
-
-const MEDITATION_OPTIONS = [0, 15, 30, 45, 60, 90, 120];
-
-const SLEEP_HOURS_MIN = 3;
-const SLEEP_HOURS_MAX = 10;
-const SLEEP_HOURS_STEP = 0.5;
-
-function sleepHoursFeedback(hours: number): { text: string; className: string } {
-  if (hours >= 8) return { text: 'Well rested 🌙', className: 'text-[#059669]' };
-  if (hours >= 7) return { text: 'Good sleep 👍', className: 'text-[#059669]' };
-  if (hours >= 6) return { text: 'Slightly short ⚠️', className: 'text-[#D97706]' };
-  return { text: 'Running low 😴', className: 'text-[#DC2626]' };
+export interface RotatingQuestion {
+  id: string;
+  domain: string;
+  text: string;
+  anchor: boolean;
+  scale_labels: Record<string, string>;
 }
 
-/** Draft state: sleep_hours null means user skipped tracking sleep this week (omit from POST). */
-type WeeklyCheckinFormState = Partial<CheckinPayload> & { sleep_hours?: number | null };
-
-const INTENSITY_OPTIONS = [
-  { emoji: '🚶', value: 'light', label: 'Light' },
-  { emoji: '🏃', value: 'moderate', label: 'Moderate' },
-  { emoji: '💪', value: 'intense', label: 'Intense' },
-] as const;
-
-const defaultPayload = (): WeeklyCheckinFormState => ({
-  exercise_days: 0,
-  exercise_intensity: null,
-  sleep_quality: 5,
-  sleep_hours: null,
-  meditation_minutes: 0,
-  stress_level: 5,
-  overall_mood: 6,
-  relationship_satisfaction: 5,
-  social_interactions: 0,
-  financial_stress: 5,
-  spending_control: 5,
-  groceries_estimate: null,
-  dining_estimate: null,
-  entertainment_estimate: null,
-  shopping_estimate: null,
-  transport_estimate: null,
-  utilities_estimate: null,
-  other_estimate: null,
-  had_impulse_purchases: false,
-  impulse_spending: null,
-  had_stress_purchases: false,
-  stress_spending: null,
-  celebration_spending: null,
-  biggest_unnecessary_purchase: null,
-  biggest_unnecessary_category: null,
-  wins: null,
-  challenges: null,
-});
+export interface WeeklyCheckinSubmitResponse {
+  success: boolean;
+  week_number: number;
+  year?: number;
+  stress_spend_signal: boolean;
+}
 
 export interface WeeklyCheckinFormProps {
-  onSuccess?: (response: CheckinResponse) => void;
+  onSuccess?: (response: WeeklyCheckinSubmitResponse) => void;
   onCancel?: () => void;
   className?: string;
+}
+
+function authHeaders(): HeadersInit {
+  const token = localStorage.getItem('mingus_token') ?? localStorage.getItem('auth_token') ?? '';
+  const h: Record<string, string> = { 'Content-Type': 'application/json' };
+  if (token) h.Authorization = `Bearer ${token}`;
+  return h;
+}
+
+function parseScaleLabels(labels: Record<string, string>) {
+  const min = Number(Object.keys(labels).sort()[0] ?? '1');
+  const max = Number(Object.keys(labels).sort().slice(-1)[0] ?? '5');
+  return { min, max, labels: Object.fromEntries(Object.entries(labels).map(([k, v]) => [Number(k), v])) as Record<number, string> };
+}
+
+function RotatingQuestionBlock({
+  question,
+  value,
+  onChange,
+}: {
+  question: RotatingQuestion;
+  value: number;
+  onChange: (v: number) => void;
+}) {
+  const { min, max, labels } = parseScaleLabels(question.scale_labels);
+  return (
+    <CheckupQuestionBlock>
+      <QuestionLabel>{question.text}</QuestionLabel>
+      <ScaleButtons min={min} max={max} value={value} onChange={onChange} labels={labels} />
+    </CheckupQuestionBlock>
+  );
 }
 
 export const WeeklyCheckinForm: React.FC<WeeklyCheckinFormProps> = ({
@@ -90,557 +75,537 @@ export const WeeklyCheckinForm: React.FC<WeeklyCheckinFormProps> = ({
   onCancel,
   className = '',
 }) => {
-  const [step, setStep] = useState(1);
-  const [form, setForm] = useState<WeeklyCheckinFormState>(defaultPayload);
-  const [startTime] = useState(() => Date.now());
-  const [baselines, setBaselines] = useState<SpendingBaselines | null>(null);
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const userTier = deriveUserTier(user);
+  const showB2 = userTier === 'mid_tier' || userTier === 'professional';
+  const showB3 = userTier === 'professional';
+
+  const [weekNumber, setWeekNumber] = useState<number | null>(null);
+  const [year, setYear] = useState<number | null>(null);
+  const [questions, setQuestions] = useState<RotatingQuestion[]>([]);
+  const [questionsLoading, setQuestionsLoading] = useState(true);
+  const [questionsError, setQuestionsError] = useState<string | null>(null);
+
+  const [moodRating, setMoodRating] = useState(3);
+  const [stressLevel, setStressLevel] = useState(5);
+  const [activityFrequency, setActivityFrequency] = useState(0);
+  const [avgSleepHours, setAvgSleepHours] = useState('7');
+  const [relationshipQuality, setRelationshipQuality] = useState(3);
+  const [meaningfulTime, setMeaningfulTime] = useState<boolean | null>(null);
+  const [partnerSpendingUnplanned, setPartnerSpendingUnplanned] = useState<boolean | null>(null);
+  const [partnerSpendingAmount, setPartnerSpendingAmount] = useState('');
+  const [financialCommunication, setFinancialCommunication] = useState(3);
+  const [unexpectedKidSpending, setUnexpectedKidSpending] = useState<boolean | null>(null);
+  const [unexpectedKidAmount, setUnexpectedKidAmount] = useState('');
+  const [practiceGrounding, setPracticeGrounding] = useState<boolean | null>(null);
+  const [meditationMinutes, setMeditationMinutes] = useState(0);
+  const [spiritualConnection, setSpiritualConnection] = useState<boolean | null>(null);
+  const [spendingDiscipline, setSpendingDiscipline] = useState(5);
+  const [spendingTrigger, setSpendingTrigger] = useState('');
+  const [discretionarySpending, setDiscretionarySpending] = useState('');
+  const [socialSpendingUnplanned, setSocialSpendingUnplanned] = useState<boolean | null>(null);
+  const [socialSpendingAmount, setSocialSpendingAmount] = useState('');
+  const [financialReflection, setFinancialReflection] = useState('');
+  const [weeklyReflectionChange, setWeeklyReflectionChange] = useState('');
+  const [rotatingAnswers, setRotatingAnswers] = useState<Record<string, number>>({});
+
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [result, setResult] = useState<CheckinResponse | null>(null);
-  const formRef = useRef<HTMLFormElement>(null);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [submitResult, setSubmitResult] = useState<WeeklyCheckinSubmitResponse | null>(null);
 
-  // Persist to localStorage
-  useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({ form, step, startTime }));
-    } catch {
-      // ignore
-    }
-  }, [form, step, startTime]);
-
-  // Load draft from localStorage on mount
-  useEffect(() => {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        if (parsed && parsed.form && typeof parsed.step === 'number') {
-          setForm((prev) => ({ ...defaultPayload(), ...prev, ...parsed.form }));
-          setStep(Math.min(parsed.step, TOTAL_STEPS));
-        }
-      }
-    } catch {
-      // ignore
-    }
-  }, []);
-
-  // Fetch baselines for spending step
   useEffect(() => {
     let cancelled = false;
-    fetch('/api/wellness/spending/baselines', { credentials: 'include' })
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data) => {
-        if (!cancelled && data) setBaselines(data);
+    setQuestionsLoading(true);
+    setQuestionsError(null);
+    fetch('/api/wellness/weekly-checkin/questions', { credentials: 'include', headers: authHeaders() })
+      .then(async (res) => {
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.message || err.error || res.statusText);
+        }
+        return res.json();
       })
-      .catch(() => {});
-    return () => { cancelled = true; };
+      .then((data) => {
+        if (cancelled) return;
+        setWeekNumber(data.week_number ?? null);
+        setYear(data.year ?? null);
+        const qs: RotatingQuestion[] = data.questions ?? [];
+        setQuestions(qs);
+        const defaults: Record<string, number> = {};
+        qs.forEach((q) => {
+          defaults[q.id] = 3;
+        });
+        setRotatingAnswers(defaults);
+      })
+      .catch((e) => {
+        if (!cancelled) setQuestionsError(e instanceof Error ? e.message : 'Failed to load questions');
+      })
+      .finally(() => {
+        if (!cancelled) setQuestionsLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
-  const update = useCallback(
-    <K extends keyof WeeklyCheckinFormState>(key: K, value: WeeklyCheckinFormState[K]) => {
-      setForm((prev) => ({ ...prev, [key]: value }));
-    },
-    []
-  );
+  const questionsByDomain = useMemo(() => {
+    const map: Record<string, RotatingQuestion[]> = {};
+    questions.forEach((q) => {
+      if (!map[q.domain]) map[q.domain] = [];
+      map[q.domain].push(q);
+    });
+    return map;
+  }, [questions]);
 
-  const canProceedStep1 = form.exercise_days != null && form.sleep_quality != null &&
-    (form.exercise_days === 0 || form.exercise_intensity != null);
-  const canProceedStep2 = form.meditation_minutes != null && form.stress_level != null && form.overall_mood != null;
-  const canProceedStep3 = form.relationship_satisfaction != null && form.social_interactions != null;
-  const canProceedStep4 = form.financial_stress != null && form.spending_control != null;
-  const canProceedStep5 = true;
-  const canProceedStep6 = true;
-
-  const canProceed = [
-    canProceedStep1,
-    canProceedStep2,
-    canProceedStep3,
-    canProceedStep4,
-    canProceedStep5,
-    canProceedStep6,
-  ][step - 1];
-
-  const handleNext = useCallback(() => {
-    if (step < TOTAL_STEPS) setStep((s) => s + 1);
-  }, [step]);
-
-  const handleBack = useCallback(() => {
-    if (step > 1) setStep((s) => s - 1);
-  }, [step]);
-
-  const buildPayload = useCallback((): CheckinPayload => {
-    const completionTime = Math.round((Date.now() - startTime) / 1000);
-    return {
-      exercise_days: form.exercise_days ?? 0,
-      exercise_intensity: form.exercise_days === 0 ? null : (form.exercise_intensity ?? null),
-      sleep_quality: form.sleep_quality ?? 5,
-      ...(form.sleep_hours != null && !Number.isNaN(form.sleep_hours)
-        ? { sleep_hours: form.sleep_hours }
-        : {}),
-      meditation_minutes: form.meditation_minutes ?? 0,
-      stress_level: form.stress_level ?? 5,
-      overall_mood: form.overall_mood ?? 6,
-      relationship_satisfaction: form.relationship_satisfaction ?? 5,
-      social_interactions: form.social_interactions ?? 0,
-      financial_stress: form.financial_stress ?? 5,
-      spending_control: form.spending_control ?? 5,
-      groceries_estimate: form.groceries_estimate ?? null,
-      dining_estimate: form.dining_estimate ?? null,
-      entertainment_estimate: form.entertainment_estimate ?? null,
-      shopping_estimate: form.shopping_estimate ?? null,
-      transport_estimate: form.transport_estimate ?? null,
-      utilities_estimate: form.utilities_estimate ?? null,
-      other_estimate: form.other_estimate ?? null,
-      had_impulse_purchases: form.had_impulse_purchases ?? false,
-      impulse_spending: form.had_impulse_purchases ? (form.impulse_spending ?? null) : null,
-      had_stress_purchases: form.had_stress_purchases ?? false,
-      stress_spending: form.had_stress_purchases ? (form.stress_spending ?? null) : null,
-      celebration_spending: form.celebration_spending ?? null,
-      biggest_unnecessary_purchase: form.biggest_unnecessary_purchase ?? null,
-      biggest_unnecessary_category: form.biggest_unnecessary_category ?? null,
-      wins: form.wins && form.wins.trim() ? form.wins.trim().slice(0, 200) : null,
-      challenges: form.challenges && form.challenges.trim() ? form.challenges.trim().slice(0, 200) : null,
-      completion_time_seconds: completionTime,
-    } as CheckinPayload;
-  }, [form, startTime]);
+  const setRotatingAnswer = useCallback((id: string, value: number) => {
+    setRotatingAnswers((prev) => ({ ...prev, [id]: value }));
+  }, []);
 
   const handleSubmit = useCallback(async () => {
-    setError(null);
     setSubmitting(true);
+    setSubmitError(null);
     try {
-      const payload = buildPayload();
-      const res = await fetch('/api/wellness/checkin', {
+      const payload: Record<string, unknown> = {
+        week_number: weekNumber,
+        year,
+        mood_rating: moodRating * 20,
+        stress_level: stressLevel,
+        activity_frequency: activityFrequency,
+        avg_sleep_hours: avgSleepHours.trim() ? parseFloat(avgSleepHours) : null,
+        relationship_temperature: relationshipQuality,
+        meaningful_time_with_people: meaningfulTime,
+        spending_discipline_rating: spendingDiscipline * 10,
+        rotating_question_answers: Object.entries(rotatingAnswers).map(([question_id, answer]) => ({
+          question_id,
+          answer,
+        })),
+      };
+
+      if (showB2) {
+        payload.partner_spending_unplanned = partnerSpendingUnplanned;
+        payload.partner_spending_amount = partnerSpendingAmount.trim()
+          ? parseFloat(partnerSpendingAmount)
+          : null;
+        payload.financial_communication_with_partner = financialCommunication * 20;
+      }
+      if (showB3) {
+        payload.unexpected_kid_spending = unexpectedKidSpending;
+        payload.unexpected_kid_amount = unexpectedKidAmount.trim()
+          ? parseFloat(unexpectedKidAmount)
+          : null;
+      }
+      if (practiceGrounding != null) {
+        payload.practice_felt_grounding = practiceGrounding;
+        if (practiceGrounding) {
+          payload.meditation_minutes_total = meditationMinutes;
+        }
+      }
+      if (spiritualConnection != null) {
+        payload.felt_spiritual_connection = spiritualConnection;
+      }
+      if (spendingDiscipline <= 5 && spendingTrigger.trim()) {
+        payload.spending_trigger_description = spendingTrigger.trim();
+      }
+      if (discretionarySpending.trim()) {
+        payload.discretionary_spending = parseFloat(discretionarySpending);
+      }
+      if (socialSpendingUnplanned != null) {
+        payload.social_spending_unplanned = socialSpendingUnplanned;
+        payload.social_spending_amount = socialSpendingAmount.trim()
+          ? parseFloat(socialSpendingAmount)
+          : null;
+      }
+      if (financialReflection.trim()) {
+        payload.financial_reflection = financialReflection.trim();
+      }
+      if (weeklyReflectionChange.trim()) {
+        payload.weekly_reflection_change = weeklyReflectionChange.trim();
+      }
+
+      const res = await fetch('/api/wellness/weekly-checkin', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
+        headers: authHeaders(),
         body: JSON.stringify(payload),
       });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
-        throw new Error(err.message || err.error || res.statusText || 'Submit failed');
+        throw new Error(err.message || err.error || res.statusText);
       }
-      const data: CheckinResponse = await res.json();
-      try {
-        localStorage.removeItem(STORAGE_KEY);
-      } catch {
-        // ignore
-      }
-      setResult(data);
+      const data: WeeklyCheckinSubmitResponse = await res.json();
+      setSubmitResult(data);
       onSuccess?.(data);
+      window.setTimeout(() => navigate('/dashboard'), 2000);
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Something went wrong');
+      setSubmitError(e instanceof Error ? e.message : 'Something went wrong');
     } finally {
       setSubmitting(false);
     }
-  }, [buildPayload, onSuccess]);
+  }, [
+    weekNumber,
+    year,
+    moodRating,
+    stressLevel,
+    activityFrequency,
+    avgSleepHours,
+    relationshipQuality,
+    meaningfulTime,
+    spendingDiscipline,
+    spendingTrigger,
+    discretionarySpending,
+    socialSpendingUnplanned,
+    socialSpendingAmount,
+    financialReflection,
+    weeklyReflectionChange,
+    rotatingAnswers,
+    showB2,
+    showB3,
+    partnerSpendingUnplanned,
+    partnerSpendingAmount,
+    financialCommunication,
+    unexpectedKidSpending,
+    unexpectedKidAmount,
+    practiceGrounding,
+    meditationMinutes,
+    spiritualConnection,
+    onSuccess,
+    navigate,
+  ]);
 
-  const triggerHaptic = useCallback(() => {
-    if (typeof navigator !== 'undefined' && navigator.vibrate) {
-      navigator.vibrate(10);
-    }
-  }, []);
-
-  // Confirmation screen
-  if (result) {
-    const scores = result.wellness_scores;
-    const variableSum = [form.groceries_estimate, form.dining_estimate, form.entertainment_estimate, form.shopping_estimate, form.transport_estimate, form.utilities_estimate, form.other_estimate]
-      .filter((n): n is number => n != null && !Number.isNaN(n))
-      .reduce((a, b) => a + b, 0);
-    const totalSpent = variableSum + (form.impulse_spending ?? 0) + (form.stress_spending ?? 0);
+  if (questionsLoading) {
     return (
-      <div className={`rounded-2xl bg-slate-800/80 p-6 text-slate-100 animate-fade-in-up ${className}`}>
-        <div className="flex items-center gap-3 text-violet-400 mb-6">
-          <CheckCircle2 className="w-10 h-10" aria-hidden />
-          <h2 className="text-xl font-bold">Check-in complete!</h2>
-        </div>
-        <section className="space-y-4" aria-label="Wellness scores">
-          <h3 className="text-lg font-semibold text-slate-200">Wellness scores</h3>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="bg-slate-700/50 rounded-xl p-3">
-              <span className="text-slate-400 text-sm">Physical</span>
-              <p className="text-xl font-bold text-violet-400">{Math.round(scores.physical_score ?? 0)}</p>
-            </div>
-            <div className="bg-slate-700/50 rounded-xl p-3">
-              <span className="text-slate-400 text-sm">Mental</span>
-              <p className="text-xl font-bold text-violet-400">{Math.round(scores.mental_score ?? 0)}</p>
-            </div>
-            <div className="bg-slate-700/50 rounded-xl p-3">
-              <span className="text-slate-400 text-sm">Relational</span>
-              <p className="text-xl font-bold text-violet-400">{Math.round(scores.relational_score ?? 0)}</p>
-            </div>
-            <div className="bg-slate-700/50 rounded-xl p-3">
-              <span className="text-slate-400 text-sm">Financial feeling</span>
-              <p className="text-xl font-bold text-violet-400">{Math.round(scores.financial_feeling_score ?? 0)}</p>
-            </div>
-          </div>
-          <div className="bg-violet-900/30 rounded-xl p-4 border border-violet-500/30">
-            <span className="text-slate-300 text-sm">Overall wellness</span>
-            <p className="text-2xl font-bold text-violet-400">{Math.round(scores.overall_wellness_score ?? 0)}</p>
-          </div>
-        </section>
-        <section className="mt-6 space-y-2" aria-label="Spending summary">
-          <h3 className="text-lg font-semibold text-slate-200 flex items-center gap-2">
-            <DollarSign className="w-5 h-5" aria-hidden /> Total spending this week
-          </h3>
-          <p className="text-2xl font-bold text-slate-100">${totalSpent.toFixed(0)}</p>
-          {baselines && baselines.weeks_of_data >= 3 && (baselines.avg_total ?? 0) > 0 && (
-            <p className="text-slate-400 text-sm">
-              Your average: ${Math.round(baselines.avg_total ?? 0)} — {totalSpent > (baselines.avg_total ?? 0) ? 'More' : 'Less'} than usual this week
-            </p>
-          )}
-        </section>
-        {result.streak_info && (
-          <section className="mt-4 flex items-center gap-2 text-slate-300" aria-label="Streak">
-            <TrendingUp className="w-5 h-5 text-violet-400" aria-hidden />
-            <span>Streak: {result.streak_info.current_streak} week{result.streak_info.current_streak !== 1 ? 's' : ''}</span>
-          </section>
-        )}
-        {result.insights && result.insights.length > 0 && (
-          <section className="mt-6 space-y-2" aria-label="Insights">
-            <h3 className="text-lg font-semibold text-slate-200 flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-violet-400" aria-hidden /> Insights
-            </h3>
-            <ul className="space-y-2">
-              {result.insights.slice(0, 3).map((insight, i) => (
-                <li key={i} className="bg-slate-700/50 rounded-xl p-3 text-sm text-slate-200">
-                  <strong className="text-violet-300">{insight.title}</strong>
-                  <p className="mt-1">{insight.message}</p>
-                </li>
-              ))}
-            </ul>
-          </section>
-        )}
+      <div className={`dash-checkup-root flex min-h-[40vh] items-center justify-center p-8 ${className}`}>
+        <p className="flex items-center gap-2 text-sm" style={{ color: 'var(--ink-mid)', fontFamily: 'Manrope, system-ui, sans-serif' }}>
+          <Loader2 className="h-5 w-5 animate-spin" aria-hidden />
+          Loading your check-in…
+        </p>
       </div>
     );
   }
 
-  const sleepSliderDisplayHours = form.sleep_hours ?? 7;
-  const sleepSliderFeedback = sleepHoursFeedback(sleepSliderDisplayHours);
-  const sleepHoursShown =
-    sleepSliderDisplayHours % 1 === 0
-      ? String(sleepSliderDisplayHours)
-      : sleepSliderDisplayHours.toFixed(1);
+  if (questionsError) {
+    return (
+      <div className={`dash-checkup-root p-6 ${className}`}>
+        <p role="alert" className="text-sm text-red-700">
+          {questionsError}
+        </p>
+      </div>
+    );
+  }
+
+  if (submitResult) {
+    return (
+      <div className={`dash-checkup-root p-6 ${className}`}>
+        <div
+          className="rounded-2xl border bg-white p-6 shadow-sm"
+          style={{ borderColor: 'var(--line)' }}
+          role="status"
+          aria-live="polite"
+        >
+          <div className="flex items-center gap-3" style={{ color: 'var(--mingus-purple)' }}>
+            <CheckCircle2 className="h-8 w-8" aria-hidden />
+            <h2 className="text-xl font-semibold" style={{ fontFamily: 'Fraunces, Georgia, serif', color: 'var(--ink)' }}>
+              Check-in saved
+            </h2>
+          </div>
+          <p className="mt-2 text-sm" style={{ color: 'var(--ink-mid)' }}>
+            Week {submitResult.week_number} recorded. Redirecting to dashboard…
+          </p>
+          {submitResult.stress_spend_signal ? (
+            <p className="mt-4 text-sm">
+              <Link
+                to="/dashboard/waterfall"
+                className="font-semibold underline-offset-2 hover:underline"
+                style={{ color: 'var(--mingus-purple)' }}
+              >
+                See how stress may be affecting your spending →
+              </Link>
+            </p>
+          ) : null}
+        </div>
+      </div>
+    );
+  }
+
+  const renderDomainQuestions = (domain: string) =>
+    (questionsByDomain[domain] ?? []).map((q) => (
+      <RotatingQuestionBlock
+        key={q.id}
+        question={q}
+        value={rotatingAnswers[q.id] ?? 3}
+        onChange={(v) => setRotatingAnswer(q.id, v)}
+      />
+    ));
 
   return (
-    <div className={`rounded-2xl bg-slate-800/80 p-6 text-slate-100 ${className}`}>
-      <form
-        ref={formRef}
-        onSubmit={(e) => { e.preventDefault(); if (step === TOTAL_STEPS) handleSubmit(); else handleNext(); }}
-        className="space-y-6"
-        noValidate
-        aria-label="Weekly check-in form"
-      >
-        <StepIndicator currentStep={step} totalSteps={TOTAL_STEPS} ariaLabel={`Step ${step} of ${TOTAL_STEPS}`} />
-
-        {error && (
-          <div role="alert" className="rounded-xl bg-red-900/30 border border-red-500/50 text-red-200 px-4 py-3 text-sm">
-            {error}
-          </div>
-        )}
-
-        {/* Step 1: Physical */}
-        {step === 1 && (
-          <div className="space-y-6 animate-fade-in-up" role="group" aria-label="Physical wellness">
-            <NumberSelector
-              options={[0, 1, 2, 3, 4, 5, 6, 7]}
-              value={form.exercise_days ?? null}
-              onChange={(v) => { update('exercise_days', v); triggerHaptic(); }}
-              label="How many days did you exercise this week?"
-              id="exercise_days"
-            />
-            {form.exercise_days !== 0 && (
-              <div className="space-y-3">
-                <div className="text-slate-200 font-medium">How intense were your workouts?</div>
-                <div className="flex flex-wrap gap-2">
-                  {INTENSITY_OPTIONS.map((opt) => {
-                    const isSelected = form.exercise_intensity === opt.value;
-                    return (
-                      <button
-                        key={opt.value}
-                        type="button"
-                        onClick={() => { update('exercise_intensity', opt.value); triggerHaptic(); }}
-                        className={`min-h-[44px] px-4 rounded-xl text-base font-semibold flex items-center gap-2 transition-all focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 focus:ring-offset-slate-900 ${isSelected ? 'bg-violet-600 text-white ring-2 ring-violet-400' : 'bg-slate-700 text-slate-300 hover:bg-slate-600'}`}
-                        aria-pressed={isSelected}
-                        aria-label={opt.label}
-                      >
-                        <span aria-hidden>{opt.emoji}</span> {opt.label}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-            <SliderInput
-              id="sleep_quality"
-              label="How was your sleep quality?"
-              value={form.sleep_quality ?? 5}
-              onChange={(v) => update('sleep_quality', v)}
-              leftEmoji="😫"
-              rightEmoji="😴"
-              min={1}
-              max={10}
-            />
-          </div>
-        )}
-
-        {/* Step 2: Mental */}
-        {step === 2 && (
-          <div className="space-y-6 animate-fade-in-up" role="group" aria-label="Mental wellness">
-            <NumberSelector
-              options={MEDITATION_OPTIONS.map((n) => n === 120 ? { label: '120+', value: 120 } : n)}
-              value={form.meditation_minutes ?? null}
-              onChange={(v) => { update('meditation_minutes', v); triggerHaptic(); }}
-              label="Minutes of meditation/prayer/mindfulness?"
-              id="meditation_minutes"
-            />
-            <div className="space-y-4 rounded-xl border border-slate-600/80 bg-slate-700/30 p-4">
-              <div>
-                <div id="sleep_hours_heading" className="text-slate-200 font-medium">
-                  How did you sleep this past week?
-                </div>
-                <p className="text-slate-400 text-sm mt-1">On average, how many hours per night?</p>
-              </div>
-              <div className="flex flex-col items-center gap-1">
-                <p
-                  className="text-4xl font-bold tabular-nums text-slate-100"
-                  aria-live="polite"
-                  aria-atomic="true"
-                >
-                  {sleepHoursShown}
-                  <span className="text-lg font-semibold text-slate-400 ml-1.5">hrs</span>
-                </p>
-              </div>
-              <div className="flex items-center gap-3">
-                <span className="text-slate-400 text-xs tabular-nums w-7 shrink-0">{SLEEP_HOURS_MIN}</span>
-                <input
-                  type="range"
-                  min={SLEEP_HOURS_MIN}
-                  max={SLEEP_HOURS_MAX}
-                  step={SLEEP_HOURS_STEP}
-                  value={sleepSliderDisplayHours}
-                  onChange={(e) => {
-                    const raw = parseFloat(e.target.value);
-                    if (Number.isNaN(raw)) return;
-                    const snapped = Math.round(raw / SLEEP_HOURS_STEP) * SLEEP_HOURS_STEP;
-                    const clamped = Math.min(SLEEP_HOURS_MAX, Math.max(SLEEP_HOURS_MIN, snapped));
-                    update('sleep_hours', clamped);
-                    triggerHaptic();
-                  }}
-                  className="flex-1 h-12 min-w-0 accent-violet-500 touch-none"
-                  style={{ minHeight: '44px' }}
-                  aria-valuemin={SLEEP_HOURS_MIN}
-                  aria-valuemax={SLEEP_HOURS_MAX}
-                  aria-valuenow={sleepSliderDisplayHours}
-                  aria-labelledby="sleep_hours_heading"
-                  aria-label="Average hours of sleep per night this past week"
-                  id="sleep_hours"
-                />
-                <span className="text-slate-400 text-xs tabular-nums w-7 shrink-0 text-right">{SLEEP_HOURS_MAX}</span>
-              </div>
-              <p
-                className={`text-center text-sm font-medium ${sleepSliderFeedback.className}`}
-                aria-live="polite"
-              >
-                {sleepSliderFeedback.text}
-              </p>
-              <button
-                type="button"
-                onClick={() => { update('sleep_hours', null); triggerHaptic(); }}
-                className="min-h-[44px] w-full rounded-xl text-sm font-semibold text-slate-400 hover:text-slate-200 hover:bg-slate-600/40 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 focus:ring-offset-slate-900"
-              >
-                Don&apos;t track sleep this week
-              </button>
-            </div>
-            <SliderInput
-              id="stress_level"
-              label="What was your average stress level?"
-              value={form.stress_level ?? 5}
-              onChange={(v) => update('stress_level', v)}
-              leftEmoji="😌"
-              rightEmoji="😰"
-              min={1}
-              max={10}
-            />
-            <EmojiSelector
-              options={MOOD_OPTIONS}
-              value={form.overall_mood ?? null}
-              onChange={(v) => { update('overall_mood', v); triggerHaptic(); }}
-              label="Overall mood this week?"
-              id="overall_mood"
-            />
-          </div>
-        )}
-
-        {/* Step 3: Relationships */}
-        {step === 3 && (
-          <div className="space-y-6 animate-fade-in-up" role="group" aria-label="Relationships">
-            <SliderInput
-              id="relationship_satisfaction"
-              label="How satisfied are you with your key relationships?"
-              value={form.relationship_satisfaction ?? 5}
-              onChange={(v) => update('relationship_satisfaction', v)}
-              leftEmoji="💔"
-              rightEmoji="💖"
-              min={1}
-              max={10}
-            />
-            <NumberSelector
-              options={SOCIAL_OPTIONS}
-              value={form.social_interactions ?? null}
-              onChange={(v) => { update('social_interactions', v); triggerHaptic(); }}
-              label="Meaningful social interactions this week?"
-              id="social_interactions"
-            />
-          </div>
-        )}
-
-        {/* Step 4: Financial feelings */}
-        {step === 4 && (
-          <div className="space-y-6 animate-fade-in-up" role="group" aria-label="Financial feelings">
-            <SliderInput
-              id="financial_stress"
-              label="How stressed about money were you this week?"
-              value={form.financial_stress ?? 5}
-              onChange={(v) => update('financial_stress', v)}
-              leftEmoji="😌"
-              rightEmoji="😰"
-              min={1}
-              max={10}
-            />
-            <SliderInput
-              id="spending_control"
-              label="How in control of spending did you feel?"
-              value={form.spending_control ?? 5}
-              onChange={(v) => update('spending_control', v)}
-              leftEmoji="😬"
-              rightEmoji="💪"
-              min={1}
-              max={10}
-            />
-          </div>
-        )}
-
-        {/* Step 5: Spending */}
-        {step === 5 && (
-          <div className="space-y-6 animate-fade-in-up" role="group" aria-label="Weekly spending">
-            <div>
-              <h3 className="text-lg font-bold text-slate-100">Let&apos;s estimate your spending this week 💸</h3>
-              <p className="text-slate-400 text-sm mt-1">Rough estimates are fine! This helps us find patterns.</p>
-            </div>
-            <SpendingCategory id="groceries" label="Groceries" value={form.groceries_estimate ?? null} onChange={(v) => update('groceries_estimate', v)} baselineHint={baselines?.avg_groceries} placeholder="~$100" />
-            <SpendingCategory id="dining" label="Dining & Takeout" value={form.dining_estimate ?? null} onChange={(v) => update('dining_estimate', v)} baselineHint={baselines?.avg_dining} placeholder="~$50" />
-            <SpendingCategory id="entertainment" label="Entertainment" value={form.entertainment_estimate ?? null} onChange={(v) => update('entertainment_estimate', v)} baselineHint={baselines?.avg_entertainment} placeholder="~$30" />
-            <SpendingCategory id="shopping" label="Shopping" value={form.shopping_estimate ?? null} onChange={(v) => update('shopping_estimate', v)} baselineHint={baselines?.avg_shopping} placeholder="~$50" />
-            <SpendingCategory id="transport" label="Gas & Transport" value={form.transport_estimate ?? null} onChange={(v) => update('transport_estimate', v)} baselineHint={baselines?.avg_transport} placeholder="~$40" />
-            <SpendingCategory id="other" label="Other" value={form.other_estimate ?? null} onChange={(v) => update('other_estimate', v)} placeholder="~$20" />
-            <hr className="border-slate-600" />
-            <ToggleWithAmount
-              label="Any impulse purchases this week?"
-              isYes={form.had_impulse_purchases ?? false}
-              amount={form.impulse_spending ?? null}
-              onToggle={(v) => update('had_impulse_purchases', v)}
-              onAmountChange={(v) => update('impulse_spending', v)}
-              id="impulse"
-            />
-            <ToggleWithAmount
-              label="Any stress-related spending?"
-              isYes={form.had_stress_purchases ?? false}
-              amount={form.stress_spending ?? null}
-              onToggle={(v) => update('had_stress_purchases', v)}
-              onAmountChange={(v) => update('stress_spending', v)}
-              id="stress"
-            />
-            <div className="space-y-2">
-              <label htmlFor="biggest_regret" className="block text-slate-400 text-sm">Optional: Biggest purchase you regret?</label>
-              <div className="flex gap-2 flex-wrap">
-                <input
-                  id="biggest_regret"
-                  type="text"
-                  inputMode="decimal"
-                  placeholder="Amount"
-                  value={form.biggest_unnecessary_purchase != null ? String(form.biggest_unnecessary_purchase) : ''}
-                  onChange={(e) => {
-                    const v = e.target.value.replace(/[^0-9.]/g, '');
-                    update('biggest_unnecessary_purchase', v === '' ? null : parseFloat(v) || null);
-                  }}
-                  className="min-h-[44px] w-24 px-3 rounded-xl bg-slate-700 border border-slate-600 text-slate-100 placeholder-slate-400 focus:border-violet-500"
-                  aria-label="Amount"
-                />
-                <select
-                  value={form.biggest_unnecessary_category ?? ''}
-                  onChange={(e) => update('biggest_unnecessary_category', e.target.value || null)}
-                  className="min-h-[44px] flex-1 min-w-[120px] px-3 rounded-xl bg-slate-700 border border-slate-600 text-slate-100 focus:border-violet-500"
-                  aria-label="Category"
-                >
-                  <option value="">Category</option>
-                  {['groceries', 'dining', 'entertainment', 'shopping', 'transport', 'other'].map((c) => (
-                    <option key={c} value={c}>{c}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Step 6: Reflection */}
-        {step === 6 && (
-          <div className="space-y-6 animate-fade-in-up" role="group" aria-label="Reflection">
-            <div>
-              <label htmlFor="wins" className="block text-slate-200 font-medium mb-2">One win from this week?</label>
-              <textarea
-                id="wins"
-                maxLength={200}
-                placeholder="e.g. Stuck to my budget on groceries"
-                value={form.wins ?? ''}
-                onChange={(e) => update('wins', e.target.value)}
-                className="w-full min-h-[88px] px-4 py-3 rounded-xl bg-slate-700 border border-slate-600 text-slate-100 placeholder-slate-400 focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20"
-                aria-label="One win from this week"
-              />
-              <p className="text-slate-500 text-xs mt-1">{(form.wins ?? '').length}/200</p>
-            </div>
-            <div>
-              <label htmlFor="challenges" className="block text-slate-200 font-medium mb-2">One challenge you faced?</label>
-              <textarea
-                id="challenges"
-                maxLength={200}
-                placeholder="e.g. Impulse bought takeout twice"
-                value={form.challenges ?? ''}
-                onChange={(e) => update('challenges', e.target.value)}
-                className="w-full min-h-[88px] px-4 py-3 rounded-xl bg-slate-700 border border-slate-600 text-slate-100 placeholder-slate-400 focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20"
-                aria-label="One challenge you faced"
-              />
-              <p className="text-slate-500 text-xs mt-1">{(form.challenges ?? '').length}/200</p>
-            </div>
-          </div>
-        )}
-
-        <div className="flex gap-3 pt-4">
-          {step > 1 && (
-            <button
-              type="button"
-              onClick={handleBack}
-              className="min-h-[44px] px-4 rounded-xl font-semibold bg-slate-700 text-slate-200 hover:bg-slate-600 flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 focus:ring-offset-slate-900"
-              aria-label="Previous step"
-            >
-              <ChevronLeft className="w-5 h-5" aria-hidden /> Back
-            </button>
-          )}
+    <div className={`dash-checkup-root ${className}`}>
+      <div className="mx-auto max-w-2xl px-4 py-6 sm:px-6">
+        {onCancel ? (
           <button
-            type="submit"
-            disabled={step < TOTAL_STEPS ? !canProceed : submitting}
-            className="min-h-[44px] flex-1 rounded-xl font-semibold bg-violet-600 text-white hover:bg-violet-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 focus:ring-offset-slate-900"
-            aria-label={step === TOTAL_STEPS ? (form.wins != null || form.challenges != null ? 'Skip and finish' : 'Finish check-in') : 'Next step'}
+            type="button"
+            onClick={onCancel}
+            className="mb-4 text-[13px] font-semibold underline-offset-2 hover:underline"
+            style={{ color: 'var(--ink-mid)', fontFamily: 'Manrope, system-ui, sans-serif' }}
           >
-            {submitting ? (
-              <Loader2 className="w-5 h-5 animate-spin" aria-hidden /> 
-            ) : step === TOTAL_STEPS ? (
-              (form.wins != null && form.wins.trim()) || (form.challenges != null && form.challenges.trim()) ? 'Submit' : 'Skip & Finish'
-            ) : (
-              'Next'
-            )}
+            ← Back
           </button>
+        ) : (
+          <Link
+            to="/dashboard/vibe-checkups"
+            className="mb-4 inline-block text-[13px] font-semibold underline-offset-2 hover:underline"
+            style={{ color: 'var(--ink-mid)', fontFamily: 'Manrope, system-ui, sans-serif' }}
+          >
+            ← Check-up hub
+          </Link>
+        )}
+
+        <header className="mb-8 space-y-1">
+          <h1 className="text-[22px] font-semibold" style={{ fontFamily: 'Fraunces, Georgia, serif', color: 'var(--ink)' }}>
+            Weekly Wellness Check-in
+          </h1>
+          <p className="text-[13px]" style={{ color: 'var(--ink-mid)', fontFamily: 'Manrope, system-ui, sans-serif' }}>
+            Week {weekNumber ?? '—'} · ~5 minutes
+          </p>
+        </header>
+
+        <div
+          className="dash-checkup-theme max-h-[calc(100vh-8rem)] overflow-y-auto rounded-2xl border bg-white p-6 shadow-sm sm:max-h-none sm:overflow-visible sm:p-8"
+          style={{ borderColor: 'var(--line)' }}
+        >
+          {submitError ? (
+            <div role="alert" className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+              {submitError}
+            </div>
+          ) : null}
+
+          <CheckupForm>
+            {/* Section A — Self-State */}
+            <section className="space-y-6">
+              <h2 className="text-lg font-semibold" style={{ fontFamily: 'Fraunces, Georgia, serif', color: 'var(--ink)' }}>
+                How you&apos;re doing
+              </h2>
+              <CheckupQuestionBlock>
+                <QuestionLabel>How was your mood this week?</QuestionLabel>
+                <EmojiMoodPicker value={moodRating} onChange={setMoodRating} />
+              </CheckupQuestionBlock>
+              <RangeStep
+                label="Stress level"
+                min={1}
+                max={10}
+                value={stressLevel}
+                onChange={setStressLevel}
+                lowLabel="Calm"
+                highLabel="Overwhelmed"
+              />
+              <CheckupQuestionBlock>
+                <QuestionLabel>How many times did you move intentionally this week?</QuestionLabel>
+                <NumericStepper value={activityFrequency} onChange={setActivityFrequency} min={0} max={14} />
+              </CheckupQuestionBlock>
+              <CheckupQuestionBlock>
+                <QuestionLabel>Average sleep hours per night</QuestionLabel>
+                <input
+                  type="number"
+                  min={0}
+                  max={24}
+                  step={0.25}
+                  value={avgSleepHours}
+                  onChange={(e) => setAvgSleepHours(e.target.value)}
+                  className="w-full rounded-xl border px-4 py-3 text-sm"
+                  style={{ borderColor: 'var(--line)' }}
+                  aria-label="Average sleep hours"
+                />
+              </CheckupQuestionBlock>
+              {renderDomainQuestions('self_state')}
+            </section>
+
+            {/* Career domain (between A and B) */}
+            {(questionsByDomain.career_purpose ?? []).length > 0 ? (
+              <section className="space-y-6 border-t pt-6" style={{ borderColor: 'var(--line)' }}>
+                <h2 className="text-lg font-semibold" style={{ fontFamily: 'Fraunces, Georgia, serif', color: 'var(--ink)' }}>
+                  Career &amp; purpose
+                </h2>
+                {renderDomainQuestions('career_purpose')}
+              </section>
+            ) : null}
+
+            {/* Section B — Relationships */}
+            <section className="space-y-6 border-t pt-6" style={{ borderColor: 'var(--line)' }}>
+              <h2 className="text-lg font-semibold" style={{ fontFamily: 'Fraunces, Georgia, serif', color: 'var(--ink)' }}>
+                Your people
+              </h2>
+              <CheckupQuestionBlock>
+                <QuestionLabel>Relationship quality this week</QuestionLabel>
+                <ScaleButtons
+                  min={1}
+                  max={5}
+                  value={relationshipQuality}
+                  onChange={setRelationshipQuality}
+                  labels={{ 1: 'Strained', 5: 'Thriving' }}
+                />
+              </CheckupQuestionBlock>
+              <CheckupQuestionBlock>
+                <QuestionLabel>Did you spend meaningful time with people who matter?</QuestionLabel>
+                <YesNoButtons value={meaningfulTime} onChange={setMeaningfulTime} />
+              </CheckupQuestionBlock>
+              {showB2 ? (
+                <>
+                  <CheckupQuestionBlock>
+                    <QuestionLabel>Did your partner spend money you hadn&apos;t planned for?</QuestionLabel>
+                    <YesNoButtons value={partnerSpendingUnplanned} onChange={setPartnerSpendingUnplanned} />
+                  </CheckupQuestionBlock>
+                  {partnerSpendingUnplanned ? (
+                    <CheckupQuestionBlock conditional>
+                      <QuestionLabel>Approximate amount</QuestionLabel>
+                      <DollarInput
+                        value={partnerSpendingAmount}
+                        onChange={setPartnerSpendingAmount}
+                        placeholder="Amount in dollars"
+                      />
+                    </CheckupQuestionBlock>
+                  ) : null}
+                  <CheckupQuestionBlock>
+                    <QuestionLabel>Financial communication with partner</QuestionLabel>
+                    <ScaleButtons
+                      min={1}
+                      max={5}
+                      value={financialCommunication}
+                      onChange={setFinancialCommunication}
+                      labels={{ 1: 'Poor', 5: 'Great' }}
+                    />
+                  </CheckupQuestionBlock>
+                </>
+              ) : null}
+              {showB3 ? (
+                <>
+                  <CheckupQuestionBlock>
+                    <QuestionLabel>Any unexpected kid-related spending this week?</QuestionLabel>
+                    <YesNoButtons value={unexpectedKidSpending} onChange={setUnexpectedKidSpending} />
+                  </CheckupQuestionBlock>
+                  {unexpectedKidSpending ? (
+                    <CheckupQuestionBlock conditional>
+                      <QuestionLabel>Approximate amount</QuestionLabel>
+                      <DollarInput value={unexpectedKidAmount} onChange={setUnexpectedKidAmount} />
+                    </CheckupQuestionBlock>
+                  ) : null}
+                </>
+              ) : null}
+              {renderDomainQuestions('relationships')}
+            </section>
+
+            {/* Section C — Practice & Spirit */}
+            <section className="space-y-6 border-t pt-6" style={{ borderColor: 'var(--line)' }}>
+              <h2 className="text-lg font-semibold" style={{ fontFamily: 'Fraunces, Georgia, serif', color: 'var(--ink)' }}>
+                Your practice
+              </h2>
+              <CheckupQuestionBlock>
+                <QuestionLabel>Did you take intentional stillness this week?</QuestionLabel>
+                <YesNoButtons value={practiceGrounding} onChange={setPracticeGrounding} />
+              </CheckupQuestionBlock>
+              {practiceGrounding ? (
+                <CheckupQuestionBlock conditional>
+                  <QuestionLabel>Total minutes of meditation or stillness</QuestionLabel>
+                  <NumericStepper value={meditationMinutes} onChange={setMeditationMinutes} min={0} max={300} step={5} />
+                </CheckupQuestionBlock>
+              ) : null}
+              <CheckupQuestionBlock>
+                <div className="flex items-start justify-between gap-2">
+                  <QuestionLabel>Did you feel connected to faith or purpose?</QuestionLabel>
+                  <SkipLink onClick={() => setSpiritualConnection(null)} />
+                </div>
+                <YesNoButtons
+                  value={spiritualConnection}
+                  onChange={setSpiritualConnection}
+                />
+              </CheckupQuestionBlock>
+            </section>
+
+            {/* Section D — Money & Spending */}
+            <section className="space-y-6 border-t pt-6" style={{ borderColor: 'var(--line)' }}>
+              <h2 className="text-lg font-semibold" style={{ fontFamily: 'Fraunces, Georgia, serif', color: 'var(--ink)' }}>
+                Your money this week
+              </h2>
+              <RangeStep
+                label="Spending discipline"
+                min={1}
+                max={10}
+                value={spendingDiscipline}
+                onChange={setSpendingDiscipline}
+                lowLabel="Reactive"
+                highLabel="Intentional"
+              />
+              {spendingDiscipline <= 5 ? (
+                <CheckupQuestionBlock conditional>
+                  <QuestionLabel>Did anything specific trigger that spending?</QuestionLabel>
+                  <textarea
+                    value={spendingTrigger}
+                    onChange={(e) => setSpendingTrigger(e.target.value)}
+                    rows={3}
+                    className="w-full rounded-xl border px-4 py-3 text-sm"
+                    style={{ borderColor: 'var(--line)' }}
+                    placeholder="Optional — what was going on?"
+                  />
+                </CheckupQuestionBlock>
+              ) : null}
+              <CheckupQuestionBlock>
+                <QuestionLabel>Discretionary spending this week (optional)</QuestionLabel>
+                <DollarInput value={discretionarySpending} onChange={setDiscretionarySpending} />
+              </CheckupQuestionBlock>
+              <CheckupQuestionBlock>
+                <QuestionLabel>Any unplanned social spending?</QuestionLabel>
+                <YesNoButtons value={socialSpendingUnplanned} onChange={setSocialSpendingUnplanned} />
+              </CheckupQuestionBlock>
+              {socialSpendingUnplanned ? (
+                <CheckupQuestionBlock conditional>
+                  <QuestionLabel>Approximate amount</QuestionLabel>
+                  <DollarInput value={socialSpendingAmount} onChange={setSocialSpendingAmount} />
+                </CheckupQuestionBlock>
+              ) : null}
+              <CheckupQuestionBlock>
+                <div className="flex items-start justify-between gap-2">
+                  <QuestionLabel>Anything you want to note about money this week?</QuestionLabel>
+                  <SkipLink onClick={() => setFinancialReflection('')} />
+                </div>
+                <textarea
+                  value={financialReflection}
+                  onChange={(e) => setFinancialReflection(e.target.value)}
+                  rows={3}
+                  className="w-full rounded-xl border px-4 py-3 text-sm"
+                  style={{ borderColor: 'var(--line)' }}
+                />
+              </CheckupQuestionBlock>
+              {renderDomainQuestions('emotional_financial')}
+            </section>
+
+            {/* Closing — Z1 */}
+            <section className="space-y-3 border-t pt-6" style={{ borderColor: 'var(--line)' }}>
+              <div className="flex items-start justify-between gap-2">
+                <QuestionLabel>
+                  If you could change one thing about how you managed your money or your energy this week, what would it be?
+                </QuestionLabel>
+                <SkipLink onClick={() => setWeeklyReflectionChange('')} />
+              </div>
+              <textarea
+                value={weeklyReflectionChange}
+                onChange={(e) => setWeeklyReflectionChange(e.target.value)}
+                rows={4}
+                className="w-full rounded-xl border px-4 py-3 text-sm"
+                style={{ borderColor: 'var(--line)' }}
+              />
+              <p className="text-xs italic" style={{ color: 'var(--ink-mid)' }}>
+                This is just for you. Writing it is the point.
+              </p>
+            </section>
+
+            <SubmitButton
+              busy={submitting}
+              disabled={meaningfulTime == null}
+              onClick={() => void handleSubmit()}
+              label="Save this week's check-in"
+            />
+          </CheckupForm>
         </div>
-      </form>
+      </div>
     </div>
   );
 };

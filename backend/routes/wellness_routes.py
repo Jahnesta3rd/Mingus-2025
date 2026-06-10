@@ -183,6 +183,28 @@ def submit_checkin_adapter():
         return _json_error(str(e))
 
 
+@wellness_public_bp.route("/weekly-checkin/questions", methods=["GET"])
+@require_auth
+def weekly_checkin_questions_adapter():
+    try:
+        body, status = _rv_parts(_wca().get_weekly_checkin_questions())
+        return body, status
+    except Exception as e:
+        logger.exception("wellness weekly-checkin/questions: %s", e)
+        return _json_error(str(e))
+
+
+@wellness_public_bp.route("/weekly-checkin", methods=["POST"])
+@require_auth
+def weekly_checkin_submit_adapter():
+    try:
+        body, status = _rv_parts(_wca().submit_weekly_checkin_unified())
+        return body, status
+    except Exception as e:
+        logger.exception("wellness weekly-checkin POST: %s", e)
+        return _json_error(str(e))
+
+
 # --- Passthrough routes (same handlers as wellness_checkin_api) ---
 
 wellness_public_bp.add_url_rule(

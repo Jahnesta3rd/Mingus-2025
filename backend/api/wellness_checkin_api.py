@@ -42,6 +42,11 @@ from backend.services.insight_generator_service import (
     InsightType,
 )
 from backend.services.cash_forecast_service import generate_daily_forecast
+from backend.services.weekly_checkin_service import (
+    get_this_weeks_questions,
+    log_rotating_question_answers,
+    compute_stress_spend_signal,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -297,9 +302,188 @@ class CheckinRequestSchema(Schema):
             raise ValidationError('sleep_hours must be between 3 and 10')
 
 
+class RotatingQuestionAnswerSchema(Schema):
+    question_id = fields.String(required=True)
+    answer = fields.Integer(allow_none=True, validate=validate.Range(min=1, max=5))
+
+
+class WeeklyCheckinUnifiedSchema(Schema):
+    """Request body for POST /api/wellness/weekly-checkin — all fields optional."""
+
+    week_number = fields.Integer(allow_none=True)
+    year = fields.Integer(allow_none=True)
+    mood_rating = fields.Integer(allow_none=True)
+    stress_level = fields.Integer(allow_none=True, validate=validate.Range(min=0, max=10))
+    activity_frequency = fields.Integer(allow_none=True)
+    body_score = fields.Integer(allow_none=True)
+    avg_sleep_hours = fields.Float(allow_none=True)
+    rest_quality = fields.Integer(allow_none=True)
+    relationship_temperature = fields.Integer(allow_none=True)
+    meaningful_time_with_people = fields.Boolean(allow_none=True)
+    primary_partner_rating = fields.Integer(allow_none=True)
+    financial_convo_with_partner = fields.Boolean(allow_none=True)
+    financial_communication_with_partner = fields.Integer(allow_none=True)
+    parenting_stress = fields.Integer(allow_none=True)
+    unexpected_kid_spending = fields.Boolean(allow_none=True)
+    unexpected_kid_amount = fields.Float(allow_none=True)
+    meditation_minutes_total = fields.Integer(allow_none=True)
+    practice_felt_grounding = fields.Boolean(allow_none=True)
+    felt_spiritual_connection = fields.Boolean(allow_none=True)
+    spiritual_connection_rating = fields.Integer(allow_none=True)
+    spending_discipline_rating = fields.Integer(allow_none=True)
+    discretionary_spending = fields.Float(allow_none=True)
+    social_spending_unplanned = fields.Boolean(allow_none=True)
+    social_spending_amount = fields.Float(allow_none=True)
+    partner_spending_unplanned = fields.Boolean(allow_none=True)
+    partner_spending_amount = fields.Float(allow_none=True)
+    kids_spending_total = fields.Float(allow_none=True)
+    kids_spending_unplanned = fields.Float(allow_none=True)
+    financial_reflection = fields.String(allow_none=True)
+    spending_trigger_description = fields.String(allow_none=True)
+    weekly_reflection_change = fields.String(allow_none=True)
+    rotating_question_answers = fields.List(
+        fields.Nested(RotatingQuestionAnswerSchema),
+        allow_none=True,
+        load_default=list,
+    )
+
+
+_UNIFIED_CHECKIN_FIELDS = (
+    'mood_rating', 'stress_level', 'activity_frequency', 'body_score', 'avg_sleep_hours',
+    'rest_quality', 'relationship_temperature', 'meaningful_time_with_people',
+    'primary_partner_rating', 'financial_convo_with_partner',
+    'financial_communication_with_partner', 'parenting_stress', 'unexpected_kid_spending',
+    'unexpected_kid_amount', 'meditation_minutes_total', 'practice_felt_grounding',
+    'felt_spiritual_connection', 'spiritual_connection_rating', 'spending_discipline_rating',
+    'discretionary_spending', 'social_spending_unplanned', 'social_spending_amount',
+    'partner_spending_unplanned', 'partner_spending_amount', 'kids_spending_total',
+    'kids_spending_unplanned', 'financial_reflection', 'spending_trigger_description',
+    'weekly_reflection_change',
+)
+
+_NUMERIC_UNIFIED_FIELDS = frozenset({
+    'discretionary_spending', 'social_spending_amount', 'partner_spending_amount',
+    'kids_spending_total', 'kids_spending_unplanned',
+})
+
+
+def _iso_week_today() -> tuple[int, int]:
+    iso = date.today().isocalendar()
+    return int(iso.week), int(iso.year)
+
+
+def _week_ending_date_sunday() -> date:
+    """Sunday ending the current ISO week."""
+    today = date.today()
+    days_until_sunday = (6 - today.weekday()) % 7
+    return today + timedelta(days=days_until_sunday)
+
+
+def _build_unified_payload_dict(
+    user_id: int,
+    week_ending_date: date,
+    week_number: int,
+    year: int,
+    data: Dict[str, Any],
+) -> Dict[str, Any]:
+    payload: Dict[str, Any] = {
+        'user_id': user_id,
+        'week_ending_date': week_ending_date,
+        'week_number': week_number,
+        'year': year,
+        'completed_at': datetime.utcnow(),
+    }
+    for field in _UNIFIED_CHECKIN_FIELDS:
+        if field not in data:
+            continue
+        val = data[field]
+        if val is not None:
+            if field in _NUMERIC_UNIFIED_FIELDS:
+                val = Decimal(str(val))
+            payload[field] = val
+    return payload
+
+
 # =============================================================================
 # ENDPOINTS
 # =============================================================================
+
+@wellness_checkin_bp.route('/weekly-checkin/questions', methods=['GET'])
+@require_auth
+def get_weekly_checkin_questions():
+    """
+    GET /api/wellness/weekly-checkin/questions
+    Returns this week's 8 rotating questions (2 per domain).
+    """
+    user_id = _resolve_user_id()
+    week_number, year = _iso_week_today()
+    questions = get_this_weeks_questions(user_id, week_number, year)
+    return jsonify({
+        'week_number': week_number,
+        'year': year,
+        'questions': questions,
+    })
+
+
+@wellness_checkin_bp.route('/weekly-checkin', methods=['POST'])
+@require_auth
+def submit_weekly_checkin_unified():
+    """
+    POST /api/wellness/weekly-checkin
+    UPSERT unified weekly check-in (one row per user per week_ending_date).
+    """
+    user_id = _resolve_user_id()
+    if not request.is_json:
+        raise BadRequest('Request must be JSON')
+    try:
+        data = WeeklyCheckinUnifiedSchema().load(request.get_json() or {})
+    except ValidationError as e:
+        return jsonify({'error': 'Validation error', 'messages': e.messages}), 400
+
+    week_number = data.get('week_number')
+    year = data.get('year')
+    if week_number is None or year is None:
+        week_number, year = _iso_week_today()
+
+    week_ending_date = _week_ending_date_sunday()
+    payload_dict = _build_unified_payload_dict(
+        user_id, week_ending_date, week_number, year, data,
+    )
+
+    existing = WeeklyCheckin.query.filter_by(
+        user_id=user_id,
+        week_ending_date=week_ending_date,
+    ).first()
+
+    if existing:
+        for field, value in payload_dict.items():
+            if field == 'user_id':
+                continue
+            if value is not None:
+                setattr(existing, field, value)
+        checkin = existing
+    else:
+        checkin = WeeklyCheckin(**payload_dict)
+        db.session.add(checkin)
+
+    rotating_answers = data.get('rotating_question_answers') or []
+    if rotating_answers:
+        log_rotating_question_answers(user_id, week_number, year, rotating_answers)
+
+    db.session.commit()
+
+    stress_spend_signal = compute_stress_spend_signal(
+        checkin.stress_level,
+        checkin.spending_discipline_rating,
+    )
+
+    return jsonify({
+        'success': True,
+        'week_number': week_number,
+        'year': year,
+        'stress_spend_signal': stress_spend_signal,
+    }), 200
+
 
 @wellness_checkin_bp.route('/checkin', methods=['POST'])
 @require_auth

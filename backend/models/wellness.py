@@ -77,6 +77,42 @@ class WeeklyCheckin(db.Model):
     wins = db.Column(db.Text, nullable=True)
     challenges = db.Column(db.Text, nullable=True)
 
+    # --- UNIFIED WEEKLY CHECK-IN (#176) — all nullable; do not alter columns above ---
+    week_number = db.Column(db.Integer, nullable=True, index=True)
+    year = db.Column(db.Integer, nullable=True, index=True)
+    # Section A — Self-State
+    mood_rating = db.Column(db.Integer, nullable=True)
+    activity_frequency = db.Column(db.Integer, nullable=True)
+    body_score = db.Column(db.Integer, nullable=True)
+    avg_sleep_hours = db.Column(db.Float, nullable=True)
+    rest_quality = db.Column(db.Integer, nullable=True)
+    # Section B — Relationships
+    relationship_temperature = db.Column(db.Integer, nullable=True)
+    meaningful_time_with_people = db.Column(db.Boolean, nullable=True)
+    primary_partner_rating = db.Column(db.Integer, nullable=True)
+    financial_convo_with_partner = db.Column(db.Boolean, nullable=True)
+    financial_communication_with_partner = db.Column(db.Integer, nullable=True)
+    parenting_stress = db.Column(db.Integer, nullable=True)
+    unexpected_kid_spending = db.Column(db.Boolean, nullable=True)
+    unexpected_kid_amount = db.Column(db.Float, nullable=True)
+    # Section C — Practice & Spirit
+    meditation_minutes_total = db.Column(db.Integer, nullable=True)
+    practice_felt_grounding = db.Column(db.Boolean, nullable=True)
+    felt_spiritual_connection = db.Column(db.Boolean, nullable=True)
+    spiritual_connection_rating = db.Column(db.Integer, nullable=True)
+    # Section D — Money & Spending
+    spending_discipline_rating = db.Column(db.Integer, nullable=True)
+    discretionary_spending = db.Column(db.Numeric(10, 2), nullable=True)
+    social_spending_unplanned = db.Column(db.Boolean, nullable=True)
+    social_spending_amount = db.Column(db.Numeric(10, 2), nullable=True)
+    partner_spending_unplanned = db.Column(db.Boolean, nullable=True)
+    partner_spending_amount = db.Column(db.Numeric(10, 2), nullable=True)
+    kids_spending_total = db.Column(db.Numeric(10, 2), nullable=True)
+    kids_spending_unplanned = db.Column(db.Numeric(10, 2), nullable=True)
+    financial_reflection = db.Column(db.Text, nullable=True)
+    spending_trigger_description = db.Column(db.Text, nullable=True)
+    weekly_reflection_change = db.Column(db.Text, nullable=True)
+
     # --- METADATA ---
     completed_at = db.Column(db.DateTime, nullable=True)
     completion_time_seconds = db.Column(db.Integer, nullable=True)
@@ -276,3 +312,34 @@ class UserAchievement(db.Model):
 
     def __repr__(self):
         return f'<UserAchievement user={self.user_id} key={self.achievement_key}>'
+
+
+# =============================================================================
+# CHECKIN_QUESTION_LOG TABLE (#176)
+# =============================================================================
+
+class CheckinQuestionLog(db.Model):
+    """Tracks which rotating check-in questions were shown/answered per user/week."""
+    __tablename__ = 'checkin_question_log'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='CASCADE'), nullable=False, index=True)
+    question_id = db.Column(db.String(20), nullable=False)
+    week_number = db.Column(db.Integer, nullable=False)
+    year = db.Column(db.Integer, nullable=False)
+    answer = db.Column(db.Integer, nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    user = db.relationship('User', backref=db.backref('checkin_question_logs', lazy='dynamic'))
+
+    __table_args__ = (
+        UniqueConstraint(
+            'user_id', 'question_id', 'week_number', 'year',
+            name='uq_checkin_question_log_user_q_week',
+        ),
+        Index('idx_checkin_question_log_user_question', 'user_id', 'question_id'),
+        Index('idx_checkin_question_log_user_week_year', 'user_id', 'week_number', 'year'),
+    )
+
+    def __repr__(self):
+        return f'<CheckinQuestionLog user={self.user_id} q={self.question_id} w={self.year}-W{self.week_number}>'
