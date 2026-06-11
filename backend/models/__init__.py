@@ -68,6 +68,7 @@ from .llm_usage import LlmUsage
 from .agreement_acceptance import AgreementAcceptance
 from .job_posting import JobPosting
 from .transaction import Transaction
+from .market_conditions_models import OesWageData, MarketDataCache
 
 __all__ = [
     'db',
@@ -138,4 +139,6 @@ __all__ = [
     'AgreementAcceptance',
     'JobPosting',
     'Transaction',
+    'OesWageData',
+    'MarketDataCache',
 ]

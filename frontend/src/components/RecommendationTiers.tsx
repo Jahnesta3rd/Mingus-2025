@@ -4,6 +4,8 @@ import { Star, ChevronDown, ChevronUp, ExternalLink, Target, Shield, Filter, Ref
 import { useAnalytics } from '../hooks/useAnalytics';
 import { useAuth, type AuthUserTier } from '../hooks/useAuth';
 import { csrfHeaders } from '../utils/csrfHeaders';
+import type { MarketConditionsPersonal, MarketConditionsResponse } from '../types/marketConditions';
+import { interpolatePercentile, oesPercentilesFromPersonal } from '../utils/percentileUtils';
 
 interface JobRecommendation {
   job: {
@@ -119,8 +121,10 @@ interface ProcessResumeApiResponse {
 }
 
 const RECOMMENDATIONS_API = '/api/recommendations/process-resume';
-const INCOME_PERCENTILE_API = '/api/career/income-percentile';
+const MARKET_CONDITIONS_API = '/api/market-conditions';
 const CAREER_PROFILE_SUMMARY_API = '/api/career/profile-summary';
+
+export type { MarketConditionsPersonal };
 
 export interface PercentileData {
   status: 'ok' | 'no_career_data';
@@ -147,6 +151,32 @@ export function computePercentileBracket(
   if (salary >= p25) return { bracket: 25, label: '25th–50th percentile' };
   if (salary >= p10) return { bracket: 10, label: '10th–25th percentile' };
   return { bracket: 0, label: 'Below 10th percentile' };
+}
+
+function percentileToBracket(percentile: number): number {
+  if (percentile >= 90) return 90;
+  if (percentile >= 75) return 75;
+  if (percentile >= 50) return 50;
+  if (percentile >= 25) return 25;
+  if (percentile >= 10) return 10;
+  return 0;
+}
+
+function marketPersonalToPercentileData(personal: MarketConditionsPersonal): PercentileData {
+  return {
+    status: 'ok',
+    current_salary: personal.current_salary,
+    percentile_bracket: percentileToBracket(personal.percentile),
+    percentile_label: `${personal.percentile}th percentile`,
+    percentiles: {
+      p10: personal.pct_10,
+      p25: personal.pct_25,
+      p50: personal.pct_50,
+      p75: personal.pct_75,
+      p90: personal.pct_90,
+    },
+    bls_career_field: personal.field_label,
+  };
 }
 
 /** E2E / verify shim stored in localStorage when the session is cookie-backed. */
@@ -422,6 +452,7 @@ const RecommendationTiers: React.FC<RecommendationTiersProps> = ({
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [percentileData, setPercentileData] = useState<PercentileData | null>(null);
+  const [marketPersonal, setMarketPersonal] = useState<MarketConditionsPersonal | null>(null);
   const [fetchedCareerProfile, setFetchedCareerProfile] = useState<CareerProfileSummary | null>(
     null
   );
@@ -565,24 +596,25 @@ const RecommendationTiers: React.FC<RecommendationTiersProps> = ({
   useEffect(() => {
     let cancelled = false;
 
-    const fetchPercentileData = async () => {
+    const fetchMarketConditions = async () => {
       try {
-        const response = await fetch(INCOME_PERCENTILE_API, {
+        const response = await fetch(MARKET_CONDITIONS_API, {
           credentials: 'include',
           headers: buildAuthHeaders(getAccessToken),
         });
         if (!response.ok || cancelled) return;
 
-        const data = (await response.json()) as PercentileData;
-        if (!cancelled && data.status === 'ok') {
-          setPercentileData(data);
+        const data = (await response.json()) as MarketConditionsResponse;
+        if (!cancelled && data.personal) {
+          setMarketPersonal(data.personal);
+          setPercentileData(marketPersonalToPercentileData(data.personal));
         }
       } catch {
         /* silent — percentile UI stays hidden */
       }
     };
 
-    void fetchPercentileData();
+    void fetchMarketConditions();
     return () => {
       cancelled = true;
     };
@@ -812,6 +844,7 @@ const RecommendationTiers: React.FC<RecommendationTiersProps> = ({
                 onExpand={() => handleTierExpansion(tier.tier_name)}
                 onJobInteraction={handleJobInteraction}
                 percentileData={percentileData}
+                marketPersonal={marketPersonal}
               />
             ))}
           </div>
@@ -1000,7 +1033,8 @@ const TierCard: React.FC<{
   onExpand: () => void;
   onJobInteraction: (job: JobRecommendation, action: string) => void;
   percentileData: PercentileData | null;
-}> = ({ tier, isExpanded, isComparison, isFeatured, onExpand, onJobInteraction, percentileData }) => {
+  marketPersonal: MarketConditionsPersonal | null;
+}> = ({ tier, isExpanded, isComparison, isFeatured, onExpand, onJobInteraction, percentileData, marketPersonal }) => {
   
   return (
     <div 
@@ -1082,6 +1116,7 @@ const TierCard: React.FC<{
                 onInteraction={onJobInteraction}
                 compact={isComparison}
                 percentileData={percentileData}
+                marketPersonal={marketPersonal}
               />
             ))}
           </div>
@@ -1118,6 +1153,7 @@ const TierCard: React.FC<{
                 onInteraction={onJobInteraction}
                 compact={false}
                 percentileData={percentileData}
+                marketPersonal={marketPersonal}
               />
             ))}
           </div>
@@ -1133,7 +1169,8 @@ const JobPreviewCard: React.FC<{
   onInteraction: (job: JobRecommendation, action: string) => void;
   compact: boolean;
   percentileData: PercentileData | null;
-}> = ({ job, onInteraction, compact, percentileData }) => {
+  marketPersonal: MarketConditionsPersonal | null;
+}> = ({ job, onInteraction, compact, marketPersonal }) => {
   const getTierColor = (tier: string) => {
     switch (tier) {
       case 'conservative': return 'blue';
@@ -1148,40 +1185,19 @@ const JobPreviewCard: React.FC<{
   const tierColor = getTierColor(job.tier);
   const advancement = job.job.description?.trim();
 
-  const percentileChip = useMemo(() => {
-    if (
-      percentileData?.status !== 'ok' ||
-      !percentileData.percentiles ||
-      !job.job.salary_median ||
-      job.job.salary_median <= 0
-    ) {
+  const percentileLiftLine = useMemo(() => {
+    if (!marketPersonal || !job.job.salary_max || job.job.salary_max <= 0) {
       return null;
     }
 
-    const jobBracket = computePercentileBracket(
-      job.job.salary_median,
-      percentileData.percentiles
-    );
-    if (!jobBracket) return null;
-
-    const currentBracket = percentileData.percentile_bracket ?? 0;
-
-    if (jobBracket.bracket > currentBracket) {
-      return {
-        tone: 'up' as const,
-        text: `↑ Moves you to ${jobBracket.label}`,
-      };
+    const bands = oesPercentilesFromPersonal(marketPersonal);
+    const targetPercentile = interpolatePercentile(job.job.salary_max, bands);
+    if (targetPercentile <= marketPersonal.percentile) {
+      return null;
     }
 
-    if (jobBracket.bracket === currentBracket) {
-      return {
-        tone: 'same' as const,
-        text: `Stays at ${jobBracket.label}`,
-      };
-    }
-
-    return null;
-  }, [job.job.salary_median, percentileData]);
+    return `This role would move you from the ${marketPersonal.percentile}th to the ${targetPercentile}th percentile for ${marketPersonal.field_label} in ${marketPersonal.msa_name}`;
+  }, [job.job.salary_max, marketPersonal]);
 
   return (
     <div 
@@ -1211,16 +1227,8 @@ const JobPreviewCard: React.FC<{
         <p className="font-medium text-gray-900">
           {formatSalaryK(job.job.salary_min, job.job.salary_max)}
         </p>
-        {percentileChip ? (
-          <p
-            className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${
-              percentileChip.tone === 'up'
-                ? 'border border-green-200 bg-green-50 text-green-700'
-                : 'border border-slate-200 bg-slate-100 text-slate-600'
-            }`}
-          >
-            {percentileChip.text}
-          </p>
+        {percentileLiftLine ? (
+          <p className="text-xs text-green-700">{percentileLiftLine}</p>
         ) : null}
         {advancement ? (
           <p className="text-gray-600">

@@ -12,8 +12,7 @@ import {
   ReferenceLine,
 } from 'recharts';
 
-import { useMCI } from '../context/MCIContext';
-import type { MCIDirection, MCIConstituent, MCISeverity } from '../types/mci';
+import type { MarketConditionsResponse } from '../types/marketConditions';
 
 import BalanceEntryWidget from './BalanceEntryWidget';
 import PeopleCostSummary from './roster/PeopleCostSummary';
@@ -160,114 +159,87 @@ function monthlySummariesToTableRows(rows: MonthlySummaryApiRow[]): MonthlyTable
   });
 }
 
-function formatMciMonthDay(isoDate: string): string {
-  const d = new Date(isoDate);
+function formatUsdWhole(value: number): string {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    maximumFractionDigits: 0,
+  }).format(value);
+}
+
+function formatMarketDate(isoDate: string): string {
+  const d = new Date(isoDate.includes('T') ? isoDate : `${isoDate}T00:00:00`);
   if (Number.isNaN(d.getTime())) return isoDate;
-  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
-function getMCIDotClasses(severity: MCISeverity): string {
-  switch (severity) {
-    case 'green':
-      return 'bg-green-500';
-    case 'amber':
-      return 'bg-amber-500';
-    case 'red':
-      return 'bg-red-500';
-    default:
-      return 'bg-gray-400';
-  }
-}
-
-function getMCIDirectionClasses(direction: MCIDirection): string {
-  switch (direction) {
-    case 'up':
-      return 'text-green-600';
-    case 'down':
-      return 'text-red-600';
-    case 'flat':
-      return 'text-gray-500';
-    default:
-      return 'text-gray-500';
-  }
-}
-
-function getDirectionArrow(direction: MCIDirection): string {
-  switch (direction) {
-    case 'up':
-      return '↑';
-    case 'down':
-      return '↓';
-    case 'flat':
-      return '→';
-    default:
-      return '→';
-  }
-}
-
-function formatCardTypeLabel(cardType: string): string {
-  const t = (cardType || '').trim().toLowerCase();
-  if (t === 'kids') return 'Kids';
-  if (t === 'family') return 'Family';
-  if (t === 'person') return 'Person';
-  if (!t) return 'Person';
-  return t.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
-}
-
-function relationshipRowEmoji(row: RelationshipCostBreakdownRow): string {
-  const e = row.emoji?.trim();
-  if (e) return e;
-  if (row.card_type === 'kids') return '👶';
-  return '·';
-}
-
-interface MCIForecastPanelProps {
+interface MarketConditionsPanelProps {
   userTier: 'budget' | 'mid' | 'professional';
 }
 
-function MCIForecastPanel({ userTier }: MCIForecastPanelProps) {
+function MarketConditionsPanel({ userTier }: MarketConditionsPanelProps) {
   const { isAuthenticated } = useAuth();
   const upgradePlansTo = isAuthenticated ? '/dashboard/upgrade' : '/#pricing';
-  const { snapshot, loading, error } = useMCI();
+  const [data, setData] = useState<MarketConditionsResponse | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (userTier === 'budget') {
+      setLoading(false);
+      return;
+    }
+
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+
+    (async () => {
+      try {
+        const token = localStorage.getItem('mingus_token');
+        const headers: HeadersInit = {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': token || 'test-token',
+        };
+        if (token) headers['Authorization'] = `Bearer ${token}`;
+
+        const res = await fetch('/api/market-conditions', {
+          credentials: 'include',
+          headers,
+        });
+        if (!res.ok) throw new Error('Failed to load market conditions');
+        const payload = (await res.json()) as MarketConditionsResponse;
+        if (!cancelled) setData(payload);
+      } catch {
+        if (!cancelled) setError('Unable to load market conditions');
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [userTier]);
 
   const renderSkeleton = () => (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4" role="status" aria-label="Loading market conditions">
-      {[1, 2].map((i) => (
-        <div key={i} className="rounded-xl border border-gray-100 p-4 bg-white shadow-sm animate-pulse">
-          <div className="h-4 w-40 bg-gray-200 rounded mb-3" />
-          <div className="h-3 w-24 bg-gray-200 rounded mb-2" />
-          <div className="h-3 w-32 bg-gray-200 rounded mb-2" />
-          <div className="h-3 w-28 bg-gray-200 rounded" />
+    <div className="space-y-4" role="status" aria-label="Loading market conditions">
+      {[1, 2, 3].map((i) => (
+        <div key={i} className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm animate-pulse">
+          <div className="mb-3 h-4 w-40 rounded bg-gray-200" />
+          <div className="mb-2 h-8 w-56 rounded bg-gray-200" />
+          <div className="h-3 w-32 rounded bg-gray-100" />
         </div>
       ))}
     </div>
   );
 
-  if (loading) {
-    return (
-      <div className="mb-6">
-        {renderSkeleton()}
-      </div>
-    );
-  }
-
-  if (error || !snapshot) {
-    return null;
-  }
-
-  const findConstituent = (slug: string): MCIConstituent | undefined =>
-    snapshot.constituents.find((c) => c.slug === slug);
-
-  const labor = findConstituent('labor_market_strength');
-  const housing = findConstituent('housing_affordability_pressure');
-
   if (userTier === 'budget') {
     return (
       <div className="mb-6">
-        <div className="bg-gray-50 border border-dashed border-gray-200 rounded-xl p-4">
+        <div className="rounded-xl border border-dashed border-gray-200 bg-gray-50 p-4">
           <div className="flex items-start gap-3">
-            <div className="mt-1 w-8 h-8 rounded-lg bg-white border border-gray-200 flex items-center justify-center">
-              {/* Simple inline lock icon */}
+            <div className="mt-1 flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 bg-white">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
                 <path
                   d="M7 10V7.8C7 5.149 9.239 3 12 3C14.761 3 17 5.149 17 7.8V10"
@@ -281,12 +253,7 @@ function MCIForecastPanel({ userTier }: MCIForecastPanelProps) {
                   strokeWidth="2"
                   strokeLinejoin="round"
                 />
-                <path
-                  d="M12 14V16"
-                  stroke="#6b7280"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                />
+                <path d="M12 14V16" stroke="#6b7280" strokeWidth="2" strokeLinecap="round" />
               </svg>
             </div>
             <div className="flex-1">
@@ -306,56 +273,160 @@ function MCIForecastPanel({ userTier }: MCIForecastPanelProps) {
     );
   }
 
-  const renderInterpretation = (c: MCIConstituent, interpretKind: 'labor' | 'housing') => {
-    if (interpretKind === 'labor') {
-      if (c.severity === 'green') return 'Job market is strong — your income projection is stable.';
-      if (c.severity === 'amber') return 'Job market is cooling — consider a conservative forecast.';
-      return 'Layoff risk is elevated — review your emergency fund target.';
-    }
-    // housing
-    if (c.severity === 'green') return 'Mortgage rates are favorable for your home buying timeline.';
-    if (c.severity === 'amber') return 'Rates are elevated — re-run your affordability calculator.';
-    return 'Rates are high — your rent vs. buy decision may have shifted.';
-  };
+  if (loading) {
+    return <div className="mb-6">{renderSkeleton()}</div>;
+  }
 
-  const renderConstituentCard = (c: MCIConstituent | undefined, kind: 'labor' | 'housing') => {
-    if (!c) {
-      return (
-        <div className="border border-gray-100 rounded-xl p-4 bg-white shadow-sm">
-          <p className="text-sm font-medium text-gray-700">{kind === 'labor' ? 'Labor unavailable' : 'Housing unavailable'}</p>
-        </div>
-      );
-    }
+  if (error || !data) {
+    return null;
+  }
 
-    return (
-      <div className="border border-gray-100 rounded-xl p-4 bg-white shadow-sm">
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <span className={`h-2 w-2 rounded-full ${getMCIDotClasses(c.severity)}`} aria-hidden />
-            <div className="text-sm font-medium text-gray-800">{c.name}</div>
-          </div>
-          <div className={`text-sm font-medium ${getMCIDirectionClasses(c.direction)}`} aria-hidden>
-            {getDirectionArrow(c.direction)}
-          </div>
-        </div>
-        <div className="mt-2 text-sm font-medium text-gray-700">{c.headline}</div>
-        <div className="mt-2 text-xs text-gray-600">{renderInterpretation(c, kind)}</div>
-      </div>
-    );
-  };
+  const { national, regional, personal, meta } = data;
 
   return (
-    <div className="mb-6">
-      <div className="mb-4">
+    <div className="mb-6 space-y-4">
+      <div>
         <h3 className="text-sm font-semibold text-gray-700">Market conditions affecting your forecast</h3>
-        <p className="text-xs text-gray-400">Updated {formatMciMonthDay(snapshot.snapshot_date)}</p>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {renderConstituentCard(labor, 'labor')}
-        {renderConstituentCard(housing, 'housing')}
+
+      {personal ? (
+        <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
+          <h4 className="text-xs font-semibold uppercase tracking-wide text-gray-500">Your Earning Power</h4>
+          <p className="mt-2 text-lg font-semibold text-gray-900">
+            You&apos;re at the {personal.percentile}
+            <sup>th</sup> percentile for {personal.field_label} in {personal.msa_name}
+          </p>
+          <p className="mt-1 text-sm text-gray-600">
+            Median for your field: {formatUsdWhole(personal.pct_50)} · 75th percentile:{' '}
+            {formatUsdWhole(personal.pct_75)}
+          </p>
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            {personal.above_median ? (
+              <span className="inline-flex items-center rounded-full border border-green-200 bg-green-50 px-2.5 py-0.5 text-xs font-medium text-green-700">
+                ↑ Above median for your field
+              </span>
+            ) : (
+              <>
+                <span className="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-xs font-medium text-amber-800">
+                  Below median — see roles that move you up
+                </span>
+                <Link
+                  to="/dashboard/tools?tab=discover"
+                  className="inline-flex min-h-9 items-center rounded-lg bg-gray-900 px-3 text-xs font-medium text-white hover:bg-gray-800"
+                >
+                  View recommendations
+                </Link>
+              </>
+            )}
+          </div>
+          <p className="mt-3 text-xs text-gray-400">
+            Based on {personal.source_year} BLS data · {personal.msa_name}
+          </p>
+        </div>
+      ) : (
+        <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
+          <p className="text-sm text-gray-700">
+            Complete your career profile to see your earning power.{' '}
+            <Link to="/dashboard/tools?tab=you" className="font-medium text-[#6D28D9] hover:underline">
+              Go to Career settings
+            </Link>
+          </p>
+        </div>
+      )}
+
+      {regional ? (
+        <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
+          <h4 className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+            {regional.msa_name} Market
+          </h4>
+          <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div>
+              <p className="text-xs text-gray-500">Local unemployment rate</p>
+              <p className="mt-1 text-xl font-semibold tabular-nums text-gray-900">
+                {regional.unemployment_rate != null ? `${regional.unemployment_rate}%` : '—'}
+              </p>
+              <span className="mt-1 inline-block rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-500">
+                as of {formatMarketDate(regional.data_date)}
+              </span>
+            </div>
+            <div>
+              <p className="text-xs text-gray-500">Housing price index</p>
+              <p className="mt-1 text-xl font-semibold tabular-nums text-gray-900">
+                {regional.housing_price_index != null
+                  ? regional.housing_price_index.toLocaleString('en-US')
+                  : '—'}
+              </p>
+              {regional.housing_price_index != null ? (
+                <span className="mt-1 inline-block rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-500">
+                  as of {formatMarketDate(regional.data_date)}
+                </span>
+              ) : null}
+            </div>
+          </div>
+          {meta.regional_stale ? (
+            <p className="mt-2 flex items-center gap-1.5 text-xs text-amber-700">
+              <span className="h-1.5 w-1.5 rounded-full bg-amber-500" aria-hidden />
+              Regional data may be delayed
+            </p>
+          ) : null}
+        </div>
+      ) : null}
+
+      <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
+        <h4 className="text-xs font-semibold uppercase tracking-wide text-gray-500">National Conditions</h4>
+        <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <div>
+            <p className="text-xs text-gray-500">30-yr mortgage rate</p>
+            <p className="mt-1 text-lg font-semibold tabular-nums text-gray-900">
+              {national.mortgage_rate.toFixed(2)}%
+            </p>
+            <span className="mt-1 inline-block rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-500">
+              as of {formatMarketDate(national.data_date)}
+            </span>
+          </div>
+          <div>
+            <p className="text-xs text-gray-500">Monthly layoff rate</p>
+            <p className="mt-1 text-lg font-semibold tabular-nums text-gray-900">
+              {national.layoff_rate.toFixed(1)}%
+            </p>
+            <span className="mt-1 inline-block rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-500">
+              as of {formatMarketDate(national.data_date)}
+            </span>
+          </div>
+          <div>
+            <p className="text-xs text-gray-500">CPI year-over-year</p>
+            <p className="mt-1 text-lg font-semibold tabular-nums text-gray-900">
+              {national.cpi_yoy.toFixed(1)}%
+            </p>
+            <span className="mt-1 inline-block rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-500">
+              as of {formatMarketDate(national.data_date)}
+            </span>
+          </div>
+        </div>
+        {meta.national_stale ? (
+          <p className="mt-3 flex items-center gap-1.5 text-xs text-amber-700">
+            <span className="h-1.5 w-1.5 rounded-full bg-amber-500" aria-hidden />
+            Data may be delayed
+          </p>
+        ) : null}
       </div>
     </div>
   );
+}
+function formatCardTypeLabel(cardType: string): string {
+  const t = (cardType || '').trim().toLowerCase();
+  if (t === 'kids') return 'Kids';
+  if (t === 'family') return 'Family';
+  if (t === 'person') return 'Person';
+  if (!t) return 'Person';
+  return t.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+function relationshipRowEmoji(row: RelationshipCostBreakdownRow): string {
+  const e = row.emoji?.trim();
+  if (e) return e;
+  if (row.card_type === 'kids') return '👶';
+  return '·';
 }
 
 // ========================================
@@ -641,7 +712,7 @@ export default function FinancialForecastTab({
         isLoading={profileLoading}
         className="mb-6"
       />
-      <MCIForecastPanel userTier={userTier} />
+      <MarketConditionsPanel userTier={userTier} />
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         {/* Card 1 — Today's Balance */}
         <div className="rounded-xl bg-white p-6 shadow-sm">
