@@ -1,0 +1,11 @@
+# Mingus scheduled jobs — install to /etc/cron.d/mingus or merge into root crontab
+
+# Weekly employer health refresh — Sundays 02:00 UTC
+0 2 * * 0 root cd /var/www/mingus && \
+  ./venv/bin/flask refresh-employer-data \
+  >> /var/log/mingus/employer_refresh.log 2>&1
+
+# Daily 8-K layoff scan — 06:00 UTC
+0 6 * * * root cd /var/www/mingus && \
+  ./venv/bin/flask scan-8k-layoff-events \
+  >> /var/log/mingus/employer_8k_scan.log 2>&1

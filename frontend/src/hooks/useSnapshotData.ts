@@ -2,9 +2,11 @@ import { useCallback, useEffect, useState } from 'react';
 import { useAuth } from './useAuth';
 import { csrfHeaders } from '../utils/csrfHeaders';
 import { computeForecastImpact, type DailyCashflowEntry } from '../utils/forecastImpact';
+import { fetchCareerRiskData } from './useCareerRiskData';
 import type {
   ActionData,
   CardLoadState,
+  CareerRiskData,
   CashNowData,
   FaithCardData,
   HousingActionData,
@@ -82,6 +84,7 @@ export function useSnapshotData(opts?: { reloadKey?: number }) {
     roster: null,
     milestones: null,
     career: null,
+    careerRisk: null,
     housing: null,
     action: null,
   });
@@ -94,6 +97,7 @@ export function useSnapshotData(opts?: { reloadKey?: number }) {
     roster: 'loading',
     milestones: 'loading',
     career: 'loading',
+    careerRisk: 'loading',
     housing: 'loading',
     action: 'loading',
   });
@@ -350,6 +354,11 @@ export function useSnapshotData(opts?: { reloadKey?: number }) {
         // Render the empty/CTA state until three-tier or resume pipeline exposes a GET.
         setCard('career', null, 'ready');
       }),
+
+      // ── 7b. Career Risk (CR9d) ───────────────────────────────
+      fetchCareerRiskData(getAccessToken)
+        .then((d) => setCard('careerRisk', d as CareerRiskData | null, 'ready'))
+        .catch(() => setCard('careerRisk', null, 'error')),
 
       // ── 8. Housing ───────────────────────────────────────────
       fetch('/api/housing/profile', {

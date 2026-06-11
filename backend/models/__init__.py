@@ -69,6 +69,7 @@ from .agreement_acceptance import AgreementAcceptance
 from .job_posting import JobPosting
 from .transaction import Transaction
 from .market_conditions_models import OesWageData, MarketDataCache
+from .employer import Employer, EmployerHealthSnapshot, LayoffEvent
 
 __all__ = [
     'db',
@@ -141,4 +142,7 @@ __all__ = [
     'Transaction',
     'OesWageData',
     'MarketDataCache',
+    'Employer',
+    'EmployerHealthSnapshot',
+    'LayoffEvent',
 ]

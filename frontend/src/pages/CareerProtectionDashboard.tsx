@@ -22,6 +22,10 @@ import HousingLocationTile from '../components/HousingLocationTile';
 import OptimalLocationRouter from '../components/OptimalLocation/OptimalLocationRouter';
 import DashboardWellnessSection from '../components/DashboardWellnessSection';
 import YouTab from '../components/YouTab';
+import EmployerBackfillModal, {
+  isEmployerBackfillDismissed,
+} from '../components/EmployerBackfillModal';
+import { csrfHeaders } from '../utils/csrfHeaders';
 
 // Lazy load the full Daily Outlook component for performance
 const DailyOutlook = lazy(() => import('../components/DailyOutlook'));
@@ -186,10 +190,11 @@ function hasMidTierAccess(tier: AuthUserTier | null): boolean {
 
 const CareerProtectionDashboard: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const { user, userTier, isAuthenticated, loading: authLoading } = useAuth();
+  const { user, userTier, isAuthenticated, loading: authLoading, getAccessToken } = useAuth();
   const { openAddImportantDate, importantDatesRefreshKey } = useImportantDateModal();
   const { trackPageView, trackInteraction } = useAnalytics();
   const [showProfileModal, setShowProfileModal] = useState(false);
+  const [showBackfill, setShowBackfill] = useState(false);
   const [youTabFocusField, setYouTabFocusField] = useState<'zip_code' | 'income' | undefined>();
   
   // Use ref to track initialization - prevents double-initialization
@@ -234,6 +239,26 @@ const CareerProtectionDashboard: React.FC = () => {
   useEffect(() => {
     document.title = 'Dashboard';
   }, []);
+
+  useEffect(() => {
+    if (authLoading || !isAuthenticated || !user) return;
+    if (isEmployerBackfillDismissed()) return;
+
+    const token = getAccessToken();
+    const headers: Record<string, string> = {
+      ...csrfHeaders(),
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    };
+    fetch('/api/user/profile', { credentials: 'include', headers })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        const employerType = data?.profile?.employer_type;
+        if (!employerType) setShowBackfill(true);
+      })
+      .catch(() => {
+        /* ignore — modal is optional */
+      });
+  }, [authLoading, isAuthenticated, user, getAccessToken]);
 
   // SINGLE useEffect that runs ONCE after auth is ready - all data fetching happens here
   useEffect(() => {
@@ -472,6 +497,7 @@ const CareerProtectionDashboard: React.FC = () => {
               userEmail={user?.email ?? ''}
               userTier={forecastTabTier(userTier)}
               className="mt-0"
+              onOpenEmployerBackfill={() => setShowBackfill(true)}
             />
           )}
 
@@ -758,6 +784,10 @@ const CareerProtectionDashboard: React.FC = () => {
         onClose={() => setShowQuickSetup(false)}
         onComplete={() => setShowQuickSetup(false)}
       />
+
+      {showBackfill && (
+        <EmployerBackfillModal onClose={() => setShowBackfill(false)} />
+      )}
     </div>
     </DashboardErrorBoundary>
   );

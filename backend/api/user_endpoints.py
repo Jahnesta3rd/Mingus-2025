@@ -11,8 +11,19 @@ import re
 
 from flask import Blueprint, jsonify, request, g
 from flask_cors import cross_origin
-from backend.auth.decorators import require_auth, get_current_user_id
+from backend.auth.decorators import require_auth, get_current_user_id, get_current_jwt_user
 from backend.api.profile_endpoints import get_db_connection
+from backend.models.career_profile import CareerProfile
+from backend.models.database import db
+
+VALID_EMPLOYER_TYPES = frozenset({
+    'public_company',
+    'private_company',
+    'federal_government',
+    'state_local_nonprofit',
+    'self_employed',
+    'other',
+})
 
 logger = logging.getLogger(__name__)
 
@@ -25,6 +36,83 @@ _TIER_DISPLAY = {
     'mid_tier': ('Mid-tier', 35),
     'professional': ('Professional', 100),
 }
+
+
+def _career_profile_fields(user_id: int | None) -> dict:
+    if not user_id:
+        return {}
+    cp = CareerProfile.query.filter_by(user_id=user_id).first()
+    if not cp:
+        return {
+            'employer_cik': None,
+            'employer_name_text': None,
+            'employer_type': None,
+            'occupation_key': None,
+            'satisfaction': None,
+        }
+    return {
+        'employer_cik': cp.employer_cik,
+        'employer_name_text': cp.employer_name_text,
+        'employer_type': cp.employer_type,
+        'occupation_key': cp.occupation_key,
+        'satisfaction': cp.satisfaction,
+    }
+
+
+def _patch_career_employer_fields(data: dict) -> tuple[dict | None, tuple | None]:
+    """Update career_profile employer fields when present in PATCH body."""
+    keys = ('employer_cik', 'employer_name_text', 'employer_type')
+    if not any(k in data for k in keys):
+        return None, None
+
+    user = get_current_jwt_user()
+    if not user:
+        return None, (jsonify({'success': False, 'error': 'Authentication required'}), 401)
+
+    employer_cik = data.get('employer_cik')
+    employer_name_text = data.get('employer_name_text')
+    employer_type = data.get('employer_type')
+
+    if 'employer_cik' in data:
+        if employer_cik is None or employer_cik == '':
+            employer_cik = None
+        elif not isinstance(employer_cik, str):
+            return None, (jsonify({
+                'success': False,
+                'error': 'employer_cik must be a string.',
+            }), 400)
+        else:
+            employer_cik = employer_cik.strip().zfill(10)[:10]
+
+    if 'employer_name_text' in data:
+        if not isinstance(employer_name_text, str) or not employer_name_text.strip():
+            return None, (jsonify({
+                'success': False,
+                'error': 'employer_name_text is required.',
+            }), 400)
+        employer_name_text = employer_name_text.strip()[:255]
+
+    if 'employer_type' in data:
+        if employer_type not in VALID_EMPLOYER_TYPES:
+            return None, (jsonify({
+                'success': False,
+                'error': 'employer_type is invalid.',
+            }), 400)
+
+    cp = CareerProfile.query.filter_by(user_id=user.id).first()
+    if cp is None:
+        cp = CareerProfile(user_id=user.id)
+        db.session.add(cp)
+
+    if 'employer_cik' in data:
+        cp.employer_cik = employer_cik
+    if 'employer_name_text' in data:
+        cp.employer_name_text = employer_name_text
+    if 'employer_type' in data:
+        cp.employer_type = employer_type
+
+    db.session.commit()
+    return _career_profile_fields(user.id), None
 
 
 def _tier_display_for_slug(slug: str) -> tuple[str, int]:
@@ -272,6 +360,10 @@ def get_user_profile():
         if important_dates is not None:
             profile_out['important_dates'] = important_dates
 
+        jwt_user = get_current_jwt_user()
+        career_fields = _career_profile_fields(jwt_user.id if jwt_user else None)
+        profile_out.update(career_fields)
+
         return jsonify({
             'success': True,
             'profile': profile_out,
@@ -294,9 +386,30 @@ def patch_user_profile():
     has_first_name = 'first_name' in data
     has_last_name = 'last_name' in data
     has_zip_code = 'zip_code' in data
+    has_employer_fields = any(
+        k in data for k in ('employer_cik', 'employer_name_text', 'employer_type')
+    )
 
-    if not (has_important_dates or has_first_name or has_last_name or has_zip_code):
+    if not (
+        has_important_dates
+        or has_first_name
+        or has_last_name
+        or has_zip_code
+        or has_employer_fields
+    ):
         return jsonify({'success': False, 'error': 'No supported fields to update.'}), 400
+
+    career_patch_result, career_patch_err = _patch_career_employer_fields(data)
+    if career_patch_err is not None:
+        return career_patch_err
+
+    if has_employer_fields and not (
+        has_important_dates or has_first_name or has_last_name or has_zip_code
+    ):
+        return jsonify({
+            'success': True,
+            'profile': career_patch_result or {},
+        }), 200
 
     validated_first_name = None
     validated_last_name = None
@@ -495,6 +608,8 @@ def patch_user_profile():
         }
         if saved_dates is not None:
             response_profile['important_dates'] = saved_dates
+        if career_patch_result is not None:
+            response_profile.update(career_patch_result)
 
         return jsonify({
             'success': True,
