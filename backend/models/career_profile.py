@@ -4,6 +4,7 @@
 from datetime import datetime
 
 from sqlalchemy import CheckConstraint, Numeric
+from sqlalchemy.orm import foreign
 
 from .database import db
 
@@ -35,6 +36,9 @@ class CareerProfile(db.Model):
     resume_file_path = db.Column(db.String(500), nullable=True)
     resume_parsed_at = db.Column(db.DateTime, nullable=True)
     resume_confidence_score = db.Column(Numeric(4, 2), nullable=True)
+    employer_cik = db.Column(db.String(10), nullable=True)
+    employer_name_text = db.Column(db.String(255), nullable=True)
+    employer_type = db.Column(db.String(30), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     updated_at = db.Column(
         db.DateTime,
@@ -44,6 +48,12 @@ class CareerProfile(db.Model):
     )
 
     user = db.relationship("User", backref=db.backref("career_profile_row", uselist=False))
+    employer = db.relationship(
+        "Employer",
+        primaryjoin="foreign(CareerProfile.employer_cik) == Employer.cik",
+        uselist=False,
+        viewonly=True,
+    )
 
     __table_args__ = (
         CheckConstraint(
