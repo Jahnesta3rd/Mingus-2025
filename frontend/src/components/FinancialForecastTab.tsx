@@ -15,7 +15,9 @@ import {
 import type { MarketConditionsResponse } from '../types/marketConditions';
 
 import BalanceEntryWidget from './BalanceEntryWidget';
+import CareerRiskPanel from './CareerRiskPanel';
 import PeopleCostSummary from './roster/PeopleCostSummary';
+import { useCareerRiskData } from '../hooks/useCareerRiskData';
 
 // ========================================
 // TYPES
@@ -90,6 +92,7 @@ export interface FinancialForecastTabProps {
   userEmail: string;
   userTier: 'budget' | 'mid' | 'professional';
   className?: string;
+  onOpenEmployerBackfill?: () => void;
 }
 
 // ========================================
@@ -437,8 +440,10 @@ export default function FinancialForecastTab({
   userEmail,
   userTier,
   className = '',
+  onOpenEmployerBackfill,
 }: FinancialForecastTabProps) {
   const { isAuthenticated } = useAuth();
+  const { data: careerRiskData, loading: careerRiskLoading } = useCareerRiskData();
   const upgradePlansTo = isAuthenticated ? '/dashboard/upgrade' : '/#pricing';
   const [dailyCashflow, setDailyCashflow] = useState<DailyCashflowEntry[]>([]);
   const [monthlySummaries, setMonthlySummaries] = useState<MonthlyTableRow[]>([]);
@@ -711,6 +716,11 @@ export default function FinancialForecastTab({
         onBalanceSaved={handleBalanceSaved}
         isLoading={profileLoading}
         className="mb-6"
+      />
+      <CareerRiskPanel
+        data={careerRiskData}
+        loading={careerRiskLoading}
+        onOpenEmployerBackfill={onOpenEmployerBackfill}
       />
       <MarketConditionsPanel userTier={userTier} />
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">

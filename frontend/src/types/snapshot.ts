@@ -94,6 +94,35 @@ export interface CareerData {
   jobs: JobOption[];
 }
 
+// ─── Career Risk (CR9d) ────────────────────────────────────────
+export interface CareerRiskData {
+  probability_12mo: number;
+  market_multiplier: number;
+  occupation_multiplier: number;
+  employer_multiplier: number;
+  employer_name?: string;
+  data_source?:
+    | 'sec_edgar'
+    | '8k_filing'
+    | 'user_reported'
+    | 'unresolved'
+    | 'unsupported';
+  employer_health_score?: number;
+  employer_layoff_event?: {
+    filing_date: string;
+    confidence: number;
+    affected_count?: number | null;
+    expires_at: string;
+  } | null;
+  employer_health_components?: {
+    revenue_delta: number;
+    margin: number;
+    fcf: number;
+    runway: number;
+    leverage: number;
+  };
+}
+
 // ─── Action ───────────────────────────────────────────────────
 export interface ActionData {
   action_text: string;
@@ -125,6 +154,7 @@ export interface SnapshotData {
   roster: RosterData | null;
   milestones: MilestonesData | null;
   career: CareerData | null;
+  careerRisk: CareerRiskData | null;
   housing: HousingActionData | null;
   action: ActionData | null;
 }
@@ -139,6 +169,7 @@ export interface SnapshotLoadStates {
   roster: CardLoadState;
   milestones: CardLoadState;
   career: CardLoadState;
+  careerRisk: CardLoadState;
   housing: CardLoadState;
   action: CardLoadState;
 }

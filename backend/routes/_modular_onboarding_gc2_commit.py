@@ -49,6 +49,15 @@ _PENDING_PERSON_UUID = "_gc2_pending_person_uuid"
 _PENDING_EVT_IDX = "_gc2_pending_custom_event_idx"
 
 # Allowlist of canonical occupation keys (kept in sync with frontend/src/constants/occupationOptions.ts)
+VALID_EMPLOYER_TYPES = frozenset({
+    "public_company",
+    "private_company",
+    "federal_government",
+    "state_local_nonprofit",
+    "self_employed",
+    "other",
+})
+
 VALID_OCCUPATION_KEYS = {
     "software_developer",
     "data_analyst",
@@ -573,6 +582,36 @@ def _validate_and_cast(field_path: str, value: Any) -> tuple[Any | None, tuple[d
         if v < 0 or v > 5_000_000:
             return None, _validation_failed(field_path, "out_of_range", "[0, 5000000]", value)
         return v, None
+    if field_path == "employer_cik":
+        if value is None or value == "":
+            return None, None
+        if not isinstance(value, str):
+            return None, _validation_failed(field_path, "type_mismatch", "string", value)
+        s = value.strip().zfill(10)
+        if len(s) > 10:
+            return None, _validation_failed(field_path, "string_too_long", "max 10", value)
+        return s, None
+    if field_path == "employer_name_text":
+        if value is None or value == "":
+            return None, None
+        if not isinstance(value, str):
+            return None, _validation_failed(field_path, "type_mismatch", "string", value)
+        s = value.strip()
+        if not s:
+            return None, _validation_failed(field_path, "empty_string", "non-empty", value)
+        if len(s) > 255:
+            return None, _validation_failed(field_path, "string_too_long", "max 255", value)
+        return s, None
+    if field_path == "employer_type":
+        if value is None or value == "":
+            return None, None
+        if not isinstance(value, str):
+            return None, _validation_failed(field_path, "type_mismatch", "string", value)
+        if value not in VALID_EMPLOYER_TYPES:
+            return None, _validation_failed(
+                field_path, "not_in_allowlist", "valid employer_type", value
+            )
+        return value, None
     m = _RE_VEH.match(field_path)
     if m:
         fld = m.group("fld")
@@ -2064,6 +2103,9 @@ def _commit_career_module(
     field_specs: list[tuple[str, Any]] = [
         ("occupation_key", data.get("occupation_key")),
         ("current_role", data.get("current_role")),
+        ("employer_cik", data.get("employer_cik")),
+        ("employer_name_text", data.get("employer_name_text")),
+        ("employer_type", data.get("employer_type")),
         ("industry", data.get("industry")),
         ("years_experience", data.get("years_experience")),
         ("satisfaction", data.get("satisfaction")),
@@ -2097,6 +2139,9 @@ def _commit_career_module(
             db.session.flush()
         cp.occupation_key = validated["occupation_key"]
         cp.current_role = validated["current_role"]
+        cp.employer_cik = validated.get("employer_cik")
+        cp.employer_name_text = validated.get("employer_name_text")
+        cp.employer_type = validated.get("employer_type")
         cp.industry = validated["industry"]
         cp.years_experience = validated["years_experience"]
         cp.satisfaction = validated["satisfaction"]
@@ -2110,6 +2155,9 @@ def _commit_career_module(
             [
                 "occupation_key",
                 "current_role",
+                "employer_cik",
+                "employer_name_text",
+                "employer_type",
                 "industry",
                 "years_experience",
                 "satisfaction",

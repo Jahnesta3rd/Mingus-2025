@@ -1,6 +1,12 @@
 import React, { useCallback, useState } from 'react';
 import { OCCUPATION_GROUPS } from '../../../../constants/occupationOptions';
+import {
+  EMPLOYER_TYPE_OPTIONS,
+  employerTypeHelperText,
+  type EmployerType,
+} from '../../../../constants/employerTypes';
 import { useAuth } from '../../../../hooks/useAuth';
+import EmployerSelect, { type EmployerSelectValue } from '../../../EmployerSelect';
 import CareerResumeUploadSection from '../../../career/CareerResumeUploadSection';
 import {
   applyResumePrefill,
@@ -13,7 +19,8 @@ type RelocationOpenness = 'yes' | 'maybe' | 'no';
 type Field =
   | 'occupation_key'
   | 'current_position'
-  | 'employer'
+  | 'employer_name_text'
+  | 'employer_type'
   | 'industry'
   | 'years_in_role'
   | 'next_review_date'
@@ -57,9 +64,22 @@ export default function CareerStep({ initialData, onSubmit, onSkip }: StepProps)
   const [currentPosition, setCurrentPosition] = useState<string>(
     typeof initialData.current_position === 'string' ? initialData.current_position : ''
   );
-  const [employer, setEmployer] = useState<string>(
-    typeof initialData.employer === 'string' ? initialData.employer : ''
-  );
+  const [employer, setEmployer] = useState<EmployerSelectValue | null>(() => {
+    const name =
+      typeof initialData.employer_name_text === 'string'
+        ? initialData.employer_name_text
+        : typeof initialData.employer === 'string'
+          ? initialData.employer
+          : '';
+    if (!name) return null;
+    const cik =
+      typeof initialData.employer_cik === 'string' ? initialData.employer_cik : null;
+    return { cik, name };
+  });
+  const [employerType, setEmployerType] = useState<EmployerType | ''>(() => {
+    const raw = initialData.employer_type;
+    return typeof raw === 'string' && raw ? (raw as EmployerType) : '';
+  });
   const [industry, setIndustry] = useState<string>(
     typeof initialData.industry === 'string' ? initialData.industry : ''
   );
@@ -109,8 +129,8 @@ export default function CareerStep({ initialData, onSubmit, onSkip }: StepProps)
       if (merged.title != null && merged.title !== currentPosition) {
         setCurrentPosition(String(merged.title));
       }
-      if (merged.employer != null && merged.employer !== employer) {
-        setEmployer(String(merged.employer));
+      if (merged.employer != null && merged.employer !== employer?.name) {
+        setEmployer({ cik: null, name: String(merged.employer) });
       }
       if (merged.industry != null && merged.industry !== industry) {
         setIndustry(String(merged.industry));
@@ -119,7 +139,7 @@ export default function CareerStep({ initialData, onSubmit, onSkip }: StepProps)
         setYearsInRole(String(merged.yearsExperience));
       }
     },
-    [currentPosition, employer, industry, yearsInRole]
+    [currentPosition, employer?.name, industry, yearsInRole]
   );
 
   const clearValidationFeedback = useCallback(() => {
@@ -130,6 +150,8 @@ export default function CareerStep({ initialData, onSubmit, onSkip }: StepProps)
   const validate = useCallback((): FieldErrors => {
     const next: FieldErrors = {};
     if (!occupationTouched) next.occupation_key = 'Please select an occupation.';
+    if (!employer?.name?.trim()) next.employer_name_text = 'Enter your employer name.';
+    if (!employerType) next.employer_type = 'Select an employer type.';
     if (!industry.trim()) next.industry = 'Choose an industry.';
     const years = Number.parseInt(yearsInRole, 10);
     if (!Number.isInteger(years) || years < 0) next.years_in_role = 'Years in role must be 0 or greater.';
@@ -143,7 +165,7 @@ export default function CareerStep({ initialData, onSubmit, onSkip }: StepProps)
       }
     }
     return next;
-  }, [occupationTouched, industry, yearsInRole, nextReviewDate, targetComp]);
+  }, [occupationTouched, employer, employerType, industry, yearsInRole, nextReviewDate, targetComp]);
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -153,7 +175,8 @@ export default function CareerStep({ initialData, onSubmit, onSkip }: StepProps)
     const order: Field[] = [
       'occupation_key',
       'current_position',
-      'employer',
+      'employer_name_text',
+      'employer_type',
       'industry',
       'years_in_role',
       'next_review_date',
@@ -181,6 +204,9 @@ export default function CareerStep({ initialData, onSubmit, onSkip }: StepProps)
       await onSubmit({
         occupation_key: occupationKey === '' ? null : occupationKey,
         current_role: currentPosition.trim() || null,
+        employer_cik: employer?.cik ?? null,
+        employer_name_text: employer?.name.trim() ?? '',
+        employer_type: employerType,
         industry,
         years_experience: years,
         satisfaction,
@@ -271,9 +297,47 @@ export default function CareerStep({ initialData, onSubmit, onSkip }: StepProps)
             {errors.current_position && <p className="mt-1 text-sm text-red-600">{errors.current_position}</p>}
           </div>
           <div className="sm:col-span-2">
-            <label className={labelClass} htmlFor="career-employer">Employer (optional)</label>
-            <input id="career-employer" className={inputClass} value={employer} onChange={(e) => { clearValidationFeedback(); setEmployer(e.target.value); }} />
-            {errors.employer && <p className="mt-1 text-sm text-red-600">{errors.employer}</p>}
+            <label className={labelClass} htmlFor="career-employer">Who do you work for?</label>
+            <EmployerSelect
+              id="career-employer"
+              value={employer}
+              onChange={(val) => {
+                clearValidationFeedback();
+                setEmployer(val);
+                setErrors((prev) => ({ ...prev, employer_name_text: undefined }));
+              }}
+            />
+            {errors.employer_name_text && (
+              <p className="mt-1 text-sm text-red-600">{errors.employer_name_text}</p>
+            )}
+          </div>
+          <div className="sm:col-span-2">
+            <label className={labelClass} htmlFor="career-employer_type">
+              Which best describes your employer?
+            </label>
+            <select
+              id="career-employer_type"
+              className={inputClass}
+              value={employerType}
+              onChange={(e) => {
+                clearValidationFeedback();
+                setEmployerType(e.target.value as EmployerType | '');
+                setErrors((prev) => ({ ...prev, employer_type: undefined }));
+              }}
+            >
+              <option value="">Select…</option>
+              {EMPLOYER_TYPE_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
+            {employerTypeHelperText(employerType) ? (
+              <p className="mt-1.5 text-sm text-[#64748B]">
+                {employerTypeHelperText(employerType)}
+              </p>
+            ) : null}
+            {errors.employer_type && (
+              <p className="mt-1 text-sm text-red-600">{errors.employer_type}</p>
+            )}
           </div>
           <div>
             <label className={labelClass} htmlFor="career-industry">Industry *</label>

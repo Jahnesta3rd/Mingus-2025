@@ -89,6 +89,9 @@ def profile_summary():
             'years_experience': cp.years_experience,
             'target_comp': cp.target_comp,
             'open_to_move': bool(cp.open_to_move),
+            'employer_cik': cp.employer_cik,
+            'employer_name_text': cp.employer_name_text,
+            'employer_type': cp.employer_type,
             'profile_complete': _profile_complete(cp),
         },
     }), 200
