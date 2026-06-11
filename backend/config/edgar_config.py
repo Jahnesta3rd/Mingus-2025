@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Centralized environment-backed configuration for API keys and external services."""
+"""SEC EDGAR API configuration (CR9b)."""
 
 import os
 
@@ -7,12 +7,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# API keys
-FRED_API_KEY = os.environ.get("FRED_API_KEY", "")
-BLS_API_KEY = os.environ.get("BLS_API_KEY", "")
 SEC_USER_AGENT = os.environ.get("SEC_USER_AGENT", "")
 
-# SEC EDGAR
 EDGAR_COMPANY_FACTS_URL = (
     "https://data.sec.gov/api/xbrl/companyfacts/CIK{cik}.json"
 )

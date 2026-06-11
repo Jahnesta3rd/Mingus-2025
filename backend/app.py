@@ -31,6 +31,8 @@ from backend.routes.user_activity_routes import user_activity_public_bp
 from backend.routes.daily_outlook_routes import daily_outlook_public_bp
 from backend.models.onboarding_progress import OnboardingProgress  # noqa: F401
 from backend.models.database import db
+from backend.api.employer_health import employer_health_api
+from backend.cli.employer_refresh import register_employer_cli
 
 
 def register_backend_blueprints(app):
@@ -79,3 +81,5 @@ def register_backend_blueprints(app):
     app.register_blueprint(checkups_hub_bp)
     app.register_blueprint(waterfall_context_bp)
     app.register_blueprint(plaid_bp)
+    app.register_blueprint(employer_health_api)
+    register_employer_cli(app)

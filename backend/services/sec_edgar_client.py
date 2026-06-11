@@ -12,7 +12,7 @@ from urllib.parse import quote
 
 import requests
 
-from backend.config import (
+from backend.config.edgar_config import (
     EDGAR_COMPANY_FACTS_URL,
     EDGAR_COMPANY_SEARCH_URL,
     EDGAR_FULL_TEXT_URL,
@@ -295,3 +295,18 @@ class SecEdgarClient:
                 }
             )
         return results
+
+    def fetch_filing_text(self, cik: str, accession_number: str) -> str | None:
+        """Fetch full submission text from SEC Archives for an accession number."""
+        cik_padded = _pad_cik(cik)
+        cik_int = str(int(cik_padded))
+        accession = accession_number.strip()
+        accession_nodash = accession.replace("-", "")
+        url = (
+            f"https://www.sec.gov/Archives/edgar/data/"
+            f"{cik_int}/{accession_nodash}/{accession}.txt"
+        )
+        response = self._request(url, host="www.sec.gov")
+        if response is None or response.status_code != 200:
+            return None
+        return response.text
