@@ -193,6 +193,15 @@ MSA_FRED_UNEMPLOYMENT: dict[str, str] = {
     "41740": "SAND706URN",
 }
 
+MSA_STHPI_PREFIX: dict[str, str] = {
+    "12060": "ATL",
+    "47900": "WAS",
+    "26420": "HOU",
+    "19100": "DAL",
+    "35620": "NYC",
+    "16980": "CHI",
+}
+
 MSA_STATE_FALLBACK: dict[str, str] = {
     "12060": "GAURN",
     "47900": "DCURN",
@@ -453,19 +462,25 @@ def _fetch_regional_hpi(msa_code: str, *, fallback_only: bool = False) -> dict:
     if fallback_only:
         return {"housing_price_index": None, "data_date": _today_iso()}
 
-    series_id = f"ATNHPIUS{msa_code}A"
-    points = _fetch_fred_series_latest(series_id, limit=1)
-    if points:
-        return {
-            "housing_price_index": round(float(points[-1][1]), 1),
-            "data_date": points[-1][0],
-        }
+    series_attempts = [f"ATNHPIUS{msa_code}Q"]
+    sthpi_prefix = MSA_STHPI_PREFIX.get(msa_code)
+    if sthpi_prefix:
+        series_attempts.append(f"{sthpi_prefix}STHPI")
+
+    for series_id in series_attempts:
+        points = _fetch_fred_series_latest(series_id, limit=1)
+        if points:
+            return {
+                "housing_price_index": round(float(points[-1][1]), 1),
+                "data_date": points[-1][0],
+            }
+
     return {"housing_price_index": None, "data_date": _today_iso()}
 
 
 def _fetch_regional_layer(msa_code: str, msa_name: str) -> tuple[dict | None, bool]:
     unemp_key = f"regional:{msa_code}:unemployment"
-    hpi_key = f"regional:{msa_code}:hpi"
+    hpi_key = f"regional:{msa_code}:hpi:v2"
 
     unemp, s1 = _cached_fetch(
         unemp_key,
