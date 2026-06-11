@@ -1,0 +1,21 @@
+{
+  "communities": [
+    {"name": "BlackPersonalFinance", "primary_domain": "budgeting"},
+    {"name": "povertyfinance", "primary_domain": "budgeting"},
+    {"name": "personalfinance", "primary_domain": "budgeting"},
+    {"name": "financialindependence", "primary_domain": "budgeting"},
+    {"name": "careerguidance", "primary_domain": "work_life"},
+    {"name": "cscareerquestions", "primary_domain": "work_life"},
+    {"name": "antiwork", "primary_domain": "work_life"},
+    {"name": "blackladies", "primary_domain": "mood"},
+    {"name": "BlackMentalHealth", "primary_domain": "mood"},
+    {"name": "mentalhealth", "primary_domain": "mood"},
+    {"name": "selfimprovement", "primary_domain": "mood"},
+    {"name": "FirstTimeHomeBuyer", "primary_domain": "housing"},
+    {"name": "RealEstate", "primary_domain": "housing"},
+    {"name": "relationships", "primary_domain": "relationships"},
+    {"name": "dating_advice", "primary_domain": "relationships"},
+    {"name": "StudentLoans", "primary_domain": "debt"},
+    {"name": "CreditCards", "primary_domain": "debt"}
+  ]
+}

@@ -1,0 +1,25 @@
+# Virtual environment
+.venv/
+
+# Environment files
+.env
+
+# Output files (generated, not source)
+output/
+logs/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Distribution
+*.egg-info/
+dist/
+build/
+
+# OS files
+.DS_Store
+Thumbs.db

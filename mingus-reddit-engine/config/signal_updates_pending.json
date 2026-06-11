@@ -1,0 +1,21 @@
+{
+  "pending_additions": [
+    {
+      "keyword": "broke before payday",
+      "domain_id": null,
+      "reason": "weekly_report"
+    },
+    {
+      "keyword": "salary transparency",
+      "domain_id": null,
+      "reason": "weekly_report"
+    }
+  ],
+  "pending_removals": [
+    {
+      "keyword": "job market",
+      "domain_id": null,
+      "reason": "false_positive"
+    }
+  ]
+}

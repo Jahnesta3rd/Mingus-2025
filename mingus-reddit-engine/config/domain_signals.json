@@ -1,0 +1,137 @@
+{
+  "domains": [
+    {
+      "domain_id": "career_income",
+      "keywords": [
+        "underpaid",
+        "not making enough",
+        "ask for a raise",
+        "laying off",
+        "AI is taking my job",
+        "worth more than I'm making",
+        "salary negotiation",
+        "job market",
+        "should I leave my job",
+        "skills are worth",
+        "income comparison",
+        "percentile",
+        "undervalued",
+        "layoff risk",
+        "job security",
+        "fired",
+        "severance"
+      ],
+      "semantic_description": "Career trajectory, income growth, job security, and compensation pain."
+    },
+    {
+      "domain_id": "financial_habits",
+      "keywords": [
+        "can't stop spending",
+        "broke before payday",
+        "where does my money go",
+        "no savings",
+        "paycheck to paycheck",
+        "bad with money",
+        "emotional spending",
+        "retail therapy",
+        "impulse buying",
+        "need a budget",
+        "don't know my numbers",
+        "overdraft",
+        "emergency fund",
+        "can't save",
+        "debt spiral"
+      ],
+      "semantic_description": "Spending discipline, budgeting gaps, savings failures, and debt pressure."
+    },
+    {
+      "domain_id": "housing",
+      "keywords": [
+        "afford a house",
+        "how much house",
+        "rent vs buy",
+        "down payment",
+        "first time home buyer",
+        "rent keeps going up",
+        "mortgage rates",
+        "want to buy",
+        "equity",
+        "ready to buy",
+        "landlord",
+        "eviction",
+        "housing cost",
+        "home ownership",
+        "renting forever"
+      ],
+      "semantic_description": "Rent, homeownership readiness, housing affordability, and mortgage stress."
+    },
+    {
+      "domain_id": "mental_health_money",
+      "keywords": [
+        "financial anxiety",
+        "money stress",
+        "can't sleep bills",
+        "avoid bank app",
+        "embarrassed finances",
+        "overwhelmed debt",
+        "financial shame",
+        "money trauma",
+        "know what to do but can't",
+        "paralyzed about money",
+        "money depression",
+        "financial dread",
+        "scared to check account"
+      ],
+      "semantic_description": "Emotional and psychological strain tied to money and financial avoidance."
+    },
+    {
+      "domain_id": "relationships_money",
+      "keywords": [
+        "money arguments",
+        "financial incompatibility",
+        "can't afford to date",
+        "partner spending",
+        "combine finances",
+        "not financially ready relationship",
+        "can't afford kids",
+        "financial goals marriage",
+        "broke and dating",
+        "relationship money"
+      ],
+      "semantic_description": "Money conflict in relationships, dating costs, and shared financial goals."
+    },
+    {
+      "domain_id": "wellness_correlation",
+      "keywords": [
+        "stress affecting health",
+        "can't afford therapy",
+        "healthier on a budget",
+        "health connection",
+        "burning out",
+        "not taking care of myself",
+        "fitness finances",
+        "mental physical",
+        "wellness budget",
+        "stress and money"
+      ],
+      "semantic_description": "Physical wellness, burnout, and health costs intersecting with financial stress."
+    },
+    {
+      "domain_id": "mental_models",
+      "keywords": [
+        "bad financial decisions",
+        "same mistakes",
+        "think about money differently",
+        "financial mindset",
+        "money psychology",
+        "wealth mindset",
+        "self-sabotaging",
+        "decision frameworks",
+        "know better don't do better",
+        "financial behavior",
+        "money beliefs"
+      ],
+      "semantic_description": "Money mindset, repeated decision patterns, and behavioral finance framing."
+    }
+  ]
+}
