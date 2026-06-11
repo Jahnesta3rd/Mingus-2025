@@ -36,6 +36,8 @@ const BUCKET_LABELS: Record<BucketKey, string> = {
 };
 
 const BUCKET_ORDER: BucketKey[] = ['fixed', 'discretionary', 'debt', 'savings'];
+const BUCKET_LABEL_PAD = 10;
+const BUCKET_LABEL_MIN_FILL_H = BUCKET_LABEL_PAD + 10;
 
 function bucketWidth(pct: number): number {
   const t = Math.min(60, Math.max(0, pct)) / 60;
@@ -287,11 +289,16 @@ export const WaterfallSvg: React.FC<WaterfallSvgProps> = ({
               />
             ) : null}
 
-            {/* Bucket label — drawn after rects so it sits on top of fill */}
+            {/* Bucket label — anchored inside fill (or bucket top when fill is shallow) */}
             <text
               x={b.x + b.width / 2}
-              y={bucketY + 32}
+              y={
+                b.pct > 0 && fillH >= BUCKET_LABEL_MIN_FILL_H
+                  ? fillY + BUCKET_LABEL_PAD
+                  : bucketY + BUCKET_LABEL_PAD
+              }
               textAnchor="middle"
+              dominantBaseline="hanging"
               fill="#1A1815"
               fontSize={10}
               fontWeight={600}
