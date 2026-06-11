@@ -248,6 +248,27 @@ async function addExportMocks(p: Page, tier: 'budget' | 'mid' | 'pro') {
   await p.route('**/api/notifications**', async (route) => {
     await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ notifications: [], unread_count: 0 }) });
   });
+
+  await p.route('**/api/user/terms-status**', async (route) => {
+    if (route.request().method() !== 'GET') return route.fallback();
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        accepted: true,
+        acceptedVersion: 'September2025',
+        currentVersion: 'September2025',
+      }),
+    });
+  });
+
+  await p.route('**/api/auth/session-ready**', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ ready: true }),
+    });
+  });
 }
 
 async function loginAndGoToDashboard(p: Page, ctx: BrowserContext, tier: 'budget' | 'mid' | 'pro') {
@@ -288,12 +309,12 @@ async function loginAndGoToDashboard(p: Page, ctx: BrowserContext, tier: 'budget
   }
 
   if (!p.url().includes('/dashboard')) {
-    await p.goto(`${BASE_URL}/dashboard`);
+    await p.goto(`${BASE_URL}/dashboard/tools`);
     await p.waitForLoadState('domcontentloaded');
     await p.waitForTimeout(2000);
   }
   if (p.url().includes('vibe-check-meme')) {
-    await p.goto(`${BASE_URL}/dashboard`);
+    await p.goto(`${BASE_URL}/dashboard/tools`);
     await p.waitForLoadState('domcontentloaded');
     await p.waitForTimeout(2000);
   }
@@ -349,7 +370,7 @@ test.describe.serial('Export & Reporting Feature Tests', () => {
 
   test.beforeEach(async () => {
     try {
-      browser = await chromium.launch({ headless: false });
+      browser = await chromium.launch({ headless: process.env.PLAYWRIGHT_HEADED !== '1' });
       context = await browser.newContext({ storageState: '.auth/marcus.json' });
       page = await context.newPage();
     } catch (err) {
@@ -533,21 +554,29 @@ test.describe.serial('Export & Reporting Feature Tests', () => {
   test('EX-G03: Budget tier Vehicle tab shows export upgrade prompt in UI', async () => {
     await loginAndGoToDashboard(page, context, 'budget');
     await ensureOnDashboard(page, 'budget');
-
-    const vehicleBtn = page.getByRole('button', { name: /Vehicle Status|Vehicle/i }).first();
-    await vehicleBtn.click();
-    await page.waitForTimeout(1500);
     await addExportMocks(page, 'budget');
 
-    const upgradeTerms = ['upgrade to professional', 'export capabilities', 'upgrade for export', 'locked', 'export functionality'];
+    await page.goto(`${BASE_URL}/dashboard/tools?tab=vehicle`);
+    await page.waitForLoadState('domcontentloaded');
+    await page.waitForTimeout(2000);
+
+    const upgradeTerms = [
+      'upgrade to mid-tier',
+      'upgrade to professional',
+      'basic vehicle analytics',
+      'export capabilities',
+      'upgrade for export',
+      'locked',
+      'export functionality',
+      'vehicle analytics',
+    ];
     const { found, matched } = await pageContainsAny(page, upgradeTerms);
 
-    // If no explicit upgrade prompt, confirm export buttons are absent
-    const exportBtnVisible = await page.getByRole('button', { name: /export|download report/i }).first().isVisible().catch(() => false);
+    const exportBtnVisible = await page.getByRole('button', { name: /export|download report|export data/i }).first().isVisible().catch(() => false);
+    const upgradeBtnVisible = await page.getByRole('button', { name: /^upgrade$/i }).first().isVisible().catch(() => false);
 
-    console.log(`EX-G03: Upgrade term: "${matched}" | export btn visible: ${exportBtnVisible}`);
-    // Pass if upgrade prompt shown OR export button is simply absent (both are correct budget behavior)
-    expect(found || !exportBtnVisible).toBe(true);
+    console.log(`EX-G03: Upgrade term: "${matched}" | export btn: ${exportBtnVisible} | upgrade btn: ${upgradeBtnVisible}`);
+    expect(found || upgradeBtnVisible || !exportBtnVisible).toBe(true);
     console.log('EX-G03: Budget tier Vehicle tab export gate validated ✓');
   });
 

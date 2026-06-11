@@ -12,7 +12,7 @@ test.describe('Persona 1 - Maya', () => {
 
   test.beforeAll(async () => {
     try {
-      browser = await chromium.launch({ headless: process.env.PLAYWRIGHT_HEADED === '1' ? false : true });
+      browser = await chromium.launch({ headless: process.env.PLAYWRIGHT_HEADED !== '1' });
       if (!browser) throw new Error('Browser failed to launch');
       context = await browser.newContext({
         storageState: undefined,

@@ -38,7 +38,7 @@ test.describe('Persona 2 - Marcus', () => {
   test.setTimeout(60000);
 
   test.beforeAll(async () => {
-    browser = await chromium.launch({ headless: false });
+    browser = await chromium.launch({ headless: process.env.PLAYWRIGHT_HEADED !== '1' });
     context = await browser.newContext({
       storageState: undefined,
     });

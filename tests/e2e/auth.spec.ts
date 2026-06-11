@@ -357,7 +357,7 @@ test.describe.serial('Authentication', () => {
   test.setTimeout(120000);
 
   test.beforeAll(async () => {
-    browser = await chromium.launch({ headless: false });
+    browser = await chromium.launch({ headless: process.env.PLAYWRIGHT_HEADED !== '1' });
     context = await browser.newContext({ storageState: undefined });
     await context.clearCookies();
     page = await context.newPage();

@@ -86,7 +86,42 @@ async function addDashboardMocks(p: Page) {
   await p.route('**/api/auth/verify**', async (route) => {
     await route.fulfill({
       status: 200, contentType: 'application/json',
-      body: JSON.stringify({ valid: true, user: { email: MAYA.email, tier: 'budget', firstName: 'Maya' } }),
+      body: JSON.stringify({
+        authenticated: true,
+        user_id: `${MAYA.email}-id`,
+        email: MAYA.email,
+        name: MAYA.name,
+        tier: MAYA.tier,
+      }),
+    });
+  });
+  await p.route('**/api/user/terms-status**', async (route) => {
+    if (route.request().method() !== 'GET') return route.fallback();
+    await route.fulfill({
+      status: 200, contentType: 'application/json',
+      body: JSON.stringify({
+        accepted: true,
+        acceptedVersion: 'September2025',
+        currentVersion: 'September2025',
+      }),
+    });
+  });
+  await p.route('**/api/auth/session-ready**', async (route) => {
+    await route.fulfill({
+      status: 200, contentType: 'application/json',
+      body: JSON.stringify({ ready: true }),
+    });
+  });
+  await p.route('**/api/risk/dashboard-state**', async (route) => {
+    await route.fulfill({
+      status: 200, contentType: 'application/json',
+      body: JSON.stringify({ current_risk_level: 'watchful', recommendations_unlocked: true }),
+    });
+  });
+  await p.route('**/api/vibe/daily**', async (route) => {
+    await route.fulfill({
+      status: 200, contentType: 'application/json',
+      body: JSON.stringify({ has_vibe: false }),
     });
   });
   await p.route('**/api/auth/login', async (route) => {
@@ -134,13 +169,13 @@ async function loginAndGoToDashboard(p: Page, context: BrowserContext) {
   }
 
   if (!p.url().includes('/dashboard')) {
-    await p.goto(`${BASE_URL}/dashboard`, { waitUntil: 'domcontentloaded', timeout: 15000 });
+    await p.goto(`${BASE_URL}/dashboard/tools`, { waitUntil: 'domcontentloaded', timeout: 15000 });
     await p.waitForLoadState('domcontentloaded');
     await p.waitForTimeout(2000);
   }
 
   if (p.url().includes('vibe-check-meme')) {
-    await p.goto(`${BASE_URL}/dashboard`);
+    await p.goto(`${BASE_URL}/dashboard/tools`);
     await p.waitForLoadState('domcontentloaded');
     await p.waitForTimeout(2000);
   }
@@ -152,9 +187,8 @@ async function loginAndGoToDashboard(p: Page, context: BrowserContext) {
     });
   } catch { /* ignore */ }
 
-  // Wait for dashboard URL when server accepts auth (e.g. with mocks); may stay on login if server rejects
   try {
-    await p.waitForURL(/\/dashboard/, { timeout: 15000 }).catch(() => {});
+    await p.waitForURL(/\/dashboard\/tools/, { timeout: 15000 }).catch(() => {});
   } catch { /* ignore */ }
 
   // Re-apply mocks after navigation
@@ -407,44 +441,40 @@ test.describe('Cross-Browser Compatibility', () => {
   });
 
   // ── CB-06: Dashboard loads and tabs work ───────────────────────────────────
-  test('CB-06: Dashboard loads and all 8 tabs are visible', async ({ page, context }) => {
+  test('CB-06: Dashboard loads and all 5 bottom-nav tabs are visible', async ({ page, context }) => {
     const browser = getBrowserName(page);
     await loginAndGoToDashboard(page, context);
     if (!page.url().includes('/dashboard')) {
       test.skip(true, 'Dashboard not reachable (test env may require real auth; mocks may be rejected by server)');
     }
-    await expect(page).toHaveURL(/\/dashboard/, { timeout: 5000 });
+    await expect(page).toHaveURL(/\/dashboard\/tools/, { timeout: 5000 });
 
-    const tabs = [
-      'Daily Outlook', 'Financial Forecast', 'Overview',
-      'Job Recommendations', 'Location Intelligence',
-      'Housing Location', 'Vehicle Status', 'Career Analytics',
-    ];
+    const tabs = ['Today', 'Forecast', 'Plans', 'Discover', 'You'];
+    const nav = page.locator('nav[aria-label="Dashboard sections"]');
 
     const visibleTabs: string[] = [];
     const missingTabs: string[] = [];
 
     for (const tab of tabs) {
-      const btn = page.getByRole('button', { name: tab }).first();
+      const btn = nav.getByRole('button', { name: tab, exact: true }).first();
       const visible = await btn.isVisible().catch(() => false);
       if (visible) visibleTabs.push(tab);
       else missingTabs.push(tab);
     }
 
-    console.log(`CB-06 [${browser}]: Visible tabs (${visibleTabs.length}/8): ${visibleTabs.join(', ')}`);
+    console.log(`CB-06 [${browser}]: Visible tabs (${visibleTabs.length}/5): ${visibleTabs.join(', ')}`);
     if (missingTabs.length > 0) {
       console.log(`CB-06 [${browser}]: Missing tabs: ${missingTabs.join(', ')}`);
     }
 
-    expect(visibleTabs.length).toBe(8);
+    expect(visibleTabs.length).toBe(5);
 
-    // Click two tabs to verify interactivity
-    const overviewBtn = page.getByRole('button', { name: 'Overview' }).first();
-    await overviewBtn.click();
+    const forecastBtn = nav.getByRole('button', { name: 'Forecast', exact: true }).first();
+    await forecastBtn.click();
     await page.waitForTimeout(1000);
 
-    const vehicleBtn = page.getByRole('button', { name: 'Vehicle Status' }).first();
-    await vehicleBtn.click();
+    const discoverBtn = nav.getByRole('button', { name: 'Discover', exact: true }).first();
+    await discoverBtn.click();
     await page.waitForTimeout(1000);
 
     console.log(`CB-06 [${browser}]: Tab switching works ✓`);
@@ -553,7 +583,7 @@ test.describe('Cross-Browser Compatibility', () => {
     if (!page.url().includes('/dashboard')) {
       test.skip(true, 'Dashboard not reachable (test env may require real auth; mocks may be rejected by server)');
     }
-    await expect(page).toHaveURL(/\/dashboard/, { timeout: 5000 });
+    await expect(page).toHaveURL(/\/dashboard\/tools/, { timeout: 5000 });
     await page.waitForTimeout(2000);
 
     const criticalErrors = consoleErrors.filter(e =>

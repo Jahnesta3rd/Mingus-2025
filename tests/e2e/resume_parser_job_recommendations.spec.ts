@@ -429,7 +429,7 @@ test.describe.serial('Resume Parser & Job Recommendation Tests', () => {
 
   test.beforeEach(async () => {
     try {
-      browser = await chromium.launch({ headless: false });
+      browser = await chromium.launch({ headless: process.env.PLAYWRIGHT_HEADED !== '1' });
       context = await browser.newContext({ storageState: '.auth/marcus.json' });
       page = await context.newPage();
     } catch (err) {

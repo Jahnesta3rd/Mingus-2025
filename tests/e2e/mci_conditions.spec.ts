@@ -203,6 +203,27 @@ async function addDashboardMocks(p: Page, user: (typeof USERS)[keyof typeof USER
     });
   });
 
+  await p.route('**/api/user/terms-status**', async (route) => {
+    if (route.request().method() !== 'GET') return route.fallback();
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        accepted: true,
+        acceptedVersion: 'September2025',
+        currentVersion: 'September2025',
+      }),
+    });
+  });
+
+  await p.route('**/api/auth/session-ready**', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ ready: true }),
+    });
+  });
+
   await p.route('**/api/risk/dashboard-state**', async (route) => {
     if (route.request().method() !== 'GET') return route.fallback();
     await route.fulfill({
@@ -320,16 +341,23 @@ async function dismissModal(p: Page) {
 
 async function navigateToTab(p: Page, tabName: string) {
   await dismissModal(p);
-  const btn = p.getByRole('button', { name: new RegExp(tabName, 'i') }).first();
+  const nav = p.locator('nav[aria-label="Dashboard sections"]');
+  const labelMap: Record<string, string> = {
+    'Daily Outlook': 'Today',
+    'Financial Forecast': 'Forecast',
+    Overview: 'Plans',
+  };
+  const resolved = labelMap[tabName] ?? tabName;
+  const btn = nav.getByRole('button', { name: resolved, exact: true }).first();
   await btn.waitFor({ state: 'visible', timeout: 10000 }).catch(() => {});
   await btn.click({ force: true }).catch(() => {});
-  // Wait for tab-specific content to be present; avoids asserting on the wrong tab.
-  if (/daily outlook/i.test(tabName)) {
-    await expect(p.getByText(/View all milestones/i).first()).toBeVisible({ timeout: 15000 }).catch(() => {});
+
+  if (/today|daily outlook/i.test(tabName)) {
+    await expect(p.getByText(/Good (morning|afternoon|evening)/i).first()).toBeVisible({ timeout: 15000 }).catch(() => {});
   }
-  if (/financial forecast/i.test(tabName)) {
+  if (/forecast|financial forecast/i.test(tabName)) {
     await expect(
-      p.getByRole('heading', { name: /Market conditions affecting your forecast/i })
+      p.getByText(/Upgrade to Mid-tier|Today's Balance|90-Day Balance Forecast/i).first()
     ).toBeVisible({ timeout: 15000 }).catch(() => {});
   }
   await p.waitForTimeout(1500);
@@ -402,13 +430,13 @@ async function loginAndGoToDashboard(p: Page, ctx: BrowserContext, user: (typeof
   }
 
   if (!p.url().includes('/dashboard')) {
-    await p.goto(`${BASE_URL}/dashboard`);
+    await p.goto(`${BASE_URL}/dashboard/tools`);
     await p.waitForLoadState('domcontentloaded');
     await p.waitForTimeout(2000);
   }
 
   if (p.url().includes('vibe-check-meme')) {
-    await p.goto(`${BASE_URL}/dashboard`);
+    await p.goto(`${BASE_URL}/dashboard/tools`);
     await p.waitForLoadState('domcontentloaded');
     await p.waitForTimeout(2000);
   }
@@ -446,7 +474,7 @@ test.describe.serial('MCI Conditions Index — Budget tier', () => {
 
     test.beforeEach(async () => {
       browser = await chromium.launch({ headless: process.env.PLAYWRIGHT_HEADED !== '1' });
-      context = await browser.newContext({ storageState: '.auth/marcus.json' });
+      context = await browser.newContext();
       page = await context.newPage();
 
       mciSnapshotHits = 0;
@@ -534,7 +562,7 @@ test.describe.serial('MCI Conditions Index — Mid tier', () => {
   test.describe('Mid tier (marcus)', () => {
     test.beforeEach(async () => {
       browser = await chromium.launch({ headless: process.env.PLAYWRIGHT_HEADED !== '1' });
-      context = await browser.newContext({ storageState: '.auth/marcus.json' });
+      context = await browser.newContext();
       page = await context.newPage();
 
       await page.route('**/api/mci/snapshot*', async (route) => {

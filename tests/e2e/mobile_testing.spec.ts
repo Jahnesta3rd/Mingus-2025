@@ -75,7 +75,6 @@ async function setupMobileContext(browser: any, profile: typeof DEVICE_PROFILES.
   const isFirefox = browser.browserType().name() === 'firefox';
 
   const contextOptions = {
-    storageState: '.auth/marcus.json',
     viewport: profile.viewport,
     deviceScaleFactor: profile.deviceScaleFactor,
     hasTouch: profile.hasTouch,
@@ -110,7 +109,39 @@ async function addDashboardMocks(p: Page) {
     await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ notifications: [], unread_count: 0 }) });
   });
   await p.route('**/api/auth/verify**', async (route) => {
-    await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ valid: true, user: { email: MAYA.email, tier: 'budget', firstName: 'Maya' } }) });
+    await route.fulfill({
+      status: 200, contentType: 'application/json',
+      body: JSON.stringify({
+        authenticated: true,
+        user_id: `${MAYA.email}-id`,
+        email: MAYA.email,
+        name: 'Maya',
+        tier: 'budget',
+      }),
+    });
+  });
+  await p.route('**/api/user/terms-status**', async (route) => {
+    if (route.request().method() !== 'GET') return route.fallback();
+    await route.fulfill({
+      status: 200, contentType: 'application/json',
+      body: JSON.stringify({
+        accepted: true,
+        acceptedVersion: 'September2025',
+        currentVersion: 'September2025',
+      }),
+    });
+  });
+  await p.route('**/api/auth/session-ready**', async (route) => {
+    await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ ready: true }) });
+  });
+  await p.route('**/api/risk/dashboard-state**', async (route) => {
+    await route.fulfill({
+      status: 200, contentType: 'application/json',
+      body: JSON.stringify({ current_risk_level: 'watchful', recommendations_unlocked: true }),
+    });
+  });
+  await p.route('**/api/vibe/daily**', async (route) => {
+    await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ has_vibe: false }) });
   });
   await p.route('**/api/auth/login', async (route) => {
     if (route.request().method() !== 'POST') return route.fallback();

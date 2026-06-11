@@ -8,6 +8,7 @@
 import { test, expect, Browser, BrowserContext, Page, chromium } from '@playwright/test';
 
 const BASE_URL = 'https://test.mingusapp.com';
+const BOTTOM_NAV = 'nav[aria-label="Dashboard sections"]';
 
 const MAYA = {
   email: 'maya.johnson.test@gmail.com',
@@ -210,6 +211,41 @@ async function addDashboardMocks(p: Page, data: typeof MAYA_DASHBOARD_DATA) {
       body: JSON.stringify({ notifications: [], unread_count: 0 }),
     });
   });
+
+  await p.route(`**/api/user/terms-status**`, async (route) => {
+    if (route.request().method() !== 'GET') return route.fallback();
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        accepted: true,
+        acceptedVersion: 'September2025',
+        currentVersion: 'September2025',
+      }),
+    });
+  });
+
+  await p.route(`**/api/auth/session-ready**`, async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ ready: true }),
+    });
+  });
+
+  await p.route(`**/api/user/profile**`, async (route) => {
+    if (route.request().method() !== 'GET') return route.fallback();
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        current_balance: data.cashFlow.daily_cashflow[0]?.opening_balance ?? 1200,
+        balance_last_updated: new Date().toISOString(),
+        first_name: data.profile.firstName,
+        tier: data.profile.tier,
+      }),
+    });
+  });
 }
 
 async function dismissModal(p: Page) {
@@ -331,14 +367,14 @@ async function loginAndGoToDashboard(
 
   // Step 6: navigate to dashboard if not already there
   if (!p.url().includes('/dashboard')) {
-    await p.goto(`${BASE_URL}/dashboard`);
+    await p.goto(`${BASE_URL}/dashboard/tools`);
     await p.waitForLoadState('domcontentloaded');
     await p.waitForTimeout(2000);
   }
 
   // Step 7: handle vibe-check-meme redirect
   if (p.url().includes('vibe-check-meme')) {
-    await p.goto(`${BASE_URL}/dashboard`);
+    await p.goto(`${BASE_URL}/dashboard/tools`);
     await p.waitForLoadState('domcontentloaded');
     await p.waitForTimeout(2000);
   }
@@ -360,7 +396,7 @@ test.describe.serial('Data Persistence', () => {
   test.setTimeout(120000);
 
   test.beforeEach(async () => {
-    browser = await chromium.launch({ headless: false });
+    browser = await chromium.launch({ headless: process.env.PLAYWRIGHT_HEADED !== '1' });
     context = await browser.newContext({ storageState: '.auth/marcus.json' });
     page = await context.newPage();
   });
@@ -479,15 +515,17 @@ test.describe.serial('Data Persistence', () => {
   // ── DP-03: Mocked login, budget tier UI ───────────────────────────────────
   test('DP-03: Budget tier label displays correctly on dashboard', async () => {
     await loginAndGoToDashboard(page, context, USERS.budget, MAYA_DASHBOARD_DATA);
-    const forecastBtn = page.getByRole('button', { name: /Financial Forecast|Forecast/i }).first();
-    await forecastBtn.click();
+    await expect(page).toHaveURL(/\/dashboard/, { timeout: 15000 });
+
+    await page.goto(`${BASE_URL}/dashboard/tools?tab=you`);
+    await page.waitForLoadState('domcontentloaded');
     await page.waitForTimeout(2000);
 
-    const upgradePrompt = page.getByText(/upgrade|unlock|view plans/i);
-    await expect(upgradePrompt.first()).toBeVisible();
-    console.log('DP-03: Budget tier upgrade prompt confirmed ✓');
+    const budgetBadge = page.getByText(/Budget \(\$15\/mo\)/i);
+    await expect(budgetBadge.first()).toBeVisible({ timeout: 15000 });
+    console.log('DP-03: Budget tier badge visible on You tab ✓');
 
-    const professionalLabel = page.getByText(/professional tier|you're on professional/i);
+    const professionalLabel = page.getByText(/Professional \(\$100\/mo\)|professional tier|you're on professional/i);
     await expect(professionalLabel).not.toBeVisible();
     console.log('DP-03: Budget tier does not show Professional label ✓');
   });
@@ -497,16 +535,16 @@ test.describe.serial('Data Persistence', () => {
     await loginAndGoToDashboard(page, context, USERS.budget, MARCUS_DASHBOARD_DATA);
     await expect(page).toHaveURL(/\/dashboard/, { timeout: 15000 });
 
-    const forecastBtn = page.getByRole('button', { name: /Financial Forecast|Forecast/i }).first();
-    await forecastBtn.click();
+    await page.goto(`${BASE_URL}/dashboard/forecast`);
+    await page.waitForLoadState('domcontentloaded');
     await page.waitForTimeout(2000);
 
     const balanceCard = page.getByText(/today.*balance|balance status|30.day forecast/i);
     await expect(balanceCard.first()).toBeVisible();
     console.log('DP-04: Mid-tier Financial Forecast summary cards visible ✓');
 
-    const vehicleBtn = page.getByRole('button', { name: /Vehicle Status|Vehicle/i }).first();
-    await vehicleBtn.click();
+    await page.goto(`${BASE_URL}/dashboard/tools?tab=vehicle`);
+    await page.waitForLoadState('domcontentloaded');
     await page.waitForTimeout(2000);
 
     const exportPrompt = page.getByText(/upgrade to professional for export/i);
@@ -519,16 +557,16 @@ test.describe.serial('Data Persistence', () => {
     await loginAndGoToDashboard(page, context, USERS.budget, JASMINE_DASHBOARD_DATA);
     await expect(page).toHaveURL(/\/dashboard/, { timeout: 15000 });
 
-    const vehicleBtn = page.getByRole('button', { name: /Vehicle Status|Vehicle/i }).first();
-    await vehicleBtn.click();
+    await page.goto(`${BASE_URL}/dashboard/tools?tab=vehicle`);
+    await page.waitForLoadState('domcontentloaded');
     await page.waitForTimeout(2000);
 
     const upgradePrompt = page.getByText(/upgrade to professional/i);
     await expect(upgradePrompt).not.toBeVisible();
     console.log('DP-05: Professional tier — no vehicle upgrade prompt ✓');
 
-    const forecastBtn = page.getByRole('button', { name: /Financial Forecast|Forecast/i }).first();
-    await forecastBtn.click();
+    await page.goto(`${BASE_URL}/dashboard/forecast`);
+    await page.waitForLoadState('domcontentloaded');
     await page.waitForTimeout(2000);
 
     const balanceCard = page.getByText(/today.*balance|balance status|30.day forecast/i);

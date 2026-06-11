@@ -506,6 +506,14 @@ async function addAllMocks(p: Page) {
       }),
     });
   });
+
+  await p.route('**/api/auth/session-ready**', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ ready: true }),
+    });
+  });
 }
 
 async function loginAndGoToDashboard(p: Page, ctx: BrowserContext) {
@@ -525,14 +533,14 @@ async function loginAndGoToDashboard(p: Page, ctx: BrowserContext) {
 
   const dashNav = { waitUntil: 'domcontentloaded' as const, timeout: 45_000 };
   try {
-    await p.goto(`${BASE_URL}/dashboard`, dashNav);
+    await p.goto(`${BASE_URL}/dashboard/tools`, dashNav);
     if (p.url().includes('vibe-check-meme') || p.url().includes('/login')) {
       await p.evaluate(() => {
         localStorage.setItem('auth_token', 'ok');
         localStorage.setItem('mingus_token', 'e2e-dashboard-token');
       });
       await addAllMocks(p);
-      await p.goto(`${BASE_URL}/dashboard`, dashNav);
+      await p.goto(`${BASE_URL}/dashboard/tools`, dashNav);
     }
     await p
       .getByText(/Today|Forecast|Plans/i)
@@ -610,7 +618,7 @@ async function ensureOnDashboard(p: Page) {
     test.skip(true, 'Page not available');
     return;
   }
-  if (p.url().includes('/dashboard')) return;
+  if (p.url().includes('/dashboard/tools') || p.url().includes('/dashboard')) return;
   try {
     await p.evaluate(() => {
       localStorage.setItem('auth_token', 'ok');
@@ -622,7 +630,7 @@ async function ensureOnDashboard(p: Page) {
   }
   try {
     await addAllMocks(p);
-    await p.goto(`${BASE_URL}/dashboard`, NAV_OPTS);
+    await p.goto(`${BASE_URL}/dashboard/tools`, NAV_OPTS);
     await p.waitForTimeout(2000);
     if (!p.url().includes('/dashboard')) {
       console.log(`ensureOnDashboard: still on ${p.url()} — skipping`);
@@ -732,7 +740,7 @@ test.describe('Mid-tier features', () => {
   test.beforeEach(async () => {
     try {
       browser = await chromium.launch({ headless: process.env.PLAYWRIGHT_HEADED !== '1' });
-      context = await browser.newContext({ storageState: '.auth/marcus.json' });
+      context = await browser.newContext();
       page = await context.newPage();
       await loginAndGoToDashboard(page, context);
     } catch (err) {

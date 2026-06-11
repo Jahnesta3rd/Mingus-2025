@@ -42,6 +42,7 @@
 import { test, expect, Browser, BrowserContext, Page, chromium } from '@playwright/test';
 
 const BASE_URL = 'https://test.mingusapp.com';
+const BOTTOM_NAV = 'nav[aria-label="Dashboard sections"]';
 
 const MAYA = {
   email: 'maya.johnson.test@gmail.com',
@@ -272,6 +273,74 @@ async function addAllMocks(p: Page) {
       body: JSON.stringify({ notifications: [], unread_count: 0 }),
     });
   });
+
+  await p.route('**/api/career/profile-summary**', async (route) => {
+    if (route.request().method() !== 'GET') return route.fallback();
+    await route.fulfill({
+      status: 200, contentType: 'application/json',
+      body: JSON.stringify({
+        success: true,
+        profile: { profile_complete: false, open_to_move: false },
+      }),
+    });
+  });
+
+  await p.route('**/api/housing/profile-summary**', async (route) => {
+    if (route.request().method() !== 'GET') return route.fallback();
+    await route.fulfill({
+      status: 200, contentType: 'application/json',
+      body: JSON.stringify({
+        success: true,
+        profile: {
+          housing_type: 'rent',
+          monthly_cost: 1100,
+          has_buy_goal: true,
+          target_price: 180000,
+          profile_complete: true,
+        },
+      }),
+    });
+  });
+
+  await p.route('**/api/vibe-tracker/people**', async (route) => {
+    await route.fulfill({
+      status: 200, contentType: 'application/json',
+      body: JSON.stringify({ people: [] }),
+    });
+  });
+
+  await p.route('**/api/life-ledger/profile**', async (route) => {
+    await route.fulfill({
+      status: 200, contentType: 'application/json',
+      body: JSON.stringify({ vibe_score: 62, life_ledger_score: 65 }),
+    });
+  });
+
+  await p.route('**/api/risk/dashboard-state**', async (route) => {
+    await route.fulfill({
+      status: 200, contentType: 'application/json',
+      body: JSON.stringify({ current_risk_level: 'watchful', recommendations_unlocked: false }),
+    });
+  });
+
+  await p.route('**/api/user/terms-status**', async (route) => {
+    if (route.request().method() !== 'GET') return route.fallback();
+    await route.fulfill({
+      status: 200, contentType: 'application/json',
+      body: JSON.stringify({
+        accepted: true,
+        acceptedVersion: 'September2025',
+        currentVersion: 'September2025',
+      }),
+    });
+  });
+
+  await p.route('**/api/auth/session-ready**', async (route) => {
+    await route.fulfill({
+      status: 200, contentType: 'application/json',
+      body: JSON.stringify({ ready: true }),
+    });
+  });
 }
 
 const NAV_OPTS = { waitUntil: 'domcontentloaded' as const, timeout: 30000 };
@@ -335,13 +404,13 @@ async function loginAndGoToDashboard(p: Page, ctx: BrowserContext) {
   }
   // Step 6: navigate to dashboard if not already there
   if (!p.url().includes('/dashboard')) {
-    await p.goto(`${BASE_URL}/dashboard`, NAV_OPTS);
+    await p.goto(`${BASE_URL}/dashboard/tools`, NAV_OPTS);
     await p.waitForLoadState('domcontentloaded');
     await p.waitForTimeout(2000);
   }
   // Step 7: handle vibe-check-meme redirect
   if (p.url().includes('vibe-check-meme')) {
-    await p.goto(`${BASE_URL}/dashboard`, NAV_OPTS);
+    await p.goto(`${BASE_URL}/dashboard/tools`, NAV_OPTS);
     await p.waitForLoadState('domcontentloaded');
     await p.waitForResponse((r) => r.url().includes('/api/auth/verify'), { timeout: 8000 }).catch(() => {});
     await p.waitForTimeout(3000);
@@ -356,7 +425,7 @@ async function loginAndGoToDashboard(p: Page, ctx: BrowserContext) {
   // Retry up to 2 times if app redirected to login (race with /api/auth/verify)
   for (let attempt = 0; attempt < 2 && !p.url().includes('/dashboard'); attempt++) {
     await addAllMocks(p);
-    await p.goto(`${BASE_URL}/dashboard`, NAV_OPTS);
+    await p.goto(`${BASE_URL}/dashboard/tools`, NAV_OPTS);
     await p.waitForLoadState('domcontentloaded');
     await p.waitForResponse((r) => r.url().includes('/api/auth/verify'), { timeout: 8000 }).catch(() => {});
     await p.waitForTimeout(4000);
@@ -369,6 +438,8 @@ async function loginAndGoToDashboard(p: Page, ctx: BrowserContext) {
   }
   await addAllMocks(p);
   await dismissModal(p);
+  await p.waitForURL(/\/dashboard\/tools/, { timeout: 15000 }).catch(() => {});
+  await p.getByText(/Today|Forecast|Good (morning|afternoon|evening)/i).first().waitFor({ state: 'visible', timeout: 30000 }).catch(() => {});
 }
 
 async function dismissModal(p: Page) {
@@ -415,25 +486,113 @@ async function dismissModal(p: Page) {
   }
 }
 
+const TAB_DEEP_LINKS: Record<string, string> = {
+  Today: '/dashboard/tools',
+  Forecast: '/dashboard/forecast',
+  Plans: '/dashboard/tools?tab=plans',
+  Discover: '/dashboard/tools?tab=discover',
+  You: '/dashboard/tools?tab=you',
+};
+
 async function navigateToTab(p: Page | undefined, tabName: string) {
   if (!p) return;
   await dismissModal(p);
-  const btn = p.getByRole('button', { name: new RegExp(tabName, 'i') }).first();
-  await btn.waitFor({ state: 'visible', timeout: 10000 }).catch(() => {});
-  let clicked = false;
-  for (let attempt = 0; attempt < 2; attempt++) {
-    try {
-      await btn.click({ timeout: 15000, force: true });
-      clicked = true;
-      break;
-    } catch {
-      await p.waitForTimeout(400);
+  const nav = p.locator(BOTTOM_NAV);
+  const btn = nav.getByRole('button', { name: tabName, exact: true }).first();
+  const navReady =
+    (await nav.isVisible().catch(() => false)) &&
+    (await btn.isVisible().catch(() => false));
+
+  if (!navReady) {
+    await addAllMocks(p);
+    const path = TAB_DEEP_LINKS[tabName] ?? '/dashboard/tools';
+    await p.goto(`${BASE_URL}${path}`, NAV_OPTS);
+    await p.waitForLoadState('domcontentloaded');
+    await dismissModal(p);
+    await p.waitForTimeout(1500);
+    return;
+  }
+
+  const ariaCurrent = (await btn.getAttribute('aria-current').catch(() => null)) ?? '';
+  if (ariaCurrent !== 'page') {
+    await p.locator('.fixed.inset-0').first().waitFor({ state: 'hidden', timeout: 5000 }).catch(() => {});
+    let clicked = false;
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        await btn.click({ timeout: 8000, force: true });
+        clicked = true;
+        break;
+      } catch {
+        if (!p.isClosed()) await p.waitForTimeout(300);
+      }
+    }
+    if (!clicked) {
+      await addAllMocks(p);
+      const path = TAB_DEEP_LINKS[tabName] ?? '/dashboard/tools';
+      await p.goto(`${BASE_URL}${path}`, NAV_OPTS);
+      await p.waitForLoadState('domcontentloaded');
+      await dismissModal(p);
     }
   }
-  if (!clicked) await btn.click({ timeout: 15000, force: true });
+
   await p.waitForTimeout(1200);
   await addAllMocks(p);
   await p.waitForTimeout(400);
+}
+
+async function navigateToTodayCard(p: Page | undefined, cardNumber: number) {
+  if (!p) return;
+  const cardTabVisible = await p.getByRole('tab', { name: /Card \d+ of \d+/ }).first().isVisible().catch(() => false);
+  if (!cardTabVisible) {
+    await navigateToTab(p, 'Today');
+    if (!(await p.getByRole('tab', { name: /Card \d+ of \d+/ }).first().isVisible().catch(() => false))) {
+      await addAllMocks(p);
+      const cardIndex = Math.max(0, cardNumber - 1);
+      await p.goto(`${BASE_URL}/dashboard/tools?card=${cardIndex}`, NAV_OPTS);
+      await p.waitForLoadState('domcontentloaded');
+      await p.waitForTimeout(1200);
+    }
+  }
+  await p.getByRole('tab', { name: /Card \d+ of \d+/ }).first().waitFor({ state: 'visible', timeout: 10000 }).catch(() => {});
+  const cardTab = p.getByRole('tab', { name: new RegExp(`Card ${cardNumber} of \\d+`) });
+  await cardTab.click({ timeout: 8000, force: true }).catch(() => {});
+  await p.waitForTimeout(800);
+}
+
+async function navigateToHousingCard(p: Page | undefined) {
+  if (!p) return;
+  await navigateToTab(p, 'Today');
+  await p.getByRole('tab', { name: /Card \d+ of \d+/ }).first().waitFor({ state: 'visible', timeout: 10000 }).catch(() => {});
+  for (let i = 2; i <= 7; i++) {
+    const cardTab = p.getByRole('tab', { name: new RegExp(`Card ${i} of \\d+`) });
+    await cardTab.click({ timeout: 5000, force: true }).catch(() => {});
+    await p.waitForTimeout(600);
+    const body = (await p.locator('body').innerText()).toLowerCase();
+    if (
+      body.includes('housing check-in') ||
+      body.includes('renting') ||
+      body.includes('buy goal') ||
+      body.includes('1,100') ||
+      body.includes('1100')
+    ) {
+      return;
+    }
+  }
+}
+
+async function todayTabHasContent(p: Page | undefined): Promise<boolean> {
+  if (!p) return false;
+  const { found } = await pageContainsAny(p, [
+    'good morning',
+    'good afternoon',
+    'good evening',
+    'daily outlook',
+    'card 1 of',
+    'cash snapshot',
+    'vehicle check-in',
+    'housing check-in',
+  ]);
+  return found;
 }
 
 /** Wait for Housing tab content to be visible (tab label in app is "Housing Location"). */
@@ -472,7 +631,7 @@ async function ensureOnDashboard(p: Page | undefined) {
     test.skip(true, 'Browser or login failed in beforeEach');
     return;
   }
-  if (p.url().includes('/dashboard')) return;
+  if (p.url().includes('/dashboard/tools') || p.url().includes('/dashboard')) return;
   try {
     await p.evaluate(() => {
       localStorage.setItem('auth_token', 'ok');
@@ -481,7 +640,7 @@ async function ensureOnDashboard(p: Page | undefined) {
     });
   } catch { /* ignore */ }
   await addAllMocks(p);
-  await p.goto(`${BASE_URL}/dashboard`, NAV_OPTS);
+  await p.goto(`${BASE_URL}/dashboard/tools`, NAV_OPTS);
   await p.waitForLoadState('domcontentloaded');
   await p.waitForResponse((r) => r.url().includes('/api/auth/verify'), { timeout: 8000 }).catch(() => {});
   await p.waitForTimeout(3000);
@@ -498,9 +657,9 @@ test.describe('Budget Tier Feature Tests ($15/month)', () => {
 
   test.beforeEach(async () => {
     try {
-      browser = await chromium.launch({ headless: process.env.PLAYWRIGHT_HEADED === '1' ? false : true });
+      browser = await chromium.launch({ headless: process.env.PLAYWRIGHT_HEADED !== '1' });
       if (!browser) throw new Error('Browser failed to launch');
-      context = await browser.newContext({ storageState: '.auth/marcus.json' });
+      context = await browser.newContext();
       page = await context.newPage();
       await loginAndGoToDashboard(page, context);
     } catch (err) {
@@ -529,29 +688,25 @@ test.describe('Budget Tier Feature Tests ($15/month)', () => {
   // VEHICLE ANALYTICS
   // ════════════════════════════════════════════════════════════════════════════
 
-  test('BT-V01: Vehicle Status tab loads for budget tier', async () => {
+  test('BT-V01: Vehicle card loads on Today tab for budget tier', async () => {
     await ensureOnDashboard(page);
-    await navigateToTab(page, 'Vehicle Status');
+    await navigateToTodayCard(page, 5);
 
-    // Tab content area should have rendered something
     const body = await page.locator('body').innerText();
     expect(body.trim().length).toBeGreaterThan(100);
 
-    // Vehicle tab button should be active
-    const vehicleBtn = page.getByRole('button', { name: /Vehicle Status|Vehicle/i }).first();
-    const isActive = await vehicleBtn.evaluate((el) =>
-      el.className.includes('border-blue') || el.className.includes('text-blue') ||
-      el.className.includes('active') || el.className.includes('selected')
-    ).catch(() => false);
+    const vehicleTerms = ['honda', 'civic', 'vehicle', 'mileage', 'maintenance', 'monthly budget', 'card 5 of'];
+    const { found, matched } = await pageContainsAny(page, vehicleTerms);
+    const todayOk = await todayTabHasContent(page);
 
-    console.log(`BT-V01: Vehicle tab active: ${isActive}`);
-    console.log(`BT-V01: Page content length: ${body.trim().length} chars`);
-    console.log('BT-V01: Vehicle Status tab loaded ✓');
+    console.log(`BT-V01: Vehicle/today term: "${matched}" | today shell: ${todayOk}`);
+    expect(found || todayOk).toBe(true);
+    console.log('BT-V01: Vehicle card content confirmed ✓');
   });
 
   test('BT-V02: Basic cost trends visualization is present', async () => {
     await ensureOnDashboard(page);
-    await navigateToTab(page, 'Vehicle Status');
+    await navigateToTodayCard(page, 5);
 
     // Look for cost trend indicators — chart elements, cost text, or trend labels
     const costTerms = ['cost', 'trend', 'monthly', 'total', 'expense', '$', 'fuel', 'chart'];
@@ -572,7 +727,7 @@ test.describe('Budget Tier Feature Tests ($15/month)', () => {
 
   test('BT-V03: Fuel efficiency monitoring section is present', async () => {
     await ensureOnDashboard(page);
-    await navigateToTab(page, 'Vehicle Status');
+    await navigateToTodayCard(page, 5);
 
     // Wait for Vehicle tab content so we don't assert before the page is ready
     await page?.getByText(/Vehicle Dashboard|Total Mileage|Monthly Budget|Upcoming Maintenance|maintenance|No Vehicles|Add Vehicle/i).first().waitFor({ state: 'visible', timeout: 15_000 }).catch(() => {});
@@ -591,7 +746,7 @@ test.describe('Budget Tier Feature Tests ($15/month)', () => {
 
   test('BT-V04: Monthly summary cards are present', async () => {
     await ensureOnDashboard(page);
-    await navigateToTab(page, 'Vehicle Status');
+    await navigateToTodayCard(page, 5);
 
     // Summary cards contain cost figures
     const summaryTerms = ['monthly', 'summary', 'total', '$', 'cost per mile', 'per mile'];
@@ -612,7 +767,7 @@ test.describe('Budget Tier Feature Tests ($15/month)', () => {
 
   test('BT-V05: Peer comparison shows upgrade prompt for budget tier', async () => {
     await ensureOnDashboard(page);
-    await navigateToTab(page, 'Vehicle Status');
+    await navigateToTodayCard(page, 5);
 
     // Peer comparison should be locked with upgrade messaging
     const upgradeTerms = [
@@ -637,7 +792,7 @@ test.describe('Budget Tier Feature Tests ($15/month)', () => {
 
   test('BT-V06: ROI analysis shows upgrade prompt for budget tier', async () => {
     await ensureOnDashboard(page);
-    await navigateToTab(page, 'Vehicle Status');
+    await navigateToTodayCard(page, 5);
 
     const roiUpgradeTerms = [
       'upgrade', 'roi', 'return on investment', 'locked', 'unlock',
@@ -659,8 +814,7 @@ test.describe('Budget Tier Feature Tests ($15/month)', () => {
 
   test('BT-H01: Housing Location tab loads for budget tier', async () => {
     await ensureOnDashboard(page);
-    await navigateToTab(page, 'Housing Location');
-    await waitForHousingContent(page);
+    await navigateToHousingCard(page);
 
     const body = await page.locator('body').innerText();
     expect(body.trim().length).toBeGreaterThan(100);
@@ -676,8 +830,7 @@ test.describe('Budget Tier Feature Tests ($15/month)', () => {
 
   test('BT-H02: Rent vs buy calculator is present', async () => {
     await ensureOnDashboard(page);
-    await navigateToTab(page, 'Housing Location');
-    await waitForHousingContent(page);
+    await navigateToHousingCard(page);
 
     // Housing tab may show a rent-vs-buy calculator or, for budget, lease/rent info (Monthly Rent, Lease Information).
     const rvbTerms = [
@@ -699,8 +852,7 @@ test.describe('Budget Tier Feature Tests ($15/month)', () => {
 
   test('BT-H03: Down payment planning tool is present', async () => {
     await ensureOnDashboard(page);
-    await navigateToTab(page, 'Housing Location');
-    await waitForHousingContent(page);
+    await navigateToHousingCard(page);
     await page?.waitForTimeout(500);
 
     // Housing tab may show down-payment tool or, for budget, lease/activity content (planning context).
@@ -720,8 +872,7 @@ test.describe('Budget Tier Feature Tests ($15/month)', () => {
 
   test('BT-H04: Credit score improvement tracking is present', async () => {
     await ensureOnDashboard(page);
-    await navigateToTab(page, 'Housing Location');
-    await waitForHousingContent(page);
+    await navigateToHousingCard(page);
 
     const creditTerms = [
       'credit score', 'credit', 'fico', 'score', '680', '720',
@@ -736,8 +887,7 @@ test.describe('Budget Tier Feature Tests ($15/month)', () => {
 
   test('BT-H05: Mortgage pre-qualification estimation is present', async () => {
     await ensureOnDashboard(page);
-    await navigateToTab(page, 'Housing Location');
-    await waitForHousingContent(page);
+    await navigateToHousingCard(page);
 
     // Housing tab may show mortgage tool or, for budget, lease/activity content.
     const mortgageTerms = [
@@ -762,7 +912,7 @@ test.describe('Budget Tier Feature Tests ($15/month)', () => {
 
     let wellnessFound = false;
     const wellnessTerms = ['wellness', 'stress', 'activity', 'health', 'roi', 'spending pattern'];
-    await navigateToTab(page, 'Daily Outlook');
+    await navigateToTab(page, 'Today');
     const { found, matched } = await pageContainsAny(page, wellnessTerms);
     wellnessFound = found;
 
@@ -782,11 +932,11 @@ test.describe('Budget Tier Feature Tests ($15/month)', () => {
       'financial feel', 'score', 'wellness score', 'spending', 'pattern',
     ];
 
-    await navigateToTab(page, 'Overview');
+    await navigateToTab(page, 'Plans');
     let { found, matched } = await pageContainsAny(page, stressTerms);
 
     if (!found) {
-      await navigateToTab(page, 'Daily Outlook');
+      await navigateToTab(page, 'Today');
       ({ found, matched } = await pageContainsAny(page, stressTerms));
     }
 
@@ -807,12 +957,12 @@ test.describe('Budget Tier Feature Tests ($15/month)', () => {
       'Daily Outlook', 'milestones', 'check-in', 'insight', 'physical', 'mental', 'relational',
     ];
 
-    await navigateToTab(page, 'Overview');
+    await navigateToTab(page, 'Plans');
     await page.waitForTimeout(800);
     let { found, matched } = await pageContainsAny(page, roiTerms);
 
     if (!found) {
-      await navigateToTab(page, 'Daily Outlook');
+      await navigateToTab(page, 'Today');
       await page.waitForTimeout(800);
       ({ found, matched } = await pageContainsAny(page, roiTerms));
     }
@@ -830,11 +980,11 @@ test.describe('Budget Tier Feature Tests ($15/month)', () => {
       '3x', 'gym', 'workout', 'active', '$85', '$28',
     ];
 
-    await navigateToTab(page, 'Overview');
+    await navigateToTab(page, 'Plans');
     let { found, matched } = await pageContainsAny(page, activityTerms);
 
     if (!found) {
-      await navigateToTab(page, 'Daily Outlook');
+      await navigateToTab(page, 'Today');
       ({ found, matched } = await pageContainsAny(page, activityTerms));
     }
 
@@ -849,13 +999,20 @@ test.describe('Budget Tier Feature Tests ($15/month)', () => {
 
   test('BT-E01: Budget tier sees Financial Forecast upgrade prompt', async () => {
     await ensureOnDashboard(page);
-    await navigateToTab(page, 'Financial Forecast');
+    await navigateToTab(page, 'Forecast');
 
     const upgradeTerms = [
-      'upgrade', 'upgrade to mid', 'view plans', 'locked', 'unlock',
-      'mid-tier', '90-day forecast', 'chart',
+      'upgrade', 'upgrade to mid', 'view plans', 'view upgrade options', 'locked', 'unlock',
+      'mid-tier', '90-day forecast', '90-day balance forecast', 'chart',
     ];
-    const { found, matched } = await pageContainsAny(page, upgradeTerms);
+    let { found, matched } = await pageContainsAny(page, upgradeTerms);
+    if (!found) {
+      await addAllMocks(page);
+      await page.goto(`${BASE_URL}/dashboard/tools?tab=forecast`, NAV_OPTS);
+      await page.waitForLoadState('domcontentloaded');
+      await page.waitForTimeout(1500);
+      ({ found, matched } = await pageContainsAny(page, upgradeTerms));
+    }
 
     console.log(`BT-E01: Upgrade prompt term: "${matched}"`);
     expect(found).toBe(true);
@@ -866,7 +1023,7 @@ test.describe('Budget Tier Feature Tests ($15/month)', () => {
     await ensureOnDashboard(page);
 
     // Check Vehicle tab for professional-only features that should NOT appear
-    await navigateToTab(page, 'Vehicle Status');
+    await navigateToTodayCard(page, 5);
 
     const bodyText = (await page.locator('body').innerText()).toLowerCase();
 
@@ -890,7 +1047,7 @@ test.describe('Budget Tier Feature Tests ($15/month)', () => {
 
   test('BT-E03: Upgrade CTAs link to checkout or plans page', async () => {
     await ensureOnDashboard(page);
-    await navigateToTab(page, 'Financial Forecast');
+    await navigateToTab(page, 'Forecast');
 
     // Find upgrade buttons or links
     const upgradeBtns = [
