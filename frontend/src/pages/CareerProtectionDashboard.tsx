@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, lazy, Suspense } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import RecommendationTiers from '../components/RecommendationTiers';
 import DashboardErrorBoundary from '../components/DashboardErrorBoundary';
 import DashboardSkeleton from '../components/DashboardSkeleton';
@@ -15,7 +15,9 @@ import UserProfile from '../components/UserProfile';
 import { useAuth } from '../hooks/useAuth';
 import { useAnalytics } from '../hooks/useAnalytics';
 import { useDashboardStore } from '../stores/dashboardStore';
-import VehicleDashboard from '../components/VehicleDashboard';
+import VehicleAnalyticsRouter from '../components/VehicleAnalyticsRouter';
+import LocationIntelligenceMap from '../components/LocationIntelligenceMap';
+import AnalyticsDashboard from '../components/AnalyticsDashboard';
 import HousingLocationTile from '../components/HousingLocationTile';
 import OptimalLocationRouter from '../components/OptimalLocation/OptimalLocationRouter';
 import DashboardWellnessSection from '../components/DashboardWellnessSection';
@@ -35,7 +37,9 @@ type MainTabId =
   | 'housing'
   | 'housing-search'
   | 'housing-history'
-  | 'wellness';
+  | 'wellness'
+  | 'location'
+  | 'analytics';
 
 interface DashboardState {
   activeTab: MainTabId;
@@ -69,8 +73,9 @@ function storeTabToMainTab(storeTab: string): MainTabId {
     case 'overview':
       return 'plans';
     case 'location':
+      return 'location';
     case 'analytics':
-      return 'discover';
+      return 'analytics';
     case 'daily-outlook':
     case 'vehicles':
     case 'vehicle':
@@ -89,6 +94,10 @@ function mainTabToStoreTab(tab: MainTabId): LegacyStoreTab {
       return 'overview';
     case 'discover':
       return 'recommendations';
+    case 'location':
+      return 'location';
+    case 'analytics':
+      return 'analytics';
     case 'you':
       return 'overview';
     case 'today':
@@ -124,8 +133,9 @@ function legacyQueryTabToMainTab(tab: string): MainTabId | null {
     case 'life-ledger':
       return 'today';
     case 'location':
+      return 'location';
     case 'analytics':
-      return 'discover';
+      return 'analytics';
     default:
       return null;
   }
@@ -155,6 +165,24 @@ const WHISPER_PURPLE = '#FAF5FF';
 // reflect the F1-F3.7 modular onboarding architecture; reconciling that
 // belongs to the #99 sprint. Until then, do not open the overlay.
 const SUPPRESS_QUICK_SETUP_PREBETA = true;
+
+function MidTierUpgradeGate({ message }: { message: string }) {
+  return (
+    <div className="rounded-xl border border-[#E2E8F0] bg-white p-6 shadow-sm">
+      <p className="text-sm text-[#64748B]">{message}</p>
+      <Link
+        to="/plans"
+        className="mt-4 inline-flex min-h-11 items-center justify-center rounded-lg bg-[#5B2D8E] px-4 text-sm font-semibold text-white hover:opacity-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5B2D8E] focus-visible:ring-offset-2"
+      >
+        See plans
+      </Link>
+    </div>
+  );
+}
+
+function hasMidTierAccess(tier: AuthUserTier | null): boolean {
+  return tier === 'mid_tier' || tier === 'professional';
+}
 
 const CareerProtectionDashboard: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -480,8 +508,28 @@ const CareerProtectionDashboard: React.FC = () => {
 
           {dashboardState.activeTab === 'vehicle' && (
             <CardJobHome cardId="vehicle" onBack={handleDrillBack}>
-              <VehicleDashboard hideHeader />
+              <VehicleAnalyticsRouter userTier={userTier} rawUserTier={user?.tier} />
             </CardJobHome>
+          )}
+
+          {dashboardState.activeTab === 'location' && (
+            <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+              {hasMidTierAccess(userTier) ? (
+                <LocationIntelligenceMap />
+              ) : (
+                <MidTierUpgradeGate message="Location intelligence is available on Mid-tier and above." />
+              )}
+            </div>
+          )}
+
+          {dashboardState.activeTab === 'analytics' && (
+            <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+              {hasMidTierAccess(userTier) ? (
+                <AnalyticsDashboard />
+              ) : (
+                <MidTierUpgradeGate message="Career analytics are available on Mid-tier and above." />
+              )}
+            </div>
           )}
 
           {dashboardState.activeTab === 'housing' && (
