@@ -1,7 +1,8 @@
-"""Notification dispatcher — email digests via SendGrid, SMS via Twilio."""
+"""Notification dispatcher — email digests via Resend, SMS via Twilio."""
 
 import logging
 import os
+import requests
 from datetime import date, datetime, timezone
 
 from storage import db
@@ -58,8 +59,8 @@ def _format_lead_block(lead: dict) -> str:
     return "\n".join(lines)
 
 
-def _sendgrid_available() -> bool:
-    return bool(os.getenv("SENDGRID_API_KEY"))
+def _resend_available() -> bool:
+    return bool(os.getenv("RESEND_API_KEY")) and bool(os.getenv("NOTIFICATION_EMAIL"))
 
 
 def _twilio_available() -> bool:
@@ -72,28 +73,38 @@ def _twilio_available() -> bool:
 
 
 def _send_email(subject: str, body: str) -> bool:
-    """Send plain-text email via SendGrid. Returns True on success."""
-    try:
-        from sendgrid import SendGridAPIClient
-        from sendgrid.helpers.mail import Mail
+    """Send plain-text email via Resend. Returns True on success."""
+    api_key = os.getenv("RESEND_API_KEY")
+    from_email = os.getenv("RESEND_FROM_EMAIL", "Mingus <notifications@mingusapp.com>")
+    to_email = os.getenv("NOTIFICATION_EMAIL")
 
-        message = Mail(
-            from_email=os.getenv("NOTIFICATION_EMAIL"),
-            to_emails=os.getenv("NOTIFICATION_EMAIL"),
-            subject=subject,
-            plain_text_content=body,
-        )
-        sg = SendGridAPIClient(os.getenv("SENDGRID_API_KEY"))
-        response = sg.send(message)
-        if response.status_code not in (200, 201, 202):
-            logger.error(
-                "SendGrid returned unexpected status %s", response.status_code
-            )
-            return False
-        logger.info("Email sent: %s", subject)
+    if not api_key or not to_email:
+        print(body)
+        logger.info("Resend not configured — digest printed to console")
         return True
+
+    try:
+        response = requests.post(
+            "https://api.resend.com/emails",
+            headers={
+                "Authorization": f"Bearer {api_key}",
+                "Content-Type": "application/json",
+            },
+            json={
+                "from": from_email,
+                "to": [to_email],
+                "subject": subject,
+                "text": body,
+            },
+        )
+        if response.status_code in (200, 201):
+            logger.info("Email sent via Resend: %s", subject)
+            return True
+        else:
+            logger.error("Resend error: %s %s", response.status_code, response.text)
+            return False
     except Exception as exc:
-        logger.error("SendGrid send failed: %s", exc)
+        logger.error("Resend request failed: %s", exc)
         return False
 
 
@@ -147,9 +158,9 @@ def send_daily_digest() -> bool:
 
     body = "\n".join(body_parts)
 
-    if not _sendgrid_available():
+    if not _resend_available():
         print(body)
-        logger.info("SENDGRID_API_KEY not set — digest printed to console")
+        logger.info("Resend not configured — digest printed to console")
         # Still mark as notified so they don't pile up
         lead_ids = [str(l["id"]) for l in digest_leads if l.get("id")]
         try:
@@ -189,9 +200,9 @@ def send_weekly_ads_brief(brief_dict: dict) -> bool:
     footer = "\n\nLog in to ads.reddit.com to activate this brief."
     body = body + footer
 
-    if not _sendgrid_available():
+    if not _resend_available():
         print(body)
-        logger.info("SENDGRID_API_KEY not set — ads brief printed to console")
+        logger.info("Resend not configured — ads brief printed to console")
         return True
 
     return _send_email(subject, body)
@@ -256,7 +267,7 @@ def main():
         # Already printed inside send_daily_digest
         pass
     elif result:
-        if _sendgrid_available():
+        if _resend_available():
             print("Digest sent")
         else:
             print("Digest printed to console")

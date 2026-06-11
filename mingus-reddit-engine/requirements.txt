@@ -2,7 +2,6 @@ anthropic
 psycopg2-binary
 python-dotenv
 apscheduler
-sendgrid
 twilio
 playwright
 requests
