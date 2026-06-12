@@ -204,6 +204,54 @@ def _apply_llm_classification_from_resume(
         db.session.commit()
 
 
+def _apply_employer_auto_resolution_from_resume(
+    cp: CareerProfile, result: dict
+) -> bool:
+    """
+    Populate employer_name_text / employer_cik from the newest parsed experience company.
+    Returns True when a CIK was written; never raises.
+    """
+    parsed_data = result.get('parsed_data') or {}
+    experience = parsed_data.get('experience') or []
+    if not experience:
+        return False
+
+    first = experience[0] or {}
+    company = (first.get('company') or '').strip()
+    if not company:
+        return False
+
+    employer_auto_resolved = False
+    try:
+        dirty = False
+        if not (cp.employer_name_text or '').strip():
+            cp.employer_name_text = company[:255]
+            dirty = True
+
+        if not cp.employer_cik:
+            from backend.services.sec_edgar_client import SecEdgarClient
+
+            matches = SecEdgarClient().resolve_cik(company)
+            if matches:
+                cik_raw = matches[0].get('cik')
+                if cik_raw:
+                    cp.employer_cik = str(cik_raw).strip().zfill(10)[:10]
+                    employer_auto_resolved = True
+                    dirty = True
+
+        if dirty:
+            db.session.commit()
+    except Exception as exc:
+        logger.warning(
+            'Employer auto-resolution failed for user_id=%s: %s',
+            cp.user_id,
+            exc,
+        )
+        db.session.rollback()
+
+    return employer_auto_resolved
+
+
 @career_resume_api.route('/income-percentile', methods=['GET', 'OPTIONS'])
 @cross_origin()
 @require_auth
@@ -308,10 +356,12 @@ def upload_career_resume():
         parsed = _extract_parsed_fields(result, file_bytes, original_filename)
         cp = _persist_resume_on_profile(user, file_path, result)
         _apply_llm_classification_from_resume(cp, user, parsed)
+        employer_auto_resolved = _apply_employer_auto_resolution_from_resume(cp, result)
         return jsonify({
             'success': True,
             'file_path': file_path,
             'parsed': parsed,
+            'employer_auto_resolved': employer_auto_resolved,
             'raw_advanced_analytics': result.get('advanced_analytics') or {},
             'message': 'Resume uploaded and parsed successfully',
         }), 200

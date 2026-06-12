@@ -137,6 +137,10 @@ def _person_core(p: VibeTrackedPerson) -> dict:
         "nickname": p.nickname,
         "card_type": getattr(p, "card_type", None) or "person",
         "emoji": p.emoji,
+        "relationship_type": p.relationship_type,
+        "estimated_monthly_cost": float(p.estimated_monthly_cost)
+        if p.estimated_monthly_cost is not None
+        else None,
         "created_at": p.created_at.isoformat() + "Z" if p.created_at else None,
         "last_assessed_at": p.last_assessed_at.isoformat() + "Z"
         if p.last_assessed_at
@@ -481,6 +485,30 @@ def create_person():
     if card_type not in ("person", "kids", "social", "family"):
         return jsonify({"error": "card_type must be person, kids, social, or family"}), 400
 
+    relationship_type = None
+    if "relationship_type" in body:
+        rt = body.get("relationship_type")
+        if rt is None:
+            relationship_type = None
+        elif not isinstance(rt, str):
+            return jsonify({"error": "relationship_type must be a string or null"}), 400
+        else:
+            rt = rt.strip()
+            if len(rt) > 50:
+                return jsonify({"error": "relationship_type must be at most 50 characters"}), 400
+            relationship_type = rt or None
+
+    estimated_monthly_cost = None
+    if "estimated_monthly_cost" in body:
+        emc = body.get("estimated_monthly_cost")
+        if emc is None:
+            estimated_monthly_cost = None
+        else:
+            try:
+                estimated_monthly_cost = float(emc)
+            except (TypeError, ValueError):
+                return jsonify({"error": "estimated_monthly_cost must be a number or null"}), 400
+
     prior_ct = _latest_archived_connection_trend_for_nickname(user.id, nickname)
 
     person = VibeTrackedPerson(
@@ -488,6 +516,8 @@ def create_person():
         nickname=nickname,
         card_type=card_type,
         emoji=emoji,
+        relationship_type=relationship_type,
+        estimated_monthly_cost=estimated_monthly_cost,
     )
     db.session.add(person)
     try:
@@ -587,9 +617,47 @@ def patch_person(person_id: uuid.UUID):
             p.emoji = em
         else:
             return jsonify({"error": "emoji must be a string or null"}), 400
+    if "relationship_type" in body:
+        rt = body.get("relationship_type")
+        if rt is None:
+            p.relationship_type = None
+        elif not isinstance(rt, str):
+            return jsonify({"error": "relationship_type must be a string or null"}), 400
+        else:
+            rt = rt.strip()
+            if len(rt) > 50:
+                return jsonify({"error": "relationship_type must be at most 50 characters"}), 400
+            p.relationship_type = rt or None
+    if "estimated_monthly_cost" in body:
+        emc = body.get("estimated_monthly_cost")
+        if emc is None:
+            p.estimated_monthly_cost = None
+        else:
+            try:
+                p.estimated_monthly_cost = float(emc)
+            except (TypeError, ValueError):
+                return jsonify({"error": "estimated_monthly_cost must be a number or null"}), 400
+    if "llm_opt_out" in body:
+        opt = body.get("llm_opt_out")
+        if not isinstance(opt, bool):
+            return jsonify({"error": "llm_opt_out must be a boolean"}), 400
+        p.llm_opt_out = opt
 
-    if "nickname" not in body and "emoji" not in body:
-        return jsonify({"error": "Provide nickname and/or emoji"}), 400
+    if not any(
+        k in body
+        for k in (
+            "nickname",
+            "emoji",
+            "relationship_type",
+            "estimated_monthly_cost",
+            "llm_opt_out",
+        )
+    ):
+        return jsonify(
+            {
+                "error": "Provide nickname, emoji, relationship_type, estimated_monthly_cost, and/or llm_opt_out"
+            }
+        ), 400
 
     try:
         db.session.commit()

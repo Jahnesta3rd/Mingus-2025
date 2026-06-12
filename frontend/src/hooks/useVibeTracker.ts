@@ -26,6 +26,8 @@ export interface VibeTrackedPerson {
   nickname: string;
   card_type?: VibeCardType;
   emoji: string | null;
+  relationship_type?: string | null;
+  estimated_monthly_cost?: number | null;
   created_at: string | null;
   last_assessed_at: string | null;
   is_archived: boolean;

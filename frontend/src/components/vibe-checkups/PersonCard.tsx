@@ -17,6 +17,7 @@ import type {
 import EventRail from '../roster/EventRail';
 import ConnectionTrendBadge from '../roster/ConnectionTrendBadge';
 import ConnectionTrendAssessmentModal from '../roster/ConnectionTrendAssessmentModal';
+import { RelationshipIntelPanel } from '../people/RelationshipIntelPanel';
 
 function formatConnectionDaysAgo(iso: string | null): string {
   if (!iso) return '';
@@ -506,6 +507,7 @@ export function PersonCard({
               </button>
             </p>
           ) : null}
+          <RelationshipIntelPanel personId={person.id} userTier={userTier} />
         </div>
       ) : null}
 

@@ -2,7 +2,7 @@
 """Life Ready Score: weighted composite across ledger, wellness, finances, and cash-flow stability.
 
 Eight nominal components (Financial, Roof, Career, Vibe, Vehicle, Body, Wellness, Stability);
-Career is inactive until a metric exists — its weight is excluded and active weights renormalize to 1.0.
+all eight are active; nominal weights sum to 1.0.
 """
 
 from __future__ import annotations
@@ -13,17 +13,20 @@ from typing import Any
 
 from sqlalchemy import text
 
+from backend.models.career_profile import CareerProfile
 from backend.models.database import db
+from backend.models.employer import Employer
 from backend.models.financial_setup import RecurringExpense
 from backend.models.life_correlation import LifeScoreSnapshot
 from backend.models.life_ledger import LifeLedgerProfile
 from backend.models.transaction_schedule import IncomeStream, ScheduledExpense
 from backend.models.user_models import User
 from backend.models.wellness import WeeklyCheckin, WellnessScore
+from backend.services.employer_health_scoring import get_latest_snapshot
 
 logger = logging.getLogger(__name__)
 
-# Nominal Whole-Life weights (8 slots). Career is inactive: excluded from ``_ACTIVE_WEIGHT_SUM``.
+# Nominal Whole-Life weights (8 slots); sum to 1.0.
 _NOMINAL_WEIGHTS: dict[str, float] = {
     "financial": 0.20,
     "roof": 0.20,
@@ -37,6 +40,7 @@ _NOMINAL_WEIGHTS: dict[str, float] = {
 _ACTIVE_COMPONENT_KEYS: tuple[str, ...] = (
     "financial",
     "roof",
+    "career",
     "vibe",
     "vehicle",
     "body",
@@ -44,6 +48,14 @@ _ACTIVE_COMPONENT_KEYS: tuple[str, ...] = (
     "stability",
 )
 _ACTIVE_WEIGHT_SUM = sum(_NOMINAL_WEIGHTS[k] for k in _ACTIVE_COMPONENT_KEYS)
+
+_SATISFACTION_TO_CAREER_SCORE: dict[int, float] = {
+    1: 20.0,
+    2: 35.0,
+    3: 50.0,
+    4: 65.0,
+    5: 80.0,
+}
 
 _NEUTRAL = 50
 _TREND_EPS = 3
@@ -171,6 +183,34 @@ def _stability_score(user_id: int) -> float:
     return 100.0 if _stability_has_income_and_expense(user_id) else 10.0
 
 
+def _get_career_component_score(user_id: int) -> float:
+    """Career slot: employer health score when CIK resolved, else satisfaction map, else neutral."""
+    cp = CareerProfile.query.filter_by(user_id=user_id).first()
+    if cp is None:
+        return float(_NEUTRAL)
+
+    cik = (cp.employer_cik or "").strip()
+    if cik:
+        cik_padded = cik.zfill(10)
+        employer = db.session.query(Employer).filter_by(cik=cik_padded).first()
+        if employer is not None:
+            snapshot = get_latest_snapshot(employer.id, db_session=db.session)
+            if snapshot is not None and snapshot.score is not None:
+                try:
+                    return max(0.0, min(100.0, float(snapshot.score)))
+                except (TypeError, ValueError):
+                    logger.warning(
+                        "life_ready invalid employer health score user_id=%s cik=%s",
+                        user_id,
+                        cik_padded,
+                    )
+
+    if cp.satisfaction is not None:
+        return _SATISFACTION_TO_CAREER_SCORE.get(int(cp.satisfaction), float(_NEUTRAL))
+
+    return float(_NEUTRAL)
+
+
 def _assessment_results_meaningful(raw: Any) -> bool:
     """True when user_profiles.assessment_results has usable content (not NULL / empty)."""
     if raw is None:
@@ -243,13 +283,14 @@ def _components_payload(
     *,
     financial: float,
     roof: float,
+    career: float,
     vibe: float,
     vehicle: float,
     body: float,
     wellness: float,
     stability: float,
 ) -> dict[str, Any]:
-    """Response order matches product naming; career is the inactive socket (no score, not in blend)."""
+    """Response order matches product naming; all eight slots are active."""
 
     def _active_slot(key: str, score: float) -> dict[str, Any]:
         return {
@@ -261,11 +302,7 @@ def _components_payload(
     return {
         "financial": _active_slot("financial", financial),
         "roof": _active_slot("roof", roof),
-        "career": {
-            "score": None,
-            "weight": _NOMINAL_WEIGHTS["career"],
-            "active": False,
-        },
+        "career": _active_slot("career", career),
         "vibe": _active_slot("vibe", vibe),
         "vehicle": _active_slot("vehicle", vehicle),
         "body": _active_slot("body", body),
@@ -314,16 +351,18 @@ def _weighted_total(
     *,
     financial: float,
     roof: float,
+    career: float,
     vibe: float,
     vehicle: float,
     body: float,
     wellness: float,
     stability: float,
 ) -> int:
-    """Weighted mean over active components only; nominal weights renormalize (inactive career omitted)."""
+    """Weighted mean over all eight active components; nominal weights sum to 1.0."""
     scores = {
         "financial": financial,
         "roof": roof,
+        "career": career,
         "vibe": vibe,
         "vehicle": vehicle,
         "body": body,
@@ -359,9 +398,11 @@ def _score_from_snapshot(snap: LifeScoreSnapshot) -> int:
     )
     financial = _financial_from_snapshot_rate(_coerce_float(snap.monthly_savings_rate))
     stability = float(_NEUTRAL)
+    career = float(_NEUTRAL)
     return _weighted_total(
         financial=financial,
         roof=roof,
+        career=career,
         vibe=vibe,
         vehicle=vehicle,
         body=body,
@@ -391,6 +432,7 @@ def _headline(
     *,
     financial: float,
     roof: float,
+    career: float,
     vibe: float,
     vehicle: float,
     body: float,
@@ -404,6 +446,7 @@ def _headline(
         "vehicle": vehicle,
         "wellness": wellness,
         "financial": financial,
+        "career": career,
         "stability": stability,
     }
     lo = min(raw, key=raw.get)
@@ -425,6 +468,8 @@ def _headline(
         return "Your weekly wellness habits are carrying your overall readiness."
     if hi == "financial":
         return "Your savings picture is the strongest pillar of your readiness right now."
+    if hi == "career":
+        return "Your career readiness is your strongest pillar right now."
     if hi == "stability":
         return "Having income and expenses mapped out is anchoring your readiness."
     return "You're balanced across all areas. Keep the momentum."
@@ -433,7 +478,8 @@ def _headline(
 def compute_life_ready_score(user_id: str) -> dict[str, Any]:
     """
     Composite 0–100 score with breakdown, trend vs latest LifeScoreSnapshot, and headline.
-    Missing inputs for *active* components use neutral 50. Career is inactive and never filled.
+    Missing inputs for *active* components use neutral 50. Career uses employer health,
+    satisfaction map, or neutral 50.
 
     When fewer than ``_MIN_PILLARS_FOR_SCORE`` of four pillars (ledger assessments including
     vibe/body/roof/vehicle + synced assessments, wellness, financial, stability) have real
@@ -450,6 +496,7 @@ def compute_life_ready_score(user_id: str) -> dict[str, Any]:
             _components_payload(
                 financial=n,
                 roof=n,
+                career=n,
                 vibe=n,
                 vehicle=n,
                 body=n,
@@ -487,10 +534,12 @@ def compute_life_ready_score(user_id: str) -> dict[str, Any]:
     wellness = _component_or_neutral(_wellness_input_for_user(uid))
     financial = _component_or_neutral(_financial_health_from_profile(ext_user_id))
     stability = _stability_score(uid)
+    career = _get_career_component_score(uid)
 
     components = _components_payload(
         financial=financial,
         roof=roof,
+        career=career,
         vibe=vibe,
         vehicle=vehicle,
         body=body,
@@ -504,6 +553,7 @@ def compute_life_ready_score(user_id: str) -> dict[str, Any]:
     life_ready_score = _weighted_total(
         financial=financial,
         roof=roof,
+        career=career,
         vibe=vibe,
         vehicle=vehicle,
         body=body,
@@ -514,6 +564,7 @@ def compute_life_ready_score(user_id: str) -> dict[str, Any]:
     headline = _headline(
         financial=financial,
         roof=roof,
+        career=career,
         vibe=vibe,
         vehicle=vehicle,
         body=body,

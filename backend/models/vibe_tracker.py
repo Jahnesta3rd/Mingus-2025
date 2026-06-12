@@ -53,6 +53,7 @@ class VibeTrackedPerson(db.Model):
     )
     archived_at = db.Column(db.DateTime, nullable=True)
     assessment_count = db.Column(db.Integer, nullable=False, default=0)
+    llm_opt_out = db.Column(db.Boolean, nullable=False, default=False)
 
     def __repr__(self):
         return f"<VibeTrackedPerson id={self.id!r} nickname={self.nickname!r} user_id={self.user_id!r}>"

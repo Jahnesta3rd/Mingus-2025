@@ -68,6 +68,7 @@ from backend.api.user_endpoints import user_bp
 from backend.api.financial_setup_api import financial_setup_bp
 from backend.api.career_endpoints import career_bp
 from backend.api.career_resume_endpoints import career_resume_api
+from backend.api.relationship_intelligence_endpoints import rel_intel_api
 from backend.app import register_backend_blueprints
 from backend.routes.vibe_checkups import vibe_checkups_bp
 
@@ -286,6 +287,7 @@ app.register_blueprint(user_bp)
 app.register_blueprint(financial_setup_bp)
 app.register_blueprint(career_bp)
 app.register_blueprint(career_resume_api)
+app.register_blueprint(rel_intel_api)
 register_backend_blueprints(app)
 app.register_blueprint(vibe_checkups_bp, url_prefix='/api/vibe-checkups')
 

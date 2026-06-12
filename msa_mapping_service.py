@@ -47,6 +47,25 @@ class ZipcodeToMSAMapper:
     returning the closest MSA if within 75 miles, or "National Average" if outside all radii.
     """
     
+    # CBSA numeric codes for job_postings msa_code lookups
+    MSA_CBSA_CODES = {
+        "New York": "35620",
+        "Dallas": "19100",
+        "Chicago": "16980",
+        "Los Angeles": "31080",
+        "San Francisco": "41860",
+        "Atlanta": "12060",
+        "Boston": "14460",
+        "Houston": "26420",
+        "Phoenix": "38060",
+        "Washington DC": "47900",
+        "Detroit": "17460",
+        "Kansas City": "28140",
+        "Miami": "33100",
+        "Minneapolis": "33460",
+        "San Diego": "41740",
+    }
+
     # MSA Centers with coordinates and pricing multipliers
     MSA_CENTERS = [
         MSACenter("Atlanta", 33.7490, -84.3880, 0.95),
@@ -58,7 +77,12 @@ class ZipcodeToMSAMapper:
         MSACenter("Chicago", 41.8781, -87.6298, 1.08),
         MSACenter("Charlotte", 35.2271, -80.8431, 0.88),
         MSACenter("Miami", 25.7617, -80.1918, 1.12),
-        MSACenter("Baltimore", 39.2904, -76.6122, 1.02)
+        MSACenter("Baltimore", 39.2904, -76.6122, 1.02),
+        MSACenter("Los Angeles", 34.0522, -118.2437, 1.20),
+        MSACenter("San Francisco", 37.7749, -122.4194, 1.35),
+        MSACenter("Phoenix", 33.4484, -112.0740, 0.90),
+        MSACenter("Minneapolis", 44.9778, -93.2650, 1.02),
+        MSACenter("San Diego", 32.7157, -117.1611, 1.10),
     ]
     
     # Maximum distance in miles for MSA assignment
@@ -194,6 +218,66 @@ class ZipcodeToMSAMapper:
             "21208": ZipcodeCoordinates("21208", 39.2904, -76.6122, "Baltimore", "MD"),
             "21209": ZipcodeCoordinates("21209", 39.2904, -76.6122, "Baltimore", "MD"),
             "21210": ZipcodeCoordinates("21210", 39.2904, -76.6122, "Baltimore", "MD"),
+
+            # Los Angeles area
+            "90001": ZipcodeCoordinates("90001", 34.0522, -118.2437, "Los Angeles", "CA"),
+            "90002": ZipcodeCoordinates("90002", 34.0522, -118.2437, "Los Angeles", "CA"),
+            "90003": ZipcodeCoordinates("90003", 34.0522, -118.2437, "Los Angeles", "CA"),
+            "90004": ZipcodeCoordinates("90004", 34.0522, -118.2437, "Los Angeles", "CA"),
+            "90005": ZipcodeCoordinates("90005", 34.0522, -118.2437, "Los Angeles", "CA"),
+            "90006": ZipcodeCoordinates("90006", 34.0522, -118.2437, "Los Angeles", "CA"),
+            "90007": ZipcodeCoordinates("90007", 34.0522, -118.2437, "Los Angeles", "CA"),
+            "90008": ZipcodeCoordinates("90008", 34.0522, -118.2437, "Los Angeles", "CA"),
+            "90009": ZipcodeCoordinates("90009", 34.0522, -118.2437, "Los Angeles", "CA"),
+            "90010": ZipcodeCoordinates("90010", 34.0522, -118.2437, "Los Angeles", "CA"),
+
+            # San Francisco area
+            "94101": ZipcodeCoordinates("94101", 37.7749, -122.4194, "San Francisco", "CA"),
+            "94102": ZipcodeCoordinates("94102", 37.7749, -122.4194, "San Francisco", "CA"),
+            "94103": ZipcodeCoordinates("94103", 37.7749, -122.4194, "San Francisco", "CA"),
+            "94104": ZipcodeCoordinates("94104", 37.7749, -122.4194, "San Francisco", "CA"),
+            "94105": ZipcodeCoordinates("94105", 37.7749, -122.4194, "San Francisco", "CA"),
+            "94106": ZipcodeCoordinates("94106", 37.7749, -122.4194, "San Francisco", "CA"),
+            "94107": ZipcodeCoordinates("94107", 37.7749, -122.4194, "San Francisco", "CA"),
+            "94108": ZipcodeCoordinates("94108", 37.7749, -122.4194, "San Francisco", "CA"),
+            "94109": ZipcodeCoordinates("94109", 37.7749, -122.4194, "San Francisco", "CA"),
+            "94110": ZipcodeCoordinates("94110", 37.7749, -122.4194, "San Francisco", "CA"),
+
+            # Phoenix area
+            "85001": ZipcodeCoordinates("85001", 33.4484, -112.0740, "Phoenix", "AZ"),
+            "85002": ZipcodeCoordinates("85002", 33.4484, -112.0740, "Phoenix", "AZ"),
+            "85003": ZipcodeCoordinates("85003", 33.4484, -112.0740, "Phoenix", "AZ"),
+            "85004": ZipcodeCoordinates("85004", 33.4484, -112.0740, "Phoenix", "AZ"),
+            "85005": ZipcodeCoordinates("85005", 33.4484, -112.0740, "Phoenix", "AZ"),
+            "85006": ZipcodeCoordinates("85006", 33.4484, -112.0740, "Phoenix", "AZ"),
+            "85007": ZipcodeCoordinates("85007", 33.4484, -112.0740, "Phoenix", "AZ"),
+            "85008": ZipcodeCoordinates("85008", 33.4484, -112.0740, "Phoenix", "AZ"),
+            "85009": ZipcodeCoordinates("85009", 33.4484, -112.0740, "Phoenix", "AZ"),
+            "85010": ZipcodeCoordinates("85010", 33.4484, -112.0740, "Phoenix", "AZ"),
+
+            # Minneapolis area
+            "55401": ZipcodeCoordinates("55401", 44.9778, -93.2650, "Minneapolis", "MN"),
+            "55402": ZipcodeCoordinates("55402", 44.9778, -93.2650, "Minneapolis", "MN"),
+            "55403": ZipcodeCoordinates("55403", 44.9778, -93.2650, "Minneapolis", "MN"),
+            "55404": ZipcodeCoordinates("55404", 44.9778, -93.2650, "Minneapolis", "MN"),
+            "55405": ZipcodeCoordinates("55405", 44.9778, -93.2650, "Minneapolis", "MN"),
+            "55406": ZipcodeCoordinates("55406", 44.9778, -93.2650, "Minneapolis", "MN"),
+            "55407": ZipcodeCoordinates("55407", 44.9778, -93.2650, "Minneapolis", "MN"),
+            "55408": ZipcodeCoordinates("55408", 44.9778, -93.2650, "Minneapolis", "MN"),
+            "55409": ZipcodeCoordinates("55409", 44.9778, -93.2650, "Minneapolis", "MN"),
+            "55410": ZipcodeCoordinates("55410", 44.9778, -93.2650, "Minneapolis", "MN"),
+
+            # San Diego area
+            "92101": ZipcodeCoordinates("92101", 32.7157, -117.1611, "San Diego", "CA"),
+            "92102": ZipcodeCoordinates("92102", 32.7157, -117.1611, "San Diego", "CA"),
+            "92103": ZipcodeCoordinates("92103", 32.7157, -117.1611, "San Diego", "CA"),
+            "92104": ZipcodeCoordinates("92104", 32.7157, -117.1611, "San Diego", "CA"),
+            "92105": ZipcodeCoordinates("92105", 32.7157, -117.1611, "San Diego", "CA"),
+            "92106": ZipcodeCoordinates("92106", 32.7157, -117.1611, "San Diego", "CA"),
+            "92107": ZipcodeCoordinates("92107", 32.7157, -117.1611, "San Diego", "CA"),
+            "92108": ZipcodeCoordinates("92108", 32.7157, -117.1611, "San Diego", "CA"),
+            "92109": ZipcodeCoordinates("92109", 32.7157, -117.1611, "San Diego", "CA"),
+            "92110": ZipcodeCoordinates("92110", 32.7157, -117.1611, "San Diego", "CA"),
         }
     
     def _validate_zipcode(self, zipcode: str) -> str:
@@ -317,7 +401,15 @@ class ZipcodeToMSAMapper:
             return ZipcodeCoordinates(zipcode, 25.7617, -80.1918, "Miami", "FL")
         elif 21000 <= zip_int <= 21999:  # Maryland area
             return ZipcodeCoordinates(zipcode, 39.2904, -76.6122, "Baltimore", "MD")
-        
+        elif 55000 <= zip_int <= 55999:  # Minnesota area
+            return ZipcodeCoordinates(zipcode, 44.9778, -93.2650, "Minneapolis", "MN")
+        elif 85000 <= zip_int <= 85999:  # Arizona area
+            return ZipcodeCoordinates(zipcode, 33.4484, -112.0740, "Phoenix", "AZ")
+        elif 92000 <= zip_int <= 92199:  # San Diego area
+            return ZipcodeCoordinates(zipcode, 32.7157, -117.1611, "San Diego", "CA")
+        elif 90000 <= zip_int <= 96999:  # California area (LA default; SF wins on distance for north CA)
+            return ZipcodeCoordinates(zipcode, 34.0522, -118.2437, "Los Angeles", "CA")
+
         return None
     
     @lru_cache(maxsize=1000)
@@ -424,7 +516,25 @@ class ZipcodeToMSAMapper:
                 return msa_center.pricing_multiplier
         
         return 1.0
-    
+
+    def get_cbsa_code_for_zipcode(self, zipcode: str) -> str:
+        """
+        Get the CBSA numeric code for a zipcode's MSA.
+
+        Args:
+            zipcode: 5-digit US zipcode string
+
+        Returns:
+            CBSA code string, or empty string if unresolved or National Average
+        """
+        msa_result = self.get_msa_for_zipcode(zipcode)
+        msa_name = msa_result["msa"]
+
+        if msa_name == "National Average":
+            return ""
+
+        return self.MSA_CBSA_CODES.get(msa_name, "")
+
     def get_all_msa_centers(self) -> List[MSACenter]:
         """
         Get all MSA centers with their coordinates and pricing multipliers.
@@ -469,6 +579,20 @@ def get_msa_for_zipcode(zipcode: str) -> Dict[str, Union[str, float, Optional[st
     """
     mapper = ZipcodeToMSAMapper()
     return mapper.get_msa_for_zipcode(zipcode)
+
+
+def get_cbsa_for_zipcode(zipcode: str) -> str:
+    """
+    Convenience function to get CBSA code for a zipcode.
+
+    Args:
+        zipcode: 5-digit US zipcode string
+
+    Returns:
+        CBSA code string, or empty string if unresolved
+    """
+    mapper = ZipcodeToMSAMapper()
+    return mapper.get_cbsa_code_for_zipcode(zipcode)
 
 
 def get_pricing_multiplier(zipcode: str) -> float:
