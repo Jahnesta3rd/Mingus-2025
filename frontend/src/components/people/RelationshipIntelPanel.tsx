@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { csrfHeaders } from '../../utils/csrfHeaders';
 
 export type RelationshipIntelPanelProps = {
@@ -6,7 +6,9 @@ export type RelationshipIntelPanelProps = {
   userTier: string;
 };
 
-type Status = 'idle' | 'loading' | 'loaded' | 'error' | 'opted_out';
+const UPSELL_COPY_FALLBACK = 'Upgrade to Mid for AI-generated relationship insights.';
+
+type Status = 'idle' | 'loading' | 'loaded' | 'error' | 'opted_out' | 'credit_exhausted';
 
 type StayOrGoDirection = 'building' | 'stable' | 'fading';
 
@@ -63,6 +65,44 @@ export function RelationshipIntelPanel({ personId, userTier }: RelationshipIntel
   const [status, setStatus] = useState<Status>('idle');
   const [data, setData] = useState<NarrativeData | null>(null);
   const [optingOut, setOptingOut] = useState(false);
+  const [upsellCopy, setUpsellCopy] = useState(UPSELL_COPY_FALLBACK);
+  const [upsellLoading, setUpsellLoading] = useState(userTier === 'budget');
+
+  useEffect(() => {
+    if (userTier !== 'budget') return;
+
+    let cancelled = false;
+    setUpsellLoading(true);
+
+    void (async () => {
+      try {
+        const res = await fetch('/api/relationship-intelligence/upsell-copy', {
+          method: 'GET',
+          credentials: 'include',
+          headers: jsonAuthHeaders(),
+        });
+        if (!res.ok) {
+          throw new Error('upsell copy fetch failed');
+        }
+        const json = (await res.json()) as { copy?: string };
+        if (!cancelled) {
+          setUpsellCopy(json.copy?.trim() || UPSELL_COPY_FALLBACK);
+        }
+      } catch {
+        if (!cancelled) {
+          setUpsellCopy(UPSELL_COPY_FALLBACK);
+        }
+      } finally {
+        if (!cancelled) {
+          setUpsellLoading(false);
+        }
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [userTier]);
 
   const fetchInsight = useCallback(async () => {
     setStatus('loading');
@@ -73,6 +113,10 @@ export function RelationshipIntelPanel({ personId, userTier }: RelationshipIntel
         headers: jsonAuthHeaders(),
         body: JSON.stringify({ person_id: personId }),
       });
+      if (res.status === 402) {
+        setStatus('credit_exhausted');
+        return;
+      }
       if (!res.ok) {
         setStatus('error');
         return;
@@ -114,10 +158,11 @@ export function RelationshipIntelPanel({ personId, userTier }: RelationshipIntel
   if (userTier === 'budget') {
     return (
       <div className="mt-3 rounded-lg border border-[#2a2030] bg-[#1a1520]/60 px-3 py-3">
-        <p className="text-sm leading-relaxed text-[#9a8f7e]">
-          Upgrade to Mid to get an AI read on this relationship — cost patterns, energy direction,
-          and what your check-ins actually say.
-        </p>
+        {upsellLoading ? (
+          <p className="text-sm text-[#9a8f7e]">Loading...</p>
+        ) : (
+          <p className="text-sm leading-relaxed text-[#9a8f7e]">{upsellCopy}</p>
+        )}
       </div>
     );
   }
@@ -138,7 +183,7 @@ export function RelationshipIntelPanel({ personId, userTier }: RelationshipIntel
           className="min-h-11 rounded-lg border border-[#3d3344] bg-[#1a1520] px-3 py-2 text-sm font-semibold text-[#A78BFA] transition hover:border-[#A78BFA]/40 hover:bg-[#241c2a] sm:min-h-0"
           onClick={() => void fetchInsight()}
         >
-          See AI insight
+          Here are our thoughts
         </button>
       </div>
     );
@@ -149,6 +194,20 @@ export function RelationshipIntelPanel({ personId, userTier }: RelationshipIntel
       <div className="mt-3 flex items-center gap-2 text-sm text-[#9a8f7e]">
         <LoadingSpinner />
         <span>Loading insight…</span>
+      </div>
+    );
+  }
+
+  if (status === 'credit_exhausted') {
+    return (
+      <div className="mt-3 rounded-lg border border-amber-500/20 bg-[#1a1520]/60 px-3 py-3">
+        <p className="text-sm font-semibold text-amber-200/90">Monthly insights used up</p>
+        <p className="mt-2 text-sm leading-relaxed text-[#9a8f7e]">
+          You&apos;ve used your 10 AI insights for this month. Upgrade to Pro for unlimited.
+        </p>
+        <span className="mt-3 inline-block text-xs font-semibold text-[#A78BFA] underline underline-offset-2">
+          Learn about Pro
+        </span>
       </div>
     );
   }
