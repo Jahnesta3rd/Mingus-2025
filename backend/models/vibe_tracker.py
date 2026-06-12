@@ -123,3 +123,30 @@ class VibePersonTrend(db.Model):
 
     def __repr__(self):
         return f"<VibePersonTrend id={self.id!r} tracked_person_id={self.tracked_person_id!r} direction={self.trend_direction!r}>"
+
+
+class LlmNarrativeCredit(db.Model):
+    """Monthly LLM narrative credit bucket per user (mid-tier metering)."""
+
+    __tablename__ = "llm_narrative_credits"
+    __table_args__ = (
+        UniqueConstraint("user_id", "month_key"),
+        Index("idx_llm_narrative_credits_user_month", "user_id", "month_key"),
+    )
+
+    id = db.Column(PG_UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id = db.Column(
+        db.Integer,
+        db.ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    month_key = db.Column(db.String(7), nullable=False)
+    credits_used = db.Column(db.Integer, nullable=False, default=0)
+    credits_limit = db.Column(db.Integer, nullable=False, default=10)
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+
+    def __repr__(self):
+        return (
+            f"<LlmNarrativeCredit user_id={self.user_id!r} month_key={self.month_key!r} "
+            f"used={self.credits_used!r}/{self.credits_limit!r}>"
+        )

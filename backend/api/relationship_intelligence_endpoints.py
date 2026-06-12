@@ -15,6 +15,7 @@ from backend.services.relationship_intelligence_service import (
     generate_relationship_narrative,
     generate_roster_insight,
     generate_stay_or_go,
+    generate_upsell_copy,
 )
 
 rel_intel_api = Blueprint(
@@ -41,6 +42,33 @@ def _person_for_user(user: User, person_id: str) -> VibeTrackedPerson | None:
     except (ValueError, TypeError, AttributeError):
         return None
     return VibeTrackedPerson.query.filter_by(id=pid, user_id=user.id).first()
+
+
+def _credit_exhausted_response():
+    return (
+        jsonify(
+            {
+                "error": "credit_exhausted",
+                "message": "Monthly narrative limit reached. Upgrade to Pro for unlimited insights.",
+            }
+        ),
+        402,
+    )
+
+
+def _is_credit_exhausted(result: dict | None) -> bool:
+    return isinstance(result, dict) and bool(result.get("credit_exhausted"))
+
+
+@rel_intel_api.route("/upsell-copy", methods=["GET"])
+@require_auth
+def get_upsell_copy():
+    user, err = _current_user()
+    if err:
+        return err
+
+    copy = generate_upsell_copy(str(user.user_id))
+    return jsonify({"copy": copy}), 200
 
 
 @rel_intel_api.route("/narrative", methods=["POST"])
@@ -76,8 +104,16 @@ def post_narrative():
 
     ext_user_id = str(user.user_id)
     narrative = generate_relationship_narrative(ext_user_id, person_id)
+    if _is_credit_exhausted(narrative):
+        return _credit_exhausted_response()
+
     stay_or_go = generate_stay_or_go(ext_user_id, person_id)
+    if _is_credit_exhausted(stay_or_go):
+        return _credit_exhausted_response()
+
     cost = generate_cost_narrative(ext_user_id, person_id)
+    if _is_credit_exhausted(cost):
+        return _credit_exhausted_response()
 
     response: dict = {"person_id": person_id}
     if narrative:

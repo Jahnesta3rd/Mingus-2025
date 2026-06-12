@@ -5,7 +5,7 @@
 # [x] No real nicknames in any prompt string
 # [x] extra_headers ZDR present on every client.messages.create call
 # [x] No Redis.set or cache write anywhere in this file
-# [x] No db.session.add or db.session.commit anywhere in this file
+# [x] No db.session.add or db.session.commit except llm_narrative_credits metering
 # [x] llm_opt_out checked before every Anthropic call
 # [x] Budget tier gated before every Anthropic call
 
@@ -19,8 +19,14 @@ from typing import Any
 
 import anthropic
 
+from backend.models.connection_trend import ConnectionTrendAssessment
+from backend.models.database import db
 from backend.models.user_models import User
-from backend.models.vibe_tracker import VibePersonAssessment, VibeTrackedPerson
+from backend.models.vibe_tracker import (
+    LlmNarrativeCredit,
+    VibePersonAssessment,
+    VibeTrackedPerson,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -104,6 +110,50 @@ def _tier_allows_llm(user: User) -> bool:
     return tier != "budget"
 
 
+def _normalize_tier(tier: str | None) -> str:
+    return (tier or "budget").strip().lower()
+
+
+def check_and_consume_credit(user_id: str) -> bool:
+    """Return True if the user may consume one narrative credit this month."""
+    try:
+        user = _load_user(user_id)
+        if not user:
+            return False
+
+        tier = _normalize_tier(user.tier)
+        if tier == "professional":
+            return True
+        if tier == "budget":
+            return False
+        if tier not in ("mid_tier", "mid"):
+            return False
+
+        month_key = datetime.utcnow().strftime("%Y-%m")
+        row = LlmNarrativeCredit.query.filter_by(
+            user_id=user.id,
+            month_key=month_key,
+        ).first()
+        if row is None:
+            row = LlmNarrativeCredit(user_id=user.id, month_key=month_key)
+            db.session.add(row)
+            db.session.flush()
+
+        if row.credits_used >= row.credits_limit:
+            return False
+
+        row.credits_used += 1
+        db.session.commit()
+        return True
+    except Exception as exc:
+        logger.warning("check_and_consume_credit failed: %s", exc)
+        try:
+            db.session.rollback()
+        except Exception:
+            pass
+        return False
+
+
 def _assessment_signals(assessments: list[VibePersonAssessment]) -> list[dict[str, Any]]:
     return [
         {
@@ -157,7 +207,12 @@ def generate_relationship_narrative(user_id: str, person_id: str) -> dict | None
     gated = _gate_person_call(user_id, person_id)
     if not gated:
         return None
-    _user, person = gated
+    user, person = gated
+
+    if not check_and_consume_credit(user_id):
+        if _normalize_tier(user.tier) != "budget":
+            return {"credit_exhausted": True, "person_id": person_id}
+        return None
 
     assessments = _load_assessments(person.id, limit=3)
     context = {
@@ -275,6 +330,67 @@ def generate_cost_narrative(user_id: str, person_id: str) -> dict | None:
         "person_id": str(person.id),
         "generated_at": _utcnow_iso(),
     }
+
+
+_FADE_SIGNAL_TIERS = frozenset({"fading", "dipping", "cloaking"})
+_UPSELL_FALLBACK = "Upgrade to Mid for AI-generated relationship insights."
+
+
+def _load_enriched_roster(user: User) -> list[VibeTrackedPerson]:
+    return (
+        VibeTrackedPerson.query.filter_by(user_id=user.id, is_archived=False)
+        .filter(VibeTrackedPerson.relationship_type.isnot(None))
+        .order_by(VibeTrackedPerson.created_at.asc())
+        .all()
+    )
+
+
+def _count_fading_relationships(user: User, people: list[VibeTrackedPerson]) -> int:
+    if not people:
+        return 0
+    if not ConnectionTrendAssessment.query.filter_by(user_id=user.id).first():
+        return 0
+
+    fading_count = 0
+    for person in people:
+        latest = (
+            ConnectionTrendAssessment.query.filter_by(
+                user_id=user.id,
+                person_id=person.id,
+            )
+            .order_by(ConnectionTrendAssessment.assessed_at.desc())
+            .first()
+        )
+        if not latest:
+            continue
+        if latest.pattern_type == "classic_fade":
+            fading_count += 1
+        elif latest.fade_tier in _FADE_SIGNAL_TIERS:
+            fading_count += 1
+    return fading_count
+
+
+def generate_upsell_copy(user_id: str) -> str:
+    user = _load_user(user_id)
+    if not user:
+        return _UPSELL_FALLBACK
+
+    people = _load_enriched_roster(user)
+    roster_count = len(people)
+    fading_count = _count_fading_relationships(user, people)
+
+    if fading_count > 0:
+        return (
+            f"You have {fading_count} relationship(s) where your check-in data suggests "
+            "the energy may be shifting. Upgrade to Mid to see who and why."
+        )
+    if roster_count > 0:
+        return (
+            f"You track {roster_count} people in your life. Upgrade to Mid to get an AI "
+            "read on each relationship — cost patterns, energy direction, "
+            "and what your check-ins actually say."
+        )
+    return _UPSELL_FALLBACK
 
 
 def generate_roster_insight(user_id: str) -> dict | None:
