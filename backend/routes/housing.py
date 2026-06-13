@@ -10,7 +10,6 @@ from flask import jsonify
 from backend.auth.decorators import current_user, require_auth
 from backend.models.database import db
 from backend.models.housing_profile import HousingProfile
-from backend.models.hprs_latent_candidate import HprsLatentCandidate
 from backend.models.user_models import User
 from backend.routes.hprs import hprs_bp
 from backend.tasks.hprs_tasks import generate_hprs_plan_task

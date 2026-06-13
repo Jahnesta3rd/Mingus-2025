@@ -9,8 +9,11 @@ from datetime import datetime, timedelta
 from typing import Any
 
 from flask import Blueprint, current_app, jsonify
+from sqlalchemy import or_
 
 from backend.auth.decorators import current_user, require_auth
+from backend.models.database import db
+from backend.models.hprs_latent_candidate import HprsLatentCandidate
 from backend.models.hprs_plan import HprsPlan
 from backend.models.hprs_score import HprsScore
 from backend.models.user_models import User
@@ -206,20 +209,35 @@ def get_readiness_score():
         generated_at = score_result.get("computed_at")
         expires_at = None
 
-    return jsonify(
-        {
-            "score": score_result["overall_score"],
-            "score_band": score_band,
-            "readiness_tier": score_result["readiness_tier"],
-            "overall_score": score_result["overall_score"],
-            "partial_data": score_result["partial_data"],
-            "pillars": score_result["pillars"],
-            "career_risk": score_result["career_risk"],
-            "vehicle_risk": score_result["vehicle_risk"],
-            "combined_modifier": score_result["combined_modifier"],
-            "plan": plan_body,
-            "plan_loading": plan_loading,
-            "generated_at": generated_at,
-            "expires_at": expires_at,
-        }
-    ), 200
+    response_dict = {
+        "score": score_result["overall_score"],
+        "score_band": score_band,
+        "readiness_tier": score_result["readiness_tier"],
+        "overall_score": score_result["overall_score"],
+        "partial_data": score_result["partial_data"],
+        "pillars": score_result["pillars"],
+        "career_risk": score_result["career_risk"],
+        "vehicle_risk": score_result["vehicle_risk"],
+        "combined_modifier": score_result["combined_modifier"],
+        "plan": plan_body,
+        "plan_loading": plan_loading,
+        "generated_at": generated_at,
+        "expires_at": expires_at,
+    }
+
+    # HPRS-13: surface latent nudge if one is pending
+    latent_candidate = db.session.query(HprsLatentCandidate).filter(
+        HprsLatentCandidate.user_id == user.id,
+        HprsLatentCandidate.status == "nudged",
+        HprsLatentCandidate.nudge_text.isnot(None),
+        or_(
+            HprsLatentCandidate.snoozed_until.is_(None),
+            HprsLatentCandidate.snoozed_until < datetime.utcnow(),
+        ),
+    ).first()
+
+    response_dict["latent_nudge"] = (
+        {"body": latent_candidate.nudge_text} if latent_candidate else None
+    )
+
+    return jsonify(response_dict), 200
