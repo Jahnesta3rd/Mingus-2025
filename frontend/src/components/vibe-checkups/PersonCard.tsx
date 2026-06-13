@@ -17,7 +17,7 @@ import type {
 import EventRail from '../roster/EventRail';
 import ConnectionTrendBadge from '../roster/ConnectionTrendBadge';
 import ConnectionTrendAssessmentModal from '../roster/ConnectionTrendAssessmentModal';
-import { RelationshipIntelPanel } from '../people/RelationshipIntelPanel';
+import RelationshipIntelPanel from './RelationshipIntelPanel';
 
 function formatConnectionDaysAgo(iso: string | null): string {
   if (!iso) return '';
@@ -105,7 +105,7 @@ function MiniBar({ value, label }: { value: number; label: string }) {
 }
 
 export type PersonCardProps = {
-  person: VibeTrackedPerson;
+  person: VibeTrackedPerson & { llm_opt_out?: boolean };
   trend: VibePersonTrend | null;
   latestAssessment: VibePersonAssessment | null;
   onClick: () => void;
@@ -479,6 +479,11 @@ export function PersonCard({
                     : null
                 }
               />
+              <RelationshipIntelPanel
+                personId={person.id}
+                userTier={userTier}
+                llmOptOut={person.llm_opt_out ?? false}
+              />
               <p className="text-[10px] text-[#9a8f7e]">
                 Last assessed: {formatConnectionDaysAgo(connectionTrendLatest.assessed_at)}
               </p>
@@ -507,7 +512,6 @@ export function PersonCard({
               </button>
             </p>
           ) : null}
-          <RelationshipIntelPanel personId={person.id} userTier={userTier} />
         </div>
       ) : null}
 

@@ -148,6 +148,7 @@ def _person_core(p: VibeTrackedPerson) -> dict:
         "is_archived": p.is_archived,
         "archived_at": p.archived_at.isoformat() + "Z" if p.archived_at else None,
         "assessment_count": p.assessment_count,
+        "llm_opt_out": bool(p.llm_opt_out) if p.llm_opt_out is not None else False,
     }
 
 
