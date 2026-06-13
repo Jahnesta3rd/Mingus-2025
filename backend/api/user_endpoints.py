@@ -361,6 +361,10 @@ def get_user_profile():
             profile_out['important_dates'] = important_dates
 
         jwt_user = get_current_jwt_user()
+        # Bridge JWT external user_id (UUID) → users.id (integer PK) for internal APIs
+        # (e.g. GET /api/vin-advisor/<id>). Keep when refactoring profile responses.
+        if jwt_user is not None:
+            profile_out['db_user_id'] = jwt_user.id
         career_fields = _career_profile_fields(jwt_user.id if jwt_user else None)
         profile_out.update(career_fields)
 

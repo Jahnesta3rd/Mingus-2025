@@ -32,13 +32,34 @@ function csrfHeaders(): Record<string, string> {
 }
 
 interface User {
+  /** External JWT user_id (UUID string). */
   id: string;
+  /** Internal users.id integer for @require_auth APIs that FK to users.id. */
+  db_user_id?: number;
   email: string;
   name: string;
   isAuthenticated: boolean;
   tier?: string;
   is_beta?: boolean;
   is_admin?: boolean;
+}
+
+/** Load internal PK from GET /api/user/profile (see profile.db_user_id in user_endpoints). */
+async function fetchDbUserId(): Promise<number | undefined> {
+  try {
+    const res = await fetch('/api/user/profile', {
+      credentials: 'include',
+      headers: csrfHeaders(),
+    });
+    if (!res.ok) {
+      return undefined;
+    }
+    const body = (await res.json()) as { profile?: { db_user_id?: number } };
+    const uid = body.profile?.db_user_id;
+    return typeof uid === 'number' ? uid : undefined;
+  } catch {
+    return undefined;
+  }
 }
 
 export interface RegisterOptions {
@@ -142,8 +163,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             } catch {
               /* ignore storage errors */
             }
+            const dbUserId = await fetchDbUserId();
             setUser({
               id: userData.user_id,
+              ...(dbUserId != null && { db_user_id: dbUserId }),
               email: userData.email,
               name: userData.name,
               isAuthenticated: true,
@@ -188,8 +211,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       const data = await response.json();
+      const dbUserId = await fetchDbUserId();
       const userData: User = {
         id: data.user_id,
+        ...(dbUserId != null && { db_user_id: dbUserId }),
         email: data.email,
         name: data.name,
         isAuthenticated: true,
@@ -288,8 +313,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isBeta = true;
       }
 
+      const dbUserId = await fetchDbUserId();
       const userData: User = {
         id: data.user_id,
+        ...(dbUserId != null && { db_user_id: dbUserId }),
         email: data.email,
         name: data.name || firstName,
         isAuthenticated: true,

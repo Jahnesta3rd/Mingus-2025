@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import VinAdvisor from './VinAdvisor';
+import { useAuth } from '../hooks/useAuth';
 import {
   Box,
   Grid,
@@ -133,7 +135,8 @@ const VehicleAnalyticsDashboard: React.FC<VehicleAnalyticsDashboardProps> = ({
   className,
   userTier
 }) => {
-  const [activeTab, setActiveTab] = useState(0);
+  const { user } = useAuth();
+  const [activeTab, setActiveTab] = useState('Cost Trends');
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<VehicleAnalyticsData | null>(null);
   const [timeRange, setTimeRange] = useState('6months');
@@ -206,7 +209,10 @@ const VehicleAnalyticsDashboard: React.FC<VehicleAnalyticsDashboardProps> = ({
   }, [timeRange]);
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
-    setActiveTab(newValue);
+    const next = tabs[newValue];
+    if (next) {
+      setActiveTab(next.label);
+    }
   };
 
   const handleExport = () => {
@@ -265,6 +271,31 @@ const VehicleAnalyticsDashboard: React.FC<VehicleAnalyticsDashboardProps> = ({
 
   const features = getTierFeatures();
 
+  const tabs = useMemo(
+    () =>
+      [
+        { label: 'Cost Trends', icon: <Timeline />, available: features.showBasicAnalytics },
+        { label: 'Maintenance', icon: <Build />, available: features.showBasicAnalytics },
+        { label: 'Fuel Efficiency', icon: <LocalGasStation />, available: features.showBasicAnalytics },
+        { label: 'Cost Analysis', icon: <AttachMoney />, available: features.showAdvancedAnalytics },
+        { label: 'Peer Comparison', icon: <GitCompare />, available: features.showPeerComparison },
+        { label: 'ROI Analysis', icon: <Assessment />, available: features.showROIAnalysis },
+        { label: 'Vehicle Advisor', icon: <DirectionsCar />, available: true },
+      ].filter((tab) => tab.available),
+    [features]
+  );
+
+  useEffect(() => {
+    if (!tabs.some((tab) => tab.label === activeTab)) {
+      setActiveTab(tabs[0]?.label ?? 'Cost Trends');
+    }
+  }, [tabs, activeTab]);
+
+  const activeTabIndex = Math.max(
+    0,
+    tabs.findIndex((tab) => tab.label === activeTab)
+  );
+
   if (loading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
@@ -280,15 +311,6 @@ const VehicleAnalyticsDashboard: React.FC<VehicleAnalyticsDashboardProps> = ({
       </Alert>
     );
   }
-
-  const tabs = [
-    { label: 'Cost Trends', icon: <Timeline />, available: features.showBasicAnalytics },
-    { label: 'Maintenance', icon: <Build />, available: features.showBasicAnalytics },
-    { label: 'Fuel Efficiency', icon: <LocalGasStation />, available: features.showBasicAnalytics },
-    { label: 'Cost Analysis', icon: <AttachMoney />, available: features.showAdvancedAnalytics },
-    { label: 'Peer Comparison', icon: <GitCompare />, available: features.showPeerComparison },
-    { label: 'ROI Analysis', icon: <Assessment />, available: features.showROIAnalysis }
-  ].filter(tab => tab.available);
 
   return (
     <Box className={className}>
@@ -340,7 +362,7 @@ const VehicleAnalyticsDashboard: React.FC<VehicleAnalyticsDashboardProps> = ({
 
       {/* Tabs */}
       <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
-        <Tabs value={activeTab} onChange={handleTabChange}>
+        <Tabs value={activeTabIndex} onChange={handleTabChange}>
           {tabs.map((tab, index) => (
             <Tab
               key={index}
@@ -354,23 +376,26 @@ const VehicleAnalyticsDashboard: React.FC<VehicleAnalyticsDashboardProps> = ({
 
       {/* Tab Content */}
       <Box>
-        {activeTab === 0 && features.showBasicAnalytics && (
+        {activeTab === 'Cost Trends' && features.showBasicAnalytics && (
           <CostTrendsTab data={data.costTrends} />
         )}
-        {activeTab === 1 && features.showBasicAnalytics && (
+        {activeTab === 'Maintenance' && features.showBasicAnalytics && (
           <MaintenanceTab data={data.maintenanceAccuracy} />
         )}
-        {activeTab === 2 && features.showBasicAnalytics && (
+        {activeTab === 'Fuel Efficiency' && features.showBasicAnalytics && (
           <FuelEfficiencyTab data={data.fuelEfficiency} />
         )}
-        {activeTab === 3 && features.showAdvancedAnalytics && (
+        {activeTab === 'Cost Analysis' && features.showAdvancedAnalytics && (
           <CostAnalysisTab data={data.costPerMile} />
         )}
-        {activeTab === 4 && features.showPeerComparison && (
+        {activeTab === 'Peer Comparison' && features.showPeerComparison && (
           <PeerComparisonTab data={data.peerComparison} />
         )}
-        {activeTab === 5 && features.showROIAnalysis && (
+        {activeTab === 'ROI Analysis' && features.showROIAnalysis && (
           <ROIAnalysisTab data={data.roiAnalysis} />
+        )}
+        {activeTab === 'Vehicle Advisor' && user?.db_user_id != null && (
+          <VinAdvisor userId={user.db_user_id} />
         )}
       </Box>
 
