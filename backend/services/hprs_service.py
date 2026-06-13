@@ -13,11 +13,13 @@ import anthropic
 
 from backend.models.database import db
 from backend.models.housing_profile import HousingProfile
+from backend.models.hprs_latent_candidate import HprsLatentCandidate
 from backend.models.hprs_plan import HprsPlan
 from backend.models.hprs_score import HprsScore
 from backend.models.hprs_score_history import HprsScoreHistory
 from backend.models.in_app_notification import InAppNotification
 from backend.services.hprs_career_risk_service import derive_career_risk
+from backend.services.hprs_input_service import get_hprs_inputs
 from backend.services.hprs_score_service import compute_hprs_score
 from backend.services.hprs_vehicle_risk_service import derive_vehicle_risk
 
@@ -525,3 +527,138 @@ def refresh_hprs_scores() -> dict:
         "plans_invalidated": plans_invalidated,
         "errors": errors,
     }
+
+
+_LATENT_NUDGE_FALLBACK = (
+    "Your finances may be closer to home-purchase readiness than you think — want to check?"
+)
+
+_LATENT_NUDGE_SYSTEM = (
+    "You write short, specific, non-pushy nudges for a personal finance app. "
+    "Return only the nudge sentence — no preamble, no quotes."
+)
+
+
+def evaluate_latent_candidate(user_id: int, db_session=None) -> dict:
+    """Evaluate whether a user without a buy goal meets latent HPRS thresholds."""
+    _ = db_session  # reserved for callers passing an explicit session
+    try:
+        inputs = get_hprs_inputs(user_id)
+        dti_met = inputs.get("current_dti") is not None and inputs["current_dti"] < 0.40
+        savings_met = float(inputs.get("down_payment_saved") or 0) >= 5000
+        credit_met = int(inputs.get("credit_score") or 0) >= 650
+
+        conditions_met = [c for c in [dti_met, savings_met, credit_met] if c]
+        combined = len(conditions_met) >= 2
+        threshold_met = combined or any([dti_met, savings_met, credit_met])
+
+        if combined:
+            nudge_type = "combined"
+        elif dti_met:
+            nudge_type = "dti"
+        elif savings_met:
+            nudge_type = "savings"
+        elif credit_met:
+            nudge_type = "credit"
+        else:
+            nudge_type = None
+
+        return {
+            "threshold_met": bool(threshold_met),
+            "nudge_type": nudge_type,
+            "threshold_data": {
+                "dti": inputs.get("current_dti"),
+                "savings": inputs.get("down_payment_saved"),
+                "credit_score": inputs.get("credit_score"),
+            },
+        }
+    except Exception:
+        logger.warning(
+            "evaluate_latent_candidate failed for user_id=%s",
+            user_id,
+            exc_info=True,
+        )
+        return {
+            "threshold_met": False,
+            "nudge_type": None,
+            "threshold_data": {},
+        }
+
+
+def _latent_nudge_user_message(nudge_type: str, threshold_data: dict[str, Any]) -> str:
+    dti = threshold_data.get("dti")
+    savings = float(threshold_data.get("savings") or 0)
+    credit_score = int(threshold_data.get("credit_score") or 0)
+    if nudge_type == "dti":
+        return (
+            f"Write a 1-sentence nudge. The user's debt-to-income ratio just dropped to "
+            f"{float(dti or 0):.0%}. Soft question close. Include the number."
+        )
+    if nudge_type == "savings":
+        return (
+            f"Write a 1-sentence nudge. The user now has ${savings:,.0f} saved. "
+            "Forward-looking frame. Include the dollar amount."
+        )
+    if nudge_type == "credit":
+        return (
+            f"Write a 1-sentence nudge. The user's credit score reached {credit_score}. "
+            "Mention it unlocks mortgage programs. Include the score."
+        )
+    return (
+        f"Write a 1-sentence nudge. The user's DTI is {float(dti or 0):.0%} and they have "
+        f"${savings:,.0f} saved. Curiosity hook. Include both numbers."
+    )
+
+
+def _build_latent_nudge(nudge_type: str, threshold_data: dict[str, Any]) -> str:
+    """Generate a single plain-English latent-candidate nudge via Claude."""
+    try:
+        client = anthropic.Anthropic()
+        response = client.messages.create(
+            model=_LLM_MODEL,
+            max_tokens=60,
+            system=_LATENT_NUDGE_SYSTEM,
+            messages=[
+                {
+                    "role": "user",
+                    "content": _latent_nudge_user_message(nudge_type, threshold_data),
+                }
+            ],
+        )
+        text = (response.content[0].text or "").strip()
+        return text or _LATENT_NUDGE_FALLBACK
+    except Exception:
+        logger.warning(
+            "build_latent_nudge failed nudge_type=%s",
+            nudge_type,
+            exc_info=True,
+        )
+        return _LATENT_NUDGE_FALLBACK
+
+
+def _deliver_nudge(user_id: int, nudge_type: str, nudge_text: str) -> None:
+    """Persist latent candidate state and write in-app notification."""
+    now = datetime.utcnow()
+    candidate = db.session.query(HprsLatentCandidate).filter_by(user_id=user_id).first()
+    if candidate is None:
+        candidate = HprsLatentCandidate(user_id=user_id, first_evaluated_at=now)
+        db.session.add(candidate)
+
+    if candidate.threshold_met_at is None:
+        candidate.threshold_met_at = now
+
+    candidate.nudge_sent_at = now
+    candidate.nudge_type = nudge_type
+    candidate.nudge_text = nudge_text
+    candidate.status = "nudged"
+    candidate.last_evaluated_at = now
+
+    db.session.add(
+        InAppNotification(
+            user_id=user_id,
+            title="Your home readiness just changed",
+            body=nudge_text,
+            category="hprs_latent_candidate",
+        )
+    )
+    db.session.commit()

@@ -74,6 +74,7 @@ from .employer import Employer, EmployerHealthSnapshot, LayoffEvent
 from .hprs_score import HprsScore
 from .hprs_plan import HprsPlan
 from .hprs_score_history import HprsScoreHistory
+from .hprs_latent_candidate import HprsLatentCandidate
 
 __all__ = [
     'db',
@@ -153,4 +154,5 @@ __all__ = [
     'HprsScore',
     'HprsPlan',
     'HprsScoreHistory',
+    'HprsLatentCandidate',
 ]
