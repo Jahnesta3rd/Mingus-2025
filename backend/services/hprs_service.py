@@ -12,8 +12,11 @@ from typing import Any
 import anthropic
 
 from backend.models.database import db
+from backend.models.housing_profile import HousingProfile
 from backend.models.hprs_plan import HprsPlan
 from backend.models.hprs_score import HprsScore
+from backend.models.hprs_score_history import HprsScoreHistory
+from backend.models.in_app_notification import InAppNotification
 from backend.services.hprs_career_risk_service import derive_career_risk
 from backend.services.hprs_score_service import compute_hprs_score
 from backend.services.hprs_vehicle_risk_service import derive_vehicle_risk
@@ -382,4 +385,143 @@ def generate_hprs_plan(user_id: int) -> dict:
         "focus_pillar": plan_json["monthly_actions"][0]["dimension"],
         "generated_at": generated_at.isoformat(),
         "model": _LLM_MODEL,
+    }
+
+
+_SCORE_CHANGE_THRESHOLD = 3
+
+
+def _previous_overall_score(user_id: int) -> int | None:
+    row = HprsScore.query.filter_by(user_id=user_id).first()
+    if row is not None:
+        return int(row.overall_score)
+    latest = (
+        HprsScoreHistory.query.filter_by(user_id=user_id)
+        .order_by(HprsScoreHistory.recorded_at.desc())
+        .first()
+    )
+    if latest is None:
+        return None
+    return int(latest.overall_score)
+
+
+def _invalidate_active_plans(user_id: int) -> int:
+    return int(
+        db.session.query(HprsPlan)
+        .filter(HprsPlan.user_id == user_id, HprsPlan.is_active.is_(True))
+        .update({"is_active": False}, synchronize_session=False)
+        or 0
+    )
+
+
+def _append_weekly_history(user_id: int, score_row: HprsScore) -> None:
+    db.session.add(
+        HprsScoreHistory(
+            user_id=user_id,
+            overall_score=int(score_row.overall_score),
+            readiness_tier=score_row.readiness_tier,
+            down_payment_score=score_row.down_payment_score,
+            credit_score=score_row.credit_score,
+            dti_score=score_row.dti_score,
+            savings_rate_score=score_row.savings_rate_score,
+            income_stability_score=score_row.income_stability_score,
+            trigger="weekly",
+            recorded_at=datetime.utcnow(),
+        )
+    )
+
+
+def _queue_improvement_nudge(user_id: int, previous_score: int, new_score: int) -> None:
+    title = "Your home readiness score improved"
+    body = (
+        f"Your Home Purchase Readiness score rose from {previous_score} to {new_score}. "
+        "Open Today to see what changed."
+    )
+    try:
+        db.session.add(
+            InAppNotification(
+                user_id=user_id,
+                title=title,
+                body=body,
+                category="hprs_improvement",
+            )
+        )
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+        logger.info(
+            "refresh_hprs_scores: queued nudge logged only for user_id=%s (%s -> %s)",
+            user_id,
+            previous_score,
+            new_score,
+        )
+
+
+def refresh_hprs_scores() -> dict:
+    """
+    Weekly job. For every user with a housing_profile row:
+    1. Call compute_full_hprs(user_id)
+    2. Compare new overall_score to most recent hprs_score_history row
+    3. If score changed by 3+ points: invalidate active plan and append weekly history
+    4. If score improved by 3+ points: queue a Today dashboard nudge
+    """
+    users_checked = 0
+    scores_updated = 0
+    plans_invalidated = 0
+    errors = 0
+
+    user_ids = [
+        row.user_id
+        for row in db.session.query(HousingProfile.user_id).distinct().all()
+    ]
+
+    for user_id in user_ids:
+        users_checked += 1
+        try:
+            previous_score = _previous_overall_score(user_id)
+            score_result = compute_full_hprs(user_id)
+            if score_result.get("error"):
+                errors += 1
+                logger.warning(
+                    "refresh_hprs_scores: compute failed for user_id=%s error=%s",
+                    user_id,
+                    score_result["error"],
+                )
+                continue
+
+            scores_updated += 1
+            new_score = int(score_result["overall_score"])
+            if previous_score is None:
+                continue
+
+            delta = new_score - previous_score
+            if abs(delta) < _SCORE_CHANGE_THRESHOLD:
+                continue
+
+            invalidated = _invalidate_active_plans(user_id)
+            if invalidated:
+                plans_invalidated += invalidated
+
+            score_row = HprsScore.query.filter_by(user_id=user_id).first()
+            if score_row is not None:
+                _append_weekly_history(user_id, score_row)
+
+            db.session.commit()
+
+            if delta >= _SCORE_CHANGE_THRESHOLD:
+                _queue_improvement_nudge(user_id, previous_score, new_score)
+        except Exception:
+            errors += 1
+            db.session.rollback()
+            logger.warning(
+                "refresh_hprs_scores: failed for user_id=%s",
+                user_id,
+                exc_info=True,
+            )
+
+    return {
+        "users_checked": users_checked,
+        "scores_updated": scores_updated,
+        "plans_invalidated": plans_invalidated,
+        "errors": errors,
     }

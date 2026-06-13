@@ -9,3 +9,8 @@
 0 6 * * * root cd /var/www/mingus && \
   ./venv/bin/flask scan-8k-layoff-events \
   >> /var/log/mingus/employer_8k_scan.log 2>&1
+
+# Weekly HPRS score refresh — Mondays 06:00 UTC
+0 6 * * 1 www-data cd /var/www/mingus && \
+  ./venv/bin/flask refresh-hprs-scores \
+  >> /var/log/mingus/hprs_refresh.log 2>&1
