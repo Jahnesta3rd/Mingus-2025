@@ -3,15 +3,41 @@
 
 from __future__ import annotations
 
+import json
 import logging
+import re
+from datetime import datetime
 from typing import Any
 
+import anthropic
+
+from backend.models.database import db
+from backend.models.hprs_plan import HprsPlan
 from backend.models.hprs_score import HprsScore
 from backend.services.hprs_career_risk_service import derive_career_risk
 from backend.services.hprs_score_service import compute_hprs_score
 from backend.services.hprs_vehicle_risk_service import derive_vehicle_risk
 
 logger = logging.getLogger(__name__)
+
+
+class HprsPlanParseError(Exception):
+    """Raised when LLM plan output cannot be parsed or validated."""
+
+
+_REQUIRED_PLAN_FIELDS = [
+    "summary",
+    "score_band",
+    "plan_phases",
+    "monthly_actions",
+    "quick_wins",
+    "watch_flags",
+    "projected_score",
+    "mortgage_estimate",
+]
+
+_LLM_MODEL = "claude-sonnet-4-6"
+_RETRY_APPEND = "\n\nReturn only raw JSON. No backticks, no prose, no markdown."
 
 _SYSTEM_PROMPT = (
     "You are a licensed mortgage planning advisor helping a first-time or repeat home buyer\n"
@@ -250,3 +276,110 @@ def build_hprs_prompt(score_result: dict) -> list:
         {"role": "system", "content": _SYSTEM_PROMPT},
         {"role": "user", "content": user_message},
     ]
+
+
+def _parse_plan_json(raw: str) -> dict:
+    clean = re.sub(
+        r"^```json\s*|^```\s*|```$",
+        "",
+        raw.strip(),
+        flags=re.MULTILINE,
+    ).strip()
+    try:
+        return json.loads(clean)
+    except json.JSONDecodeError:
+        raise HprsPlanParseError(f"Failed to parse plan JSON: {clean[:200]}")
+
+
+def _validate_plan_json(plan_json: dict) -> None:
+    missing = [field for field in _REQUIRED_PLAN_FIELDS if field not in plan_json]
+    if missing:
+        raise HprsPlanParseError(f"Plan missing required fields: {missing}")
+
+
+def _call_anthropic(
+    messages: list,
+    retry_append: str | None = None,
+    max_tokens: int = 2000,
+) -> str:
+    client = anthropic.Anthropic()
+    user_content = messages[1]["content"]
+    if retry_append:
+        user_content += retry_append
+    response = client.messages.create(
+        model=_LLM_MODEL,
+        max_tokens=max_tokens,
+        system=messages[0]["content"],
+        messages=[{"role": "user", "content": user_content}],
+    )
+    return response.content[0].text
+
+
+def _persist_plan(user_id: int, plan_json: dict, score_id: Any) -> datetime:
+    now = datetime.utcnow()
+    db.session.query(HprsPlan).filter(
+        HprsPlan.user_id == user_id,
+        HprsPlan.is_active.is_(True),
+    ).update({"is_active": False}, synchronize_session=False)
+
+    focus_pillar = plan_json["monthly_actions"][0]["dimension"]
+    db.session.add(
+        HprsPlan(
+            user_id=user_id,
+            score_id=score_id,
+            plan_summary=plan_json["summary"],
+            action_steps=plan_json["plan_phases"],
+            focus_pillar=focus_pillar,
+            generated_at=now,
+            is_active=True,
+            llm_model=_LLM_MODEL,
+        )
+    )
+    db.session.commit()
+    return now
+
+
+def generate_hprs_plan(user_id: int) -> dict:
+    """Compute HPRS score, call Claude for a plan, validate, persist, and return."""
+    score_result = compute_full_hprs(user_id)
+    if score_result.get("error"):
+        raise HprsPlanParseError(
+            f"Cannot generate plan: {score_result['error']} for user_id={user_id}"
+        )
+
+    messages = build_hprs_prompt(score_result)
+    raw_text = _call_anthropic(messages)
+
+    try:
+        plan_json = _parse_plan_json(raw_text)
+    except HprsPlanParseError:
+        raw_text = _call_anthropic(
+            messages,
+            retry_append=_RETRY_APPEND,
+        )
+        try:
+            plan_json = _parse_plan_json(raw_text)
+        except HprsPlanParseError:
+            logger.error(
+                "generate_hprs_plan: failed to parse plan JSON for user_id=%s raw=%s",
+                user_id,
+                raw_text,
+            )
+            raise
+
+    _validate_plan_json(plan_json)
+
+    score_row = HprsScore.query.filter_by(user_id=user_id).first()
+    generated_at = _persist_plan(
+        user_id,
+        plan_json,
+        score_row.id if score_row else None,
+    )
+
+    return {
+        "plan_json": plan_json,
+        "projected_score": plan_json["projected_score"],
+        "focus_pillar": plan_json["monthly_actions"][0]["dimension"],
+        "generated_at": generated_at.isoformat(),
+        "model": _LLM_MODEL,
+    }
