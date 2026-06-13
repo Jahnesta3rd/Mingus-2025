@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../hooks/useAuth';
 import { commitModule } from '../../../lib/modularOnboarding';
@@ -69,6 +69,18 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
   const navigate = useNavigate();
 
   const finishOnboarding = useCallback(() => {
+    // HPRS-13: YES path — queue plan generation if user has home purchase goal
+    const housingModule = committedModulesRef.current.housing;
+    if (
+      housingModule?.has_buy_goal === true &&
+      ((housingModule?.target_timeline_months as number | undefined | null) ?? 999) <= 36
+    ) {
+      fetch('/api/housing/hprs/queue-generation', {
+        method: 'POST',
+        credentials: 'include',
+      }).catch(() => {}); // fire-and-forget — failure is silent
+    }
+
     if (onComplete) {
       onComplete();
       return;
@@ -82,6 +94,7 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
   const [error, setError] = useState<string | null>(null);
   const [incompleteModules, setIncompleteModules] = useState<ModuleId[]>([]);
   const [initialDataByStep] = useState<Record<string, Record<string, unknown>>>({});
+  const committedModulesRef = useRef<Partial<Record<ModuleId, Record<string, unknown>>>>({});
 
   const currentStep = STEP_ORDER[currentIndex];
   const StepComponent = currentStep.Component;
@@ -226,6 +239,10 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
             throw new Error('You must be signed in to continue.');
           }
           const resp = await commitModule(token, stepDef.id, data as ModuleData[ModuleId]);
+          committedModulesRef.current = {
+            ...committedModulesRef.current,
+            [stepDef.id]: data,
+          };
           setError(null);
           if (resp.failed_fields && resp.failed_fields.length > 0) {
             const summary = resp.failed_fields

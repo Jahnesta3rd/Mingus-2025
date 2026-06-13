@@ -20,6 +20,7 @@ import LocationIntelligenceMap from '../components/LocationIntelligenceMap';
 import AnalyticsDashboard from '../components/AnalyticsDashboard';
 import HousingLocationTile from '../components/HousingLocationTile';
 import { HousingReadinessCard } from '../components/housing/HousingReadinessCard';
+import { HprsLatentNudgeCard } from '../components/housing/HprsLatentNudgeCard';
 import OptimalLocationRouter from '../components/OptimalLocation/OptimalLocationRouter';
 import DashboardWellnessSection from '../components/DashboardWellnessSection';
 import YouTab from '../components/YouTab';
@@ -225,6 +226,7 @@ const CareerProtectionDashboard: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [showQuickSetup, setShowQuickSetup] = useState(false);
   const [todayCardIndex, setTodayCardIndex] = useState(0);
+  const [hprsRefreshToken, setHprsRefreshToken] = useState(0);
 
   // Handle mobile detection (non-data-fetching, safe)
   useEffect(() => {
@@ -562,7 +564,8 @@ const CareerProtectionDashboard: React.FC = () => {
           {dashboardState.activeTab === 'housing' && (
             <CardJobHome cardId="housing" onBack={handleDrillBack}>
               <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-                <HousingReadinessCard />
+                <HprsLatentNudgeCard onActivated={() => setHprsRefreshToken((t) => t + 1)} />
+                <HousingReadinessCard refreshTrigger={hprsRefreshToken} />
                 <HousingLocationTile />
               </div>
             </CardJobHome>
