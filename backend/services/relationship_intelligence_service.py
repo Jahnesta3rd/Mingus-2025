@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import json
 import logging
+import os
 import uuid
 from datetime import datetime
 from typing import Any
@@ -32,7 +33,14 @@ logger = logging.getLogger(__name__)
 
 MODEL = "claude-haiku-4-5-20251001"
 MAX_TOKENS = 300
-ZDR_EXTRA_HEADERS = {"anthropic-beta": "zero-data-retention-2025-02-28"}
+
+ZDR_ENABLED = os.getenv("ANTHROPIC_ZDR_ENABLED", "false").lower() == "true"
+
+
+def _zdr_headers() -> dict:
+    if ZDR_ENABLED:
+        return {"anthropic-beta": "zero-data-retention-2025-02-28"}
+    return {}
 
 _PRIVACY_SYSTEM = (
     "PRIVACY (non-negotiable): Never use or infer real names. "
@@ -174,7 +182,7 @@ def _call_anthropic(*, system: str, user_content: str) -> str | None:
             max_tokens=MAX_TOKENS,
             system=system,
             messages=[{"role": "user", "content": user_content}],
-            extra_headers=ZDR_EXTRA_HEADERS,
+            extra_headers=_zdr_headers(),
         )
         block = response.content[0] if response.content else None
         text = (getattr(block, "text", None) or "").strip()
