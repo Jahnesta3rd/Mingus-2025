@@ -44,6 +44,9 @@ from backend.models.career_profile import CareerProfile  # noqa: F401
 from backend.models.housing_profile import HousingProfile  # noqa: F401
 from backend.models.llm_usage import LlmUsage  # noqa: F401
 from backend.models.job_posting import JobPosting  # noqa: F401
+from backend.models.hprs_score import HprsScore  # noqa: F401
+from backend.models.hprs_plan import HprsPlan  # noqa: F401
+from backend.models.hprs_score_history import HprsScoreHistory  # noqa: F401
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

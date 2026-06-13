@@ -71,6 +71,9 @@ from .job_posting import JobPosting
 from .transaction import Transaction
 from .market_conditions_models import OesWageData, MarketDataCache
 from .employer import Employer, EmployerHealthSnapshot, LayoffEvent
+from .hprs_score import HprsScore
+from .hprs_plan import HprsPlan
+from .hprs_score_history import HprsScoreHistory
 
 __all__ = [
     'db',
@@ -147,4 +150,7 @@ __all__ = [
     'Employer',
     'EmployerHealthSnapshot',
     'LayoffEvent',
+    'HprsScore',
+    'HprsPlan',
+    'HprsScoreHistory',
 ]
