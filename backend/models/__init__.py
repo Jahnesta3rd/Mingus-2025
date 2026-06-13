@@ -47,6 +47,7 @@ from .vibe_tracker import (
     VibeTrackedPerson,
     VibePersonAssessment,
     VibePersonTrend,
+    LlmNarrativeCredit,
 )
 from .connection_trend import ConnectionTrendAssessment
 from .alerts import UserAlert
@@ -120,6 +121,7 @@ __all__ = [
     'VibeTrackedPerson',
     'VibePersonAssessment',
     'VibePersonTrend',
+    'LlmNarrativeCredit',
     'ConnectionTrendAssessment',
     'UserAlert',
     'LifeScoreSnapshot',

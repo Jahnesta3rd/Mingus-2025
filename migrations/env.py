@@ -27,6 +27,7 @@ from backend.models.vibe_tracker import (
     VibeTrackedPerson,
     VibePersonAssessment,
     VibePersonTrend,
+    LlmNarrativeCredit,
 )
 from backend.models.connection_trend import ConnectionTrendAssessment  # noqa: F401
 from backend.models.alerts import UserAlert  # noqa: F401
