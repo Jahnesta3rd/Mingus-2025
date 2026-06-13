@@ -19,6 +19,7 @@ import VehicleAnalyticsRouter from '../components/VehicleAnalyticsRouter';
 import LocationIntelligenceMap from '../components/LocationIntelligenceMap';
 import AnalyticsDashboard from '../components/AnalyticsDashboard';
 import HousingLocationTile from '../components/HousingLocationTile';
+import { HousingReadinessCard } from '../components/housing/HousingReadinessCard';
 import OptimalLocationRouter from '../components/OptimalLocation/OptimalLocationRouter';
 import DashboardWellnessSection from '../components/DashboardWellnessSection';
 import YouTab from '../components/YouTab';
@@ -561,6 +562,7 @@ const CareerProtectionDashboard: React.FC = () => {
           {dashboardState.activeTab === 'housing' && (
             <CardJobHome cardId="housing" onBack={handleDrillBack}>
               <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+                <HousingReadinessCard />
                 <HousingLocationTile />
               </div>
             </CardJobHome>
