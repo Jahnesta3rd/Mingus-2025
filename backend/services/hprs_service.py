@@ -328,7 +328,7 @@ def _persist_plan(user_id: int, plan_json: dict, score_id: Any) -> datetime:
             user_id=user_id,
             score_id=score_id,
             plan_summary=plan_json["summary"],
-            action_steps=plan_json["plan_phases"],
+            action_steps=plan_json,
             focus_pillar=focus_pillar,
             generated_at=now,
             is_active=True,
