@@ -7,6 +7,7 @@ import QuickSetupOverlay from '../components/QuickSetupOverlay';
 import SpendingMilestonesWidget from '../components/SpendingMilestonesWidget';
 import SpecialDatesWidget from '../components/SpecialDatesWidget';
 import NewParentChecklistCard from '../components/NewParentChecklistCard';
+import ArticleLibraryCard from '../components/ArticleLibraryCard';
 import ParentingImpactSimulator from '../components/ParentingImpactSimulator';
 import TodayTab from '../components/TodayTab';
 import CardJobHome from '../components/CardJobHome';
@@ -593,13 +594,16 @@ const CareerProtectionDashboard: React.FC = () => {
           )}
 
           {dashboardState.activeTab === 'discover' && (
-            <CardJobHome cardId="career" onBack={handleDrillBack}>
-              <RecommendationTiers
-                userTier={userTier}
-                userId={user?.id}
-                hideHeader
-              />
-            </CardJobHome>
+            <div className="space-y-6">
+              <ArticleLibraryCard />
+              <CardJobHome cardId="career" onBack={handleDrillBack}>
+                <RecommendationTiers
+                  userTier={userTier}
+                  userId={user?.id}
+                  hideHeader
+                />
+              </CardJobHome>
+            </div>
           )}
 
           {dashboardState.activeTab === 'you' && (
