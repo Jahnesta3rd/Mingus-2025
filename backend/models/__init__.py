@@ -76,6 +76,7 @@ from .hprs_plan import HprsPlan
 from .hprs_score_history import HprsScoreHistory
 from .hprs_latent_candidate import HprsLatentCandidate
 from .debt_profile import DebtProfile
+from .gap_analysis import GapAnalysisResult
 
 __all__ = [
     'db',
@@ -157,4 +158,5 @@ __all__ = [
     'HprsScoreHistory',
     'HprsLatentCandidate',
     'DebtProfile',
+    'GapAnalysisResult',
 ]
