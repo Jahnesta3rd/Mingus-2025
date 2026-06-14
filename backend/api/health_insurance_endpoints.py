@@ -8,7 +8,7 @@ import logging
 import os
 import re
 import uuid
-from datetime import datetime
+from datetime import datetime, timedelta
 from decimal import Decimal
 from pathlib import Path
 from typing import Any
@@ -758,5 +758,34 @@ def accept_insurance_plan():
                 f"Added ${monthly_amount:,.0f}/month to your budget. "
                 "Update your waterfall to see the impact."
             ),
+        }
+    )
+
+
+@health_insurance_bp.route("/insurance-enrollment-reminder", methods=["GET"])
+@require_auth
+def insurance_enrollment_reminder():
+    user = _resolve_user()
+    if user is None:
+        return jsonify({"error": "User not found"}), 404
+
+    current_month = datetime.utcnow().month
+    if current_month not in (10, 11, 12):
+        return jsonify({"show_reminder": False})
+
+    rec = _get_recommendation_row(user.id)
+    if rec is not None and rec.generated_at is not None:
+        cutoff = datetime.utcnow() - timedelta(days=30)
+        if rec.generated_at > cutoff:
+            return jsonify({"show_reminder": False})
+
+    return jsonify(
+        {
+            "show_reminder": True,
+            "message": (
+                "Open enrollment is here — compare your health "
+                "plan options in 5 minutes."
+            ),
+            "action_url": "/dashboard/benefits/insurance",
         }
     )

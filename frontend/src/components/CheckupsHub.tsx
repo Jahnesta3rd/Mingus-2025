@@ -7,6 +7,7 @@ import {
   ClipboardList,
   Heart,
   Home,
+  Shield,
   Sparkles,
   Sun,
   Users,
@@ -118,6 +119,16 @@ const CHECKUP_ITEMS = [
     Icon: ClipboardList,
     timestampKey: 'weekly' as const,
   },
+  {
+    id: 'health-insurance',
+    title: 'Health Insurance Advisor',
+    description:
+      'Compare your plan options and find the best fit for your health needs and budget.',
+    to: '/dashboard/benefits/insurance',
+    Icon: Shield,
+    timestampKey: null as const,
+    openEnrollmentBadge: true as const,
+  },
 ] as const;
 
 export function CheckupsHub() {
@@ -179,6 +190,11 @@ export function CheckupsHub() {
     } as const;
   }, [weeklyStreak, spiritStreak]);
 
+  const isOpenEnrollmentSeason = useMemo(() => {
+    const month = new Date().getMonth() + 1;
+    return month === 10 || month === 11 || month === 12;
+  }, []);
+
   const hubContent = (
     <div className="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6 lg:px-8">
       <header className="space-y-2">
@@ -219,7 +235,16 @@ export function CheckupsHub() {
                   <Icon className="h-5 w-5" aria-hidden />
                 </span>
                 <div className="min-w-0 flex-1 space-y-1">
-                  <h2 className="text-base font-semibold text-[#1E293B]">{item.title}</h2>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h2 className="text-base font-semibold text-[#1E293B]">{item.title}</h2>
+                    {'openEnrollmentBadge' in item &&
+                    item.openEnrollmentBadge &&
+                    isOpenEnrollmentSeason ? (
+                      <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-800">
+                        Open Enrollment
+                      </span>
+                    ) : null}
+                  </div>
                   <p className="text-sm leading-relaxed text-[#64748B]">{item.description}</p>
                   {relative ? (
                     <p className="text-xs text-[#64748B]">
