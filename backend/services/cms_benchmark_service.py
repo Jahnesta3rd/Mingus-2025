@@ -90,6 +90,56 @@ def get_plan_benchmark(
     }
 
 
+def _get_national_plan_benchmark(metal_level: str) -> dict | None:
+    metal_level = metal_level.strip()
+
+    conn = get_db_connection()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                SELECT
+                  COUNT(*) AS plan_count,
+                  ROUND(AVG(oop_max_individual)) AS avg_oop_max,
+                  ROUND(AVG(deductible_individual)) AS avg_deductible,
+                  ROUND(AVG(sbc_baby_total)) AS avg_baby_cost,
+                  ROUND(AVG(sbc_diabetes_total)) AS avg_diabetes_cost,
+                  ROUND(AVG(sbc_fracture_total)) AS avg_fracture_cost
+                FROM cms_benchmark_plans
+                WHERE metal_level = %s
+                  AND oop_max_individual IS NOT NULL
+                """,
+                (metal_level,),
+            )
+            row = cur.fetchone()
+    finally:
+        conn.close()
+
+    if not row or int(row["plan_count"]) == 0:
+        return None
+
+    return {
+        "state_code": "US",
+        "metal_level": metal_level,
+        "plan_type": None,
+        "plan_count": int(row["plan_count"]),
+        "avg_oop_max": _to_float(row["avg_oop_max"]),
+        "avg_deductible": _to_float(row["avg_deductible"]),
+        "min_oop": None,
+        "max_oop": None,
+        "avg_baby_cost": _to_float(row["avg_baby_cost"]),
+        "avg_diabetes_cost": _to_float(row["avg_diabetes_cost"]),
+        "avg_fracture_cost": _to_float(row["avg_fracture_cost"]),
+        "hsa_eligible_pct": None,
+        "data_source": DATA_SOURCE,
+        "is_national_fallback": True,
+        "coverage_note": (
+            f"Regional data not available for your state — "
+            f"showing national average for {metal_level} plans."
+        ),
+    }
+
+
 def _oop_percentile(user_oop: float | None, avg_oop: float | None) -> str | None:
     if user_oop is None or avg_oop is None:
         return None
@@ -105,11 +155,27 @@ def _build_summary_line(
     metal_level: str,
     user_plan_oop: float | None,
     avg_oop_max: float | None,
+    is_national_fallback: bool = False,
 ) -> str:
     if user_plan_oop is None or avg_oop_max is None:
+        if is_national_fallback:
+            return f"Benchmark data for {metal_level} plans nationally."
         return f"Benchmark data for {metal_level} plans in {state_code}."
 
     oop_vs_avg = user_plan_oop - avg_oop_max
+    if is_national_fallback:
+        if oop_vs_avg < 0:
+            return (
+                f"Your plan's OOP max is ${abs(oop_vs_avg):,.0f} lower than the "
+                f"national average for {metal_level} plans."
+            )
+        if oop_vs_avg > 0:
+            return (
+                f"Your plan's OOP max is ${oop_vs_avg:,.0f} higher than the "
+                f"national average for {metal_level} plans."
+            )
+        return f"Your plan's OOP max matches the national average for {metal_level} plans."
+
     if oop_vs_avg < 0:
         return (
             f"Your plan's OOP max is ${abs(oop_vs_avg):,.0f} lower than the "
@@ -132,10 +198,14 @@ def get_benchmark_context(
     try:
         benchmark = get_plan_benchmark(state_code, metal_level)
         if benchmark is None:
-            return {
-                "available": False,
-                "reason": "Regional benchmark data not available for this state.",
-            }
+            benchmark = _get_national_plan_benchmark(metal_level)
+            if benchmark is None:
+                return {
+                    "available": False,
+                    "reason": "Regional benchmark data not available for this state.",
+                }
+
+        is_national_fallback = benchmark.get("is_national_fallback", False)
 
         avg_oop_max = benchmark["avg_oop_max"]
         avg_deductible = benchmark["avg_deductible"]
@@ -170,6 +240,7 @@ def get_benchmark_context(
                     benchmark["metal_level"],
                     user_plan_oop,
                     avg_oop_max,
+                    is_national_fallback,
                 ),
             },
             "scenario_costs": {
