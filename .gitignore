@@ -165,3 +165,7 @@ static/memes/
 playwright-report/
 test-results/
 static/uploads/resumes/
+data/cms_puf/**/*.csv
+data/cms_puf/**/*.xlsx
+data/cms_puf/**/*.zip
+data/cms_puf/sbe/**
