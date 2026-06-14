@@ -50,6 +50,8 @@ from backend.models.hprs_score_history import HprsScoreHistory  # noqa: F401
 from backend.models.hprs_latent_candidate import HprsLatentCandidate  # noqa: F401
 from backend.models.debt_profile import DebtProfile  # noqa: F401
 from backend.models.gap_analysis import GapAnalysisResult  # noqa: F401
+from backend.models.health_insurance_plan import HealthInsurancePlan  # noqa: F401
+from backend.models.health_insurance_recommendation import HealthInsuranceRecommendation  # noqa: F401
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
