@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, lazy, Suspense } from 'react';
+import React, { useState, useEffect, useRef, useCallback, lazy, Suspense } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import RecommendationTiers from '../components/RecommendationTiers';
 import DashboardErrorBoundary from '../components/DashboardErrorBoundary';
@@ -6,6 +6,7 @@ import DashboardSkeleton from '../components/DashboardSkeleton';
 import QuickSetupOverlay from '../components/QuickSetupOverlay';
 import SpendingMilestonesWidget from '../components/SpendingMilestonesWidget';
 import SpecialDatesWidget from '../components/SpecialDatesWidget';
+import NewParentChecklistCard from '../components/NewParentChecklistCard';
 import TodayTab from '../components/TodayTab';
 import CardJobHome from '../components/CardJobHome';
 import FinancialForecastTab from '../components/FinancialForecastTab';
@@ -190,6 +191,21 @@ function hasMidTierAccess(tier: AuthUserTier | null): boolean {
   return tier === 'mid_tier' || tier === 'professional';
 }
 
+const BABY_MILESTONE_RE = /\b(baby|birth|newborn|pregnancy|pregnant|expecting|childbirth)\b/i;
+
+function detectBabyMilestone(importantDates: Record<string, unknown> | null | undefined): boolean {
+  if (!importantDates || typeof importantDates !== 'object') return false;
+  const customs = (importantDates.custom_events ?? importantDates.customEvents) as unknown;
+  if (!Array.isArray(customs)) return false;
+  return customs.some((ev) => {
+    if (!ev || typeof ev !== 'object') return false;
+    const row = ev as Record<string, unknown>;
+    if (row.event_type === 'birth' || row.type === 'birth') return true;
+    const name = typeof row.name === 'string' ? row.name : '';
+    return BABY_MILESTONE_RE.test(name);
+  });
+}
+
 const CareerProtectionDashboard: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { user, userTier, isAuthenticated, loading: authLoading, getAccessToken } = useAuth();
@@ -227,6 +243,44 @@ const CareerProtectionDashboard: React.FC = () => {
   const [showQuickSetup, setShowQuickSetup] = useState(false);
   const [todayCardIndex, setTodayCardIndex] = useState(0);
   const [hprsRefreshToken, setHprsRefreshToken] = useState(0);
+  const [parentChecklistIds, setParentChecklistIds] = useState<string[]>([]);
+  const [parentChecklistLoaded, setParentChecklistLoaded] = useState(false);
+  const [parentChecklistError, setParentChecklistError] = useState(false);
+  const [hasBabyMilestone, setHasBabyMilestone] = useState(false);
+
+  const loadParentChecklistFromProfile = useCallback(async () => {
+    if (!user?.id) return;
+    setParentChecklistLoaded(false);
+    setParentChecklistError(false);
+    const token = getAccessToken();
+    try {
+      const response = await fetch(
+        `/api/user/profile?userId=${encodeURIComponent(user.id)}`,
+        {
+          credentials: 'include',
+          headers: {
+            ...csrfHeaders(),
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+      if (!response.ok) throw new Error('Failed to load profile');
+      const data = await response.json();
+      const importantDates = data?.profile?.important_dates as Record<string, unknown> | undefined;
+      const rawIds = importantDates?.parent_checklist;
+      setParentChecklistIds(Array.isArray(rawIds) ? (rawIds as string[]) : []);
+      setHasBabyMilestone(detectBabyMilestone(importantDates));
+      setParentChecklistLoaded(true);
+    } catch {
+      setParentChecklistError(true);
+      setParentChecklistLoaded(true);
+    }
+  }, [getAccessToken, user?.id]);
+
+  useEffect(() => {
+    void loadParentChecklistFromProfile();
+  }, [loadParentChecklistFromProfile, importantDatesRefreshKey]);
 
   // Handle mobile detection (non-data-fetching, safe)
   useEffect(() => {
@@ -514,6 +568,21 @@ const CareerProtectionDashboard: React.FC = () => {
                 onRequestAddDate={openAddImportantDate}
                 importantDatesRefreshKey={importantDatesRefreshKey}
                 className="mt-6"
+              />
+              <NewParentChecklistCard
+                userId={user?.id ?? ''}
+                completedIds={parentChecklistIds}
+                hasBabyMilestone={hasBabyMilestone}
+                isLoading={!parentChecklistLoaded}
+                profileError={parentChecklistError}
+                onUpdate={async (ids) => {
+                  if (parentChecklistError && ids.length === 0) {
+                    await loadParentChecklistFromProfile();
+                    return;
+                  }
+                  setParentChecklistIds(ids);
+                }}
+                className="mt-0"
               />
             </div>
           )}
