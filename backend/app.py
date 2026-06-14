@@ -23,6 +23,7 @@ from backend.routes.user import user_bp as user_agreement_bp
 from backend.routes.vehicle_dashboard_routes import vehicle_dashboard_public_bp
 from backend.routes.vin_advisor import vin_advisor_bp
 from backend.routes.hprs import hprs_bp
+import backend.routes.housing  # noqa: F401 — registers HPRS action routes on hprs_bp
 from backend.routes.vibe_daily_routes import vibe_daily_public_bp
 from backend.routes.checkups_hub_api import checkups_hub_bp
 from backend.routes.waterfall_context_api import waterfall_context_bp
@@ -34,6 +35,7 @@ from backend.routes.daily_outlook_routes import daily_outlook_public_bp
 from backend.models.onboarding_progress import OnboardingProgress  # noqa: F401
 from backend.models.database import db
 from backend.api.employer_health import employer_health_api
+from backend.routes.parent_checklist import parent_checklist_bp
 from backend.cli.employer_refresh import register_employer_cli
 from backend.cli.hprs_refresh import register_hprs_cli
 
@@ -87,5 +89,6 @@ def register_backend_blueprints(app):
     app.register_blueprint(waterfall_context_bp)
     app.register_blueprint(plaid_bp)
     app.register_blueprint(employer_health_api)
+    app.register_blueprint(parent_checklist_bp)
     register_employer_cli(app)
     register_hprs_cli(app)
