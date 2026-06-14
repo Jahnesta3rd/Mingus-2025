@@ -38,6 +38,7 @@ from backend.api.employer_health import employer_health_api
 from backend.routes.parent_checklist import parent_checklist_bp
 from backend.routes.articles import articles_bp
 from backend.routes.debt_analyzer import debt_analyzer_bp
+from backend.routes.second_job_advisor import second_job_advisor_bp
 from backend.cli.employer_refresh import register_employer_cli
 from backend.cli.hprs_refresh import register_hprs_cli
 
@@ -94,5 +95,6 @@ def register_backend_blueprints(app):
     app.register_blueprint(parent_checklist_bp)
     app.register_blueprint(articles_bp)
     app.register_blueprint(debt_analyzer_bp)
+    app.register_blueprint(second_job_advisor_bp)
     register_employer_cli(app)
     register_hprs_cli(app)
