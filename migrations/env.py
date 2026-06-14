@@ -48,6 +48,7 @@ from backend.models.hprs_score import HprsScore  # noqa: F401
 from backend.models.hprs_plan import HprsPlan  # noqa: F401
 from backend.models.hprs_score_history import HprsScoreHistory  # noqa: F401
 from backend.models.hprs_latent_candidate import HprsLatentCandidate  # noqa: F401
+from backend.models.debt_profile import DebtProfile  # noqa: F401
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
