@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { CheckupWrapperShell } from './CheckupWrapperShell';
+import ArticleRecommendationStrip from '../ArticleRecommendationStrip';
 import { authJsonHeaders, submitRelationshipsCheckup } from './checkupShared';
 import { StayOrGoPrompt } from './StayOrGoPrompt';
 import { useCheckupFluencyNavigation } from './useCheckupFluencyNavigation';
@@ -387,6 +388,14 @@ export function DashRelationshipsCheckup() {
         personName={personName}
         onDismiss={finishFlow}
       />
+
+      {successMessage ? (
+        <ArticleRecommendationStrip
+          heading="Free game for you"
+          subheading="Based on your check-in"
+          className="mt-4"
+        />
+      ) : null}
 
       {successMessage && waterfallContext && pendingNavigate ? (
         <FluencyCue

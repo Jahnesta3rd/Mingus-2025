@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useState } from 'react';
 import { CheckupWrapperShell } from './CheckupWrapperShell';
+import ArticleRecommendationStrip from '../ArticleRecommendationStrip';
 import { submitHousingCheckup } from './checkupShared';
 import { RenewalPrompt } from './RenewalPrompt';
 import { useCheckupFluencyNavigation } from './useCheckupFluencyNavigation';
@@ -188,6 +189,14 @@ export function DashHousingRoofCheckup() {
           finishFlow(submittedRoofScore ?? profile?.roof_score ?? 0);
         }}
       />
+
+      {successMessage ? (
+        <ArticleRecommendationStrip
+          heading="Free game for you"
+          subheading="Based on your check-in"
+          className="mt-4"
+        />
+      ) : null}
 
       {successMessage && waterfallContext && pendingNavigate ? (
         <FluencyCue

@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useState } from 'react';
 import { CheckupWrapperShell } from './CheckupWrapperShell';
+import ArticleRecommendationStrip from '../ArticleRecommendationStrip';
 import { submitMindMoodCheckin } from './checkupShared';
 import { useCheckupFluencyNavigation } from './useCheckupFluencyNavigation';
 import {
@@ -103,6 +104,14 @@ export function DashMindMoodCheckup() {
       error={error}
       successMessage={successMessage}
     >
+      {successMessage ? (
+        <ArticleRecommendationStrip
+          heading="Free game for you"
+          subheading="Based on your check-in"
+          className="mt-4"
+        />
+      ) : null}
+
       {successMessage && waterfallContext ? (
         <FluencyCue
           context={waterfallContext}

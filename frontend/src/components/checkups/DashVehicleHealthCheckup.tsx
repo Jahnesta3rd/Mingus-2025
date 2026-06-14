@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CheckupWrapperShell } from './CheckupWrapperShell';
+import ArticleRecommendationStrip from '../ArticleRecommendationStrip';
 import { CHECKUPS_HUB_PATH, submitVehicleCheckup } from './checkupShared';
 import {
   CheckupForm,
@@ -167,6 +168,14 @@ export function DashVehicleHealthCheckup() {
       error={error}
       successMessage={successMessage}
     >
+      {successMessage ? (
+        <ArticleRecommendationStrip
+          heading="Free game for you"
+          subheading="Based on your check-in"
+          className="mt-4"
+        />
+      ) : null}
+
       {!successMessage ? (
         <div
           className="dash-checkup-theme max-h-[70vh] overflow-y-auto rounded-2xl border bg-white p-6 shadow-sm sm:max-h-none sm:overflow-visible sm:p-8"

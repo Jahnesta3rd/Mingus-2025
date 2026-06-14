@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useState } from 'react';
 import { CheckupWrapperShell } from './CheckupWrapperShell';
+import ArticleRecommendationStrip from '../ArticleRecommendationStrip';
 import { submitSpiritCalmCheckin } from './checkupShared';
 import { useCheckupFluencyNavigation } from './useCheckupFluencyNavigation';
 import { BreathingExerciseModal } from './BreathingExerciseModal';
@@ -113,6 +114,14 @@ export function DashSpiritCalmCheckup() {
       successMessage={successMessage}
     >
       <BreathingExerciseModal open={showBreathing} onComplete={finishFlow} />
+
+      {successMessage ? (
+        <ArticleRecommendationStrip
+          heading="Free game for you"
+          subheading="Based on your check-in"
+          className="mt-4"
+        />
+      ) : null}
 
       {successMessage && waterfallContext && pendingNavigate ? (
         <FluencyCue

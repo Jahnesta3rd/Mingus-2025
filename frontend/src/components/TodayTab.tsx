@@ -10,6 +10,7 @@ import VehicleCheckInCardBody from './VehicleCheckInCardBody';
 import HousingCheckInCardBody from './HousingCheckInCardBody';
 import WellnessCheckInCardBody from './WellnessCheckInCardBody';
 import { CARD_CONFIGS } from './cardConfigs';
+import ArticleRecommendationStrip from './ArticleRecommendationStrip';
 import { useCardPriority } from '../hooks/useCardPriority';
 
 export interface TodayTabProps {
@@ -193,6 +194,7 @@ const TodayTab: React.FC<TodayTabProps> = ({
             </HeroCard>
           </CardStack>
         )}
+        <ArticleRecommendationStrip className="mt-4 px-4" />
       </div>
     </div>
   );
