@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import json
 import logging
 import os
 import re
@@ -15,9 +16,12 @@ from typing import Any
 from flask import Blueprint, jsonify, request
 from werkzeug.utils import secure_filename
 
+from backend.api.profile_endpoints import get_db_connection
 from backend.auth.decorators import get_current_user_db_id, require_auth
+from backend.models import hia_usage_profile_mixin  # noqa: F401 — ensure HIA columns
 from backend.models.database import db
 from backend.models.health_insurance_plan import HealthInsurancePlan
+from backend.models.transaction_schedule import IncomeStream
 from backend.models.user_models import User
 
 logger = logging.getLogger(__name__)
@@ -53,6 +57,178 @@ _MANUAL_FIELDS = (
     "employer_hsa_contribution",
     "in_network_only",
 )
+
+_MONTHLY_INCOME_MULTIPLIERS: dict[str, float] = {
+    "weekly": 52 / 12,
+    "biweekly": 26 / 12,
+    "semimonthly": 2.0,
+    "monthly": 1.0,
+    "quarterly": 1 / 3,
+    "annual": 1 / 12,
+}
+
+_USAGE_BODY_TO_COLUMN: dict[str, str] = {
+    "coverage_type": "hia_coverage_type",
+    "primary_care_visits": "hia_primary_care_visits",
+    "specialist_visits": "hia_specialist_visits",
+    "er_visits": "hia_er_visits",
+    "planned_procedure": "hia_planned_procedure",
+    "takes_rx": "hia_takes_rx",
+    "rx_type": "hia_rx_type",
+}
+
+
+def _parse_json_object(raw: Any) -> dict:
+    if raw is None or raw == "":
+        return {}
+    if isinstance(raw, dict):
+        return dict(raw)
+    if isinstance(raw, str):
+        try:
+            parsed = json.loads(raw)
+            return dict(parsed) if isinstance(parsed, dict) else {}
+        except (TypeError, ValueError, json.JSONDecodeError):
+            return {}
+    return {}
+
+
+def _coerce_int(value: Any) -> int | None:
+    if value is None or isinstance(value, bool):
+        return None
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def _coerce_bool(value: Any) -> bool | None:
+    if value is None:
+        return None
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, str):
+        normalized = value.strip().lower()
+        if normalized in {"true", "1", "yes"}:
+            return True
+        if normalized in {"false", "0", "no"}:
+            return False
+    return bool(value)
+
+
+def _stream_to_monthly(amount: Decimal | float, frequency: str) -> float:
+    freq = (frequency or "monthly").strip().lower()
+    multiplier = _MONTHLY_INCOME_MULTIPLIERS.get(freq, 1.0)
+    return float(amount) * multiplier
+
+
+def _compute_gross_monthly_income(user_id: int) -> float | None:
+    streams = IncomeStream.query.filter_by(user_id=user_id, is_active=True).all()
+    if not streams:
+        return None
+    return round(sum(_stream_to_monthly(s.amount, s.frequency) for s in streams), 2)
+
+
+def _build_prefill_banner(
+    gross_monthly_income: float | None,
+    emergency_fund: float | None,
+) -> str | None:
+    parts: list[str] = []
+    if gross_monthly_income is not None:
+        parts.append(f"${gross_monthly_income:,.0f}/month income")
+    if emergency_fund is not None:
+        parts.append(f"${emergency_fund:,.0f} emergency fund")
+    if not parts:
+        return None
+    return f"Using your profile: {' · '.join(parts)}"
+
+
+def _load_usage_profile_row(user_id: int) -> dict[str, Any] | None:
+    conn = get_db_connection()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                SELECT
+                  up.hia_coverage_type,
+                  up.hia_primary_care_visits,
+                  up.hia_specialist_visits,
+                  up.hia_er_visits,
+                  up.hia_planned_procedure,
+                  up.hia_takes_rx,
+                  up.hia_rx_type,
+                  up.hia_last_updated,
+                  up.financial_info,
+                  up.personal_info
+                FROM user_profiles up
+                JOIN users u ON u.email = up.email
+                WHERE u.id = %s
+                LIMIT 1
+                """,
+                (user_id,),
+            )
+            return cur.fetchone()
+    finally:
+        conn.close()
+
+
+def _usage_profile_response(user: User) -> dict[str, Any]:
+    row = _load_usage_profile_row(user.id)
+
+    usage = {
+        "coverage_type": None,
+        "primary_care_visits": None,
+        "specialist_visits": None,
+        "er_visits": None,
+        "planned_procedure": None,
+        "takes_rx": None,
+        "rx_type": None,
+        "last_updated": None,
+    }
+    emergency_fund = None
+    household_size = None
+
+    if row:
+        usage = {
+            "coverage_type": row.get("hia_coverage_type"),
+            "primary_care_visits": row.get("hia_primary_care_visits"),
+            "specialist_visits": row.get("hia_specialist_visits"),
+            "er_visits": row.get("hia_er_visits"),
+            "planned_procedure": row.get("hia_planned_procedure"),
+            "takes_rx": row.get("hia_takes_rx"),
+            "rx_type": row.get("hia_rx_type"),
+            "last_updated": (
+                row["hia_last_updated"].isoformat()
+                if row.get("hia_last_updated")
+                else None
+            ),
+        }
+        financial_info = _parse_json_object(row.get("financial_info"))
+        personal_info = _parse_json_object(row.get("personal_info"))
+        emergency_fund = _coerce_float(financial_info.get("emergency_fund"))
+        household_size = _coerce_int(
+            personal_info.get("household_size") or personal_info.get("householdSize")
+        )
+
+    gross_monthly_income = _compute_gross_monthly_income(user.id)
+
+    return {
+        "usage": usage,
+        "financial_context": {
+            "gross_monthly_income": gross_monthly_income,
+            "emergency_fund": emergency_fund,
+            "household_size": household_size,
+        },
+        "prefill_banner": _build_prefill_banner(gross_monthly_income, emergency_fund),
+    }
+
+
+def _coerce_float(value: Any) -> float | None:
+    if value is None or isinstance(value, bool):
+        return None
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return None
 
 
 def _resolve_user() -> User | None:
@@ -217,6 +393,109 @@ def list_insurance_plans():
         .all()
     )
     return jsonify([_plan_summary(plan) for plan in plans])
+
+
+@health_insurance_bp.route("/insurance-plans/usage-profile", methods=["GET"])
+@require_auth
+def get_usage_profile():
+    user = _resolve_user()
+    if user is None:
+        return jsonify({"error": "User not found"}), 404
+
+    return jsonify(_usage_profile_response(user))
+
+
+@health_insurance_bp.route("/insurance-plans/usage-profile", methods=["POST"])
+@require_auth
+def save_usage_profile():
+    user = _resolve_user()
+    if user is None:
+        return jsonify({"error": "User not found"}), 404
+
+    data = request.get_json(silent=True) or {}
+    set_clauses: list[str] = []
+    params: list[Any] = []
+
+    for body_field, column in _USAGE_BODY_TO_COLUMN.items():
+        if body_field not in data:
+            continue
+        value = data[body_field]
+        if body_field in {"primary_care_visits", "specialist_visits", "er_visits"}:
+            value = _coerce_int(value)
+        elif body_field in {"planned_procedure", "takes_rx"}:
+            value = _coerce_bool(value)
+        elif body_field == "coverage_type" and value is not None:
+            value = str(value)[:20]
+        elif body_field == "rx_type" and value is not None:
+            value = str(value)[:20]
+        set_clauses.append(f"{column} = %s")
+        params.append(value)
+
+    set_clauses.append("hia_last_updated = NOW()")
+    set_clauses.append("updated_at = CURRENT_TIMESTAMP")
+
+    conn = get_db_connection()
+    try:
+        with conn.cursor() as cur:
+            if set_clauses:
+                params.append(user.id)
+                cur.execute(
+                    f"""
+                    UPDATE user_profiles up
+                    SET {", ".join(set_clauses)}
+                    FROM users u
+                    WHERE up.email = u.email AND u.id = %s
+                    """,
+                    params,
+                )
+                if cur.rowcount == 0:
+                    cur.execute(
+                        """
+                        INSERT INTO user_profiles (
+                            email,
+                            personal_info,
+                            financial_info,
+                            monthly_expenses,
+                            important_dates,
+                            health_wellness,
+                            goals,
+                            hia_coverage_type,
+                            hia_primary_care_visits,
+                            hia_specialist_visits,
+                            hia_er_visits,
+                            hia_planned_procedure,
+                            hia_takes_rx,
+                            hia_rx_type,
+                            hia_last_updated,
+                            created_at,
+                            updated_at
+                        )
+                        VALUES (
+                            %s, '{}', '{}', '{}', '{}', '{}', '{}',
+                            %s, %s, %s, %s, %s, %s, %s, NOW(),
+                            CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
+                        )
+                        """,
+                        (
+                            user.email,
+                            data.get("coverage_type"),
+                            _coerce_int(data.get("primary_care_visits")),
+                            _coerce_int(data.get("specialist_visits")),
+                            _coerce_int(data.get("er_visits")),
+                            _coerce_bool(data.get("planned_procedure")),
+                            _coerce_bool(data.get("takes_rx")),
+                            data.get("rx_type"),
+                        ),
+                    )
+        conn.commit()
+    except Exception:
+        conn.rollback()
+        logger.exception("Failed to save HIA usage profile for user_id=%s", user.id)
+        return jsonify({"error": "Failed to save usage profile"}), 500
+    finally:
+        conn.close()
+
+    return jsonify({"saved": True})
 
 
 @health_insurance_bp.route("/insurance-plans/<int:plan_id>/status", methods=["GET"])
