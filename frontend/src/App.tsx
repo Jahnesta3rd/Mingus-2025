@@ -46,6 +46,7 @@ import WaterfallPage from './pages/WaterfallPage';
 import UpgradePage from './pages/UpgradePage';
 import DashboardProfilePage from './pages/DashboardProfilePage';
 import SnapshotPage from './pages/SnapshotPage';
+import HealthInsuranceAdvisor from './components/HealthInsuranceAdvisor';
 import { useAuth } from './hooks/useAuth';
 import { LeadGenAssessment } from './pages/LeadGenAssessment';
 
@@ -207,6 +208,7 @@ const router = createBrowserRouter([
       { path: 'checkups/relationships', element: <DashRelationshipsCheckup /> },
       { path: 'checkups/vehicle', element: <DashVehicleHealthCheckup /> },
       { path: 'spirit', element: <SpiritFinance /> },
+      { path: 'benefits/insurance', element: <HealthInsuranceAdvisor /> },
       { path: 'vibe-tracker', element: <Navigate to="/dashboard/roster" replace /> },
     ],
   },
