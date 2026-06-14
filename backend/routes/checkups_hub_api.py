@@ -7,6 +7,7 @@ All card answers upsert into LifeLedgerProfile for the authenticated user.
 
 from __future__ import annotations
 
+import threading
 from datetime import datetime
 
 from flask import Blueprint, jsonify, request
@@ -224,6 +225,17 @@ def _load_json():
     return request.get_json(), None
 
 
+def _recs_bg(uid: int, trig: str, dom: str, ctx: dict) -> None:
+    try:
+        from backend.services.article_recommendation_service import (
+            generate_contextual_recommendations,
+        )
+
+        generate_contextual_recommendations(uid, trig, dom, ctx)
+    except Exception:
+        pass
+
+
 @checkups_hub_bp.route("/body", methods=["POST"])
 @require_auth
 def submit_body():
@@ -240,6 +252,11 @@ def submit_body():
 
     profile = lls.get_or_create_profile(user_id)
     score = chs.apply_body_checkup(profile, parsed)
+    threading.Thread(
+        target=_recs_bg,
+        args=(user_id, "body_checkup", "physical_wellness", parsed),
+        daemon=True,
+    ).start()
     return _commit_profile(profile, body_score=score)
 
 
@@ -259,6 +276,11 @@ def submit_mind_mood():
 
     profile = lls.get_or_create_profile(user_id)
     chs.apply_mind_mood_checkup(profile, parsed)
+    threading.Thread(
+        target=_recs_bg,
+        args=(user_id, "mind_mood_checkup", "mental_health_money", parsed),
+        daemon=True,
+    ).start()
     return _commit_profile(profile)
 
 
@@ -278,6 +300,11 @@ def submit_spirit_calm():
 
     profile = lls.get_or_create_profile(user_id)
     chs.apply_spirit_calm_checkup(profile, parsed)
+    threading.Thread(
+        target=_recs_bg,
+        args=(user_id, "spirit_calm_checkup", "mental_models", parsed),
+        daemon=True,
+    ).start()
     return _commit_profile(profile)
 
 
@@ -297,6 +324,11 @@ def submit_housing_roof():
 
     profile = lls.get_or_create_profile(user_id)
     score = chs.apply_housing_checkup(profile, parsed)
+    threading.Thread(
+        target=_recs_bg,
+        args=(user_id, "housing_roof_checkup", "housing", parsed),
+        daemon=True,
+    ).start()
     return _commit_profile(profile, roof_score=score)
 
 
@@ -316,6 +348,11 @@ def submit_vehicle():
 
     profile = lls.get_or_create_profile(user_id)
     score = chs.apply_vehicle_checkup(profile, parsed)
+    threading.Thread(
+        target=_recs_bg,
+        args=(user_id, "vehicle_checkup", "career_income", parsed),
+        daemon=True,
+    ).start()
     return _commit_profile(profile, vehicle_score=score)
 
 
@@ -335,4 +372,9 @@ def submit_relationships():
 
     profile = lls.get_or_create_profile(user_id)
     chs.apply_relationships_checkup(profile, parsed)
+    threading.Thread(
+        target=_recs_bg,
+        args=(user_id, "relationships_checkup", "relationships_money", parsed),
+        daemon=True,
+    ).start()
     return _commit_profile(profile)

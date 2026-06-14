@@ -291,6 +291,74 @@ def recommended_articles():
     return jsonify({"articles": [_row_to_article(row) for row in rows]})
 
 
+def _row_to_my_rec_article(row: dict) -> dict:
+    return {
+        "id": row["id"],
+        "title": row["title"],
+        "url": row["url"],
+        "source": row["source"],
+        "domain": row["domain"],
+        "tags": _parse_tags(row.get("tags")),
+        "read_time_minutes": row["read_time_minutes"],
+    }
+
+
+@articles_bp.route("/my-recommendations", methods=["GET"])
+@require_auth
+def my_recommendations():
+    user_id = get_current_user_db_id()
+    if user_id is None:
+        return jsonify({"error": "User not found"}), 404
+
+    conn = _get_db_connection()
+    try:
+        cur = conn.cursor()
+        cur.execute(
+            """
+            SELECT trigger, domain, article_ids, created_at
+            FROM article_recommendations
+            WHERE user_id = %s
+            ORDER BY created_at DESC
+            LIMIT 1
+            """,
+            (user_id,),
+        )
+        rec_row = cur.fetchone()
+        if rec_row is None:
+            return jsonify({"trigger": None, "articles": []})
+
+        article_ids = list(rec_row["article_ids"] or [])
+        if not article_ids:
+            return jsonify({"trigger": None, "articles": []})
+
+        cur.execute(
+            """
+            SELECT id, title, url, source, domain, tags, read_time_minutes
+            FROM articles
+            WHERE id = ANY(%s) AND is_active = TRUE
+            """,
+            (article_ids,),
+        )
+        rows = cur.fetchall()
+    finally:
+        conn.close()
+
+    by_id = {row["id"]: _row_to_my_rec_article(row) for row in rows}
+    articles = [by_id[aid] for aid in article_ids if aid in by_id]
+    generated_at = rec_row["created_at"]
+    if isinstance(generated_at, datetime):
+        generated_at = generated_at.isoformat()
+
+    return jsonify(
+        {
+            "trigger": rec_row["trigger"],
+            "domain": rec_row["domain"],
+            "articles": articles,
+            "generated_at": generated_at,
+        }
+    )
+
+
 @articles_bp.route("/<int:article_id>/bookmark", methods=["POST"])
 @require_auth
 def toggle_bookmark(article_id: int):
