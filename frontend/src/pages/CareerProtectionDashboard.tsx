@@ -27,6 +27,7 @@ import { HprsLatentNudgeCard } from '../components/housing/HprsLatentNudgeCard';
 import OptimalLocationRouter from '../components/OptimalLocation/OptimalLocationRouter';
 import DashboardWellnessSection from '../components/DashboardWellnessSection';
 import YouTab from '../components/YouTab';
+import DebtAnalyzerTab from '../components/DebtAnalyzerTab';
 import EmployerBackfillModal, {
   isEmployerBackfillDismissed,
 } from '../components/EmployerBackfillModal';
@@ -39,6 +40,7 @@ const MobileDailyOutlook = lazy(() => import('../components/MobileDailyOutlook')
 type MainTabId =
   | 'today'
   | 'forecast'
+  | 'debt'
   | 'plans'
   | 'discover'
   | 'you'
@@ -77,6 +79,8 @@ function storeTabToMainTab(storeTab: string): MainTabId {
   switch (storeTab) {
     case 'financial-forecast':
       return 'forecast';
+    case 'debt':
+      return 'debt';
     case 'recommendations':
       return 'discover';
     case 'overview':
@@ -99,6 +103,8 @@ function mainTabToStoreTab(tab: MainTabId): LegacyStoreTab {
   switch (tab) {
     case 'forecast':
       return 'financial-forecast';
+    case 'debt':
+      return 'overview';
     case 'plans':
       return 'overview';
     case 'discover':
@@ -132,6 +138,8 @@ function legacyQueryTabToMainTab(tab: string): MainTabId | null {
       return 'wellness';
     case 'financial-forecast':
       return 'forecast';
+    case 'debt':
+      return 'debt';
     case 'recommendations':
     case 'job-recommendations':
       return 'discover';
@@ -159,6 +167,7 @@ function forecastTabTier(tier: AuthUserTier | null): 'budget' | 'mid' | 'profess
 const BOTTOM_NAV_TABS: { id: MainTabId; label: string }[] = [
   { id: 'today', label: 'Today' },
   { id: 'forecast', label: 'Forecast' },
+  { id: 'debt', label: 'Debt' },
   { id: 'plans', label: 'Plans' },
   { id: 'discover', label: 'Discover' },
   { id: 'you', label: 'You' },
@@ -557,6 +566,14 @@ const CareerProtectionDashboard: React.FC = () => {
               userTier={forecastTabTier(userTier)}
               className="mt-0"
               onOpenEmployerBackfill={() => setShowBackfill(true)}
+            />
+          )}
+
+          {dashboardState.activeTab === 'debt' && (
+            <DebtAnalyzerTab
+              userEmail={user?.email ?? ''}
+              userTier={userTier ?? 'budget'}
+              className="mt-0"
             />
           )}
 
