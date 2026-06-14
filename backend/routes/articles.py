@@ -29,7 +29,7 @@ DOMAIN_LABELS: dict[str, str] = {
     "mental_health_money": "Mental Health & Money",
     "physical_wellness": "Physical Wellness",
     "relationships_money": "Relationships & Money",
-    "mental_models": "Mental Models",
+    "mental_models": "Free Game",
 }
 
 _MODULE_TO_DOMAIN: dict[str, str] = {
