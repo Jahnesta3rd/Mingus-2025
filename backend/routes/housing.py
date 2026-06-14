@@ -16,6 +16,10 @@ from backend.models.housing_profile import HousingProfile
 from backend.models.hprs_latent_candidate import HprsLatentCandidate
 from backend.models.user_models import User
 from backend.routes.hprs import hprs_bp
+from backend.services.action_plan_service import (
+    ActionPlanGenerationError,
+    generate_action_plan,
+)
 from backend.services.gap_analysis_service import compute_gap_analysis
 from backend.tasks.hprs_tasks import generate_hprs_plan_task
 
@@ -126,6 +130,45 @@ def get_gap_analysis(gap_analysis_id: int):
         return jsonify({"error": "not_found"}), 404
 
     return jsonify(_gap_analysis_row_to_dict(row)), 200
+
+
+@hprs_bp.route("/action-plan", methods=["POST"])
+@require_auth
+def create_action_plan():
+    user: User | None = current_user
+    if user is None:
+        return jsonify({"error": "User not found"}), 404
+
+    data = request.get_json(silent=True) or {}
+    gap_analysis_id = data.get("gap_analysis_id")
+    if gap_analysis_id is None:
+        return jsonify({"error": "validation_error", "message": "gap_analysis_id is required"}), 400
+
+    try:
+        gap_analysis_id_int = int(gap_analysis_id)
+    except (TypeError, ValueError):
+        return jsonify({"error": "validation_error", "message": "gap_analysis_id must be an integer"}), 400
+
+    row = GapAnalysisResult.query.get(gap_analysis_id_int)
+    if row is None or row.user_id != user.id:
+        return jsonify({"error": "not_found"}), 404
+
+    now = datetime.utcnow()
+    if (
+        row.action_plan_json is not None
+        and row.expires_at is not None
+        and row.expires_at > now
+    ):
+        return jsonify({"plan": row.action_plan_json, "cached": True}), 200
+
+    try:
+        plan_json = generate_action_plan(gap_analysis_id_int, user.id)
+    except ValueError:
+        return jsonify({"error": "not_found"}), 404
+    except ActionPlanGenerationError:
+        return jsonify({"error": "Plan generation failed. Try again in a moment."}), 500
+
+    return jsonify({"plan": plan_json, "cached": False}), 200
 
 
 @hprs_bp.route("/hprs/queue-generation", methods=["POST"])
