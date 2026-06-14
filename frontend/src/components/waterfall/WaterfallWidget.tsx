@@ -241,6 +241,15 @@ export const WaterfallWidget: React.FC = () => {
     void fetchWaterfallContext()
       .then(setWaterfallCtx)
       .catch(() => setWaterfallCtx(null));
+
+    const params = new URLSearchParams(window.location.search);
+    const secondJobIncome = params.get('secondJobIncome');
+    if (secondJobIncome) {
+      const extra = parseFloat(secondJobIncome);
+      if (!isNaN(extra) && extra > 0) {
+        setMonthlyIncome((prev) => prev + extra);
+      }
+    }
   }, []);
 
   const optimizedAllocations = useMemo(

@@ -165,7 +165,8 @@ export function HomeownershipActionPlan({
   }, [fetchPlan, fetchKey]);
 
   const goToSecondJobs = () => {
-    navigate('/dashboard/tools?tab=debt');
+    const target = plan?.pillar_3.monthly_target ?? 0;
+    navigate(`/dashboard/tools?tab=financial-forecast&secondJobIncome=${target}`);
   };
 
   if (loading) {

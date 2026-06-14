@@ -24,6 +24,7 @@ import AnalyticsDashboard from '../components/AnalyticsDashboard';
 import HousingLocationTile from '../components/HousingLocationTile';
 import { HousingReadinessCard } from '../components/housing/HousingReadinessCard';
 import { HprsLatentNudgeCard } from '../components/housing/HprsLatentNudgeCard';
+import RentVsBuyPanel from '../components/housing/RentVsBuyPanel';
 import OptimalLocationRouter from '../components/OptimalLocation/OptimalLocationRouter';
 import DashboardWellnessSection from '../components/DashboardWellnessSection';
 import YouTab from '../components/YouTab';
@@ -661,6 +662,7 @@ const CareerProtectionDashboard: React.FC = () => {
               <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
                 <HprsLatentNudgeCard onActivated={() => setHprsRefreshToken((t) => t + 1)} />
                 <HousingReadinessCard refreshTrigger={hprsRefreshToken} />
+                <RentVsBuyPanel />
                 <HousingLocationTile />
               </div>
             </CardJobHome>
