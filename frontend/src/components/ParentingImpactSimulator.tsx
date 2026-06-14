@@ -16,6 +16,15 @@ interface RecurringSliderItem {
   step: number;
 }
 
+interface SimulatorDefaults {
+  childcare_default: number;
+  childcare_metro: string;
+  childcare_is_localized: boolean;
+  contribution_529: number;
+  gross_monthly: number;
+  income_source: 'income_streams' | 'default';
+}
+
 const RECURRING_ITEMS: RecurringSliderItem[] = [
   { id: 'open_529', label: '529 contribution', min: 0, max: 500, defaultValue: 200, step: 25 },
   {
@@ -64,18 +73,46 @@ async function applyImpactItem(itemId: string, amount: number): Promise<void> {
   });
 }
 
+function ContextLabelSkeleton() {
+  return <div className="mt-0.5 h-4 w-32 animate-pulse rounded bg-gray-100" />;
+}
+
 export default function ParentingImpactSimulator({
   onApplyAll,
   onViewForecast,
 }: ParentingImpactSimulatorProps) {
-  const [loading, setLoading] = useState(true);
+  const [defaultsLoading, setDefaultsLoading] = useState(true);
+  const [defaultsMeta, setDefaultsMeta] = useState<SimulatorDefaults | null>(null);
   const [applying, setApplying] = useState(false);
   const [amounts, setAmounts] = useState<Record<string, number>>(() =>
     Object.fromEntries(RECURRING_ITEMS.map((item) => [item.id, item.defaultValue]))
   );
 
   useEffect(() => {
-    setLoading(false);
+    const token = localStorage.getItem('mingus_token');
+    fetch('/api/user/checklist/simulator-defaults', {
+      credentials: 'include',
+      headers: {
+        ...csrfHeaders(),
+        Authorization: `Bearer ${token ?? ''}`,
+        'Content-Type': 'application/json',
+      },
+    })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data: SimulatorDefaults | null) => {
+        if (data) {
+          setDefaultsMeta(data);
+          setAmounts((prev) => ({
+            ...prev,
+            open_529: data.contribution_529,
+            childcare_waitlist: data.childcare_default,
+          }));
+        }
+      })
+      .catch(() => {})
+      .finally(() => {
+        setDefaultsLoading(false);
+      });
   }, []);
 
   const monthlyTotal = useMemo(
@@ -99,25 +136,37 @@ export default function ParentingImpactSimulator({
       });
   };
 
-  if (loading) {
-    return (
-      <div className="rounded-xl bg-white p-6 shadow-sm" role="status">
-        <div className="mb-4 h-5 w-64 animate-pulse rounded bg-gray-100" />
-        <div className="grid gap-6 md:grid-cols-2">
-          <div className="space-y-3">
-            {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="h-8 animate-pulse rounded bg-gray-100" />
-            ))}
-          </div>
-          <div className="space-y-3">
-            {[1, 2].map((i) => (
-              <div key={i} className="h-8 animate-pulse rounded bg-gray-100" />
-            ))}
-          </div>
-        </div>
-      </div>
-    );
-  }
+  const renderContextLabel = (itemId: string) => {
+    if (itemId === 'open_529') {
+      if (defaultsLoading) return <ContextLabelSkeleton />;
+      if (defaultsMeta?.income_source === 'income_streams') {
+        return (
+          <p className="mt-0.5 text-xs text-gray-400">
+            Based on your income (~1.5% of gross monthly)
+          </p>
+        );
+      }
+      return null;
+    }
+
+    if (itemId === 'childcare_waitlist') {
+      if (defaultsLoading) return <ContextLabelSkeleton />;
+      if (defaultsMeta?.childcare_is_localized) {
+        return (
+          <p className="mt-0.5 text-xs text-gray-400">
+            Based on {defaultsMeta.childcare_metro} infant care rates
+          </p>
+        );
+      }
+      return (
+        <p className="mt-0.5 text-xs text-gray-400">
+          National average — add your zip for local rates
+        </p>
+      );
+    }
+
+    return null;
+  };
 
   return (
     <div className="rounded-xl bg-white p-6 shadow-sm">
@@ -131,26 +180,29 @@ export default function ParentingImpactSimulator({
           <h3 className="text-sm font-medium text-gray-800">Monthly Impact</h3>
           <div className="mt-3 space-y-4">
             {RECURRING_ITEMS.map((item) => (
-              <div key={item.id} className="flex items-center gap-3">
-                <span className="w-36 shrink-0 text-sm text-gray-600">{item.label}</span>
-                <input
-                  type="range"
-                  min={item.min}
-                  max={item.max}
-                  step={item.step}
-                  value={amounts[item.id]}
-                  onChange={(e) =>
-                    setAmounts((prev) => ({
-                      ...prev,
-                      [item.id]: Number(e.target.value),
-                    }))
-                  }
-                  className="min-w-0 flex-1 accent-teal-500"
-                  aria-label={item.label}
-                />
-                <span className="w-16 shrink-0 text-right text-sm text-gray-800">
-                  {formatCurrency(amounts[item.id])}/mo
-                </span>
+              <div key={item.id}>
+                <div className="flex items-center gap-3">
+                  <span className="w-36 shrink-0 text-sm text-gray-600">{item.label}</span>
+                  <input
+                    type="range"
+                    min={item.min}
+                    max={item.max}
+                    step={item.step}
+                    value={amounts[item.id]}
+                    onChange={(e) =>
+                      setAmounts((prev) => ({
+                        ...prev,
+                        [item.id]: Number(e.target.value),
+                      }))
+                    }
+                    className="min-w-0 flex-1 accent-teal-500"
+                    aria-label={item.label}
+                  />
+                  <span className="w-16 shrink-0 text-right text-sm text-gray-800">
+                    {formatCurrency(amounts[item.id])}/mo
+                  </span>
+                </div>
+                {renderContextLabel(item.id)}
               </div>
             ))}
           </div>

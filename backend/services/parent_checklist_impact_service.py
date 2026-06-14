@@ -7,8 +7,39 @@ from decimal import Decimal
 
 from backend.models.database import db
 from backend.models.financial_setup import RecurringExpense
+from backend.models.transaction_schedule import IncomeStream
+from backend.models.user_models import User
+from backend.services.market_conditions_service import resolve_user_msa
 
 SOURCE = "parent_checklist"
+
+MSA_CHILDCARE_MONTHLY = {
+    "41860": 3200,  # San Francisco
+    "35620": 2800,  # New York
+    "14460": 2500,  # Boston
+    "42660": 2400,  # Seattle
+    "47900": 2300,  # Washington DC
+    "31080": 2200,  # Los Angeles
+    "16980": 2000,  # Chicago
+    "19740": 1900,  # Denver
+    "33100": 1700,  # Miami
+    "12420": 1700,  # Austin
+    "12060": 1600,  # Atlanta
+    "19100": 1500,  # Dallas
+    "26420": 1400,  # Houston
+    "38060": 1400,  # Phoenix
+    "16740": 1400,  # Charlotte
+}
+CHILDCARE_NATIONAL_DEFAULT = 1800
+
+_DEFAULT_CHECKLIST_DEFAULTS: dict[str, object] = {
+    "childcare_default": CHILDCARE_NATIONAL_DEFAULT,
+    "childcare_metro": "National average",
+    "childcare_is_localized": False,
+    "contribution_529": 200,
+    "gross_monthly": 0,
+    "income_source": "default",
+}
 
 RECURRING_IMPACTS: dict[str, dict[str, object]] = {
     "open_529": {
@@ -78,6 +109,59 @@ def _error_result(item_id: str) -> dict:
         "amount": None,
         "name": item_id,
     }
+
+
+def _income_to_monthly(amount: float, frequency: str) -> float:
+    freq = (frequency or "monthly").strip().lower()
+    if freq == "monthly":
+        return amount
+    if freq == "biweekly":
+        return amount * 26 / 12
+    if freq == "weekly":
+        return amount * 52 / 12
+    if freq == "annual":
+        return amount / 12
+    return 0.0
+
+
+def get_checklist_defaults(user_id: int) -> dict:
+    try:
+        user = db.session.get(User, user_id)
+        if user is None:
+            return dict(_DEFAULT_CHECKLIST_DEFAULTS)
+
+        msa_code, msa_name = resolve_user_msa(user)
+        childcare_default = MSA_CHILDCARE_MONTHLY.get(
+            msa_code or "",
+            CHILDCARE_NATIONAL_DEFAULT,
+        )
+
+        streams = IncomeStream.query.filter_by(user_id=user.id, is_active=True).all()
+        gross_monthly = sum(
+            _income_to_monthly(float(stream.amount), stream.frequency)
+            for stream in streams
+        )
+
+        if gross_monthly == 0:
+            contribution_529 = 100
+            income_source = "default"
+        else:
+            contribution_529 = max(
+                100,
+                min(500, round(gross_monthly * 0.015 / 25) * 25),
+            )
+            income_source = "income_streams"
+
+        return {
+            "childcare_default": childcare_default,
+            "childcare_metro": msa_name or "National average",
+            "childcare_is_localized": msa_code is not None,
+            "contribution_529": contribution_529,
+            "gross_monthly": round(gross_monthly, 2),
+            "income_source": income_source,
+        }
+    except Exception:
+        return dict(_DEFAULT_CHECKLIST_DEFAULTS)
 
 
 def apply_checklist_item_impact(

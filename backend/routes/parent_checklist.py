@@ -11,6 +11,7 @@ from backend.models.user_models import User
 from backend.services.parent_checklist_impact_service import (
     SOURCE,
     apply_checklist_item_impact,
+    get_checklist_defaults,
 )
 
 parent_checklist_bp = Blueprint(
@@ -72,3 +73,13 @@ def impact_summary():
             "annual_total": monthly_total * 12,
         }
     ), 200
+
+
+@parent_checklist_bp.route("/simulator-defaults", methods=["GET"])
+@require_auth
+def simulator_defaults():
+    user: User | None = current_user
+    if user is None:
+        return jsonify({"error": "User not found"}), 404
+
+    return jsonify(get_checklist_defaults(user.id)), 200
