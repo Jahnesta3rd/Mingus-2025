@@ -11,9 +11,24 @@ interface NewParentChecklistCardProps {
   className?: string;
   isLoading?: boolean;
   profileError?: boolean;
+  onViewForecast?: () => void;
 }
 
 const TOTAL_ITEMS = 12;
+
+const IMPACT_ITEMS = new Set([
+  'open_529',
+  'life_insurance_will',
+  'short_term_disability',
+  'childcare_waitlist',
+]);
+
+const IMPACT_NAME_TO_ID: Record<string, string> = {
+  '529 college savings': 'open_529',
+  'Life insurance premium': 'life_insurance_will',
+  'Short-term disability': 'short_term_disability',
+  Childcare: 'childcare_waitlist',
+};
 
 const URGENCY_DOT: Record<ChecklistItem['urgency'], string> = {
   high: 'bg-red-400',
@@ -49,13 +64,40 @@ async function patchChecklist(userId: string, ids: string[]): Promise<boolean> {
   return response.ok;
 }
 
+function fireApplyImpact(itemId: string, onSuccess: (amount: number) => void): void {
+  const token = localStorage.getItem('mingus_token');
+  fetch('/api/user/checklist/apply-impact', {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      ...csrfHeaders(),
+      Authorization: `Bearer ${token ?? ''}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ item_id: itemId }),
+  })
+    .then((r) => (r.ok ? r.json() : null))
+    .then((data: { amount?: number } | null) => {
+      if (data != null && typeof data.amount === 'number') {
+        onSuccess(data.amount);
+      }
+    })
+    .catch(() => {});
+}
+
+function formatMonthly(amount: number): string {
+  return `$${amount.toLocaleString(undefined, { maximumFractionDigits: 0 })}/month`;
+}
+
 function ChecklistItemRow({
   item,
   checked,
+  impactAmount,
   onToggle,
 }: {
   item: ChecklistItem;
   checked: boolean;
+  impactAmount?: number;
   onToggle: () => void;
 }) {
   const textMuted = checked ? 'text-gray-400' : 'text-gray-800';
@@ -102,6 +144,11 @@ function ChecklistItemRow({
           ) : null}
         </div>
         <p className={`mt-0.5 text-sm ${bodyMuted}`}>{item.body}</p>
+        {checked && impactAmount != null ? (
+          <p className="mt-0.5 text-xs text-teal-600">
+            Added {formatMonthly(impactAmount)} to your forecast ✓
+          </p>
+        ) : null}
       </div>
     </div>
   );
@@ -115,16 +162,58 @@ export default function NewParentChecklistCard({
   className = '',
   isLoading = false,
   profileError = false,
+  onViewForecast,
 }: NewParentChecklistCardProps) {
   const [manuallyOpened, setManuallyOpened] = useState(false);
   const [completedExpanded, setCompletedExpanded] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [impactConfirmed, setImpactConfirmed] = useState<Map<string, number>>(() => new Map());
 
   const expanded = hasBabyMilestone || manuallyOpened;
   const completedSet = new Set(completedIds);
   const completedCount = completedIds.length;
   const activeItems = CHECKLIST_ITEMS.filter((item) => !completedSet.has(item.id));
   const doneItems = CHECKLIST_ITEMS.filter((item) => completedSet.has(item.id));
+  const impactMonthlyTotal = Array.from(impactConfirmed.values()).reduce((sum, n) => sum + n, 0);
+
+  useEffect(() => {
+    const token = localStorage.getItem('mingus_token');
+    fetch('/api/user/checklist/impact-summary', {
+      credentials: 'include',
+      headers: {
+        ...csrfHeaders(),
+        Authorization: `Bearer ${token ?? ''}`,
+        'Content-Type': 'application/json',
+      },
+    })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data: { items?: Array<{ name: string; amount: number }> } | null) => {
+        if (!data?.items?.length) return;
+        const map = new Map<string, number>();
+        for (const row of data.items) {
+          const id = IMPACT_NAME_TO_ID[row.name];
+          if (id) map.set(id, row.amount);
+        }
+        if (map.size > 0) setImpactConfirmed(map);
+      })
+      .catch(() => {});
+  }, []);
+
+  const confirmImpact = useCallback((itemId: string, amount: number) => {
+    setImpactConfirmed((prev) => {
+      const next = new Map(prev);
+      next.set(itemId, amount);
+      return next;
+    });
+  }, []);
+
+  const maybeApplyImpact = useCallback(
+    (itemId: string, wasChecked: boolean) => {
+      if (wasChecked || !IMPACT_ITEMS.has(itemId)) return;
+      fireApplyImpact(itemId, (amount) => confirmImpact(itemId, amount));
+    },
+    [confirmImpact]
+  );
 
   const showToast = useCallback((message: string) => {
     setToastMessage(message);
@@ -145,18 +234,24 @@ export default function NewParentChecklistCard({
 
   const handleToggle = useCallback(
     (id: string) => {
-      const prev = completedIds;
-      const next = prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id];
-      void persistIds(next, prev);
+      const wasChecked = completedIds.includes(id);
+      const next = wasChecked ? completedIds.filter((x) => x !== id) : [...completedIds, id];
+      maybeApplyImpact(id, wasChecked);
+      void persistIds(next, completedIds);
     },
-    [completedIds, persistIds]
+    [completedIds, maybeApplyImpact, persistIds]
   );
 
   const handleMarkAllDone = useCallback(() => {
     const prev = completedIds;
     const next = CHECKLIST_ITEMS.map((item) => item.id);
+    for (const item of CHECKLIST_ITEMS) {
+      if (!prev.includes(item.id)) {
+        maybeApplyImpact(item.id, false);
+      }
+    }
     void persistIds(next, prev);
-  }, [completedIds, persistIds]);
+  }, [completedIds, maybeApplyImpact, persistIds]);
 
   if (isLoading) {
     return (
@@ -236,6 +331,7 @@ export default function NewParentChecklistCard({
             key={item.id}
             item={item}
             checked={false}
+            impactAmount={impactConfirmed.get(item.id)}
             onToggle={() => handleToggle(item.id)}
           />
         ))}
@@ -246,9 +342,7 @@ export default function NewParentChecklistCard({
             onClick={() => setCompletedExpanded(true)}
             className="flex w-full items-center gap-1 text-sm text-gray-500"
           >
-            <span>
-              {doneItems.length} completed
-            </span>
+            <span>{doneItems.length} completed</span>
             <ChevronDown className="h-4 w-4" aria-hidden="true" />
           </button>
         ) : null}
@@ -259,11 +353,30 @@ export default function NewParentChecklistCard({
                 key={item.id}
                 item={item}
                 checked
+                impactAmount={impactConfirmed.get(item.id)}
                 onToggle={() => handleToggle(item.id)}
               />
             ))
           : null}
       </div>
+
+      {impactConfirmed.size > 0 ? (
+        <div className="mt-4 flex items-center justify-between rounded-xl border border-teal-200 bg-teal-50 px-4 py-3">
+          <div>
+            <p className="text-sm font-medium text-teal-800">Added to your forecast</p>
+            <p className="text-xs text-teal-600">
+              {formatMonthly(impactMonthlyTotal)} in recurring costs
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => onViewForecast?.()}
+            className="text-xs text-teal-600 underline"
+          >
+            View forecast →
+          </button>
+        </div>
+      ) : null}
 
       <p className="mt-4 text-xs text-gray-400">
         Based on real parent experience. Not financial advice.

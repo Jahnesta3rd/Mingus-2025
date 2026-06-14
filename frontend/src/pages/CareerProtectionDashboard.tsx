@@ -7,6 +7,7 @@ import QuickSetupOverlay from '../components/QuickSetupOverlay';
 import SpendingMilestonesWidget from '../components/SpendingMilestonesWidget';
 import SpecialDatesWidget from '../components/SpecialDatesWidget';
 import NewParentChecklistCard from '../components/NewParentChecklistCard';
+import ParentingImpactSimulator from '../components/ParentingImpactSimulator';
 import TodayTab from '../components/TodayTab';
 import CardJobHome from '../components/CardJobHome';
 import FinancialForecastTab from '../components/FinancialForecastTab';
@@ -575,6 +576,7 @@ const CareerProtectionDashboard: React.FC = () => {
                 hasBabyMilestone={hasBabyMilestone}
                 isLoading={!parentChecklistLoaded}
                 profileError={parentChecklistError}
+                onViewForecast={() => handleTabChange('forecast')}
                 onUpdate={async (ids) => {
                   if (parentChecklistError && ids.length === 0) {
                     await loadParentChecklistFromProfile();
@@ -583,6 +585,9 @@ const CareerProtectionDashboard: React.FC = () => {
                   setParentChecklistIds(ids);
                 }}
                 className="mt-0"
+              />
+              <ParentingImpactSimulator
+                onViewForecast={() => handleTabChange('forecast')}
               />
             </div>
           )}
