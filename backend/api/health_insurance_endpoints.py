@@ -118,7 +118,10 @@ def _apply_manual_fields(plan: HealthInsurancePlan, data: dict[str, Any]) -> Non
             continue
         value = data[field]
         if field == "has_hsa_eligible":
-            plan.has_hsa_eligible = bool(value)
+            if isinstance(value, str):
+                plan.has_hsa_eligible = value.lower() in ("true", "1", "yes")
+            else:
+                plan.has_hsa_eligible = bool(value)
         elif field == "in_network_only":
             plan.in_network_only = None if value is None else bool(value)
         elif field == "plan_year" or field == "coinsurance_pct":

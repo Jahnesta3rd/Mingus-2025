@@ -46,7 +46,24 @@ celery_app = make_celery()
 
 @celery_app.task(name="hia.parse_plan")
 def parse_insurance_plan(plan_id: int):
-    """Parse an uploaded insurance plan document (stub until HIA-03)."""
-    celery_logger.info("[HIA] parse_insurance_plan called for plan_id=%s", plan_id)
-    # HIA-03 will implement parse_insurance_document_with_llm here
-    return {"plan_id": plan_id, "status": "stub"}
+    """Parse an uploaded insurance plan document via LLM extraction."""
+    from app import app as flask_app
+
+    from backend.services.insurance_plan_parser import (
+        parse_insurance_document_with_llm,
+    )
+
+    with flask_app.app_context():
+        result = parse_insurance_document_with_llm(plan_id)
+        if result:
+            celery_logger.info(
+                "[HIA] plan_id=%s parsed ok: %s",
+                plan_id,
+                result.get("plan_name"),
+            )
+        else:
+            celery_logger.error("[HIA] plan_id=%s parse failed", plan_id)
+        return {
+            "plan_id": plan_id,
+            "status": "completed" if result else "failed",
+        }
