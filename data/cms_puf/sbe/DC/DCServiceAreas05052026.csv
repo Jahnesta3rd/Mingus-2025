@@ -1,0 +1,18 @@
+"BUSINESS YEAR","STATE CODE","ISSUER ID","SOURCE NAME","VERSION NUMBER","IMPORT DATE","SERVICE AREA ID","SERVICE AREA NAME","COVER ENTIRE STATE",COUNTY,"COUNTY NAME","PARTIAL COUNTY","ZIP CODE","PARTIAL COUNTY JUSTIFICATION","MARKET COVERAGE","DENTAL PLAN ONLY"
+2026,DC,21066,SERFF,1,01-13-2026,DCS001,"DC SG Core Essential",true,,,,,,"SHOP (Small Group)",No
+2026,DC,41842,SERFF,1,01-13-2026,DCS001,"DC SG Choice Plus",true,,,,,,"SHOP (Small Group)",No
+2026,DC,75753,SERFF,1,01-13-2026,DCS001,"DC SG OCI HMO",true,,,,,,"SHOP (Small Group)",No
+2026,DC,78079,SERFF,1,01-13-2026,DCS003,"District of Columbia Service Area 3",true,,,,,,Individual,No
+2026,DC,78079,SERFF,1,01-13-2026,DCS004,"District of Columbia Service Area 4",true,,,,,,"SHOP (Small Group)",No
+2026,DC,78079,SERFF,1,01-13-2026,DCS005,"District of Columbia Service Area 5",true,,,,,,Individual,Yes
+2026,DC,78079,SERFF,1,01-13-2026,DCS006,"District of Columbia Service Area 6",true,,,,,,"SHOP (Small Group)",Yes
+2026,DC,81334,SERFF,1,01-13-2026,DCS001,PPO,true,,,,,,Individual,Yes
+2026,DC,86052,SERFF,1,01-13-2026,DCS001,"District of Columbia Service Area 1",true,,,,,,Individual,No
+2026,DC,86052,SERFF,1,01-13-2026,DCS002,"District of Columbia Service Area 2",true,,,,,,"SHOP (Small Group)",No
+2026,DC,92479,SERFF,1,01-13-2026,DCS001,"DDS DHSMO",true,,,,,,Individual,Yes
+2026,DC,92479,SERFF,1,01-13-2026,DCS002,"ELITE PPO",true,,,,,,Individual,Yes
+2026,DC,94506,SERFF,1,01-13-2026,DCS001,"Service Area 001 - SHOP",true,,,,,,"SHOP (Small Group)",No
+2026,DC,94506,SERFF,1,01-13-2026,DCS001,"Service Area 001 - SHOP",true,,,,,,Individual,No
+2026,DC,94506,SERFF,1,01-13-2026,DCS002,"Service Area 002 - Individual",true,,,,,,"SHOP (Small Group)",No
+2026,DC,94506,SERFF,1,01-13-2026,DCS002,"Service Area 002 - Individual",true,,,,,,Individual,No
+2026,DC,95051,SERFF,1,01-13-2026,DCS001,"BEST Life DC",true,,,,,,Individual,Yes

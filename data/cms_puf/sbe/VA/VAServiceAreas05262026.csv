@@ -1,0 +1,934 @@
+"BUSINESS YEAR","STATE CODE","ISSUER ID","SOURCE NAME","VERSION NUMBER","IMPORT DATE","SERVICE AREA ID","SERVICE AREA NAME","COVER ENTIRE STATE",COUNTY,"COUNTY NAME","PARTIAL COUNTY","ZIP CODE","PARTIAL COUNTY JUSTIFICATION","MARKET COVERAGE","DENTAL PLAN ONLY"
+2026,VA,10207,SERFF,1,05-20-2026,VAS001,"Virginia Service Area 1",false,"Prince William - 51153","Prince William",true,"22125, 22191, 22192, 22194",10207_VA_service_area_partial_county,Individual,No
+2026,VA,10207,SERFF,1,05-20-2026,VAS001,"Virginia Service Area 1",false,"Fairfax - 51059",Fairfax,true,"22003, 22009, 22015, 22027, 22030, 22031, 22032, 22034, 22035, 22036, 22037, 22039, 22041, 22042, 22043, 22044, 22046, 22060, 22079, 22081, 22082, 22101, 22102, 22103, 22106, 22107, 22108, 22109, 22116, 22118, 22119, 22121, 22122, 22124, 22150, 22151, 22152, 22153, 22156, 22158, 22159, 22160, 22161, 22180, 22181, 22182, 22183, 22185, 22199, 22302, 22303, 22304, 22306, 22307, 22308, 22309, 22310, 22311, 22312, 22315",10207_VA_service_area_partial_county,Individual,No
+2026,VA,10207,SERFF,1,05-20-2026,VAS001,"Virginia Service Area 1",false,"Falls Church City - 51610","Falls Church City",false,,,Individual,No
+2026,VA,10207,SERFF,1,05-20-2026,VAS001,"Virginia Service Area 1",false,"Loudoun - 51107",Loudoun,true,"20041, 20598",10207_VA_service_area_partial_county,Individual,No
+2026,VA,10207,SERFF,1,05-20-2026,VAS001,"Virginia Service Area 1",false,"Arlington - 51013",Arlington,false,,,Individual,No
+2026,VA,10207,SERFF,1,05-20-2026,VAS001,"Virginia Service Area 1",false,"Alexandria City - 51510","Alexandria City",false,,,Individual,No
+2026,VA,10207,SERFF,1,05-20-2026,VAS001,"Virginia Service Area 1",false,"Fairfax City - 51600","Fairfax City",false,,,Individual,No
+2026,VA,10207,SERFF,1,05-20-2026,VAS002,"Virginia Service Area 2",false,"Fairfax City - 51600","Fairfax City",false,,,"SHOP (Small Group)",No
+2026,VA,10207,SERFF,1,05-20-2026,VAS002,"Virginia Service Area 2",false,"Loudoun - 51107",Loudoun,true,"20041, 20598",10207_VA_service_area_partial_county,"SHOP (Small Group)",No
+2026,VA,10207,SERFF,1,05-20-2026,VAS002,"Virginia Service Area 2",false,"Prince William - 51153","Prince William",true,"22125, 22191, 22192, 22194",10207_VA_service_area_partial_county,"SHOP (Small Group)",No
+2026,VA,10207,SERFF,1,05-20-2026,VAS002,"Virginia Service Area 2",false,"Arlington - 51013",Arlington,false,,,"SHOP (Small Group)",No
+2026,VA,10207,SERFF,1,05-20-2026,VAS002,"Virginia Service Area 2",false,"Falls Church City - 51610","Falls Church City",false,,,"SHOP (Small Group)",No
+2026,VA,10207,SERFF,1,05-20-2026,VAS002,"Virginia Service Area 2",false,"Fairfax - 51059",Fairfax,true,"22003, 22009, 22015, 22027, 22030, 22031, 22032, 22034, 22035, 22036, 22037, 22039, 22041, 22042, 22043, 22044, 22046, 22060, 22079, 22081, 22082, 22101, 22102, 22103, 22106, 22107, 22108, 22109, 22116, 22118, 22119, 22121, 22122, 22124, 22150, 22151, 22152, 22153, 22156, 22158, 22159, 22160, 22161, 22180, 22181, 22182, 22183, 22185, 22199, 22302, 22303, 22304, 22306, 22307, 22308, 22309, 22310, 22311, 22312, 22315",10207_VA_service_area_partial_county,"SHOP (Small Group)",No
+2026,VA,10207,SERFF,1,05-20-2026,VAS002,"Virginia Service Area 2",false,"Alexandria City - 51510","Alexandria City",false,,,"SHOP (Small Group)",No
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Waynesboro City - 51820","Waynesboro City",false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Albemarle - 51003",Albemarle,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Charlotte - 51037",Charlotte,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Clarke - 51043",Clarke,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Bristol City - 51520","Bristol City",false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Russell - 51167",Russell,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Charles City - 51036","Charles City",false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Culpeper - 51047",Culpeper,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Hampton City - 51650","Hampton City",false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Brunswick - 51025",Brunswick,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Henry - 51089",Henry,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Rockingham - 51165",Rockingham,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Portsmouth City - 51740","Portsmouth City",false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Northampton - 51131",Northampton,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Nottoway - 51135",Nottoway,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Franklin - 51067",Franklin,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Carroll - 51035",Carroll,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Buchanan - 51027",Buchanan,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Floyd - 51063",Floyd,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Accomack - 51001",Accomack,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Essex - 51057",Essex,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"King And Queen - 51097","King And Queen",false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Rockbridge - 51163",Rockbridge,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Norfolk City - 51710","Norfolk City",false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Pulaski - 51155",Pulaski,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Emporia City - 51595","Emporia City",false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Halifax - 51083",Halifax,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Middlesex - 51119",Middlesex,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Campbell - 51031",Campbell,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Warren - 51187",Warren,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Prince George - 51149","Prince George",false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Stafford - 51179",Stafford,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Gloucester - 51073",Gloucester,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Smyth - 51173",Smyth,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"James City - 51095","James City",false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Frederick - 51069",Frederick,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Newport News City - 51700","Newport News City",false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Caroline - 51033",Caroline,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Fauquier - 51061",Fauquier,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Covington City - 51580","Covington City",false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Greensville - 51081",Greensville,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Grayson - 51077",Grayson,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Fairfax - 51059",Fairfax,true,"20120, 20121, 20122, 20124, 20151, 20153, 20170, 20171, 20172, 20190, 20191, 20192, 20194, 20195, 20196, 22030, 22033, 22035, 22039, 22066, 22067, 22079, 22095, 22096, 22101, 22102, 22103, 22106, 22107, 22108, 22109, 22124, 22180, 22181, 22182, 22183, 22199","Only licensed to service these zip codes",Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Patrick - 51141",Patrick,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Salem - 51775",Salem,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Prince William - 51153","Prince William",false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Spotsylvania - 51177",Spotsylvania,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Dickenson - 51051",Dickenson,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Manassas City - 51683","Manassas City",false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Galax City - 51640","Galax City",false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Page - 51139",Page,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Orange - 51137",Orange,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Tazewell - 51185",Tazewell,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Lynchburg City - 51680","Lynchburg City",false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Chesapeake City - 51550","Chesapeake City",false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Washington - 51191",Washington,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Buena Vista City - 51530","Buena Vista City",false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Fredericksburg City - 51630","Fredericksburg City",false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Hanover - 51085",Hanover,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Harrisonburg City - 51660","Harrisonburg City",false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Shenandoah - 51171",Shenandoah,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Richmond - 51159",Richmond,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"York - 51199",York,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Petersburg City - 51730","Petersburg City",false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Colonial Heights City - 51570","Colonial Heights City",false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Amherst - 51009",Amherst,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Sussex - 51183",Sussex,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Lunenburg - 51111",Lunenburg,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Loudoun - 51107",Loudoun,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Southampton - 51175",Southampton,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Westmoreland - 51193",Westmoreland,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Louisa - 51109",Louisa,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Roanoke City - 51770","Roanoke City",false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Goochland - 51075",Goochland,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Suffolk City - 51800","Suffolk City",false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Richmond City - 51760","Richmond City",false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Powhatan - 51145",Powhatan,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Lancaster - 51103",Lancaster,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Winchester City - 51840","Winchester City",false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Hopewell City - 51670","Hopewell City",false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Lee - 51105",Lee,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Virginia Beach City - 51810","Virginia Beach City",false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Buckingham - 51029",Buckingham,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Wise - 51195",Wise,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Franklin City - 51620","Franklin City",false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Lexington City - 51678","Lexington City",false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Craig - 51045",Craig,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Augusta - 51015",Augusta,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Mathews - 51115",Mathews,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Bath - 51017",Bath,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Bedford - 51019",Bedford,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Alleghany - 51005",Alleghany,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Rappahannock - 51157",Rappahannock,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Greene - 51079",Greene,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Bland - 51021",Bland,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Wythe - 51197",Wythe,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Cumberland - 51049",Cumberland,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Chesterfield - 51041",Chesterfield,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Norton City - 51720","Norton City",false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"King George - 51099","King George",false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Mecklenburg - 51117",Mecklenburg,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Manassas Park City - 51685","Manassas Park City",false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Poquoson City - 51735","Poquoson City",false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Prince Edward - 51147","Prince Edward",false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Nelson - 51125",Nelson,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Staunton City - 51790","Staunton City",false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Isle Of Wight - 51093","Isle Of Wight",false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Appomattox - 51011",Appomattox,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Martinsville City - 51690","Martinsville City",false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Scott - 51169",Scott,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Highland - 51091",Highland,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Williamsburg City - 51830","Williamsburg City",false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Northumberland - 51133",Northumberland,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Surry - 51181",Surry,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Amelia - 51007",Amelia,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Roanoke - 51161",Roanoke,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"King William - 51101","King William",false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Charlottesville City - 51540","Charlottesville City",false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Dinwiddie - 51053",Dinwiddie,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"New Kent - 51127","New Kent",false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Radford - 51750",Radford,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Danville City - 51590","Danville City",false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Fluvanna - 51065",Fluvanna,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Madison - 51113",Madison,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Pittsylvania - 51143",Pittsylvania,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Montgomery - 51121",Montgomery,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Henrico - 51087",Henrico,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Giles - 51071",Giles,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS003,"Anthem Health Plans of VA(Anthem BCBS) IND",false,"Botetourt - 51023",Botetourt,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Albemarle - 51003",Albemarle,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Goochland - 51075",Goochland,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Manassas City - 51683","Manassas City",false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Louisa - 51109",Louisa,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Fredericksburg City - 51630","Fredericksburg City",false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Richmond City - 51760","Richmond City",false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Brunswick - 51025",Brunswick,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Hampton City - 51650","Hampton City",false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Salem - 51775",Salem,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Highland - 51091",Highland,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Orange - 51137",Orange,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Hopewell City - 51670","Hopewell City",false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Patrick - 51141",Patrick,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Waynesboro City - 51820","Waynesboro City",false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Giles - 51071",Giles,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Rockbridge - 51163",Rockbridge,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Northampton - 51131",Northampton,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Hanover - 51085",Hanover,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Roanoke - 51161",Roanoke,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Virginia Beach City - 51810","Virginia Beach City",false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Richmond - 51159",Richmond,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Page - 51139",Page,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Amherst - 51009",Amherst,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Culpeper - 51047",Culpeper,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"King And Queen - 51097","King And Queen",false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Accomack - 51001",Accomack,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Emporia City - 51595","Emporia City",false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Northumberland - 51133",Northumberland,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Pittsylvania - 51143",Pittsylvania,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Poquoson City - 51735","Poquoson City",false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Campbell - 51031",Campbell,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Lynchburg City - 51680","Lynchburg City",false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Sussex - 51183",Sussex,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Staunton City - 51790","Staunton City",false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Botetourt - 51023",Botetourt,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"King William - 51101","King William",false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Wythe - 51197",Wythe,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Powhatan - 51145",Powhatan,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Carroll - 51035",Carroll,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Southampton - 51175",Southampton,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Charlottesville City - 51540","Charlottesville City",false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Prince Edward - 51147","Prince Edward",false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"James City - 51095","James City",false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Appomattox - 51011",Appomattox,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Henrico - 51087",Henrico,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"King George - 51099","King George",false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Madison - 51113",Madison,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Middlesex - 51119",Middlesex,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Galax City - 51640","Galax City",false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Harrisonburg City - 51660","Harrisonburg City",false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Franklin - 51067",Franklin,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Martinsville City - 51690","Martinsville City",false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Amelia - 51007",Amelia,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Charles City - 51036","Charles City",false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Warren - 51187",Warren,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Roanoke City - 51770","Roanoke City",false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Washington - 51191",Washington,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Augusta - 51015",Augusta,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Cumberland - 51049",Cumberland,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Shenandoah - 51171",Shenandoah,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Halifax - 51083",Halifax,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Gloucester - 51073",Gloucester,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Dinwiddie - 51053",Dinwiddie,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Rockingham - 51165",Rockingham,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Bristol City - 51520","Bristol City",false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Mathews - 51115",Mathews,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Charlotte - 51037",Charlotte,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Winchester City - 51840","Winchester City",false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"New Kent - 51127","New Kent",false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Essex - 51057",Essex,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Fairfax - 51059",Fairfax,true,"20120, 20121, 20122, 20124, 20151, 20153, 20170, 20171, 20172, 20190, 20191, 20192, 20194, 20195, 20196, 22030, 22033, 22035, 22039, 22066, 22067, 22079, 22095, 22096, 22101, 22102, 22103, 22106, 22107, 22108, 22109, 22124, 22180, 22181, 22182, 22183, 22199","Only licensed to service these zip codes",Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Clarke - 51043",Clarke,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Henry - 51089",Henry,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Russell - 51167",Russell,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Norfolk City - 51710","Norfolk City",false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Caroline - 51033",Caroline,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Suffolk City - 51800","Suffolk City",false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Wise - 51195",Wise,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Surry - 51181",Surry,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Fauquier - 51061",Fauquier,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Lunenburg - 51111",Lunenburg,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Nelson - 51125",Nelson,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Chesapeake City - 51550","Chesapeake City",false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Pulaski - 51155",Pulaski,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Floyd - 51063",Floyd,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Manassas Park City - 51685","Manassas Park City",false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Covington City - 51580","Covington City",false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Colonial Heights City - 51570","Colonial Heights City",false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Dickenson - 51051",Dickenson,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Radford - 51750",Radford,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Franklin City - 51620","Franklin City",false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Frederick - 51069",Frederick,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Fluvanna - 51065",Fluvanna,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Petersburg City - 51730","Petersburg City",false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Alleghany - 51005",Alleghany,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Nottoway - 51135",Nottoway,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Tazewell - 51185",Tazewell,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Smyth - 51173",Smyth,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Greene - 51079",Greene,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Loudoun - 51107",Loudoun,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Chesterfield - 51041",Chesterfield,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Newport News City - 51700","Newport News City",false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Lancaster - 51103",Lancaster,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Lexington City - 51678","Lexington City",false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Rappahannock - 51157",Rappahannock,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Bland - 51021",Bland,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Prince William - 51153","Prince William",false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Grayson - 51077",Grayson,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Buckingham - 51029",Buckingham,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Bath - 51017",Bath,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Bedford - 51019",Bedford,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Prince George - 51149","Prince George",false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Danville City - 51590","Danville City",false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Portsmouth City - 51740","Portsmouth City",false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Buchanan - 51027",Buchanan,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Greensville - 51081",Greensville,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Mecklenburg - 51117",Mecklenburg,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Craig - 51045",Craig,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Isle Of Wight - 51093","Isle Of Wight",false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Scott - 51169",Scott,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"York - 51199",York,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Westmoreland - 51193",Westmoreland,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Williamsburg City - 51830","Williamsburg City",false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Stafford - 51179",Stafford,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Lee - 51105",Lee,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Buena Vista City - 51530","Buena Vista City",false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Montgomery - 51121",Montgomery,false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Norton City - 51720","Norton City",false,,,Individual,Yes
+2026,VA,16064,SERFF,1,05-20-2026,VAS004,"Anthem Health Plans of VA(Anthem BCBS) SG Dental",false,"Spotsylvania - 51177",Spotsylvania,false,,,Individual,Yes
+2026,VA,20507,SERFF,1,05-20-2026,VAS001,"Sentara Individual & Family Health Plans",true,,,,,,Individual,No
+2026,VA,24251,SERFF,1,05-20-2026,VAS011,"Individual Exchange",false,"Arlington - 51013",Arlington,false,,,Individual,No
+2026,VA,24251,SERFF,1,05-20-2026,VAS011,"Individual Exchange",false,"Fredericksburg City - 51630","Fredericksburg City",false,,,Individual,No
+2026,VA,24251,SERFF,1,05-20-2026,VAS011,"Individual Exchange",false,"Powhatan - 51145",Powhatan,false,,,Individual,No
+2026,VA,24251,SERFF,1,05-20-2026,VAS011,"Individual Exchange",false,"Stafford - 51179",Stafford,false,,,Individual,No
+2026,VA,24251,SERFF,1,05-20-2026,VAS011,"Individual Exchange",false,"Amelia - 51007",Amelia,false,,,Individual,No
+2026,VA,24251,SERFF,1,05-20-2026,VAS011,"Individual Exchange",false,"King William - 51101","King William",false,,,Individual,No
+2026,VA,24251,SERFF,1,05-20-2026,VAS011,"Individual Exchange",false,"Caroline - 51033",Caroline,false,,,Individual,No
+2026,VA,24251,SERFF,1,05-20-2026,VAS011,"Individual Exchange",false,"Goochland - 51075",Goochland,false,,,Individual,No
+2026,VA,24251,SERFF,1,05-20-2026,VAS011,"Individual Exchange",false,"Henrico - 51087",Henrico,false,,,Individual,No
+2026,VA,24251,SERFF,1,05-20-2026,VAS011,"Individual Exchange",false,"Rappahannock - 51157",Rappahannock,false,,,Individual,No
+2026,VA,24251,SERFF,1,05-20-2026,VAS011,"Individual Exchange",false,"Winchester City - 51840","Winchester City",false,,,Individual,No
+2026,VA,24251,SERFF,1,05-20-2026,VAS011,"Individual Exchange",false,"Alexandria City - 51510","Alexandria City",false,,,Individual,No
+2026,VA,24251,SERFF,1,05-20-2026,VAS011,"Individual Exchange",false,"Sussex - 51183",Sussex,false,,,Individual,No
+2026,VA,24251,SERFF,1,05-20-2026,VAS011,"Individual Exchange",false,"Highland - 51091",Highland,false,,,Individual,No
+2026,VA,24251,SERFF,1,05-20-2026,VAS011,"Individual Exchange",false,"Washington - 51191",Washington,false,,,Individual,No
+2026,VA,24251,SERFF,1,05-20-2026,VAS011,"Individual Exchange",false,"Richmond City - 51760","Richmond City",false,,,Individual,No
+2026,VA,24251,SERFF,1,05-20-2026,VAS011,"Individual Exchange",false,"Charles City - 51036","Charles City",false,,,Individual,No
+2026,VA,24251,SERFF,1,05-20-2026,VAS011,"Individual Exchange",false,"Fairfax - 51059",Fairfax,false,,,Individual,No
+2026,VA,24251,SERFF,1,05-20-2026,VAS011,"Individual Exchange",false,"New Kent - 51127","New Kent",false,,,Individual,No
+2026,VA,24251,SERFF,1,05-20-2026,VAS011,"Individual Exchange",false,"King and Queen - 51097","King and Queen",false,,,Individual,No
+2026,VA,24251,SERFF,1,05-20-2026,VAS011,"Individual Exchange",false,"Colonial Heights City - 51570","Colonial Heights City",false,,,Individual,No
+2026,VA,24251,SERFF,1,05-20-2026,VAS011,"Individual Exchange",false,"Chesterfield - 51041",Chesterfield,false,,,Individual,No
+2026,VA,24251,SERFF,1,05-20-2026,VAS011,"Individual Exchange",false,"Falls Church City - 51610","Falls Church City",false,,,Individual,No
+2026,VA,24251,SERFF,1,05-20-2026,VAS011,"Individual Exchange",false,"Petersburg City - 51730","Petersburg City",false,,,Individual,No
+2026,VA,24251,SERFF,1,05-20-2026,VAS011,"Individual Exchange",false,"Louisa - 51109",Louisa,false,,,Individual,No
+2026,VA,24251,SERFF,1,05-20-2026,VAS011,"Individual Exchange",false,"King George - 51099","King George",false,,,Individual,No
+2026,VA,24251,SERFF,1,05-20-2026,VAS011,"Individual Exchange",false,"Westmoreland - 51193",Westmoreland,false,,,Individual,No
+2026,VA,24251,SERFF,1,05-20-2026,VAS011,"Individual Exchange",false,"Clarke - 51043",Clarke,false,,,Individual,No
+2026,VA,24251,SERFF,1,05-20-2026,VAS011,"Individual Exchange",false,"Spotsylvania - 51177",Spotsylvania,false,,,Individual,No
+2026,VA,24251,SERFF,1,05-20-2026,VAS011,"Individual Exchange",false,"Frederick - 51069",Frederick,false,,,Individual,No
+2026,VA,24251,SERFF,1,05-20-2026,VAS011,"Individual Exchange",false,"Loudoun - 51107",Loudoun,false,,,Individual,No
+2026,VA,24251,SERFF,1,05-20-2026,VAS011,"Individual Exchange",false,"Fauquier - 51061",Fauquier,false,,,Individual,No
+2026,VA,24251,SERFF,1,05-20-2026,VAS011,"Individual Exchange",false,"Dinwiddie - 51053",Dinwiddie,false,,,Individual,No
+2026,VA,24251,SERFF,1,05-20-2026,VAS011,"Individual Exchange",false,"Fairfax City - 51600","Fairfax City",false,,,Individual,No
+2026,VA,24251,SERFF,1,05-20-2026,VAS011,"Individual Exchange",false,"Hanover - 51085",Hanover,false,,,Individual,No
+2026,VA,24251,SERFF,1,05-20-2026,VAS011,"Individual Exchange",false,"Prince George - 51149","Prince George",false,,,Individual,No
+2026,VA,24251,SERFF,1,05-20-2026,VAS011,"Individual Exchange",false,"Manassas City - 51683","Manassas City",false,,,Individual,No
+2026,VA,24251,SERFF,1,05-20-2026,VAS011,"Individual Exchange",false,"Manassas Park City - 51685","Manassas Park City",false,,,Individual,No
+2026,VA,24251,SERFF,1,05-20-2026,VAS011,"Individual Exchange",false,"Bristol City - 51520","Bristol City",false,,,Individual,No
+2026,VA,24251,SERFF,1,05-20-2026,VAS011,"Individual Exchange",false,"Cumberland - 51049",Cumberland,false,,,Individual,No
+2026,VA,24251,SERFF,1,05-20-2026,VAS011,"Individual Exchange",false,"Prince William - 51153","Prince William",false,,,Individual,No
+2026,VA,24251,SERFF,1,05-20-2026,VAS011,"Individual Exchange",false,"Bath - 51017",Bath,false,,,Individual,No
+2026,VA,24251,SERFF,1,05-20-2026,VAS011,"Individual Exchange",false,"Scott - 51169",Scott,false,,,Individual,No
+2026,VA,24251,SERFF,1,05-20-2026,VAS011,"Individual Exchange",false,"Hopewell City - 51670","Hopewell City",false,,,Individual,No
+2026,VA,25922,SERFF,1,05-20-2026,VAS001,"Oscar Virginia",false,"Alexandria City - 51510","Alexandria City",false,,,Individual,No
+2026,VA,25922,SERFF,1,05-20-2026,VAS001,"Oscar Virginia",false,"Henrico - 51087",Henrico,false,,,Individual,No
+2026,VA,25922,SERFF,1,05-20-2026,VAS001,"Oscar Virginia",false,"Caroline - 51033",Caroline,false,,,Individual,No
+2026,VA,25922,SERFF,1,05-20-2026,VAS001,"Oscar Virginia",false,"Prince George - 51149","Prince George",false,,,Individual,No
+2026,VA,25922,SERFF,1,05-20-2026,VAS001,"Oscar Virginia",false,"Amelia - 51007",Amelia,false,,,Individual,No
+2026,VA,25922,SERFF,1,05-20-2026,VAS001,"Oscar Virginia",false,"Hopewell city - 51670","Hopewell city",false,,,Individual,No
+2026,VA,25922,SERFF,1,05-20-2026,VAS001,"Oscar Virginia",false,"Prince William - 51153","Prince William",false,,,Individual,No
+2026,VA,25922,SERFF,1,05-20-2026,VAS001,"Oscar Virginia",false,"New Kent - 51127","New Kent",false,,,Individual,No
+2026,VA,25922,SERFF,1,05-20-2026,VAS001,"Oscar Virginia",false,"Chesterfield - 51041",Chesterfield,false,,,Individual,No
+2026,VA,25922,SERFF,1,05-20-2026,VAS001,"Oscar Virginia",false,"Falls Church city - 51610","Falls Church city",false,,,Individual,No
+2026,VA,25922,SERFF,1,05-20-2026,VAS001,"Oscar Virginia",false,"Fairfax city - 51600","Fairfax city",false,,,Individual,No
+2026,VA,25922,SERFF,1,05-20-2026,VAS001,"Oscar Virginia",false,"Fairfax - 51059",Fairfax,false,,,Individual,No
+2026,VA,25922,SERFF,1,05-20-2026,VAS001,"Oscar Virginia",false,"Loudoun - 51107",Loudoun,false,,,Individual,No
+2026,VA,25922,SERFF,1,05-20-2026,VAS001,"Oscar Virginia",false,"King and Queen - 51097","King and Queen",false,,,Individual,No
+2026,VA,25922,SERFF,1,05-20-2026,VAS001,"Oscar Virginia",false,"Colonial Heights City - 51570","Colonial Heights City",false,,,Individual,No
+2026,VA,25922,SERFF,1,05-20-2026,VAS001,"Oscar Virginia",false,"Hanover - 51085",Hanover,false,,,Individual,No
+2026,VA,25922,SERFF,1,05-20-2026,VAS001,"Oscar Virginia",false,"Dinwiddie - 51053",Dinwiddie,false,,,Individual,No
+2026,VA,25922,SERFF,1,05-20-2026,VAS001,"Oscar Virginia",false,"Goochland - 51075",Goochland,false,,,Individual,No
+2026,VA,25922,SERFF,1,05-20-2026,VAS001,"Oscar Virginia",false,"Richmond City - 51760","Richmond City",false,,,Individual,No
+2026,VA,25922,SERFF,1,05-20-2026,VAS001,"Oscar Virginia",false,"King William - 51101","King William",false,,,Individual,No
+2026,VA,25922,SERFF,1,05-20-2026,VAS001,"Oscar Virginia",false,"Powhatan - 51145",Powhatan,false,,,Individual,No
+2026,VA,25922,SERFF,1,05-20-2026,VAS001,"Oscar Virginia",false,"Arlington - 51013",Arlington,false,,,Individual,No
+2026,VA,25922,SERFF,1,05-20-2026,VAS001,"Oscar Virginia",false,"Charles City - 51036","Charles City",false,,,Individual,No
+2026,VA,25922,SERFF,1,05-20-2026,VAS001,"Oscar Virginia",false,"Petersburg City - 51730","Petersburg City",false,,,Individual,No
+2026,VA,25922,SERFF,1,05-20-2026,VAS001,"Oscar Virginia",false,"Cumberland - 51049",Cumberland,false,,,Individual,No
+2026,VA,25978,SERFF,1,05-20-2026,VAS011,"EssentialSmile Virginia - Total Care",false,"Chesterfield - 51041",Chesterfield,false,,,Individual,Yes
+2026,VA,25978,SERFF,1,05-20-2026,VAS011,"EssentialSmile Virginia - Total Care",false,"Henrico - 51087",Henrico,false,,,Individual,Yes
+2026,VA,25978,SERFF,1,05-20-2026,VAS011,"EssentialSmile Virginia - Total Care",false,"Fredericksburg City - 51630","Fredericksburg City",false,,,Individual,Yes
+2026,VA,25978,SERFF,1,05-20-2026,VAS011,"EssentialSmile Virginia - Total Care",false,"Hampton City - 51650","Hampton City",false,,,Individual,Yes
+2026,VA,25978,SERFF,1,05-20-2026,VAS011,"EssentialSmile Virginia - Total Care",false,"Fairfax City - 51600","Fairfax City",false,,,Individual,Yes
+2026,VA,25978,SERFF,1,05-20-2026,VAS011,"EssentialSmile Virginia - Total Care",false,"Prince William - 51153","Prince William",false,,,Individual,Yes
+2026,VA,25978,SERFF,1,05-20-2026,VAS011,"EssentialSmile Virginia - Total Care",false,"Spotsylvania - 51177",Spotsylvania,false,,,Individual,Yes
+2026,VA,25978,SERFF,1,05-20-2026,VAS011,"EssentialSmile Virginia - Total Care",false,"Falls Church City - 51610","Falls Church City",false,,,Individual,Yes
+2026,VA,25978,SERFF,1,05-20-2026,VAS011,"EssentialSmile Virginia - Total Care",false,"Fairfax - 51059",Fairfax,false,,,Individual,Yes
+2026,VA,25978,SERFF,1,05-20-2026,VAS011,"EssentialSmile Virginia - Total Care",false,"Colonial Heights City - 51570","Colonial Heights City",false,,,Individual,Yes
+2026,VA,25978,SERFF,1,05-20-2026,VAS011,"EssentialSmile Virginia - Total Care",false,"Hanover - 51085",Hanover,false,,,Individual,Yes
+2026,VA,25978,SERFF,1,05-20-2026,VAS011,"EssentialSmile Virginia - Total Care",false,"Virginia Beach City - 51810","Virginia Beach City",false,,,Individual,Yes
+2026,VA,25978,SERFF,1,05-20-2026,VAS011,"EssentialSmile Virginia - Total Care",false,"Suffolk City - 51800","Suffolk City",false,,,Individual,Yes
+2026,VA,25978,SERFF,1,05-20-2026,VAS011,"EssentialSmile Virginia - Total Care",false,"Stafford - 51179",Stafford,false,,,Individual,Yes
+2026,VA,25978,SERFF,1,05-20-2026,VAS011,"EssentialSmile Virginia - Total Care",false,"Norfolk City - 51710","Norfolk City",false,,,Individual,Yes
+2026,VA,25978,SERFF,1,05-20-2026,VAS011,"EssentialSmile Virginia - Total Care",false,"Arlington - 51013",Arlington,false,,,Individual,Yes
+2026,VA,25978,SERFF,1,05-20-2026,VAS011,"EssentialSmile Virginia - Total Care",false,"Loudoun - 51107",Loudoun,false,,,Individual,Yes
+2026,VA,25978,SERFF,1,05-20-2026,VAS011,"EssentialSmile Virginia - Total Care",false,"Newport News City - 51700","Newport News City",false,,,Individual,Yes
+2026,VA,25978,SERFF,1,05-20-2026,VAS011,"EssentialSmile Virginia - Total Care",false,"Chesapeake City - 51550","Chesapeake City",false,,,Individual,Yes
+2026,VA,25978,SERFF,1,05-20-2026,VAS011,"EssentialSmile Virginia - Total Care",false,"Alexandria City - 51510","Alexandria City",false,,,Individual,Yes
+2026,VA,25978,SERFF,1,05-20-2026,VAS012,"Smile Now Virginia PPO",false,"Newport News City - 51700","Newport News City",false,,,Individual,Yes
+2026,VA,25978,SERFF,1,05-20-2026,VAS012,"Smile Now Virginia PPO",false,"Virginia Beach City - 51810","Virginia Beach City",false,,,Individual,Yes
+2026,VA,25978,SERFF,1,05-20-2026,VAS012,"Smile Now Virginia PPO",false,"Fauquier - 51061",Fauquier,false,,,Individual,Yes
+2026,VA,25978,SERFF,1,05-20-2026,VAS012,"Smile Now Virginia PPO",false,"Norfolk City - 51710","Norfolk City",false,,,Individual,Yes
+2026,VA,25978,SERFF,1,05-20-2026,VAS012,"Smile Now Virginia PPO",false,"Staunton City - 51790","Staunton City",false,,,Individual,Yes
+2026,VA,25978,SERFF,1,05-20-2026,VAS012,"Smile Now Virginia PPO",false,"James City - 51095","James City",false,,,Individual,Yes
+2026,VA,25978,SERFF,1,05-20-2026,VAS012,"Smile Now Virginia PPO",false,"Fairfax City - 51600","Fairfax City",false,,,Individual,Yes
+2026,VA,25978,SERFF,1,05-20-2026,VAS012,"Smile Now Virginia PPO",false,"Prince William - 51153","Prince William",false,,,Individual,Yes
+2026,VA,25978,SERFF,1,05-20-2026,VAS012,"Smile Now Virginia PPO",false,"Henrico - 51087",Henrico,false,,,Individual,Yes
+2026,VA,25978,SERFF,1,05-20-2026,VAS012,"Smile Now Virginia PPO",false,"Roanoke City - 51770","Roanoke City",false,,,Individual,Yes
+2026,VA,25978,SERFF,1,05-20-2026,VAS012,"Smile Now Virginia PPO",false,"Powhatan - 51145",Powhatan,false,,,Individual,Yes
+2026,VA,25978,SERFF,1,05-20-2026,VAS012,"Smile Now Virginia PPO",false,"Loudoun - 51107",Loudoun,false,,,Individual,Yes
+2026,VA,25978,SERFF,1,05-20-2026,VAS012,"Smile Now Virginia PPO",false,"Richmond City - 51760","Richmond City",false,,,Individual,Yes
+2026,VA,25978,SERFF,1,05-20-2026,VAS012,"Smile Now Virginia PPO",false,"Winchester City - 51840","Winchester City",false,,,Individual,Yes
+2026,VA,25978,SERFF,1,05-20-2026,VAS012,"Smile Now Virginia PPO",false,"Prince George - 51149","Prince George",false,,,Individual,Yes
+2026,VA,25978,SERFF,1,05-20-2026,VAS012,"Smile Now Virginia PPO",false,"Charlottesville City - 51540","Charlottesville City",false,,,Individual,Yes
+2026,VA,25978,SERFF,1,05-20-2026,VAS012,"Smile Now Virginia PPO",false,"Manassas City - 51683","Manassas City",false,,,Individual,Yes
+2026,VA,25978,SERFF,1,05-20-2026,VAS012,"Smile Now Virginia PPO",false,"Harrisonburg City - 51660","Harrisonburg City",false,,,Individual,Yes
+2026,VA,25978,SERFF,1,05-20-2026,VAS012,"Smile Now Virginia PPO",false,"Alexandria City - 51510","Alexandria City",false,,,Individual,Yes
+2026,VA,25978,SERFF,1,05-20-2026,VAS012,"Smile Now Virginia PPO",false,"Rockingham - 51165",Rockingham,false,,,Individual,Yes
+2026,VA,25978,SERFF,1,05-20-2026,VAS012,"Smile Now Virginia PPO",false,"Danville City - 51590","Danville City",false,,,Individual,Yes
+2026,VA,25978,SERFF,1,05-20-2026,VAS012,"Smile Now Virginia PPO",false,"Suffolk City - 51800","Suffolk City",false,,,Individual,Yes
+2026,VA,25978,SERFF,1,05-20-2026,VAS012,"Smile Now Virginia PPO",false,"Albemarle - 51003",Albemarle,false,,,Individual,Yes
+2026,VA,25978,SERFF,1,05-20-2026,VAS012,"Smile Now Virginia PPO",false,"Portsmouth City - 51740","Portsmouth City",false,,,Individual,Yes
+2026,VA,25978,SERFF,1,05-20-2026,VAS012,"Smile Now Virginia PPO",false,"Hampton City - 51650","Hampton City",false,,,Individual,Yes
+2026,VA,25978,SERFF,1,05-20-2026,VAS012,"Smile Now Virginia PPO",false,"Falls Church City - 51610","Falls Church City",false,,,Individual,Yes
+2026,VA,25978,SERFF,1,05-20-2026,VAS012,"Smile Now Virginia PPO",false,"Colonial Heights City - 51570","Colonial Heights City",false,,,Individual,Yes
+2026,VA,25978,SERFF,1,05-20-2026,VAS012,"Smile Now Virginia PPO",false,"Waynesboro City - 51820","Waynesboro City",false,,,Individual,Yes
+2026,VA,25978,SERFF,1,05-20-2026,VAS012,"Smile Now Virginia PPO",false,"Fredericksburg City - 51630","Fredericksburg City",false,,,Individual,Yes
+2026,VA,25978,SERFF,1,05-20-2026,VAS012,"Smile Now Virginia PPO",false,"Chesterfield - 51041",Chesterfield,false,,,Individual,Yes
+2026,VA,25978,SERFF,1,05-20-2026,VAS012,"Smile Now Virginia PPO",false,"Stafford - 51179",Stafford,false,,,Individual,Yes
+2026,VA,25978,SERFF,1,05-20-2026,VAS012,"Smile Now Virginia PPO",false,"Montgomery - 51121",Montgomery,false,,,Individual,Yes
+2026,VA,25978,SERFF,1,05-20-2026,VAS012,"Smile Now Virginia PPO",false,"Hanover - 51085",Hanover,false,,,Individual,Yes
+2026,VA,25978,SERFF,1,05-20-2026,VAS012,"Smile Now Virginia PPO",false,"Chesapeake City - 51550","Chesapeake City",false,,,Individual,Yes
+2026,VA,25978,SERFF,1,05-20-2026,VAS012,"Smile Now Virginia PPO",false,"Arlington - 51013",Arlington,false,,,Individual,Yes
+2026,VA,25978,SERFF,1,05-20-2026,VAS012,"Smile Now Virginia PPO",false,"Gloucester - 51073",Gloucester,false,,,Individual,Yes
+2026,VA,25978,SERFF,1,05-20-2026,VAS012,"Smile Now Virginia PPO",false,"Fairfax - 51059",Fairfax,false,,,Individual,Yes
+2026,VA,25978,SERFF,1,05-20-2026,VAS012,"Smile Now Virginia PPO",false,"Spotsylvania - 51177",Spotsylvania,false,,,Individual,Yes
+2026,VA,27117,SERFF,1,05-20-2026,VAS001,Virginia,true,,,,,,Individual,Yes
+2026,VA,31319,SERFF,1,05-20-2026,VAS001,Virginia,true,,,,,,Individual,Yes
+2026,VA,40198,SERFF,1,05-20-2026,VAS002,"VA PPO Entire State",true,,,,,,Individual,Yes
+2026,VA,40308,SERFF,1,05-20-2026,VAS003,"Virginia Service Area 3",false,"Loudoun - 51107",Loudoun,true,"20041, 20598",40308_VA_service_area_partial_county,Individual,No
+2026,VA,40308,SERFF,1,05-20-2026,VAS003,"Virginia Service Area 3",false,"Fairfax - 51059",Fairfax,true,"22003, 22009, 22015, 22027, 22030, 22031, 22032, 22034, 22035, 22036, 22037, 22039, 22041, 22042, 22043, 22044, 22046, 22060, 22079, 22081, 22082, 22101, 22102, 22103, 22106, 22107, 22108, 22109, 22116, 22118, 22119, 22121, 22122, 22124, 22150, 22151, 22152, 22153, 22156, 22158, 22159, 22160, 22161, 22180, 22181, 22182, 22183, 22185, 22199, 22302, 22303, 22304, 22306, 22307, 22308, 22309, 22310, 22311, 22312, 22315",40308_VA_service_area_partial_county,Individual,No
+2026,VA,40308,SERFF,1,05-20-2026,VAS003,"Virginia Service Area 3",false,"Fairfax City - 51600","Fairfax City",false,,,Individual,No
+2026,VA,40308,SERFF,1,05-20-2026,VAS003,"Virginia Service Area 3",false,"Arlington - 51013",Arlington,false,,,Individual,No
+2026,VA,40308,SERFF,1,05-20-2026,VAS003,"Virginia Service Area 3",false,"Alexandria City - 51510","Alexandria City",false,,,Individual,No
+2026,VA,40308,SERFF,1,05-20-2026,VAS003,"Virginia Service Area 3",false,"Prince William - 51153","Prince William",true,"22125, 22191, 22192, 22194",40308_VA_service_area_partial_county,Individual,No
+2026,VA,40308,SERFF,1,05-20-2026,VAS003,"Virginia Service Area 3",false,"Falls Church City - 51610","Falls Church City",false,,,Individual,No
+2026,VA,40308,SERFF,1,05-20-2026,VAS004,"Virginia Service Area 4",false,"Loudoun - 51107",Loudoun,true,"20041, 20598",40308_VA_service_area_partial_county,"SHOP (Small Group)",No
+2026,VA,40308,SERFF,1,05-20-2026,VAS004,"Virginia Service Area 4",false,"Arlington - 51013",Arlington,false,,,"SHOP (Small Group)",No
+2026,VA,40308,SERFF,1,05-20-2026,VAS004,"Virginia Service Area 4",false,"Fairfax - 51059",Fairfax,true,"22003, 22009, 22015, 22027, 22030, 22031, 22032, 22034, 22035, 22036, 22037, 22039, 22041, 22042, 22043, 22044, 22046, 22060, 22079, 22081, 22082, 22101, 22102, 22103, 22106, 22107, 22108, 22109, 22116, 22118, 22119, 22121, 22122, 22124, 22150, 22151, 22152, 22153, 22156, 22158, 22159, 22160, 22161, 22180, 22181, 22182, 22183, 22185, 22199, 22302, 22303, 22304, 22306, 22307, 22308, 22309, 22310, 22311, 22312, 22315",40308_VA_service_area_partial_county,"SHOP (Small Group)",No
+2026,VA,40308,SERFF,1,05-20-2026,VAS004,"Virginia Service Area 4",false,"Falls Church City - 51610","Falls Church City",false,,,"SHOP (Small Group)",No
+2026,VA,40308,SERFF,1,05-20-2026,VAS004,"Virginia Service Area 4",false,"Fairfax City - 51600","Fairfax City",false,,,"SHOP (Small Group)",No
+2026,VA,40308,SERFF,1,05-20-2026,VAS004,"Virginia Service Area 4",false,"Alexandria City - 51510","Alexandria City",false,,,"SHOP (Small Group)",No
+2026,VA,40308,SERFF,1,05-20-2026,VAS004,"Virginia Service Area 4",false,"Prince William - 51153","Prince William",true,"22125, 22191, 22192, 22194",40308_VA_service_area_partial_county,"SHOP (Small Group)",No
+2026,VA,41921,SERFF,1,05-20-2026,VAS001,"Virginia Connect EPO",false,"Manassas Park City - 51685","Manassas Park City",false,,,Individual,No
+2026,VA,41921,SERFF,1,05-20-2026,VAS001,"Virginia Connect EPO",false,"Caroline - 51033",Caroline,false,,,Individual,No
+2026,VA,41921,SERFF,1,05-20-2026,VAS001,"Virginia Connect EPO",false,"Prince George - 51149","Prince George",false,,,Individual,No
+2026,VA,41921,SERFF,1,05-20-2026,VAS001,"Virginia Connect EPO",false,"Colonial Heights City - 51570","Colonial Heights City",false,,,Individual,No
+2026,VA,41921,SERFF,1,05-20-2026,VAS001,"Virginia Connect EPO",false,"Manassas City - 51683","Manassas City",false,,,Individual,No
+2026,VA,41921,SERFF,1,05-20-2026,VAS001,"Virginia Connect EPO",false,"King and Queen - 51097","King and Queen",false,,,Individual,No
+2026,VA,41921,SERFF,1,05-20-2026,VAS001,"Virginia Connect EPO",false,"Loudoun - 51107",Loudoun,false,,,Individual,No
+2026,VA,41921,SERFF,1,05-20-2026,VAS001,"Virginia Connect EPO",false,"Henrico - 51087",Henrico,false,,,Individual,No
+2026,VA,41921,SERFF,1,05-20-2026,VAS001,"Virginia Connect EPO",false,"Fauquier - 51061",Fauquier,false,,,Individual,No
+2026,VA,41921,SERFF,1,05-20-2026,VAS001,"Virginia Connect EPO",false,"King William - 51101","King William",false,,,Individual,No
+2026,VA,41921,SERFF,1,05-20-2026,VAS001,"Virginia Connect EPO",false,"Stafford - 51179",Stafford,false,,,Individual,No
+2026,VA,41921,SERFF,1,05-20-2026,VAS001,"Virginia Connect EPO",false,"Hopewell City - 51670","Hopewell City",false,,,Individual,No
+2026,VA,41921,SERFF,1,05-20-2026,VAS001,"Virginia Connect EPO",false,"Chesterfield - 51041",Chesterfield,false,,,Individual,No
+2026,VA,41921,SERFF,1,05-20-2026,VAS001,"Virginia Connect EPO",false,"Fairfax - 51059",Fairfax,false,,,Individual,No
+2026,VA,41921,SERFF,1,05-20-2026,VAS001,"Virginia Connect EPO",false,"Arlington - 51013",Arlington,false,,,Individual,No
+2026,VA,41921,SERFF,1,05-20-2026,VAS001,"Virginia Connect EPO",false,"Dinwiddie - 51053",Dinwiddie,false,,,Individual,No
+2026,VA,41921,SERFF,1,05-20-2026,VAS001,"Virginia Connect EPO",false,"Warren - 51187",Warren,false,,,Individual,No
+2026,VA,41921,SERFF,1,05-20-2026,VAS001,"Virginia Connect EPO",false,"Amelia - 51007",Amelia,false,,,Individual,No
+2026,VA,41921,SERFF,1,05-20-2026,VAS001,"Virginia Connect EPO",false,"Richmond City - 51760","Richmond City",false,,,Individual,No
+2026,VA,41921,SERFF,1,05-20-2026,VAS001,"Virginia Connect EPO",false,"Rappahannock - 51157",Rappahannock,false,,,Individual,No
+2026,VA,41921,SERFF,1,05-20-2026,VAS001,"Virginia Connect EPO",false,"Petersburg City - 51730","Petersburg City",false,,,Individual,No
+2026,VA,41921,SERFF,1,05-20-2026,VAS001,"Virginia Connect EPO",false,"Alexandria City - 51510","Alexandria City",false,,,Individual,No
+2026,VA,41921,SERFF,1,05-20-2026,VAS001,"Virginia Connect EPO",false,"Goochland - 51075",Goochland,false,,,Individual,No
+2026,VA,41921,SERFF,1,05-20-2026,VAS001,"Virginia Connect EPO",false,"Spotsylvania - 51177",Spotsylvania,false,,,Individual,No
+2026,VA,41921,SERFF,1,05-20-2026,VAS001,"Virginia Connect EPO",false,"Winchester City - 51840","Winchester City",false,,,Individual,No
+2026,VA,41921,SERFF,1,05-20-2026,VAS001,"Virginia Connect EPO",false,"Louisa - 51109",Louisa,false,,,Individual,No
+2026,VA,41921,SERFF,1,05-20-2026,VAS001,"Virginia Connect EPO",false,"Clarke - 51043",Clarke,false,,,Individual,No
+2026,VA,41921,SERFF,1,05-20-2026,VAS001,"Virginia Connect EPO",false,"Sussex - 51183",Sussex,false,,,Individual,No
+2026,VA,41921,SERFF,1,05-20-2026,VAS001,"Virginia Connect EPO",false,"Hanover - 51085",Hanover,false,,,Individual,No
+2026,VA,41921,SERFF,1,05-20-2026,VAS001,"Virginia Connect EPO",false,"New Kent - 51127","New Kent",false,,,Individual,No
+2026,VA,41921,SERFF,1,05-20-2026,VAS001,"Virginia Connect EPO",false,"Shenandoah - 51171",Shenandoah,false,,,Individual,No
+2026,VA,41921,SERFF,1,05-20-2026,VAS001,"Virginia Connect EPO",false,"Falls Church City - 51610","Falls Church City",false,,,Individual,No
+2026,VA,41921,SERFF,1,05-20-2026,VAS001,"Virginia Connect EPO",false,"Cumberland - 51049",Cumberland,false,,,Individual,No
+2026,VA,41921,SERFF,1,05-20-2026,VAS001,"Virginia Connect EPO",false,"Prince William - 51153","Prince William",false,,,Individual,No
+2026,VA,41921,SERFF,1,05-20-2026,VAS001,"Virginia Connect EPO",false,"Charles City - 51036","Charles City",false,,,Individual,No
+2026,VA,41921,SERFF,1,05-20-2026,VAS001,"Virginia Connect EPO",false,"Fairfax City - 51600","Fairfax City",false,,,Individual,No
+2026,VA,41921,SERFF,1,05-20-2026,VAS001,"Virginia Connect EPO",false,"Frederick - 51069",Frederick,false,,,Individual,No
+2026,VA,41921,SERFF,1,05-20-2026,VAS001,"Virginia Connect EPO",false,"Powhatan - 51145",Powhatan,false,,,Individual,No
+2026,VA,41921,SERFF,1,05-20-2026,VAS001,"Virginia Connect EPO",false,"Page - 51139",Page,false,,,Individual,No
+2026,VA,42808,SERFF,1,05-20-2026,VAS001,"GLIC Indiv PPO On and Off Exchange",true,,,,,,Individual,Yes
+2026,VA,42808,SERFF,1,05-20-2026,VAS002,"GLIC Group PPO Off Exchange",true,,,,,,Individual,Yes
+2026,VA,50727,SERFF,1,05-20-2026,VAS001,Dental,true,,,,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Halifax - 51083",Halifax,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Gloucester - 51073",Gloucester,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Franklin City - 51620","Franklin City",false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Waynesboro City - 51820","Waynesboro City",false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Craig - 51045",Craig,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Mecklenburg - 51117",Mecklenburg,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Alleghany - 51005",Alleghany,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Greene - 51079",Greene,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Richmond City - 51760","Richmond City",false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Henrico - 51087",Henrico,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Rockbridge - 51163",Rockbridge,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Madison - 51113",Madison,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Isle of Wight - 51093","Isle of Wight",false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Cumberland - 51049",Cumberland,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"York - 51199",York,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Culpeper - 51047",Culpeper,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Southampton - 51175",Southampton,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Staunton City - 51790","Staunton City",false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Hanover - 51085",Hanover,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Petersburg City - 51730","Petersburg City",false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Suffolk City - 51800","Suffolk City",false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Fairfax City - 51600","Fairfax City",false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Prince George - 51149","Prince George",false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Page - 51139",Page,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Winchester City - 51840","Winchester City",false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Powhatan - 51145",Powhatan,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Charles City - 51036","Charles City",false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Alexandria City - 51510","Alexandria City",false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Orange - 51137",Orange,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Williamsburg City - 51830","Williamsburg City",false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Westmoreland - 51193",Westmoreland,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Hampton City - 51650","Hampton City",false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Rockingham - 51165",Rockingham,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Prince Edward - 51147","Prince Edward",false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Lunenburg - 51111",Lunenburg,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Botetourt - 51023",Botetourt,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Highland - 51091",Highland,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Portsmouth City - 51740","Portsmouth City",false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Virginia Beach City - 51810","Virginia Beach City",false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Arlington - 51013",Arlington,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Goochland - 51075",Goochland,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Pittsylvania - 51143",Pittsylvania,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Chesapeake City - 51550","Chesapeake City",false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Prince William - 51153","Prince William",false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Louisa - 51109",Louisa,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Appomattox - 51011",Appomattox,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Fauquier - 51061",Fauquier,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Amherst - 51009",Amherst,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Greensville - 51081",Greensville,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Northampton - 51131",Northampton,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Richmond - 51159",Richmond,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Chesterfield - 51041",Chesterfield,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Warren - 51187",Warren,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Fluvanna - 51065",Fluvanna,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Poquoson City - 51735","Poquoson City",false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Brunswick - 51025",Brunswick,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Falls Church City - 51610","Falls Church City",false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Lancaster - 51103",Lancaster,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Nelson - 51125",Nelson,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"New Kent - 51127","New Kent",false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Rappahannock - 51157",Rappahannock,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Fredericksburg City - 51630","Fredericksburg City",false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Sussex - 51183",Sussex,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Manassas City - 51683","Manassas City",false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"King George - 51099","King George",false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Charlotte - 51037",Charlotte,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Mathews - 51115",Mathews,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Essex - 51057",Essex,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Newport News City - 51700","Newport News City",false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Nottoway - 51135",Nottoway,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Loudoun - 51107",Loudoun,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Colonial Heights City - 51570","Colonial Heights City",false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Covington City - 51580","Covington City",false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Surry - 51181",Surry,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Dinwiddie - 51053",Dinwiddie,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Hopewell City - 51670","Hopewell City",false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Norfolk City - 51710","Norfolk City",false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Fairfax - 51059",Fairfax,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Clarke - 51043",Clarke,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Buena Vista City - 51530","Buena Vista City",false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"King and Queen - 51097","King and Queen",false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Shenandoah - 51171",Shenandoah,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Bath - 51017",Bath,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Lynchburg City - 51680","Lynchburg City",false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Northumberland - 51133",Northumberland,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Emporia City - 51595","Emporia City",false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Manassas Park City - 51685","Manassas Park City",false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Caroline - 51033",Caroline,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Middlesex - 51119",Middlesex,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"James City - 51095","James City",false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Buckingham - 51029",Buckingham,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"King William - 51101","King William",false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Stafford - 51179",Stafford,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Amelia - 51007",Amelia,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Spotsylvania - 51177",Spotsylvania,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Lexington City - 51678","Lexington City",false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Campbell - 51031",Campbell,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS001,"DDS Select",false,"Augusta - 51015",Augusta,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Portsmouth City - 51740","Portsmouth City",false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Loudoun - 51107",Loudoun,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Suffolk City - 51800","Suffolk City",false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Fredericksburg City - 51630","Fredericksburg City",false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Poquoson City - 51735","Poquoson City",false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Craig - 51045",Craig,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Albemarle - 51003",Albemarle,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Warren - 51187",Warren,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Norfolk City - 51710","Norfolk City",false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"York - 51199",York,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Prince Edward - 51147","Prince Edward",false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Arlington - 51013",Arlington,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Sussex - 51183",Sussex,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Botetourt - 51023",Botetourt,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Buckingham - 51029",Buckingham,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Prince William - 51153","Prince William",false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Caroline - 51033",Caroline,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Lynchburg City - 51680","Lynchburg City",false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Franklin City - 51620","Franklin City",false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Martinsville City - 51690","Martinsville City",false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Page - 51139",Page,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Nottoway - 51135",Nottoway,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Grayson - 51077",Grayson,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Dinwiddie - 51053",Dinwiddie,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Charles City - 51036","Charles City",false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Pulaski - 51155",Pulaski,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Goochland - 51075",Goochland,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Mecklenburg - 51117",Mecklenburg,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Fairfax City - 51600","Fairfax City",false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Powhatan - 51145",Powhatan,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Frederick - 51069",Frederick,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Colonial Heights City - 51570","Colonial Heights City",false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"New Kent - 51127","New Kent",false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Halifax - 51083",Halifax,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Rockingham - 51165",Rockingham,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Franklin - 51067",Franklin,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Gloucester - 51073",Gloucester,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Fauquier - 51061",Fauquier,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Rockbridge - 51163",Rockbridge,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Greensville - 51081",Greensville,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Danville City - 51590","Danville City",false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Pittsylvania - 51143",Pittsylvania,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Madison - 51113",Madison,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Bland - 51021",Bland,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Richmond City - 51760","Richmond City",false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Henrico - 51087",Henrico,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Southampton - 51175",Southampton,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Spotsylvania - 51177",Spotsylvania,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Galax City - 51640","Galax City",false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Harrisonburg City - 51660","Harrisonburg City",false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Middlesex - 51119",Middlesex,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Chesterfield - 51041",Chesterfield,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Nelson - 51125",Nelson,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Carroll - 51035",Carroll,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Covington City - 51580","Covington City",false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Alexandria City - 51510","Alexandria City",false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Northampton - 51131",Northampton,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Virginia Beach City - 51810","Virginia Beach City",false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Lancaster - 51103",Lancaster,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Orange - 51137",Orange,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Lexington City - 51678","Lexington City",false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"King William - 51101","King William",false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Winchester City - 51840","Winchester City",false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Westmoreland - 51193",Westmoreland,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Falls Church City - 51610","Falls Church City",false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Roanoke - 51161",Roanoke,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Fluvanna - 51065",Fluvanna,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Bedford - 51019",Bedford,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Alleghany - 51005",Alleghany,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Rappahannock - 51157",Rappahannock,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Floyd - 51063",Floyd,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Patrick - 51141",Patrick,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Giles - 51071",Giles,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Newport News City - 51700","Newport News City",false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Brunswick - 51025",Brunswick,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Hopewell City - 51670","Hopewell City",false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Fairfax - 51059",Fairfax,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Wythe - 51197",Wythe,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Charlottesville City - 51540","Charlottesville City",false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Louisa - 51109",Louisa,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Amherst - 51009",Amherst,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Buena Vista City - 51530","Buena Vista City",false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Montgomery - 51121",Montgomery,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Salem - 51775",Salem,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Staunton City - 51790","Staunton City",false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"King George - 51099","King George",false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Clarke - 51043",Clarke,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Isle of Wight - 51093","Isle of Wight",false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Culpeper - 51047",Culpeper,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Campbell - 51031",Campbell,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"King and Queen - 51097","King and Queen",false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Radford - 51750",Radford,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Williamsburg City - 51830","Williamsburg City",false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"James City - 51095","James City",false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Roanoke City - 51770","Roanoke City",false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Chesapeake City - 51550","Chesapeake City",false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Emporia City - 51595","Emporia City",false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Petersburg City - 51730","Petersburg City",false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Lunenburg - 51111",Lunenburg,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Appomattox - 51011",Appomattox,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Prince George - 51149","Prince George",false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Hampton City - 51650","Hampton City",false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Shenandoah - 51171",Shenandoah,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Bath - 51017",Bath,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Stafford - 51179",Stafford,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Henry - 51089",Henry,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Charlotte - 51037",Charlotte,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Mathews - 51115",Mathews,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Greene - 51079",Greene,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Cumberland - 51049",Cumberland,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Amelia - 51007",Amelia,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Northumberland - 51133",Northumberland,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Richmond - 51159",Richmond,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Augusta - 51015",Augusta,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Essex - 51057",Essex,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Waynesboro City - 51820","Waynesboro City",false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Manassas Park City - 51685","Manassas Park City",false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Manassas City - 51683","Manassas City",false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Highland - 51091",Highland,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Hanover - 51085",Hanover,false,,,Individual,Yes
+2026,VA,54965,SERFF,1,05-20-2026,VAS002,"Elite PPO",false,"Surry - 51181",Surry,false,,,Individual,Yes
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Roanoke City - 51770","Roanoke City",false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Hopewell City - 51670","Hopewell City",false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Montgomery - 51121",Montgomery,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Giles - 51071",Giles,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Frederick - 51069",Frederick,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Patrick - 51141",Patrick,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Lunenburg - 51111",Lunenburg,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Mathews - 51115",Mathews,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Charlottesville City - 51540","Charlottesville City",false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Madison - 51113",Madison,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Manassas Park City - 51685","Manassas Park City",false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Henry - 51089",Henry,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Manassas City - 51683","Manassas City",false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Pittsylvania - 51143",Pittsylvania,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Roanoke - 51161",Roanoke,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"James City - 51095","James City",false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Henrico - 51087",Henrico,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Greene - 51079",Greene,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Culpeper - 51047",Culpeper,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Page - 51139",Page,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Gloucester - 51073",Gloucester,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Caroline - 51033",Caroline,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Colonial Heights City - 51570","Colonial Heights City",false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Highland - 51091",Highland,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Dinwiddie - 51053",Dinwiddie,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"King And Queen - 51097","King And Queen",false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Buckingham - 51029",Buckingham,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Hampton City - 51650","Hampton City",false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Carroll - 51035",Carroll,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Prince George - 51149","Prince George",false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"New Kent - 51127","New Kent",false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Smyth - 51173",Smyth,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Powhatan - 51145",Powhatan,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Brunswick - 51025",Brunswick,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Albemarle - 51003",Albemarle,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Bland - 51021",Bland,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Chesapeake City - 51550","Chesapeake City",false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Essex - 51057",Essex,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Fauquier - 51061",Fauquier,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Danville City - 51590","Danville City",false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Scott - 51169",Scott,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Wise - 51195",Wise,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Waynesboro City - 51820","Waynesboro City",false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Franklin City - 51620","Franklin City",false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Stafford - 51179",Stafford,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Bristol City - 51520","Bristol City",false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Prince William - 51153","Prince William",false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Bath - 51017",Bath,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Tazewell - 51185",Tazewell,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Northumberland - 51133",Northumberland,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Harrisonburg City - 51660","Harrisonburg City",false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Covington City - 51580","Covington City",false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Orange - 51137",Orange,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Warren - 51187",Warren,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Amelia - 51007",Amelia,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Staunton City - 51790","Staunton City",false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Buchanan - 51027",Buchanan,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Emporia City - 51595","Emporia City",false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Westmoreland - 51193",Westmoreland,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Russell - 51167",Russell,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Lee - 51105",Lee,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Clarke - 51043",Clarke,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Virginia Beach City - 51810","Virginia Beach City",false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Fredericksburg City - 51630","Fredericksburg City",false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Rockingham - 51165",Rockingham,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Isle Of Wight - 51093","Isle Of Wight",false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Williamsburg City - 51830","Williamsburg City",false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Bedford - 51019",Bedford,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Greensville - 51081",Greensville,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Louisa - 51109",Louisa,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Sussex - 51183",Sussex,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Mecklenburg - 51117",Mecklenburg,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Suffolk City - 51800","Suffolk City",false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"King George - 51099","King George",false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Loudoun - 51107",Loudoun,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Lexington City - 51678","Lexington City",false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Middlesex - 51119",Middlesex,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Buena Vista City - 51530","Buena Vista City",false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Portsmouth City - 51740","Portsmouth City",false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Appomattox - 51011",Appomattox,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Dickenson - 51051",Dickenson,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Hanover - 51085",Hanover,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Botetourt - 51023",Botetourt,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"King William - 51101","King William",false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Winchester City - 51840","Winchester City",false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Cumberland - 51049",Cumberland,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Nelson - 51125",Nelson,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Radford - 51750",Radford,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Augusta - 51015",Augusta,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Martinsville City - 51690","Martinsville City",false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Pulaski - 51155",Pulaski,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Chesterfield - 51041",Chesterfield,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Rappahannock - 51157",Rappahannock,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Campbell - 51031",Campbell,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Goochland - 51075",Goochland,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Lynchburg City - 51680","Lynchburg City",false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Prince Edward - 51147","Prince Edward",false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Richmond City - 51760","Richmond City",false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Petersburg City - 51730","Petersburg City",false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Accomack - 51001",Accomack,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Craig - 51045",Craig,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Norton City - 51720","Norton City",false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"York - 51199",York,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Newport News City - 51700","Newport News City",false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Norfolk City - 51710","Norfolk City",false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Nottoway - 51135",Nottoway,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Surry - 51181",Surry,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Franklin - 51067",Franklin,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Charlotte - 51037",Charlotte,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Halifax - 51083",Halifax,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Wythe - 51197",Wythe,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Fluvanna - 51065",Fluvanna,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Spotsylvania - 51177",Spotsylvania,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Lancaster - 51103",Lancaster,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Amherst - 51009",Amherst,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Charles City - 51036","Charles City",false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Southampton - 51175",Southampton,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Northampton - 51131",Northampton,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Washington - 51191",Washington,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Grayson - 51077",Grayson,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Richmond - 51159",Richmond,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Floyd - 51063",Floyd,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Fairfax - 51059",Fairfax,true,"20120, 20121, 20122, 20124, 20151, 20153, 20170, 20171, 20172, 20190, 20191, 20192, 20194, 20195, 20196, 22030, 22033, 22035, 22039, 22066, 22067, 22079, 22095, 22096, 22101, 22102, 22103, 22106, 22107, 22108, 22109, 22124, 22180, 22181, 22182, 22183, 22199","Only licensed to service these zip codes",Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Rockbridge - 51163",Rockbridge,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Salem - 51775",Salem,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Shenandoah - 51171",Shenandoah,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Alleghany - 51005",Alleghany,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Poquoson City - 51735","Poquoson City",false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS003,"HealthKeepers, Inc(Anthem BCBS)All",false,"Galax City - 51640","Galax City",false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS004,"HealthKeepers, Inc(Anthem BCBS)07,09,10",false,"Hampton City - 51650","Hampton City",false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS004,"HealthKeepers, Inc(Anthem BCBS)07,09,10",false,"Surry - 51181",Surry,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS004,"HealthKeepers, Inc(Anthem BCBS)07,09,10",false,"Poquoson City - 51735","Poquoson City",false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS004,"HealthKeepers, Inc(Anthem BCBS)07,09,10",false,"Colonial Heights City - 51570","Colonial Heights City",false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS004,"HealthKeepers, Inc(Anthem BCBS)07,09,10",false,"Dinwiddie - 51053",Dinwiddie,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS004,"HealthKeepers, Inc(Anthem BCBS)07,09,10",false,"Sussex - 51183",Sussex,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS004,"HealthKeepers, Inc(Anthem BCBS)07,09,10",false,"Loudoun - 51107",Loudoun,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS004,"HealthKeepers, Inc(Anthem BCBS)07,09,10",false,"Manassas Park City - 51685","Manassas Park City",false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS004,"HealthKeepers, Inc(Anthem BCBS)07,09,10",false,"Hanover - 51085",Hanover,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS004,"HealthKeepers, Inc(Anthem BCBS)07,09,10",false,"James City - 51095","James City",false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS004,"HealthKeepers, Inc(Anthem BCBS)07,09,10",false,"Charles City - 51036","Charles City",false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS004,"HealthKeepers, Inc(Anthem BCBS)07,09,10",false,"Portsmouth City - 51740","Portsmouth City",false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS004,"HealthKeepers, Inc(Anthem BCBS)07,09,10",false,"Chesterfield - 51041",Chesterfield,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS004,"HealthKeepers, Inc(Anthem BCBS)07,09,10",false,"Prince William - 51153","Prince William",false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS004,"HealthKeepers, Inc(Anthem BCBS)07,09,10",false,"Williamsburg City - 51830","Williamsburg City",false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS004,"HealthKeepers, Inc(Anthem BCBS)07,09,10",false,"Petersburg City - 51730","Petersburg City",false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS004,"HealthKeepers, Inc(Anthem BCBS)07,09,10",false,"Clarke - 51043",Clarke,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS004,"HealthKeepers, Inc(Anthem BCBS)07,09,10",false,"Caroline - 51033",Caroline,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS004,"HealthKeepers, Inc(Anthem BCBS)07,09,10",false,"Warren - 51187",Warren,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS004,"HealthKeepers, Inc(Anthem BCBS)07,09,10",false,"Goochland - 51075",Goochland,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS004,"HealthKeepers, Inc(Anthem BCBS)07,09,10",false,"Amelia - 51007",Amelia,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS004,"HealthKeepers, Inc(Anthem BCBS)07,09,10",false,"Chesapeake City - 51550","Chesapeake City",false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS004,"HealthKeepers, Inc(Anthem BCBS)07,09,10",false,"King And Queen - 51097","King And Queen",false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS004,"HealthKeepers, Inc(Anthem BCBS)07,09,10",false,"Spotsylvania - 51177",Spotsylvania,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS004,"HealthKeepers, Inc(Anthem BCBS)07,09,10",false,"Mathews - 51115",Mathews,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS004,"HealthKeepers, Inc(Anthem BCBS)07,09,10",false,"Fauquier - 51061",Fauquier,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS004,"HealthKeepers, Inc(Anthem BCBS)07,09,10",false,"Stafford - 51179",Stafford,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS004,"HealthKeepers, Inc(Anthem BCBS)07,09,10",false,"Prince George - 51149","Prince George",false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS004,"HealthKeepers, Inc(Anthem BCBS)07,09,10",false,"Powhatan - 51145",Powhatan,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS004,"HealthKeepers, Inc(Anthem BCBS)07,09,10",false,"Cumberland - 51049",Cumberland,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS004,"HealthKeepers, Inc(Anthem BCBS)07,09,10",false,"Newport News City - 51700","Newport News City",false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS004,"HealthKeepers, Inc(Anthem BCBS)07,09,10",false,"Richmond City - 51760","Richmond City",false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS004,"HealthKeepers, Inc(Anthem BCBS)07,09,10",false,"Fairfax - 51059",Fairfax,true,"20120, 20121, 20122, 20124, 20151, 20153, 20170, 20171, 20172, 20190, 20191, 20192, 20194, 20195, 20196, 22030, 22033, 22035, 22039, 22066, 22067, 22079, 22095, 22096, 22101, 22102, 22103, 22106, 22107, 22108, 22109, 22124, 22180, 22181, 22182, 22183, 22199","Only licensed to service these zip codes",Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS004,"HealthKeepers, Inc(Anthem BCBS)07,09,10",false,"Suffolk City - 51800","Suffolk City",false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS004,"HealthKeepers, Inc(Anthem BCBS)07,09,10",false,"Hopewell City - 51670","Hopewell City",false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS004,"HealthKeepers, Inc(Anthem BCBS)07,09,10",false,"King William - 51101","King William",false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS004,"HealthKeepers, Inc(Anthem BCBS)07,09,10",false,"Gloucester - 51073",Gloucester,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS004,"HealthKeepers, Inc(Anthem BCBS)07,09,10",false,"York - 51199",York,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS004,"HealthKeepers, Inc(Anthem BCBS)07,09,10",false,"Norfolk City - 51710","Norfolk City",false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS004,"HealthKeepers, Inc(Anthem BCBS)07,09,10",false,"Louisa - 51109",Louisa,false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS004,"HealthKeepers, Inc(Anthem BCBS)07,09,10",false,"Isle Of Wight - 51093","Isle Of Wight",false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS004,"HealthKeepers, Inc(Anthem BCBS)07,09,10",false,"New Kent - 51127","New Kent",false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS004,"HealthKeepers, Inc(Anthem BCBS)07,09,10",false,"Virginia Beach City - 51810","Virginia Beach City",false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS004,"HealthKeepers, Inc(Anthem BCBS)07,09,10",false,"Manassas City - 51683","Manassas City",false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS004,"HealthKeepers, Inc(Anthem BCBS)07,09,10",false,"Fredericksburg City - 51630","Fredericksburg City",false,,,Individual,No
+2026,VA,88380,SERFF,1,05-20-2026,VAS004,"HealthKeepers, Inc(Anthem BCBS)07,09,10",false,"Henrico - 51087",Henrico,false,,,Individual,No
+2026,VA,95185,SERFF,1,05-20-2026,VAS001,"Service Area 001 - SHOP",false,"Prince William - 51153","Prince William",false,,,Individual,No
+2026,VA,95185,SERFF,1,05-20-2026,VAS001,"Service Area 001 - SHOP",false,"Fairfax City - 51600","Fairfax City",false,,,"SHOP (Small Group)",No
+2026,VA,95185,SERFF,1,05-20-2026,VAS001,"Service Area 001 - SHOP",false,"Manassas City - 51683","Manassas City",false,,,Individual,No
+2026,VA,95185,SERFF,1,05-20-2026,VAS001,"Service Area 001 - SHOP",false,"Alexandria City - 51510","Alexandria City",false,,,Individual,No
+2026,VA,95185,SERFF,1,05-20-2026,VAS001,"Service Area 001 - SHOP",false,"Culpeper - 51047",Culpeper,true,"22407, 22736",95185_VA_SERVICE_AREA_PARTIAL_COUNTY,"SHOP (Small Group)",No
+2026,VA,95185,SERFF,1,05-20-2026,VAS001,"Service Area 001 - SHOP",false,"Hanover - 51085",Hanover,true,"22546, 23015, 23024",95185_VA_SERVICE_AREA_PARTIAL_COUNTY,"SHOP (Small Group)",No
+2026,VA,95185,SERFF,1,05-20-2026,VAS001,"Service Area 001 - SHOP",false,"Louisa - 51109",Louisa,true,"23015, 23024, 23117, 23170",95185_VA_SERVICE_AREA_PARTIAL_COUNTY,"SHOP (Small Group)",No
+2026,VA,95185,SERFF,1,05-20-2026,VAS001,"Service Area 001 - SHOP",false,"Spotsylvania - 51177",Spotsylvania,false,,,Individual,No
+2026,VA,95185,SERFF,1,05-20-2026,VAS001,"Service Area 001 - SHOP",false,"Loudoun - 51107",Loudoun,false,,,Individual,No
+2026,VA,95185,SERFF,1,05-20-2026,VAS001,"Service Area 001 - SHOP",false,"Loudoun - 51107",Loudoun,false,,,"SHOP (Small Group)",No
+2026,VA,95185,SERFF,1,05-20-2026,VAS001,"Service Area 001 - SHOP",false,"Fauquier - 51061",Fauquier,true,"20115, 20116, 20117, 20119, 20128, 20137, 20138, 20139, 20140, 20144, 20181, 20184, 20185, 20186, 20187, 20188, 20198, 22406, 22556, 22639, 22642, 22643, 22720, 22728, 22739",95185_VA_SERVICE_AREA_PARTIAL_COUNTY,"SHOP (Small Group)",No
+2026,VA,95185,SERFF,1,05-20-2026,VAS001,"Service Area 001 - SHOP",false,"Spotsylvania - 51177",Spotsylvania,false,,,"SHOP (Small Group)",No
+2026,VA,95185,SERFF,1,05-20-2026,VAS001,"Service Area 001 - SHOP",false,"Westmoreland - 51193",Westmoreland,true,"22443, 22485",95185_VA_SERVICE_AREA_PARTIAL_COUNTY,Individual,No
+2026,VA,95185,SERFF,1,05-20-2026,VAS001,"Service Area 001 - SHOP",false,"Fairfax - 51059",Fairfax,false,,,Individual,No
+2026,VA,95185,SERFF,1,05-20-2026,VAS001,"Service Area 001 - SHOP",false,"Falls Church City - 51610","Falls Church City",false,,,"SHOP (Small Group)",No
+2026,VA,95185,SERFF,1,05-20-2026,VAS001,"Service Area 001 - SHOP",false,"Manassas Park City - 51685","Manassas Park City",false,,,"SHOP (Small Group)",No
+2026,VA,95185,SERFF,1,05-20-2026,VAS001,"Service Area 001 - SHOP",false,"Stafford - 51179",Stafford,false,,,"SHOP (Small Group)",No
+2026,VA,95185,SERFF,1,05-20-2026,VAS001,"Service Area 001 - SHOP",false,"Caroline - 51033",Caroline,true,"22408, 22446, 22535, 22538, 22546, 22580, 23015",95185_VA_SERVICE_AREA_PARTIAL_COUNTY,"SHOP (Small Group)",No
+2026,VA,95185,SERFF,1,05-20-2026,VAS001,"Service Area 001 - SHOP",false,"Manassas City - 51683","Manassas City",false,,,"SHOP (Small Group)",No
+2026,VA,95185,SERFF,1,05-20-2026,VAS001,"Service Area 001 - SHOP",false,"Prince William - 51153","Prince William",false,,,"SHOP (Small Group)",No
+2026,VA,95185,SERFF,1,05-20-2026,VAS001,"Service Area 001 - SHOP",false,"Orange - 51137",Orange,true,"22508, 22551, 22567, 22960",95185_VA_SERVICE_AREA_PARTIAL_COUNTY,"SHOP (Small Group)",No
+2026,VA,95185,SERFF,1,05-20-2026,VAS001,"Service Area 001 - SHOP",false,"Fredericksburg City - 51630","Fredericksburg City",false,,,Individual,No
+2026,VA,95185,SERFF,1,05-20-2026,VAS001,"Service Area 001 - SHOP",false,"Westmoreland - 51193",Westmoreland,true,"22443, 22485",95185_VA_SERVICE_AREA_PARTIAL_COUNTY,"SHOP (Small Group)",No
+2026,VA,95185,SERFF,1,05-20-2026,VAS001,"Service Area 001 - SHOP",false,"Arlington - 51013",Arlington,false,,,"SHOP (Small Group)",No
+2026,VA,95185,SERFF,1,05-20-2026,VAS001,"Service Area 001 - SHOP",false,"Louisa - 51109",Louisa,true,"23015, 23024, 23117, 23170",95185_VA_SERVICE_AREA_PARTIAL_COUNTY,Individual,No
+2026,VA,95185,SERFF,1,05-20-2026,VAS001,"Service Area 001 - SHOP",false,"Fairfax - 51059",Fairfax,false,,,"SHOP (Small Group)",No
+2026,VA,95185,SERFF,1,05-20-2026,VAS001,"Service Area 001 - SHOP",false,"Fauquier - 51061",Fauquier,true,"20115, 20116, 20117, 20119, 20128, 20137, 20138, 20139, 20140, 20144, 20181, 20184, 20185, 20186, 20187, 20188, 20198, 22406, 22556, 22639, 22642, 22643, 22720, 22728, 22739",95185_VA_SERVICE_AREA_PARTIAL_COUNTY,Individual,No
+2026,VA,95185,SERFF,1,05-20-2026,VAS001,"Service Area 001 - SHOP",false,"Falls Church City - 51610","Falls Church City",false,,,Individual,No
+2026,VA,95185,SERFF,1,05-20-2026,VAS001,"Service Area 001 - SHOP",false,"Arlington - 51013",Arlington,false,,,Individual,No
+2026,VA,95185,SERFF,1,05-20-2026,VAS001,"Service Area 001 - SHOP",false,"Alexandria City - 51510","Alexandria City",false,,,"SHOP (Small Group)",No
+2026,VA,95185,SERFF,1,05-20-2026,VAS001,"Service Area 001 - SHOP",false,"Caroline - 51033",Caroline,true,"22408, 22446, 22535, 22538, 22546, 22580, 23015",95185_VA_SERVICE_AREA_PARTIAL_COUNTY,Individual,No
+2026,VA,95185,SERFF,1,05-20-2026,VAS001,"Service Area 001 - SHOP",false,"King George - 51099","King George",false,,,Individual,No
+2026,VA,95185,SERFF,1,05-20-2026,VAS001,"Service Area 001 - SHOP",false,"Orange - 51137",Orange,true,"22508, 22551, 22567, 22960",95185_VA_SERVICE_AREA_PARTIAL_COUNTY,Individual,No
+2026,VA,95185,SERFF,1,05-20-2026,VAS001,"Service Area 001 - SHOP",false,"Manassas Park City - 51685","Manassas Park City",false,,,Individual,No
+2026,VA,95185,SERFF,1,05-20-2026,VAS001,"Service Area 001 - SHOP",false,"Stafford - 51179",Stafford,false,,,Individual,No
+2026,VA,95185,SERFF,1,05-20-2026,VAS001,"Service Area 001 - SHOP",false,"Fairfax City - 51600","Fairfax City",false,,,Individual,No
+2026,VA,95185,SERFF,1,05-20-2026,VAS001,"Service Area 001 - SHOP",false,"Culpeper - 51047",Culpeper,true,"22407, 22736",95185_VA_SERVICE_AREA_PARTIAL_COUNTY,Individual,No
+2026,VA,95185,SERFF,1,05-20-2026,VAS001,"Service Area 001 - SHOP",false,"Hanover - 51085",Hanover,true,"22546, 23015, 23024",95185_VA_SERVICE_AREA_PARTIAL_COUNTY,Individual,No
+2026,VA,95185,SERFF,1,05-20-2026,VAS001,"Service Area 001 - SHOP",false,"Fredericksburg City - 51630","Fredericksburg City",false,,,"SHOP (Small Group)",No
+2026,VA,95185,SERFF,1,05-20-2026,VAS001,"Service Area 001 - SHOP",false,"King George - 51099","King George",false,,,"SHOP (Small Group)",No
+2026,VA,95185,SERFF,1,05-20-2026,VAS002,"Service Area 002 - Individual",false,"Caroline - 51033",Caroline,true,"22408, 22446, 22535, 22538, 22546, 22580, 23015",95185_VA_SERVICE_AREA_PARTIAL_COUNTY,Individual,No
+2026,VA,95185,SERFF,1,05-20-2026,VAS002,"Service Area 002 - Individual",false,"Arlington - 51013",Arlington,false,,,Individual,No
+2026,VA,95185,SERFF,1,05-20-2026,VAS002,"Service Area 002 - Individual",false,"Westmoreland - 51193",Westmoreland,true,"22443, 22485",95185_VA_SERVICE_AREA_PARTIAL_COUNTY,Individual,No
+2026,VA,95185,SERFF,1,05-20-2026,VAS002,"Service Area 002 - Individual",false,"Fauquier - 51061",Fauquier,true,"20115, 20116, 20117, 20119, 20128, 20137, 20138, 20139, 20140, 20144, 20181, 20184, 20185, 20186, 20187, 20188, 20198, 22406, 22556, 22639, 22642, 22643, 22720, 22728, 22739",95185_VA_SERVICE_AREA_PARTIAL_COUNTY,"SHOP (Small Group)",No
+2026,VA,95185,SERFF,1,05-20-2026,VAS002,"Service Area 002 - Individual",false,"Falls Church City - 51610","Falls Church City",false,,,"SHOP (Small Group)",No
+2026,VA,95185,SERFF,1,05-20-2026,VAS002,"Service Area 002 - Individual",false,"Culpeper - 51047",Culpeper,true,"22407, 22736",95185_VA_SERVICE_AREA_PARTIAL_COUNTY,"SHOP (Small Group)",No
+2026,VA,95185,SERFF,1,05-20-2026,VAS002,"Service Area 002 - Individual",false,"Prince William - 51153","Prince William",false,,,Individual,No
+2026,VA,95185,SERFF,1,05-20-2026,VAS002,"Service Area 002 - Individual",false,"Loudoun - 51107",Loudoun,false,,,"SHOP (Small Group)",No
+2026,VA,95185,SERFF,1,05-20-2026,VAS002,"Service Area 002 - Individual",false,"Falls Church City - 51610","Falls Church City",false,,,Individual,No
+2026,VA,95185,SERFF,1,05-20-2026,VAS002,"Service Area 002 - Individual",false,"Manassas City - 51683","Manassas City",false,,,Individual,No
+2026,VA,95185,SERFF,1,05-20-2026,VAS002,"Service Area 002 - Individual",false,"Manassas Park City - 51685","Manassas Park City",false,,,Individual,No
+2026,VA,95185,SERFF,1,05-20-2026,VAS002,"Service Area 002 - Individual",false,"Hanover - 51085",Hanover,true,"22546, 23015, 23024",95185_VA_SERVICE_AREA_PARTIAL_COUNTY,Individual,No
+2026,VA,95185,SERFF,1,05-20-2026,VAS002,"Service Area 002 - Individual",false,"Orange - 51137",Orange,true,"22508, 22551, 22567, 22960",95185_VA_SERVICE_AREA_PARTIAL_COUNTY,Individual,No
+2026,VA,95185,SERFF,1,05-20-2026,VAS002,"Service Area 002 - Individual",false,"Fairfax City - 51600","Fairfax City",false,,,Individual,No
+2026,VA,95185,SERFF,1,05-20-2026,VAS002,"Service Area 002 - Individual",false,"Louisa - 51109",Louisa,true,"23015, 23024, 23117, 23170",95185_VA_SERVICE_AREA_PARTIAL_COUNTY,"SHOP (Small Group)",No
+2026,VA,95185,SERFF,1,05-20-2026,VAS002,"Service Area 002 - Individual",false,"Fairfax - 51059",Fairfax,false,,,"SHOP (Small Group)",No
+2026,VA,95185,SERFF,1,05-20-2026,VAS002,"Service Area 002 - Individual",false,"Alexandria City - 51510","Alexandria City",false,,,Individual,No
+2026,VA,95185,SERFF,1,05-20-2026,VAS002,"Service Area 002 - Individual",false,"Stafford - 51179",Stafford,false,,,Individual,No
+2026,VA,95185,SERFF,1,05-20-2026,VAS002,"Service Area 002 - Individual",false,"Orange - 51137",Orange,true,"22508, 22551, 22567, 22960",95185_VA_SERVICE_AREA_PARTIAL_COUNTY,"SHOP (Small Group)",No
+2026,VA,95185,SERFF,1,05-20-2026,VAS002,"Service Area 002 - Individual",false,"Fauquier - 51061",Fauquier,true,"20115, 20116, 20117, 20119, 20128, 20137, 20138, 20139, 20140, 20144, 20181, 20184, 20185, 20186, 20187, 20188, 20198, 22406, 22556, 22639, 22642, 22643, 22720, 22728, 22739",95185_VA_SERVICE_AREA_PARTIAL_COUNTY,Individual,No
+2026,VA,95185,SERFF,1,05-20-2026,VAS002,"Service Area 002 - Individual",false,"Louisa - 51109",Louisa,true,"23015, 23024, 23117, 23170",95185_VA_SERVICE_AREA_PARTIAL_COUNTY,Individual,No
+2026,VA,95185,SERFF,1,05-20-2026,VAS002,"Service Area 002 - Individual",false,"Stafford - 51179",Stafford,false,,,"SHOP (Small Group)",No
+2026,VA,95185,SERFF,1,05-20-2026,VAS002,"Service Area 002 - Individual",false,"Fredericksburg City - 51630","Fredericksburg City",false,,,"SHOP (Small Group)",No
+2026,VA,95185,SERFF,1,05-20-2026,VAS002,"Service Area 002 - Individual",false,"Spotsylvania - 51177",Spotsylvania,false,,,"SHOP (Small Group)",No
+2026,VA,95185,SERFF,1,05-20-2026,VAS002,"Service Area 002 - Individual",false,"Culpeper - 51047",Culpeper,true,"22407, 22736",95185_VA_SERVICE_AREA_PARTIAL_COUNTY,Individual,No
+2026,VA,95185,SERFF,1,05-20-2026,VAS002,"Service Area 002 - Individual",false,"Hanover - 51085",Hanover,true,"22546, 23015, 23024",95185_VA_SERVICE_AREA_PARTIAL_COUNTY,"SHOP (Small Group)",No
+2026,VA,95185,SERFF,1,05-20-2026,VAS002,"Service Area 002 - Individual",false,"Fairfax City - 51600","Fairfax City",false,,,"SHOP (Small Group)",No
+2026,VA,95185,SERFF,1,05-20-2026,VAS002,"Service Area 002 - Individual",false,"Prince William - 51153","Prince William",false,,,"SHOP (Small Group)",No
+2026,VA,95185,SERFF,1,05-20-2026,VAS002,"Service Area 002 - Individual",false,"Loudoun - 51107",Loudoun,false,,,Individual,No
+2026,VA,95185,SERFF,1,05-20-2026,VAS002,"Service Area 002 - Individual",false,"Arlington - 51013",Arlington,false,,,"SHOP (Small Group)",No
+2026,VA,95185,SERFF,1,05-20-2026,VAS002,"Service Area 002 - Individual",false,"Fairfax - 51059",Fairfax,false,,,Individual,No
+2026,VA,95185,SERFF,1,05-20-2026,VAS002,"Service Area 002 - Individual",false,"Alexandria City - 51510","Alexandria City",false,,,"SHOP (Small Group)",No
+2026,VA,95185,SERFF,1,05-20-2026,VAS002,"Service Area 002 - Individual",false,"Manassas Park City - 51685","Manassas Park City",false,,,"SHOP (Small Group)",No
+2026,VA,95185,SERFF,1,05-20-2026,VAS002,"Service Area 002 - Individual",false,"King George - 51099","King George",false,,,Individual,No
+2026,VA,95185,SERFF,1,05-20-2026,VAS002,"Service Area 002 - Individual",false,"King George - 51099","King George",false,,,"SHOP (Small Group)",No
+2026,VA,95185,SERFF,1,05-20-2026,VAS002,"Service Area 002 - Individual",false,"Manassas City - 51683","Manassas City",false,,,"SHOP (Small Group)",No
+2026,VA,95185,SERFF,1,05-20-2026,VAS002,"Service Area 002 - Individual",false,"Caroline - 51033",Caroline,true,"22408, 22446, 22535, 22538, 22546, 22580, 23015",95185_VA_SERVICE_AREA_PARTIAL_COUNTY,"SHOP (Small Group)",No
+2026,VA,95185,SERFF,1,05-20-2026,VAS002,"Service Area 002 - Individual",false,"Fredericksburg City - 51630","Fredericksburg City",false,,,Individual,No
+2026,VA,95185,SERFF,1,05-20-2026,VAS002,"Service Area 002 - Individual",false,"Spotsylvania - 51177",Spotsylvania,false,,,Individual,No
+2026,VA,95185,SERFF,1,05-20-2026,VAS002,"Service Area 002 - Individual",false,"Westmoreland - 51193",Westmoreland,true,"22443, 22485",95185_VA_SERVICE_AREA_PARTIAL_COUNTY,"SHOP (Small Group)",No

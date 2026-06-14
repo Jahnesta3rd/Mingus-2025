@@ -1,0 +1,1593 @@
+"BUSINESS YEAR","STATE CODE","ISSUER ID","SOURCE NAME","VERSION NUMBER","IMPORT DATE","SERVICE AREA ID","SERVICE AREA NAME","COVER ENTIRE STATE",COUNTY,"COUNTY NAME","PARTIAL COUNTY","ZIP CODE","PARTIAL COUNTY JUSTIFICATION","MARKET COVERAGE","DENTAL PLAN ONLY"
+2026,PA,15614,SERFF,1,01-13-2026,PAS001,"DDS DHMO",false,"Potter - 42105",Potter,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS001,"DDS DHMO",false,"Clinton - 42035",Clinton,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS001,"DDS DHMO",false,"Crawford - 42039",Crawford,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS001,"DDS DHMO",false,"Philadelphia - 42101",Philadelphia,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS001,"DDS DHMO",false,"Washington - 42125",Washington,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS001,"DDS DHMO",false,"York - 42133",York,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS001,"DDS DHMO",false,"Fulton - 42057",Fulton,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS001,"DDS DHMO",false,"Venango - 42121",Venango,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS001,"DDS DHMO",false,"Indiana - 42063",Indiana,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS001,"DDS DHMO",false,"Monroe - 42089",Monroe,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS001,"DDS DHMO",false,"Jefferson - 42065",Jefferson,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS001,"DDS DHMO",false,"Chester - 42029",Chester,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS001,"DDS DHMO",false,"Dauphin - 42043",Dauphin,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS001,"DDS DHMO",false,"Butler - 42019",Butler,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS001,"DDS DHMO",false,"Bedford - 42009",Bedford,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS001,"DDS DHMO",false,"Montour - 42093",Montour,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS001,"DDS DHMO",false,"Mercer - 42085",Mercer,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS001,"DDS DHMO",false,"Blair - 42013",Blair,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS001,"DDS DHMO",false,"Adams - 42001",Adams,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS001,"DDS DHMO",false,"Lawrence - 42073",Lawrence,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS001,"DDS DHMO",false,"Franklin - 42055",Franklin,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS001,"DDS DHMO",false,"Mifflin - 42087",Mifflin,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS001,"DDS DHMO",false,"Schuylkill - 42107",Schuylkill,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS001,"DDS DHMO",false,"Perry - 42099",Perry,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS001,"DDS DHMO",false,"Bucks - 42017",Bucks,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS001,"DDS DHMO",false,"Carbon - 42025",Carbon,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS001,"DDS DHMO",false,"Lancaster - 42071",Lancaster,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS001,"DDS DHMO",false,"Tioga - 42117",Tioga,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS001,"DDS DHMO",false,"Bradford - 42015",Bradford,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS001,"DDS DHMO",false,"Greene - 42059",Greene,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS001,"DDS DHMO",false,"Cambria - 42021",Cambria,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS001,"DDS DHMO",false,"Wyoming - 42131",Wyoming,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS001,"DDS DHMO",false,"Lebanon - 42075",Lebanon,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS001,"DDS DHMO",false,"Warren - 42123",Warren,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS001,"DDS DHMO",false,"Elk - 42047",Elk,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS001,"DDS DHMO",false,"Clarion - 42031",Clarion,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS001,"DDS DHMO",false,"Centre - 42027",Centre,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS001,"DDS DHMO",false,"Clearfield - 42033",Clearfield,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS001,"DDS DHMO",false,"Juniata - 42067",Juniata,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS001,"DDS DHMO",false,"Allegheny - 42003",Allegheny,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS001,"DDS DHMO",false,"Lehigh - 42077",Lehigh,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS001,"DDS DHMO",false,"Lycoming - 42081",Lycoming,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS001,"DDS DHMO",false,"Beaver - 42007",Beaver,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS001,"DDS DHMO",false,"McKean - 42083",McKean,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS001,"DDS DHMO",false,"Northampton - 42095",Northampton,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS001,"DDS DHMO",false,"Cumberland - 42041",Cumberland,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS001,"DDS DHMO",false,"Northumberland - 42097",Northumberland,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS001,"DDS DHMO",false,"Armstrong - 42005",Armstrong,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS001,"DDS DHMO",false,"Forest - 42053",Forest,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS001,"DDS DHMO",false,"Fayette - 42051",Fayette,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS001,"DDS DHMO",false,"Delaware - 42045",Delaware,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS001,"DDS DHMO",false,"Sullivan - 42113",Sullivan,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS001,"DDS DHMO",false,"Westmoreland - 42129",Westmoreland,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS001,"DDS DHMO",false,"Huntingdon - 42061",Huntingdon,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS001,"DDS DHMO",false,"Montgomery - 42091",Montgomery,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS001,"DDS DHMO",false,"Berks - 42011",Berks,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS001,"DDS DHMO",false,"Somerset - 42111",Somerset,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS001,"DDS DHMO",false,"Snyder - 42109",Snyder,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS001,"DDS DHMO",false,"Erie - 42049",Erie,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS001,"DDS DHMO",false,"Union - 42119",Union,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS001,"DDS DHMO",false,"Cameron - 42023",Cameron,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS002,"Elite PPO",false,"Delaware - 42045",Delaware,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS002,"Elite PPO",false,"Warren - 42123",Warren,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS002,"Elite PPO",false,"Westmoreland - 42129",Westmoreland,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS002,"Elite PPO",false,"Bedford - 42009",Bedford,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS002,"Elite PPO",false,"Venango - 42121",Venango,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS002,"Elite PPO",false,"Juniata - 42067",Juniata,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS002,"Elite PPO",false,"Allegheny - 42003",Allegheny,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS002,"Elite PPO",false,"Lackawanna - 42069",Lackawanna,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS002,"Elite PPO",false,"Jefferson - 42065",Jefferson,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS002,"Elite PPO",false,"Chester - 42029",Chester,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS002,"Elite PPO",false,"Clearfield - 42033",Clearfield,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS002,"Elite PPO",false,"Wyoming - 42131",Wyoming,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS002,"Elite PPO",false,"Fulton - 42057",Fulton,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS002,"Elite PPO",false,"Northumberland - 42097",Northumberland,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS002,"Elite PPO",false,"Berks - 42011",Berks,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS002,"Elite PPO",false,"Bradford - 42015",Bradford,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS002,"Elite PPO",false,"Sullivan - 42113",Sullivan,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS002,"Elite PPO",false,"Montour - 42093",Montour,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS002,"Elite PPO",false,"Dauphin - 42043",Dauphin,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS002,"Elite PPO",false,"Blair - 42013",Blair,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS002,"Elite PPO",false,"Beaver - 42007",Beaver,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS002,"Elite PPO",false,"Montgomery - 42091",Montgomery,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS002,"Elite PPO",false,"Pike - 42103",Pike,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS002,"Elite PPO",false,"Northampton - 42095",Northampton,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS002,"Elite PPO",false,"Bucks - 42017",Bucks,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS002,"Elite PPO",false,"Philadelphia - 42101",Philadelphia,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS002,"Elite PPO",false,"Elk - 42047",Elk,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS002,"Elite PPO",false,"Susquehanna - 42115",Susquehanna,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS002,"Elite PPO",false,"Luzerne - 42079",Luzerne,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS002,"Elite PPO",false,"Crawford - 42039",Crawford,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS002,"Elite PPO",false,"Mifflin - 42087",Mifflin,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS002,"Elite PPO",false,"Lebanon - 42075",Lebanon,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS002,"Elite PPO",false,"Washington - 42125",Washington,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS002,"Elite PPO",false,"Huntingdon - 42061",Huntingdon,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS002,"Elite PPO",false,"Schuylkill - 42107",Schuylkill,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS002,"Elite PPO",false,"Perry - 42099",Perry,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS002,"Elite PPO",false,"Carbon - 42025",Carbon,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS002,"Elite PPO",false,"Erie - 42049",Erie,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS002,"Elite PPO",false,"Cameron - 42023",Cameron,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS002,"Elite PPO",false,"Lawrence - 42073",Lawrence,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS002,"Elite PPO",false,"Armstrong - 42005",Armstrong,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS002,"Elite PPO",false,"Greene - 42059",Greene,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS002,"Elite PPO",false,"Clinton - 42035",Clinton,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS002,"Elite PPO",false,"Butler - 42019",Butler,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS002,"Elite PPO",false,"Union - 42119",Union,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS002,"Elite PPO",false,"Lehigh - 42077",Lehigh,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS002,"Elite PPO",false,"Wayne - 42127",Wayne,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS002,"Elite PPO",false,"Indiana - 42063",Indiana,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS002,"Elite PPO",false,"McKean - 42083",McKean,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS002,"Elite PPO",false,"Fayette - 42051",Fayette,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS002,"Elite PPO",false,"Lancaster - 42071",Lancaster,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS002,"Elite PPO",false,"Tioga - 42117",Tioga,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS002,"Elite PPO",false,"Cambria - 42021",Cambria,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS002,"Elite PPO",false,"Centre - 42027",Centre,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS002,"Elite PPO",false,"Monroe - 42089",Monroe,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS002,"Elite PPO",false,"Potter - 42105",Potter,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS002,"Elite PPO",false,"Forest - 42053",Forest,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS002,"Elite PPO",false,"Cumberland - 42041",Cumberland,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS002,"Elite PPO",false,"Mercer - 42085",Mercer,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS002,"Elite PPO",false,"Lycoming - 42081",Lycoming,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS002,"Elite PPO",false,"Clarion - 42031",Clarion,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS002,"Elite PPO",false,"Columbia - 42037",Columbia,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS002,"Elite PPO",false,"Somerset - 42111",Somerset,false,,,Individual,Yes
+2026,PA,15614,SERFF,1,01-13-2026,PAS002,"Elite PPO",false,"Snyder - 42109",Snyder,false,,,Individual,Yes
+2026,PA,15983,SERFF,1,01-13-2026,PAS001,"Ambetter of Pennsylvania",false,"Luzerne - 42079",Luzerne,false,,,Individual,No
+2026,PA,15983,SERFF,1,01-13-2026,PAS001,"Ambetter of Pennsylvania",false,"Fayette - 42051",Fayette,false,,,Individual,No
+2026,PA,15983,SERFF,1,01-13-2026,PAS001,"Ambetter of Pennsylvania",false,"Westmoreland - 42129",Westmoreland,false,,,Individual,No
+2026,PA,15983,SERFF,1,01-13-2026,PAS001,"Ambetter of Pennsylvania",false,"Berks - 42011",Berks,false,,,Individual,No
+2026,PA,15983,SERFF,1,01-13-2026,PAS001,"Ambetter of Pennsylvania",false,"Delaware - 42045",Delaware,false,,,Individual,No
+2026,PA,15983,SERFF,1,01-13-2026,PAS001,"Ambetter of Pennsylvania",false,"Somerset - 42111",Somerset,false,,,Individual,No
+2026,PA,15983,SERFF,1,01-13-2026,PAS001,"Ambetter of Pennsylvania",false,"Northampton - 42095",Northampton,false,,,Individual,No
+2026,PA,15983,SERFF,1,01-13-2026,PAS001,"Ambetter of Pennsylvania",false,"Huntingdon - 42061",Huntingdon,false,,,Individual,No
+2026,PA,15983,SERFF,1,01-13-2026,PAS001,"Ambetter of Pennsylvania",false,"Sullivan - 42113",Sullivan,false,,,Individual,No
+2026,PA,15983,SERFF,1,01-13-2026,PAS001,"Ambetter of Pennsylvania",false,"Lackawanna - 42069",Lackawanna,false,,,Individual,No
+2026,PA,15983,SERFF,1,01-13-2026,PAS001,"Ambetter of Pennsylvania",false,"Bucks - 42017",Bucks,false,,,Individual,No
+2026,PA,15983,SERFF,1,01-13-2026,PAS001,"Ambetter of Pennsylvania",false,"Northumberland - 42097",Northumberland,false,,,Individual,No
+2026,PA,15983,SERFF,1,01-13-2026,PAS001,"Ambetter of Pennsylvania",false,"Philadelphia - 42101",Philadelphia,false,,,Individual,No
+2026,PA,15983,SERFF,1,01-13-2026,PAS001,"Ambetter of Pennsylvania",false,"Elk - 42047",Elk,false,,,Individual,No
+2026,PA,15983,SERFF,1,01-13-2026,PAS001,"Ambetter of Pennsylvania",false,"Bradford - 42015",Bradford,false,,,Individual,No
+2026,PA,15983,SERFF,1,01-13-2026,PAS001,"Ambetter of Pennsylvania",false,"Wyoming - 42131",Wyoming,false,,,Individual,No
+2026,PA,15983,SERFF,1,01-13-2026,PAS001,"Ambetter of Pennsylvania",false,"Clearfield - 42033",Clearfield,false,,,Individual,No
+2026,PA,15983,SERFF,1,01-13-2026,PAS001,"Ambetter of Pennsylvania",false,"Juniata - 42067",Juniata,false,,,Individual,No
+2026,PA,15983,SERFF,1,01-13-2026,PAS001,"Ambetter of Pennsylvania",false,"Snyder - 42109",Snyder,false,,,Individual,No
+2026,PA,15983,SERFF,1,01-13-2026,PAS001,"Ambetter of Pennsylvania",false,"Schuylkill - 42107",Schuylkill,false,,,Individual,No
+2026,PA,15983,SERFF,1,01-13-2026,PAS001,"Ambetter of Pennsylvania",false,"Carbon - 42025",Carbon,false,,,Individual,No
+2026,PA,15983,SERFF,1,01-13-2026,PAS001,"Ambetter of Pennsylvania",false,"Susquehanna - 42115",Susquehanna,false,,,Individual,No
+2026,PA,15983,SERFF,1,01-13-2026,PAS001,"Ambetter of Pennsylvania",false,"Wayne - 42127",Wayne,false,,,Individual,No
+2026,PA,15983,SERFF,1,01-13-2026,PAS001,"Ambetter of Pennsylvania",false,"Montgomery - 42091",Montgomery,false,,,Individual,No
+2026,PA,15983,SERFF,1,01-13-2026,PAS001,"Ambetter of Pennsylvania",false,"Clarion - 42031",Clarion,false,,,Individual,No
+2026,PA,15983,SERFF,1,01-13-2026,PAS001,"Ambetter of Pennsylvania",false,"Montour - 42093",Montour,false,,,Individual,No
+2026,PA,15983,SERFF,1,01-13-2026,PAS001,"Ambetter of Pennsylvania",false,"Clinton - 42035",Clinton,false,,,Individual,No
+2026,PA,15983,SERFF,1,01-13-2026,PAS001,"Ambetter of Pennsylvania",false,"Lancaster - 42071",Lancaster,false,,,Individual,No
+2026,PA,15983,SERFF,1,01-13-2026,PAS001,"Ambetter of Pennsylvania",false,"Union - 42119",Union,false,,,Individual,No
+2026,PA,15983,SERFF,1,01-13-2026,PAS001,"Ambetter of Pennsylvania",false,"Mifflin - 42087",Mifflin,false,,,Individual,No
+2026,PA,15983,SERFF,1,01-13-2026,PAS001,"Ambetter of Pennsylvania",false,"Jefferson - 42065",Jefferson,false,,,Individual,No
+2026,PA,15983,SERFF,1,01-13-2026,PAS001,"Ambetter of Pennsylvania",false,"Columbia - 42037",Columbia,false,,,Individual,No
+2026,PA,15983,SERFF,1,01-13-2026,PAS001,"Ambetter of Pennsylvania",false,"Cambria - 42021",Cambria,false,,,Individual,No
+2026,PA,15983,SERFF,1,01-13-2026,PAS001,"Ambetter of Pennsylvania",false,"Monroe - 42089",Monroe,false,,,Individual,No
+2026,PA,15983,SERFF,1,01-13-2026,PAS001,"Ambetter of Pennsylvania",false,"Lycoming - 42081",Lycoming,false,,,Individual,No
+2026,PA,15983,SERFF,1,01-13-2026,PAS001,"Ambetter of Pennsylvania",false,"Centre - 42027",Centre,false,,,Individual,No
+2026,PA,15983,SERFF,1,01-13-2026,PAS001,"Ambetter of Pennsylvania",false,"Blair - 42013",Blair,false,,,Individual,No
+2026,PA,15983,SERFF,1,01-13-2026,PAS001,"Ambetter of Pennsylvania",false,"Chester - 42029",Chester,false,,,Individual,No
+2026,PA,15983,SERFF,1,01-13-2026,PAS001,"Ambetter of Pennsylvania",false,"Lehigh - 42077",Lehigh,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS001,"SG MCA EPO/PPO Premium - 2026",false,"Somerset - 42111",Somerset,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS001,"SG MCA EPO/PPO Premium - 2026",false,"McKean - 42083",McKean,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS001,"SG MCA EPO/PPO Premium - 2026",false,"Mercer - 42085",Mercer,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS001,"SG MCA EPO/PPO Premium - 2026",false,"Allegheny - 42003",Allegheny,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS001,"SG MCA EPO/PPO Premium - 2026",false,"Venango - 42121",Venango,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS001,"SG MCA EPO/PPO Premium - 2026",false,"Washington - 42125",Washington,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS001,"SG MCA EPO/PPO Premium - 2026",false,"Potter - 42105",Potter,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS001,"SG MCA EPO/PPO Premium - 2026",false,"Westmoreland - 42129",Westmoreland,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS001,"SG MCA EPO/PPO Premium - 2026",false,"Beaver - 42007",Beaver,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS001,"SG MCA EPO/PPO Premium - 2026",false,"Lawrence - 42073",Lawrence,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS001,"SG MCA EPO/PPO Premium - 2026",false,"Greene - 42059",Greene,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS001,"SG MCA EPO/PPO Premium - 2026",false,"Fayette - 42051",Fayette,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS001,"SG MCA EPO/PPO Premium - 2026",false,"Butler - 42019",Butler,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS001,"SG MCA EPO/PPO Premium - 2026",false,"Blair - 42013",Blair,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS001,"SG MCA EPO/PPO Premium - 2026",false,"Bedford - 42009",Bedford,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS001,"SG MCA EPO/PPO Premium - 2026",false,"Erie - 42049",Erie,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS002,"SG EPO/PPO Premium HO - 2026",false,"Greene - 42059",Greene,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS002,"SG EPO/PPO Premium HO - 2026",false,"Potter - 42105",Potter,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS002,"SG EPO/PPO Premium HO - 2026",false,"Huntingdon - 42061",Huntingdon,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS002,"SG EPO/PPO Premium HO - 2026",false,"Elk - 42047",Elk,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS002,"SG EPO/PPO Premium HO - 2026",false,"Armstrong - 42005",Armstrong,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS002,"SG EPO/PPO Premium HO - 2026",false,"Somerset - 42111",Somerset,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS002,"SG EPO/PPO Premium HO - 2026",false,"Blair - 42013",Blair,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS002,"SG EPO/PPO Premium HO - 2026",false,"Washington - 42125",Washington,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS002,"SG EPO/PPO Premium HO - 2026",false,"Forest - 42053",Forest,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS002,"SG EPO/PPO Premium HO - 2026",false,"Cambria - 42021",Cambria,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS002,"SG EPO/PPO Premium HO - 2026",false,"Warren - 42123",Warren,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS002,"SG EPO/PPO Premium HO - 2026",false,"Venango - 42121",Venango,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS002,"SG EPO/PPO Premium HO - 2026",false,"Jefferson - 42065",Jefferson,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS002,"SG EPO/PPO Premium HO - 2026",false,"Lawrence - 42073",Lawrence,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS002,"SG EPO/PPO Premium HO - 2026",false,"Westmoreland - 42129",Westmoreland,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS002,"SG EPO/PPO Premium HO - 2026",false,"Cameron - 42023",Cameron,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS002,"SG EPO/PPO Premium HO - 2026",false,"Beaver - 42007",Beaver,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS002,"SG EPO/PPO Premium HO - 2026",false,"Allegheny - 42003",Allegheny,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS002,"SG EPO/PPO Premium HO - 2026",false,"McKean - 42083",McKean,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS002,"SG EPO/PPO Premium HO - 2026",false,"Bedford - 42009",Bedford,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS002,"SG EPO/PPO Premium HO - 2026",false,"Fayette - 42051",Fayette,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS002,"SG EPO/PPO Premium HO - 2026",false,"Butler - 42019",Butler,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS002,"SG EPO/PPO Premium HO - 2026",false,"Mercer - 42085",Mercer,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS002,"SG EPO/PPO Premium HO - 2026",false,"Erie - 42049",Erie,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS002,"SG EPO/PPO Premium HO - 2026",false,"Clarion - 42031",Clarion,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS002,"SG EPO/PPO Premium HO - 2026",false,"Indiana - 42063",Indiana,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS003,"SG EPO Partner HO - 2026",false,"Bedford - 42009",Bedford,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS003,"SG EPO Partner HO - 2026",false,"Allegheny - 42003",Allegheny,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS003,"SG EPO Partner HO - 2026",false,"Venango - 42121",Venango,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS003,"SG EPO Partner HO - 2026",false,"Butler - 42019",Butler,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS003,"SG EPO Partner HO - 2026",false,"Washington - 42125",Washington,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS003,"SG EPO Partner HO - 2026",false,"Somerset - 42111",Somerset,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS003,"SG EPO Partner HO - 2026",false,"Lawrence - 42073",Lawrence,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS003,"SG EPO Partner HO - 2026",false,"Potter - 42105",Potter,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS003,"SG EPO Partner HO - 2026",false,"McKean - 42083",McKean,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS003,"SG EPO Partner HO - 2026",false,"Greene - 42059",Greene,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS003,"SG EPO Partner HO - 2026",false,"Mercer - 42085",Mercer,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS003,"SG EPO Partner HO - 2026",false,"Blair - 42013",Blair,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS003,"SG EPO Partner HO - 2026",false,"Erie - 42049",Erie,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS004,"IND Partner - 2026",false,"Mercer - 42085",Mercer,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS004,"IND Partner - 2026",false,"Venango - 42121",Venango,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS004,"IND Partner - 2026",false,"Allegheny - 42003",Allegheny,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS004,"IND Partner - 2026",false,"Potter - 42105",Potter,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS004,"IND Partner - 2026",false,"Greene - 42059",Greene,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS004,"IND Partner - 2026",false,"Clinton - 42035",Clinton,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS004,"IND Partner - 2026",false,"Tioga - 42117",Tioga,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS004,"IND Partner - 2026",false,"Lawrence - 42073",Lawrence,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS004,"IND Partner - 2026",false,"Erie - 42049",Erie,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS004,"IND Partner - 2026",false,"McKean - 42083",McKean,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS004,"IND Partner - 2026",false,"Washington - 42125",Washington,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS004,"IND Partner - 2026",false,"Bedford - 42009",Bedford,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS004,"IND Partner - 2026",false,"Butler - 42019",Butler,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS004,"IND Partner - 2026",false,"Lycoming - 42081",Lycoming,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS004,"IND Partner - 2026",false,"Blair - 42013",Blair,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS004,"IND Partner - 2026",false,"Somerset - 42111",Somerset,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS005,"IND Select - 2026",false,"Beaver - 42007",Beaver,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS005,"IND Select - 2026",false,"Washington - 42125",Washington,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS005,"IND Select - 2026",false,"Butler - 42019",Butler,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS005,"IND Select - 2026",false,"Allegheny - 42003",Allegheny,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS005,"IND Select - 2026",false,"Fayette - 42051",Fayette,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS005,"IND Select - 2026",false,"Westmoreland - 42129",Westmoreland,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS006,"IND Premium East - 2026",false,"Carbon - 42025",Carbon,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS006,"IND Premium East - 2026",false,"Wyoming - 42131",Wyoming,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS006,"IND Premium East - 2026",false,"Cumberland - 42041",Cumberland,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS006,"IND Premium East - 2026",false,"Lycoming - 42081",Lycoming,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS006,"IND Premium East - 2026",false,"Lackawanna - 42069",Lackawanna,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS006,"IND Premium East - 2026",false,"Dauphin - 42043",Dauphin,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS006,"IND Premium East - 2026",false,"Sullivan - 42113",Sullivan,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS006,"IND Premium East - 2026",false,"Clinton - 42035",Clinton,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS006,"IND Premium East - 2026",false,"Perry - 42099",Perry,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS006,"IND Premium East - 2026",false,"Luzerne - 42079",Luzerne,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS006,"IND Premium East - 2026",false,"Bradford - 42015",Bradford,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS006,"IND Premium East - 2026",false,"Lebanon - 42075",Lebanon,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS006,"IND Premium East - 2026",false,"Tioga - 42117",Tioga,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS007,"IND Premium West - 2026",false,"Butler - 42019",Butler,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS007,"IND Premium West - 2026",false,"Beaver - 42007",Beaver,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS007,"IND Premium West - 2026",false,"Elk - 42047",Elk,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS007,"IND Premium West - 2026",false,"Clarion - 42031",Clarion,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS007,"IND Premium West - 2026",false,"Greene - 42059",Greene,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS007,"IND Premium West - 2026",false,"Mercer - 42085",Mercer,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS007,"IND Premium West - 2026",false,"Armstrong - 42005",Armstrong,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS007,"IND Premium West - 2026",false,"Bedford - 42009",Bedford,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS007,"IND Premium West - 2026",false,"McKean - 42083",McKean,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS007,"IND Premium West - 2026",false,"Blair - 42013",Blair,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS007,"IND Premium West - 2026",false,"Potter - 42105",Potter,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS007,"IND Premium West - 2026",false,"Cambria - 42021",Cambria,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS007,"IND Premium West - 2026",false,"Lawrence - 42073",Lawrence,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS007,"IND Premium West - 2026",false,"Jefferson - 42065",Jefferson,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS007,"IND Premium West - 2026",false,"Huntingdon - 42061",Huntingdon,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS007,"IND Premium West - 2026",false,"Warren - 42123",Warren,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS007,"IND Premium West - 2026",false,"Erie - 42049",Erie,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS007,"IND Premium West - 2026",false,"Cameron - 42023",Cameron,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS007,"IND Premium West - 2026",false,"Indiana - 42063",Indiana,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS007,"IND Premium West - 2026",false,"Forest - 42053",Forest,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS007,"IND Premium West - 2026",false,"Venango - 42121",Venango,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS007,"IND Premium West - 2026",false,"Somerset - 42111",Somerset,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS007,"IND Premium West - 2026",false,"Westmoreland - 42129",Westmoreland,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS007,"IND Premium West - 2026",false,"Fayette - 42051",Fayette,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS007,"IND Premium West - 2026",false,"Allegheny - 42003",Allegheny,false,,,Individual,No
+2026,PA,16322,SERFF,1,01-13-2026,PAS007,"IND Premium West - 2026",false,"Washington - 42125",Washington,false,,,Individual,No
+2026,PA,19702,SERFF,1,01-13-2026,PAS001,"JHP PPO",false,"Montgomery - 42091",Montgomery,false,,,Individual,No
+2026,PA,19702,SERFF,1,01-13-2026,PAS001,"JHP PPO",false,"Monroe - 42089",Monroe,false,,,Individual,No
+2026,PA,19702,SERFF,1,01-13-2026,PAS001,"JHP PPO",false,"Northampton - 42095",Northampton,false,,,Individual,No
+2026,PA,19702,SERFF,1,01-13-2026,PAS001,"JHP PPO",false,"Schuylkill - 42107",Schuylkill,false,,,Individual,No
+2026,PA,19702,SERFF,1,01-13-2026,PAS001,"JHP PPO",false,"Delaware - 42045",Delaware,false,,,Individual,No
+2026,PA,19702,SERFF,1,01-13-2026,PAS001,"JHP PPO",false,"Lehigh - 42077",Lehigh,false,,,Individual,No
+2026,PA,19702,SERFF,1,01-13-2026,PAS001,"JHP PPO",false,"Carbon - 42025",Carbon,false,,,Individual,No
+2026,PA,19702,SERFF,1,01-13-2026,PAS001,"JHP PPO",false,"Bucks - 42017",Bucks,false,,,Individual,No
+2026,PA,19702,SERFF,1,01-13-2026,PAS001,"JHP PPO",false,"Philadelphia - 42101",Philadelphia,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS001,"Marketplace All-Access HMO 1",false,"Bedford - 42009",Bedford,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS001,"Marketplace All-Access HMO 1",false,"Somerset - 42111",Somerset,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS001,"Marketplace All-Access HMO 1",false,"Potter - 42105",Potter,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS001,"Marketplace All-Access HMO 1",false,"Jefferson - 42065",Jefferson,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS001,"Marketplace All-Access HMO 1",false,"Huntingdon - 42061",Huntingdon,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS001,"Marketplace All-Access HMO 1",false,"Blair - 42013",Blair,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS001,"Marketplace All-Access HMO 1",false,"Clearfield - 42033",Clearfield,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS001,"Marketplace All-Access HMO 1",false,"Cambria - 42021",Cambria,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS001,"Marketplace All-Access HMO 1",false,"Cameron - 42023",Cameron,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS001,"Marketplace All-Access HMO 1",false,"Elk - 42047",Elk,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS002,"Marketplace All-Access HMO 2",false,"Mifflin - 42087",Mifflin,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS002,"Marketplace All-Access HMO 2",false,"Snyder - 42109",Snyder,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS002,"Marketplace All-Access HMO 2",false,"Juniata - 42067",Juniata,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS002,"Marketplace All-Access HMO 2",false,"Carbon - 42025",Carbon,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS002,"Marketplace All-Access HMO 2",false,"Luzerne - 42079",Luzerne,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS002,"Marketplace All-Access HMO 2",false,"Monroe - 42089",Monroe,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS002,"Marketplace All-Access HMO 2",false,"Schuylkill - 42107",Schuylkill,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS002,"Marketplace All-Access HMO 2",false,"Northumberland - 42097",Northumberland,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS002,"Marketplace All-Access HMO 2",false,"Union - 42119",Union,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS002,"Marketplace All-Access HMO 2",false,"Montour - 42093",Montour,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS002,"Marketplace All-Access HMO 2",false,"Columbia - 42037",Columbia,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS002,"Marketplace All-Access HMO 2",false,"Wayne - 42127",Wayne,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS002,"Marketplace All-Access HMO 2",false,"Tioga - 42117",Tioga,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS002,"Marketplace All-Access HMO 2",false,"Centre - 42027",Centre,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS002,"Marketplace All-Access HMO 2",false,"Bradford - 42015",Bradford,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS002,"Marketplace All-Access HMO 2",false,"Sullivan - 42113",Sullivan,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS002,"Marketplace All-Access HMO 2",false,"Susquehanna - 42115",Susquehanna,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS002,"Marketplace All-Access HMO 2",false,"Clinton - 42035",Clinton,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS002,"Marketplace All-Access HMO 2",false,"Lackawanna - 42069",Lackawanna,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS002,"Marketplace All-Access HMO 2",false,"Lycoming - 42081",Lycoming,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS002,"Marketplace All-Access HMO 2",false,"Wyoming - 42131",Wyoming,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS002,"Marketplace All-Access HMO 2",false,"Pike - 42103",Pike,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS003,"Marketplace All-Access HMO 3",false,"Dauphin - 42043",Dauphin,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS003,"Marketplace All-Access HMO 3",false,"York - 42133",York,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS003,"Marketplace All-Access HMO 3",false,"Lancaster - 42071",Lancaster,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS003,"Marketplace All-Access HMO 3",false,"Lebanon - 42075",Lebanon,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS003,"Marketplace All-Access HMO 3",false,"Berks - 42011",Berks,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS003,"Marketplace All-Access HMO 3",false,"Fulton - 42057",Fulton,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS003,"Marketplace All-Access HMO 3",false,"Perry - 42099",Perry,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS003,"Marketplace All-Access HMO 3",false,"Cumberland - 42041",Cumberland,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS003,"Marketplace All-Access HMO 3",false,"Adams - 42001",Adams,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS003,"Marketplace All-Access HMO 3",false,"Franklin - 42055",Franklin,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS004,"Marketplace All-Access HMO 4",false,"Lehigh - 42077",Lehigh,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS004,"Marketplace All-Access HMO 4",false,"Northampton - 42095",Northampton,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS005,"Marketplace Extra HMO",false,"Centre - 42027",Centre,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS005,"Marketplace Extra HMO",false,"Snyder - 42109",Snyder,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS005,"Marketplace Extra HMO",false,"Perry - 42099",Perry,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS005,"Marketplace Extra HMO",false,"Juniata - 42067",Juniata,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS005,"Marketplace Extra HMO",false,"Lehigh - 42077",Lehigh,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS005,"Marketplace Extra HMO",false,"Northumberland - 42097",Northumberland,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS005,"Marketplace Extra HMO",false,"Union - 42119",Union,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS005,"Marketplace Extra HMO",false,"Mifflin - 42087",Mifflin,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS005,"Marketplace Extra HMO",false,"Lackawanna - 42069",Lackawanna,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS005,"Marketplace Extra HMO",false,"Dauphin - 42043",Dauphin,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS005,"Marketplace Extra HMO",false,"Lycoming - 42081",Lycoming,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS005,"Marketplace Extra HMO",false,"Monroe - 42089",Monroe,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS005,"Marketplace Extra HMO",false,"Susquehanna - 42115",Susquehanna,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS005,"Marketplace Extra HMO",false,"Carbon - 42025",Carbon,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS005,"Marketplace Extra HMO",false,"Cumberland - 42041",Cumberland,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS005,"Marketplace Extra HMO",false,"Wyoming - 42131",Wyoming,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS005,"Marketplace Extra HMO",false,"Clinton - 42035",Clinton,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS005,"Marketplace Extra HMO",false,"Schuylkill - 42107",Schuylkill,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS005,"Marketplace Extra HMO",false,"Luzerne - 42079",Luzerne,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS005,"Marketplace Extra HMO",false,"Montour - 42093",Montour,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS005,"Marketplace Extra HMO",false,"Columbia - 42037",Columbia,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS005,"Marketplace Extra HMO",false,"Northampton - 42095",Northampton,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS005,"Marketplace Extra HMO",false,"Wayne - 42127",Wayne,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS006,"Marketplace Premier HMO 1",false,"Mifflin - 42087",Mifflin,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS006,"Marketplace Premier HMO 1",false,"Northumberland - 42097",Northumberland,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS006,"Marketplace Premier HMO 1",false,"Snyder - 42109",Snyder,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS006,"Marketplace Premier HMO 1",false,"Montour - 42093",Montour,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS006,"Marketplace Premier HMO 1",false,"Columbia - 42037",Columbia,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS006,"Marketplace Premier HMO 1",false,"Centre - 42027",Centre,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS006,"Marketplace Premier HMO 1",false,"Union - 42119",Union,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS007,"Marketplace Premier HMO 2",false,"Schuylkill - 42107",Schuylkill,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS007,"Marketplace Premier HMO 2",false,"Carbon - 42025",Carbon,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS007,"Marketplace Premier HMO 2",false,"Monroe - 42089",Monroe,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS008,"Marketplace Premier HMO 3",false,"Luzerne - 42079",Luzerne,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS008,"Marketplace Premier HMO 3",false,"Wayne - 42127",Wayne,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS008,"Marketplace Premier HMO 3",false,"Lackawanna - 42069",Lackawanna,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS009,"All-Access HMO",false,"Elk - 42047",Elk,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS009,"All-Access HMO",false,"Cumberland - 42041",Cumberland,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS009,"All-Access HMO",false,"Franklin - 42055",Franklin,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS009,"All-Access HMO",false,"Huntingdon - 42061",Huntingdon,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS009,"All-Access HMO",false,"Bedford - 42009",Bedford,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS009,"All-Access HMO",false,"Tioga - 42117",Tioga,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS009,"All-Access HMO",false,"Potter - 42105",Potter,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS009,"All-Access HMO",false,"Berks - 42011",Berks,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS009,"All-Access HMO",false,"Cameron - 42023",Cameron,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS009,"All-Access HMO",false,"Sullivan - 42113",Sullivan,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS009,"All-Access HMO",false,"Lackawanna - 42069",Lackawanna,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS009,"All-Access HMO",false,"Perry - 42099",Perry,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS009,"All-Access HMO",false,"Schuylkill - 42107",Schuylkill,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS009,"All-Access HMO",false,"Clearfield - 42033",Clearfield,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS009,"All-Access HMO",false,"Jefferson - 42065",Jefferson,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS009,"All-Access HMO",false,"Somerset - 42111",Somerset,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS009,"All-Access HMO",false,"Northumberland - 42097",Northumberland,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS009,"All-Access HMO",false,"Lancaster - 42071",Lancaster,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS009,"All-Access HMO",false,"Susquehanna - 42115",Susquehanna,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS009,"All-Access HMO",false,"Wayne - 42127",Wayne,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS009,"All-Access HMO",false,"York - 42133",York,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS009,"All-Access HMO",false,"Lebanon - 42075",Lebanon,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS009,"All-Access HMO",false,"Cambria - 42021",Cambria,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS009,"All-Access HMO",false,"Montour - 42093",Montour,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS009,"All-Access HMO",false,"Centre - 42027",Centre,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS009,"All-Access HMO",false,"Dauphin - 42043",Dauphin,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS009,"All-Access HMO",false,"Columbia - 42037",Columbia,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS009,"All-Access HMO",false,"Monroe - 42089",Monroe,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS009,"All-Access HMO",false,"Wyoming - 42131",Wyoming,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS009,"All-Access HMO",false,"Carbon - 42025",Carbon,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS009,"All-Access HMO",false,"Northampton - 42095",Northampton,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS009,"All-Access HMO",false,"Pike - 42103",Pike,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS009,"All-Access HMO",false,"Lycoming - 42081",Lycoming,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS009,"All-Access HMO",false,"Blair - 42013",Blair,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS009,"All-Access HMO",false,"Juniata - 42067",Juniata,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS009,"All-Access HMO",false,"Fulton - 42057",Fulton,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS009,"All-Access HMO",false,"Luzerne - 42079",Luzerne,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS009,"All-Access HMO",false,"Bradford - 42015",Bradford,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS009,"All-Access HMO",false,"Lehigh - 42077",Lehigh,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS009,"All-Access HMO",false,"Clinton - 42035",Clinton,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS009,"All-Access HMO",false,"Mifflin - 42087",Mifflin,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS009,"All-Access HMO",false,"Adams - 42001",Adams,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS009,"All-Access HMO",false,"Union - 42119",Union,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS009,"All-Access HMO",false,"Snyder - 42109",Snyder,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS010,"Premier HMO 1",false,"Union - 42119",Union,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS010,"Premier HMO 1",false,"Centre - 42027",Centre,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS010,"Premier HMO 1",false,"Mifflin - 42087",Mifflin,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS010,"Premier HMO 1",false,"Snyder - 42109",Snyder,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS010,"Premier HMO 1",false,"Columbia - 42037",Columbia,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS010,"Premier HMO 1",false,"Montour - 42093",Montour,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS010,"Premier HMO 1",false,"Northumberland - 42097",Northumberland,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS011,"Premier HMO 2",false,"Monroe - 42089",Monroe,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS011,"Premier HMO 2",false,"Northampton - 42095",Northampton,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS011,"Premier HMO 2",false,"Carbon - 42025",Carbon,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS011,"Premier HMO 2",false,"Schuylkill - 42107",Schuylkill,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS011,"Premier HMO 2",false,"Lehigh - 42077",Lehigh,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS012,"Premier HMO 3",false,"Lackawanna - 42069",Lackawanna,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS012,"Premier HMO 3",false,"Wayne - 42127",Wayne,false,,,Individual,No
+2026,PA,22444,SERFF,1,01-13-2026,PAS012,"Premier HMO 3",false,"Luzerne - 42079",Luzerne,false,,,Individual,No
+2026,PA,23489,SERFF,1,01-13-2026,PAS011,"EssentialSmile Pennsylvania - Total Care",false,"Monroe - 42089",Monroe,false,,,Individual,Yes
+2026,PA,23489,SERFF,1,01-13-2026,PAS011,"EssentialSmile Pennsylvania - Total Care",false,"Montgomery - 42091",Montgomery,false,,,Individual,Yes
+2026,PA,23489,SERFF,1,01-13-2026,PAS011,"EssentialSmile Pennsylvania - Total Care",false,"Chester - 42029",Chester,false,,,Individual,Yes
+2026,PA,23489,SERFF,1,01-13-2026,PAS011,"EssentialSmile Pennsylvania - Total Care",false,"Lehigh - 42077",Lehigh,false,,,Individual,Yes
+2026,PA,23489,SERFF,1,01-13-2026,PAS011,"EssentialSmile Pennsylvania - Total Care",false,"Delaware - 42045",Delaware,false,,,Individual,Yes
+2026,PA,23489,SERFF,1,01-13-2026,PAS011,"EssentialSmile Pennsylvania - Total Care",false,"Schuylkill - 42107",Schuylkill,false,,,Individual,Yes
+2026,PA,23489,SERFF,1,01-13-2026,PAS011,"EssentialSmile Pennsylvania - Total Care",false,"Bucks - 42017",Bucks,false,,,Individual,Yes
+2026,PA,23489,SERFF,1,01-13-2026,PAS011,"EssentialSmile Pennsylvania - Total Care",false,"Beaver - 42007",Beaver,false,,,Individual,Yes
+2026,PA,23489,SERFF,1,01-13-2026,PAS011,"EssentialSmile Pennsylvania - Total Care",false,"Butler - 42019",Butler,false,,,Individual,Yes
+2026,PA,23489,SERFF,1,01-13-2026,PAS011,"EssentialSmile Pennsylvania - Total Care",false,"Allegheny - 42003",Allegheny,false,,,Individual,Yes
+2026,PA,23489,SERFF,1,01-13-2026,PAS011,"EssentialSmile Pennsylvania - Total Care",false,"Cumberland - 42041",Cumberland,false,,,Individual,Yes
+2026,PA,23489,SERFF,1,01-13-2026,PAS011,"EssentialSmile Pennsylvania - Total Care",false,"Lancaster - 42071",Lancaster,false,,,Individual,Yes
+2026,PA,23489,SERFF,1,01-13-2026,PAS011,"EssentialSmile Pennsylvania - Total Care",false,"Westmoreland - 42129",Westmoreland,false,,,Individual,Yes
+2026,PA,23489,SERFF,1,01-13-2026,PAS011,"EssentialSmile Pennsylvania - Total Care",false,"Dauphin - 42043",Dauphin,false,,,Individual,Yes
+2026,PA,23489,SERFF,1,01-13-2026,PAS011,"EssentialSmile Pennsylvania - Total Care",false,"Blair - 42013",Blair,false,,,Individual,Yes
+2026,PA,23489,SERFF,1,01-13-2026,PAS011,"EssentialSmile Pennsylvania - Total Care",false,"Lawrence - 42073",Lawrence,false,,,Individual,Yes
+2026,PA,23489,SERFF,1,01-13-2026,PAS011,"EssentialSmile Pennsylvania - Total Care",false,"Erie - 42049",Erie,false,,,Individual,Yes
+2026,PA,23489,SERFF,1,01-13-2026,PAS011,"EssentialSmile Pennsylvania - Total Care",false,"Philadelphia - 42101",Philadelphia,false,,,Individual,Yes
+2026,PA,23489,SERFF,1,01-13-2026,PAS011,"EssentialSmile Pennsylvania - Total Care",false,"York - 42133",York,false,,,Individual,Yes
+2026,PA,23489,SERFF,1,01-13-2026,PAS011,"EssentialSmile Pennsylvania - Total Care",false,"Lebanon - 42075",Lebanon,false,,,Individual,Yes
+2026,PA,23489,SERFF,1,01-13-2026,PAS011,"EssentialSmile Pennsylvania - Total Care",false,"Fayette - 42051",Fayette,false,,,Individual,Yes
+2026,PA,23489,SERFF,1,01-13-2026,PAS011,"EssentialSmile Pennsylvania - Total Care",false,"Luzerne - 42079",Luzerne,false,,,Individual,Yes
+2026,PA,23489,SERFF,1,01-13-2026,PAS011,"EssentialSmile Pennsylvania - Total Care",false,"Washington - 42125",Washington,false,,,Individual,Yes
+2026,PA,23489,SERFF,1,01-13-2026,PAS011,"EssentialSmile Pennsylvania - Total Care",false,"Berks - 42011",Berks,false,,,Individual,Yes
+2026,PA,23489,SERFF,1,01-13-2026,PAS012,"Smile Now Pennsylvania - PPO",false,"Berks - 42011",Berks,false,,,Individual,Yes
+2026,PA,23489,SERFF,1,01-13-2026,PAS012,"Smile Now Pennsylvania - PPO",false,"Fayette - 42051",Fayette,false,,,Individual,Yes
+2026,PA,23489,SERFF,1,01-13-2026,PAS012,"Smile Now Pennsylvania - PPO",false,"Delaware - 42045",Delaware,false,,,Individual,Yes
+2026,PA,23489,SERFF,1,01-13-2026,PAS012,"Smile Now Pennsylvania - PPO",false,"Luzerne - 42079",Luzerne,false,,,Individual,Yes
+2026,PA,23489,SERFF,1,01-13-2026,PAS012,"Smile Now Pennsylvania - PPO",false,"Northampton - 42095",Northampton,false,,,Individual,Yes
+2026,PA,23489,SERFF,1,01-13-2026,PAS012,"Smile Now Pennsylvania - PPO",false,"Washington - 42125",Washington,false,,,Individual,Yes
+2026,PA,23489,SERFF,1,01-13-2026,PAS012,"Smile Now Pennsylvania - PPO",false,"Bucks - 42017",Bucks,false,,,Individual,Yes
+2026,PA,23489,SERFF,1,01-13-2026,PAS012,"Smile Now Pennsylvania - PPO",false,"Lancaster - 42071",Lancaster,false,,,Individual,Yes
+2026,PA,23489,SERFF,1,01-13-2026,PAS012,"Smile Now Pennsylvania - PPO",false,"Lackawanna - 42069",Lackawanna,false,,,Individual,Yes
+2026,PA,23489,SERFF,1,01-13-2026,PAS012,"Smile Now Pennsylvania - PPO",false,"Cambria - 42021",Cambria,false,,,Individual,Yes
+2026,PA,23489,SERFF,1,01-13-2026,PAS012,"Smile Now Pennsylvania - PPO",false,"Dauphin - 42043",Dauphin,false,,,Individual,Yes
+2026,PA,23489,SERFF,1,01-13-2026,PAS012,"Smile Now Pennsylvania - PPO",false,"Franklin - 42055",Franklin,false,,,Individual,Yes
+2026,PA,23489,SERFF,1,01-13-2026,PAS012,"Smile Now Pennsylvania - PPO",false,"Northumberland - 42097",Northumberland,false,,,Individual,Yes
+2026,PA,23489,SERFF,1,01-13-2026,PAS012,"Smile Now Pennsylvania - PPO",false,"Schuylkill - 42107",Schuylkill,false,,,Individual,Yes
+2026,PA,23489,SERFF,1,01-13-2026,PAS012,"Smile Now Pennsylvania - PPO",false,"Beaver - 42007",Beaver,false,,,Individual,Yes
+2026,PA,23489,SERFF,1,01-13-2026,PAS012,"Smile Now Pennsylvania - PPO",false,"Philadelphia - 42101",Philadelphia,false,,,Individual,Yes
+2026,PA,23489,SERFF,1,01-13-2026,PAS012,"Smile Now Pennsylvania - PPO",false,"Blair - 42013",Blair,false,,,Individual,Yes
+2026,PA,23489,SERFF,1,01-13-2026,PAS012,"Smile Now Pennsylvania - PPO",false,"Chester - 42029",Chester,false,,,Individual,Yes
+2026,PA,23489,SERFF,1,01-13-2026,PAS012,"Smile Now Pennsylvania - PPO",false,"Centre - 42027",Centre,false,,,Individual,Yes
+2026,PA,23489,SERFF,1,01-13-2026,PAS012,"Smile Now Pennsylvania - PPO",false,"Lehigh - 42077",Lehigh,false,,,Individual,Yes
+2026,PA,23489,SERFF,1,01-13-2026,PAS012,"Smile Now Pennsylvania - PPO",false,"Allegheny - 42003",Allegheny,false,,,Individual,Yes
+2026,PA,23489,SERFF,1,01-13-2026,PAS012,"Smile Now Pennsylvania - PPO",false,"Lebanon - 42075",Lebanon,false,,,Individual,Yes
+2026,PA,23489,SERFF,1,01-13-2026,PAS012,"Smile Now Pennsylvania - PPO",false,"Butler - 42019",Butler,false,,,Individual,Yes
+2026,PA,23489,SERFF,1,01-13-2026,PAS012,"Smile Now Pennsylvania - PPO",false,"Lawrence - 42073",Lawrence,false,,,Individual,Yes
+2026,PA,23489,SERFF,1,01-13-2026,PAS012,"Smile Now Pennsylvania - PPO",false,"Erie - 42049",Erie,false,,,Individual,Yes
+2026,PA,23489,SERFF,1,01-13-2026,PAS012,"Smile Now Pennsylvania - PPO",false,"Lycoming - 42081",Lycoming,false,,,Individual,Yes
+2026,PA,23489,SERFF,1,01-13-2026,PAS012,"Smile Now Pennsylvania - PPO",false,"Monroe - 42089",Monroe,false,,,Individual,Yes
+2026,PA,23489,SERFF,1,01-13-2026,PAS012,"Smile Now Pennsylvania - PPO",false,"York - 42133",York,false,,,Individual,Yes
+2026,PA,23489,SERFF,1,01-13-2026,PAS012,"Smile Now Pennsylvania - PPO",false,"Westmoreland - 42129",Westmoreland,false,,,Individual,Yes
+2026,PA,23489,SERFF,1,01-13-2026,PAS012,"Smile Now Pennsylvania - PPO",false,"Carbon - 42025",Carbon,false,,,Individual,Yes
+2026,PA,23489,SERFF,1,01-13-2026,PAS012,"Smile Now Pennsylvania - PPO",false,"Wayne - 42127",Wayne,false,,,Individual,Yes
+2026,PA,23489,SERFF,1,01-13-2026,PAS012,"Smile Now Pennsylvania - PPO",false,"Clearfield - 42033",Clearfield,false,,,Individual,Yes
+2026,PA,23489,SERFF,1,01-13-2026,PAS012,"Smile Now Pennsylvania - PPO",false,"Snyder - 42109",Snyder,false,,,Individual,Yes
+2026,PA,23489,SERFF,1,01-13-2026,PAS012,"Smile Now Pennsylvania - PPO",false,"Montgomery - 42091",Montgomery,false,,,Individual,Yes
+2026,PA,23489,SERFF,1,01-13-2026,PAS012,"Smile Now Pennsylvania - PPO",false,"Cumberland - 42041",Cumberland,false,,,Individual,Yes
+2026,PA,31609,SERFF,1,01-13-2026,PAS001,"Personal Choice Consumer PPO",false,"Chester - 42029",Chester,false,,,Individual,No
+2026,PA,31609,SERFF,1,01-13-2026,PAS001,"Personal Choice Consumer PPO",false,"Philadelphia - 42101",Philadelphia,false,,,Individual,No
+2026,PA,31609,SERFF,1,01-13-2026,PAS001,"Personal Choice Consumer PPO",false,"Montgomery - 42091",Montgomery,false,,,Individual,No
+2026,PA,31609,SERFF,1,01-13-2026,PAS001,"Personal Choice Consumer PPO",false,"Bucks - 42017",Bucks,false,,,Individual,No
+2026,PA,31609,SERFF,1,01-13-2026,PAS001,"Personal Choice Consumer PPO",false,"Delaware - 42045",Delaware,false,,,Individual,No
+2026,PA,31609,SERFF,1,01-13-2026,PAS002,"Personal Choice Consumer EPO",false,"Bucks - 42017",Bucks,false,,,Individual,No
+2026,PA,31609,SERFF,1,01-13-2026,PAS002,"Personal Choice Consumer EPO",false,"Delaware - 42045",Delaware,false,,,Individual,No
+2026,PA,31609,SERFF,1,01-13-2026,PAS002,"Personal Choice Consumer EPO",false,"Chester - 42029",Chester,false,,,Individual,No
+2026,PA,31609,SERFF,1,01-13-2026,PAS002,"Personal Choice Consumer EPO",false,"Montgomery - 42091",Montgomery,false,,,Individual,No
+2026,PA,31609,SERFF,1,01-13-2026,PAS002,"Personal Choice Consumer EPO",false,"Philadelphia - 42101",Philadelphia,false,,,Individual,No
+2026,PA,32561,SERFF,1,01-13-2026,PAS001,"GLIC Indiv PPO On and Off Exchange",true,,,,,,Individual,Yes
+2026,PA,32561,SERFF,1,01-13-2026,PAS002,"GLIC Group PPO Off Exchange",true,,,,,,Individual,Yes
+2026,PA,33709,SERFF,1,01-13-2026,PAS001,"WPA Zone AA",false,"Erie - 42049",Erie,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS002,"WPA Zone AC",false,"Beaver - 42007",Beaver,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS002,"WPA Zone AC",false,"Armstrong - 42005",Armstrong,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS002,"WPA Zone AC",false,"Westmoreland - 42129",Westmoreland,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS002,"WPA Zone AC",false,"Butler - 42019",Butler,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS002,"WPA Zone AC",false,"Mercer - 42085",Mercer,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS002,"WPA Zone AC",false,"Washington - 42125",Washington,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS002,"WPA Zone AC",false,"Erie - 42049",Erie,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS002,"WPA Zone AC",false,"Allegheny - 42003",Allegheny,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS003,"WPA Zone AD",false,"Jefferson - 42065",Jefferson,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS003,"WPA Zone AD",false,"Lawrence - 42073",Lawrence,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS003,"WPA Zone AD",false,"Forest - 42053",Forest,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS003,"WPA Zone AD",false,"McKean - 42083",McKean,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS003,"WPA Zone AD",false,"Elk - 42047",Elk,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS003,"WPA Zone AD",false,"Potter - 42105",Potter,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS003,"WPA Zone AD",false,"Greene - 42059",Greene,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS003,"WPA Zone AD",false,"Cameron - 42023",Cameron,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS003,"WPA Zone AD",false,"Clearfield - 42033",Clearfield,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS003,"WPA Zone AD",false,"Crawford - 42039",Crawford,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS003,"WPA Zone AD",false,"Venango - 42121",Venango,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS003,"WPA Zone AD",false,"Huntingdon - 42061",Huntingdon,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS003,"WPA Zone AD",false,"Warren - 42123",Warren,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS003,"WPA Zone AD",false,"Bedford - 42009",Bedford,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS003,"WPA Zone AD",false,"Indiana - 42063",Indiana,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS003,"WPA Zone AD",false,"Fayette - 42051",Fayette,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS003,"WPA Zone AD",false,"Cambria - 42021",Cambria,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS003,"WPA Zone AD",false,"Blair - 42013",Blair,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS003,"WPA Zone AD",false,"Centre - 42027",Centre,true,"16666, 16677, 16686, 16822, 16829, 16845, 16859, 16860, 16866, 16874",33709_PA_service_area_partial_county.pdf,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS003,"WPA Zone AD",false,"Somerset - 42111",Somerset,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS003,"WPA Zone AD",false,"Clarion - 42031",Clarion,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS004,"SEPA Zone AG",false,"Bucks - 42017",Bucks,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS005,"SEPA Zone AH",false,"Chester - 42029",Chester,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS006,"SEPA Zone AI",false,"Delaware - 42045",Delaware,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS007,"SEPA Zone AJ",false,"Montgomery - 42091",Montgomery,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS008,"SEPA Zone AK",false,"Philadelphia - 42101",Philadelphia,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS009,"WPA Zone AL",false,"Warren - 42123",Warren,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS009,"WPA Zone AL",false,"McKean - 42083",McKean,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS009,"WPA Zone AL",false,"Huntingdon - 42061",Huntingdon,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS009,"WPA Zone AL",false,"Venango - 42121",Venango,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS009,"WPA Zone AL",false,"Potter - 42105",Potter,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS009,"WPA Zone AL",false,"Clarion - 42031",Clarion,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS009,"WPA Zone AL",false,"Jefferson - 42065",Jefferson,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS009,"WPA Zone AL",false,"Bedford - 42009",Bedford,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS009,"WPA Zone AL",false,"Cameron - 42023",Cameron,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS009,"WPA Zone AL",false,"Blair - 42013",Blair,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS009,"WPA Zone AL",false,"Somerset - 42111",Somerset,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS009,"WPA Zone AL",false,"Cambria - 42021",Cambria,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS009,"WPA Zone AL",false,"Centre - 42027",Centre,true,"16666, 16677, 16686, 16822, 16829, 16845, 16859, 16860, 16866, 16874",33709_PA_service_area_partial_county.pdf,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS009,"WPA Zone AL",false,"Clearfield - 42033",Clearfield,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS009,"WPA Zone AL",false,"Crawford - 42039",Crawford,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS009,"WPA Zone AL",false,"Forest - 42053",Forest,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS009,"WPA Zone AL",false,"Greene - 42059",Greene,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS009,"WPA Zone AL",false,"Mercer - 42085",Mercer,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS009,"WPA Zone AL",false,"Elk - 42047",Elk,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS010,"WPA Zone AM",false,"Warren - 42123",Warren,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS010,"WPA Zone AM",false,"Venango - 42121",Venango,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS010,"WPA Zone AM",false,"Blair - 42013",Blair,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS010,"WPA Zone AM",false,"Lawrence - 42073",Lawrence,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS010,"WPA Zone AM",false,"Centre - 42027",Centre,true,"16666, 16677, 16686, 16822, 16829, 16845, 16859, 16860, 16866, 16874",79279_PA_service_area_partial_county,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS010,"WPA Zone AM",false,"Allegheny - 42003",Allegheny,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS010,"WPA Zone AM",false,"Somerset - 42111",Somerset,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS010,"WPA Zone AM",false,"Potter - 42105",Potter,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS010,"WPA Zone AM",false,"Jefferson - 42065",Jefferson,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS010,"WPA Zone AM",false,"Westmoreland - 42129",Westmoreland,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS010,"WPA Zone AM",false,"Mercer - 42085",Mercer,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS010,"WPA Zone AM",false,"Forest - 42053",Forest,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS010,"WPA Zone AM",false,"Cameron - 42023",Cameron,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS010,"WPA Zone AM",false,"Clarion - 42031",Clarion,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS010,"WPA Zone AM",false,"Crawford - 42039",Crawford,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS010,"WPA Zone AM",false,"Armstrong - 42005",Armstrong,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS010,"WPA Zone AM",false,"Elk - 42047",Elk,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS010,"WPA Zone AM",false,"Beaver - 42007",Beaver,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS010,"WPA Zone AM",false,"Fayette - 42051",Fayette,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS010,"WPA Zone AM",false,"Cambria - 42021",Cambria,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS010,"WPA Zone AM",false,"Washington - 42125",Washington,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS010,"WPA Zone AM",false,"Clearfield - 42033",Clearfield,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS010,"WPA Zone AM",false,"Huntingdon - 42061",Huntingdon,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS010,"WPA Zone AM",false,"Butler - 42019",Butler,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS010,"WPA Zone AM",false,"Greene - 42059",Greene,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS010,"WPA Zone AM",false,"Indiana - 42063",Indiana,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS010,"WPA Zone AM",false,"Bedford - 42009",Bedford,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS010,"WPA Zone AM",false,"McKean - 42083",McKean,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS011,"CPA Zone F",false,"Mifflin - 42087",Mifflin,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS011,"CPA Zone F",false,"Juniata - 42067",Juniata,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS011,"CPA Zone F",false,"Cumberland - 42041",Cumberland,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS011,"CPA Zone F",false,"Union - 42119",Union,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS011,"CPA Zone F",false,"Schuylkill - 42107",Schuylkill,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS011,"CPA Zone F",false,"Franklin - 42055",Franklin,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS011,"CPA Zone F",false,"York - 42133",York,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS011,"CPA Zone F",false,"Northampton - 42095",Northampton,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS011,"CPA Zone F",false,"Lancaster - 42071",Lancaster,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS011,"CPA Zone F",false,"Snyder - 42109",Snyder,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS011,"CPA Zone F",false,"Montour - 42093",Montour,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS011,"CPA Zone F",false,"Lebanon - 42075",Lebanon,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS011,"CPA Zone F",false,"Lehigh - 42077",Lehigh,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS011,"CPA Zone F",false,"Centre - 42027",Centre,true,"16801, 16802, 16803, 16804, 16805, 16820, 16823, 16826, 16827, 16828, 16832, 16835, 16841, 16844, 16851, 16852, 16853, 16854, 16856, 16864, 16865, 16868, 16870, 16872, 16875, 16877, 16882",33709_PA_service_area_partial_county.pdf,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS011,"CPA Zone F",false,"Adams - 42001",Adams,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS011,"CPA Zone F",false,"Fulton - 42057",Fulton,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS011,"CPA Zone F",false,"Northumberland - 42097",Northumberland,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS011,"CPA Zone F",false,"Perry - 42099",Perry,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS011,"CPA Zone F",false,"Berks - 42011",Berks,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS011,"CPA Zone F",false,"Dauphin - 42043",Dauphin,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS011,"CPA Zone F",false,"Columbia - 42037",Columbia,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS012,"WPA Zone I",false,"Somerset - 42111",Somerset,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS012,"WPA Zone I",false,"Erie - 42049",Erie,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS012,"WPA Zone I",false,"Butler - 42019",Butler,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS012,"WPA Zone I",false,"Crawford - 42039",Crawford,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS012,"WPA Zone I",false,"Cambria - 42021",Cambria,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS012,"WPA Zone I",false,"Forest - 42053",Forest,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS012,"WPA Zone I",false,"Armstrong - 42005",Armstrong,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS012,"WPA Zone I",false,"Blair - 42013",Blair,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS012,"WPA Zone I",false,"Beaver - 42007",Beaver,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS012,"WPA Zone I",false,"Washington - 42125",Washington,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS012,"WPA Zone I",false,"Fayette - 42051",Fayette,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS012,"WPA Zone I",false,"Warren - 42123",Warren,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS012,"WPA Zone I",false,"Clarion - 42031",Clarion,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS012,"WPA Zone I",false,"Greene - 42059",Greene,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS012,"WPA Zone I",false,"Allegheny - 42003",Allegheny,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS012,"WPA Zone I",false,"Westmoreland - 42129",Westmoreland,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS013,"WPA Zone J",false,"Butler - 42019",Butler,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS013,"WPA Zone J",false,"Indiana - 42063",Indiana,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS013,"WPA Zone J",false,"Westmoreland - 42129",Westmoreland,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS013,"WPA Zone J",false,"Fayette - 42051",Fayette,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS013,"WPA Zone J",false,"Lawrence - 42073",Lawrence,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS013,"WPA Zone J",false,"Armstrong - 42005",Armstrong,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS013,"WPA Zone J",false,"Beaver - 42007",Beaver,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS013,"WPA Zone J",false,"Allegheny - 42003",Allegheny,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS013,"WPA Zone J",false,"Washington - 42125",Washington,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS014,"WPA Zone L",false,"Erie - 42049",Erie,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS014,"WPA Zone L",false,"Westmoreland - 42129",Westmoreland,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS014,"WPA Zone L",false,"Allegheny - 42003",Allegheny,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS014,"WPA Zone L",false,"Washington - 42125",Washington,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS014,"WPA Zone L",false,"Butler - 42019",Butler,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS015,"CPA Zone N",false,"Schuylkill - 42107",Schuylkill,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS015,"CPA Zone N",false,"Northampton - 42095",Northampton,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS015,"CPA Zone N",false,"Lehigh - 42077",Lehigh,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS016,"CPA Zone O",false,"Lancaster - 42071",Lancaster,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS016,"CPA Zone O",false,"Franklin - 42055",Franklin,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS016,"CPA Zone O",false,"York - 42133",York,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS016,"CPA Zone O",false,"Perry - 42099",Perry,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS016,"CPA Zone O",false,"Adams - 42001",Adams,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS016,"CPA Zone O",false,"Cumberland - 42041",Cumberland,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS016,"CPA Zone O",false,"Lebanon - 42075",Lebanon,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS016,"CPA Zone O",false,"Dauphin - 42043",Dauphin,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS016,"CPA Zone O",false,"Berks - 42011",Berks,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS017,"NEPA Zone Q",false,"Lackawanna - 42069",Lackawanna,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS017,"NEPA Zone Q",false,"Monroe - 42089",Monroe,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS017,"NEPA Zone Q",false,"Carbon - 42025",Carbon,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS018,"NEPA Zone U",false,"Tioga - 42117",Tioga,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS018,"NEPA Zone U",false,"Luzerne - 42079",Luzerne,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS018,"NEPA Zone U",false,"Bradford - 42015",Bradford,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS018,"NEPA Zone U",false,"Susquehanna - 42115",Susquehanna,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS018,"NEPA Zone U",false,"Lycoming - 42081",Lycoming,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS018,"NEPA Zone U",false,"Pike - 42103",Pike,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS018,"NEPA Zone U",false,"Monroe - 42089",Monroe,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS018,"NEPA Zone U",false,"Wayne - 42127",Wayne,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS018,"NEPA Zone U",false,"Clinton - 42035",Clinton,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS018,"NEPA Zone U",false,"Sullivan - 42113",Sullivan,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS018,"NEPA Zone U",false,"Wyoming - 42131",Wyoming,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS018,"NEPA Zone U",false,"Carbon - 42025",Carbon,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS018,"NEPA Zone U",false,"Lackawanna - 42069",Lackawanna,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS019,"CPA Zone X",false,"Lancaster - 42071",Lancaster,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS019,"CPA Zone X",false,"Franklin - 42055",Franklin,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS019,"CPA Zone X",false,"Cumberland - 42041",Cumberland,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS019,"CPA Zone X",false,"Adams - 42001",Adams,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS019,"CPA Zone X",false,"Berks - 42011",Berks,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS019,"CPA Zone X",false,"York - 42133",York,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS019,"CPA Zone X",false,"Lebanon - 42075",Lebanon,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS019,"CPA Zone X",false,"Perry - 42099",Perry,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS019,"CPA Zone X",false,"Dauphin - 42043",Dauphin,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS020,"WPA Zone Y",false,"Erie - 42049",Erie,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS020,"WPA Zone Y",false,"Mercer - 42085",Mercer,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS020,"WPA Zone Y",false,"Butler - 42019",Butler,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS020,"WPA Zone Y",false,"Westmoreland - 42129",Westmoreland,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS020,"WPA Zone Y",false,"Allegheny - 42003",Allegheny,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS020,"WPA Zone Y",false,"Washington - 42125",Washington,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS021,"SEPA Zone Z",false,"Bucks - 42017",Bucks,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS021,"SEPA Zone Z",false,"Delaware - 42045",Delaware,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS021,"SEPA Zone Z",false,"Chester - 42029",Chester,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS021,"SEPA Zone Z",false,"Montgomery - 42091",Montgomery,false,,,Individual,No
+2026,PA,33709,SERFF,1,01-13-2026,PAS021,"SEPA Zone Z",false,"Philadelphia - 42101",Philadelphia,false,,,Individual,No
+2026,PA,33871,SERFF,1,01-13-2026,PAS001,"Keystone Consumer HMO",false,"Bucks - 42017",Bucks,false,,,Individual,No
+2026,PA,33871,SERFF,1,01-13-2026,PAS001,"Keystone Consumer HMO",false,"Montgomery - 42091",Montgomery,false,,,Individual,No
+2026,PA,33871,SERFF,1,01-13-2026,PAS001,"Keystone Consumer HMO",false,"Chester - 42029",Chester,false,,,Individual,No
+2026,PA,33871,SERFF,1,01-13-2026,PAS001,"Keystone Consumer HMO",false,"Philadelphia - 42101",Philadelphia,false,,,Individual,No
+2026,PA,33871,SERFF,1,01-13-2026,PAS001,"Keystone Consumer HMO",false,"Delaware - 42045",Delaware,false,,,Individual,No
+2026,PA,33871,SERFF,1,01-13-2026,PAS002,"Keystone Small Group HMO",false,"Delaware - 42045",Delaware,false,,,Individual,No
+2026,PA,33871,SERFF,1,01-13-2026,PAS002,"Keystone Small Group HMO",false,"Montgomery - 42091",Montgomery,false,,,Individual,No
+2026,PA,33871,SERFF,1,01-13-2026,PAS002,"Keystone Small Group HMO",false,"Chester - 42029",Chester,false,,,Individual,No
+2026,PA,33871,SERFF,1,01-13-2026,PAS002,"Keystone Small Group HMO",false,"Philadelphia - 42101",Philadelphia,false,,,Individual,No
+2026,PA,33871,SERFF,1,01-13-2026,PAS002,"Keystone Small Group HMO",false,"Bucks - 42017",Bucks,false,,,Individual,No
+2026,PA,33871,SERFF,1,01-13-2026,PAS003,"Keystone Small Group DPOS",false,"Montgomery - 42091",Montgomery,false,,,Individual,No
+2026,PA,33871,SERFF,1,01-13-2026,PAS003,"Keystone Small Group DPOS",false,"Philadelphia - 42101",Philadelphia,false,,,Individual,No
+2026,PA,33871,SERFF,1,01-13-2026,PAS003,"Keystone Small Group DPOS",false,"Bucks - 42017",Bucks,false,,,Individual,No
+2026,PA,33871,SERFF,1,01-13-2026,PAS003,"Keystone Small Group DPOS",false,"Chester - 42029",Chester,false,,,Individual,No
+2026,PA,33871,SERFF,1,01-13-2026,PAS003,"Keystone Small Group DPOS",false,"Delaware - 42045",Delaware,false,,,Individual,No
+2026,PA,36160,SERFF,1,01-13-2026,PAS001,Pennsylvania,false,"Lancaster - 42071",Lancaster,false,,,Individual,Yes
+2026,PA,36160,SERFF,1,01-13-2026,PAS001,Pennsylvania,false,"Clearfield - 42033",Clearfield,false,,,Individual,Yes
+2026,PA,36160,SERFF,1,01-13-2026,PAS001,Pennsylvania,false,"Lebanon - 42075",Lebanon,false,,,Individual,Yes
+2026,PA,36160,SERFF,1,01-13-2026,PAS001,Pennsylvania,false,"Wayne - 42127",Wayne,false,,,Individual,Yes
+2026,PA,36160,SERFF,1,01-13-2026,PAS001,Pennsylvania,false,"Washington - 42125",Washington,false,,,Individual,Yes
+2026,PA,36160,SERFF,1,01-13-2026,PAS001,Pennsylvania,false,"Juniata - 42067",Juniata,false,,,Individual,Yes
+2026,PA,36160,SERFF,1,01-13-2026,PAS001,Pennsylvania,false,"Westmoreland - 42129",Westmoreland,false,,,Individual,Yes
+2026,PA,36160,SERFF,1,01-13-2026,PAS001,Pennsylvania,false,"Elk - 42047",Elk,false,,,Individual,Yes
+2026,PA,36160,SERFF,1,01-13-2026,PAS001,Pennsylvania,false,"York - 42133",York,false,,,Individual,Yes
+2026,PA,36160,SERFF,1,01-13-2026,PAS001,Pennsylvania,false,"Erie - 42049",Erie,false,,,Individual,Yes
+2026,PA,36160,SERFF,1,01-13-2026,PAS001,Pennsylvania,false,"Union - 42119",Union,false,,,Individual,Yes
+2026,PA,36160,SERFF,1,01-13-2026,PAS001,Pennsylvania,false,"Columbia - 42037",Columbia,false,,,Individual,Yes
+2026,PA,36160,SERFF,1,01-13-2026,PAS001,Pennsylvania,false,"Northampton - 42095",Northampton,false,,,Individual,Yes
+2026,PA,36160,SERFF,1,01-13-2026,PAS001,Pennsylvania,false,"Cameron - 42023",Cameron,false,,,Individual,Yes
+2026,PA,36160,SERFF,1,01-13-2026,PAS001,Pennsylvania,false,"Crawford - 42039",Crawford,false,,,Individual,Yes
+2026,PA,36160,SERFF,1,01-13-2026,PAS001,Pennsylvania,false,"Forest - 42053",Forest,false,,,Individual,Yes
+2026,PA,36160,SERFF,1,01-13-2026,PAS001,Pennsylvania,false,"Luzerne - 42079",Luzerne,false,,,Individual,Yes
+2026,PA,36160,SERFF,1,01-13-2026,PAS001,Pennsylvania,false,"Lehigh - 42077",Lehigh,false,,,Individual,Yes
+2026,PA,36160,SERFF,1,01-13-2026,PAS001,Pennsylvania,false,"Butler - 42019",Butler,false,,,Individual,Yes
+2026,PA,36160,SERFF,1,01-13-2026,PAS001,Pennsylvania,false,"Venango - 42121",Venango,false,,,Individual,Yes
+2026,PA,36160,SERFF,1,01-13-2026,PAS001,Pennsylvania,false,"Dauphin - 42043",Dauphin,false,,,Individual,Yes
+2026,PA,36160,SERFF,1,01-13-2026,PAS001,Pennsylvania,false,"Lawrence - 42073",Lawrence,false,,,Individual,Yes
+2026,PA,36160,SERFF,1,01-13-2026,PAS001,Pennsylvania,false,"Clinton - 42035",Clinton,false,,,Individual,Yes
+2026,PA,36160,SERFF,1,01-13-2026,PAS001,Pennsylvania,false,"Monroe - 42089",Monroe,false,,,Individual,Yes
+2026,PA,36160,SERFF,1,01-13-2026,PAS001,Pennsylvania,false,"Snyder - 42109",Snyder,false,,,Individual,Yes
+2026,PA,36160,SERFF,1,01-13-2026,PAS001,Pennsylvania,false,"Bedford - 42009",Bedford,false,,,Individual,Yes
+2026,PA,36160,SERFF,1,01-13-2026,PAS001,Pennsylvania,false,"Montgomery - 42091",Montgomery,false,,,Individual,Yes
+2026,PA,36160,SERFF,1,01-13-2026,PAS001,Pennsylvania,false,"Carbon - 42025",Carbon,false,,,Individual,Yes
+2026,PA,36160,SERFF,1,01-13-2026,PAS001,Pennsylvania,false,"Lackawanna - 42069",Lackawanna,false,,,Individual,Yes
+2026,PA,36160,SERFF,1,01-13-2026,PAS001,Pennsylvania,false,"Lycoming - 42081",Lycoming,false,,,Individual,Yes
+2026,PA,36160,SERFF,1,01-13-2026,PAS001,Pennsylvania,false,"Montour - 42093",Montour,false,,,Individual,Yes
+2026,PA,36160,SERFF,1,01-13-2026,PAS001,Pennsylvania,false,"Indiana - 42063",Indiana,false,,,Individual,Yes
+2026,PA,36160,SERFF,1,01-13-2026,PAS001,Pennsylvania,false,"Northumberland - 42097",Northumberland,false,,,Individual,Yes
+2026,PA,36160,SERFF,1,01-13-2026,PAS001,Pennsylvania,false,"Greene - 42059",Greene,false,,,Individual,Yes
+2026,PA,36160,SERFF,1,01-13-2026,PAS001,Pennsylvania,false,"Pike - 42103",Pike,false,,,Individual,Yes
+2026,PA,36160,SERFF,1,01-13-2026,PAS001,Pennsylvania,false,"Mckean - 42083",Mckean,false,,,Individual,Yes
+2026,PA,36160,SERFF,1,01-13-2026,PAS001,Pennsylvania,false,"Armstrong - 42005",Armstrong,false,,,Individual,Yes
+2026,PA,36160,SERFF,1,01-13-2026,PAS001,Pennsylvania,false,"Blair - 42013",Blair,false,,,Individual,Yes
+2026,PA,36160,SERFF,1,01-13-2026,PAS001,Pennsylvania,false,"Centre - 42027",Centre,false,,,Individual,Yes
+2026,PA,36160,SERFF,1,01-13-2026,PAS001,Pennsylvania,false,"Wyoming - 42131",Wyoming,false,,,Individual,Yes
+2026,PA,36160,SERFF,1,01-13-2026,PAS001,Pennsylvania,false,"Berks - 42011",Berks,false,,,Individual,Yes
+2026,PA,36160,SERFF,1,01-13-2026,PAS001,Pennsylvania,false,"Franklin - 42055",Franklin,false,,,Individual,Yes
+2026,PA,36160,SERFF,1,01-13-2026,PAS001,Pennsylvania,false,"Chester - 42029",Chester,false,,,Individual,Yes
+2026,PA,36160,SERFF,1,01-13-2026,PAS001,Pennsylvania,false,"Adams - 42001",Adams,false,,,Individual,Yes
+2026,PA,36160,SERFF,1,01-13-2026,PAS001,Pennsylvania,false,"Jefferson - 42065",Jefferson,false,,,Individual,Yes
+2026,PA,36160,SERFF,1,01-13-2026,PAS001,Pennsylvania,false,"Warren - 42123",Warren,false,,,Individual,Yes
+2026,PA,36160,SERFF,1,01-13-2026,PAS001,Pennsylvania,false,"Somerset - 42111",Somerset,false,,,Individual,Yes
+2026,PA,36160,SERFF,1,01-13-2026,PAS001,Pennsylvania,false,"Clarion - 42031",Clarion,false,,,Individual,Yes
+2026,PA,36160,SERFF,1,01-13-2026,PAS001,Pennsylvania,false,"Beaver - 42007",Beaver,false,,,Individual,Yes
+2026,PA,36160,SERFF,1,01-13-2026,PAS001,Pennsylvania,false,"Cumberland - 42041",Cumberland,false,,,Individual,Yes
+2026,PA,36160,SERFF,1,01-13-2026,PAS001,Pennsylvania,false,"Allegheny - 42003",Allegheny,false,,,Individual,Yes
+2026,PA,36160,SERFF,1,01-13-2026,PAS001,Pennsylvania,false,"Delaware - 42045",Delaware,false,,,Individual,Yes
+2026,PA,36160,SERFF,1,01-13-2026,PAS001,Pennsylvania,false,"Mercer - 42085",Mercer,false,,,Individual,Yes
+2026,PA,36160,SERFF,1,01-13-2026,PAS001,Pennsylvania,false,"Bucks - 42017",Bucks,false,,,Individual,Yes
+2026,PA,36160,SERFF,1,01-13-2026,PAS001,Pennsylvania,false,"Tioga - 42117",Tioga,false,,,Individual,Yes
+2026,PA,36160,SERFF,1,01-13-2026,PAS001,Pennsylvania,false,"Fayette - 42051",Fayette,false,,,Individual,Yes
+2026,PA,36160,SERFF,1,01-13-2026,PAS001,Pennsylvania,false,"Cambria - 42021",Cambria,false,,,Individual,Yes
+2026,PA,36160,SERFF,1,01-13-2026,PAS001,Pennsylvania,false,"Mifflin - 42087",Mifflin,false,,,Individual,Yes
+2026,PA,36160,SERFF,1,01-13-2026,PAS001,Pennsylvania,false,"Philadelphia - 42101",Philadelphia,false,,,Individual,Yes
+2026,PA,36160,SERFF,1,01-13-2026,PAS001,Pennsylvania,false,"Schuylkill - 42107",Schuylkill,false,,,Individual,Yes
+2026,PA,36160,SERFF,1,01-13-2026,PAS001,Pennsylvania,false,"Sullivan - 42113",Sullivan,false,,,Individual,Yes
+2026,PA,36160,SERFF,1,01-13-2026,PAS001,Pennsylvania,false,"Potter - 42105",Potter,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS001,"Dental - SG",false,"Mifflin - 42087",Mifflin,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS001,"Dental - SG",false,"Schuylkill - 42107",Schuylkill,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS001,"Dental - SG",false,"Centre - 42027",Centre,true,"16801, 16802, 16803, 16804, 16805, 16820, 16823, 16826, 16827, 16828, 16832, 16835, 16841, 16844, 16851, 16852, 16853, 16854, 16856, 16864, 16865, 16868, 16870, 16872, 16875, 16877, 16882",45127_PA_service_area_partial_county.pdf,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS001,"Dental - SG",false,"Centre - 42027",Centre,true,"16801, 16802, 16803, 16804, 16805, 16820, 16823, 16826, 16827, 16828, 16832, 16835, 16841, 16844, 16851, 16852, 16853, 16854, 16856, 16864, 16865, 16868, 16870, 16872, 16875, 16877, 16882",45127_PA_service_area_partial_county.pdf,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS001,"Dental - SG",false,"Cumberland - 42041",Cumberland,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS001,"Dental - SG",false,"Lehigh - 42077",Lehigh,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS001,"Dental - SG",false,"Columbia - 42037",Columbia,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS001,"Dental - SG",false,"Snyder - 42109",Snyder,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS001,"Dental - SG",false,"Lancaster - 42071",Lancaster,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS001,"Dental - SG",false,"Columbia - 42037",Columbia,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS001,"Dental - SG",false,"Northampton - 42095",Northampton,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS001,"Dental - SG",false,"Northumberland - 42097",Northumberland,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS001,"Dental - SG",false,"Lebanon - 42075",Lebanon,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS001,"Dental - SG",false,"Berks - 42011",Berks,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS001,"Dental - SG",false,"Montour - 42093",Montour,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS001,"Dental - SG",false,"Perry - 42099",Perry,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS001,"Dental - SG",false,"Lancaster - 42071",Lancaster,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS001,"Dental - SG",false,"Montour - 42093",Montour,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS001,"Dental - SG",false,"Fulton - 42057",Fulton,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS001,"Dental - SG",false,"Northumberland - 42097",Northumberland,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS001,"Dental - SG",false,"Franklin - 42055",Franklin,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS001,"Dental - SG",false,"Berks - 42011",Berks,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS001,"Dental - SG",false,"Dauphin - 42043",Dauphin,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS001,"Dental - SG",false,"Juniata - 42067",Juniata,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS001,"Dental - SG",false,"York - 42133",York,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS001,"Dental - SG",false,"Northampton - 42095",Northampton,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS001,"Dental - SG",false,"Cumberland - 42041",Cumberland,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS001,"Dental - SG",false,"Lehigh - 42077",Lehigh,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS001,"Dental - SG",false,"Perry - 42099",Perry,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS001,"Dental - SG",false,"Fulton - 42057",Fulton,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS001,"Dental - SG",false,"Adams - 42001",Adams,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS001,"Dental - SG",false,"Franklin - 42055",Franklin,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS001,"Dental - SG",false,"York - 42133",York,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS001,"Dental - SG",false,"Adams - 42001",Adams,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS001,"Dental - SG",false,"Snyder - 42109",Snyder,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS001,"Dental - SG",false,"Dauphin - 42043",Dauphin,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS001,"Dental - SG",false,"Mifflin - 42087",Mifflin,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS001,"Dental - SG",false,"Schuylkill - 42107",Schuylkill,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS001,"Dental - SG",false,"Union - 42119",Union,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS001,"Dental - SG",false,"Juniata - 42067",Juniata,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS001,"Dental - SG",false,"Lebanon - 42075",Lebanon,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS001,"Dental - SG",false,"Union - 42119",Union,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS002,"Dental - IA",false,"Schuylkill - 42107",Schuylkill,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS002,"Dental - IA",false,"Perry - 42099",Perry,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS002,"Dental - IA",false,"Union - 42119",Union,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS002,"Dental - IA",false,"Northumberland - 42097",Northumberland,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS002,"Dental - IA",false,"York - 42133",York,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS002,"Dental - IA",false,"Mifflin - 42087",Mifflin,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS002,"Dental - IA",false,"Berks - 42011",Berks,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS002,"Dental - IA",false,"Lehigh - 42077",Lehigh,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS002,"Dental - IA",false,"Lancaster - 42071",Lancaster,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS002,"Dental - IA",false,"Columbia - 42037",Columbia,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS002,"Dental - IA",false,"Lehigh - 42077",Lehigh,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS002,"Dental - IA",false,"Juniata - 42067",Juniata,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS002,"Dental - IA",false,"Union - 42119",Union,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS002,"Dental - IA",false,"Berks - 42011",Berks,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS002,"Dental - IA",false,"Snyder - 42109",Snyder,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS002,"Dental - IA",false,"Centre - 42027",Centre,true,"16801, 16802, 16803, 16804, 16805, 16820, 16823, 16826, 16827, 16828, 16832, 16835, 16841, 16844, 16851, 16852, 16853, 16854, 16856, 16864, 16865, 16868, 16870, 16872, 16875, 16877, 16882",45127_PA_service_area_partial_county.pdf,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS002,"Dental - IA",false,"Franklin - 42055",Franklin,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS002,"Dental - IA",false,"Dauphin - 42043",Dauphin,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS002,"Dental - IA",false,"York - 42133",York,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS002,"Dental - IA",false,"Lancaster - 42071",Lancaster,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS002,"Dental - IA",false,"Columbia - 42037",Columbia,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS002,"Dental - IA",false,"Fulton - 42057",Fulton,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS002,"Dental - IA",false,"Northampton - 42095",Northampton,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS002,"Dental - IA",false,"Adams - 42001",Adams,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS002,"Dental - IA",false,"Schuylkill - 42107",Schuylkill,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS002,"Dental - IA",false,"Lebanon - 42075",Lebanon,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS002,"Dental - IA",false,"Lebanon - 42075",Lebanon,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS002,"Dental - IA",false,"Mifflin - 42087",Mifflin,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS002,"Dental - IA",false,"Cumberland - 42041",Cumberland,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS002,"Dental - IA",false,"Montour - 42093",Montour,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS002,"Dental - IA",false,"Northumberland - 42097",Northumberland,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS002,"Dental - IA",false,"Fulton - 42057",Fulton,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS002,"Dental - IA",false,"Juniata - 42067",Juniata,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS002,"Dental - IA",false,"Snyder - 42109",Snyder,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS002,"Dental - IA",false,"Montour - 42093",Montour,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS002,"Dental - IA",false,"Centre - 42027",Centre,true,"16801, 16802, 16803, 16804, 16805, 16820, 16823, 16826, 16827, 16828, 16832, 16835, 16841, 16844, 16851, 16852, 16853, 16854, 16856, 16864, 16865, 16868, 16870, 16872, 16875, 16877, 16882",45127_PA_service_area_partial_county.pdf,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS002,"Dental - IA",false,"Northampton - 42095",Northampton,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS002,"Dental - IA",false,"Dauphin - 42043",Dauphin,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS002,"Dental - IA",false,"Adams - 42001",Adams,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS002,"Dental - IA",false,"Perry - 42099",Perry,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS002,"Dental - IA",false,"Franklin - 42055",Franklin,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS002,"Dental - IA",false,"Cumberland - 42041",Cumberland,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS003,"Capital Service Area 21 - SG",false,"York - 42133",York,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS003,"Capital Service Area 21 - SG",false,"Union - 42119",Union,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS003,"Capital Service Area 21 - SG",false,"Lancaster - 42071",Lancaster,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS003,"Capital Service Area 21 - SG",false,"Union - 42119",Union,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS003,"Capital Service Area 21 - SG",false,"Lebanon - 42075",Lebanon,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS003,"Capital Service Area 21 - SG",false,"Perry - 42099",Perry,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS003,"Capital Service Area 21 - SG",false,"Cumberland - 42041",Cumberland,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS003,"Capital Service Area 21 - SG",false,"Snyder - 42109",Snyder,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS003,"Capital Service Area 21 - SG",false,"Columbia - 42037",Columbia,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS003,"Capital Service Area 21 - SG",false,"Montour - 42093",Montour,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS003,"Capital Service Area 21 - SG",false,"Franklin - 42055",Franklin,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS003,"Capital Service Area 21 - SG",false,"Berks - 42011",Berks,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS003,"Capital Service Area 21 - SG",false,"Lehigh - 42077",Lehigh,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS003,"Capital Service Area 21 - SG",false,"Dauphin - 42043",Dauphin,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS003,"Capital Service Area 21 - SG",false,"Schuylkill - 42107",Schuylkill,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS003,"Capital Service Area 21 - SG",false,"Northampton - 42095",Northampton,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS003,"Capital Service Area 21 - SG",false,"Dauphin - 42043",Dauphin,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS003,"Capital Service Area 21 - SG",false,"Columbia - 42037",Columbia,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS003,"Capital Service Area 21 - SG",false,"Northampton - 42095",Northampton,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS003,"Capital Service Area 21 - SG",false,"Snyder - 42109",Snyder,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS003,"Capital Service Area 21 - SG",false,"York - 42133",York,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS003,"Capital Service Area 21 - SG",false,"Berks - 42011",Berks,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS003,"Capital Service Area 21 - SG",false,"Northumberland - 42097",Northumberland,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS003,"Capital Service Area 21 - SG",false,"Adams - 42001",Adams,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS003,"Capital Service Area 21 - SG",false,"Mifflin - 42087",Mifflin,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS003,"Capital Service Area 21 - SG",false,"Lebanon - 42075",Lebanon,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS003,"Capital Service Area 21 - SG",false,"Fulton - 42057",Fulton,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS003,"Capital Service Area 21 - SG",false,"Lancaster - 42071",Lancaster,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS003,"Capital Service Area 21 - SG",false,"Juniata - 42067",Juniata,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS003,"Capital Service Area 21 - SG",false,"Fulton - 42057",Fulton,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS003,"Capital Service Area 21 - SG",false,"Centre - 42027",Centre,true,"16801, 16802, 16803, 16804, 16805, 16820, 16823, 16826, 16827, 16828, 16832, 16835, 16841, 16844, 16851, 16852, 16853, 16854, 16856, 16864, 16865, 16868, 16870, 16872, 16875, 16877, 16882",45127_PA_service_area_partial_county.pdf,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS003,"Capital Service Area 21 - SG",false,"Lehigh - 42077",Lehigh,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS003,"Capital Service Area 21 - SG",false,"Northumberland - 42097",Northumberland,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS003,"Capital Service Area 21 - SG",false,"Montour - 42093",Montour,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS003,"Capital Service Area 21 - SG",false,"Mifflin - 42087",Mifflin,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS003,"Capital Service Area 21 - SG",false,"Juniata - 42067",Juniata,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS003,"Capital Service Area 21 - SG",false,"Adams - 42001",Adams,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS003,"Capital Service Area 21 - SG",false,"Perry - 42099",Perry,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS003,"Capital Service Area 21 - SG",false,"Schuylkill - 42107",Schuylkill,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS003,"Capital Service Area 21 - SG",false,"Franklin - 42055",Franklin,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS003,"Capital Service Area 21 - SG",false,"Cumberland - 42041",Cumberland,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS003,"Capital Service Area 21 - SG",false,"Centre - 42027",Centre,true,"16801, 16802, 16803, 16804, 16805, 16820, 16823, 16826, 16827, 16828, 16832, 16835, 16841, 16844, 16851, 16852, 16853, 16854, 16856, 16864, 16865, 16868, 16870, 16872, 16875, 16877, 16882",45127_PA_service_area_partial_county.pdf,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS004,"Capital Service Area 21 - IA",false,"Snyder - 42109",Snyder,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS004,"Capital Service Area 21 - IA",false,"Lancaster - 42071",Lancaster,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS004,"Capital Service Area 21 - IA",false,"Northumberland - 42097",Northumberland,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS004,"Capital Service Area 21 - IA",false,"Lehigh - 42077",Lehigh,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS004,"Capital Service Area 21 - IA",false,"Columbia - 42037",Columbia,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS004,"Capital Service Area 21 - IA",false,"Snyder - 42109",Snyder,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS004,"Capital Service Area 21 - IA",false,"Franklin - 42055",Franklin,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS004,"Capital Service Area 21 - IA",false,"Cumberland - 42041",Cumberland,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS004,"Capital Service Area 21 - IA",false,"Lebanon - 42075",Lebanon,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS004,"Capital Service Area 21 - IA",false,"Lancaster - 42071",Lancaster,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS004,"Capital Service Area 21 - IA",false,"Schuylkill - 42107",Schuylkill,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS004,"Capital Service Area 21 - IA",false,"Berks - 42011",Berks,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS004,"Capital Service Area 21 - IA",false,"Northumberland - 42097",Northumberland,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS004,"Capital Service Area 21 - IA",false,"Northampton - 42095",Northampton,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS004,"Capital Service Area 21 - IA",false,"Juniata - 42067",Juniata,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS004,"Capital Service Area 21 - IA",false,"Cumberland - 42041",Cumberland,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS004,"Capital Service Area 21 - IA",false,"Perry - 42099",Perry,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS004,"Capital Service Area 21 - IA",false,"Dauphin - 42043",Dauphin,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS004,"Capital Service Area 21 - IA",false,"York - 42133",York,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS004,"Capital Service Area 21 - IA",false,"Dauphin - 42043",Dauphin,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS004,"Capital Service Area 21 - IA",false,"Berks - 42011",Berks,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS004,"Capital Service Area 21 - IA",false,"Lebanon - 42075",Lebanon,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS004,"Capital Service Area 21 - IA",false,"Mifflin - 42087",Mifflin,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS004,"Capital Service Area 21 - IA",false,"Adams - 42001",Adams,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS004,"Capital Service Area 21 - IA",false,"Northampton - 42095",Northampton,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS004,"Capital Service Area 21 - IA",false,"Centre - 42027",Centre,true,"16801, 16802, 16803, 16804, 16805, 16820, 16823, 16826, 16827, 16828, 16832, 16835, 16841, 16844, 16851, 16852, 16853, 16854, 16856, 16864, 16865, 16868, 16870, 16872, 16875, 16877, 16882",45127_PA_service_area_partial_county.pdf,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS004,"Capital Service Area 21 - IA",false,"Union - 42119",Union,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS004,"Capital Service Area 21 - IA",false,"York - 42133",York,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS004,"Capital Service Area 21 - IA",false,"Juniata - 42067",Juniata,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS004,"Capital Service Area 21 - IA",false,"Montour - 42093",Montour,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS004,"Capital Service Area 21 - IA",false,"Centre - 42027",Centre,true,"16801, 16802, 16803, 16804, 16805, 16820, 16823, 16826, 16827, 16828, 16832, 16835, 16841, 16844, 16851, 16852, 16853, 16854, 16856, 16864, 16865, 16868, 16870, 16872, 16875, 16877, 16882",45127_PA_service_area_partial_county.pdf,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS004,"Capital Service Area 21 - IA",false,"Fulton - 42057",Fulton,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS004,"Capital Service Area 21 - IA",false,"Mifflin - 42087",Mifflin,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS004,"Capital Service Area 21 - IA",false,"Franklin - 42055",Franklin,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS004,"Capital Service Area 21 - IA",false,"Montour - 42093",Montour,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS004,"Capital Service Area 21 - IA",false,"Adams - 42001",Adams,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS004,"Capital Service Area 21 - IA",false,"Union - 42119",Union,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS004,"Capital Service Area 21 - IA",false,"Perry - 42099",Perry,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS004,"Capital Service Area 21 - IA",false,"Schuylkill - 42107",Schuylkill,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS004,"Capital Service Area 21 - IA",false,"Fulton - 42057",Fulton,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS004,"Capital Service Area 21 - IA",false,"Columbia - 42037",Columbia,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS004,"Capital Service Area 21 - IA",false,"Lehigh - 42077",Lehigh,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS005,"Capital Service Area PPO - IA",false,"York - 42133",York,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS005,"Capital Service Area PPO - IA",false,"Dauphin - 42043",Dauphin,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS005,"Capital Service Area PPO - IA",false,"Snyder - 42109",Snyder,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS005,"Capital Service Area PPO - IA",false,"Juniata - 42067",Juniata,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS005,"Capital Service Area PPO - IA",false,"Union - 42119",Union,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS005,"Capital Service Area PPO - IA",false,"Lehigh - 42077",Lehigh,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS005,"Capital Service Area PPO - IA",false,"Mifflin - 42087",Mifflin,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS005,"Capital Service Area PPO - IA",false,"Dauphin - 42043",Dauphin,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS005,"Capital Service Area PPO - IA",false,"Schuylkill - 42107",Schuylkill,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS005,"Capital Service Area PPO - IA",false,"Centre - 42027",Centre,true,"16801, 16802, 16803, 16804, 16805, 16820, 16823, 16826, 16827, 16828, 16832, 16835, 16841, 16844, 16851, 16852, 16853, 16854, 16856, 16864, 16865, 16868, 16870, 16872, 16875, 16877, 16882",45127_PA_service_area_partial_county.pdf,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS005,"Capital Service Area PPO - IA",false,"Montour - 42093",Montour,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS005,"Capital Service Area PPO - IA",false,"Lebanon - 42075",Lebanon,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS005,"Capital Service Area PPO - IA",false,"Perry - 42099",Perry,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS005,"Capital Service Area PPO - IA",false,"Columbia - 42037",Columbia,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS005,"Capital Service Area PPO - IA",false,"Snyder - 42109",Snyder,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS005,"Capital Service Area PPO - IA",false,"Fulton - 42057",Fulton,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS005,"Capital Service Area PPO - IA",false,"Northumberland - 42097",Northumberland,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS005,"Capital Service Area PPO - IA",false,"Lehigh - 42077",Lehigh,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS005,"Capital Service Area PPO - IA",false,"Berks - 42011",Berks,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS005,"Capital Service Area PPO - IA",false,"Adams - 42001",Adams,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS005,"Capital Service Area PPO - IA",false,"Franklin - 42055",Franklin,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS005,"Capital Service Area PPO - IA",false,"Cumberland - 42041",Cumberland,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS005,"Capital Service Area PPO - IA",false,"Northampton - 42095",Northampton,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS005,"Capital Service Area PPO - IA",false,"Berks - 42011",Berks,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS005,"Capital Service Area PPO - IA",false,"Columbia - 42037",Columbia,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS005,"Capital Service Area PPO - IA",false,"Adams - 42001",Adams,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS005,"Capital Service Area PPO - IA",false,"Union - 42119",Union,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS005,"Capital Service Area PPO - IA",false,"Fulton - 42057",Fulton,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS005,"Capital Service Area PPO - IA",false,"Northumberland - 42097",Northumberland,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS005,"Capital Service Area PPO - IA",false,"Northampton - 42095",Northampton,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS005,"Capital Service Area PPO - IA",false,"Mifflin - 42087",Mifflin,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS005,"Capital Service Area PPO - IA",false,"Juniata - 42067",Juniata,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS005,"Capital Service Area PPO - IA",false,"Franklin - 42055",Franklin,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS005,"Capital Service Area PPO - IA",false,"Schuylkill - 42107",Schuylkill,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS005,"Capital Service Area PPO - IA",false,"York - 42133",York,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS005,"Capital Service Area PPO - IA",false,"Cumberland - 42041",Cumberland,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS005,"Capital Service Area PPO - IA",false,"Montour - 42093",Montour,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS005,"Capital Service Area PPO - IA",false,"Perry - 42099",Perry,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS005,"Capital Service Area PPO - IA",false,"Centre - 42027",Centre,true,"16801, 16802, 16803, 16804, 16805, 16820, 16823, 16826, 16827, 16828, 16832, 16835, 16841, 16844, 16851, 16852, 16853, 16854, 16856, 16864, 16865, 16868, 16870, 16872, 16875, 16877, 16882",45127_PA_service_area_partial_county.pdf,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS005,"Capital Service Area PPO - IA",false,"Lebanon - 42075",Lebanon,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS006,"Advance PPO - SG",false,"Adams - 42001",Adams,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS006,"Advance PPO - SG",false,"Lancaster - 42071",Lancaster,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS006,"Advance PPO - SG",false,"Lancaster - 42071",Lancaster,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS006,"Advance PPO - SG",false,"Berks - 42011",Berks,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS006,"Advance PPO - SG",false,"Berks - 42011",Berks,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS006,"Advance PPO - SG",false,"Adams - 42001",Adams,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS007,"Advance PPO - IA",false,"Lancaster - 42071",Lancaster,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS007,"Advance PPO - IA",false,"Lancaster - 42071",Lancaster,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS008,"Convenience PPO - SG",false,"Lancaster - 42071",Lancaster,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS008,"Convenience PPO - SG",false,"York - 42133",York,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS008,"Convenience PPO - SG",false,"Lehigh - 42077",Lehigh,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS008,"Convenience PPO - SG",false,"Lehigh - 42077",Lehigh,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS008,"Convenience PPO - SG",false,"Adams - 42001",Adams,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS008,"Convenience PPO - SG",false,"Lebanon - 42075",Lebanon,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS008,"Convenience PPO - SG",false,"Northampton - 42095",Northampton,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS008,"Convenience PPO - SG",false,"Franklin - 42055",Franklin,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS008,"Convenience PPO - SG",false,"Franklin - 42055",Franklin,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS008,"Convenience PPO - SG",false,"Lebanon - 42075",Lebanon,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS008,"Convenience PPO - SG",false,"Lancaster - 42071",Lancaster,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS008,"Convenience PPO - SG",false,"Northampton - 42095",Northampton,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS008,"Convenience PPO - SG",false,"Adams - 42001",Adams,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS008,"Convenience PPO - SG",false,"York - 42133",York,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS009,"Convenience PPO - IA",false,"York - 42133",York,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS009,"Convenience PPO - IA",false,"Northampton - 42095",Northampton,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS009,"Convenience PPO - IA",false,"York - 42133",York,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS009,"Convenience PPO - IA",false,"Lebanon - 42075",Lebanon,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS009,"Convenience PPO - IA",false,"Lehigh - 42077",Lehigh,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS009,"Convenience PPO - IA",false,"Franklin - 42055",Franklin,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS009,"Convenience PPO - IA",false,"Lehigh - 42077",Lehigh,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS009,"Convenience PPO - IA",false,"Lebanon - 42075",Lebanon,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS009,"Convenience PPO - IA",false,"Northampton - 42095",Northampton,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS009,"Convenience PPO - IA",false,"Adams - 42001",Adams,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS009,"Convenience PPO - IA",false,"Adams - 42001",Adams,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS009,"Convenience PPO - IA",false,"Franklin - 42055",Franklin,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS010,"Capital Advantage PPO - SG",false,"York - 42133",York,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS010,"Capital Advantage PPO - SG",false,"Perry - 42099",Perry,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS010,"Capital Advantage PPO - SG",false,"York - 42133",York,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS010,"Capital Advantage PPO - SG",false,"Cumberland - 42041",Cumberland,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS010,"Capital Advantage PPO - SG",false,"Dauphin - 42043",Dauphin,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS010,"Capital Advantage PPO - SG",false,"Cumberland - 42041",Cumberland,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS010,"Capital Advantage PPO - SG",false,"Perry - 42099",Perry,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS010,"Capital Advantage PPO - SG",false,"Dauphin - 42043",Dauphin,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS011,"Capital Advantage PPO - IA",false,"Cumberland - 42041",Cumberland,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS011,"Capital Advantage PPO - IA",false,"Dauphin - 42043",Dauphin,false,,,Individual,Yes
+2026,PA,45127,SERFF,1,01-13-2026,PAS011,"Capital Advantage PPO - IA",false,"Perry - 42099",Perry,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS011,"Capital Advantage PPO - IA",false,"Dauphin - 42043",Dauphin,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS011,"Capital Advantage PPO - IA",false,"Cumberland - 42041",Cumberland,false,,,Individual,No
+2026,PA,45127,SERFF,1,01-13-2026,PAS011,"Capital Advantage PPO - IA",false,"Perry - 42099",Perry,false,,,Individual,Yes
+2026,PA,52899,SERFF,1,01-13-2026,PAS001,"SG HMO R Standard - 2026",false,"Warren - 42123",Warren,false,,,Individual,No
+2026,PA,52899,SERFF,1,01-13-2026,PAS001,"SG HMO R Standard - 2026",false,"Armstrong - 42005",Armstrong,false,,,Individual,No
+2026,PA,52899,SERFF,1,01-13-2026,PAS001,"SG HMO R Standard - 2026",false,"Blair - 42013",Blair,false,,,Individual,No
+2026,PA,52899,SERFF,1,01-13-2026,PAS001,"SG HMO R Standard - 2026",false,"McKean - 42083",McKean,false,,,Individual,No
+2026,PA,52899,SERFF,1,01-13-2026,PAS001,"SG HMO R Standard - 2026",false,"Lawrence - 42073",Lawrence,false,,,Individual,No
+2026,PA,52899,SERFF,1,01-13-2026,PAS001,"SG HMO R Standard - 2026",false,"Venango - 42121",Venango,false,,,Individual,No
+2026,PA,52899,SERFF,1,01-13-2026,PAS001,"SG HMO R Standard - 2026",false,"Fayette - 42051",Fayette,false,,,Individual,No
+2026,PA,52899,SERFF,1,01-13-2026,PAS001,"SG HMO R Standard - 2026",false,"Washington - 42125",Washington,false,,,Individual,No
+2026,PA,52899,SERFF,1,01-13-2026,PAS001,"SG HMO R Standard - 2026",false,"Clarion - 42031",Clarion,false,,,Individual,No
+2026,PA,52899,SERFF,1,01-13-2026,PAS001,"SG HMO R Standard - 2026",false,"Forest - 42053",Forest,false,,,Individual,No
+2026,PA,52899,SERFF,1,01-13-2026,PAS001,"SG HMO R Standard - 2026",false,"Elk - 42047",Elk,false,,,Individual,No
+2026,PA,52899,SERFF,1,01-13-2026,PAS001,"SG HMO R Standard - 2026",false,"Cambria - 42021",Cambria,false,,,Individual,No
+2026,PA,52899,SERFF,1,01-13-2026,PAS001,"SG HMO R Standard - 2026",false,"Bedford - 42009",Bedford,false,,,Individual,No
+2026,PA,52899,SERFF,1,01-13-2026,PAS001,"SG HMO R Standard - 2026",false,"Huntingdon - 42061",Huntingdon,false,,,Individual,No
+2026,PA,52899,SERFF,1,01-13-2026,PAS001,"SG HMO R Standard - 2026",false,"Westmoreland - 42129",Westmoreland,false,,,Individual,No
+2026,PA,52899,SERFF,1,01-13-2026,PAS001,"SG HMO R Standard - 2026",false,"Allegheny - 42003",Allegheny,false,,,Individual,No
+2026,PA,52899,SERFF,1,01-13-2026,PAS001,"SG HMO R Standard - 2026",false,"Jefferson - 42065",Jefferson,false,,,Individual,No
+2026,PA,52899,SERFF,1,01-13-2026,PAS001,"SG HMO R Standard - 2026",false,"Somerset - 42111",Somerset,false,,,Individual,No
+2026,PA,52899,SERFF,1,01-13-2026,PAS001,"SG HMO R Standard - 2026",false,"Indiana - 42063",Indiana,false,,,Individual,No
+2026,PA,52899,SERFF,1,01-13-2026,PAS001,"SG HMO R Standard - 2026",false,"Potter - 42105",Potter,false,,,Individual,No
+2026,PA,52899,SERFF,1,01-13-2026,PAS001,"SG HMO R Standard - 2026",false,"Butler - 42019",Butler,false,,,Individual,No
+2026,PA,52899,SERFF,1,01-13-2026,PAS001,"SG HMO R Standard - 2026",false,"Mercer - 42085",Mercer,false,,,Individual,No
+2026,PA,52899,SERFF,1,01-13-2026,PAS001,"SG HMO R Standard - 2026",false,"Erie - 42049",Erie,false,,,Individual,No
+2026,PA,52899,SERFF,1,01-13-2026,PAS001,"SG HMO R Standard - 2026",false,"Cameron - 42023",Cameron,false,,,Individual,No
+2026,PA,52899,SERFF,1,01-13-2026,PAS001,"SG HMO R Standard - 2026",false,"Greene - 42059",Greene,false,,,Individual,No
+2026,PA,52899,SERFF,1,01-13-2026,PAS001,"SG HMO R Standard - 2026",false,"Beaver - 42007",Beaver,false,,,Individual,No
+2026,PA,52899,SERFF,1,01-13-2026,PAS002,"IND HMO R Standard - 2026",false,"Clearfield - 42033",Clearfield,false,,,Individual,No
+2026,PA,52899,SERFF,1,01-13-2026,PAS002,"IND HMO R Standard - 2026",false,"Crawford - 42039",Crawford,false,,,Individual,No
+2026,PA,67499,SERFF,1,01-13-2026,PAS001,Dental,true,,,,,,Individual,Yes
+2026,PA,68711,SERFF,1,01-13-2026,PAS001,"PA Marketplace",false,"Berks - 42011",Berks,false,,,Individual,Yes
+2026,PA,68711,SERFF,1,01-13-2026,PAS001,"PA Marketplace",false,"Crawford - 42039",Crawford,false,,,Individual,Yes
+2026,PA,68711,SERFF,1,01-13-2026,PAS001,"PA Marketplace",false,"Cambria - 42021",Cambria,false,,,Individual,Yes
+2026,PA,68711,SERFF,1,01-13-2026,PAS001,"PA Marketplace",false,"Fayette - 42051",Fayette,false,,,Individual,Yes
+2026,PA,68711,SERFF,1,01-13-2026,PAS001,"PA Marketplace",false,"Mercer - 42085",Mercer,false,,,Individual,Yes
+2026,PA,68711,SERFF,1,01-13-2026,PAS001,"PA Marketplace",false,"Lycoming - 42081",Lycoming,false,,,Individual,Yes
+2026,PA,68711,SERFF,1,01-13-2026,PAS001,"PA Marketplace",false,"Montour - 42093",Montour,false,,,Individual,Yes
+2026,PA,68711,SERFF,1,01-13-2026,PAS001,"PA Marketplace",false,"Lackawanna - 42069",Lackawanna,false,,,Individual,Yes
+2026,PA,68711,SERFF,1,01-13-2026,PAS001,"PA Marketplace",false,"Cumberland - 42041",Cumberland,false,,,Individual,Yes
+2026,PA,68711,SERFF,1,01-13-2026,PAS001,"PA Marketplace",false,"Dauphin - 42043",Dauphin,false,,,Individual,Yes
+2026,PA,68711,SERFF,1,01-13-2026,PAS001,"PA Marketplace",false,"Delaware - 42045",Delaware,false,,,Individual,Yes
+2026,PA,68711,SERFF,1,01-13-2026,PAS001,"PA Marketplace",false,"Chester - 42029",Chester,false,,,Individual,Yes
+2026,PA,68711,SERFF,1,01-13-2026,PAS001,"PA Marketplace",false,"Greene - 42059",Greene,false,,,Individual,Yes
+2026,PA,68711,SERFF,1,01-13-2026,PAS001,"PA Marketplace",false,"Washington - 42125",Washington,false,,,Individual,Yes
+2026,PA,68711,SERFF,1,01-13-2026,PAS001,"PA Marketplace",false,"Bucks - 42017",Bucks,false,,,Individual,Yes
+2026,PA,68711,SERFF,1,01-13-2026,PAS001,"PA Marketplace",false,"Philadelphia - 42101",Philadelphia,false,,,Individual,Yes
+2026,PA,68711,SERFF,1,01-13-2026,PAS001,"PA Marketplace",false,"Allegheny - 42003",Allegheny,false,,,Individual,Yes
+2026,PA,68711,SERFF,1,01-13-2026,PAS001,"PA Marketplace",false,"Butler - 42019",Butler,false,,,Individual,Yes
+2026,PA,68711,SERFF,1,01-13-2026,PAS001,"PA Marketplace",false,"Columbia - 42037",Columbia,false,,,Individual,Yes
+2026,PA,68711,SERFF,1,01-13-2026,PAS001,"PA Marketplace",false,"Tioga - 42117",Tioga,false,,,Individual,Yes
+2026,PA,68711,SERFF,1,01-13-2026,PAS001,"PA Marketplace",false,"Schuylkill - 42107",Schuylkill,false,,,Individual,Yes
+2026,PA,68711,SERFF,1,01-13-2026,PAS001,"PA Marketplace",false,"Indiana - 42063",Indiana,false,,,Individual,Yes
+2026,PA,68711,SERFF,1,01-13-2026,PAS001,"PA Marketplace",false,"Lehigh - 42077",Lehigh,false,,,Individual,Yes
+2026,PA,68711,SERFF,1,01-13-2026,PAS001,"PA Marketplace",false,"Northampton - 42095",Northampton,false,,,Individual,Yes
+2026,PA,68711,SERFF,1,01-13-2026,PAS001,"PA Marketplace",false,"Somerset - 42111",Somerset,false,,,Individual,Yes
+2026,PA,68711,SERFF,1,01-13-2026,PAS001,"PA Marketplace",false,"Erie - 42049",Erie,false,,,Individual,Yes
+2026,PA,68711,SERFF,1,01-13-2026,PAS001,"PA Marketplace",false,"Lancaster - 42071",Lancaster,false,,,Individual,Yes
+2026,PA,68711,SERFF,1,01-13-2026,PAS001,"PA Marketplace",false,"Montgomery - 42091",Montgomery,false,,,Individual,Yes
+2026,PA,68711,SERFF,1,01-13-2026,PAS001,"PA Marketplace",false,"Westmoreland - 42129",Westmoreland,false,,,Individual,Yes
+2026,PA,68711,SERFF,1,01-13-2026,PAS001,"PA Marketplace",false,"Luzerne - 42079",Luzerne,false,,,Individual,Yes
+2026,PA,68711,SERFF,1,01-13-2026,PAS001,"PA Marketplace",false,"Bradford - 42015",Bradford,false,,,Individual,Yes
+2026,PA,68711,SERFF,1,01-13-2026,PAS001,"PA Marketplace",false,"Centre - 42027",Centre,false,,,Individual,Yes
+2026,PA,68711,SERFF,1,01-13-2026,PAS001,"PA Marketplace",false,"Beaver - 42007",Beaver,false,,,Individual,Yes
+2026,PA,68711,SERFF,1,01-13-2026,PAS001,"PA Marketplace",false,"Clinton - 42035",Clinton,false,,,Individual,Yes
+2026,PA,68711,SERFF,1,01-13-2026,PAS001,"PA Marketplace",false,"Lawrence - 42073",Lawrence,false,,,Individual,Yes
+2026,PA,71933,SERFF,1,01-13-2026,PAS001,"BEST Life Pennsylvania",true,,,,,,Individual,Yes
+2026,PA,75729,SERFF,1,01-13-2026,PAS001,"Marketplace All-Access PPO 1",false,"Clearfield - 42033",Clearfield,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS001,"Marketplace All-Access PPO 1",false,"Cameron - 42023",Cameron,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS001,"Marketplace All-Access PPO 1",false,"Jefferson - 42065",Jefferson,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS001,"Marketplace All-Access PPO 1",false,"Blair - 42013",Blair,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS001,"Marketplace All-Access PPO 1",false,"Somerset - 42111",Somerset,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS001,"Marketplace All-Access PPO 1",false,"Cambria - 42021",Cambria,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS001,"Marketplace All-Access PPO 1",false,"Bedford - 42009",Bedford,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS001,"Marketplace All-Access PPO 1",false,"Huntingdon - 42061",Huntingdon,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS001,"Marketplace All-Access PPO 1",false,"Elk - 42047",Elk,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS001,"Marketplace All-Access PPO 1",false,"Potter - 42105",Potter,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS002,"Marketplace All-Access PPO 2",false,"Clinton - 42035",Clinton,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS002,"Marketplace All-Access PPO 2",false,"Monroe - 42089",Monroe,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS002,"Marketplace All-Access PPO 2",false,"Snyder - 42109",Snyder,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS002,"Marketplace All-Access PPO 2",false,"Sullivan - 42113",Sullivan,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS002,"Marketplace All-Access PPO 2",false,"Montour - 42093",Montour,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS002,"Marketplace All-Access PPO 2",false,"Schuylkill - 42107",Schuylkill,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS002,"Marketplace All-Access PPO 2",false,"Union - 42119",Union,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS002,"Marketplace All-Access PPO 2",false,"Tioga - 42117",Tioga,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS002,"Marketplace All-Access PPO 2",false,"Lycoming - 42081",Lycoming,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS002,"Marketplace All-Access PPO 2",false,"Northumberland - 42097",Northumberland,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS002,"Marketplace All-Access PPO 2",false,"Susquehanna - 42115",Susquehanna,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS002,"Marketplace All-Access PPO 2",false,"Luzerne - 42079",Luzerne,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS002,"Marketplace All-Access PPO 2",false,"Wyoming - 42131",Wyoming,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS002,"Marketplace All-Access PPO 2",false,"Pike - 42103",Pike,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS002,"Marketplace All-Access PPO 2",false,"Centre - 42027",Centre,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS002,"Marketplace All-Access PPO 2",false,"Juniata - 42067",Juniata,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS002,"Marketplace All-Access PPO 2",false,"Columbia - 42037",Columbia,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS002,"Marketplace All-Access PPO 2",false,"Mifflin - 42087",Mifflin,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS002,"Marketplace All-Access PPO 2",false,"Lackawanna - 42069",Lackawanna,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS002,"Marketplace All-Access PPO 2",false,"Carbon - 42025",Carbon,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS002,"Marketplace All-Access PPO 2",false,"Wayne - 42127",Wayne,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS002,"Marketplace All-Access PPO 2",false,"Bradford - 42015",Bradford,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS003,"Marketplace All-Access PPO 3",false,"Adams - 42001",Adams,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS003,"Marketplace All-Access PPO 3",false,"Dauphin - 42043",Dauphin,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS003,"Marketplace All-Access PPO 3",false,"Franklin - 42055",Franklin,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS003,"Marketplace All-Access PPO 3",false,"Berks - 42011",Berks,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS003,"Marketplace All-Access PPO 3",false,"Fulton - 42057",Fulton,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS003,"Marketplace All-Access PPO 3",false,"Lancaster - 42071",Lancaster,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS003,"Marketplace All-Access PPO 3",false,"Perry - 42099",Perry,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS003,"Marketplace All-Access PPO 3",false,"Lebanon - 42075",Lebanon,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS003,"Marketplace All-Access PPO 3",false,"Cumberland - 42041",Cumberland,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS003,"Marketplace All-Access PPO 3",false,"York - 42133",York,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS004,"Marketplace All-Access PPO4",false,"Lehigh - 42077",Lehigh,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS004,"Marketplace All-Access PPO4",false,"Northampton - 42095",Northampton,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS005,"All-Access PPO",false,"Susquehanna - 42115",Susquehanna,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS005,"All-Access PPO",false,"Mifflin - 42087",Mifflin,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS005,"All-Access PPO",false,"Cambria - 42021",Cambria,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS005,"All-Access PPO",false,"Carbon - 42025",Carbon,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS005,"All-Access PPO",false,"Montour - 42093",Montour,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS005,"All-Access PPO",false,"Elk - 42047",Elk,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS005,"All-Access PPO",false,"Huntingdon - 42061",Huntingdon,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS005,"All-Access PPO",false,"Schuylkill - 42107",Schuylkill,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS005,"All-Access PPO",false,"Lancaster - 42071",Lancaster,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS005,"All-Access PPO",false,"Potter - 42105",Potter,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS005,"All-Access PPO",false,"Columbia - 42037",Columbia,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS005,"All-Access PPO",false,"Tioga - 42117",Tioga,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS005,"All-Access PPO",false,"Northampton - 42095",Northampton,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS005,"All-Access PPO",false,"Wyoming - 42131",Wyoming,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS005,"All-Access PPO",false,"Clinton - 42035",Clinton,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS005,"All-Access PPO",false,"Lehigh - 42077",Lehigh,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS005,"All-Access PPO",false,"Centre - 42027",Centre,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS005,"All-Access PPO",false,"Berks - 42011",Berks,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS005,"All-Access PPO",false,"Blair - 42013",Blair,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS005,"All-Access PPO",false,"Adams - 42001",Adams,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS005,"All-Access PPO",false,"Lebanon - 42075",Lebanon,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS005,"All-Access PPO",false,"Wayne - 42127",Wayne,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS005,"All-Access PPO",false,"Lycoming - 42081",Lycoming,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS005,"All-Access PPO",false,"Bedford - 42009",Bedford,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS005,"All-Access PPO",false,"Fulton - 42057",Fulton,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS005,"All-Access PPO",false,"Monroe - 42089",Monroe,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS005,"All-Access PPO",false,"York - 42133",York,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS005,"All-Access PPO",false,"Sullivan - 42113",Sullivan,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS005,"All-Access PPO",false,"Cumberland - 42041",Cumberland,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS005,"All-Access PPO",false,"Clearfield - 42033",Clearfield,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS005,"All-Access PPO",false,"Bradford - 42015",Bradford,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS005,"All-Access PPO",false,"Luzerne - 42079",Luzerne,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS005,"All-Access PPO",false,"Dauphin - 42043",Dauphin,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS005,"All-Access PPO",false,"Northumberland - 42097",Northumberland,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS005,"All-Access PPO",false,"Lackawanna - 42069",Lackawanna,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS005,"All-Access PPO",false,"Snyder - 42109",Snyder,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS005,"All-Access PPO",false,"Jefferson - 42065",Jefferson,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS005,"All-Access PPO",false,"Franklin - 42055",Franklin,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS005,"All-Access PPO",false,"Juniata - 42067",Juniata,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS005,"All-Access PPO",false,"Pike - 42103",Pike,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS005,"All-Access PPO",false,"Perry - 42099",Perry,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS005,"All-Access PPO",false,"Cameron - 42023",Cameron,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS005,"All-Access PPO",false,"Somerset - 42111",Somerset,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS005,"All-Access PPO",false,"Union - 42119",Union,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS006,"Extra PPO",false,"Lehigh - 42077",Lehigh,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS006,"Extra PPO",false,"Wayne - 42127",Wayne,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS006,"Extra PPO",false,"Schuylkill - 42107",Schuylkill,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS006,"Extra PPO",false,"Northumberland - 42097",Northumberland,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS006,"Extra PPO",false,"Columbia - 42037",Columbia,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS006,"Extra PPO",false,"Northampton - 42095",Northampton,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS006,"Extra PPO",false,"Montour - 42093",Montour,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS006,"Extra PPO",false,"Centre - 42027",Centre,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS006,"Extra PPO",false,"Perry - 42099",Perry,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS006,"Extra PPO",false,"Lackawanna - 42069",Lackawanna,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS006,"Extra PPO",false,"Snyder - 42109",Snyder,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS006,"Extra PPO",false,"Dauphin - 42043",Dauphin,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS006,"Extra PPO",false,"Cumberland - 42041",Cumberland,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS006,"Extra PPO",false,"Luzerne - 42079",Luzerne,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS006,"Extra PPO",false,"Lycoming - 42081",Lycoming,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS006,"Extra PPO",false,"Susquehanna - 42115",Susquehanna,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS006,"Extra PPO",false,"Juniata - 42067",Juniata,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS006,"Extra PPO",false,"Carbon - 42025",Carbon,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS006,"Extra PPO",false,"Monroe - 42089",Monroe,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS006,"Extra PPO",false,"Clinton - 42035",Clinton,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS006,"Extra PPO",false,"Mifflin - 42087",Mifflin,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS006,"Extra PPO",false,"Wyoming - 42131",Wyoming,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS006,"Extra PPO",false,"Union - 42119",Union,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS007,"Choices PPO 1",false,"Northumberland - 42097",Northumberland,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS007,"Choices PPO 1",false,"Montour - 42093",Montour,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS007,"Choices PPO 1",false,"Snyder - 42109",Snyder,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS007,"Choices PPO 1",false,"Union - 42119",Union,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS007,"Choices PPO 1",false,"Columbia - 42037",Columbia,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS007,"Choices PPO 1",false,"Mifflin - 42087",Mifflin,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS007,"Choices PPO 1",false,"Centre - 42027",Centre,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS008,"Choices PPO 2",false,"Northampton - 42095",Northampton,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS008,"Choices PPO 2",false,"Carbon - 42025",Carbon,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS008,"Choices PPO 2",false,"Monroe - 42089",Monroe,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS008,"Choices PPO 2",false,"Schuylkill - 42107",Schuylkill,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS008,"Choices PPO 2",false,"Lehigh - 42077",Lehigh,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS009,"Choices PPO 3",false,"Luzerne - 42079",Luzerne,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS009,"Choices PPO 3",false,"Lackawanna - 42069",Lackawanna,false,,,Individual,No
+2026,PA,75729,SERFF,1,01-13-2026,PAS009,"Choices PPO 3",false,"Wayne - 42127",Wayne,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS001,"WPA Zone AA",false,"Erie - 42049",Erie,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS002,"WPA Zone AC",false,"Butler - 42019",Butler,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS002,"WPA Zone AC",false,"Erie - 42049",Erie,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS002,"WPA Zone AC",false,"Beaver - 42007",Beaver,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS002,"WPA Zone AC",false,"Westmoreland - 42129",Westmoreland,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS002,"WPA Zone AC",false,"Mercer - 42085",Mercer,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS002,"WPA Zone AC",false,"Armstrong - 42005",Armstrong,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS002,"WPA Zone AC",false,"Washington - 42125",Washington,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS002,"WPA Zone AC",false,"Allegheny - 42003",Allegheny,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS003,"WPA Zone AD",false,"Greene - 42059",Greene,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS003,"WPA Zone AD",false,"Bedford - 42009",Bedford,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS003,"WPA Zone AD",false,"Forest - 42053",Forest,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS003,"WPA Zone AD",false,"Centre - 42027",Centre,true,"16666, 16677, 16686, 16822, 16829, 16845, 16859, 16860, 16866, 16874",33709_PA_service_area_partial_county.pdf,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS003,"WPA Zone AD",false,"Crawford - 42039",Crawford,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS003,"WPA Zone AD",false,"Clarion - 42031",Clarion,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS003,"WPA Zone AD",false,"Blair - 42013",Blair,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS003,"WPA Zone AD",false,"Cambria - 42021",Cambria,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS003,"WPA Zone AD",false,"Fayette - 42051",Fayette,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS003,"WPA Zone AD",false,"Jefferson - 42065",Jefferson,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS003,"WPA Zone AD",false,"Cameron - 42023",Cameron,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS003,"WPA Zone AD",false,"Indiana - 42063",Indiana,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS003,"WPA Zone AD",false,"Warren - 42123",Warren,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS003,"WPA Zone AD",false,"Lawrence - 42073",Lawrence,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS003,"WPA Zone AD",false,"Venango - 42121",Venango,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS003,"WPA Zone AD",false,"McKean - 42083",McKean,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS003,"WPA Zone AD",false,"Somerset - 42111",Somerset,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS003,"WPA Zone AD",false,"Huntingdon - 42061",Huntingdon,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS003,"WPA Zone AD",false,"Potter - 42105",Potter,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS003,"WPA Zone AD",false,"Clearfield - 42033",Clearfield,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS003,"WPA Zone AD",false,"Elk - 42047",Elk,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS004,"SEPA Zone AG",false,"Bucks - 42017",Bucks,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS005,"SEPA Zone AH",false,"Chester - 42029",Chester,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS006,"SEPA Zone AI",false,"Delaware - 42045",Delaware,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS007,"SEPA Zone AJ",false,"Montgomery - 42091",Montgomery,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS008,"SEPA Zone AK",false,"Philadelphia - 42101",Philadelphia,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS009,"WPA Zone AL",false,"Potter - 42105",Potter,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS009,"WPA Zone AL",false,"Mercer - 42085",Mercer,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS009,"WPA Zone AL",false,"Huntingdon - 42061",Huntingdon,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS009,"WPA Zone AL",false,"Cameron - 42023",Cameron,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS009,"WPA Zone AL",false,"Bedford - 42009",Bedford,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS009,"WPA Zone AL",false,"Cambria - 42021",Cambria,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS009,"WPA Zone AL",false,"Blair - 42013",Blair,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS009,"WPA Zone AL",false,"Clearfield - 42033",Clearfield,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS009,"WPA Zone AL",false,"Warren - 42123",Warren,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS009,"WPA Zone AL",false,"Clarion - 42031",Clarion,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS009,"WPA Zone AL",false,"Forest - 42053",Forest,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS009,"WPA Zone AL",false,"Venango - 42121",Venango,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS009,"WPA Zone AL",false,"Greene - 42059",Greene,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS009,"WPA Zone AL",false,"McKean - 42083",McKean,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS009,"WPA Zone AL",false,"Jefferson - 42065",Jefferson,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS009,"WPA Zone AL",false,"Crawford - 42039",Crawford,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS009,"WPA Zone AL",false,"Somerset - 42111",Somerset,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS009,"WPA Zone AL",false,"Centre - 42027",Centre,true,"16666, 16677, 16686, 16822, 16829, 16845, 16859, 16860, 16866, 16874",33709_PA_service_area_partial_county.pdf,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS009,"WPA Zone AL",false,"Elk - 42047",Elk,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS010,"WPA Zone AM",false,"Greene - 42059",Greene,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS010,"WPA Zone AM",false,"Lawrence - 42073",Lawrence,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS010,"WPA Zone AM",false,"Crawford - 42039",Crawford,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS010,"WPA Zone AM",false,"Mercer - 42085",Mercer,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS010,"WPA Zone AM",false,"Jefferson - 42065",Jefferson,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS010,"WPA Zone AM",false,"Indiana - 42063",Indiana,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS010,"WPA Zone AM",false,"Cambria - 42021",Cambria,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS010,"WPA Zone AM",false,"Cameron - 42023",Cameron,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS010,"WPA Zone AM",false,"Allegheny - 42003",Allegheny,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS010,"WPA Zone AM",false,"Forest - 42053",Forest,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS010,"WPA Zone AM",false,"Butler - 42019",Butler,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS010,"WPA Zone AM",false,"Bedford - 42009",Bedford,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS010,"WPA Zone AM",false,"Potter - 42105",Potter,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS010,"WPA Zone AM",false,"Venango - 42121",Venango,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS010,"WPA Zone AM",false,"Warren - 42123",Warren,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS010,"WPA Zone AM",false,"Huntingdon - 42061",Huntingdon,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS010,"WPA Zone AM",false,"Armstrong - 42005",Armstrong,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS010,"WPA Zone AM",false,"Elk - 42047",Elk,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS010,"WPA Zone AM",false,"Washington - 42125",Washington,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS010,"WPA Zone AM",false,"Westmoreland - 42129",Westmoreland,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS010,"WPA Zone AM",false,"Fayette - 42051",Fayette,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS010,"WPA Zone AM",false,"Blair - 42013",Blair,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS010,"WPA Zone AM",false,"Somerset - 42111",Somerset,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS010,"WPA Zone AM",false,"Centre - 42027",Centre,true,"16666, 16677, 16686, 16822, 16829, 16845, 16859, 16860, 16866, 16874",79279_PA_service_area_partial_county,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS010,"WPA Zone AM",false,"Beaver - 42007",Beaver,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS010,"WPA Zone AM",false,"Clarion - 42031",Clarion,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS010,"WPA Zone AM",false,"McKean - 42083",McKean,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS010,"WPA Zone AM",false,"Clearfield - 42033",Clearfield,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS011,"CPA Zone F",false,"Northampton - 42095",Northampton,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS011,"CPA Zone F",false,"Lehigh - 42077",Lehigh,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS011,"CPA Zone F",false,"Dauphin - 42043",Dauphin,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS011,"CPA Zone F",false,"Mifflin - 42087",Mifflin,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS011,"CPA Zone F",false,"Lebanon - 42075",Lebanon,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS011,"CPA Zone F",false,"Cumberland - 42041",Cumberland,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS011,"CPA Zone F",false,"Northumberland - 42097",Northumberland,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS011,"CPA Zone F",false,"Schuylkill - 42107",Schuylkill,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS011,"CPA Zone F",false,"Berks - 42011",Berks,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS011,"CPA Zone F",false,"Columbia - 42037",Columbia,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS011,"CPA Zone F",false,"Franklin - 42055",Franklin,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS011,"CPA Zone F",false,"Fulton - 42057",Fulton,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS011,"CPA Zone F",false,"Juniata - 42067",Juniata,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS011,"CPA Zone F",false,"Montour - 42093",Montour,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS011,"CPA Zone F",false,"Snyder - 42109",Snyder,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS011,"CPA Zone F",false,"York - 42133",York,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS011,"CPA Zone F",false,"Union - 42119",Union,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS011,"CPA Zone F",false,"Centre - 42027",Centre,true,"16801, 16802, 16803, 16804, 16805, 16820, 16823, 16826, 16827, 16828, 16832, 16835, 16841, 16844, 16851, 16852, 16853, 16854, 16856, 16864, 16865, 16868, 16870, 16872, 16875, 16877, 16882",33709_PA_service_area_partial_county.pdf,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS011,"CPA Zone F",false,"Adams - 42001",Adams,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS011,"CPA Zone F",false,"Perry - 42099",Perry,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS011,"CPA Zone F",false,"Lancaster - 42071",Lancaster,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS012,"WPA Zone I",false,"Washington - 42125",Washington,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS012,"WPA Zone I",false,"Warren - 42123",Warren,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS012,"WPA Zone I",false,"Cambria - 42021",Cambria,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS012,"WPA Zone I",false,"Westmoreland - 42129",Westmoreland,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS012,"WPA Zone I",false,"Clarion - 42031",Clarion,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS012,"WPA Zone I",false,"Somerset - 42111",Somerset,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS012,"WPA Zone I",false,"Crawford - 42039",Crawford,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS012,"WPA Zone I",false,"Forest - 42053",Forest,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS012,"WPA Zone I",false,"Fayette - 42051",Fayette,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS012,"WPA Zone I",false,"Armstrong - 42005",Armstrong,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS012,"WPA Zone I",false,"Erie - 42049",Erie,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS012,"WPA Zone I",false,"Greene - 42059",Greene,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS012,"WPA Zone I",false,"Beaver - 42007",Beaver,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS012,"WPA Zone I",false,"Blair - 42013",Blair,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS012,"WPA Zone I",false,"Butler - 42019",Butler,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS012,"WPA Zone I",false,"Allegheny - 42003",Allegheny,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS013,"WPA Zone J",false,"Fayette - 42051",Fayette,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS013,"WPA Zone J",false,"Allegheny - 42003",Allegheny,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS013,"WPA Zone J",false,"Lawrence - 42073",Lawrence,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS013,"WPA Zone J",false,"Indiana - 42063",Indiana,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS013,"WPA Zone J",false,"Washington - 42125",Washington,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS013,"WPA Zone J",false,"Beaver - 42007",Beaver,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS013,"WPA Zone J",false,"Armstrong - 42005",Armstrong,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS013,"WPA Zone J",false,"Westmoreland - 42129",Westmoreland,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS013,"WPA Zone J",false,"Butler - 42019",Butler,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS014,"WPA Zone L",false,"Allegheny - 42003",Allegheny,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS014,"WPA Zone L",false,"Erie - 42049",Erie,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS014,"WPA Zone L",false,"Washington - 42125",Washington,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS014,"WPA Zone L",false,"Butler - 42019",Butler,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS014,"WPA Zone L",false,"Westmoreland - 42129",Westmoreland,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS015,"CPA Zone N",false,"Schuylkill - 42107",Schuylkill,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS015,"CPA Zone N",false,"Northampton - 42095",Northampton,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS015,"CPA Zone N",false,"Lehigh - 42077",Lehigh,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS016,"CPA Zone O",false,"Adams - 42001",Adams,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS016,"CPA Zone O",false,"Berks - 42011",Berks,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS016,"CPA Zone O",false,"Franklin - 42055",Franklin,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS016,"CPA Zone O",false,"Cumberland - 42041",Cumberland,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS016,"CPA Zone O",false,"Lebanon - 42075",Lebanon,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS016,"CPA Zone O",false,"Perry - 42099",Perry,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS016,"CPA Zone O",false,"Lancaster - 42071",Lancaster,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS016,"CPA Zone O",false,"Dauphin - 42043",Dauphin,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS016,"CPA Zone O",false,"York - 42133",York,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS017,"NEPA Zone Q",false,"Carbon - 42025",Carbon,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS017,"NEPA Zone Q",false,"Lackawanna - 42069",Lackawanna,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS017,"NEPA Zone Q",false,"Monroe - 42089",Monroe,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS018,"NEPA Zone U",false,"Monroe - 42089",Monroe,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS018,"NEPA Zone U",false,"Lackawanna - 42069",Lackawanna,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS018,"NEPA Zone U",false,"Luzerne - 42079",Luzerne,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS018,"NEPA Zone U",false,"Susquehanna - 42115",Susquehanna,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS018,"NEPA Zone U",false,"Carbon - 42025",Carbon,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS018,"NEPA Zone U",false,"Sullivan - 42113",Sullivan,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS018,"NEPA Zone U",false,"Pike - 42103",Pike,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS018,"NEPA Zone U",false,"Clinton - 42035",Clinton,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS018,"NEPA Zone U",false,"Bradford - 42015",Bradford,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS018,"NEPA Zone U",false,"Wayne - 42127",Wayne,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS018,"NEPA Zone U",false,"Tioga - 42117",Tioga,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS018,"NEPA Zone U",false,"Lycoming - 42081",Lycoming,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS018,"NEPA Zone U",false,"Wyoming - 42131",Wyoming,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS019,"CPA Zone X",false,"York - 42133",York,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS019,"CPA Zone X",false,"Dauphin - 42043",Dauphin,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS019,"CPA Zone X",false,"Berks - 42011",Berks,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS019,"CPA Zone X",false,"Cumberland - 42041",Cumberland,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS019,"CPA Zone X",false,"Lancaster - 42071",Lancaster,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS019,"CPA Zone X",false,"Adams - 42001",Adams,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS019,"CPA Zone X",false,"Perry - 42099",Perry,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS019,"CPA Zone X",false,"Lebanon - 42075",Lebanon,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS019,"CPA Zone X",false,"Franklin - 42055",Franklin,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS020,"WPA Zone Y",false,"Butler - 42019",Butler,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS020,"WPA Zone Y",false,"Washington - 42125",Washington,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS020,"WPA Zone Y",false,"Erie - 42049",Erie,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS020,"WPA Zone Y",false,"Allegheny - 42003",Allegheny,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS020,"WPA Zone Y",false,"Mercer - 42085",Mercer,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS020,"WPA Zone Y",false,"Westmoreland - 42129",Westmoreland,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS021,"SEPA Zone Z",false,"Bucks - 42017",Bucks,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS021,"SEPA Zone Z",false,"Chester - 42029",Chester,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS021,"SEPA Zone Z",false,"Delaware - 42045",Delaware,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS021,"SEPA Zone Z",false,"Montgomery - 42091",Montgomery,false,,,Individual,No
+2026,PA,79279,SERFF,1,01-13-2026,PAS021,"SEPA Zone Z",false,"Philadelphia - 42101",Philadelphia,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS001,"WPA Zone AA",false,"Erie - 42049",Erie,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS002,"WPA Zone AC",false,"Mercer - 42085",Mercer,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS002,"WPA Zone AC",false,"Washington - 42125",Washington,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS002,"WPA Zone AC",false,"Westmoreland - 42129",Westmoreland,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS002,"WPA Zone AC",false,"Beaver - 42007",Beaver,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS002,"WPA Zone AC",false,"Erie - 42049",Erie,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS002,"WPA Zone AC",false,"Butler - 42019",Butler,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS002,"WPA Zone AC",false,"Allegheny - 42003",Allegheny,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS002,"WPA Zone AC",false,"Armstrong - 42005",Armstrong,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS003,"WPA Zone AD",false,"Crawford - 42039",Crawford,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS003,"WPA Zone AD",false,"Fayette - 42051",Fayette,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS003,"WPA Zone AD",false,"Indiana - 42063",Indiana,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS003,"WPA Zone AD",false,"Bedford - 42009",Bedford,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS003,"WPA Zone AD",false,"Somerset - 42111",Somerset,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS003,"WPA Zone AD",false,"Potter - 42105",Potter,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS003,"WPA Zone AD",false,"Clearfield - 42033",Clearfield,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS003,"WPA Zone AD",false,"Huntingdon - 42061",Huntingdon,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS003,"WPA Zone AD",false,"Cameron - 42023",Cameron,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS003,"WPA Zone AD",false,"Centre - 42027",Centre,true,"16666, 16677, 16686, 16822, 16829, 16845, 16859, 16860, 16866, 16874",33709_PA_service_area_partial_county.pdf,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS003,"WPA Zone AD",false,"Clarion - 42031",Clarion,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS003,"WPA Zone AD",false,"Cambria - 42021",Cambria,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS003,"WPA Zone AD",false,"Elk - 42047",Elk,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS003,"WPA Zone AD",false,"Venango - 42121",Venango,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS003,"WPA Zone AD",false,"Blair - 42013",Blair,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS003,"WPA Zone AD",false,"Greene - 42059",Greene,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS003,"WPA Zone AD",false,"Lawrence - 42073",Lawrence,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS003,"WPA Zone AD",false,"Jefferson - 42065",Jefferson,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS003,"WPA Zone AD",false,"Forest - 42053",Forest,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS003,"WPA Zone AD",false,"Warren - 42123",Warren,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS003,"WPA Zone AD",false,"McKean - 42083",McKean,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS004,"SEPA Zone AG",false,"Bucks - 42017",Bucks,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS005,"SEPA Zone AH",false,"Chester - 42029",Chester,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS006,"SEPA Zone AI",false,"Delaware - 42045",Delaware,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS007,"SEPA Zone AJ",false,"Montgomery - 42091",Montgomery,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS008,"SEPA Zone AK",false,"Philadelphia - 42101",Philadelphia,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS009,"WPA Zone AL",false,"Crawford - 42039",Crawford,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS009,"WPA Zone AL",false,"Cambria - 42021",Cambria,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS009,"WPA Zone AL",false,"Warren - 42123",Warren,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS009,"WPA Zone AL",false,"Elk - 42047",Elk,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS009,"WPA Zone AL",false,"McKean - 42083",McKean,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS009,"WPA Zone AL",false,"Huntingdon - 42061",Huntingdon,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS009,"WPA Zone AL",false,"Clarion - 42031",Clarion,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS009,"WPA Zone AL",false,"Clearfield - 42033",Clearfield,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS009,"WPA Zone AL",false,"Potter - 42105",Potter,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS009,"WPA Zone AL",false,"Cameron - 42023",Cameron,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS009,"WPA Zone AL",false,"Venango - 42121",Venango,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS009,"WPA Zone AL",false,"Somerset - 42111",Somerset,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS009,"WPA Zone AL",false,"Blair - 42013",Blair,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS009,"WPA Zone AL",false,"Forest - 42053",Forest,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS009,"WPA Zone AL",false,"Mercer - 42085",Mercer,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS009,"WPA Zone AL",false,"Greene - 42059",Greene,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS009,"WPA Zone AL",false,"Jefferson - 42065",Jefferson,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS009,"WPA Zone AL",false,"Bedford - 42009",Bedford,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS009,"WPA Zone AL",false,"Centre - 42027",Centre,true,"16666, 16677, 16686, 16822, 16829, 16845, 16859, 16860, 16866, 16874",33709_PA_service_area_partial_county.pdf,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS010,"WPA Zone AM",false,"Allegheny - 42003",Allegheny,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS010,"WPA Zone AM",false,"Venango - 42121",Venango,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS010,"WPA Zone AM",false,"Cameron - 42023",Cameron,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS010,"WPA Zone AM",false,"Clearfield - 42033",Clearfield,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS010,"WPA Zone AM",false,"Greene - 42059",Greene,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS010,"WPA Zone AM",false,"Crawford - 42039",Crawford,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS010,"WPA Zone AM",false,"Clarion - 42031",Clarion,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS010,"WPA Zone AM",false,"Bedford - 42009",Bedford,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS010,"WPA Zone AM",false,"Huntingdon - 42061",Huntingdon,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS010,"WPA Zone AM",false,"Potter - 42105",Potter,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS010,"WPA Zone AM",false,"Beaver - 42007",Beaver,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS010,"WPA Zone AM",false,"Indiana - 42063",Indiana,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS010,"WPA Zone AM",false,"Washington - 42125",Washington,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS010,"WPA Zone AM",false,"Armstrong - 42005",Armstrong,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS010,"WPA Zone AM",false,"Fayette - 42051",Fayette,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS010,"WPA Zone AM",false,"Jefferson - 42065",Jefferson,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS010,"WPA Zone AM",false,"Somerset - 42111",Somerset,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS010,"WPA Zone AM",false,"Westmoreland - 42129",Westmoreland,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS010,"WPA Zone AM",false,"Warren - 42123",Warren,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS010,"WPA Zone AM",false,"Butler - 42019",Butler,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS010,"WPA Zone AM",false,"Cambria - 42021",Cambria,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS010,"WPA Zone AM",false,"Forest - 42053",Forest,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS010,"WPA Zone AM",false,"Centre - 42027",Centre,true,"16666, 16677, 16686, 16822, 16829, 16845, 16859, 16860, 16866, 16874",79279_PA_service_area_partial_county,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS010,"WPA Zone AM",false,"McKean - 42083",McKean,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS010,"WPA Zone AM",false,"Lawrence - 42073",Lawrence,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS010,"WPA Zone AM",false,"Blair - 42013",Blair,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS010,"WPA Zone AM",false,"Elk - 42047",Elk,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS010,"WPA Zone AM",false,"Mercer - 42085",Mercer,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS011,"CPA Zone F",false,"Berks - 42011",Berks,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS011,"CPA Zone F",false,"Schuylkill - 42107",Schuylkill,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS011,"CPA Zone F",false,"Mifflin - 42087",Mifflin,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS011,"CPA Zone F",false,"Adams - 42001",Adams,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS011,"CPA Zone F",false,"Cumberland - 42041",Cumberland,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS011,"CPA Zone F",false,"Lehigh - 42077",Lehigh,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS011,"CPA Zone F",false,"Juniata - 42067",Juniata,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS011,"CPA Zone F",false,"Northumberland - 42097",Northumberland,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS011,"CPA Zone F",false,"Montour - 42093",Montour,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS011,"CPA Zone F",false,"Fulton - 42057",Fulton,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS011,"CPA Zone F",false,"Columbia - 42037",Columbia,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS011,"CPA Zone F",false,"Franklin - 42055",Franklin,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS011,"CPA Zone F",false,"Dauphin - 42043",Dauphin,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS011,"CPA Zone F",false,"Snyder - 42109",Snyder,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS011,"CPA Zone F",false,"Centre - 42027",Centre,true,"16801, 16802, 16803, 16804, 16805, 16820, 16823, 16826, 16827, 16828, 16832, 16835, 16841, 16844, 16851, 16852, 16853, 16854, 16856, 16864, 16865, 16868, 16870, 16872, 16875, 16877, 16882",33709_PA_service_area_partial_county.pdf,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS011,"CPA Zone F",false,"Lancaster - 42071",Lancaster,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS011,"CPA Zone F",false,"Lebanon - 42075",Lebanon,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS011,"CPA Zone F",false,"Union - 42119",Union,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS011,"CPA Zone F",false,"Northampton - 42095",Northampton,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS011,"CPA Zone F",false,"York - 42133",York,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS011,"CPA Zone F",false,"Perry - 42099",Perry,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS012,"WPA Zone I",false,"Armstrong - 42005",Armstrong,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS012,"WPA Zone I",false,"Cambria - 42021",Cambria,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS012,"WPA Zone I",false,"Westmoreland - 42129",Westmoreland,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS012,"WPA Zone I",false,"Butler - 42019",Butler,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS012,"WPA Zone I",false,"Crawford - 42039",Crawford,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS012,"WPA Zone I",false,"Beaver - 42007",Beaver,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS012,"WPA Zone I",false,"Warren - 42123",Warren,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS012,"WPA Zone I",false,"Forest - 42053",Forest,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS012,"WPA Zone I",false,"Erie - 42049",Erie,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS012,"WPA Zone I",false,"Blair - 42013",Blair,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS012,"WPA Zone I",false,"Greene - 42059",Greene,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS012,"WPA Zone I",false,"Washington - 42125",Washington,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS012,"WPA Zone I",false,"Fayette - 42051",Fayette,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS012,"WPA Zone I",false,"Allegheny - 42003",Allegheny,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS012,"WPA Zone I",false,"Somerset - 42111",Somerset,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS012,"WPA Zone I",false,"Clarion - 42031",Clarion,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS013,"WPA Zone J",false,"Fayette - 42051",Fayette,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS013,"WPA Zone J",false,"Westmoreland - 42129",Westmoreland,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS013,"WPA Zone J",false,"Allegheny - 42003",Allegheny,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS013,"WPA Zone J",false,"Butler - 42019",Butler,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS013,"WPA Zone J",false,"Beaver - 42007",Beaver,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS013,"WPA Zone J",false,"Lawrence - 42073",Lawrence,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS013,"WPA Zone J",false,"Indiana - 42063",Indiana,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS013,"WPA Zone J",false,"Washington - 42125",Washington,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS013,"WPA Zone J",false,"Armstrong - 42005",Armstrong,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS014,"WPA Zone L",false,"Butler - 42019",Butler,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS014,"WPA Zone L",false,"Westmoreland - 42129",Westmoreland,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS014,"WPA Zone L",false,"Allegheny - 42003",Allegheny,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS014,"WPA Zone L",false,"Erie - 42049",Erie,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS014,"WPA Zone L",false,"Washington - 42125",Washington,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS015,"CPA Zone N",false,"Schuylkill - 42107",Schuylkill,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS015,"CPA Zone N",false,"Lehigh - 42077",Lehigh,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS015,"CPA Zone N",false,"Northampton - 42095",Northampton,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS016,"CPA Zone O",false,"Lancaster - 42071",Lancaster,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS016,"CPA Zone O",false,"Berks - 42011",Berks,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS016,"CPA Zone O",false,"Dauphin - 42043",Dauphin,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS016,"CPA Zone O",false,"Adams - 42001",Adams,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS016,"CPA Zone O",false,"Lebanon - 42075",Lebanon,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS016,"CPA Zone O",false,"York - 42133",York,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS016,"CPA Zone O",false,"Cumberland - 42041",Cumberland,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS016,"CPA Zone O",false,"Franklin - 42055",Franklin,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS016,"CPA Zone O",false,"Perry - 42099",Perry,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS017,"NEPA Zone Q",false,"Carbon - 42025",Carbon,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS017,"NEPA Zone Q",false,"Monroe - 42089",Monroe,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS017,"NEPA Zone Q",false,"Lackawanna - 42069",Lackawanna,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS018,"NEPA Zone U",false,"Bradford - 42015",Bradford,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS018,"NEPA Zone U",false,"Monroe - 42089",Monroe,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS018,"NEPA Zone U",false,"Lackawanna - 42069",Lackawanna,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS018,"NEPA Zone U",false,"Luzerne - 42079",Luzerne,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS018,"NEPA Zone U",false,"Wyoming - 42131",Wyoming,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS018,"NEPA Zone U",false,"Susquehanna - 42115",Susquehanna,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS018,"NEPA Zone U",false,"Clinton - 42035",Clinton,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS018,"NEPA Zone U",false,"Tioga - 42117",Tioga,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS018,"NEPA Zone U",false,"Pike - 42103",Pike,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS018,"NEPA Zone U",false,"Lycoming - 42081",Lycoming,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS018,"NEPA Zone U",false,"Sullivan - 42113",Sullivan,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS018,"NEPA Zone U",false,"Wayne - 42127",Wayne,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS018,"NEPA Zone U",false,"Carbon - 42025",Carbon,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS019,"CPA Zone X",false,"York - 42133",York,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS019,"CPA Zone X",false,"Franklin - 42055",Franklin,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS019,"CPA Zone X",false,"Berks - 42011",Berks,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS019,"CPA Zone X",false,"Cumberland - 42041",Cumberland,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS019,"CPA Zone X",false,"Perry - 42099",Perry,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS019,"CPA Zone X",false,"Dauphin - 42043",Dauphin,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS019,"CPA Zone X",false,"Adams - 42001",Adams,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS019,"CPA Zone X",false,"Lebanon - 42075",Lebanon,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS019,"CPA Zone X",false,"Lancaster - 42071",Lancaster,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS020,"WPA Zone Y",false,"Allegheny - 42003",Allegheny,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS020,"WPA Zone Y",false,"Erie - 42049",Erie,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS020,"WPA Zone Y",false,"Washington - 42125",Washington,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS020,"WPA Zone Y",false,"Mercer - 42085",Mercer,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS020,"WPA Zone Y",false,"Butler - 42019",Butler,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS020,"WPA Zone Y",false,"Westmoreland - 42129",Westmoreland,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS021,"SEPA Zone Z",false,"Philadelphia - 42101",Philadelphia,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS021,"SEPA Zone Z",false,"Bucks - 42017",Bucks,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS021,"SEPA Zone Z",false,"Chester - 42029",Chester,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS021,"SEPA Zone Z",false,"Montgomery - 42091",Montgomery,false,,,Individual,No
+2026,PA,79962,SERFF,1,01-13-2026,PAS021,"SEPA Zone Z",false,"Delaware - 42045",Delaware,false,,,Individual,No
+2026,PA,82110,SERFF,1,01-13-2026,PAS001,"PPO Individual",true,,,,,,Individual,Yes
+2026,PA,82110,SERFF,1,01-13-2026,PAS002,"DHMO Individual",true,,,,,,Individual,Yes
+2026,PA,82110,SERFF,1,01-13-2026,PAS003,"PPO SHOP",true,,,,,,Individual,Yes
+2026,PA,82110,SERFF,1,01-13-2026,PAS004,"DHMO SHOP",true,,,,,,Individual,Yes
+2026,PA,93909,SERFF,1,01-13-2026,PAS001,"JHP HMO",false,"Schuylkill - 42107",Schuylkill,false,,,Individual,No
+2026,PA,93909,SERFF,1,01-13-2026,PAS001,"JHP HMO",false,"Lehigh - 42077",Lehigh,false,,,Individual,No
+2026,PA,93909,SERFF,1,01-13-2026,PAS001,"JHP HMO",false,"Carbon - 42025",Carbon,false,,,Individual,No
+2026,PA,93909,SERFF,1,01-13-2026,PAS001,"JHP HMO",false,"Delaware - 42045",Delaware,false,,,Individual,No
+2026,PA,93909,SERFF,1,01-13-2026,PAS001,"JHP HMO",false,"Northampton - 42095",Northampton,false,,,Individual,No
+2026,PA,93909,SERFF,1,01-13-2026,PAS001,"JHP HMO",false,"Bucks - 42017",Bucks,false,,,Individual,No
+2026,PA,93909,SERFF,1,01-13-2026,PAS001,"JHP HMO",false,"Philadelphia - 42101",Philadelphia,false,,,Individual,No
+2026,PA,93909,SERFF,1,01-13-2026,PAS001,"JHP HMO",false,"Montgomery - 42091",Montgomery,false,,,Individual,No
+2026,PA,93909,SERFF,1,01-13-2026,PAS001,"JHP HMO",false,"Monroe - 42089",Monroe,false,,,Individual,No
+2026,PA,98517,SERFF,1,01-13-2026,PAS001,"Oscar Pennsylvania",false,"Lancaster - 42071",Lancaster,false,,,Individual,No
+2026,PA,98517,SERFF,1,01-13-2026,PAS001,"Oscar Pennsylvania",false,"Delaware - 42045",Delaware,false,,,Individual,No
+2026,PA,98517,SERFF,1,01-13-2026,PAS001,"Oscar Pennsylvania",false,"Northampton - 42095",Northampton,false,,,Individual,No
+2026,PA,98517,SERFF,1,01-13-2026,PAS001,"Oscar Pennsylvania",false,"Bucks - 42017",Bucks,false,,,Individual,No
+2026,PA,98517,SERFF,1,01-13-2026,PAS001,"Oscar Pennsylvania",false,"Lackawanna - 42069",Lackawanna,false,,,Individual,No
+2026,PA,98517,SERFF,1,01-13-2026,PAS001,"Oscar Pennsylvania",false,"Carbon - 42025",Carbon,false,,,Individual,No
+2026,PA,98517,SERFF,1,01-13-2026,PAS001,"Oscar Pennsylvania",false,"Monroe - 42089",Monroe,false,,,Individual,No
+2026,PA,98517,SERFF,1,01-13-2026,PAS001,"Oscar Pennsylvania",false,"Philadelphia - 42101",Philadelphia,false,,,Individual,No
+2026,PA,98517,SERFF,1,01-13-2026,PAS001,"Oscar Pennsylvania",false,"Montgomery - 42091",Montgomery,false,,,Individual,No
+2026,PA,98517,SERFF,1,01-13-2026,PAS001,"Oscar Pennsylvania",false,"Luzerne - 42079",Luzerne,false,,,Individual,No
+2026,PA,98517,SERFF,1,01-13-2026,PAS001,"Oscar Pennsylvania",false,"Lehigh - 42077",Lehigh,false,,,Individual,No
+2026,PA,98517,SERFF,1,01-13-2026,PAS001,"Oscar Pennsylvania",false,"Wyoming - 42131",Wyoming,false,,,Individual,No
+2026,PA,98517,SERFF,1,01-13-2026,PAS001,"Oscar Pennsylvania",false,"Chester - 42029",Chester,false,,,Individual,No

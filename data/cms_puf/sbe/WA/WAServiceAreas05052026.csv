@@ -1,0 +1,478 @@
+"BUSINESS YEAR","STATE CODE","ISSUER ID","SOURCE NAME","VERSION NUMBER","IMPORT DATE","SERVICE AREA ID","SERVICE AREA NAME","COVER ENTIRE STATE",COUNTY,"COUNTY NAME","PARTIAL COUNTY","ZIP CODE","PARTIAL COUNTY JUSTIFICATION","MARKET COVERAGE","DENTAL PLAN ONLY"
+2026,WA,12435,SERFF,1,01-13-2026,WAS001,"Wellpoint Washington, Inc.",false,"King - 53033",King,false,,,Individual,No
+2026,WA,12435,SERFF,1,01-13-2026,WAS001,"Wellpoint Washington, Inc.",false,"Grays Harbor - 53027","Grays Harbor",false,,,Individual,No
+2026,WA,15988,SERFF,1,01-13-2026,WAS001,"Dentegra PPO",false,"Whatcom - 53073",Whatcom,false,,,Individual,Yes
+2026,WA,15988,SERFF,1,01-13-2026,WAS001,"Dentegra PPO",false,"Kitsap - 53035",Kitsap,false,,,Individual,Yes
+2026,WA,15988,SERFF,1,01-13-2026,WAS001,"Dentegra PPO",false,"King - 53033",King,false,,,Individual,Yes
+2026,WA,15988,SERFF,1,01-13-2026,WAS001,"Dentegra PPO",false,"Snohomish - 53061",Snohomish,false,,,Individual,Yes
+2026,WA,15988,SERFF,1,01-13-2026,WAS001,"Dentegra PPO",false,"Spokane - 53063",Spokane,false,,,Individual,Yes
+2026,WA,15988,SERFF,1,01-13-2026,WAS001,"Dentegra PPO",false,"Clark - 53011",Clark,false,,,Individual,Yes
+2026,WA,15988,SERFF,1,01-13-2026,WAS001,"Dentegra PPO",false,"Mason - 53045",Mason,false,,,Individual,Yes
+2026,WA,15988,SERFF,1,01-13-2026,WAS001,"Dentegra PPO",false,"Pierce - 53053",Pierce,false,,,Individual,Yes
+2026,WA,15988,SERFF,1,01-13-2026,WAS001,"Dentegra PPO",false,"Skagit - 53057",Skagit,false,,,Individual,Yes
+2026,WA,15988,SERFF,1,01-13-2026,WAS001,"Dentegra PPO",false,"San Juan - 53055","San Juan",false,,,Individual,Yes
+2026,WA,15988,SERFF,1,01-13-2026,WAS001,"Dentegra PPO",false,"Cowlitz - 53015",Cowlitz,false,,,Individual,Yes
+2026,WA,15988,SERFF,1,01-13-2026,WAS001,"Dentegra PPO",false,"Thurston - 53067",Thurston,false,,,Individual,Yes
+2026,WA,18581,SERFF,1,01-13-2026,WAS001,"Washington Cascade Select",false,"Jefferson - 53031",Jefferson,false,,,Individual,No
+2026,WA,18581,SERFF,1,01-13-2026,WAS001,"Washington Cascade Select",false,"Chelan - 53007",Chelan,false,,,Individual,No
+2026,WA,18581,SERFF,1,01-13-2026,WAS001,"Washington Cascade Select",false,"Asotin - 53003",Asotin,false,,,Individual,No
+2026,WA,18581,SERFF,1,01-13-2026,WAS001,"Washington Cascade Select",false,"Spokane - 53063",Spokane,false,,,Individual,No
+2026,WA,18581,SERFF,1,01-13-2026,WAS001,"Washington Cascade Select",false,"Columbia - 53013",Columbia,false,,,Individual,No
+2026,WA,18581,SERFF,1,01-13-2026,WAS001,"Washington Cascade Select",false,"King - 53033",King,false,,,Individual,No
+2026,WA,18581,SERFF,1,01-13-2026,WAS001,"Washington Cascade Select",false,"Benton - 53005",Benton,false,,,Individual,No
+2026,WA,18581,SERFF,1,01-13-2026,WAS001,"Washington Cascade Select",false,"Clallam - 53009",Clallam,false,,,Individual,No
+2026,WA,18581,SERFF,1,01-13-2026,WAS001,"Washington Cascade Select",false,"Kitsap - 53035",Kitsap,false,,,Individual,No
+2026,WA,18581,SERFF,1,01-13-2026,WAS001,"Washington Cascade Select",false,"Stevens - 53065",Stevens,false,,,Individual,No
+2026,WA,18581,SERFF,1,01-13-2026,WAS001,"Washington Cascade Select",false,"Kittitas - 53037",Kittitas,false,,,Individual,No
+2026,WA,18581,SERFF,1,01-13-2026,WAS001,"Washington Cascade Select",false,"Pierce - 53053",Pierce,false,,,Individual,No
+2026,WA,18581,SERFF,1,01-13-2026,WAS001,"Washington Cascade Select",false,"Grant - 53025",Grant,false,,,Individual,No
+2026,WA,18581,SERFF,1,01-13-2026,WAS001,"Washington Cascade Select",false,"Okanogan - 53047",Okanogan,false,,,Individual,No
+2026,WA,18581,SERFF,1,01-13-2026,WAS001,"Washington Cascade Select",false,"Whitman - 53075",Whitman,false,,,Individual,No
+2026,WA,18581,SERFF,1,01-13-2026,WAS001,"Washington Cascade Select",false,"Franklin - 53021",Franklin,false,,,Individual,No
+2026,WA,18581,SERFF,1,01-13-2026,WAS001,"Washington Cascade Select",false,"Mason - 53045",Mason,false,,,Individual,No
+2026,WA,18581,SERFF,1,01-13-2026,WAS001,"Washington Cascade Select",false,"Douglas - 53017",Douglas,false,,,Individual,No
+2026,WA,18581,SERFF,1,01-13-2026,WAS001,"Washington Cascade Select",false,"Adams - 53001",Adams,false,,,Individual,No
+2026,WA,18581,SERFF,1,01-13-2026,WAS001,"Washington Cascade Select",false,"Snohomish - 53061",Snohomish,false,,,Individual,No
+2026,WA,18581,SERFF,1,01-13-2026,WAS001,"Washington Cascade Select",false,"Ferry - 53019",Ferry,false,,,Individual,No
+2026,WA,18581,SERFF,1,01-13-2026,WAS001,"Washington Cascade Select",false,"Lincoln - 53043",Lincoln,false,,,Individual,No
+2026,WA,18581,SERFF,1,01-13-2026,WAS001,"Washington Cascade Select",false,"Lewis - 53041",Lewis,false,,,Individual,No
+2026,WA,18581,SERFF,1,01-13-2026,WAS001,"Washington Cascade Select",false,"Yakima - 53077",Yakima,false,,,Individual,No
+2026,WA,18581,SERFF,1,01-13-2026,WAS001,"Washington Cascade Select",false,"Thurston - 53067",Thurston,false,,,Individual,No
+2026,WA,18581,SERFF,1,01-13-2026,WAS001,"Washington Cascade Select",false,"Walla Walla - 53071","Walla Walla",false,,,Individual,No
+2026,WA,23371,SERFF,1,01-13-2026,WAS001,"KPIF Medical Service Area",false,"Cowlitz - 53015",Cowlitz,false,,,Individual,Yes
+2026,WA,23371,SERFF,1,01-13-2026,WAS001,"KPIF Medical Service Area",false,"Clark - 53011",Clark,false,,,Individual,No
+2026,WA,23371,SERFF,1,01-13-2026,WAS001,"KPIF Medical Service Area",false,"Cowlitz - 53015",Cowlitz,false,,,Individual,No
+2026,WA,23371,SERFF,1,01-13-2026,WAS001,"KPIF Medical Service Area",false,"Clark - 53011",Clark,false,,,Individual,Yes
+2026,WA,23371,SERFF,1,01-13-2026,WAS002,"Washington KPIF Dental SA",false,"Cowlitz - 53015",Cowlitz,false,,,Individual,Yes
+2026,WA,23371,SERFF,1,01-13-2026,WAS002,"Washington KPIF Dental SA",false,"Clark - 53011",Clark,false,,,Individual,Yes
+2026,WA,23371,SERFF,1,01-13-2026,WAS002,"Washington KPIF Dental SA",false,"Cowlitz - 53015",Cowlitz,false,,,Individual,No
+2026,WA,23371,SERFF,1,01-13-2026,WAS002,"Washington KPIF Dental SA",false,"Clark - 53011",Clark,false,,,Individual,No
+2026,WA,23371,SERFF,1,01-13-2026,WAS003,"SBG Ped Dental SA",false,"Benton - 53005",Benton,false,,,Individual,No
+2026,WA,23371,SERFF,1,01-13-2026,WAS003,"SBG Ped Dental SA",false,"Douglas - 53017",Douglas,false,,,Individual,No
+2026,WA,23371,SERFF,1,01-13-2026,WAS003,"SBG Ped Dental SA",false,"Clallam - 53009",Clallam,false,,,Individual,Yes
+2026,WA,23371,SERFF,1,01-13-2026,WAS003,"SBG Ped Dental SA",false,"Whitman - 53075",Whitman,false,,,Individual,Yes
+2026,WA,23371,SERFF,1,01-13-2026,WAS003,"SBG Ped Dental SA",false,"Snohomish - 53061",Snohomish,false,,,Individual,No
+2026,WA,23371,SERFF,1,01-13-2026,WAS003,"SBG Ped Dental SA",false,"Chelan - 53007",Chelan,false,,,Individual,No
+2026,WA,23371,SERFF,1,01-13-2026,WAS003,"SBG Ped Dental SA",false,"Whatcom - 53073",Whatcom,false,,,Individual,Yes
+2026,WA,23371,SERFF,1,01-13-2026,WAS003,"SBG Ped Dental SA",false,"Franklin - 53021",Franklin,false,,,Individual,Yes
+2026,WA,23371,SERFF,1,01-13-2026,WAS003,"SBG Ped Dental SA",false,"Chelan - 53007",Chelan,false,,,Individual,Yes
+2026,WA,23371,SERFF,1,01-13-2026,WAS003,"SBG Ped Dental SA",false,"Walla Walla - 53071","Walla Walla",false,,,Individual,Yes
+2026,WA,23371,SERFF,1,01-13-2026,WAS003,"SBG Ped Dental SA",false,"Kittitas - 53037",Kittitas,false,,,Individual,No
+2026,WA,23371,SERFF,1,01-13-2026,WAS003,"SBG Ped Dental SA",false,"Island - 53029",Island,false,,,Individual,No
+2026,WA,23371,SERFF,1,01-13-2026,WAS003,"SBG Ped Dental SA",false,"Lincoln - 53043",Lincoln,false,,,Individual,No
+2026,WA,23371,SERFF,1,01-13-2026,WAS003,"SBG Ped Dental SA",false,"Mason - 53045",Mason,false,,,Individual,Yes
+2026,WA,23371,SERFF,1,01-13-2026,WAS003,"SBG Ped Dental SA",false,"Okanogan - 53047",Okanogan,false,,,Individual,No
+2026,WA,23371,SERFF,1,01-13-2026,WAS003,"SBG Ped Dental SA",false,"Pacific - 53049",Pacific,false,,,Individual,Yes
+2026,WA,23371,SERFF,1,01-13-2026,WAS003,"SBG Ped Dental SA",false,"Pierce - 53053",Pierce,false,,,Individual,Yes
+2026,WA,23371,SERFF,1,01-13-2026,WAS003,"SBG Ped Dental SA",false,"Lewis - 53041",Lewis,false,,,Individual,Yes
+2026,WA,23371,SERFF,1,01-13-2026,WAS003,"SBG Ped Dental SA",false,"Thurston - 53067",Thurston,false,,,Individual,Yes
+2026,WA,23371,SERFF,1,01-13-2026,WAS003,"SBG Ped Dental SA",false,"Snohomish - 53061",Snohomish,false,,,Individual,Yes
+2026,WA,23371,SERFF,1,01-13-2026,WAS003,"SBG Ped Dental SA",false,"Adams - 53001",Adams,false,,,Individual,No
+2026,WA,23371,SERFF,1,01-13-2026,WAS003,"SBG Ped Dental SA",false,"Kittitas - 53037",Kittitas,false,,,Individual,Yes
+2026,WA,23371,SERFF,1,01-13-2026,WAS003,"SBG Ped Dental SA",false,"Skagit - 53057",Skagit,false,,,Individual,No
+2026,WA,23371,SERFF,1,01-13-2026,WAS003,"SBG Ped Dental SA",false,"Kitsap - 53035",Kitsap,false,,,Individual,Yes
+2026,WA,23371,SERFF,1,01-13-2026,WAS003,"SBG Ped Dental SA",false,"Skagit - 53057",Skagit,false,,,Individual,Yes
+2026,WA,23371,SERFF,1,01-13-2026,WAS003,"SBG Ped Dental SA",false,"Asotin - 53003",Asotin,false,,,Individual,No
+2026,WA,23371,SERFF,1,01-13-2026,WAS003,"SBG Ped Dental SA",false,"Cowlitz - 53015",Cowlitz,false,,,Individual,Yes
+2026,WA,23371,SERFF,1,01-13-2026,WAS003,"SBG Ped Dental SA",false,"Lewis - 53041",Lewis,false,,,Individual,No
+2026,WA,23371,SERFF,1,01-13-2026,WAS003,"SBG Ped Dental SA",false,"Franklin - 53021",Franklin,false,,,Individual,No
+2026,WA,23371,SERFF,1,01-13-2026,WAS003,"SBG Ped Dental SA",false,"Stevens - 53065",Stevens,false,,,Individual,Yes
+2026,WA,23371,SERFF,1,01-13-2026,WAS003,"SBG Ped Dental SA",false,"Clallam - 53009",Clallam,false,,,Individual,No
+2026,WA,23371,SERFF,1,01-13-2026,WAS003,"SBG Ped Dental SA",false,"San Juan - 53055","San Juan",false,,,Individual,Yes
+2026,WA,23371,SERFF,1,01-13-2026,WAS003,"SBG Ped Dental SA",false,"Spokane - 53063",Spokane,false,,,Individual,No
+2026,WA,23371,SERFF,1,01-13-2026,WAS003,"SBG Ped Dental SA",false,"Okanogan - 53047",Okanogan,false,,,Individual,Yes
+2026,WA,23371,SERFF,1,01-13-2026,WAS003,"SBG Ped Dental SA",false,"Grays Harbor - 53027","Grays Harbor",false,,,Individual,Yes
+2026,WA,23371,SERFF,1,01-13-2026,WAS003,"SBG Ped Dental SA",false,"Pierce - 53053",Pierce,false,,,Individual,No
+2026,WA,23371,SERFF,1,01-13-2026,WAS003,"SBG Ped Dental SA",false,"Grays Harbor - 53027","Grays Harbor",false,,,Individual,No
+2026,WA,23371,SERFF,1,01-13-2026,WAS003,"SBG Ped Dental SA",false,"Walla Walla - 53071","Walla Walla",false,,,Individual,No
+2026,WA,23371,SERFF,1,01-13-2026,WAS003,"SBG Ped Dental SA",false,"Benton - 53005",Benton,false,,,Individual,Yes
+2026,WA,23371,SERFF,1,01-13-2026,WAS003,"SBG Ped Dental SA",false,"Mason - 53045",Mason,false,,,Individual,No
+2026,WA,23371,SERFF,1,01-13-2026,WAS003,"SBG Ped Dental SA",false,"Kitsap - 53035",Kitsap,false,,,Individual,No
+2026,WA,23371,SERFF,1,01-13-2026,WAS003,"SBG Ped Dental SA",false,"Spokane - 53063",Spokane,false,,,Individual,Yes
+2026,WA,23371,SERFF,1,01-13-2026,WAS003,"SBG Ped Dental SA",false,"Whitman - 53075",Whitman,false,,,Individual,No
+2026,WA,23371,SERFF,1,01-13-2026,WAS003,"SBG Ped Dental SA",false,"Yakima - 53077",Yakima,false,,,Individual,Yes
+2026,WA,23371,SERFF,1,01-13-2026,WAS003,"SBG Ped Dental SA",false,"King - 53033",King,false,,,Individual,Yes
+2026,WA,23371,SERFF,1,01-13-2026,WAS003,"SBG Ped Dental SA",false,"Douglas - 53017",Douglas,false,,,Individual,Yes
+2026,WA,23371,SERFF,1,01-13-2026,WAS003,"SBG Ped Dental SA",false,"Asotin - 53003",Asotin,false,,,Individual,Yes
+2026,WA,23371,SERFF,1,01-13-2026,WAS003,"SBG Ped Dental SA",false,"Clark - 53011",Clark,false,,,Individual,No
+2026,WA,23371,SERFF,1,01-13-2026,WAS003,"SBG Ped Dental SA",false,"Stevens - 53065",Stevens,false,,,Individual,No
+2026,WA,23371,SERFF,1,01-13-2026,WAS003,"SBG Ped Dental SA",false,"Jefferson - 53031",Jefferson,false,,,Individual,No
+2026,WA,23371,SERFF,1,01-13-2026,WAS003,"SBG Ped Dental SA",false,"Yakima - 53077",Yakima,false,,,Individual,No
+2026,WA,23371,SERFF,1,01-13-2026,WAS003,"SBG Ped Dental SA",false,"Clark - 53011",Clark,false,,,Individual,Yes
+2026,WA,23371,SERFF,1,01-13-2026,WAS003,"SBG Ped Dental SA",false,"Jefferson - 53031",Jefferson,false,,,Individual,Yes
+2026,WA,23371,SERFF,1,01-13-2026,WAS003,"SBG Ped Dental SA",false,"Adams - 53001",Adams,false,,,Individual,Yes
+2026,WA,23371,SERFF,1,01-13-2026,WAS003,"SBG Ped Dental SA",false,"Grant - 53025",Grant,false,,,Individual,Yes
+2026,WA,23371,SERFF,1,01-13-2026,WAS003,"SBG Ped Dental SA",false,"Lincoln - 53043",Lincoln,false,,,Individual,Yes
+2026,WA,23371,SERFF,1,01-13-2026,WAS003,"SBG Ped Dental SA",false,"Grant - 53025",Grant,false,,,Individual,No
+2026,WA,23371,SERFF,1,01-13-2026,WAS003,"SBG Ped Dental SA",false,"Klickitat - 53039",Klickitat,false,,,Individual,No
+2026,WA,23371,SERFF,1,01-13-2026,WAS003,"SBG Ped Dental SA",false,"Pend Oreille - 53051","Pend Oreille",false,,,Individual,No
+2026,WA,23371,SERFF,1,01-13-2026,WAS003,"SBG Ped Dental SA",false,"Whatcom - 53073",Whatcom,false,,,Individual,No
+2026,WA,23371,SERFF,1,01-13-2026,WAS003,"SBG Ped Dental SA",false,"King - 53033",King,false,,,Individual,No
+2026,WA,23371,SERFF,1,01-13-2026,WAS003,"SBG Ped Dental SA",false,"Pend Oreille - 53051","Pend Oreille",false,,,Individual,Yes
+2026,WA,23371,SERFF,1,01-13-2026,WAS003,"SBG Ped Dental SA",false,"Cowlitz - 53015",Cowlitz,false,,,Individual,No
+2026,WA,23371,SERFF,1,01-13-2026,WAS003,"SBG Ped Dental SA",false,"Thurston - 53067",Thurston,false,,,Individual,No
+2026,WA,23371,SERFF,1,01-13-2026,WAS003,"SBG Ped Dental SA",false,"Pacific - 53049",Pacific,false,,,Individual,No
+2026,WA,23371,SERFF,1,01-13-2026,WAS003,"SBG Ped Dental SA",false,"Klickitat - 53039",Klickitat,false,,,Individual,Yes
+2026,WA,23371,SERFF,1,01-13-2026,WAS003,"SBG Ped Dental SA",false,"San Juan - 53055","San Juan",false,,,Individual,No
+2026,WA,23371,SERFF,1,01-13-2026,WAS003,"SBG Ped Dental SA",false,"Island - 53029",Island,false,,,Individual,Yes
+2026,WA,23371,SERFF,1,01-13-2026,WAS004,"SBG Medical SA",false,"Clark - 53011",Clark,false,,,Individual,No
+2026,WA,23371,SERFF,1,01-13-2026,WAS004,"SBG Medical SA",false,"Clark - 53011",Clark,false,,,Individual,Yes
+2026,WA,23371,SERFF,1,01-13-2026,WAS004,"SBG Medical SA",false,"Cowlitz - 53015",Cowlitz,false,,,Individual,Yes
+2026,WA,23371,SERFF,1,01-13-2026,WAS004,"SBG Medical SA",false,"Cowlitz - 53015",Cowlitz,false,,,Individual,No
+2026,WA,23371,SERFF,1,01-13-2026,WAS005,"SBG HMO Dental SA",false,"Clark - 53011",Clark,false,,,Individual,No
+2026,WA,23371,SERFF,1,01-13-2026,WAS005,"SBG HMO Dental SA",false,"Clark - 53011",Clark,false,,,Individual,Yes
+2026,WA,23371,SERFF,1,01-13-2026,WAS005,"SBG HMO Dental SA",false,"Cowlitz - 53015",Cowlitz,false,,,Individual,No
+2026,WA,23371,SERFF,1,01-13-2026,WAS005,"SBG HMO Dental SA",false,"Cowlitz - 53015",Cowlitz,false,,,Individual,Yes
+2026,WA,38498,SERFF,1,01-13-2026,WAS001,"LWW Primary Essential",false,"Columbia - 53013",Columbia,false,,,Individual,Yes
+2026,WA,38498,SERFF,1,01-13-2026,WAS001,"LWW Primary Essential",false,"Pierce - 53053",Pierce,false,,,Individual,Yes
+2026,WA,38498,SERFF,1,01-13-2026,WAS001,"LWW Primary Essential",false,"Grant - 53025",Grant,false,,,Individual,Yes
+2026,WA,38498,SERFF,1,01-13-2026,WAS001,"LWW Primary Essential",false,"Ferry - 53019",Ferry,false,,,Individual,No
+2026,WA,38498,SERFF,1,01-13-2026,WAS001,"LWW Primary Essential",false,"Garfield - 53023",Garfield,false,,,Individual,No
+2026,WA,38498,SERFF,1,01-13-2026,WAS001,"LWW Primary Essential",false,"Columbia - 53013",Columbia,false,,,Individual,No
+2026,WA,38498,SERFF,1,01-13-2026,WAS001,"LWW Primary Essential",false,"Kittitas - 53037",Kittitas,false,,,Individual,No
+2026,WA,38498,SERFF,1,01-13-2026,WAS001,"LWW Primary Essential",false,"Stevens - 53065",Stevens,false,,,Individual,Yes
+2026,WA,38498,SERFF,1,01-13-2026,WAS001,"LWW Primary Essential",false,"Garfield - 53023",Garfield,false,,,Individual,Yes
+2026,WA,38498,SERFF,1,01-13-2026,WAS001,"LWW Primary Essential",false,"Kittitas - 53037",Kittitas,false,,,Individual,Yes
+2026,WA,38498,SERFF,1,01-13-2026,WAS001,"LWW Primary Essential",false,"Whitman - 53075",Whitman,false,,,Individual,No
+2026,WA,38498,SERFF,1,01-13-2026,WAS001,"LWW Primary Essential",false,"Snohomish - 53061",Snohomish,false,,,Individual,No
+2026,WA,38498,SERFF,1,01-13-2026,WAS001,"LWW Primary Essential",false,"Spokane - 53063",Spokane,false,,,Individual,No
+2026,WA,38498,SERFF,1,01-13-2026,WAS001,"LWW Primary Essential",false,"Adams - 53001",Adams,false,,,Individual,Yes
+2026,WA,38498,SERFF,1,01-13-2026,WAS001,"LWW Primary Essential",false,"Grant - 53025",Grant,false,,,Individual,No
+2026,WA,38498,SERFF,1,01-13-2026,WAS001,"LWW Primary Essential",false,"Pierce - 53053",Pierce,false,,,Individual,No
+2026,WA,38498,SERFF,1,01-13-2026,WAS001,"LWW Primary Essential",false,"Whitman - 53075",Whitman,false,,,Individual,Yes
+2026,WA,38498,SERFF,1,01-13-2026,WAS001,"LWW Primary Essential",false,"Ferry - 53019",Ferry,false,,,Individual,Yes
+2026,WA,38498,SERFF,1,01-13-2026,WAS001,"LWW Primary Essential",false,"Thurston - 53067",Thurston,false,,,Individual,No
+2026,WA,38498,SERFF,1,01-13-2026,WAS001,"LWW Primary Essential",false,"Pend Oreille - 53051","Pend Oreille",false,,,Individual,Yes
+2026,WA,38498,SERFF,1,01-13-2026,WAS001,"LWW Primary Essential",false,"Snohomish - 53061",Snohomish,false,,,Individual,Yes
+2026,WA,38498,SERFF,1,01-13-2026,WAS001,"LWW Primary Essential",false,"Asotin - 53003",Asotin,false,,,Individual,No
+2026,WA,38498,SERFF,1,01-13-2026,WAS001,"LWW Primary Essential",false,"Island - 53029",Island,false,,,Individual,Yes
+2026,WA,38498,SERFF,1,01-13-2026,WAS001,"LWW Primary Essential",false,"Benton - 53005",Benton,false,,,Individual,No
+2026,WA,38498,SERFF,1,01-13-2026,WAS001,"LWW Primary Essential",false,"Thurston - 53067",Thurston,false,,,Individual,Yes
+2026,WA,38498,SERFF,1,01-13-2026,WAS001,"LWW Primary Essential",false,"Lewis - 53041",Lewis,false,,,Individual,Yes
+2026,WA,38498,SERFF,1,01-13-2026,WAS001,"LWW Primary Essential",false,"Adams - 53001",Adams,false,,,Individual,No
+2026,WA,38498,SERFF,1,01-13-2026,WAS001,"LWW Primary Essential",false,"Okanogan - 53047",Okanogan,false,,,Individual,Yes
+2026,WA,38498,SERFF,1,01-13-2026,WAS001,"LWW Primary Essential",false,"Stevens - 53065",Stevens,false,,,Individual,No
+2026,WA,38498,SERFF,1,01-13-2026,WAS001,"LWW Primary Essential",false,"Asotin - 53003",Asotin,false,,,Individual,Yes
+2026,WA,38498,SERFF,1,01-13-2026,WAS001,"LWW Primary Essential",false,"Lewis - 53041",Lewis,false,,,Individual,No
+2026,WA,38498,SERFF,1,01-13-2026,WAS001,"LWW Primary Essential",false,"King - 53033",King,false,,,Individual,No
+2026,WA,38498,SERFF,1,01-13-2026,WAS001,"LWW Primary Essential",false,"King - 53033",King,false,,,Individual,Yes
+2026,WA,38498,SERFF,1,01-13-2026,WAS001,"LWW Primary Essential",false,"Okanogan - 53047",Okanogan,false,,,Individual,No
+2026,WA,38498,SERFF,1,01-13-2026,WAS001,"LWW Primary Essential",false,"Spokane - 53063",Spokane,false,,,Individual,Yes
+2026,WA,38498,SERFF,1,01-13-2026,WAS001,"LWW Primary Essential",false,"Walla Walla - 53071","Walla Walla",false,,,Individual,No
+2026,WA,38498,SERFF,1,01-13-2026,WAS001,"LWW Primary Essential",false,"Walla Walla - 53071","Walla Walla",false,,,Individual,Yes
+2026,WA,38498,SERFF,1,01-13-2026,WAS001,"LWW Primary Essential",false,"Island - 53029",Island,false,,,Individual,No
+2026,WA,38498,SERFF,1,01-13-2026,WAS001,"LWW Primary Essential",false,"Pend Oreille - 53051","Pend Oreille",false,,,Individual,No
+2026,WA,38498,SERFF,1,01-13-2026,WAS001,"LWW Primary Essential",false,"Benton - 53005",Benton,false,,,Individual,Yes
+2026,WA,38498,SERFF,1,01-13-2026,WAS002,"LWW Primary Cascade",false,"Stevens - 53065",Stevens,false,,,Individual,No
+2026,WA,38498,SERFF,1,01-13-2026,WAS002,"LWW Primary Cascade",false,"Snohomish - 53061",Snohomish,false,,,Individual,Yes
+2026,WA,38498,SERFF,1,01-13-2026,WAS002,"LWW Primary Cascade",false,"Walla Walla - 53071","Walla Walla",false,,,Individual,No
+2026,WA,38498,SERFF,1,01-13-2026,WAS002,"LWW Primary Cascade",false,"Kittitas - 53037",Kittitas,false,,,Individual,No
+2026,WA,38498,SERFF,1,01-13-2026,WAS002,"LWW Primary Cascade",false,"Thurston - 53067",Thurston,false,,,Individual,No
+2026,WA,38498,SERFF,1,01-13-2026,WAS002,"LWW Primary Cascade",false,"Asotin - 53003",Asotin,false,,,Individual,No
+2026,WA,38498,SERFF,1,01-13-2026,WAS002,"LWW Primary Cascade",false,"Snohomish - 53061",Snohomish,false,,,Individual,No
+2026,WA,38498,SERFF,1,01-13-2026,WAS002,"LWW Primary Cascade",false,"Pierce - 53053",Pierce,false,,,Individual,No
+2026,WA,38498,SERFF,1,01-13-2026,WAS002,"LWW Primary Cascade",false,"Walla Walla - 53071","Walla Walla",false,,,Individual,Yes
+2026,WA,38498,SERFF,1,01-13-2026,WAS002,"LWW Primary Cascade",false,"Columbia - 53013",Columbia,false,,,Individual,No
+2026,WA,38498,SERFF,1,01-13-2026,WAS002,"LWW Primary Cascade",false,"Whitman - 53075",Whitman,false,,,Individual,Yes
+2026,WA,38498,SERFF,1,01-13-2026,WAS002,"LWW Primary Cascade",false,"Thurston - 53067",Thurston,false,,,Individual,Yes
+2026,WA,38498,SERFF,1,01-13-2026,WAS002,"LWW Primary Cascade",false,"Okanogan - 53047",Okanogan,false,,,Individual,Yes
+2026,WA,38498,SERFF,1,01-13-2026,WAS002,"LWW Primary Cascade",false,"Stevens - 53065",Stevens,false,,,Individual,Yes
+2026,WA,38498,SERFF,1,01-13-2026,WAS002,"LWW Primary Cascade",false,"Garfield - 53023",Garfield,false,,,Individual,No
+2026,WA,38498,SERFF,1,01-13-2026,WAS002,"LWW Primary Cascade",false,"Grant - 53025",Grant,false,,,Individual,No
+2026,WA,38498,SERFF,1,01-13-2026,WAS002,"LWW Primary Cascade",false,"Pierce - 53053",Pierce,false,,,Individual,Yes
+2026,WA,38498,SERFF,1,01-13-2026,WAS002,"LWW Primary Cascade",false,"Whitman - 53075",Whitman,false,,,Individual,No
+2026,WA,38498,SERFF,1,01-13-2026,WAS002,"LWW Primary Cascade",false,"Spokane - 53063",Spokane,false,,,Individual,No
+2026,WA,38498,SERFF,1,01-13-2026,WAS002,"LWW Primary Cascade",false,"Spokane - 53063",Spokane,false,,,Individual,Yes
+2026,WA,38498,SERFF,1,01-13-2026,WAS002,"LWW Primary Cascade",false,"Lewis - 53041",Lewis,false,,,Individual,No
+2026,WA,38498,SERFF,1,01-13-2026,WAS002,"LWW Primary Cascade",false,"Okanogan - 53047",Okanogan,false,,,Individual,No
+2026,WA,38498,SERFF,1,01-13-2026,WAS002,"LWW Primary Cascade",false,"King - 53033",King,false,,,Individual,No
+2026,WA,38498,SERFF,1,01-13-2026,WAS003,"LWW Alpine Service Area",false,"Ferry - 53019",Ferry,false,,,Individual,No
+2026,WA,38498,SERFF,1,01-13-2026,WAS003,"LWW Alpine Service Area",false,"Franklin - 53021",Franklin,false,,,Individual,Yes
+2026,WA,38498,SERFF,1,01-13-2026,WAS003,"LWW Alpine Service Area",false,"Skagit - 53057",Skagit,false,,,Individual,No
+2026,WA,38498,SERFF,1,01-13-2026,WAS003,"LWW Alpine Service Area",false,"King - 53033",King,false,,,Individual,Yes
+2026,WA,38498,SERFF,1,01-13-2026,WAS003,"LWW Alpine Service Area",false,"Island - 53029",Island,false,,,Individual,No
+2026,WA,38498,SERFF,1,01-13-2026,WAS003,"LWW Alpine Service Area",false,"Kitsap - 53035",Kitsap,false,,,Individual,Yes
+2026,WA,38498,SERFF,1,01-13-2026,WAS003,"LWW Alpine Service Area",false,"Skamania - 53059",Skamania,false,,,Individual,No
+2026,WA,38498,SERFF,1,01-13-2026,WAS003,"LWW Alpine Service Area",false,"Pierce - 53053",Pierce,false,,,Individual,No
+2026,WA,38498,SERFF,1,01-13-2026,WAS003,"LWW Alpine Service Area",false,"Cowlitz - 53015",Cowlitz,false,,,Individual,No
+2026,WA,38498,SERFF,1,01-13-2026,WAS003,"LWW Alpine Service Area",false,"Whatcom - 53073",Whatcom,false,,,Individual,No
+2026,WA,38498,SERFF,1,01-13-2026,WAS003,"LWW Alpine Service Area",false,"Klickitat - 53039",Klickitat,false,,,Individual,No
+2026,WA,38498,SERFF,1,01-13-2026,WAS003,"LWW Alpine Service Area",false,"Spokane - 53063",Spokane,false,,,Individual,No
+2026,WA,38498,SERFF,1,01-13-2026,WAS003,"LWW Alpine Service Area",false,"Yakima - 53077",Yakima,false,,,Individual,Yes
+2026,WA,38498,SERFF,1,01-13-2026,WAS003,"LWW Alpine Service Area",false,"Clark - 53011",Clark,false,,,Individual,No
+2026,WA,38498,SERFF,1,01-13-2026,WAS003,"LWW Alpine Service Area",false,"Chelan - 53007",Chelan,false,,,Individual,No
+2026,WA,38498,SERFF,1,01-13-2026,WAS003,"LWW Alpine Service Area",false,"Lewis - 53041",Lewis,false,,,Individual,No
+2026,WA,38498,SERFF,1,01-13-2026,WAS003,"LWW Alpine Service Area",false,"Pierce - 53053",Pierce,false,,,Individual,Yes
+2026,WA,38498,SERFF,1,01-13-2026,WAS003,"LWW Alpine Service Area",false,"Grays Harbor - 53027","Grays Harbor",false,,,Individual,Yes
+2026,WA,38498,SERFF,1,01-13-2026,WAS003,"LWW Alpine Service Area",false,"Spokane - 53063",Spokane,false,,,Individual,Yes
+2026,WA,38498,SERFF,1,01-13-2026,WAS003,"LWW Alpine Service Area",false,"Yakima - 53077",Yakima,false,,,Individual,No
+2026,WA,38498,SERFF,1,01-13-2026,WAS003,"LWW Alpine Service Area",false,"Thurston - 53067",Thurston,false,,,Individual,No
+2026,WA,38498,SERFF,1,01-13-2026,WAS003,"LWW Alpine Service Area",false,"Benton - 53005",Benton,false,,,Individual,No
+2026,WA,38498,SERFF,1,01-13-2026,WAS003,"LWW Alpine Service Area",false,"Douglas - 53017",Douglas,false,,,Individual,No
+2026,WA,38498,SERFF,1,01-13-2026,WAS003,"LWW Alpine Service Area",false,"Wahkiakum - 53069",Wahkiakum,false,,,Individual,No
+2026,WA,38498,SERFF,1,01-13-2026,WAS003,"LWW Alpine Service Area",false,"Grays Harbor - 53027","Grays Harbor",false,,,Individual,No
+2026,WA,38498,SERFF,1,01-13-2026,WAS003,"LWW Alpine Service Area",false,"Pend Oreille - 53051","Pend Oreille",false,,,Individual,No
+2026,WA,38498,SERFF,1,01-13-2026,WAS003,"LWW Alpine Service Area",false,"Lincoln - 53043",Lincoln,false,,,Individual,Yes
+2026,WA,38498,SERFF,1,01-13-2026,WAS003,"LWW Alpine Service Area",false,"Adams - 53001",Adams,false,,,Individual,No
+2026,WA,38498,SERFF,1,01-13-2026,WAS003,"LWW Alpine Service Area",false,"Pacific - 53049",Pacific,false,,,Individual,Yes
+2026,WA,38498,SERFF,1,01-13-2026,WAS004,"LWW Dental Value",true,,,,,,Individual,No
+2026,WA,38498,SERFF,1,01-13-2026,WAS004,"LWW Dental Value",true,,,,,,Individual,Yes
+2026,WA,49831,SERFF,1,01-13-2026,WAS001,"PBC WA SG Signature",false,"Adams - 53001",Adams,false,,,Individual,No
+2026,WA,49831,SERFF,1,01-13-2026,WAS001,"PBC WA SG Signature",false,"Thurston - 53067",Thurston,false,,,Individual,No
+2026,WA,49831,SERFF,1,01-13-2026,WAS001,"PBC WA SG Signature",false,"Yakima - 53077",Yakima,false,,,Individual,No
+2026,WA,49831,SERFF,1,01-13-2026,WAS001,"PBC WA SG Signature",false,"Jefferson - 53031",Jefferson,false,,,Individual,No
+2026,WA,49831,SERFF,1,01-13-2026,WAS001,"PBC WA SG Signature",false,"San Juan - 53055","San Juan",false,,,Individual,No
+2026,WA,49831,SERFF,1,01-13-2026,WAS001,"PBC WA SG Signature",false,"Whitman - 53075",Whitman,false,,,Individual,No
+2026,WA,49831,SERFF,1,01-13-2026,WAS001,"PBC WA SG Signature",false,"Pend Oreille - 53051","Pend Oreille",false,,,Individual,No
+2026,WA,49831,SERFF,1,01-13-2026,WAS001,"PBC WA SG Signature",false,"Benton - 53005",Benton,false,,,Individual,No
+2026,WA,49831,SERFF,1,01-13-2026,WAS001,"PBC WA SG Signature",false,"Columbia - 53013",Columbia,false,,,Individual,No
+2026,WA,49831,SERFF,1,01-13-2026,WAS001,"PBC WA SG Signature",false,"King - 53033",King,false,,,Individual,No
+2026,WA,49831,SERFF,1,01-13-2026,WAS001,"PBC WA SG Signature",false,"Walla Walla - 53071","Walla Walla",false,,,Individual,No
+2026,WA,49831,SERFF,1,01-13-2026,WAS001,"PBC WA SG Signature",false,"Wahkiakum - 53069",Wahkiakum,false,,,Individual,No
+2026,WA,49831,SERFF,1,01-13-2026,WAS001,"PBC WA SG Signature",false,"Grays Harbor - 53027","Grays Harbor",false,,,Individual,No
+2026,WA,49831,SERFF,1,01-13-2026,WAS001,"PBC WA SG Signature",false,"Cowlitz - 53015",Cowlitz,false,,,Individual,No
+2026,WA,49831,SERFF,1,01-13-2026,WAS001,"PBC WA SG Signature",false,"Ferry - 53019",Ferry,false,,,Individual,No
+2026,WA,49831,SERFF,1,01-13-2026,WAS001,"PBC WA SG Signature",false,"Pierce - 53053",Pierce,false,,,Individual,No
+2026,WA,49831,SERFF,1,01-13-2026,WAS001,"PBC WA SG Signature",false,"Garfield - 53023",Garfield,false,,,Individual,No
+2026,WA,49831,SERFF,1,01-13-2026,WAS001,"PBC WA SG Signature",false,"Mason - 53045",Mason,false,,,Individual,No
+2026,WA,49831,SERFF,1,01-13-2026,WAS001,"PBC WA SG Signature",false,"Stevens - 53065",Stevens,false,,,Individual,No
+2026,WA,49831,SERFF,1,01-13-2026,WAS001,"PBC WA SG Signature",false,"Lincoln - 53043",Lincoln,false,,,Individual,No
+2026,WA,49831,SERFF,1,01-13-2026,WAS001,"PBC WA SG Signature",false,"Island - 53029",Island,false,,,Individual,No
+2026,WA,49831,SERFF,1,01-13-2026,WAS001,"PBC WA SG Signature",false,"Okanogan - 53047",Okanogan,false,,,Individual,No
+2026,WA,49831,SERFF,1,01-13-2026,WAS001,"PBC WA SG Signature",false,"Skagit - 53057",Skagit,false,,,Individual,No
+2026,WA,49831,SERFF,1,01-13-2026,WAS001,"PBC WA SG Signature",false,"Snohomish - 53061",Snohomish,false,,,Individual,No
+2026,WA,49831,SERFF,1,01-13-2026,WAS001,"PBC WA SG Signature",false,"Grant - 53025",Grant,false,,,Individual,No
+2026,WA,49831,SERFF,1,01-13-2026,WAS001,"PBC WA SG Signature",false,"Asotin - 53003",Asotin,false,,,Individual,No
+2026,WA,49831,SERFF,1,01-13-2026,WAS001,"PBC WA SG Signature",false,"Spokane - 53063",Spokane,false,,,Individual,No
+2026,WA,49831,SERFF,1,01-13-2026,WAS001,"PBC WA SG Signature",false,"Klickitat - 53039",Klickitat,false,,,Individual,No
+2026,WA,49831,SERFF,1,01-13-2026,WAS001,"PBC WA SG Signature",false,"Chelan - 53007",Chelan,false,,,Individual,No
+2026,WA,49831,SERFF,1,01-13-2026,WAS001,"PBC WA SG Signature",false,"Kittitas - 53037",Kittitas,false,,,Individual,No
+2026,WA,49831,SERFF,1,01-13-2026,WAS001,"PBC WA SG Signature",false,"Pacific - 53049",Pacific,false,,,Individual,No
+2026,WA,49831,SERFF,1,01-13-2026,WAS001,"PBC WA SG Signature",false,"Kitsap - 53035",Kitsap,false,,,Individual,No
+2026,WA,49831,SERFF,1,01-13-2026,WAS001,"PBC WA SG Signature",false,"Whatcom - 53073",Whatcom,false,,,Individual,No
+2026,WA,49831,SERFF,1,01-13-2026,WAS001,"PBC WA SG Signature",false,"Franklin - 53021",Franklin,false,,,Individual,No
+2026,WA,49831,SERFF,1,01-13-2026,WAS001,"PBC WA SG Signature",false,"Lewis - 53041",Lewis,false,,,Individual,No
+2026,WA,49831,SERFF,1,01-13-2026,WAS001,"PBC WA SG Signature",false,"Skamania - 53059",Skamania,false,,,Individual,No
+2026,WA,49831,SERFF,1,01-13-2026,WAS001,"PBC WA SG Signature",false,"Clallam - 53009",Clallam,false,,,Individual,No
+2026,WA,49831,SERFF,1,01-13-2026,WAS001,"PBC WA SG Signature",false,"Douglas - 53017",Douglas,false,,,Individual,No
+2026,WA,49831,SERFF,1,01-13-2026,WAS002,"PBC WA SG Heritage",false,"Asotin - 53003",Asotin,false,,,Individual,No
+2026,WA,49831,SERFF,1,01-13-2026,WAS002,"PBC WA SG Heritage",false,"Mason - 53045",Mason,false,,,Individual,No
+2026,WA,49831,SERFF,1,01-13-2026,WAS002,"PBC WA SG Heritage",false,"Grant - 53025",Grant,false,,,Individual,No
+2026,WA,49831,SERFF,1,01-13-2026,WAS002,"PBC WA SG Heritage",false,"Skamania - 53059",Skamania,false,,,Individual,No
+2026,WA,49831,SERFF,1,01-13-2026,WAS002,"PBC WA SG Heritage",false,"Pend Oreille - 53051","Pend Oreille",false,,,Individual,No
+2026,WA,49831,SERFF,1,01-13-2026,WAS002,"PBC WA SG Heritage",false,"Chelan - 53007",Chelan,false,,,Individual,No
+2026,WA,49831,SERFF,1,01-13-2026,WAS002,"PBC WA SG Heritage",false,"Whatcom - 53073",Whatcom,false,,,Individual,No
+2026,WA,49831,SERFF,1,01-13-2026,WAS002,"PBC WA SG Heritage",false,"Franklin - 53021",Franklin,false,,,Individual,No
+2026,WA,49831,SERFF,1,01-13-2026,WAS002,"PBC WA SG Heritage",false,"Wahkiakum - 53069",Wahkiakum,false,,,Individual,No
+2026,WA,49831,SERFF,1,01-13-2026,WAS002,"PBC WA SG Heritage",false,"Spokane - 53063",Spokane,false,,,Individual,No
+2026,WA,49831,SERFF,1,01-13-2026,WAS002,"PBC WA SG Heritage",false,"Pacific - 53049",Pacific,false,,,Individual,No
+2026,WA,49831,SERFF,1,01-13-2026,WAS002,"PBC WA SG Heritage",false,"Cowlitz - 53015",Cowlitz,false,,,Individual,No
+2026,WA,49831,SERFF,1,01-13-2026,WAS002,"PBC WA SG Heritage",false,"Snohomish - 53061",Snohomish,false,,,Individual,No
+2026,WA,49831,SERFF,1,01-13-2026,WAS002,"PBC WA SG Heritage",false,"Garfield - 53023",Garfield,false,,,Individual,No
+2026,WA,49831,SERFF,1,01-13-2026,WAS002,"PBC WA SG Heritage",false,"Grays Harbor - 53027","Grays Harbor",false,,,Individual,No
+2026,WA,49831,SERFF,1,01-13-2026,WAS002,"PBC WA SG Heritage",false,"Thurston - 53067",Thurston,false,,,Individual,No
+2026,WA,49831,SERFF,1,01-13-2026,WAS002,"PBC WA SG Heritage",false,"Island - 53029",Island,false,,,Individual,No
+2026,WA,49831,SERFF,1,01-13-2026,WAS002,"PBC WA SG Heritage",false,"Skagit - 53057",Skagit,false,,,Individual,No
+2026,WA,49831,SERFF,1,01-13-2026,WAS002,"PBC WA SG Heritage",false,"Lewis - 53041",Lewis,false,,,Individual,No
+2026,WA,49831,SERFF,1,01-13-2026,WAS002,"PBC WA SG Heritage",false,"Lincoln - 53043",Lincoln,false,,,Individual,No
+2026,WA,49831,SERFF,1,01-13-2026,WAS002,"PBC WA SG Heritage",false,"Kitsap - 53035",Kitsap,false,,,Individual,No
+2026,WA,49831,SERFF,1,01-13-2026,WAS002,"PBC WA SG Heritage",false,"Douglas - 53017",Douglas,false,,,Individual,No
+2026,WA,49831,SERFF,1,01-13-2026,WAS002,"PBC WA SG Heritage",false,"Benton - 53005",Benton,false,,,Individual,No
+2026,WA,49831,SERFF,1,01-13-2026,WAS002,"PBC WA SG Heritage",false,"Kittitas - 53037",Kittitas,false,,,Individual,No
+2026,WA,49831,SERFF,1,01-13-2026,WAS002,"PBC WA SG Heritage",false,"Yakima - 53077",Yakima,false,,,Individual,No
+2026,WA,49831,SERFF,1,01-13-2026,WAS002,"PBC WA SG Heritage",false,"Stevens - 53065",Stevens,false,,,Individual,No
+2026,WA,49831,SERFF,1,01-13-2026,WAS002,"PBC WA SG Heritage",false,"San Juan - 53055","San Juan",false,,,Individual,No
+2026,WA,49831,SERFF,1,01-13-2026,WAS002,"PBC WA SG Heritage",false,"Pierce - 53053",Pierce,false,,,Individual,No
+2026,WA,49831,SERFF,1,01-13-2026,WAS002,"PBC WA SG Heritage",false,"Okanogan - 53047",Okanogan,false,,,Individual,No
+2026,WA,49831,SERFF,1,01-13-2026,WAS002,"PBC WA SG Heritage",false,"Ferry - 53019",Ferry,false,,,Individual,No
+2026,WA,49831,SERFF,1,01-13-2026,WAS002,"PBC WA SG Heritage",false,"Columbia - 53013",Columbia,false,,,Individual,No
+2026,WA,49831,SERFF,1,01-13-2026,WAS002,"PBC WA SG Heritage",false,"Adams - 53001",Adams,false,,,Individual,No
+2026,WA,49831,SERFF,1,01-13-2026,WAS002,"PBC WA SG Heritage",false,"King - 53033",King,false,,,Individual,No
+2026,WA,49831,SERFF,1,01-13-2026,WAS002,"PBC WA SG Heritage",false,"Jefferson - 53031",Jefferson,false,,,Individual,No
+2026,WA,49831,SERFF,1,01-13-2026,WAS002,"PBC WA SG Heritage",false,"Walla Walla - 53071","Walla Walla",false,,,Individual,No
+2026,WA,49831,SERFF,1,01-13-2026,WAS002,"PBC WA SG Heritage",false,"Clallam - 53009",Clallam,false,,,Individual,No
+2026,WA,49831,SERFF,1,01-13-2026,WAS002,"PBC WA SG Heritage",false,"Klickitat - 53039",Klickitat,false,,,Individual,No
+2026,WA,49831,SERFF,1,01-13-2026,WAS002,"PBC WA SG Heritage",false,"Whitman - 53075",Whitman,false,,,Individual,No
+2026,WA,49831,SERFF,1,01-13-2026,WAS003,"PBC WA Indiv Service Area",false,"Spokane - 53063",Spokane,false,,,Individual,No
+2026,WA,49831,SERFF,1,01-13-2026,WAS003,"PBC WA Indiv Service Area",false,"Kitsap - 53035",Kitsap,false,,,Individual,No
+2026,WA,49831,SERFF,1,01-13-2026,WAS003,"PBC WA Indiv Service Area",false,"King - 53033",King,false,,,Individual,No
+2026,WA,49831,SERFF,1,01-13-2026,WAS003,"PBC WA Indiv Service Area",false,"Pacific - 53049",Pacific,false,,,Individual,No
+2026,WA,49831,SERFF,1,01-13-2026,WAS003,"PBC WA Indiv Service Area",false,"Yakima - 53077",Yakima,false,,,Individual,No
+2026,WA,49831,SERFF,1,01-13-2026,WAS003,"PBC WA Indiv Service Area",false,"Lincoln - 53043",Lincoln,false,,,Individual,No
+2026,WA,49831,SERFF,1,01-13-2026,WAS003,"PBC WA Indiv Service Area",false,"Pierce - 53053",Pierce,false,,,Individual,No
+2026,WA,49831,SERFF,1,01-13-2026,WAS003,"PBC WA Indiv Service Area",false,"Franklin - 53021",Franklin,false,,,Individual,No
+2026,WA,49831,SERFF,1,01-13-2026,WAS003,"PBC WA Indiv Service Area",false,"Grays Harbor - 53027","Grays Harbor",false,,,Individual,No
+2026,WA,53732,SERFF,1,01-13-2026,WAS001,"Individual Value ",false,"Franklin - 53021",Franklin,false,,,Individual,No
+2026,WA,53732,SERFF,1,01-13-2026,WAS001,"Individual Value ",false,"Skagit - 53057",Skagit,false,,,Individual,No
+2026,WA,53732,SERFF,1,01-13-2026,WAS001,"Individual Value ",false,"Pierce - 53053",Pierce,false,,,Individual,No
+2026,WA,53732,SERFF,1,01-13-2026,WAS001,"Individual Value ",false,"Snohomish - 53061",Snohomish,false,,,Individual,No
+2026,WA,53732,SERFF,1,01-13-2026,WAS001,"Individual Value ",false,"Klickitat - 53039",Klickitat,false,,,Individual,No
+2026,WA,53732,SERFF,1,01-13-2026,WAS001,"Individual Value ",false,"Thurston - 53067",Thurston,false,,,Individual,No
+2026,WA,53732,SERFF,1,01-13-2026,WAS001,"Individual Value ",false,"Walla Walla - 53071","Walla Walla",false,,,Individual,No
+2026,WA,53732,SERFF,1,01-13-2026,WAS001,"Individual Value ",false,"King - 53033",King,false,,,Individual,No
+2026,WA,53732,SERFF,1,01-13-2026,WAS001,"Individual Value ",false,"Yakima - 53077",Yakima,false,,,Individual,No
+2026,WA,53732,SERFF,1,01-13-2026,WAS001,"Individual Value ",false,"Columbia - 53013",Columbia,false,,,Individual,No
+2026,WA,53732,SERFF,1,01-13-2026,WAS001,"Individual Value ",false,"Kitsap - 53035",Kitsap,false,,,Individual,No
+2026,WA,53732,SERFF,1,01-13-2026,WAS001,"Individual Value ",false,"Spokane - 53063",Spokane,false,,,Individual,No
+2026,WA,53732,SERFF,1,01-13-2026,WAS001,"Individual Value ",false,"Clark - 53011",Clark,false,,,Individual,No
+2026,WA,53732,SERFF,1,01-13-2026,WAS001,"Individual Value ",false,"Benton - 53005",Benton,false,,,Individual,No
+2026,WA,58105,SERFF,1,01-13-2026,WAS001,"IND Washington",true,,,,,,Individual,Yes
+2026,WA,58105,SERFF,1,01-13-2026,WAS002,"SG Washington",true,,,,,,Individual,Yes
+2026,WA,61836,SERFF,1,01-13-2026,WAS001,"CCCWA Exchange",true,,,,,,Individual,No
+2026,WA,61836,SERFF,1,01-13-2026,WAS002,"Cascade Complete Care",false,"Franklin - 53021",Franklin,false,,,Individual,No
+2026,WA,61836,SERFF,1,01-13-2026,WAS002,"Cascade Complete Care",false,"Stevens - 53065",Stevens,false,,,Individual,No
+2026,WA,61836,SERFF,1,01-13-2026,WAS002,"Cascade Complete Care",false,"King - 53033",King,false,,,Individual,No
+2026,WA,61836,SERFF,1,01-13-2026,WAS002,"Cascade Complete Care",false,"Okanogan - 53047",Okanogan,false,,,Individual,No
+2026,WA,61836,SERFF,1,01-13-2026,WAS002,"Cascade Complete Care",false,"Thurston - 53067",Thurston,false,,,Individual,No
+2026,WA,61836,SERFF,1,01-13-2026,WAS002,"Cascade Complete Care",false,"Benton - 53005",Benton,false,,,Individual,No
+2026,WA,61836,SERFF,1,01-13-2026,WAS002,"Cascade Complete Care",false,"Skamania - 53059",Skamania,false,,,Individual,No
+2026,WA,61836,SERFF,1,01-13-2026,WAS002,"Cascade Complete Care",false,"Clallam - 53009",Clallam,false,,,Individual,No
+2026,WA,61836,SERFF,1,01-13-2026,WAS002,"Cascade Complete Care",false,"Jefferson - 53031",Jefferson,false,,,Individual,No
+2026,WA,61836,SERFF,1,01-13-2026,WAS002,"Cascade Complete Care",false,"Grays Harbor - 53027","Grays Harbor",false,,,Individual,No
+2026,WA,61836,SERFF,1,01-13-2026,WAS002,"Cascade Complete Care",false,"Wahkiakum - 53069",Wahkiakum,false,,,Individual,No
+2026,WA,61836,SERFF,1,01-13-2026,WAS002,"Cascade Complete Care",false,"Kitsap - 53035",Kitsap,false,,,Individual,No
+2026,WA,61836,SERFF,1,01-13-2026,WAS002,"Cascade Complete Care",false,"Garfield - 53023",Garfield,false,,,Individual,No
+2026,WA,61836,SERFF,1,01-13-2026,WAS002,"Cascade Complete Care",false,"Island - 53029",Island,false,,,Individual,No
+2026,WA,61836,SERFF,1,01-13-2026,WAS002,"Cascade Complete Care",false,"Klickitat - 53039",Klickitat,false,,,Individual,No
+2026,WA,61836,SERFF,1,01-13-2026,WAS002,"Cascade Complete Care",false,"Pierce - 53053",Pierce,false,,,Individual,No
+2026,WA,61836,SERFF,1,01-13-2026,WAS002,"Cascade Complete Care",false,"Spokane - 53063",Spokane,false,,,Individual,No
+2026,WA,61836,SERFF,1,01-13-2026,WAS002,"Cascade Complete Care",false,"Walla Walla - 53071","Walla Walla",false,,,Individual,No
+2026,WA,61836,SERFF,1,01-13-2026,WAS002,"Cascade Complete Care",false,"Snohomish - 53061",Snohomish,false,,,Individual,No
+2026,WA,61836,SERFF,1,01-13-2026,WAS002,"Cascade Complete Care",false,"Pacific - 53049",Pacific,false,,,Individual,No
+2026,WA,61836,SERFF,1,01-13-2026,WAS002,"Cascade Complete Care",false,"Adams - 53001",Adams,false,,,Individual,No
+2026,WA,61836,SERFF,1,01-13-2026,WAS002,"Cascade Complete Care",false,"Asotin - 53003",Asotin,false,,,Individual,No
+2026,WA,61836,SERFF,1,01-13-2026,WAS002,"Cascade Complete Care",false,"Lewis - 53041",Lewis,false,,,Individual,No
+2026,WA,62650,SERFF,1,01-13-2026,WAS011,"Individual Exchange",false,"Mason - 53045",Mason,false,,,Individual,No
+2026,WA,62650,SERFF,1,01-13-2026,WAS011,"Individual Exchange",false,"Grays Harbor - 53027","Grays Harbor",false,,,Individual,No
+2026,WA,62650,SERFF,1,01-13-2026,WAS011,"Individual Exchange",false,"Yakima - 53077",Yakima,false,,,Individual,No
+2026,WA,62650,SERFF,1,01-13-2026,WAS011,"Individual Exchange",false,"Adams - 53001",Adams,false,,,Individual,No
+2026,WA,62650,SERFF,1,01-13-2026,WAS011,"Individual Exchange",false,"Kittitas - 53037",Kittitas,false,,,Individual,No
+2026,WA,62650,SERFF,1,01-13-2026,WAS011,"Individual Exchange",false,"Jefferson - 53031",Jefferson,false,,,Individual,No
+2026,WA,62650,SERFF,1,01-13-2026,WAS011,"Individual Exchange",false,"Spokane - 53063",Spokane,false,,,Individual,No
+2026,WA,62650,SERFF,1,01-13-2026,WAS011,"Individual Exchange",false,"King - 53033",King,false,,,Individual,No
+2026,WA,62650,SERFF,1,01-13-2026,WAS011,"Individual Exchange",false,"Lincoln - 53043",Lincoln,false,,,Individual,No
+2026,WA,62650,SERFF,1,01-13-2026,WAS011,"Individual Exchange",false,"Thurston - 53067",Thurston,false,,,Individual,No
+2026,WA,62650,SERFF,1,01-13-2026,WAS011,"Individual Exchange",false,"Clallam - 53009",Clallam,false,,,Individual,No
+2026,WA,62650,SERFF,1,01-13-2026,WAS011,"Individual Exchange",false,"Whitman - 53075",Whitman,false,,,Individual,No
+2026,WA,62650,SERFF,1,01-13-2026,WAS011,"Individual Exchange",false,"Pierce - 53053",Pierce,false,,,Individual,No
+2026,WA,71281,SERFF,1,01-13-2026,WAS001,"Individual Connect and Legacy Network",false,"Clark - 53011",Clark,false,,,Individual,No
+2026,WA,71281,SERFF,1,01-13-2026,WAS002,"Preferred and Legacy Network Small Group",false,"Clark - 53011",Clark,false,,,Individual,No
+2026,WA,75928,SERFF,1,01-13-2026,WAS001,Washington,false,"Jefferson - 53031",Jefferson,false,,,Individual,Yes
+2026,WA,75928,SERFF,1,01-13-2026,WAS001,Washington,false,"Whitman - 53075",Whitman,false,,,Individual,Yes
+2026,WA,75928,SERFF,1,01-13-2026,WAS001,Washington,false,"Thurston - 53067",Thurston,false,,,Individual,Yes
+2026,WA,75928,SERFF,1,01-13-2026,WAS001,Washington,false,"Franklin - 53021",Franklin,false,,,Individual,Yes
+2026,WA,75928,SERFF,1,01-13-2026,WAS001,Washington,false,"Pierce - 53053",Pierce,false,,,Individual,Yes
+2026,WA,75928,SERFF,1,01-13-2026,WAS001,Washington,false,"Kittitas - 53037",Kittitas,false,,,Individual,Yes
+2026,WA,75928,SERFF,1,01-13-2026,WAS001,Washington,false,"Grays Harbor - 53027","Grays Harbor",false,,,Individual,Yes
+2026,WA,75928,SERFF,1,01-13-2026,WAS001,Washington,false,"Lewis - 53041",Lewis,false,,,Individual,Yes
+2026,WA,75928,SERFF,1,01-13-2026,WAS001,Washington,false,"Adams - 53001",Adams,false,,,Individual,Yes
+2026,WA,75928,SERFF,1,01-13-2026,WAS001,Washington,false,"Snohomish - 53061",Snohomish,false,,,Individual,Yes
+2026,WA,75928,SERFF,1,01-13-2026,WAS001,Washington,false,"Douglas - 53017",Douglas,false,,,Individual,Yes
+2026,WA,75928,SERFF,1,01-13-2026,WAS001,Washington,false,"Clallam - 53009",Clallam,false,,,Individual,Yes
+2026,WA,75928,SERFF,1,01-13-2026,WAS001,Washington,false,"Stevens - 53065",Stevens,false,,,Individual,Yes
+2026,WA,75928,SERFF,1,01-13-2026,WAS001,Washington,false,"Pacific - 53049",Pacific,false,,,Individual,Yes
+2026,WA,75928,SERFF,1,01-13-2026,WAS001,Washington,false,"Spokane - 53063",Spokane,false,,,Individual,Yes
+2026,WA,75928,SERFF,1,01-13-2026,WAS001,Washington,false,"Kitsap - 53035",Kitsap,false,,,Individual,Yes
+2026,WA,75928,SERFF,1,01-13-2026,WAS001,Washington,false,"Skagit - 53057",Skagit,false,,,Individual,Yes
+2026,WA,75928,SERFF,1,01-13-2026,WAS001,Washington,false,"Whatcom - 53073",Whatcom,false,,,Individual,Yes
+2026,WA,75928,SERFF,1,01-13-2026,WAS001,Washington,false,"Benton - 53005",Benton,false,,,Individual,Yes
+2026,WA,75928,SERFF,1,01-13-2026,WAS001,Washington,false,"Grant - 53025",Grant,false,,,Individual,Yes
+2026,WA,75928,SERFF,1,01-13-2026,WAS001,Washington,false,"Yakima - 53077",Yakima,false,,,Individual,Yes
+2026,WA,75928,SERFF,1,01-13-2026,WAS001,Washington,false,"Cowlitz - 53015",Cowlitz,false,,,Individual,Yes
+2026,WA,75928,SERFF,1,01-13-2026,WAS001,Washington,false,"Island - 53029",Island,false,,,Individual,Yes
+2026,WA,75928,SERFF,1,01-13-2026,WAS001,Washington,false,"Walla Walla - 53071","Walla Walla",false,,,Individual,Yes
+2026,WA,75928,SERFF,1,01-13-2026,WAS001,Washington,false,"King - 53033",King,false,,,Individual,Yes
+2026,WA,75928,SERFF,1,01-13-2026,WAS001,Washington,false,"Mason - 53045",Mason,false,,,Individual,Yes
+2026,WA,75928,SERFF,1,01-13-2026,WAS001,Washington,false,"Clark - 53011",Clark,false,,,Individual,Yes
+2026,WA,80473,SERFF,1,01-13-2026,WAS001,"KPIF 1",false,"Benton - 53005",Benton,false,,,Individual,No
+2026,WA,80473,SERFF,1,01-13-2026,WAS001,"KPIF 1",false,"Thurston - 53067",Thurston,false,,,Individual,No
+2026,WA,80473,SERFF,1,01-13-2026,WAS001,"KPIF 1",false,"Spokane - 53063",Spokane,false,,,Individual,No
+2026,WA,80473,SERFF,1,01-13-2026,WAS001,"KPIF 1",false,"Island - 53029",Island,false,,,Individual,No
+2026,WA,80473,SERFF,1,01-13-2026,WAS001,"KPIF 1",false,"King - 53033",King,false,,,Individual,No
+2026,WA,80473,SERFF,1,01-13-2026,WAS001,"KPIF 1",false,"Walla Walla - 53071","Walla Walla",false,,,Individual,No
+2026,WA,80473,SERFF,1,01-13-2026,WAS001,"KPIF 1",false,"Snohomish - 53061",Snohomish,false,,,Individual,No
+2026,WA,80473,SERFF,1,01-13-2026,WAS001,"KPIF 1",false,"Mason - 53045",Mason,false,,,Individual,No
+2026,WA,80473,SERFF,1,01-13-2026,WAS001,"KPIF 1",false,"Skagit - 53057",Skagit,false,,,Individual,No
+2026,WA,80473,SERFF,1,01-13-2026,WAS001,"KPIF 1",false,"Kitsap - 53035",Kitsap,false,,,Individual,No
+2026,WA,80473,SERFF,1,01-13-2026,WAS001,"KPIF 1",false,"Whitman - 53075",Whitman,false,,,Individual,No
+2026,WA,80473,SERFF,1,01-13-2026,WAS001,"KPIF 1",false,"Franklin - 53021",Franklin,false,,,Individual,No
+2026,WA,80473,SERFF,1,01-13-2026,WAS001,"KPIF 1",false,"Yakima - 53077",Yakima,false,,,Individual,No
+2026,WA,80473,SERFF,1,01-13-2026,WAS001,"KPIF 1",false,"Lewis - 53041",Lewis,false,,,Individual,No
+2026,WA,80473,SERFF,1,01-13-2026,WAS001,"KPIF 1",false,"Columbia - 53013",Columbia,false,,,Individual,No
+2026,WA,80473,SERFF,1,01-13-2026,WAS001,"KPIF 1",false,"Pierce - 53053",Pierce,false,,,Individual,No
+2026,WA,80473,SERFF,1,01-13-2026,WAS001,"KPIF 1",false,"Whatcom - 53073",Whatcom,false,,,Individual,No
+2026,WA,80473,SERFF,1,01-13-2026,WAS002,"SG 1",false,"Thurston - 53067",Thurston,false,,,Individual,No
+2026,WA,80473,SERFF,1,01-13-2026,WAS002,"SG 1",false,"Whitman - 53075",Whitman,false,,,Individual,No
+2026,WA,80473,SERFF,1,01-13-2026,WAS002,"SG 1",false,"Skagit - 53057",Skagit,false,,,Individual,No
+2026,WA,80473,SERFF,1,01-13-2026,WAS002,"SG 1",false,"Columbia - 53013",Columbia,false,,,Individual,No
+2026,WA,80473,SERFF,1,01-13-2026,WAS002,"SG 1",false,"Walla Walla - 53071","Walla Walla",false,,,Individual,No
+2026,WA,80473,SERFF,1,01-13-2026,WAS002,"SG 1",false,"Benton - 53005",Benton,false,,,Individual,No
+2026,WA,80473,SERFF,1,01-13-2026,WAS002,"SG 1",false,"Franklin - 53021",Franklin,false,,,Individual,No
+2026,WA,80473,SERFF,1,01-13-2026,WAS002,"SG 1",false,"Lewis - 53041",Lewis,false,,,Individual,No
+2026,WA,80473,SERFF,1,01-13-2026,WAS002,"SG 1",false,"Snohomish - 53061",Snohomish,false,,,Individual,No
+2026,WA,80473,SERFF,1,01-13-2026,WAS002,"SG 1",false,"Yakima - 53077",Yakima,false,,,Individual,No
+2026,WA,80473,SERFF,1,01-13-2026,WAS002,"SG 1",false,"Whatcom - 53073",Whatcom,false,,,Individual,No
+2026,WA,80473,SERFF,1,01-13-2026,WAS002,"SG 1",false,"Pierce - 53053",Pierce,false,,,Individual,No
+2026,WA,80473,SERFF,1,01-13-2026,WAS002,"SG 1",false,"Spokane - 53063",Spokane,false,,,Individual,No
+2026,WA,80473,SERFF,1,01-13-2026,WAS002,"SG 1",false,"Island - 53029",Island,false,,,Individual,No
+2026,WA,80473,SERFF,1,01-13-2026,WAS002,"SG 1",false,"King - 53033",King,false,,,Individual,No
+2026,WA,80473,SERFF,1,01-13-2026,WAS002,"SG 1",false,"Kitsap - 53035",Kitsap,false,,,Individual,No
+2026,WA,80473,SERFF,1,01-13-2026,WAS002,"SG 1",false,"Mason - 53045",Mason,false,,,Individual,No
+2026,WA,84481,SERFF,1,01-13-2026,WAS001,"Molina Marketplace Service Area",false,"Franklin - 53021",Franklin,false,,,Individual,No
+2026,WA,84481,SERFF,1,01-13-2026,WAS001,"Molina Marketplace Service Area",false,"Ferry - 53019",Ferry,false,,,Individual,No
+2026,WA,84481,SERFF,1,01-13-2026,WAS001,"Molina Marketplace Service Area",false,"Cowlitz - 53015",Cowlitz,false,,,Individual,No
+2026,WA,84481,SERFF,1,01-13-2026,WAS001,"Molina Marketplace Service Area",false,"Mason - 53045",Mason,false,,,Individual,No
+2026,WA,84481,SERFF,1,01-13-2026,WAS001,"Molina Marketplace Service Area",false,"Clark - 53011",Clark,false,,,Individual,No
+2026,WA,84481,SERFF,1,01-13-2026,WAS001,"Molina Marketplace Service Area",false,"Spokane - 53063",Spokane,false,,,Individual,No
+2026,WA,84481,SERFF,1,01-13-2026,WAS001,"Molina Marketplace Service Area",false,"King - 53033",King,false,,,Individual,No
+2026,WA,84481,SERFF,1,01-13-2026,WAS001,"Molina Marketplace Service Area",false,"Kitsap - 53035",Kitsap,false,,,Individual,No
+2026,WA,84481,SERFF,1,01-13-2026,WAS001,"Molina Marketplace Service Area",false,"Stevens - 53065",Stevens,false,,,Individual,No
+2026,WA,84481,SERFF,1,01-13-2026,WAS001,"Molina Marketplace Service Area",false,"Skamania - 53059",Skamania,false,,,Individual,No
+2026,WA,84481,SERFF,1,01-13-2026,WAS001,"Molina Marketplace Service Area",false,"Thurston - 53067",Thurston,false,,,Individual,No
+2026,WA,84481,SERFF,1,01-13-2026,WAS001,"Molina Marketplace Service Area",false,"Snohomish - 53061",Snohomish,false,,,Individual,No
+2026,WA,84481,SERFF,1,01-13-2026,WAS001,"Molina Marketplace Service Area",false,"Lewis - 53041",Lewis,false,,,Individual,No
+2026,WA,84481,SERFF,1,01-13-2026,WAS001,"Molina Marketplace Service Area",false,"Pend Oreille - 53051","Pend Oreille",false,,,Individual,No
+2026,WA,84481,SERFF,1,01-13-2026,WAS001,"Molina Marketplace Service Area",false,"Lincoln - 53043",Lincoln,false,,,Individual,No
+2026,WA,84481,SERFF,1,01-13-2026,WAS001,"Molina Marketplace Service Area",false,"Klickitat - 53039",Klickitat,false,,,Individual,No
+2026,WA,84481,SERFF,1,01-13-2026,WAS001,"Molina Marketplace Service Area",false,"Pierce - 53053",Pierce,false,,,Individual,No
+2026,WA,84481,SERFF,1,01-13-2026,WAS001,"Molina Marketplace Service Area",false,"Benton - 53005",Benton,false,,,Individual,No
+2026,WA,87718,SERFF,1,01-13-2026,WAS001,"Individual Connect",false,"Yakima - 53077",Yakima,false,,,Individual,No
+2026,WA,87718,SERFF,1,01-13-2026,WAS001,"Individual Connect",false,"Kitsap - 53035",Kitsap,false,,,Individual,No
+2026,WA,87718,SERFF,1,01-13-2026,WAS001,"Individual Connect",false,"Thurston - 53067",Thurston,false,,,Individual,No
+2026,WA,87718,SERFF,1,01-13-2026,WAS001,"Individual Connect",false,"Columbia - 53013",Columbia,false,,,Individual,No
+2026,WA,87718,SERFF,1,01-13-2026,WAS001,"Individual Connect",false,"Walla Walla - 53071","Walla Walla",false,,,Individual,No
+2026,WA,87718,SERFF,1,01-13-2026,WAS001,"Individual Connect",false,"Snohomish - 53061",Snohomish,false,,,Individual,No
+2026,WA,87718,SERFF,1,01-13-2026,WAS001,"Individual Connect",false,"Mason - 53045",Mason,false,,,Individual,No
+2026,WA,87718,SERFF,1,01-13-2026,WAS001,"Individual Connect",false,"Lewis - 53041",Lewis,false,,,Individual,No
+2026,WA,87718,SERFF,1,01-13-2026,WAS001,"Individual Connect",false,"Skagit - 53057",Skagit,false,,,Individual,No
+2026,WA,87718,SERFF,1,01-13-2026,WAS001,"Individual Connect",false,"Skamania - 53059",Skamania,false,,,Individual,No
+2026,WA,87718,SERFF,1,01-13-2026,WAS001,"Individual Connect",false,"King - 53033",King,false,,,Individual,No
+2026,WA,87718,SERFF,1,01-13-2026,WAS001,"Individual Connect",false,"Grays Harbor - 53027","Grays Harbor",false,,,Individual,No
+2026,WA,87718,SERFF,1,01-13-2026,WAS001,"Individual Connect",false,"Jefferson - 53031",Jefferson,false,,,Individual,No
+2026,WA,87718,SERFF,1,01-13-2026,WAS001,"Individual Connect",false,"Clallam - 53009",Clallam,false,,,Individual,No
+2026,WA,87718,SERFF,1,01-13-2026,WAS001,"Individual Connect",false,"Klickitat - 53039",Klickitat,false,,,Individual,No
+2026,WA,87718,SERFF,1,01-13-2026,WAS001,"Individual Connect",false,"Pierce - 53053",Pierce,false,,,Individual,No
+2026,WA,87718,SERFF,1,01-13-2026,WAS001,"Individual Connect",false,"Wahkiakum - 53069",Wahkiakum,false,,,Individual,No
+2026,WA,87718,SERFF,1,01-13-2026,WAS001,"Individual Connect",false,"Pacific - 53049",Pacific,false,,,Individual,No
+2026,WA,87718,SERFF,1,01-13-2026,WAS002,"Preferred Small Group ",false,"Klickitat - 53039",Klickitat,false,,,Individual,No
+2026,WA,87718,SERFF,1,01-13-2026,WAS002,"Preferred Small Group ",false,"Clallam - 53009",Clallam,false,,,Individual,No
+2026,WA,87718,SERFF,1,01-13-2026,WAS002,"Preferred Small Group ",false,"Island - 53029",Island,false,,,Individual,No
+2026,WA,87718,SERFF,1,01-13-2026,WAS002,"Preferred Small Group ",false,"Wahkiakum - 53069",Wahkiakum,false,,,Individual,No
+2026,WA,87718,SERFF,1,01-13-2026,WAS002,"Preferred Small Group ",false,"Walla Walla - 53071","Walla Walla",false,,,Individual,No
+2026,WA,87718,SERFF,1,01-13-2026,WAS002,"Preferred Small Group ",false,"San Juan - 53055","San Juan",false,,,Individual,No
+2026,WA,87718,SERFF,1,01-13-2026,WAS002,"Preferred Small Group ",false,"Snohomish - 53061",Snohomish,false,,,Individual,No
+2026,WA,87718,SERFF,1,01-13-2026,WAS002,"Preferred Small Group ",false,"Lewis - 53041",Lewis,false,,,Individual,No
+2026,WA,87718,SERFF,1,01-13-2026,WAS002,"Preferred Small Group ",false,"Pacific - 53049",Pacific,false,,,Individual,No
+2026,WA,87718,SERFF,1,01-13-2026,WAS002,"Preferred Small Group ",false,"Jefferson - 53031",Jefferson,false,,,Individual,No
+2026,WA,87718,SERFF,1,01-13-2026,WAS002,"Preferred Small Group ",false,"Pierce - 53053",Pierce,false,,,Individual,No
+2026,WA,87718,SERFF,1,01-13-2026,WAS002,"Preferred Small Group ",false,"Cowlitz - 53015",Cowlitz,false,,,Individual,No
+2026,WA,87718,SERFF,1,01-13-2026,WAS002,"Preferred Small Group ",false,"Thurston - 53067",Thurston,false,,,Individual,No
+2026,WA,87718,SERFF,1,01-13-2026,WAS002,"Preferred Small Group ",false,"Kitsap - 53035",Kitsap,false,,,Individual,No
+2026,WA,87718,SERFF,1,01-13-2026,WAS002,"Preferred Small Group ",false,"King - 53033",King,false,,,Individual,No
+2026,WA,87718,SERFF,1,01-13-2026,WAS002,"Preferred Small Group ",false,"Whatcom - 53073",Whatcom,false,,,Individual,No
+2026,WA,87718,SERFF,1,01-13-2026,WAS002,"Preferred Small Group ",false,"Columbia - 53013",Columbia,false,,,Individual,No
+2026,WA,87718,SERFF,1,01-13-2026,WAS002,"Preferred Small Group ",false,"Mason - 53045",Mason,false,,,Individual,No
+2026,WA,87718,SERFF,1,01-13-2026,WAS002,"Preferred Small Group ",false,"Yakima - 53077",Yakima,false,,,Individual,No
+2026,WA,87718,SERFF,1,01-13-2026,WAS002,"Preferred Small Group ",false,"Grays Harbor - 53027","Grays Harbor",false,,,Individual,No
+2026,WA,87718,SERFF,1,01-13-2026,WAS002,"Preferred Small Group ",false,"Skamania - 53059",Skamania,false,,,Individual,No
+2026,WA,87718,SERFF,1,01-13-2026,WAS002,"Preferred Small Group ",false,"Skagit - 53057",Skagit,false,,,Individual,No

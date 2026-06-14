@@ -1,0 +1,30 @@
+"BUSINESS YEAR","STATE CODE","ISSUER ID","SOURCE NAME","VERSION NUMBER","IMPORT DATE","NETWORK ID","NETWORK NAME","NETWORK URL","MARKET COVERAGE","DENTAL PLAN ONLY"
+2026,GA,13535,SERFF,1,01-13-2026,GAN011,"Smile Now Georgia PPO",,Individual,Yes
+2026,GA,15105,SERFF,1,01-13-2026,GAN001,"Georgia Connect Network",,Individual,No
+2026,GA,37001,SERFF,1,01-13-2026,GAN001,"HumanaDental PPO/Traditional Preferred",,Individual,Yes
+2026,GA,37301,SERFF,1,01-13-2026,GAN001,Premier,,Individual,Yes
+2026,GA,37301,SERFF,1,01-13-2026,GAN002,Advantage,,Individual,Yes
+2026,GA,43802,SERFF,1,01-13-2026,GAN011,"Individual Exchange Benefit Plan Network",,Individual,No
+2026,GA,43802,SERFF,1,01-13-2026,GAN016,"EssentialSmile Georgia - Total Care (Dental)",,Individual,Yes
+2026,GA,45334,SERFF,1,01-13-2026,GAN001,"Blue Value Individual Network HMO and Rx Choice Tiered Network",,Individual,No
+2026,GA,49046,SERFF,1,01-13-2026,GAN001,"Pathway and Rx Choice Tiered Network",,Individual,No
+2026,GA,49046,SERFF,1,01-13-2026,GAN003,"Pathway Guided Access and Rx Choice Tiered Network",,Individual,No
+2026,GA,49046,SERFF,1,01-13-2026,GAN007,"Dental Prime",,Individual,Yes
+2026,GA,49046,SERFF,1,01-13-2026,GAN008,"Pathway PCP Copay Choice and Rx Choice Tiered Network",,Individual,No
+2026,GA,58081,SERFF,1,01-13-2026,GAN001,"Individual Georgia HMO Non-Gatekept",,Individual,No
+2026,GA,58081,SERFF,1,01-13-2026,GAN002,"Individual Georgia HMO",,Individual,No
+2026,GA,60224,SERFF,1,01-13-2026,GAN001,Georgia,,Individual,No
+2026,GA,64357,SERFF,1,01-13-2026,GAN001,"Choice PPO",,Individual,Yes
+2026,GA,68806,SERFF,1,01-13-2026,GAN001,"GA Marketplace  Network",,Individual,Yes
+2026,GA,70893,SERFF,1,01-13-2026,GAN001,Premier,,Individual,No
+2026,GA,70893,SERFF,1,01-13-2026,GAN002,"Wellstar SELECT",,Individual,No
+2026,GA,70893,SERFF,1,01-13-2026,GAN003,"Plus SELECT",,Individual,No
+2026,GA,70893,SERFF,1,01-13-2026,GAN004,"St. Josephs Candler SELECT",,Individual,No
+2026,GA,70893,SERFF,1,01-13-2026,GAN005,"Gwinnett Clinic SELECT",,Individual,No
+2026,GA,83502,SERFF,1,01-13-2026,GAN001,"BEST Life and Health National Network",,Individual,Yes
+2026,GA,83761,SERFF,1,01-13-2026,GAN001,"Alliant Health Plans",,Individual,No
+2026,GA,83761,SERFF,1,01-13-2026,GAN002,"Alliant Health Plans Direct",,Individual,No
+2026,GA,86637,SERFF,1,01-13-2026,GAN001,"Delta Dental PPO Individual",,Individual,Yes
+2026,GA,89942,SERFF,1,01-13-2026,GAN001,"Kaiser Permanente HMO - Small Group",,"SHOP (Small Group)",No
+2026,GA,89942,SERFF,1,01-13-2026,GAN002,"Kaiser Permanente Signature HMO - Individual",,Individual,No
+2026,GA,89942,SERFF,1,01-13-2026,GAN003,"Kaiser Permanente HMO - Individual",,Individual,No

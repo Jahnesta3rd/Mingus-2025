@@ -1,0 +1,155 @@
+"BUSINESS YEAR","STATE CODE","ISSUER ID","SOURCE NAME","VERSION NUMBER","IMPORT DATE","PRODUCT ID","STANDARD COMPONENT ID","DEPENDENT MAX AGE RULE","AGE DETERMINATION RULE","MINIMUM TOBACCO FREE MONTHS RULE","COHABITATION RULE REQUIRED","COHABITATION RULE CODE","MARKET COVERAGE","DENTAL ONLY PLAN","MEDICAL OR DENTAL RULE","MAX CHILDREN IN POLICY"
+2026,VA,10207,SERFF,1,05-20-2026,,,25,"Age on effective date","Not Applicable",No,"Stepson or Stepdaughter",,,Medical,3
+2026,VA,10207,SERFF,1,05-20-2026,,,25,"Age on effective date","Not Applicable",No,Child,,,Medical,3
+2026,VA,10207,SERFF,1,05-20-2026,,,25,"Age on effective date","Not Applicable",No,Spouse,,,Medical,3
+2026,VA,10207,SERFF,1,05-20-2026,,,25,"Age on effective date","Not Applicable",Yes,Self,,,Medical,3
+2026,VA,10207,SERFF,1,05-20-2026,,,25,"Age on effective date","Not Applicable",No,"Foster Child",,,Medical,3
+2026,VA,10207,SERFF,1,05-20-2026,,,25,"Age on effective date","Not Applicable",Yes,"Life Partner",,,Medical,3
+2026,VA,10207,SERFF,1,05-20-2026,,,25,"Age on effective date","Not Applicable",Yes,"Life Partner",,,Medical,3
+2026,VA,10207,SERFF,1,05-20-2026,,,25,"Age on effective date","Not Applicable",No,"Stepson or Stepdaughter",,,Medical,3
+2026,VA,10207,SERFF,1,05-20-2026,,,25,"Age on effective date","Not Applicable",No,Child,,,Medical,3
+2026,VA,10207,SERFF,1,05-20-2026,,,25,"Age on effective date","Not Applicable",No,Spouse,,,Medical,3
+2026,VA,10207,SERFF,1,05-20-2026,,,25,"Age on effective date","Not Applicable",No,"Foster Child",,,Medical,3
+2026,VA,10207,SERFF,1,05-20-2026,,,25,"Age on effective date","Not Applicable",Yes,Self,,,Medical,3
+2026,VA,16064,SERFF,1,05-20-2026,,,25,"Age on effective date","Not Applicable",Yes,Self,,,Dental,3
+2026,VA,16064,SERFF,1,05-20-2026,,,25,"Age on effective date","Not Applicable",No,"Stepson or Stepdaughter",,,Dental,3
+2026,VA,16064,SERFF,1,05-20-2026,,,25,"Age on effective date","Not Applicable",No,Child,,,Dental,3
+2026,VA,16064,SERFF,1,05-20-2026,,,25,"Age on effective date","Not Applicable",No,"Foster Child",,,Dental,3
+2026,VA,16064,SERFF,1,05-20-2026,,,25,"Age on effective date","Not Applicable",No,Ward,,,Dental,3
+2026,VA,16064,SERFF,1,05-20-2026,,,25,"Age on effective date","Not Applicable",Yes,"Life Partner",,,Dental,3
+2026,VA,16064,SERFF,1,05-20-2026,,,25,"Age on effective date","Not Applicable",Yes,Spouse,,,Dental,3
+2026,VA,20507,SERFF,1,05-20-2026,,,26,"Age on effective date",6,Yes,Self,,,Medical,3
+2026,VA,20507,SERFF,1,05-20-2026,,,26,"Age on effective date",6,No,Child,,,Medical,3
+2026,VA,20507,SERFF,1,05-20-2026,,,26,"Age on effective date",6,No,"Stepson or Stepdaughter",,,Medical,3
+2026,VA,20507,SERFF,1,05-20-2026,,,26,"Age on effective date",6,No,"Foster Child",,,Medical,3
+2026,VA,20507,SERFF,1,05-20-2026,,,26,"Age on effective date",6,Yes,Ward,,,Medical,3
+2026,VA,20507,SERFF,1,05-20-2026,,,26,"Age on effective date",6,Yes,Spouse,,,Medical,3
+2026,VA,24251,SERFF,1,05-20-2026,,,25,"Age on effective date",6,No,"Foster Child",,,Medical,3
+2026,VA,24251,SERFF,1,05-20-2026,,,25,"Age on effective date",6,No,Ward,,,Medical,3
+2026,VA,24251,SERFF,1,05-20-2026,,,25,"Age on effective date",6,Yes,Self,,,Medical,3
+2026,VA,24251,SERFF,1,05-20-2026,,,25,"Age on effective date",6,No,Spouse,,,Medical,3
+2026,VA,24251,SERFF,1,05-20-2026,,,25,"Age on effective date",6,No,"Stepson or Stepdaughter",,,Medical,3
+2026,VA,24251,SERFF,1,05-20-2026,,,25,"Age on effective date",6,No,Child,,,Medical,3
+2026,VA,24251,SERFF,1,05-20-2026,,,25,"Age on effective date",6,No,"Life Partner",,,Medical,3
+2026,VA,25922,SERFF,1,05-20-2026,,,25,"Age on effective date",6,No,"Stepson or Stepdaughter",,,Medical,3
+2026,VA,25922,SERFF,1,05-20-2026,,,25,"Age on effective date",6,No,"Foster Child",,,Medical,3
+2026,VA,25922,SERFF,1,05-20-2026,,,25,"Age on effective date",6,No,Spouse,,,Medical,3
+2026,VA,25922,SERFF,1,05-20-2026,,,25,"Age on effective date",6,Yes,Self,,,Medical,3
+2026,VA,25922,SERFF,1,05-20-2026,,,25,"Age on effective date",6,No,Child,,,Medical,3
+2026,VA,25922,SERFF,1,05-20-2026,,,25,"Age on effective date",6,No,"Life Partner",,,Medical,3
+2026,VA,25922,SERFF,1,05-20-2026,,,25,"Age on effective date",6,No,Ward,,,Medical,3
+2026,VA,25978,SERFF,1,05-20-2026,,,30,"Age on effective date","Not Applicable",No,Spouse,,,Dental,3
+2026,VA,25978,SERFF,1,05-20-2026,,,30,"Age on effective date","Not Applicable",No,Child,,,Dental,3
+2026,VA,25978,SERFF,1,05-20-2026,,,30,"Age on effective date","Not Applicable",Yes,Self,,,Dental,3
+2026,VA,25978,SERFF,1,05-20-2026,,,30,"Age on effective date","Not Applicable",No,"Life Partner",,,Dental,3
+2026,VA,25978,SERFF,1,05-20-2026,,,30,"Age on effective date","Not Applicable",No,"Stepson or Stepdaughter",,,Dental,3
+2026,VA,25978,SERFF,1,05-20-2026,,,30,"Age on effective date","Not Applicable",No,"Foster Child",,,Dental,3
+2026,VA,25978,SERFF,1,05-20-2026,,,30,"Age on effective date","Not Applicable",No,Ward,,,Dental,3
+2026,VA,27117,SERFF,1,05-20-2026,,,25,"Age on effective date","Not Applicable",No,"Stepson or Stepdaughter",,,Dental,3
+2026,VA,27117,SERFF,1,05-20-2026,,,25,"Age on effective date","Not Applicable",No,Child,,,Dental,3
+2026,VA,27117,SERFF,1,05-20-2026,,,25,"Age on effective date","Not Applicable",No,Spouse,,,Dental,3
+2026,VA,27117,SERFF,1,05-20-2026,,,25,"Age on effective date","Not Applicable",No,Ward,,,Dental,3
+2026,VA,27117,SERFF,1,05-20-2026,,,25,"Age on effective date","Not Applicable",Yes,"Life Partner",,,Dental,3
+2026,VA,27117,SERFF,1,05-20-2026,,,25,"Age on effective date","Not Applicable",Yes,Self,,,Dental,3
+2026,VA,27117,SERFF,1,05-20-2026,,,25,"Age on effective date","Not Applicable",Yes,"Foster Child",,,Dental,3
+2026,VA,31319,SERFF,1,05-20-2026,,,26,"Age on effective date","Not Applicable",Yes,Self,,,Dental,3
+2026,VA,31319,SERFF,1,05-20-2026,,,26,"Age on effective date","Not Applicable",No,Spouse,,,Dental,3
+2026,VA,31319,SERFF,1,05-20-2026,,,26,"Age on effective date","Not Applicable",No,"Stepson or Stepdaughter",,,Dental,3
+2026,VA,31319,SERFF,1,05-20-2026,,,26,"Age on effective date","Not Applicable",No,Child,,,Dental,3
+2026,VA,31319,SERFF,1,05-20-2026,,,26,"Age on effective date","Not Applicable",No,"Foster Child",,,Dental,3
+2026,VA,40198,SERFF,1,05-20-2026,,40198VA0020011,,"Age on effective date",,Yes,Self,,,Dental,
+2026,VA,40198,SERFF,1,05-20-2026,,40198VA0020011,,"Age on effective date",,No,"Brother or Sister",,,Dental,
+2026,VA,40198,SERFF,1,05-20-2026,,40198VA0020011,,"Age on effective date",,No,"Stepson or Stepdaughter",,,Dental,
+2026,VA,40198,SERFF,1,05-20-2026,,40198VA0020011,,"Age on effective date",,No,"Foster Child",,,Dental,
+2026,VA,40198,SERFF,1,05-20-2026,,40198VA0020011,,"Age on effective date",,No,Child,,,Dental,
+2026,VA,40198,SERFF,1,05-20-2026,,40198VA0020011,,"Age on effective date",,No,Spouse,,,Dental,
+2026,VA,40198,SERFF,1,05-20-2026,,40198VA0020011,,"Age on effective date",,Yes,"Life Partner",,,Dental,
+2026,VA,40198,SERFF,1,05-20-2026,,,26,"Age on effective date","Not Applicable",No,"Foster Child",,,Dental,3
+2026,VA,40198,SERFF,1,05-20-2026,,,26,"Age on effective date","Not Applicable",No,Spouse,,,Dental,3
+2026,VA,40198,SERFF,1,05-20-2026,,,26,"Age on effective date","Not Applicable",No,"Stepson or Stepdaughter",,,Dental,3
+2026,VA,40198,SERFF,1,05-20-2026,,,26,"Age on effective date","Not Applicable",No,Child,,,Dental,3
+2026,VA,40198,SERFF,1,05-20-2026,,,26,"Age on effective date","Not Applicable",Yes,Self,,,Dental,3
+2026,VA,40198,SERFF,1,05-20-2026,,,26,"Age on effective date","Not Applicable",Yes,"Life Partner",,,Dental,3
+2026,VA,40308,SERFF,1,05-20-2026,40308VA032,,25,"Age on effective date","Not Applicable",Yes,"Life Partner",,,Dental,3
+2026,VA,40308,SERFF,1,05-20-2026,40308VA032,,25,"Age on effective date","Not Applicable",No,"Foster Child",,,Dental,3
+2026,VA,40308,SERFF,1,05-20-2026,40308VA032,,25,"Age on effective date","Not Applicable",No,Child,,,Dental,3
+2026,VA,40308,SERFF,1,05-20-2026,40308VA032,,25,"Age on effective date","Not Applicable",No,Spouse,,,Dental,3
+2026,VA,40308,SERFF,1,05-20-2026,40308VA032,,25,"Age on effective date","Not Applicable",Yes,Self,,,Dental,3
+2026,VA,40308,SERFF,1,05-20-2026,40308VA032,,25,"Age on effective date","Not Applicable",No,"Stepson or Stepdaughter",,,Dental,3
+2026,VA,40308,SERFF,1,05-20-2026,,,25,"Age on effective date","Not Applicable",No,"Stepson or Stepdaughter",,,Medical,3
+2026,VA,40308,SERFF,1,05-20-2026,,,25,"Age on effective date","Not Applicable",No,"Foster Child",,,Medical,3
+2026,VA,40308,SERFF,1,05-20-2026,,,25,"Age on effective date","Not Applicable",Yes,Self,,,Medical,3
+2026,VA,40308,SERFF,1,05-20-2026,,,25,"Age on effective date","Not Applicable",No,Spouse,,,Medical,3
+2026,VA,40308,SERFF,1,05-20-2026,,,25,"Age on effective date","Not Applicable",Yes,"Life Partner",,,Medical,3
+2026,VA,40308,SERFF,1,05-20-2026,,,25,"Age on effective date","Not Applicable",No,Child,,,Medical,3
+2026,VA,40308,SERFF,1,05-20-2026,,,25,"Age on effective date","Not Applicable",Yes,"Life Partner",,,Medical,3
+2026,VA,40308,SERFF,1,05-20-2026,,,25,"Age on effective date","Not Applicable",No,"Stepson or Stepdaughter",,,Medical,3
+2026,VA,40308,SERFF,1,05-20-2026,,,25,"Age on effective date","Not Applicable",No,"Foster Child",,,Medical,3
+2026,VA,40308,SERFF,1,05-20-2026,,,25,"Age on effective date","Not Applicable",Yes,Self,,,Medical,3
+2026,VA,40308,SERFF,1,05-20-2026,,,25,"Age on effective date","Not Applicable",No,Child,,,Medical,3
+2026,VA,40308,SERFF,1,05-20-2026,,,25,"Age on effective date","Not Applicable",No,Spouse,,,Medical,3
+2026,VA,40308,SERFF,1,05-20-2026,40308VA032,,25,"Age on effective date","Not Applicable",No,"Stepson or Stepdaughter",,,Dental,3
+2026,VA,40308,SERFF,1,05-20-2026,40308VA032,,25,"Age on effective date","Not Applicable",No,Child,,,Dental,3
+2026,VA,40308,SERFF,1,05-20-2026,40308VA032,,25,"Age on effective date","Not Applicable",Yes,Self,,,Dental,3
+2026,VA,40308,SERFF,1,05-20-2026,40308VA032,,25,"Age on effective date","Not Applicable",No,Spouse,,,Dental,3
+2026,VA,40308,SERFF,1,05-20-2026,40308VA032,,25,"Age on effective date","Not Applicable",Yes,"Life Partner",,,Dental,3
+2026,VA,40308,SERFF,1,05-20-2026,40308VA032,,25,"Age on effective date","Not Applicable",No,"Foster Child",,,Dental,3
+2026,VA,41921,SERFF,1,05-20-2026,,,25,"Age on effective date","Not Applicable",No,Child,,,Medical,3
+2026,VA,41921,SERFF,1,05-20-2026,,,25,"Age on effective date","Not Applicable",Yes,Self,,,Medical,3
+2026,VA,41921,SERFF,1,05-20-2026,,,25,"Age on effective date","Not Applicable",No,Ward,,,Medical,3
+2026,VA,41921,SERFF,1,05-20-2026,,,25,"Age on effective date","Not Applicable",No,Spouse,,,Medical,3
+2026,VA,41921,SERFF,1,05-20-2026,,,25,"Age on effective date","Not Applicable",No,"Foster Child",,,Medical,3
+2026,VA,41921,SERFF,1,05-20-2026,,,25,"Age on effective date","Not Applicable",No,"Life Partner",,,Medical,3
+2026,VA,41921,SERFF,1,05-20-2026,,,25,"Age on effective date","Not Applicable",No,"Stepson or Stepdaughter",,,Medical,3
+2026,VA,42808,SERFF,1,05-20-2026,,,"Not Applicable","Age on effective date","Not Applicable",Yes,Self,,,Dental,3
+2026,VA,42808,SERFF,1,05-20-2026,,,"Not Applicable","Age on effective date","Not Applicable",No,"Stepson or Stepdaughter",,,Dental,3
+2026,VA,42808,SERFF,1,05-20-2026,,,"Not Applicable","Age on effective date","Not Applicable",No,Child,,,Dental,3
+2026,VA,42808,SERFF,1,05-20-2026,,,"Not Applicable","Age on effective date","Not Applicable",No,"Life Partner",,,Dental,3
+2026,VA,42808,SERFF,1,05-20-2026,,,"Not Applicable","Age on effective date","Not Applicable",No,Spouse,,,Dental,3
+2026,VA,42808,SERFF,1,05-20-2026,,,"Not Applicable","Age on effective date","Not Applicable",No,"Foster Child",,,Dental,3
+2026,VA,50727,SERFF,1,05-20-2026,,,25,"Age on effective date","Not Applicable",Yes,Self,,,Dental,3
+2026,VA,50727,SERFF,1,05-20-2026,,,25,"Age on effective date","Not Applicable",No,Spouse,,,Dental,3
+2026,VA,50727,SERFF,1,05-20-2026,,,25,"Age on effective date","Not Applicable",No,"Life Partner",,,Dental,3
+2026,VA,50727,SERFF,1,05-20-2026,,,25,"Age on effective date","Not Applicable",No,Ward,,,Dental,3
+2026,VA,50727,SERFF,1,05-20-2026,,,25,"Age on effective date","Not Applicable",No,Child,,,Dental,3
+2026,VA,50727,SERFF,1,05-20-2026,,,25,"Age on effective date","Not Applicable",No,"Foster Child",,,Dental,3
+2026,VA,50727,SERFF,1,05-20-2026,,,25,"Age on effective date","Not Applicable",No,"Nephew or Niece",,,Dental,3
+2026,VA,50727,SERFF,1,05-20-2026,,,25,"Age on effective date","Not Applicable",No,"Brother or Sister",,,Dental,3
+2026,VA,50727,SERFF,1,05-20-2026,,,25,"Age on effective date","Not Applicable",No,"Stepson or Stepdaughter",,,Dental,3
+2026,VA,50727,SERFF,1,05-20-2026,,,25,"Age on effective date","Not Applicable",No,"Grandson or Granddaughter",,,Dental,3
+2026,VA,54965,SERFF,1,05-20-2026,,54965VA0020001,21,"Age on effective date","Not Applicable",No,"Brother or Sister",,,Dental,3
+2026,VA,54965,SERFF,1,05-20-2026,,54965VA0020001,21,"Age on effective date","Not Applicable",Yes,Self,,,Dental,3
+2026,VA,54965,SERFF,1,05-20-2026,,,25,"Age on effective date","Not Applicable",No,"Grandson or Granddaughter",,,Dental,3
+2026,VA,54965,SERFF,1,05-20-2026,,,25,"Age on effective date","Not Applicable",Yes,Self,,,Dental,3
+2026,VA,54965,SERFF,1,05-20-2026,,,25,"Age on effective date","Not Applicable",No,"Stepson or Stepdaughter",,,Dental,3
+2026,VA,54965,SERFF,1,05-20-2026,,,25,"Age on effective date","Not Applicable",No,"Foster Child",,,Dental,3
+2026,VA,54965,SERFF,1,05-20-2026,,,25,"Age on effective date","Not Applicable",No,Spouse,,,Dental,3
+2026,VA,54965,SERFF,1,05-20-2026,,,25,"Age on effective date","Not Applicable",No,Child,,,Dental,3
+2026,VA,54965,SERFF,1,05-20-2026,,,25,"Age on effective date","Not Applicable",No,"Life Partner",,,Dental,3
+2026,VA,54965,SERFF,1,05-20-2026,,54965VA0030003,21,"Age on effective date","Not Applicable",No,"Brother or Sister",,,Dental,3
+2026,VA,54965,SERFF,1,05-20-2026,,54965VA0030003,21,"Age on effective date","Not Applicable",Yes,Self,,,Dental,3
+2026,VA,54965,SERFF,1,05-20-2026,,54965VA0020005,21,"Age on effective date","Not Applicable",Yes,Self,,,Dental,3
+2026,VA,54965,SERFF,1,05-20-2026,,54965VA0020005,21,"Age on effective date","Not Applicable",No,"Brother or Sister",,,Dental,3
+2026,VA,54965,SERFF,1,05-20-2026,,54965VA0030005,21,"Age on effective date","Not Applicable",Yes,Self,,,Dental,3
+2026,VA,54965,SERFF,1,05-20-2026,,54965VA0030005,21,"Age on effective date","Not Applicable",No,"Brother or Sister",,,Dental,3
+2026,VA,88380,SERFF,1,05-20-2026,,,25,"Age on effective date","Not Applicable",No,Child,,,Medical,3
+2026,VA,88380,SERFF,1,05-20-2026,,,25,"Age on effective date","Not Applicable",Yes,Self,,,Medical,3
+2026,VA,88380,SERFF,1,05-20-2026,,,25,"Age on effective date","Not Applicable",No,"Stepson or Stepdaughter",,,Medical,3
+2026,VA,88380,SERFF,1,05-20-2026,,,25,"Age on effective date","Not Applicable",Yes,Spouse,,,Medical,3
+2026,VA,88380,SERFF,1,05-20-2026,,,25,"Age on effective date","Not Applicable",Yes,"Life Partner",,,Medical,3
+2026,VA,88380,SERFF,1,05-20-2026,,,25,"Age on effective date","Not Applicable",No,Ward,,,Medical,3
+2026,VA,88380,SERFF,1,05-20-2026,,,25,"Age on effective date","Not Applicable",No,"Foster Child",,,Medical,3
+2026,VA,95185,SERFF,1,05-20-2026,,,25,"Age on effective date","Not Applicable",Yes,Self,,,Medical,3
+2026,VA,95185,SERFF,1,05-20-2026,,,25,"Age on effective date","Not Applicable",No,Child,,,Medical,3
+2026,VA,95185,SERFF,1,05-20-2026,,,25,"Age on effective date","Not Applicable",No,"Stepson or Stepdaughter",,,Medical,3
+2026,VA,95185,SERFF,1,05-20-2026,,,25,"Age on effective date","Not Applicable",No,Spouse,,,Medical,3
+2026,VA,95185,SERFF,1,05-20-2026,,,25,"Age on effective date","Not Applicable",No,"Foster Child",,,Medical,3
+2026,VA,95185,SERFF,1,05-20-2026,,,25,"Age on effective date","Not Applicable",No,Ward,,,Medical,3
+2026,VA,95185,SERFF,1,05-20-2026,,,25,"Age on effective date","Not Applicable",No,"Life Partner",,,Medical,3
+2026,VA,95185,SERFF,1,05-20-2026,,,25,"Age on effective date","Not Applicable",No,"Stepson or Stepdaughter",,,Medical,3
+2026,VA,95185,SERFF,1,05-20-2026,,,25,"Age on effective date","Not Applicable",Yes,Self,,,Medical,3
+2026,VA,95185,SERFF,1,05-20-2026,,,25,"Age on effective date","Not Applicable",No,"Foster Child",,,Medical,3
+2026,VA,95185,SERFF,1,05-20-2026,,,25,"Age on effective date","Not Applicable",No,Ward,,,Medical,3
+2026,VA,95185,SERFF,1,05-20-2026,,,25,"Age on effective date","Not Applicable",No,Spouse,,,Medical,3
+2026,VA,95185,SERFF,1,05-20-2026,,,25,"Age on effective date","Not Applicable",No,"Life Partner",,,Medical,3
+2026,VA,95185,SERFF,1,05-20-2026,,,25,"Age on effective date","Not Applicable",No,Child,,,Medical,3

@@ -1,0 +1,197 @@
+"BUSINESS YEAR","STATE CODE","ISSUER ID","SOURCE NAME","VERSION NUMBER","IMPORT DATE","PRODUCT ID","STANDARD COMPONENT ID","DEPENDENT MAX AGE RULE","AGE DETERMINATION RULE","MINIMUM TOBACCO FREE MONTHS RULE","COHABITATION RULE REQUIRED","COHABITATION RULE CODE","MARKET COVERAGE","DENTAL ONLY PLAN","MEDICAL OR DENTAL RULE","MAX CHILDREN IN POLICY"
+2026,WA,12435,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,Ward,,,Medical,3
+2026,WA,12435,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",Yes,"Life Partner",,,Medical,3
+2026,WA,12435,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,"Foster Child",,,Medical,3
+2026,WA,12435,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",Yes,Spouse,,,Medical,3
+2026,WA,12435,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,Child,,,Medical,3
+2026,WA,12435,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",Yes,Self,,,Medical,3
+2026,WA,12435,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,"Stepson or Stepdaughter",,,Medical,3
+2026,WA,15988,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",Yes,Self,,,Dental,3
+2026,WA,15988,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,Spouse,,,Dental,3
+2026,WA,15988,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,"Stepson or Stepdaughter",,,Dental,3
+2026,WA,15988,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,"Life Partner",,,Dental,3
+2026,WA,15988,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,Ward,,,Dental,3
+2026,WA,15988,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,"Foster Child",,,Dental,3
+2026,WA,15988,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,Child,,,Dental,3
+2026,WA,18581,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,Spouse,,,Medical,3
+2026,WA,18581,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",Yes,Self,,,Medical,3
+2026,WA,18581,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,"Sponsored Dependent",,,Medical,3
+2026,WA,18581,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,"Life Partner",,,Medical,3
+2026,WA,18581,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,"Stepson or Stepdaughter",,,Medical,3
+2026,WA,18581,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,Child,,,Medical,3
+2026,WA,18581,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,"Foster Child",,,Medical,3
+2026,WA,23371,SERFF,1,01-13-2026,23371WA199,,25,"Age on effective date","Not Applicable",No,Spouse,,,Dental,3
+2026,WA,23371,SERFF,1,01-13-2026,23371WA199,,25,"Age on effective date","Not Applicable",Yes,Self,,,Dental,3
+2026,WA,23371,SERFF,1,01-13-2026,23371WA199,,25,"Age on effective date","Not Applicable",No,Child,,,Dental,3
+2026,WA,23371,SERFF,1,01-13-2026,23371WA199,,25,"Age on effective date","Not Applicable",No,"Life Partner",,,Dental,3
+2026,WA,23371,SERFF,1,01-13-2026,23371WA199,,25,"Age on effective date","Not Applicable",No,"Foster Child",,,Dental,3
+2026,WA,23371,SERFF,1,01-13-2026,23371WA199,,25,"Age on effective date","Not Applicable",No,Ward,,,Dental,3
+2026,WA,23371,SERFF,1,01-13-2026,23371WA199,,25,"Age on effective date","Not Applicable",No,"Stepson or Stepdaughter",,,Dental,3
+2026,WA,23371,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,"Foster Child",,,Medical,3
+2026,WA,23371,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,"Stepson or Stepdaughter",,,Medical,3
+2026,WA,23371,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",Yes,Self,,,Medical,3
+2026,WA,23371,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,"Life Partner",,,Medical,3
+2026,WA,23371,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,Child,,,Medical,3
+2026,WA,23371,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,Spouse,,,Medical,3
+2026,WA,23371,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,Ward,,,Medical,3
+2026,WA,23371,SERFF,1,01-13-2026,23371WA199,,25,"Age on effective date","Not Applicable",No,"Life Partner",,,Dental,3
+2026,WA,23371,SERFF,1,01-13-2026,23371WA199,,25,"Age on effective date","Not Applicable",No,Child,,,Dental,3
+2026,WA,23371,SERFF,1,01-13-2026,23371WA199,,25,"Age on effective date","Not Applicable",No,Ward,,,Dental,3
+2026,WA,23371,SERFF,1,01-13-2026,23371WA199,,25,"Age on effective date","Not Applicable",No,Spouse,,,Dental,3
+2026,WA,23371,SERFF,1,01-13-2026,23371WA199,,25,"Age on effective date","Not Applicable",No,"Foster Child",,,Dental,3
+2026,WA,23371,SERFF,1,01-13-2026,23371WA199,,25,"Age on effective date","Not Applicable",No,"Stepson or Stepdaughter",,,Dental,3
+2026,WA,23371,SERFF,1,01-13-2026,23371WA199,,25,"Age on effective date","Not Applicable",Yes,Self,,,Dental,3
+2026,WA,23371,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,Spouse,,,Medical,3
+2026,WA,23371,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,Child,,,Medical,3
+2026,WA,23371,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,"Life Partner",,,Medical,3
+2026,WA,23371,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,"Foster Child",,,Medical,3
+2026,WA,23371,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,Ward,,,Medical,3
+2026,WA,23371,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",Yes,Self,,,Medical,3
+2026,WA,23371,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,"Stepson or Stepdaughter",,,Medical,3
+2026,WA,38498,SERFF,1,01-13-2026,,,25,"Age on effective date",6,No,Spouse,,,Medical,3
+2026,WA,38498,SERFF,1,01-13-2026,,,25,"Age on effective date",6,No,"Foster Child",,,Medical,3
+2026,WA,38498,SERFF,1,01-13-2026,,,25,"Age on effective date",6,No,"Other Relationship",,,Medical,3
+2026,WA,38498,SERFF,1,01-13-2026,,,25,"Age on effective date",6,No,"Stepson or Stepdaughter",,,Medical,3
+2026,WA,38498,SERFF,1,01-13-2026,,,25,"Age on effective date",6,No,"Grandson or Granddaughter",,,Medical,3
+2026,WA,38498,SERFF,1,01-13-2026,,,25,"Age on effective date",6,No,"Sponsored Dependent",,,Medical,3
+2026,WA,38498,SERFF,1,01-13-2026,,,25,"Age on effective date",6,No,Child,,,Medical,3
+2026,WA,38498,SERFF,1,01-13-2026,,,25,"Age on effective date",6,No,Ward,,,Medical,3
+2026,WA,38498,SERFF,1,01-13-2026,,,25,"Age on effective date",6,Yes,Self,,,Medical,3
+2026,WA,38498,SERFF,1,01-13-2026,,,25,"Age on effective date",6,No,"Nephew or Niece",,,Medical,3
+2026,WA,38498,SERFF,1,01-13-2026,,,25,"Age on effective date",6,No,"Other Relative",,,Medical,3
+2026,WA,38498,SERFF,1,01-13-2026,,,25,"Age on effective date",6,No,"Brother or Sister",,,Medical,3
+2026,WA,38498,SERFF,1,01-13-2026,,,25,"Age on effective date",6,No,"Life Partner",,,Medical,3
+2026,WA,38498,SERFF,1,01-13-2026,,,25,"Age on effective date",6,No,"Collateral Dependent",,,Medical,3
+2026,WA,38498,SERFF,1,01-13-2026,,,25,"Age on effective date",6,No,Ex-Spouse,,,Medical,3
+2026,WA,38498,SERFF,1,01-13-2026,,,25,"Age on effective date",6,No,"Collateral Dependent",,,Medical,3
+2026,WA,38498,SERFF,1,01-13-2026,,,25,"Age on effective date",6,No,"Life Partner",,,Medical,3
+2026,WA,38498,SERFF,1,01-13-2026,,,25,"Age on effective date",6,No,Ward,,,Medical,3
+2026,WA,38498,SERFF,1,01-13-2026,,,25,"Age on effective date",6,No,"Other Relative",,,Medical,3
+2026,WA,38498,SERFF,1,01-13-2026,,,25,"Age on effective date",6,No,"Brother or Sister",,,Medical,3
+2026,WA,38498,SERFF,1,01-13-2026,,,25,"Age on effective date",6,No,"Other Relationship",,,Medical,3
+2026,WA,38498,SERFF,1,01-13-2026,,,25,"Age on effective date",6,No,Ex-Spouse,,,Medical,3
+2026,WA,38498,SERFF,1,01-13-2026,,,25,"Age on effective date",6,Yes,Self,,,Medical,3
+2026,WA,38498,SERFF,1,01-13-2026,,,25,"Age on effective date",6,No,"Nephew or Niece",,,Medical,3
+2026,WA,38498,SERFF,1,01-13-2026,,,25,"Age on effective date",6,No,Spouse,,,Medical,3
+2026,WA,38498,SERFF,1,01-13-2026,,,25,"Age on effective date",6,No,"Stepson or Stepdaughter",,,Medical,3
+2026,WA,38498,SERFF,1,01-13-2026,,,25,"Age on effective date",6,No,"Foster Child",,,Medical,3
+2026,WA,38498,SERFF,1,01-13-2026,,,25,"Age on effective date",6,No,"Grandson or Granddaughter",,,Medical,3
+2026,WA,38498,SERFF,1,01-13-2026,,,25,"Age on effective date",6,No,"Sponsored Dependent",,,Medical,3
+2026,WA,38498,SERFF,1,01-13-2026,,,25,"Age on effective date",6,No,Child,,,Medical,3
+2026,WA,49831,SERFF,1,01-13-2026,,,25,"Age on effective date",6,No,Ward,,,Medical,3
+2026,WA,49831,SERFF,1,01-13-2026,,,25,"Age on effective date",6,No,"Foster Child",,,Medical,3
+2026,WA,49831,SERFF,1,01-13-2026,,,25,"Age on effective date",6,No,"Life Partner",,,Medical,3
+2026,WA,49831,SERFF,1,01-13-2026,,,25,"Age on effective date",6,Yes,Self,,,Medical,3
+2026,WA,49831,SERFF,1,01-13-2026,,,25,"Age on effective date",6,No,Child,,,Medical,3
+2026,WA,49831,SERFF,1,01-13-2026,,,25,"Age on effective date",6,No,"Nephew or Niece",,,Medical,3
+2026,WA,49831,SERFF,1,01-13-2026,,,25,"Age on effective date",6,No,"Collateral Dependent",,,Medical,3
+2026,WA,49831,SERFF,1,01-13-2026,,,25,"Age on effective date",6,No,"Other Relationship",,,Medical,3
+2026,WA,49831,SERFF,1,01-13-2026,,,25,"Age on effective date",6,No,"Other Relative",,,Medical,3
+2026,WA,49831,SERFF,1,01-13-2026,,,25,"Age on effective date",6,No,Ex-Spouse,,,Medical,3
+2026,WA,49831,SERFF,1,01-13-2026,,,25,"Age on effective date",6,No,"Sponsored Dependent",,,Medical,3
+2026,WA,49831,SERFF,1,01-13-2026,,,25,"Age on effective date",6,No,Spouse,,,Medical,3
+2026,WA,49831,SERFF,1,01-13-2026,,,25,"Age on effective date",6,No,"Brother or Sister",,,Medical,3
+2026,WA,49831,SERFF,1,01-13-2026,,,25,"Age on effective date",6,No,"Stepson or Stepdaughter",,,Medical,3
+2026,WA,49831,SERFF,1,01-13-2026,,,25,"Age on effective date",6,No,"Grandson or Granddaughter",,,Medical,3
+2026,WA,53732,SERFF,1,01-13-2026,,,25,"Age on effective date",6,No,Spouse,,,Medical,3
+2026,WA,53732,SERFF,1,01-13-2026,,,25,"Age on effective date",6,Yes,Self,,,Medical,3
+2026,WA,53732,SERFF,1,01-13-2026,,,25,"Age on effective date",6,No,"Sponsored Dependent",,,Medical,3
+2026,WA,53732,SERFF,1,01-13-2026,,,25,"Age on effective date",6,No,Child,,,Medical,3
+2026,WA,53732,SERFF,1,01-13-2026,,,25,"Age on effective date",6,No,"Life Partner",,,Medical,3
+2026,WA,53732,SERFF,1,01-13-2026,,,25,"Age on effective date",6,No,"Stepson or Stepdaughter",,,Medical,3
+2026,WA,58105,SERFF,1,01-13-2026,58105WA005,,25,"Age on effective date","Not Applicable",No,"Stepson or Stepdaughter",,,Dental,3
+2026,WA,58105,SERFF,1,01-13-2026,58105WA005,,25,"Age on effective date","Not Applicable",No,"Brother or Sister",,,Dental,3
+2026,WA,58105,SERFF,1,01-13-2026,58105WA005,,25,"Age on effective date","Not Applicable",No,"Foster Child",,,Dental,3
+2026,WA,58105,SERFF,1,01-13-2026,58105WA005,,25,"Age on effective date","Not Applicable",No,Child,,,Dental,3
+2026,WA,58105,SERFF,1,01-13-2026,58105WA005,,25,"Age on effective date","Not Applicable",No,Ward,,,Dental,3
+2026,WA,58105,SERFF,1,01-13-2026,58105WA005,,25,"Age on effective date","Not Applicable",No,Spouse,,,Dental,3
+2026,WA,58105,SERFF,1,01-13-2026,58105WA005,,25,"Age on effective date","Not Applicable",No,"Life Partner",,,Dental,3
+2026,WA,58105,SERFF,1,01-13-2026,58105WA005,,25,"Age on effective date","Not Applicable",Yes,Self,,,Dental,3
+2026,WA,58105,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,"Life Partner",,,Dental,3
+2026,WA,58105,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,Spouse,,,Dental,3
+2026,WA,58105,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,"Stepson or Stepdaughter",,,Dental,3
+2026,WA,58105,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,Ward,,,Dental,3
+2026,WA,58105,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,Child,,,Dental,3
+2026,WA,58105,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,"Brother or Sister",,,Dental,3
+2026,WA,58105,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",Yes,Self,,,Dental,3
+2026,WA,58105,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,"Foster Child",,,Dental,3
+2026,WA,58105,SERFF,1,01-13-2026,58105WA001,,"Not Applicable","Age on effective date","Not Applicable",No,Child,,,Dental,3
+2026,WA,58105,SERFF,1,01-13-2026,58105WA001,,"Not Applicable","Age on effective date","Not Applicable",No,Spouse,,,Dental,3
+2026,WA,58105,SERFF,1,01-13-2026,58105WA001,,"Not Applicable","Age on effective date","Not Applicable",No,"Foster Child",,,Dental,3
+2026,WA,58105,SERFF,1,01-13-2026,58105WA001,,"Not Applicable","Age on effective date","Not Applicable",No,Ward,,,Dental,3
+2026,WA,58105,SERFF,1,01-13-2026,58105WA001,,"Not Applicable","Age on effective date","Not Applicable",Yes,Self,,,Dental,3
+2026,WA,58105,SERFF,1,01-13-2026,58105WA001,,"Not Applicable","Age on effective date","Not Applicable",No,"Stepson or Stepdaughter",,,Dental,3
+2026,WA,58105,SERFF,1,01-13-2026,58105WA001,,"Not Applicable","Age on effective date","Not Applicable",No,"Brother or Sister",,,Dental,3
+2026,WA,58105,SERFF,1,01-13-2026,58105WA001,,"Not Applicable","Age on effective date","Not Applicable",No,"Life Partner",,,Dental,3
+2026,WA,61836,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,Ward,,,Medical,3
+2026,WA,61836,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",Yes,Self,,,Medical,3
+2026,WA,61836,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,"Life Partner",,,Medical,3
+2026,WA,61836,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,"Stepson or Stepdaughter",,,Medical,3
+2026,WA,61836,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,Child,,,Medical,3
+2026,WA,61836,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,"Foster Child",,,Medical,3
+2026,WA,61836,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,Spouse,,,Medical,3
+2026,WA,62650,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,"Stepson or Stepdaughter",,,Medical,3
+2026,WA,62650,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,Ward,,,Medical,3
+2026,WA,62650,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,Spouse,,,Medical,3
+2026,WA,62650,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",Yes,Self,,,Medical,3
+2026,WA,62650,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,"Foster Child",,,Medical,3
+2026,WA,62650,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,"Life Partner",,,Medical,3
+2026,WA,62650,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,Child,,,Medical,3
+2026,WA,71281,SERFF,1,01-13-2026,71281WA056,,25,"Age on effective date","Not Applicable",Yes,Self,,,Medical,3
+2026,WA,71281,SERFF,1,01-13-2026,71281WA056,,25,"Age on effective date","Not Applicable",No,"Life Partner",,,Medical,3
+2026,WA,71281,SERFF,1,01-13-2026,71281WA056,,25,"Age on effective date","Not Applicable",No,Spouse,,,Medical,3
+2026,WA,71281,SERFF,1,01-13-2026,71281WA056,,25,"Age on effective date","Not Applicable",No,"Stepson or Stepdaughter",,,Medical,3
+2026,WA,71281,SERFF,1,01-13-2026,71281WA056,,25,"Age on effective date","Not Applicable",No,"Sponsored Dependent",,,Medical,3
+2026,WA,71281,SERFF,1,01-13-2026,71281WA056,,25,"Age on effective date","Not Applicable",No,Child,,,Medical,3
+2026,WA,71281,SERFF,1,01-13-2026,71281WA139,,25,"Age on effective date","Not Applicable",No,"Sponsored Dependent",,,Medical,3
+2026,WA,71281,SERFF,1,01-13-2026,71281WA139,,25,"Age on effective date","Not Applicable",No,Child,,,Medical,3
+2026,WA,71281,SERFF,1,01-13-2026,71281WA139,,25,"Age on effective date","Not Applicable",No,Spouse,,,Medical,3
+2026,WA,71281,SERFF,1,01-13-2026,71281WA139,,25,"Age on effective date","Not Applicable",No,"Life Partner",,,Medical,3
+2026,WA,71281,SERFF,1,01-13-2026,71281WA139,,25,"Age on effective date","Not Applicable",No,"Stepson or Stepdaughter",,,Medical,3
+2026,WA,71281,SERFF,1,01-13-2026,71281WA139,,25,"Age on effective date","Not Applicable",Yes,Self,,,Medical,3
+2026,WA,71281,SERFF,1,01-13-2026,,,25,"Age on effective date",6,No,Child,,,Medical,3
+2026,WA,71281,SERFF,1,01-13-2026,,,25,"Age on effective date",6,No,"Life Partner",,,Medical,3
+2026,WA,71281,SERFF,1,01-13-2026,,,25,"Age on effective date",6,No,Spouse,,,Medical,3
+2026,WA,71281,SERFF,1,01-13-2026,,,25,"Age on effective date",6,No,"Sponsored Dependent",,,Medical,3
+2026,WA,71281,SERFF,1,01-13-2026,,,25,"Age on effective date",6,No,"Stepson or Stepdaughter",,,Medical,3
+2026,WA,71281,SERFF,1,01-13-2026,,,25,"Age on effective date",6,Yes,Self,,,Medical,3
+2026,WA,75928,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",Yes,"Life Partner",,,Dental,3
+2026,WA,75928,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,"Stepson or Stepdaughter",,,Dental,3
+2026,WA,75928,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,Child,,,Dental,3
+2026,WA,75928,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",Yes,"Foster Child",,,Dental,3
+2026,WA,75928,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,Spouse,,,Dental,3
+2026,WA,75928,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",Yes,Self,,,Dental,3
+2026,WA,75928,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,Ward,,,Dental,3
+2026,WA,80473,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,Child,,,Medical,3
+2026,WA,80473,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",Yes,Self,,,Medical,3
+2026,WA,80473,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,Spouse,,,Medical,3
+2026,WA,80473,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,"Stepson or Stepdaughter",,,Medical,3
+2026,WA,80473,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,"Life Partner",,,Medical,3
+2026,WA,80473,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,Ward,,,Medical,3
+2026,WA,80473,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,"Foster Child",,,Medical,3
+2026,WA,84481,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,"Life Partner",,,Medical,3
+2026,WA,84481,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,"Other Relationship",,,Medical,3
+2026,WA,84481,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,"Stepson or Stepdaughter",,,Medical,3
+2026,WA,84481,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,Ward,,,Medical,3
+2026,WA,84481,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,"Foster Child",,,Medical,3
+2026,WA,84481,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,Child,,,Medical,3
+2026,WA,84481,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",Yes,Self,,,Medical,3
+2026,WA,84481,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,Spouse,,,Medical,3
+2026,WA,87718,SERFF,1,01-13-2026,87718WA100,,25,"Age on effective date","Not Applicable",No,"Stepson or Stepdaughter",,,Medical,3
+2026,WA,87718,SERFF,1,01-13-2026,87718WA100,,25,"Age on effective date","Not Applicable",No,Child,,,Medical,3
+2026,WA,87718,SERFF,1,01-13-2026,87718WA100,,25,"Age on effective date","Not Applicable",Yes,Self,,,Medical,3
+2026,WA,87718,SERFF,1,01-13-2026,87718WA100,,25,"Age on effective date","Not Applicable",No,"Sponsored Dependent",,,Medical,3
+2026,WA,87718,SERFF,1,01-13-2026,87718WA100,,25,"Age on effective date","Not Applicable",No,"Life Partner",,,Medical,3
+2026,WA,87718,SERFF,1,01-13-2026,87718WA100,,25,"Age on effective date","Not Applicable",No,Spouse,,,Medical,3
+2026,WA,87718,SERFF,1,01-13-2026,87718WA216,,25,"Age on effective date","Not Applicable",Yes,Self,,,Medical,3
+2026,WA,87718,SERFF,1,01-13-2026,87718WA216,,25,"Age on effective date","Not Applicable",No,"Life Partner",,,Medical,3
+2026,WA,87718,SERFF,1,01-13-2026,87718WA216,,25,"Age on effective date","Not Applicable",No,Spouse,,,Medical,3
+2026,WA,87718,SERFF,1,01-13-2026,87718WA216,,25,"Age on effective date","Not Applicable",No,Child,,,Medical,3
+2026,WA,87718,SERFF,1,01-13-2026,87718WA216,,25,"Age on effective date","Not Applicable",No,"Sponsored Dependent",,,Medical,3
+2026,WA,87718,SERFF,1,01-13-2026,87718WA216,,25,"Age on effective date","Not Applicable",No,"Stepson or Stepdaughter",,,Medical,3
+2026,WA,87718,SERFF,1,01-13-2026,,,25,"Age on effective date",6,No,"Life Partner",,,Medical,3
+2026,WA,87718,SERFF,1,01-13-2026,,,25,"Age on effective date",6,No,Child,,,Medical,3
+2026,WA,87718,SERFF,1,01-13-2026,,,25,"Age on effective date",6,No,"Stepson or Stepdaughter",,,Medical,3
+2026,WA,87718,SERFF,1,01-13-2026,,,25,"Age on effective date",6,No,Spouse,,,Medical,3
+2026,WA,87718,SERFF,1,01-13-2026,,,25,"Age on effective date",6,No,"Sponsored Dependent",,,Medical,3
+2026,WA,87718,SERFF,1,01-13-2026,,,25,"Age on effective date",6,Yes,Self,,,Medical,3

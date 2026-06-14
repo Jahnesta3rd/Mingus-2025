@@ -1,0 +1,176 @@
+"BUSINESS YEAR","STATE CODE","ISSUER ID","SOURCE NAME","VERSION NUMBER","IMPORT DATE","PRODUCT ID","STANDARD COMPONENT ID","DEPENDENT MAX AGE RULE","AGE DETERMINATION RULE","MINIMUM TOBACCO FREE MONTHS RULE","COHABITATION RULE REQUIRED","COHABITATION RULE CODE","MARKET COVERAGE","DENTAL ONLY PLAN","MEDICAL OR DENTAL RULE","MAX CHILDREN IN POLICY"
+2026,DC,21066,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,Spouse,,,Medical,3
+2026,DC,21066,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,"Grandson or Granddaughter",,,Medical,3
+2026,DC,21066,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,Child,,,Medical,3
+2026,DC,21066,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,"Stepson or Stepdaughter",,,Medical,3
+2026,DC,21066,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,Ward,,,Medical,3
+2026,DC,21066,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",Yes,Self,,,Medical,3
+2026,DC,21066,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,"Foster Child",,,Medical,3
+2026,DC,41842,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,"Foster Child",,,Medical,3
+2026,DC,41842,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",Yes,Self,,,Medical,3
+2026,DC,41842,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,Ward,,,Medical,3
+2026,DC,41842,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,Child,,,Medical,3
+2026,DC,41842,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,Spouse,,,Medical,3
+2026,DC,41842,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,"Stepson or Stepdaughter",,,Medical,3
+2026,DC,75753,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,Child,,,Medical,3
+2026,DC,75753,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,"Stepson or Stepdaughter",,,Medical,3
+2026,DC,75753,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",Yes,Self,,,Medical,3
+2026,DC,75753,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,"Grandson or Granddaughter",,,Medical,3
+2026,DC,75753,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,Ward,,,Medical,3
+2026,DC,75753,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,"Foster Child",,,Medical,3
+2026,DC,75753,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,Spouse,,,Medical,3
+2026,DC,78079,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,"Foster Child",,,Medical,3
+2026,DC,78079,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,Spouse,,,Medical,3
+2026,DC,78079,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",Yes,"Life Partner",,,Medical,3
+2026,DC,78079,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,"Stepson or Stepdaughter",,,Medical,3
+2026,DC,78079,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",Yes,Self,,,Medical,3
+2026,DC,78079,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,Child,,,Medical,3
+2026,DC,78079,SERFF,1,01-13-2026,78079DC032,,25,"Age on effective date","Not Applicable",No,"Foster Child",,,Dental,3
+2026,DC,78079,SERFF,1,01-13-2026,78079DC032,,25,"Age on effective date","Not Applicable",No,Child,,,Dental,3
+2026,DC,78079,SERFF,1,01-13-2026,78079DC032,,25,"Age on effective date","Not Applicable",Yes,"Life Partner",,,Dental,3
+2026,DC,78079,SERFF,1,01-13-2026,78079DC032,,25,"Age on effective date","Not Applicable",Yes,Self,,,Dental,3
+2026,DC,78079,SERFF,1,01-13-2026,78079DC032,,25,"Age on effective date","Not Applicable",No,Spouse,,,Dental,3
+2026,DC,78079,SERFF,1,01-13-2026,78079DC032,,25,"Age on effective date","Not Applicable",No,"Stepson or Stepdaughter",,,Dental,3
+2026,DC,78079,SERFF,1,01-13-2026,78079DC033,,25,"Age on effective date","Not Applicable",No,Spouse,,,Dental,3
+2026,DC,78079,SERFF,1,01-13-2026,78079DC033,,25,"Age on effective date","Not Applicable",No,"Stepson or Stepdaughter",,,Dental,3
+2026,DC,78079,SERFF,1,01-13-2026,78079DC033,,25,"Age on effective date","Not Applicable",No,Child,,,Dental,3
+2026,DC,78079,SERFF,1,01-13-2026,78079DC033,,25,"Age on effective date","Not Applicable",Yes,Self,,,Dental,3
+2026,DC,78079,SERFF,1,01-13-2026,78079DC033,,25,"Age on effective date","Not Applicable",No,"Foster Child",,,Dental,3
+2026,DC,78079,SERFF,1,01-13-2026,78079DC033,,25,"Age on effective date","Not Applicable",Yes,"Life Partner",,,Dental,3
+2026,DC,78079,SERFF,1,01-13-2026,78079DC033,,25,"Age on effective date","Not Applicable",Yes,"Life Partner",,,Dental,3
+2026,DC,78079,SERFF,1,01-13-2026,78079DC033,,25,"Age on effective date","Not Applicable",No,"Stepson or Stepdaughter",,,Dental,3
+2026,DC,78079,SERFF,1,01-13-2026,78079DC033,,25,"Age on effective date","Not Applicable",No,Spouse,,,Dental,3
+2026,DC,78079,SERFF,1,01-13-2026,78079DC033,,25,"Age on effective date","Not Applicable",No,Child,,,Dental,3
+2026,DC,78079,SERFF,1,01-13-2026,78079DC033,,25,"Age on effective date","Not Applicable",Yes,Self,,,Dental,3
+2026,DC,78079,SERFF,1,01-13-2026,78079DC033,,25,"Age on effective date","Not Applicable",No,"Foster Child",,,Dental,3
+2026,DC,78079,SERFF,1,01-13-2026,78079DC032,,25,"Age on effective date","Not Applicable",No,"Foster Child",,,Dental,3
+2026,DC,78079,SERFF,1,01-13-2026,78079DC032,,25,"Age on effective date","Not Applicable",Yes,Self,,,Dental,3
+2026,DC,78079,SERFF,1,01-13-2026,78079DC032,,25,"Age on effective date","Not Applicable",Yes,"Life Partner",,,Dental,3
+2026,DC,78079,SERFF,1,01-13-2026,78079DC032,,25,"Age on effective date","Not Applicable",No,"Stepson or Stepdaughter",,,Dental,3
+2026,DC,78079,SERFF,1,01-13-2026,78079DC032,,25,"Age on effective date","Not Applicable",No,Child,,,Dental,3
+2026,DC,78079,SERFF,1,01-13-2026,78079DC032,,25,"Age on effective date","Not Applicable",No,Spouse,,,Dental,3
+2026,DC,78079,SERFF,1,01-13-2026,78079DC032,,25,"Age on effective date","Not Applicable",No,Child,,,Dental,3
+2026,DC,78079,SERFF,1,01-13-2026,78079DC032,,25,"Age on effective date","Not Applicable",Yes,"Life Partner",,,Dental,3
+2026,DC,78079,SERFF,1,01-13-2026,78079DC032,,25,"Age on effective date","Not Applicable",No,"Foster Child",,,Dental,3
+2026,DC,78079,SERFF,1,01-13-2026,78079DC032,,25,"Age on effective date","Not Applicable",No,"Stepson or Stepdaughter",,,Dental,3
+2026,DC,78079,SERFF,1,01-13-2026,78079DC032,,25,"Age on effective date","Not Applicable",No,Spouse,,,Dental,3
+2026,DC,78079,SERFF,1,01-13-2026,78079DC032,,25,"Age on effective date","Not Applicable",Yes,Self,,,Dental,3
+2026,DC,78079,SERFF,1,01-13-2026,78079DC034,,25,"Age on effective date","Not Applicable",No,"Foster Child",,,Dental,3
+2026,DC,78079,SERFF,1,01-13-2026,78079DC034,,25,"Age on effective date","Not Applicable",Yes,"Life Partner",,,Dental,3
+2026,DC,78079,SERFF,1,01-13-2026,78079DC034,,25,"Age on effective date","Not Applicable",No,Spouse,,,Dental,3
+2026,DC,78079,SERFF,1,01-13-2026,78079DC034,,25,"Age on effective date","Not Applicable",Yes,Self,,,Dental,3
+2026,DC,78079,SERFF,1,01-13-2026,78079DC034,,25,"Age on effective date","Not Applicable",No,"Stepson or Stepdaughter",,,Dental,3
+2026,DC,78079,SERFF,1,01-13-2026,78079DC034,,25,"Age on effective date","Not Applicable",No,Child,,,Dental,3
+2026,DC,78079,SERFF,1,01-13-2026,78079DC034,,25,"Age on effective date","Not Applicable",No,"Foster Child",,,Dental,3
+2026,DC,78079,SERFF,1,01-13-2026,78079DC034,,25,"Age on effective date","Not Applicable",Yes,"Life Partner",,,Dental,3
+2026,DC,78079,SERFF,1,01-13-2026,78079DC034,,25,"Age on effective date","Not Applicable",No,Child,,,Dental,3
+2026,DC,78079,SERFF,1,01-13-2026,78079DC034,,25,"Age on effective date","Not Applicable",Yes,Self,,,Dental,3
+2026,DC,78079,SERFF,1,01-13-2026,78079DC034,,25,"Age on effective date","Not Applicable",No,"Stepson or Stepdaughter",,,Dental,3
+2026,DC,78079,SERFF,1,01-13-2026,78079DC034,,25,"Age on effective date","Not Applicable",No,Spouse,,,Dental,3
+2026,DC,78079,SERFF,1,01-13-2026,78079DC033,,25,"Age on effective date","Not Applicable",Yes,"Life Partner",,,Dental,3
+2026,DC,78079,SERFF,1,01-13-2026,78079DC033,,25,"Age on effective date","Not Applicable",No,Spouse,,,Dental,3
+2026,DC,78079,SERFF,1,01-13-2026,78079DC033,,25,"Age on effective date","Not Applicable",No,"Foster Child",,,Dental,3
+2026,DC,78079,SERFF,1,01-13-2026,78079DC033,,25,"Age on effective date","Not Applicable",Yes,Self,,,Dental,3
+2026,DC,78079,SERFF,1,01-13-2026,78079DC033,,25,"Age on effective date","Not Applicable",No,"Stepson or Stepdaughter",,,Dental,3
+2026,DC,78079,SERFF,1,01-13-2026,78079DC033,,25,"Age on effective date","Not Applicable",No,Child,,,Dental,3
+2026,DC,78079,SERFF,1,01-13-2026,78079DC033,,25,"Age on effective date","Not Applicable",Yes,"Life Partner",,,Dental,3
+2026,DC,78079,SERFF,1,01-13-2026,78079DC033,,25,"Age on effective date","Not Applicable",No,Spouse,,,Dental,3
+2026,DC,78079,SERFF,1,01-13-2026,78079DC033,,25,"Age on effective date","Not Applicable",No,"Stepson or Stepdaughter",,,Dental,3
+2026,DC,78079,SERFF,1,01-13-2026,78079DC033,,25,"Age on effective date","Not Applicable",Yes,Self,,,Dental,3
+2026,DC,78079,SERFF,1,01-13-2026,78079DC033,,25,"Age on effective date","Not Applicable",No,Child,,,Dental,3
+2026,DC,78079,SERFF,1,01-13-2026,78079DC033,,25,"Age on effective date","Not Applicable",No,"Foster Child",,,Dental,3
+2026,DC,78079,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,Child,,,Medical,3
+2026,DC,78079,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,"Foster Child",,,Medical,3
+2026,DC,78079,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",Yes,"Life Partner",,,Medical,3
+2026,DC,78079,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,"Stepson or Stepdaughter",,,Medical,3
+2026,DC,78079,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",Yes,Self,,,Medical,3
+2026,DC,78079,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,Spouse,,,Medical,3
+2026,DC,78079,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",Yes,Self,,,Medical,3
+2026,DC,78079,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",Yes,"Life Partner",,,Medical,3
+2026,DC,78079,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,Spouse,,,Medical,3
+2026,DC,78079,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,Child,,,Medical,3
+2026,DC,78079,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,"Foster Child",,,Medical,3
+2026,DC,78079,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,"Stepson or Stepdaughter",,,Medical,3
+2026,DC,78079,SERFF,1,01-13-2026,78079DC034,,25,"Age on effective date","Not Applicable",No,Spouse,,,Dental,3
+2026,DC,78079,SERFF,1,01-13-2026,78079DC034,,25,"Age on effective date","Not Applicable",Yes,Self,,,Dental,3
+2026,DC,78079,SERFF,1,01-13-2026,78079DC034,,25,"Age on effective date","Not Applicable",No,"Stepson or Stepdaughter",,,Dental,3
+2026,DC,78079,SERFF,1,01-13-2026,78079DC034,,25,"Age on effective date","Not Applicable",No,Child,,,Dental,3
+2026,DC,78079,SERFF,1,01-13-2026,78079DC034,,25,"Age on effective date","Not Applicable",Yes,"Life Partner",,,Dental,3
+2026,DC,78079,SERFF,1,01-13-2026,78079DC034,,25,"Age on effective date","Not Applicable",No,"Foster Child",,,Dental,3
+2026,DC,78079,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,"Stepson or Stepdaughter",,,Medical,3
+2026,DC,78079,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",Yes,Self,,,Medical,3
+2026,DC,78079,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,Spouse,,,Medical,3
+2026,DC,78079,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,Child,,,Medical,3
+2026,DC,78079,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,"Foster Child",,,Medical,3
+2026,DC,78079,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",Yes,"Life Partner",,,Medical,3
+2026,DC,78079,SERFF,1,01-13-2026,78079DC032,,25,"Age on effective date","Not Applicable",No,"Foster Child",,,Dental,3
+2026,DC,78079,SERFF,1,01-13-2026,78079DC032,,25,"Age on effective date","Not Applicable",No,Child,,,Dental,3
+2026,DC,78079,SERFF,1,01-13-2026,78079DC032,,25,"Age on effective date","Not Applicable",No,Spouse,,,Dental,3
+2026,DC,78079,SERFF,1,01-13-2026,78079DC032,,25,"Age on effective date","Not Applicable",Yes,"Life Partner",,,Dental,3
+2026,DC,78079,SERFF,1,01-13-2026,78079DC032,,25,"Age on effective date","Not Applicable",Yes,Self,,,Dental,3
+2026,DC,78079,SERFF,1,01-13-2026,78079DC032,,25,"Age on effective date","Not Applicable",No,"Stepson or Stepdaughter",,,Dental,3
+2026,DC,78079,SERFF,1,01-13-2026,78079DC034,,25,"Age on effective date","Not Applicable",No,Child,,,Dental,3
+2026,DC,78079,SERFF,1,01-13-2026,78079DC034,,25,"Age on effective date","Not Applicable",No,"Stepson or Stepdaughter",,,Dental,3
+2026,DC,78079,SERFF,1,01-13-2026,78079DC034,,25,"Age on effective date","Not Applicable",No,Spouse,,,Dental,3
+2026,DC,78079,SERFF,1,01-13-2026,78079DC034,,25,"Age on effective date","Not Applicable",Yes,Self,,,Dental,3
+2026,DC,78079,SERFF,1,01-13-2026,78079DC034,,25,"Age on effective date","Not Applicable",Yes,"Life Partner",,,Dental,3
+2026,DC,78079,SERFF,1,01-13-2026,78079DC034,,25,"Age on effective date","Not Applicable",No,"Foster Child",,,Dental,3
+2026,DC,81334,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,"Stepson or Stepdaughter",,,Dental,"Not Applicable"
+2026,DC,81334,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,Spouse,,,Dental,"Not Applicable"
+2026,DC,81334,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,"Foster Child",,,Dental,"Not Applicable"
+2026,DC,81334,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",Yes,Self,,,Dental,"Not Applicable"
+2026,DC,81334,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,Child,,,Dental,"Not Applicable"
+2026,DC,81334,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,"Life Partner",,,Dental,"Not Applicable"
+2026,DC,81334,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,Ward,,,Dental,"Not Applicable"
+2026,DC,86052,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,Child,,,Medical,3
+2026,DC,86052,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,Spouse,,,Medical,3
+2026,DC,86052,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,"Foster Child",,,Medical,3
+2026,DC,86052,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,"Stepson or Stepdaughter",,,Medical,3
+2026,DC,86052,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",Yes,Self,,,Medical,3
+2026,DC,86052,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",Yes,"Life Partner",,,Medical,3
+2026,DC,86052,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,Child,,,Medical,3
+2026,DC,86052,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",Yes,Self,,,Medical,3
+2026,DC,86052,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",Yes,"Life Partner",,,Medical,3
+2026,DC,86052,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,Spouse,,,Medical,3
+2026,DC,86052,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,"Foster Child",,,Medical,3
+2026,DC,86052,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,"Stepson or Stepdaughter",,,Medical,3
+2026,DC,92479,SERFF,1,01-13-2026,,92479DC0020005,21,"Age on effective date","Not Applicable",Yes,Self,,,Dental,3
+2026,DC,92479,SERFF,1,01-13-2026,,92479DC0020005,21,"Age on effective date","Not Applicable",No,"Brother or Sister",,,Dental,3
+2026,DC,92479,SERFF,1,01-13-2026,,92479DC0010005,21,"Age on effective date","Not Applicable",Yes,Self,,,Dental,3
+2026,DC,92479,SERFF,1,01-13-2026,,92479DC0010005,21,"Age on effective date","Not Applicable",No,"Brother or Sister",,,Dental,3
+2026,DC,92479,SERFF,1,01-13-2026,,92479DC0020003,21,"Age on effective date","Not Applicable",Yes,Self,,,Dental,3
+2026,DC,92479,SERFF,1,01-13-2026,,92479DC0020003,21,"Age on effective date","Not Applicable",No,"Brother or Sister",,,Dental,3
+2026,DC,92479,SERFF,1,01-13-2026,,92479DC0010003,21,"Age on effective date","Not Applicable",No,"Brother or Sister",,,Dental,3
+2026,DC,92479,SERFF,1,01-13-2026,,92479DC0010003,21,"Age on effective date","Not Applicable",Yes,Self,,,Dental,3
+2026,DC,92479,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,"Life Partner",,,Dental,3
+2026,DC,92479,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,Spouse,,,Dental,3
+2026,DC,92479,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,"Foster Child",,,Dental,3
+2026,DC,92479,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",Yes,Self,,,Dental,3
+2026,DC,92479,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,"Grandson or Granddaughter",,,Dental,3
+2026,DC,92479,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,Child,,,Dental,3
+2026,DC,92479,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,"Stepson or Stepdaughter",,,Dental,3
+2026,DC,94506,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",Yes,"Nephew or Niece",,,Medical,3
+2026,DC,94506,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",Yes,Self,,,Medical,3
+2026,DC,94506,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,"Stepson or Stepdaughter",,,Medical,3
+2026,DC,94506,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,Child,,,Medical,3
+2026,DC,94506,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,Ward,,,Medical,3
+2026,DC,94506,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,Spouse,,,Medical,3
+2026,DC,94506,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,"Life Partner",,,Medical,3
+2026,DC,94506,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,"Foster Child",,,Medical,3
+2026,DC,94506,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",Yes,"Grandson or Granddaughter",,,Medical,3
+2026,DC,94506,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",Yes,Self,,,Medical,3
+2026,DC,94506,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,"Foster Child",,,Medical,3
+2026,DC,94506,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",Yes,"Nephew or Niece",,,Medical,3
+2026,DC,94506,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,Ward,,,Medical,3
+2026,DC,94506,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,"Stepson or Stepdaughter",,,Medical,3
+2026,DC,94506,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,Child,,,Medical,3
+2026,DC,94506,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",Yes,"Grandson or Granddaughter",,,Medical,3
+2026,DC,94506,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,"Life Partner",,,Medical,3
+2026,DC,94506,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,Spouse,,,Medical,3
+2026,DC,95051,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,Ward,,,Dental,3
+2026,DC,95051,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,"Life Partner",,,Dental,3
+2026,DC,95051,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",Yes,Self,,,Dental,3
+2026,DC,95051,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,"Foster Child",,,Dental,3
+2026,DC,95051,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,Spouse,,,Dental,3
+2026,DC,95051,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,"Stepson or Stepdaughter",,,Dental,3
+2026,DC,95051,SERFF,1,01-13-2026,,,25,"Age on effective date","Not Applicable",No,Child,,,Dental,3

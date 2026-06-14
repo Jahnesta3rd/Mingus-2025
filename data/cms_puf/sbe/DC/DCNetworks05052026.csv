@@ -1,0 +1,22 @@
+"BUSINESS YEAR","STATE CODE","ISSUER ID","SOURCE NAME","VERSION NUMBER","IMPORT DATE","NETWORK ID","NETWORK NAME","NETWORK URL","MARKET COVERAGE","DENTAL PLAN ONLY"
+2026,DC,21066,SERFF,1,01-13-2026,DCN001,"DC SG Core Essential",,"SHOP (Small Group)",No
+2026,DC,41842,SERFF,1,01-13-2026,DCN001,"DC SG Choice Plus",,"SHOP (Small Group)",No
+2026,DC,75753,SERFF,1,01-13-2026,DCN001,"DC SG OCI HMO",,"SHOP (Small Group)",No
+2026,DC,78079,SERFF,1,01-13-2026,DCN005,"Regional Preferred Participating Network",,Individual,No
+2026,DC,78079,SERFF,1,01-13-2026,DCN006,"Regional Preferred Participating Network",,"SHOP (Small Group)",No
+2026,DC,78079,SERFF,1,01-13-2026,DCN007,"Regional Preferred Participating Network",,"SHOP (Small Group)",No
+2026,DC,78079,SERFF,1,01-13-2026,DCN008,"BlueDental Preferred High",,Individual,Yes
+2026,DC,78079,SERFF,1,01-13-2026,DCN009,"BlueDental Preferred Low",,Individual,Yes
+2026,DC,78079,SERFF,1,01-13-2026,DCN010,"BlueDental Preferred High",,"SHOP (Small Group)",Yes
+2026,DC,78079,SERFF,1,01-13-2026,DCN011,"BlueDental Preferred Low",,"SHOP (Small Group)",Yes
+2026,DC,81334,SERFF,1,01-13-2026,DCN001,"Delta Dental PPO Individual",,Individual,Yes
+2026,DC,86052,SERFF,1,01-13-2026,DCN001,"BlueChoice HMO Standard",,Individual,No
+2026,DC,86052,SERFF,1,01-13-2026,DCN002,"BlueChoice HMO Young Adult",,Individual,No
+2026,DC,86052,SERFF,1,01-13-2026,DCN003,"CareFirst BlueChoice HMO",,"SHOP (Small Group)",No
+2026,DC,86052,SERFF,1,01-13-2026,DCN004,"CareFirst BlueChoice Advantage",,"SHOP (Small Group)",No
+2026,DC,92479,SERFF,1,01-13-2026,DCN001,"DDS DHSMO",,Individual,Yes
+2026,DC,92479,SERFF,1,01-13-2026,DCN002,"ELITE PPO",,Individual,Yes
+2026,DC,94506,SERFF,1,01-13-2026,DCN001,"Kaiser Foundation Health Plan of Mid Atlantic States Incorporated Signature",,Individual,No
+2026,DC,94506,SERFF,1,01-13-2026,DCN002,"Kaiser Foundation Health Plan of Mid Atlantic States Incorporated Signature",,"SHOP (Small Group)",No
+2026,DC,94506,SERFF,1,01-13-2026,DCN003,"Kaiser Foundation Health Plan of Mid Atlantic States Incorporated Select",,"SHOP (Small Group)",No
+2026,DC,95051,SERFF,1,01-13-2026,DCN001,"BEST Life and Health Network",,Individual,Yes
