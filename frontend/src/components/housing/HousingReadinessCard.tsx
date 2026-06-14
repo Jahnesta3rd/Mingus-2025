@@ -298,7 +298,7 @@ function BudgetOverlay({ onUpgrade }: { onUpgrade: () => void }) {
   );
 }
 
-export function HousingReadinessCard() {
+export function HousingReadinessCard({ refreshTrigger = 0 }: { refreshTrigger?: number } = {}) {
   const navigate = useNavigate();
   const { user } = useAuth();
   const userTier: AuthUserTier = deriveUserTier(user);
@@ -352,7 +352,7 @@ export function HousingReadinessCard() {
     return () => {
       cancelled = true;
     };
-  }, [fetchKey, profileLoading, hasHousingProfile]);
+  }, [fetchKey, profileLoading, hasHousingProfile, refreshTrigger]);
 
   useEffect(() => {
     if (!hasHousingProfile || !data?.plan_loading) return undefined;
