@@ -21,14 +21,37 @@ MSA_CHILDCARE_MONTHLY = {
     "47900": 2300,  # Washington DC
     "31080": 2200,  # Los Angeles
     "16980": 2000,  # Chicago
+    "25540": 2000,  # Hartford
+    "37980": 1900,  # Philadelphia
     "19740": 1900,  # Denver
+    "12580": 1900,  # Baltimore
+    "38900": 1900,  # Portland OR
     "33100": 1700,  # Miami
     "12420": 1700,  # Austin
+    "40900": 1800,  # Sacramento
     "12060": 1600,  # Atlanta
+    "39580": 1600,  # Raleigh
+    "34980": 1500,  # Nashville
     "19100": 1500,  # Dallas
+    "19820": 1500,  # Detroit
     "26420": 1400,  # Houston
     "38060": 1400,  # Phoenix
     "16740": 1400,  # Charlotte
+    "41180": 1400,  # St. Louis
+    "40060": 1400,  # Richmond
+    "45300": 1300,  # Tampa
+    "18140": 1300,  # Columbus
+    "26900": 1300,  # Indianapolis
+    "29820": 1300,  # Las Vegas
+    "38300": 1300,  # Pittsburgh
+    "17140": 1300,  # Cincinnati
+    "47260": 1300,  # Virginia Beach
+    "31140": 1200,  # Louisville
+    "35380": 1200,  # New Orleans
+    "41700": 1100,  # San Antonio
+    "32820": 1000,  # Memphis
+    "36420": 1000,  # Oklahoma City
+    "13820": 900,   # Birmingham
 }
 CHILDCARE_NATIONAL_DEFAULT = 1800
 
