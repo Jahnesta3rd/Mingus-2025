@@ -22,6 +22,42 @@ logger = logging.getLogger(__name__)
 
 articles_bp = Blueprint("articles", __name__, url_prefix="/api/articles")
 
+TAG_BLOCKLIST: frozenset[str] = frozenset(
+    {
+        "hospital closure",
+        "news",
+        "viral",
+        "twitter",
+        "attack",
+        "do_kwon",
+        "fact-finding",
+        "style",
+        "design",
+        "beverage",
+        "crime",
+        "lifestyle",
+        "legal case",
+        "scandal",
+    }
+)
+
+DOMAIN_TAG_FALLBACKS: dict[str, list[str]] = {
+    "housing": ["mortgage", "down payment", "real estate", "renting"],
+    "mental_health_money": [
+        "financial stress",
+        "anxiety",
+        "money mindset",
+        "wellbeing",
+    ],
+    "physical_wellness": ["healthcare", "nutrition", "fitness", "wellness"],
+    "relationships_money": [
+        "couples finances",
+        "dating",
+        "family finances",
+        "communication",
+    ],
+}
+
 DOMAIN_LABELS: dict[str, str] = {
     "career_income": "Career & Income",
     "housing": "Housing",
@@ -91,6 +127,35 @@ def _ensure_bookmarks_table() -> None:
         conn.close()
 
 
+def _top_tags_for_domain(cur, domain: str) -> list[str]:
+    cur.execute(
+        """
+        SELECT unnest(tags) AS tag, COUNT(*) AS frequency
+        FROM articles
+        WHERE is_active = TRUE AND domain = %s
+        GROUP BY tag
+        HAVING COUNT(*) >= 2
+        ORDER BY frequency DESC
+        LIMIT 6
+        """,
+        (domain,),
+    )
+    tags = [
+        row["tag"]
+        for row in cur.fetchall()
+        if row["tag"] not in TAG_BLOCKLIST
+    ]
+
+    if len(tags) < 4:
+        for fallback in DOMAIN_TAG_FALLBACKS.get(domain, []):
+            if fallback not in tags:
+                tags.append(fallback)
+            if len(tags) >= 4:
+                break
+
+    return tags
+
+
 def _parse_tags(raw) -> list[str]:
     if raw is None:
         return []
@@ -153,6 +218,8 @@ def _resolve_user_mingus_domain(user_id: int) -> str:
 @articles_bp.route("/", methods=["GET"])
 def list_articles():
     domain = (request.args.get("domain") or "").strip() or None
+    tags_param = (request.args.get("tags") or "").strip()
+    tag_list = [t.strip() for t in tags_param.split(",") if t.strip()]
     query_text = (request.args.get("q") or "").strip() or None
 
     try:
@@ -173,6 +240,10 @@ def list_articles():
     if domain:
         conditions.append("domain = %s")
         params.append(domain)
+
+    if tag_list:
+        conditions.append("tags && %s::text[]")
+        params.append(tag_list)
 
     where_clause = " AND ".join(conditions)
 
@@ -248,17 +319,18 @@ def list_domains():
             """
         )
         rows = cur.fetchall()
+        domains = [
+            {
+                "domain": row["domain"],
+                "count": int(row["count"]),
+                "label": DOMAIN_LABELS.get(row["domain"], row["domain"]),
+                "top_tags": _top_tags_for_domain(cur, row["domain"]),
+            }
+            for row in rows
+        ]
     finally:
         conn.close()
 
-    domains = [
-        {
-            "domain": row["domain"],
-            "count": int(row["count"]),
-            "label": DOMAIN_LABELS.get(row["domain"], row["domain"]),
-        }
-        for row in rows
-    ]
     return jsonify({"domains": domains})
 
 

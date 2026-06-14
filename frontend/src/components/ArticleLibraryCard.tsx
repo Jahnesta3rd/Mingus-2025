@@ -18,6 +18,7 @@ interface DomainInfo {
   domain: string;
   count: number;
   label: string;
+  top_tags?: string[];
 }
 
 interface ArticlesResponse {
@@ -77,6 +78,7 @@ export default function ArticleLibraryCard() {
 
   const [domains, setDomains] = useState<DomainInfo[]>([]);
   const [activeDomain, setActiveDomain] = useState<string | null>(null);
+  const [activeTags, setActiveTags] = useState<string[]>([]);
   const [searchInput, setSearchInput] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
   const [articles, setArticles] = useState<Article[]>([]);
@@ -105,6 +107,12 @@ export default function ArticleLibraryCard() {
 
   const showRecommended =
     isAuthenticated && !debouncedQuery && activeDomain === null;
+
+  const activeTopTags = useMemo(() => {
+    if (!activeDomain) return [];
+    const domain = domains.find((d) => d.domain === activeDomain);
+    return domain?.top_tags ?? [];
+  }, [activeDomain, domains]);
 
   useEffect(() => {
     if (debounceRef.current) {
@@ -185,6 +193,9 @@ export default function ArticleLibraryCard() {
       if (debouncedQuery) {
         params.set('q', debouncedQuery);
       }
+      if (activeTags.length > 0) {
+        params.set('tags', activeTags.join(','));
+      }
 
       try {
         const res = await fetch(`/api/articles?${params.toString()}`, {
@@ -215,7 +226,7 @@ export default function ArticleLibraryCard() {
         }
       }
     },
-    [activeDomain, debouncedQuery]
+    [activeDomain, activeTags, debouncedQuery]
   );
 
   useEffect(() => {
@@ -309,7 +320,10 @@ export default function ArticleLibraryCard() {
       <div className="mt-4 flex gap-2 overflow-x-auto pb-1">
         <button
           type="button"
-          onClick={() => setActiveDomain(null)}
+          onClick={() => {
+            setActiveDomain(null);
+            setActiveTags([]);
+          }}
           className={`shrink-0 cursor-pointer rounded-full px-3 py-1 text-xs ${
             activeDomain === null
               ? 'bg-teal-500 text-white'
@@ -322,7 +336,10 @@ export default function ArticleLibraryCard() {
           <button
             key={d.domain}
             type="button"
-            onClick={() => setActiveDomain(d.domain)}
+            onClick={() => {
+              setActiveDomain(d.domain);
+              setActiveTags([]);
+            }}
             className={`shrink-0 cursor-pointer rounded-full px-3 py-1 text-xs ${
               activeDomain === d.domain
                 ? 'bg-teal-500 text-white'
@@ -333,6 +350,32 @@ export default function ArticleLibraryCard() {
           </button>
         ))}
       </div>
+
+      {activeDomain !== null && activeTopTags.length > 0 && (
+        <div className="mt-2 flex gap-2 overflow-x-auto pb-1">
+          {activeTopTags.map((tag) => {
+            const selected = activeTags.includes(tag);
+            return (
+              <button
+                key={tag}
+                type="button"
+                onClick={() => {
+                  setActiveTags((prev) =>
+                    selected ? prev.filter((t) => t !== tag) : [...prev, tag]
+                  );
+                }}
+                className={`shrink-0 cursor-pointer rounded-full px-3 py-1 text-xs ${
+                  selected
+                    ? 'border border-teal-400 bg-teal-100 text-teal-700'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                {tag}
+              </button>
+            );
+          })}
+        </div>
+      )}
 
       {showRecommended && recommended.length > 0 && (
         <div className="mt-5">
