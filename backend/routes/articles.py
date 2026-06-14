@@ -88,6 +88,85 @@ _CHECKUP_FIELD_DOMAINS: tuple[tuple[str, str], ...] = (
 _bookmarks_table_ready = False
 
 
+def _expand_query(q: str) -> str:
+    """
+    Expand a search query with finance/career synonyms.
+    Returns a websearch_to_tsquery compatible string with OR expansions.
+    """
+    SYNONYMS = {
+        # Career & Income
+        'raise':        ['salary increase', 'compensation', 'promotion'],
+        'salary':       ['income', 'compensation', 'wages', 'pay'],
+        'fired':        ['layoff', 'termination', 'downsizing', 'job loss'],
+        'side hustle':  ['freelance', 'gig economy', 'second job'],
+        'job search':   ['career', 'employment', 'hiring', 'resume'],
+        'negotiate':    ['negotiation', 'offer', 'counter offer'],
+
+        # Financial Habits
+        'budget':       ['budgeting', 'spending', 'expenses'],
+        'debt':         ['credit card', 'loan', 'payoff', 'owe'],
+        'save':         ['saving', 'savings', 'emergency fund'],
+        'savings':      ['emergency fund', 'nest egg', 'saving money'],
+        'credit score': ['credit report', 'fico', 'credit history'],
+        'invest':       ['investing', 'stocks', 'portfolio', 'index funds'],
+        '401k':         ['retirement', 'ira', 'pension', 'roth'],
+        'retirement':   ['401k', 'ira', 'roth', 'pension'],
+        'tax':          ['taxes', 'tax filing', 'deductions', 'irs'],
+
+        # Housing
+        'buy a house':  ['mortgage', 'home purchase', 'down payment'],
+        'home buying':  ['mortgage', 'real estate', 'down payment'],
+        'mortgage':     ['home loan', 'refinance', 'interest rate'],
+        'rent':         ['renting', 'landlord', 'lease', 'apartment'],
+        'down payment': ['savings', 'home purchase', 'mortgage'],
+
+        # Mental Health & Money
+        'stressed':     ['anxiety', 'overwhelmed', 'financial stress'],
+        'anxiety':      ['stress', 'worry', 'mental health', 'burnout'],
+        'burnout':      ['stress', 'overwhelmed', 'mental health'],
+
+        # Mental Models / Free Game
+        'decision':     ['decision making', 'framework', 'strategy'],
+        'wealthy':      ['wealth', 'net worth', 'financial independence'],
+        'rich':         ['wealth', 'millionaire', 'financial independence'],
+        'stocks':       ['investing', 'market', 'equity', 'portfolio'],
+        'crypto':       ['cryptocurrency', 'bitcoin', 'blockchain'],
+
+        # Physical Wellness
+        'doctor':       ['healthcare', 'medical', 'insurance', 'copay'],
+        'insurance':    ['health insurance', 'coverage', 'premium', 'deductible'],
+
+        # Relationships & Money
+        'couples':      ['couples finances', 'marriage money', 'partner'],
+        'family':       ['family finances', 'kids', 'children', 'household'],
+    }
+
+    q_lower = q.lower().strip()
+    terms = [q_lower]
+
+    # Check full query against synonym map
+    if q_lower in SYNONYMS:
+        terms.extend(SYNONYMS[q_lower])
+
+    # Check individual words
+    for word in q_lower.split():
+        if word in SYNONYMS and SYNONYMS[word] not in terms:
+            terms.extend(SYNONYMS[word])
+
+    # Deduplicate preserving order
+    seen = set()
+    unique_terms = []
+    for t in terms:
+        if t not in seen:
+            seen.add(t)
+            unique_terms.append(t)
+
+    # Build websearch_to_tsquery OR string
+    # websearch supports "term1" OR "term2" syntax
+    return ' OR '.join(f'"{t}"' for t in unique_terms[:6])
+    # Cap at 6 terms to avoid overly broad queries
+
+
 def _get_db_connection():
     conn = psycopg2.connect(os.environ["DATABASE_URL"])
     conn.cursor_factory = psycopg2.extras.RealDictCursor
@@ -252,24 +331,25 @@ def list_articles():
         cur = conn.cursor()
 
         if query_text:
+            expanded = _expand_query(query_text)
             count_sql = f"""
                 SELECT COUNT(*) AS total
                 FROM articles
                 WHERE {where_clause}
-                  AND search_vector @@ plainto_tsquery('english', %s)
+                  AND search_vector @@ websearch_to_tsquery('english', %s)
             """
-            cur.execute(count_sql, params + [query_text])
+            cur.execute(count_sql, params + [expanded])
             total = int(cur.fetchone()["total"])
 
             list_sql = f"""
                 SELECT id, url, title, description, source, domain, tags, read_time_minutes
                 FROM articles
                 WHERE {where_clause}
-                  AND search_vector @@ plainto_tsquery('english', %s)
-                ORDER BY ts_rank(search_vector, plainto_tsquery('english', %s)) DESC
+                  AND search_vector @@ websearch_to_tsquery('english', %s)
+                ORDER BY ts_rank(search_vector, websearch_to_tsquery('english', %s)) DESC
                 LIMIT %s OFFSET %s
             """
-            cur.execute(list_sql, params + [query_text, query_text, per_page, offset])
+            cur.execute(list_sql, params + [expanded, expanded, per_page, offset])
         else:
             count_sql = f"""
                 SELECT COUNT(*) AS total
