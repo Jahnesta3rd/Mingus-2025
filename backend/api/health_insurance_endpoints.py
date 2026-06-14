@@ -20,9 +20,15 @@ from backend.api.profile_endpoints import get_db_connection
 from backend.auth.decorators import get_current_user_db_id, require_auth
 from backend.models import hia_usage_profile_mixin  # noqa: F401 — ensure HIA columns
 from backend.models.database import db
+from backend.models.financial_setup import RecurringExpense
 from backend.models.health_insurance_plan import HealthInsurancePlan
+from backend.models.health_insurance_recommendation import HealthInsuranceRecommendation
 from backend.models.transaction_schedule import IncomeStream
 from backend.models.user_models import User
+from backend.services.insurance_recommendation_service import (
+    RecommendationGenerationError,
+    generate_insurance_recommendation,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -236,6 +242,65 @@ def _resolve_user() -> User | None:
     if uid is None:
         return None
     return User.query.get(uid)
+
+
+def _tier_is_budget(user: User) -> bool:
+    return (user.tier or "budget").strip().lower() == "budget"
+
+
+def _tier_is_professional(user: User) -> bool:
+    return (user.tier or "").strip().lower() == "professional"
+
+
+def _get_recommendation_row(user_id: int) -> HealthInsuranceRecommendation | None:
+    return HealthInsuranceRecommendation.query.filter_by(user_id=user_id).first()
+
+
+def _strip_recommendation_for_budget(
+    recommendation_json: dict[str, Any],
+) -> dict[str, Any]:
+    comparisons = recommendation_json.get("plan_comparisons") or []
+    return {
+        "plan_comparisons": [
+            {
+                "plan_name": item.get("plan_name"),
+                "estimated_annual_cost": item.get("estimated_annual_cost"),
+                "deductible": item.get("deductible"),
+                "oop_max": item.get("oop_max"),
+            }
+            for item in comparisons
+        ]
+    }
+
+
+def _recommendation_response(rec: HealthInsuranceRecommendation, user: User) -> dict[str, Any]:
+    recommendation_json = rec.recommendation_json or {}
+    tier_locked = _tier_is_budget(user)
+
+    payload: dict[str, Any] = {
+        "recommendation": (
+            _strip_recommendation_for_budget(recommendation_json)
+            if tier_locked
+            else recommendation_json
+        ),
+        "tier_locked": tier_locked,
+        "recommended_plan_id": rec.recommended_plan_id,
+        "expected_annual_cost_recommended": _to_float(
+            rec.expected_annual_cost_recommended
+        ),
+        "expected_annual_cost_runner_up": _to_float(
+            rec.expected_annual_cost_runner_up
+        ),
+        "hsa_recommended": rec.hsa_recommended,
+        "hsa_annual_benefit": _to_float(rec.hsa_annual_benefit),
+        "generated_at": rec.generated_at.isoformat() if rec.generated_at else None,
+        "expires_at": rec.expires_at.isoformat() if rec.expires_at else None,
+    }
+    if tier_locked:
+        payload["upgrade_prompt"] = (
+            "Upgrade to Mid-tier to see your personalized recommendation and risk analysis."
+        )
+    return payload
 
 
 def _get_owned_plan(plan_id: int, user_id: int) -> HealthInsurancePlan | None:
@@ -585,3 +650,113 @@ def manual_update_insurance_plan(plan_id: int):
     db.session.commit()
 
     return jsonify(_plan_summary(plan))
+
+
+@health_insurance_bp.route("/insurance-recommendation/generate", methods=["POST"])
+@require_auth
+def generate_insurance_recommendation_endpoint():
+    user = _resolve_user()
+    if user is None:
+        return jsonify({"error": "User not found"}), 404
+
+    now = datetime.utcnow()
+    cached_row = _get_recommendation_row(user.id)
+    if (
+        cached_row is not None
+        and cached_row.expires_at is not None
+        and cached_row.expires_at > now
+    ):
+        return jsonify(
+            {
+                "recommendation": cached_row.recommendation_json,
+                "cached": True,
+                "expires_at": cached_row.expires_at.isoformat(),
+            }
+        )
+
+    try:
+        result = generate_insurance_recommendation(user.id)
+    except RecommendationGenerationError as exc:
+        return jsonify({"error": str(exc)}), 400
+
+    result["cached"] = False
+    return jsonify(result)
+
+
+@health_insurance_bp.route("/insurance-recommendation", methods=["GET"])
+@require_auth
+def get_insurance_recommendation():
+    user = _resolve_user()
+    if user is None:
+        return jsonify({"error": "User not found"}), 404
+
+    rec = _get_recommendation_row(user.id)
+    if rec is None:
+        return jsonify({"status": "not_generated"})
+
+    return jsonify(_recommendation_response(rec, user))
+
+
+@health_insurance_bp.route("/insurance-plans/accept", methods=["POST"])
+@require_auth
+def accept_insurance_plan():
+    user = _resolve_user()
+    if user is None:
+        return jsonify({"error": "User not found"}), 404
+
+    if not _tier_is_professional(user):
+        return jsonify(
+            {
+                "error": "forbidden",
+                "upgrade_prompt": (
+                    "Upgrade to Professional to accept a plan and add it to your budget."
+                ),
+            }
+        ), 403
+
+    data = request.get_json(silent=True) or {}
+    plan_id = data.get("plan_id")
+    if plan_id is None:
+        return jsonify({"error": "plan_id is required"}), 400
+
+    try:
+        plan_id = int(plan_id)
+    except (TypeError, ValueError):
+        return jsonify({"error": "plan_id must be an integer"}), 400
+
+    plan = _get_owned_plan(plan_id, user.id)
+    if plan is None:
+        return jsonify({"error": "Plan not found"}), 404
+
+    monthly_amount = _to_float(plan.monthly_premium_employee)
+    if monthly_amount is None:
+        return jsonify({"error": "Plan has no monthly premium amount"}), 400
+
+    expense = RecurringExpense(
+        user_id=user.id,
+        name=f"Health insurance — {plan.plan_name}"[:100],
+        amount=plan.monthly_premium_employee,
+        category="insurance",
+        frequency="monthly",
+        is_active=True,
+        source="health_insurance_advisor",
+    )
+    db.session.add(expense)
+
+    rec = _get_recommendation_row(user.id)
+    if rec is not None:
+        rec.accepted_plan_id = plan.id
+
+    db.session.commit()
+
+    return jsonify(
+        {
+            "accepted": True,
+            "monthly_amount": monthly_amount,
+            "plan_name": plan.plan_name,
+            "message": (
+                f"Added ${monthly_amount:,.0f}/month to your budget. "
+                "Update your waterfall to see the impact."
+            ),
+        }
+    )
