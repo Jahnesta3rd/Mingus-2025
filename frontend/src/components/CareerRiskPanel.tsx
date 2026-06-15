@@ -23,6 +23,78 @@ function formatDate(iso: string): string {
   }
 }
 
+function DataSourceAttribution({
+  data,
+  onOpenEmployerBackfill,
+}: {
+  data: CareerRiskData;
+  onOpenEmployerBackfill?: () => void;
+}) {
+  const source = data.data_source;
+  if (source == null) {
+    return null;
+  }
+
+  if (source === 'sec_edgar') {
+    return (
+      <p className="mt-3 inline-flex rounded-full bg-gray-100 px-2.5 py-1 text-xs text-gray-600">
+        Employer data: SEC EDGAR filings · Health score: {data.employer_health_score ?? '—'}/100
+      </p>
+    );
+  }
+
+  if (source === '8k_filing' || source === 'warn_act') {
+    const filingDate = data.employer_layoff_event?.filing_date;
+    const label =
+      source === 'warn_act'
+        ? 'Employer data: state WARN Act notice detected'
+        : 'Employer data: 8-K layoff filing detected';
+    const filedSuffix = filingDate ? ` · Filed ${formatDate(filingDate)}` : '';
+    return (
+      <p className="mt-3 inline-flex rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-xs text-amber-800">
+        {label}{filedSuffix}
+      </p>
+    );
+  }
+
+  if (source === 'user_reported') {
+    return (
+      <p className="mt-3 text-xs text-gray-500">
+        Employer data: based on your Layoff Risk Assessment
+      </p>
+    );
+  }
+
+  if (source === 'unresolved') {
+    return (
+      <div className="mt-3 rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-blue-900">
+        <p className="text-xs">
+          Connect your employer to enable live data from SEC filings.
+        </p>
+        {onOpenEmployerBackfill ? (
+          <button
+            type="button"
+            onClick={onOpenEmployerBackfill}
+            className="mt-1 text-xs font-semibold text-blue-700 underline"
+          >
+            Update employer →
+          </button>
+        ) : null}
+      </div>
+    );
+  }
+
+  if (source === 'unsupported') {
+    return (
+      <p className="mt-3 text-xs text-gray-500">
+        Employer data: live data not available for your employer type.
+      </p>
+    );
+  }
+
+  return null;
+}
+
 export default function CareerRiskPanel({
   data,
   loading = false,
@@ -151,6 +223,10 @@ export default function CareerRiskPanel({
           {data.data_source === undefined ? (
             <p>Employer signal: your last Layoff Risk Assessment answers.</p>
           ) : null}
+          <DataSourceAttribution
+            data={data}
+            onOpenEmployerBackfill={onOpenEmployerBackfill}
+          />
         </div>
       </div>
     </div>

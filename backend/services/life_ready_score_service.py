@@ -9,13 +9,15 @@ from __future__ import annotations
 
 import json
 import logging
+from dataclasses import dataclass
+from datetime import date, datetime, timedelta, timezone
 from typing import Any
 
 from sqlalchemy import text
 
 from backend.models.career_profile import CareerProfile
 from backend.models.database import db
-from backend.models.employer import Employer
+from backend.models.employer import Employer, EmployerHealthSnapshot, LayoffEvent
 from backend.models.financial_setup import RecurringExpense
 from backend.models.life_correlation import LifeScoreSnapshot
 from backend.models.life_ledger import LifeLedgerProfile
@@ -58,9 +60,24 @@ _SATISFACTION_TO_CAREER_SCORE: dict[int, float] = {
 }
 
 _NEUTRAL = 50
+_EDGAR_STALE_DAYS = 14
+_LAYOFF_EVENT_WINDOW_DAYS = 90
+_EDGAR_STRESSED_THRESHOLD = 35
+_INCOME_WATCH_PERCENTILE = 25
 _TREND_EPS = 3
 _MIN_PILLARS_FOR_SCORE = 3
 _PILLARS_TOTAL = 4
+_ALERT_SEVERITY_ORDER = {"high": 0, "moderate": 1, "watch": 2}
+
+
+@dataclass
+class LifeAlert:
+    domain: str
+    severity: str
+    headline: str
+    detail: str
+    action_label: str
+    action_target: str
 
 
 def _clamp_0_100(x: float) -> int:
@@ -183,32 +200,201 @@ def _stability_score(user_id: int) -> float:
     return 100.0 if _stability_has_income_and_expense(user_id) else 10.0
 
 
+def _snapshot_refreshed_at_utc(refreshed_at: datetime) -> datetime:
+    if refreshed_at.tzinfo is None:
+        return refreshed_at.replace(tzinfo=timezone.utc)
+    return refreshed_at.astimezone(timezone.utc)
+
+
+def _employer_health_snapshot_fresh(snapshot: Any) -> bool:
+    """True when employer health snapshot score is within the stale window."""
+    if snapshot is None or snapshot.score is None or snapshot.refreshed_at is None:
+        return False
+    refreshed = _snapshot_refreshed_at_utc(snapshot.refreshed_at)
+    age = datetime.now(timezone.utc) - refreshed
+    return age <= timedelta(days=_EDGAR_STALE_DAYS)
+
+
+def _employer_snapshot_for_cik(cik: str) -> Any | None:
+    cik_padded = cik.zfill(10)
+    employer = db.session.query(Employer).filter_by(cik=cik_padded).first()
+    if employer is None:
+        return None
+    return get_latest_snapshot(employer.id, db_session=db.session)
+
+
 def _get_career_component_score(user_id: int) -> float:
-    """Career slot: employer health score when CIK resolved, else satisfaction map, else neutral."""
+    """Career slot: fresh employer health when CIK resolved, else satisfaction (no CIK), else neutral."""
     cp = CareerProfile.query.filter_by(user_id=user_id).first()
     if cp is None:
         return float(_NEUTRAL)
 
     cik = (cp.employer_cik or "").strip()
+    edgar_attempted = bool(cik)
     if cik:
-        cik_padded = cik.zfill(10)
-        employer = db.session.query(Employer).filter_by(cik=cik_padded).first()
-        if employer is not None:
-            snapshot = get_latest_snapshot(employer.id, db_session=db.session)
-            if snapshot is not None and snapshot.score is not None:
-                try:
-                    return max(0.0, min(100.0, float(snapshot.score)))
-                except (TypeError, ValueError):
-                    logger.warning(
-                        "life_ready invalid employer health score user_id=%s cik=%s",
-                        user_id,
-                        cik_padded,
-                    )
+        snapshot = _employer_snapshot_for_cik(cik)
+        if _employer_health_snapshot_fresh(snapshot):
+            try:
+                return max(0.0, min(100.0, float(snapshot.score)))
+            except (TypeError, ValueError):
+                logger.warning(
+                    "life_ready invalid employer health score user_id=%s cik=%s",
+                    user_id,
+                    cik.zfill(10),
+                )
+        if edgar_attempted:
+            return float(_NEUTRAL)
 
     if cp.satisfaction is not None:
         return _SATISFACTION_TO_CAREER_SCORE.get(int(cp.satisfaction), float(_NEUTRAL))
 
     return float(_NEUTRAL)
+
+
+def _career_has_real_signal(user_id: int) -> bool:
+    cp = CareerProfile.query.filter_by(user_id=user_id).first()
+    if cp is None:
+        return False
+    cik = (cp.employer_cik or "").strip()
+    if cik:
+        snapshot = _employer_snapshot_for_cik(cik)
+        return _employer_health_snapshot_fresh(snapshot)
+    if cp.satisfaction is not None:
+        return True
+    return False
+
+
+def _format_alert_date(filing_date: date) -> str:
+    """Human-readable date without platform-specific strftime flags."""
+    return f"{filing_date.strftime('%B')} {filing_date.day}, {filing_date.strftime('%Y')}"
+
+
+def _layoff_source_label(event: LayoffEvent) -> str:
+    source = getattr(event, "source", "8k_filing")
+    if source == "8k_filing":
+        return "8-K SEC filing"
+    return "state WARN Act notice"
+
+
+def _life_alerts_to_dicts(alerts: list[LifeAlert]) -> list[dict[str, str]]:
+    return [
+        {
+            "domain": a.domain,
+            "severity": a.severity,
+            "headline": a.headline,
+            "detail": a.detail,
+            "action_label": a.action_label,
+            "action_target": a.action_target,
+        }
+        for a in alerts
+    ]
+
+
+def _get_life_alerts(user_id: int) -> list[LifeAlert]:
+    alerts: list[LifeAlert] = []
+    cp = CareerProfile.query.filter_by(user_id=user_id).first()
+    if cp is None:
+        return alerts
+
+    cik = (cp.employer_cik or "").strip()
+    employer = (
+        db.session.query(Employer).filter_by(cik=cik.zfill(10)).first()
+        if cik
+        else None
+    )
+
+    if employer is not None:
+        cutoff_date = (
+            datetime.now(timezone.utc) - timedelta(days=_LAYOFF_EVENT_WINDOW_DAYS)
+        ).date()
+        event = (
+            db.session.query(LayoffEvent)
+            .filter(
+                LayoffEvent.employer_id == employer.id,
+                LayoffEvent.filing_date >= cutoff_date,
+                LayoffEvent.review_state != "needs_review",
+            )
+            .order_by(LayoffEvent.filing_date.desc())
+            .first()
+        )
+        if event is not None:
+            alerts.append(
+                LifeAlert(
+                    domain="career",
+                    severity="high",
+                    headline="Layoff risk detected",
+                    detail=(
+                        f"Your employer filed a workforce reduction "
+                        f"{_layoff_source_label(event)} "
+                        f"on {_format_alert_date(event.filing_date)}. "
+                        "This does not affect your Life Score, but may affect "
+                        "your financial plan."
+                    ),
+                    action_label="Review Career Risk",
+                    action_target="career_risk",
+                )
+            )
+
+    if cik and employer is not None and not any(a.severity == "high" for a in alerts):
+        snap = (
+            db.session.query(EmployerHealthSnapshot)
+            .filter_by(employer_id=employer.id)
+            .order_by(EmployerHealthSnapshot.fiscal_period_end.desc())
+            .first()
+        )
+        if snap is not None and snap.score is not None and snap.refreshed_at is not None:
+            refreshed = _snapshot_refreshed_at_utc(snap.refreshed_at)
+            age = datetime.now(timezone.utc) - refreshed
+            score_val = _coerce_float(snap.score)
+            if (
+                age <= timedelta(days=_EDGAR_STALE_DAYS)
+                and score_val is not None
+                and score_val < _EDGAR_STRESSED_THRESHOLD
+            ):
+                alerts.append(
+                    LifeAlert(
+                        domain="career",
+                        severity="moderate",
+                        headline="Employer financial stress",
+                        detail=(
+                            f"Your employer's financial health score is "
+                            f"{int(round(score_val))}/100, which is in the stressed "
+                            "range based on recent SEC filings."
+                        ),
+                        action_label="See Employer Health",
+                        action_target="career_risk",
+                    )
+                )
+
+    income_pct = getattr(cp, "income_percentile", None)
+    if (
+        income_pct is not None
+        and income_pct < _INCOME_WATCH_PERCENTILE
+        and not any(a.domain == "career" for a in alerts)
+    ):
+        alerts.append(
+            LifeAlert(
+                domain="career",
+                severity="watch",
+                headline="Income below peer average",
+                detail=(
+                    f"Your income is in the {int(income_pct)}th percentile "
+                    "for your role and location. A salary review may improve "
+                    "your financial position."
+                ),
+                action_label="See Income Benchmarks",
+                action_target="career_risk",
+            )
+        )
+
+    alerts.sort(key=lambda a: _ALERT_SEVERITY_ORDER.get(a.severity, 9))
+    return alerts
+
+
+def _with_life_alerts(payload: dict[str, Any], user_id: int | None) -> dict[str, Any]:
+    alerts = _get_life_alerts(user_id) if user_id is not None else []
+    payload["life_alerts"] = _life_alerts_to_dicts(alerts)
+    return payload
 
 
 def _assessment_results_meaningful(raw: Any) -> bool:
@@ -348,6 +534,7 @@ def _component_or_neutral(x: float | None) -> float:
 
 
 def _weighted_total(
+    user_id: int,
     *,
     financial: float,
     roof: float,
@@ -358,7 +545,7 @@ def _weighted_total(
     wellness: float,
     stability: float,
 ) -> int:
-    """Weighted mean over all eight active components; nominal weights sum to 1.0."""
+    """Weighted mean over active components; redistributes career weight when no real signal."""
     scores = {
         "financial": financial,
         "roof": roof,
@@ -369,10 +556,36 @@ def _weighted_total(
         "wellness": wellness,
         "stability": stability,
     }
-    blended = sum(
-        scores[k] * _NOMINAL_WEIGHTS[k] for k in _ACTIVE_COMPONENT_KEYS
-    ) / float(_ACTIVE_WEIGHT_SUM)
+    weights = dict(_NOMINAL_WEIGHTS)
+    if not _career_has_real_signal(user_id):
+        career_w = weights.pop("career", 0.0)
+        active = {k: v for k, v in weights.items() if k in scores}
+        total_active = sum(active.values())
+        if total_active > 0:
+            for k in active:
+                weights[k] += career_w * (active[k] / total_active)
+    blended = sum(scores[k] * weights[k] for k in weights if k in scores)
     return _clamp_0_100(blended)
+
+
+def _persist_snapshot_career_score(user_id: int, career: float) -> None:
+    """Write career sub-score onto today's snapshot row when one already exists."""
+    snap_date = datetime.now(timezone.utc).date()
+    snap = LifeScoreSnapshot.query.filter_by(
+        user_id=user_id, snapshot_date=snap_date
+    ).first()
+    if snap is None:
+        return
+    snap.career_score = career
+    try:
+        db.session.commit()
+    except Exception as e:
+        logger.warning(
+            "life_ready career_score snapshot persist failed user_id=%s: %s",
+            user_id,
+            e,
+        )
+        db.session.rollback()
 
 
 def _financial_from_snapshot_rate(rate: float | None) -> float:
@@ -398,8 +611,10 @@ def _score_from_snapshot(snap: LifeScoreSnapshot) -> int:
     )
     financial = _financial_from_snapshot_rate(_coerce_float(snap.monthly_savings_rate))
     stability = float(_NEUTRAL)
-    career = float(_NEUTRAL)
+    stored_career = _coerce_float(getattr(snap, "career_score", None))
+    career = float(stored_career) if stored_career is not None else float(_NEUTRAL)
     return _weighted_total(
+        snap.user_id,
         financial=financial,
         roof=roof,
         career=career,
@@ -492,18 +707,21 @@ def compute_life_ready_score(user_id: str) -> dict[str, Any]:
     user = db.session.query(User).filter_by(user_id=user_id).first()
     if user is None:
         n = float(_NEUTRAL)
-        return _insufficient_score_payload(
-            _components_payload(
-                financial=n,
-                roof=n,
-                career=n,
-                vibe=n,
-                vehicle=n,
-                body=n,
-                wellness=n,
-                stability=n,
+        return _with_life_alerts(
+            _insufficient_score_payload(
+                _components_payload(
+                    financial=n,
+                    roof=n,
+                    career=n,
+                    vibe=n,
+                    vehicle=n,
+                    body=n,
+                    wellness=n,
+                    stability=n,
+                ),
+                0,
             ),
-            0,
+            None,
         )
 
     uid = user.id
@@ -548,9 +766,15 @@ def compute_life_ready_score(user_id: str) -> dict[str, Any]:
     )
 
     if pillars_complete < _MIN_PILLARS_FOR_SCORE:
-        return _insufficient_score_payload(components, pillars_complete)
+        return _with_life_alerts(
+            _insufficient_score_payload(components, pillars_complete),
+            uid,
+        )
+
+    _persist_snapshot_career_score(uid, career)
 
     life_ready_score = _weighted_total(
+        uid,
         financial=financial,
         roof=roof,
         career=career,
@@ -572,6 +796,9 @@ def compute_life_ready_score(user_id: str) -> dict[str, Any]:
         stability=stability,
     )
 
-    return _sufficient_score_payload(
-        life_ready_score, components, trend, headline, pillars_complete
+    return _with_life_alerts(
+        _sufficient_score_payload(
+            life_ready_score, components, trend, headline, pillars_complete
+        ),
+        uid,
     )

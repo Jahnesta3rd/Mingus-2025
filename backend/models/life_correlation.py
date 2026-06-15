@@ -48,6 +48,7 @@ class LifeScoreSnapshot(db.Model):
 
     avg_wellness_score = db.Column(db.Float, nullable=True)
     avg_stress_level = db.Column(db.Float, nullable=True)
+    career_score = db.Column(db.Float, nullable=True)
 
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
 

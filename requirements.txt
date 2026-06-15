@@ -30,6 +30,7 @@ redis>=5.0.0
 
 # Utilities
 pytz>=2024.1
+rapidfuzz>=3.0.0
 resend
 beautifulsoup4
 loguru>=0.7.0

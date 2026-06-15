@@ -1,0 +1,74 @@
+[
+  {
+    "url": "https://www.apartmentlist.com/ny/brooklyn/",
+    "title": "Equal Housing Opportunity",
+    "description": "A nationwide renter satisfaction survey highlights that 60% of Brooklyn renters plan to purchase a home in the future, while expressing concerns about economic direction and safety. The findings shed light on what cities must do to better serve the growing U.S. renter population, which is at its highest level in 20 years.",
+    "source": "apartmentlist.com",
+    "domain": "housing",
+    "tags": [
+      "renting",
+      "homeownership",
+      "renter satisfaction",
+      "urban housing",
+      "housing market"
+    ],
+    "read_time_minutes": 2,
+    "summary": "A nationwide renter satisfaction survey highlights that 60% of Brooklyn renters plan to purchase a home in the future, while expressing concerns about economic direction and safety. The findings shed light on what cities must do to better serve the growing U.S. renter population, which is at its highest level in 20 years.",
+    "published_date": null,
+    "classified_at": "2026-06-14T23:24:21.649386"
+  },
+  {
+    "url": "https://www.nytimes.com/column/on-the-market/",
+    "title": "On the Market - The New York Times",
+    "description": "This article features a collection of residential property listings across New York City, Connecticut, and other locations, showcasing homes for sale in neighborhoods like Greenwich Village, Brooklyn, and the Hamptons. It covers a range of property types and price points, offering a snapshot of the current real estate market in the Northeast.",
+    "source": "nytimes.com",
+    "domain": "housing",
+    "tags": [
+      "real estate",
+      "home buying",
+      "property listings",
+      "New York",
+      "housing market"
+    ],
+    "read_time_minutes": 2,
+    "summary": "This article features a collection of residential property listings across New York City, Connecticut, and other locations, showcasing homes for sale in neighborhoods like Greenwich Village, Brooklyn, and the Hamptons. It covers a range of property types and price points, offering a snapshot of the current real estate market in the Northeast.",
+    "published_date": null,
+    "classified_at": "2026-06-14T23:24:21.649386"
+  },
+  {
+    "url": "https://www.nytimes.com/column/property-values/",
+    "title": "What You Get - The New York Times",
+    "description": "This New York Times feature showcases homes available at various price points across multiple states and international locations, giving readers a sense of what their money can buy in different real estate markets. The article highlights properties ranging from $750,000 homes in Michigan and Texas to $2.8 million estates in New York and Tennessee, offering a comparative look at regional housing values.",
+    "source": "nytimes.com",
+    "domain": "housing",
+    "tags": [
+      "home buying",
+      "real estate",
+      "property values",
+      "housing market",
+      "homeownership"
+    ],
+    "read_time_minutes": 2,
+    "summary": "This New York Times feature showcases homes available at various price points across multiple states and international locations, giving readers a sense of what their money can buy in different real estate markets. The article highlights properties ranging from $750,000 homes in Michigan and Texas to $2.8 million estates in New York and Tennessee, offering a comparative look at regional housing values.",
+    "published_date": null,
+    "classified_at": "2026-06-14T23:24:21.649386"
+  },
+  {
+    "url": "https://www.vox.com/the-logoff-newsletter-trump/490543/trump-anti-weaponization-slush-fund-doj-settlement/",
+    "title": "Is Trump giving up on his slush fund?",
+    "description": "The Trump administration is reportedly backing away from a controversial $1.8 billion fund that would have allowed Trump to distribute taxpayer money with little oversight to allies of his choosing. The fund faced legal challenges and pushback from Republican senators whose votes are needed for upcoming legislation.",
+    "source": "vox.com",
+    "domain": "mental_health_money",
+    "tags": [
+      "government spending",
+      "taxpayer money",
+      "political news",
+      "financial oversight",
+      "policy"
+    ],
+    "read_time_minutes": 2,
+    "summary": "The Trump administration is reportedly backing away from a controversial $1.8 billion fund that would have allowed Trump to distribute taxpayer money with little oversight to allies of his choosing. The fund faced legal challenges and pushback from Republican senators whose votes are needed for upcoming legislation.",
+    "published_date": "2026-06-01T22:10:00+00:00",
+    "classified_at": "2026-06-14T23:24:21.649386"
+  }
+]

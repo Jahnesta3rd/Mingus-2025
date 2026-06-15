@@ -1,0 +1,22 @@
+{
+  "total_articles_analyzed": 4,
+  "cultural_relevance_distribution": {
+    "low": 4,
+    "medium": 0,
+    "high": 0
+  },
+  "primary_focus_distribution": {
+    "systemic_barriers": 2,
+    "african_american": 2
+  },
+  "quality_score_distribution": {
+    "low": 0,
+    "medium": 2,
+    "high": 2
+  },
+  "domain_distribution": {
+    "www.apartmentlist.com": 1,
+    "www.nytimes.com": 2,
+    "www.vox.com": 1
+  }
+}

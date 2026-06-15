@@ -80,6 +80,7 @@ from backend.middleware.cors_logging import setup_cors_logging
 
 # Import SQLAlchemy models and database
 from backend.models.database import init_database, db
+from flask_migrate import Migrate
 from backend.models.user_models import User
 
 # Auth helpers for identifying current user (JWT in cookie)
@@ -293,6 +294,7 @@ app.register_blueprint(vibe_checkups_bp, url_prefix='/api/vibe-checkups')
 
 # Initialize SQLAlchemy database
 init_database(app)
+Migrate(app, db)
 
 # Initialize security middleware
 # Note: Security middleware will skip public endpoints like /health and /api/status

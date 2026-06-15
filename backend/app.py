@@ -42,6 +42,7 @@ from backend.routes.second_job_advisor import second_job_advisor_bp
 from backend.api.health_insurance_endpoints import health_insurance_bp
 from backend.cli.employer_refresh import register_employer_cli
 from backend.cli.hprs_refresh import register_hprs_cli
+from backend.cli.warn_scan import scan_warn_notices
 
 
 def register_backend_blueprints(app):
@@ -100,3 +101,4 @@ def register_backend_blueprints(app):
     app.register_blueprint(health_insurance_bp)
     register_employer_cli(app)
     register_hprs_cli(app)
+    app.cli.add_command(scan_warn_notices)

@@ -104,6 +104,7 @@ export interface CareerRiskData {
   data_source?:
     | 'sec_edgar'
     | '8k_filing'
+    | 'warn_act'
     | 'user_reported'
     | 'unresolved'
     | 'unsupported';
@@ -111,6 +112,7 @@ export interface CareerRiskData {
   employer_layoff_event?: {
     filing_date: string;
     confidence: number;
+    source?: '8k_filing' | 'warn_act';
     affected_count?: number | null;
     expires_at: string;
   } | null;

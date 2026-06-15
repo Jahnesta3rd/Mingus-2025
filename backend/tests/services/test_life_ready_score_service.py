@@ -10,7 +10,7 @@ import json
 import os
 import sys
 import uuid
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from decimal import Decimal
 from types import SimpleNamespace
 
@@ -73,9 +73,11 @@ class TestLifeReadyScoreWeights:
         assert "career" in lrss._ACTIVE_COMPONENT_KEYS
         assert sum(lrss._NOMINAL_WEIGHTS[k] for k in lrss._ACTIVE_COMPONENT_KEYS) == 1.0
 
-    def test_weighted_total_eight_active_equal_scores(self):
-        """All eight active components equal → score equals input."""
+    def test_weighted_total_eight_active_equal_scores_with_signal(self, monkeypatch):
+        """All eight active components equal → score equals input when career counts."""
+        monkeypatch.setattr(lrss, "_career_has_real_signal", lambda _uid: True)
         score = lrss._weighted_total(
+            1,
             financial=80,
             roof=80,
             career=80,
@@ -87,7 +89,24 @@ class TestLifeReadyScoreWeights:
         )
         assert score == 80
 
-    def test_weighted_total_matches_manual_blend(self):
+    def test_weighted_total_eight_active_equal_scores_no_signal(self, monkeypatch):
+        """Career weight redistributed; equal non-career scores still yield the same total."""
+        monkeypatch.setattr(lrss, "_career_has_real_signal", lambda _uid: False)
+        score = lrss._weighted_total(
+            1,
+            financial=80,
+            roof=80,
+            career=50,
+            vibe=80,
+            vehicle=80,
+            body=80,
+            wellness=80,
+            stability=80,
+        )
+        assert score == 80
+
+    def test_weighted_total_matches_manual_blend_with_signal(self, monkeypatch):
+        monkeypatch.setattr(lrss, "_career_has_real_signal", lambda _uid: True)
         vals = dict(
             financial=100,
             roof=70,
@@ -101,7 +120,29 @@ class TestLifeReadyScoreWeights:
         raw = sum(
             lrss._NOMINAL_WEIGHTS[k] * vals[k] for k in lrss._ACTIVE_COMPONENT_KEYS
         ) / float(lrss._ACTIVE_WEIGHT_SUM)
-        assert lrss._weighted_total(**vals) == int(max(0, min(100, round(raw))))
+        assert lrss._weighted_total(1, **vals) == int(max(0, min(100, round(raw))))
+
+    def test_weighted_total_redistributes_career_weight_without_signal(self, monkeypatch):
+        monkeypatch.setattr(lrss, "_career_has_real_signal", lambda _uid: False)
+        vals = dict(
+            financial=100,
+            roof=70,
+            career=50,
+            vibe=50,
+            vehicle=50,
+            body=50,
+            wellness=80,
+            stability=10,
+        )
+        career_w = lrss._NOMINAL_WEIGHTS["career"]
+        other_sum = lrss._ACTIVE_WEIGHT_SUM - career_w
+        expected_raw = sum(
+            (lrss._NOMINAL_WEIGHTS[k] + career_w * (lrss._NOMINAL_WEIGHTS[k] / other_sum))
+            * vals[k]
+            for k in vals
+            if k != "career"
+        )
+        assert lrss._weighted_total(99, **vals) == int(max(0, min(100, round(expected_raw))))
 
     def test_pillar_one_meaningful_with_roof_only(self):
         p = SimpleNamespace(
@@ -171,6 +212,98 @@ class TestCareerComponentScorePaths:
 
         assert score == 72.5
 
+    def test_career_score_stale_edgar_returns_neutral(self, life_ready_app):
+        ext_id = str(uuid.uuid4())
+        email = f"life_ready_stale_{ext_id[:12]}@example.com"
+        cik = f"{uuid.uuid4().int % 10000000000:010d}"
+
+        with life_ready_app.app_context():
+            user = User(user_id=ext_id, email=email, password_hash="unused")
+            db.session.add(user)
+            db.session.flush()
+
+            employer = Employer(cik=cik, name="Stale Employer Inc")
+            db.session.add(employer)
+            db.session.flush()
+            db.session.add(
+                EmployerHealthSnapshot(
+                    employer_id=employer.id,
+                    score=Decimal("88.00"),
+                    refreshed_at=datetime.utcnow() - timedelta(days=15),
+                )
+            )
+            db.session.add(
+                CareerProfile(user_id=user.id, employer_cik=cik, satisfaction=5)
+            )
+            db.session.commit()
+
+            try:
+                score = lrss._get_career_component_score(user.id)
+            finally:
+                cp = CareerProfile.query.filter_by(user_id=user.id).first()
+                if cp is not None:
+                    db.session.delete(cp)
+                db.session.delete(user)
+                db.session.flush()
+                db.session.query(EmployerHealthSnapshot).filter_by(
+                    employer_id=employer.id
+                ).delete()
+                db.session.delete(employer)
+                db.session.commit()
+
+        assert score == 50.0
+
+    def test_career_score_cik_no_snapshot_returns_neutral_not_satisfaction(
+        self, life_ready_app
+    ):
+        ext_id = str(uuid.uuid4())
+        email = f"life_ready_cik_miss_{ext_id[:12]}@example.com"
+        cik = f"{uuid.uuid4().int % 10000000000:010d}"
+
+        with life_ready_app.app_context():
+            user = User(user_id=ext_id, email=email, password_hash="unused")
+            db.session.add(user)
+            db.session.flush()
+            db.session.add(
+                CareerProfile(user_id=user.id, employer_cik=cik, satisfaction=1)
+            )
+            db.session.commit()
+
+            try:
+                score = lrss._get_career_component_score(user.id)
+            finally:
+                cp = CareerProfile.query.filter_by(user_id=user.id).first()
+                if cp is not None:
+                    db.session.delete(cp)
+                db.session.delete(user)
+                db.session.commit()
+
+        assert score == 50.0
+
+    def test_career_score_self_report_satisfaction_five(self, life_ready_app):
+        ext_id = str(uuid.uuid4())
+        email = f"life_ready_sat5_{ext_id[:12]}@example.com"
+
+        with life_ready_app.app_context():
+            user = User(user_id=ext_id, email=email, password_hash="unused")
+            db.session.add(user)
+            db.session.flush()
+            db.session.add(
+                CareerProfile(user_id=user.id, satisfaction=5, employer_cik=None)
+            )
+            db.session.commit()
+
+            try:
+                score = lrss._get_career_component_score(user.id)
+            finally:
+                cp = CareerProfile.query.filter_by(user_id=user.id).first()
+                if cp is not None:
+                    db.session.delete(cp)
+                db.session.delete(user)
+                db.session.commit()
+
+        assert score == 80.0
+
     def test_career_score_self_report_satisfaction(self, life_ready_app):
         ext_id = str(uuid.uuid4())
         email = f"life_ready_sat_{ext_id[:12]}@example.com"
@@ -233,6 +366,81 @@ class TestCareerComponentScorePaths:
                 db.session.commit()
 
         assert score == 50.0
+
+
+class TestCareerRealSignal:
+    """Database-backed tests for _career_has_real_signal."""
+
+    def test_career_has_real_signal_fresh_edgar(self, life_ready_app):
+        ext_id = str(uuid.uuid4())
+        email = f"life_ready_sig_edgar_{ext_id[:12]}@example.com"
+        cik = f"{uuid.uuid4().int % 10000000000:010d}"
+
+        with life_ready_app.app_context():
+            user = User(user_id=ext_id, email=email, password_hash="unused")
+            db.session.add(user)
+            db.session.flush()
+            employer = Employer(cik=cik, name="Signal Employer")
+            db.session.add(employer)
+            db.session.flush()
+            db.session.add(
+                EmployerHealthSnapshot(
+                    employer_id=employer.id,
+                    score=Decimal("60.00"),
+                    refreshed_at=datetime.utcnow(),
+                )
+            )
+            db.session.add(CareerProfile(user_id=user.id, employer_cik=cik))
+            db.session.commit()
+
+            try:
+                assert lrss._career_has_real_signal(user.id) is True
+            finally:
+                cp = CareerProfile.query.filter_by(user_id=user.id).first()
+                if cp is not None:
+                    db.session.delete(cp)
+                db.session.delete(user)
+                db.session.flush()
+                db.session.query(EmployerHealthSnapshot).filter_by(
+                    employer_id=employer.id
+                ).delete()
+                db.session.delete(employer)
+                db.session.commit()
+
+    def test_career_has_real_signal_no_profile(self, life_ready_app):
+        ext_id = str(uuid.uuid4())
+        email = f"life_ready_sig_none_{ext_id[:12]}@example.com"
+
+        with life_ready_app.app_context():
+            user = User(user_id=ext_id, email=email, password_hash="unused")
+            db.session.add(user)
+            db.session.commit()
+
+            try:
+                assert lrss._career_has_real_signal(user.id) is False
+            finally:
+                db.session.delete(user)
+                db.session.commit()
+
+    def test_career_has_real_signal_satisfaction_only(self, life_ready_app):
+        ext_id = str(uuid.uuid4())
+        email = f"life_ready_sig_sat_{ext_id[:12]}@example.com"
+
+        with life_ready_app.app_context():
+            user = User(user_id=ext_id, email=email, password_hash="unused")
+            db.session.add(user)
+            db.session.flush()
+            db.session.add(CareerProfile(user_id=user.id, satisfaction=3))
+            db.session.commit()
+
+            try:
+                assert lrss._career_has_real_signal(user.id) is True
+            finally:
+                cp = CareerProfile.query.filter_by(user_id=user.id).first()
+                if cp is not None:
+                    db.session.delete(cp)
+                db.session.delete(user)
+                db.session.commit()
 
 
 class TestLifeReadyScoreService:
@@ -328,6 +536,17 @@ class TestLifeReadyScoreService:
 
             try:
                 out = compute_life_ready_score(ext_id)
+                expected = lrss._weighted_total(
+                    user.id,
+                    financial=100.0,
+                    roof=70.0,
+                    career=50.0,
+                    vibe=50.0,
+                    vehicle=50.0,
+                    body=50.0,
+                    wellness=80.0,
+                    stability=10.0,
+                )
             finally:
                 db.session.execute(
                     text("DELETE FROM user_profiles WHERE email = :email"),
@@ -345,17 +564,6 @@ class TestLifeReadyScoreService:
         assert comps["vehicle"]["score"] == 50
         assert comps["career"]["active"] is True
         assert comps["career"]["score"] == 50
-
-        expected = lrss._weighted_total(
-            financial=100.0,
-            roof=70.0,
-            career=50.0,
-            vibe=50.0,
-            vehicle=50.0,
-            body=50.0,
-            wellness=80.0,
-            stability=10.0,
-        )
         assert out["life_ready_score"] == expected
 
     def test_career_included_in_eight_way_blend(self, life_ready_app):
@@ -427,6 +635,17 @@ class TestLifeReadyScoreService:
 
             try:
                 out = compute_life_ready_score(ext_id)
+                expected = lrss._weighted_total(
+                    user.id,
+                    financial=80.0,
+                    roof=74.0,
+                    career=50.0,
+                    vibe=72.0,
+                    vehicle=70.0,
+                    body=68.0,
+                    wellness=70.0,
+                    stability=100.0,
+                )
             finally:
                 db.session.execute(
                     text("DELETE FROM user_profiles WHERE email = :email"),
@@ -442,10 +661,4 @@ class TestLifeReadyScoreService:
         assert comps["career"]["active"] is True
         assert comps["career"]["score"] == 50
         assert "career" in lrss._ACTIVE_COMPONENT_KEYS
-
-        active_weighted = sum(
-            lrss._NOMINAL_WEIGHTS[k] * comps[k]["score"]
-            for k in lrss._ACTIVE_COMPONENT_KEYS
-        )
-        expected = lrss._clamp_0_100(active_weighted / lrss._ACTIVE_WEIGHT_SUM)
         assert out["life_ready_score"] == expected

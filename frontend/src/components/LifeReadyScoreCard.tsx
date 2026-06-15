@@ -1,28 +1,13 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import type { LifeAlert, LifeReadyScoreApiResponse } from '../types/lifeScore';
 
-interface LifeReadyScoreComponent {
-  score: number;
-  weight: number;
-}
+export type { LifeAlert, LifeReadyScoreApiResponse };
 
-export interface LifeReadyScoreApiResponse {
-  life_ready_score: number | null;
-  /** When omitted (legacy), treat as sufficient if ``life_ready_score`` is a number. */
-  has_sufficient_data?: boolean;
-  pillars_complete?: number;
-  pillars_total?: number;
-  components: {
-    vibe: LifeReadyScoreComponent;
-    body: LifeReadyScoreComponent;
-    wellness: LifeReadyScoreComponent;
-    financial: LifeReadyScoreComponent;
-    stability: LifeReadyScoreComponent;
-  };
-  trend: 'improving' | 'declining' | 'stable' | null;
-  headline: string | null;
-}
+const ALERT_ACTION_ROUTES: Record<string, string> = {
+  career_risk: '/dashboard/forecast',
+};
 
 function authHeadersGet(): HeadersInit {
   const token = localStorage.getItem('mingus_token') ?? localStorage.getItem('auth_token') ?? '';
@@ -45,6 +30,79 @@ const LABELS: Record<ComponentKey, string> = {
 function weightedBarPercent(score: number, weight: number): number {
   const v = score * weight;
   return Math.max(0, Math.min(100, v));
+}
+
+const ALERT_STYLES: Record<
+  LifeAlert['severity'],
+  {
+    container: string;
+    headline: string;
+    detail: string;
+    cta: string;
+    icon: string;
+  }
+> = {
+  high: {
+    container: 'bg-red-50 border border-red-200 rounded-lg px-3 py-2',
+    headline: 'text-red-800 font-semibold text-sm',
+    detail: 'text-red-700 text-xs mt-0.5',
+    cta: 'text-red-600 text-xs underline font-medium mt-1',
+    icon: '⚠️',
+  },
+  moderate: {
+    container: 'bg-amber-50 border border-amber-200 rounded-lg px-3 py-2',
+    headline: 'text-amber-800 font-semibold text-sm',
+    detail: 'text-amber-700 text-xs mt-0.5',
+    cta: 'text-amber-600 text-xs underline font-medium mt-1',
+    icon: '●',
+  },
+  watch: {
+    container: 'bg-blue-50 border border-blue-200 rounded-lg px-3 py-2',
+    headline: 'text-blue-800 font-semibold text-sm',
+    detail: 'text-blue-700 text-xs mt-0.5',
+    cta: 'text-blue-600 text-xs underline font-medium mt-1',
+    icon: '●',
+  },
+};
+
+function LifeAlertChip({
+  alert,
+  onAction,
+}: {
+  alert: LifeAlert;
+  onAction: (target: string) => void;
+}) {
+  const styles = ALERT_STYLES[alert.severity] ?? ALERT_STYLES.watch;
+  const dotClass =
+    alert.severity === 'high'
+      ? ''
+      : alert.severity === 'moderate'
+        ? 'text-amber-500'
+        : 'text-blue-500';
+
+  return (
+    <div className={styles.container}>
+      <div className="flex items-start gap-2">
+        <span
+          className={`mt-0.5 shrink-0 text-sm leading-none ${dotClass}`}
+          aria-hidden
+        >
+          {alert.severity === 'high' ? styles.icon : styles.icon}
+        </span>
+        <div className="min-w-0 flex-1">
+          <p className={styles.headline}>{alert.headline}</p>
+          <p className={styles.detail}>{alert.detail}</p>
+          <button
+            type="button"
+            className={styles.cta}
+            onClick={() => onAction(alert.action_target)}
+          >
+            {alert.action_label}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 function ScoreRingSkeleton() {
@@ -137,9 +195,20 @@ function LifeReadyScorePlaceholder({ pillarsComplete, pillarsTotal }: { pillarsC
 }
 
 export default function LifeReadyScoreCard() {
+  const navigate = useNavigate();
   const [data, setData] = useState<LifeReadyScoreApiResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const handleAlertAction = useCallback(
+    (target: string) => {
+      const route = ALERT_ACTION_ROUTES[target];
+      if (route) {
+        navigate(route);
+      }
+    },
+    [navigate],
+  );
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -173,6 +242,7 @@ export default function LifeReadyScoreCard() {
 
   const pillarsComplete = data?.pillars_complete ?? 0;
   const pillarsTotal = data?.pillars_total ?? 4;
+  const lifeAlerts = data?.life_alerts;
 
   return (
     <section className="rounded-2xl bg-white p-4 shadow-md sm:p-6">
@@ -201,6 +271,13 @@ export default function LifeReadyScoreCard() {
         showScoreRing ? (
           <div className="flex flex-col items-center">
             <ScoreRing score={data.life_ready_score as number} />
+            {(lifeAlerts?.length ?? 0) > 0 ? (
+              <div className="mt-3 w-full max-w-sm space-y-2">
+                {lifeAlerts!.map((alert, i) => (
+                  <LifeAlertChip key={`${alert.domain}-${alert.severity}-${i}`} alert={alert} onAction={handleAlertAction} />
+                ))}
+              </div>
+            ) : null}
             <h2 className="mt-2 text-center text-lg font-semibold text-[#1E293B]">Whole-Life Score</h2>
             <div className="mt-1 flex min-h-8 items-center justify-center">
               {data.trend != null ? <TrendIndicator trend={data.trend} /> : null}
