@@ -13,11 +13,13 @@ from decimal import Decimal
 from pathlib import Path
 from typing import Any
 
+import requests
 from flask import Blueprint, jsonify, request
 from werkzeug.utils import secure_filename
 
 from backend.api.profile_endpoints import get_db_connection
 from backend.auth.decorators import get_current_user_db_id, require_auth
+from backend.services.insurance_plan_scorer import ZIP_TO_STATE
 from backend.models import hia_usage_profile_mixin  # noqa: F401 — ensure HIA columns
 from backend.models.database import db
 from backend.models.financial_setup import RecurringExpense
@@ -83,6 +85,73 @@ _USAGE_BODY_TO_COLUMN: dict[str, str] = {
     "rx_type": "hia_rx_type",
 }
 
+# States using the federally facilitated marketplace (HealthCare.gov).
+FFE_STATES: frozenset[str] = frozenset(
+    {
+        "AL",
+        "AK",
+        "AZ",
+        "AR",
+        "DE",
+        "FL",
+        "GA",
+        "HI",
+        "IL",
+        "IN",
+        "IA",
+        "KS",
+        "LA",
+        "ME",
+        "MI",
+        "MS",
+        "MO",
+        "MT",
+        "NE",
+        "NV",
+        "NH",
+        "NJ",
+        "NM",
+        "NC",
+        "ND",
+        "OH",
+        "OK",
+        "OR",
+        "SC",
+        "SD",
+        "TN",
+        "TX",
+        "UT",
+        "VA",
+        "WI",
+        "WV",
+        "WY",
+    }
+)
+
+_ZIP_TO_STATE_EXTENSIONS: dict[str, str] = {
+    "28201": "NC",
+    "43201": "OH",
+    "35201": "AL",
+}
+
+_ZIP_TO_COUNTYFIPS: dict[str, str] = {
+    "77002": "48201",
+    "75201": "48113",
+    "33101": "12086",
+    "28201": "37119",
+    "27601": "37183",
+    "37201": "47037",
+    "43201": "39049",
+    "35201": "01073",
+    "70112": "22071",
+    "39201": "28049",
+}
+
+_MARKETPLACE_SEARCH_URL = (
+    "https://marketplace.api.healthcare.gov/api/v1/plans/search"
+)
+_MARKETPLACE_PLAN_YEAR = 2026
+
 
 def _parse_json_object(raw: Any) -> dict:
     if raw is None or raw == "":
@@ -119,6 +188,130 @@ def _coerce_bool(value: Any) -> bool | None:
         if normalized in {"false", "0", "no"}:
             return False
     return bool(value)
+
+
+def _resolve_state_from_zip(zip_code: str) -> str | None:
+    return ZIP_TO_STATE.get(zip_code) or _ZIP_TO_STATE_EXTENSIONS.get(zip_code)
+
+
+def _zip_to_countyfips(zip_code: str) -> str | None:
+    return _ZIP_TO_COUNTYFIPS.get(zip_code)
+
+
+def _individual_in_network_amount(items: list[dict[str, Any]] | None) -> float | None:
+    if not items:
+        return None
+    for item in items:
+        if not item.get("individual"):
+            continue
+        if item.get("network_tier") != "In-Network":
+            continue
+        amount = _coerce_float(item.get("amount"))
+        if amount is not None:
+            return amount
+    for item in items:
+        if item.get("individual"):
+            amount = _coerce_float(item.get("amount"))
+            if amount is not None:
+                return amount
+    return None
+
+
+def _format_marketplace_plan(plan: dict[str, Any]) -> dict[str, Any]:
+    issuer = plan.get("issuer") or {}
+    return {
+        "id": plan.get("id"),
+        "name": plan.get("name"),
+        "metal_level": plan.get("metal_level"),
+        "type": plan.get("type"),
+        "premium": _coerce_float(plan.get("premium")),
+        "premium_after_subsidy": _coerce_float(plan.get("premium_w_credit")),
+        "deductible_individual": _individual_in_network_amount(
+            plan.get("deductibles")
+        ),
+        "oop_max_individual": _individual_in_network_amount(plan.get("moops")),
+        "issuer": issuer.get("name"),
+    }
+
+
+def _fetch_marketplace_plans(
+    *,
+    api_key: str,
+    zip_code: str,
+    state: str,
+    county_fips: str,
+    income: float,
+    age: int,
+) -> dict[str, Any]:
+    payload_base = {
+        "household": {
+            "income": income,
+            "people": [
+                {
+                    "age": age,
+                    "aptc_eligible": True,
+                    "gender": "Male",
+                    "uses_tobacco": False,
+                }
+            ],
+        },
+        "market": "Individual",
+        "place": {
+            "countyfips": county_fips,
+            "state": state,
+            "zipcode": zip_code,
+        },
+        "year": _MARKETPLACE_PLAN_YEAR,
+    }
+    headers = {"Content-Type": "application/json"}
+
+    all_plans: list[dict[str, Any]] = []
+    seen_ids: set[str] = set()
+    offset = 0
+    total = None
+
+    while total is None or offset < total:
+        payload = {**payload_base, "offset": offset}
+        response = requests.post(
+            _MARKETPLACE_SEARCH_URL,
+            params={"apikey": api_key},
+            json=payload,
+            headers=headers,
+            timeout=20,
+        )
+        response.raise_for_status()
+        data = response.json()
+        batch = data.get("plans") or []
+        if total is None:
+            total = int(data.get("total") or 0)
+        if not batch:
+            break
+        for plan in batch:
+            plan_id = plan.get("id")
+            if plan_id and plan_id in seen_ids:
+                continue
+            if plan_id:
+                seen_ids.add(plan_id)
+            all_plans.append(plan)
+        offset += len(batch)
+        if len(batch) < 10:
+            break
+
+    sorted_plans = sorted(
+        all_plans,
+        key=lambda plan: _coerce_float(plan.get("premium_w_credit")) or float("inf"),
+    )
+    top_plans = [_format_marketplace_plan(plan) for plan in sorted_plans[:5]]
+    return {
+        "available": True,
+        "state": state,
+        "zip": zip_code,
+        "plan_count": total or len(all_plans),
+        "plans": top_plans,
+        "subsidy_note": (
+            f"Premiums shown after estimated tax credit based on ${income:,.0f} income."
+        ),
+    }
 
 
 def _stream_to_monthly(amount: Decimal | float, frequency: str) -> float:
@@ -760,6 +953,76 @@ def accept_insurance_plan():
             ),
         }
     )
+
+
+@health_insurance_bp.route("/marketplace-plans", methods=["GET"])
+@require_auth
+def marketplace_plans():
+    zip_code = (request.args.get("zip") or "").strip()
+    if not zip_code:
+        return jsonify({"error": "zip is required"}), 400
+
+    state = _resolve_state_from_zip(zip_code)
+    if state is None or state not in FFE_STATES:
+        return jsonify(
+            {
+                "available": False,
+                "reason": (
+                    "Marketplace plan data not available for your state. "
+                    "Contact your state exchange directly."
+                ),
+            }
+        )
+
+    county_fips = _zip_to_countyfips(zip_code)
+    if county_fips is None:
+        return jsonify(
+            {
+                "available": False,
+                "reason": "County data not available for this zip code.",
+            }
+        )
+
+    api_key = os.environ.get("CMS_MARKETPLACE_API_KEY", "").strip()
+    if not api_key:
+        logger.warning("CMS_MARKETPLACE_API_KEY is not configured")
+        return jsonify(
+            {
+                "available": False,
+                "reason": "Unable to load marketplace plans. Try again.",
+            }
+        )
+
+    income = _coerce_float(request.args.get("income"))
+    if income is None:
+        income = 40000.0
+
+    age = _coerce_int(request.args.get("age"))
+    if age is None:
+        age = 35
+
+    try:
+        payload = _fetch_marketplace_plans(
+            api_key=api_key,
+            zip_code=zip_code,
+            state=state,
+            county_fips=county_fips,
+            income=income,
+            age=age,
+        )
+        return jsonify(payload)
+    except Exception:
+        logger.exception(
+            "Failed to fetch marketplace plans for zip=%s state=%s",
+            zip_code,
+            state,
+        )
+        return jsonify(
+            {
+                "available": False,
+                "reason": "Unable to load marketplace plans. Try again.",
+            }
+        )
 
 
 @health_insurance_bp.route("/insurance-enrollment-reminder", methods=["GET"])
