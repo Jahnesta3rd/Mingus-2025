@@ -10,8 +10,10 @@ import {
   Upload,
   X,
 } from 'lucide-react';
+import { INSURANCE_GLOSSARY } from '../data/insuranceGlossary';
 import { useAuth, type AuthUserTier } from '../hooks/useAuth';
 import { csrfHeaders } from '../utils/csrfHeaders';
+import { GlossaryChip } from './GlossaryChip';
 
 type View = 'upload' | 'questions' | 'generating' | 'recommendation';
 
@@ -31,6 +33,7 @@ interface PlanComparison {
   monthly_premium?: number;
   deductible?: number;
   oop_max?: number;
+  coinsurance_pct?: number;
   score?: number;
 }
 
@@ -117,6 +120,17 @@ function formatMoney(value: number | null | undefined): string {
   return `$${value.toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
 }
 
+function mentionsOopMax(text: string): boolean {
+  return /oop|out-of-pocket|out of pocket/i.test(text);
+}
+
+function renderPlanTypeChip(planType: string | undefined) {
+  if (planType?.toUpperCase() === 'HDHP') {
+    return <GlossaryChip termId="hdhp" className="mt-1" />;
+  }
+  return <GlossaryChip termId="plan_type" className="mt-1" />;
+}
+
 function Chip({
   selected,
   onClick,
@@ -177,6 +191,7 @@ export default function HealthInsuranceAdvisor() {
   const [manualForm, setManualForm] = useState<ManualFormState>(EMPTY_MANUAL);
   const [manualSaving, setManualSaving] = useState(false);
   const [manualTargetId, setManualTargetId] = useState<number | null>(null);
+  const [basicsPanelOpen, setBasicsPanelOpen] = useState(false);
 
   const pollStartedRef = useRef<Record<number, number>>({});
 
@@ -546,10 +561,21 @@ export default function HealthInsuranceAdvisor() {
 
   const renderUploadView = () => (
     <div className="rounded-xl bg-white p-6 shadow-sm">
-      <h1 className="text-xl font-semibold text-gray-800">Health Insurance Advisor</h1>
-      <p className="mt-1 text-sm text-gray-500">
-        Upload your plan options and we&apos;ll find the best fit for your usage and budget.
-      </p>
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h1 className="text-xl font-semibold text-gray-800">Health Insurance Advisor</h1>
+          <p className="mt-1 text-sm text-gray-500">
+            Upload your plan options and we&apos;ll find the best fit for your usage and budget.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() => setBasicsPanelOpen(true)}
+          className="shrink-0 cursor-pointer text-xs text-blue-500 underline"
+        >
+          📚 Insurance basics
+        </button>
+      </div>
 
       <label
         className="mt-6 block cursor-pointer rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 p-8 text-center"
@@ -573,6 +599,14 @@ export default function HealthInsuranceAdvisor() {
           }}
         />
       </label>
+
+      <p className="mt-3 text-xs text-gray-400">
+        Upload your Summary of Benefits and Coverage (SBC) document.
+      </p>
+      <p className="mt-2 text-xs text-gray-500">
+        Not sure what to look for in your plan docs?
+      </p>
+      <GlossaryChip termId="oop_max" className="mt-2" />
 
       {uploading ? (
         <p className="mt-3 text-sm text-gray-500">Uploading…</p>
@@ -859,6 +893,7 @@ export default function HealthInsuranceAdvisor() {
       (rec.risk_flags?.length ? rec.risk_flags : recJson.risk_assessment ? [recJson.risk_assessment] : []);
     const comparisons = recJson.plan_comparisons ?? [];
     const recommendedName = rec.recommended_plan_name ?? recJson.recommended_plan_name ?? '';
+    const recommendedPlan = comparisons.find((row) => row.plan_name === recommendedName);
 
     return (
       <div className="rounded-xl bg-white p-6 shadow-sm">
@@ -875,6 +910,56 @@ export default function HealthInsuranceAdvisor() {
           <h2 className="mt-1 text-xl font-bold text-gray-800">{recommendedName}</h2>
           {recJson.key_reason ? (
             <p className="mt-1 text-sm italic text-gray-500">{recJson.key_reason}</p>
+          ) : null}
+
+          {recommendedPlan ? (
+            <div className="mt-4 grid gap-4 sm:grid-cols-2">
+              {recommendedPlan.monthly_premium != null ? (
+                <div>
+                  <p className="text-xs text-gray-500">Monthly premium</p>
+                  <p className="text-sm font-medium text-gray-800">
+                    {formatMoney(recommendedPlan.monthly_premium)}/month
+                  </p>
+                  <GlossaryChip termId="monthly_premium" className="mt-1" />
+                </div>
+              ) : null}
+              {recommendedPlan.deductible != null ? (
+                <div>
+                  <p className="text-xs text-gray-500">Deductible</p>
+                  <p className="text-sm font-medium text-gray-800">
+                    {formatMoney(recommendedPlan.deductible)}
+                  </p>
+                  <GlossaryChip termId="deductible" className="mt-1" />
+                </div>
+              ) : null}
+              {recommendedPlan.oop_max != null ? (
+                <div>
+                  <p className="text-xs text-gray-500">Out-of-pocket max</p>
+                  <p className="text-sm font-medium text-gray-800">
+                    {formatMoney(recommendedPlan.oop_max)}
+                  </p>
+                  <GlossaryChip termId="oop_max" className="mt-1" />
+                </div>
+              ) : null}
+              {recommendedPlan.plan_type ? (
+                <div>
+                  <p className="text-xs text-gray-500">Plan type</p>
+                  <p className="text-sm font-medium text-gray-800">
+                    {recommendedPlan.plan_type}
+                  </p>
+                  {renderPlanTypeChip(recommendedPlan.plan_type)}
+                </div>
+              ) : null}
+              {recommendedPlan.coinsurance_pct != null ? (
+                <div>
+                  <p className="text-xs text-gray-500">Coinsurance</p>
+                  <p className="text-sm font-medium text-gray-800">
+                    {recommendedPlan.coinsurance_pct}%
+                  </p>
+                  <GlossaryChip termId="coinsurance" className="mt-1" />
+                </div>
+              ) : null}
+            </div>
           ) : null}
 
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
@@ -915,6 +1000,9 @@ export default function HealthInsuranceAdvisor() {
                 className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800"
               >
                 ⚠ {flag}
+                {mentionsOopMax(flag) ? (
+                  <GlossaryChip termId="oop_max" className="mt-1" />
+                ) : null}
               </div>
             ))}
           </div>
@@ -924,12 +1012,14 @@ export default function HealthInsuranceAdvisor() {
           <div className="mt-3 rounded-xl border border-green-200 bg-green-50 p-3 text-sm text-green-800">
             <p className="font-medium">💰 HSA Opportunity</p>
             <p className="mt-1">{recJson.hsa_guidance}</p>
+            <GlossaryChip termId="hsa" className="mt-2" />
           </div>
         ) : null}
 
         {rec.benchmark_context?.available && rec.benchmark_context.comparison?.summary_line ? (
           <div className="mt-3 rounded-xl border border-blue-200 bg-blue-50 p-3 text-sm text-blue-800">
             📊 {rec.benchmark_context.comparison.summary_line}
+            <GlossaryChip termId="network" className="mt-1" />
           </div>
         ) : null}
 
@@ -969,13 +1059,24 @@ export default function HealthInsuranceAdvisor() {
                           isRec ? 'bg-purple-50 font-medium' : ''
                         }`}
                       >
-                        <td className="py-2 pr-3">{row.plan_name}</td>
-                        <td className="py-2 pr-3">{row.plan_type ?? '—'}</td>
+                        <td className="py-2 pr-3">
+                          <div>{row.plan_name}</div>
+                        </td>
+                        <td className="py-2 pr-3">
+                          <div>{row.plan_type ?? '—'}</div>
+                          {isRec && row.plan_type ? renderPlanTypeChip(row.plan_type) : null}
+                        </td>
                         <td className="py-2 pr-3">
                           {formatMoney(row.estimated_annual_cost)}
                         </td>
-                        <td className="py-2 pr-3">{formatMoney(row.deductible)}</td>
-                        <td className="py-2 pr-3">{formatMoney(row.oop_max)}</td>
+                        <td className="py-2 pr-3">
+                          <div>{formatMoney(row.deductible)}</div>
+                          {isRec ? <GlossaryChip termId="deductible" className="mt-1" /> : null}
+                        </td>
+                        <td className="py-2 pr-3">
+                          <div>{formatMoney(row.oop_max)}</div>
+                          {isRec ? <GlossaryChip termId="oop_max" className="mt-1" /> : null}
+                        </td>
                         <td className="py-2">{row.score ?? '—'}</td>
                       </tr>
                     );
@@ -1183,6 +1284,47 @@ export default function HealthInsuranceAdvisor() {
           </div>
         </div>
       ) : null}
+
+      {basicsPanelOpen ? (
+        <div
+          className="fixed inset-0 z-50 bg-black/30"
+          onClick={() => setBasicsPanelOpen(false)}
+          aria-hidden
+        />
+      ) : null}
+
+      <div
+        className={`fixed right-0 top-0 z-50 flex h-full w-80 flex-col bg-white shadow-xl transition-transform duration-300 ${
+          basicsPanelOpen ? 'translate-x-0' : 'translate-x-full'
+        }`}
+        role="dialog"
+        aria-label="Insurance Basics"
+        aria-hidden={!basicsPanelOpen}
+      >
+        <div className="flex items-center justify-between border-b border-gray-100 px-4 py-4">
+          <h2 className="font-semibold text-gray-800">Insurance Basics</h2>
+          <button
+            type="button"
+            onClick={() => setBasicsPanelOpen(false)}
+            className="text-gray-500 hover:text-gray-700"
+            aria-label="Close"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+        <div className="flex-1 overflow-y-auto px-4 py-4">
+          {INSURANCE_GLOSSARY.map((term, index) => (
+            <div key={term.id}>
+              {index > 0 ? <hr className="my-4 border-gray-100" /> : null}
+              <p className="text-sm font-semibold text-gray-800">
+                {term.emoji} {term.term}
+              </p>
+              <p className="mt-1 text-xs text-gray-600">{term.plain_english}</p>
+              <p className="mt-1 text-xs text-blue-600">💡 {term.bottom_line}</p>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
