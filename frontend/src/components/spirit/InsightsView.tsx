@@ -140,7 +140,7 @@ export const InsightsView: React.FC<InsightsViewProps> = ({ userTier, isBeta }) 
   const tier = normalizeTier(userTier ?? null, isBeta);
   const isPro = tier === 'professional';
   const { getAccessToken, isAuthenticated } = useAuth();
-  const upgradePlansTo = isAuthenticated ? '/dashboard/upgrade' : '/#pricing';
+  const upgradePlansTo = isAuthenticated ? '/dashboard/upgrade' : '/register';
 
   const [insightsBody, setInsightsBody] = useState<InsightsApi | null>(null);
   const [corr, setCorr] = useState<SpiritCorrelationData | null>(null);

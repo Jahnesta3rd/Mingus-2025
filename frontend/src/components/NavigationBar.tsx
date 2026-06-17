@@ -18,7 +18,7 @@ const NavigationBar: React.FC<NavigationBarProps> = ({ className = '' }) => {
   const { user, isAuthenticated, logout, userTier } = useAuth();
   const navigate = useNavigate();
   const showUpgradeInNav = isAuthenticated && userTier !== 'professional';
-  const upgradePlansTo = isAuthenticated ? '/dashboard/upgrade' : '/#pricing';
+  const upgradePlansTo = isAuthenticated ? '/dashboard/upgrade' : '/register';
 
   // Handle scroll effect for navbar background
   useEffect(() => {
@@ -197,15 +197,6 @@ const NavigationBar: React.FC<NavigationBarProps> = ({ className = '' }) => {
                   </button>
                   <button
                     type="button"
-                    onClick={() => scrollToSection('pricing')}
-                    onKeyDown={(e) => handleSectionKeyDown(e, 'pricing')}
-                    className="text-gray-300 hover:text-violet-400 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-900"
-                    aria-label="Navigate to Pricing section"
-                  >
-                    Pricing
-                  </button>
-                  <button
-                    type="button"
                     onClick={() => scrollToSection('faq')}
                     onKeyDown={(e) => handleSectionKeyDown(e, 'faq')}
                     className="text-gray-300 hover:text-violet-400 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-900"
@@ -342,19 +333,6 @@ const NavigationBar: React.FC<NavigationBarProps> = ({ className = '' }) => {
                   type="button"
                   ref={el => {
                     menuItemsRef.current[1] = el;
-                  }}
-                  onClick={() => scrollToSection('pricing')}
-                  onKeyDown={(e) => handleSectionKeyDown(e, 'pricing')}
-                  className="block w-full min-h-[44px] text-left text-gray-300 hover:text-violet-400 hover:bg-slate-700/50 px-3 py-2 rounded-md text-base font-medium transition-colors duration-200 focus-ring focus-visible:ring-4 focus-visible:ring-violet-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-800"
-                  role="menuitem"
-                  aria-label="Navigate to Pricing section"
-                >
-                  Pricing
-                </button>
-                <button
-                  type="button"
-                  ref={el => {
-                    menuItemsRef.current[2] = el;
                   }}
                   onClick={() => scrollToSection('faq')}
                   onKeyDown={(e) => handleSectionKeyDown(e, 'faq')}

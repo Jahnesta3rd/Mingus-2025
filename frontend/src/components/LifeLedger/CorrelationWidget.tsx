@@ -42,7 +42,7 @@ const MID_PREVIEW_PLACEHOLDERS: LifeCorrelationItem[] = [
 
 const CorrelationWidget: React.FC = () => {
   const { user, isAuthenticated, loading: authLoading } = useAuth();
-  const upgradePlansTo = isAuthenticated ? '/dashboard/upgrade' : '/#pricing';
+  const upgradePlansTo = isAuthenticated ? '/dashboard/upgrade' : '/register';
   const tier = resolveTier(user);
   const enabled = isAuthenticated && tier !== 'budget';
   const { summary, snapshots, loading, error, refetch } = useLifeCorrelation(enabled, tier);

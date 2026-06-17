@@ -22,7 +22,7 @@ const CTASection: React.FC<CTASectionProps> = ({
           Ready to Build Generational Wealth?
         </h2>
         <p className="text-xl text-violet-100 mb-10 max-w-2xl mx-auto">
-          Join thousands of Black professionals who are building wealth while maintaining wellness with Mingus.
+          Build wealth while maintaining wellness with Mingus.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
           {isAuthenticated ? (
@@ -59,7 +59,7 @@ const CTASection: React.FC<CTASectionProps> = ({
                 }}
                 onKeyDown={(e) => onCTAKeyDown(e, 'Join Our Community')}
                 disabled={isLoading}
-                aria-label="Join our community of Black professionals"
+                aria-label="Join our community"
                 className="group border-2 border-white text-white hover:bg-white hover:text-violet-600 disabled:border-gray-400 disabled:text-gray-400 px-8 py-4 rounded-lg text-lg font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-white/25 hover:-translate-y-1 disabled:scale-100 disabled:translate-y-0 disabled:cursor-not-allowed focus-ring focus-visible:ring-4 focus-visible:ring-white focus-visible:ring-offset-4 focus-visible:ring-offset-violet-800"
               >
                 {isLoading ? 'Loading...' : 'Join Our Community'}

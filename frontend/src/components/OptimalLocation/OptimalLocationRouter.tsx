@@ -151,7 +151,7 @@ interface OptimalLocationRouterProps {
 const OptimalLocationRouter: React.FC<OptimalLocationRouterProps> = ({ className = '' }) => {
   const navigate = useNavigate();
   const { user, isAuthenticated, loading: authLoading } = useAuth();
-  const upgradePlansTo = isAuthenticated ? '/dashboard/upgrade' : '/#pricing';
+  const upgradePlansTo = isAuthenticated ? '/dashboard/upgrade' : '/register';
   const { trackPageView, trackInteraction, trackError } = useAnalytics();
   useFeatureTrack('housing_intelligence');
 
@@ -476,7 +476,7 @@ const OptimalLocationRouter: React.FC<OptimalLocationRouterProps> = ({ className
             onClick={() => navigate(upgradePlansTo)}
             className="bg-violet-600 hover:bg-violet-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
           >
-            View Pricing Plans
+            Get Started
           </button>
         </div>
       </div>

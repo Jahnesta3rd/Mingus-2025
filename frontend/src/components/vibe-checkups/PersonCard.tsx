@@ -327,7 +327,7 @@ export function PersonCard({
   onRestore,
 }: PersonCardProps) {
   const { user, isAuthenticated } = useAuth();
-  const upgradePlansTo = isAuthenticated ? '/dashboard/upgrade' : '/#pricing';
+  const upgradePlansTo = isAuthenticated ? '/dashboard/upgrade' : '/register';
   const userTier = effectiveUserTier(user);
   const showConnectionPatternInsight = userTier !== 'budget';
 

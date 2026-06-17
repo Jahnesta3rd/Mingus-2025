@@ -35,7 +35,7 @@ export function LandingHero({ onPrimaryCta }: Props) {
               Find out now
             </LandingPrimaryButton>
             <p className="text-sm text-[#9a8f7e]">
-              Takes ~6 minutes · No account required · Used by 1,000+ people
+              Takes ~6 minutes · No account required
             </p>
           </div>
         </div>

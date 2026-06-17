@@ -31,7 +31,7 @@ if _dbu:
 
 from flask import (
     Flask, request, redirect, url_for, Response, flash,
-    get_flashed_messages, send_file
+    get_flashed_messages, send_file, render_template,
 )
 from psycopg2.extras import RealDictCursor
 
@@ -129,6 +129,7 @@ def _html(title, body, active=""):
     nav_links = [
         ("/", "Overview"),
         ("/leads", "Lead Queue"),
+        ("/marketing", "Marketing"),
         ("/communities", "Heat Map"),
         ("/ads", "Ads Brief"),
         ("/signal-library", "Signals"),
@@ -267,6 +268,7 @@ def overview():
 
     quick_links = [
         ("/leads", "→ Review lead queue"),
+        ("/marketing", "→ Marketing tracker"),
         ("/communities", "→ Check heat map"),
         ("/ads", "→ View latest ads brief"),
         ("/signal-library", "→ Manage keywords"),
@@ -905,6 +907,16 @@ def _remove_from_pending(keyword: str, action: str):
         PENDING_PATH.write_text(json.dumps(data, indent=2))
     except (json.JSONDecodeError, OSError):
         pass
+
+
+# ---------------------------------------------------------------------------
+# GET /marketing — Marketing strategy tracker (standalone template)
+# ---------------------------------------------------------------------------
+
+@app.route("/marketing")
+@requires_auth
+def marketing():
+    return render_template("mingus_marketing_tracker.html")
 
 
 # ---------------------------------------------------------------------------

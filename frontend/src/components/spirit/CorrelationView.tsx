@@ -76,7 +76,7 @@ function buildBarItems(tier: 'budget' | 'mid_tier' | 'professional', data: Spiri
 
 function BudgetExtraCorrelationsLock() {
   const { isAuthenticated } = useAuth();
-  const upgradePlansTo = isAuthenticated ? '/dashboard/upgrade' : '/#pricing';
+  const upgradePlansTo = isAuthenticated ? '/dashboard/upgrade' : '/register';
 
   return (
     <div className="relative mt-4 overflow-hidden rounded-xl border border-dashed border-slate-300 bg-white">

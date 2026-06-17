@@ -23,7 +23,7 @@ export function TierGateOverlay({
   className = '',
 }: TierGateOverlayProps) {
   const { isAuthenticated } = useAuth();
-  const upgradePlansTo = isAuthenticated ? '/dashboard/upgrade' : '/#pricing';
+  const upgradePlansTo = isAuthenticated ? '/dashboard/upgrade' : '/register';
   const tierLabel = TIER_LABEL[requiredTier];
   const msgId = useId();
 

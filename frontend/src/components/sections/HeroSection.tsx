@@ -58,7 +58,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
               </span>
             </h1>
             <p className="text-lg sm:text-xl md:text-2xl text-gray-300 mb-6 sm:mb-8 max-w-2xl mx-auto lg:mx-0 leading-relaxed">
-              Empowering African American professionals to build generational wealth through intelligent financial planning, career advancement strategies, and wellness integration that honors our unique journey.
+              Most financial tools are built for people who already have it figured out. Mingus is built for the rest of us — connecting your stress, your relationships, your career, and your health to your real financial picture.
             </p>
             
             {/* Lead Magnet CTAs */}
@@ -233,7 +233,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
                   ) : (
                     <button
                       type="button"
-                      onClick={() => navigate('/assessments?type=vibe&source=marketing')}
+                      onClick={() => navigate('/register?source=cta')}
                       className="w-full bg-gradient-to-r from-violet-500 to-purple-500 text-white py-2 sm:py-3 rounded-xl font-semibold text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-violet-400 focus:ring-offset-2 focus:ring-offset-gray-800"
                       aria-label="Get started with Mingus"
                     >

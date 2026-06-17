@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Marketing Tracker — Mingus</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #21253a;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.13);
+    --teal: #1D9E75;
+    --teal-dim: rgba(29,158,117,0.15);
+    --teal-mid: rgba(29,158,117,0.35);
+    --purple: #534AB7;
+    --purple-dim: rgba(83,74,183,0.15);
+    --amber: #EF9F27;
+    --amber-dim: rgba(239,159,39,0.13);
+    --coral: #D85A30;
+    --coral-dim: rgba(216,90,48,0.13);
+    --blue: #378ADD;
+    --blue-dim: rgba(55,138,221,0.13);
+    --text: #e8eaf0;
+    --text2: #8b90a8;
+    --text3: #555b78;
+    --radius: 10px;
+    --radius-sm: 6px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* ── Header ── */
+  .page-header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border2);
+    padding: 18px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header-left { display: flex; align-items: center; gap: 14px; }
+  .logo-mark {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: linear-gradient(135deg, var(--teal), var(--purple));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700; color: #fff; letter-spacing: -0.5px;
+  }
+  .header-title { font-size: 15px; font-weight: 600; color: var(--text); }
+  .header-sub { font-size: 12px; color: var(--text3); margin-top: 1px; }
+  .header-right { display: flex; align-items: center; gap: 10px; }
+  .nav-link {
+    font-size: 13px; color: var(--text2); text-decoration: none;
+    padding: 5px 10px; border-radius: var(--radius-sm);
+    transition: background 0.15s, color 0.15s;
+  }
+  .nav-link:hover { background: var(--surface2); color: var(--text); }
+  .nav-link.active { background: var(--teal-dim); color: var(--teal); }
+
+  /* ── Layout ── */
+  .page-body { padding: 28px; max-width: 1200px; margin: 0 auto; }
+
+  /* ── Summary bar ── */
+  .summary-bar {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 18px;
+  }
+  .stat-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+  .stat-value { font-size: 24px; font-weight: 600; color: var(--text); line-height: 1; }
+  .stat-sub { font-size: 11px; color: var(--text2); margin-top: 4px; }
+  .stat-bar { height: 3px; border-radius: 2px; background: var(--border2); margin-top: 10px; }
+  .stat-fill { height: 3px; border-radius: 2px; background: var(--teal); transition: width 0.4s; }
+
+  /* ── Section header ── */
+  .section-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 14px; margin-top: 28px;
+  }
+  .section-title { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text3); }
+  .section-count { font-size: 11px; color: var(--text3); }
+
+  /* ── Channel rows ── */
+  .channel-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-bottom: 10px;
+    transition: border-color 0.15s;
+  }
+  .channel-block:hover { border-color: var(--border2); }
+
+  .channel-header {
+    display: grid;
+    grid-template-columns: 36px 1fr auto auto auto auto;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 18px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .ch-icon-wrap {
+    width: 34px; height: 34px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; flex-shrink: 0;
+  }
+  .ch-name { font-size: 14px; font-weight: 500; color: var(--text); }
+  .ch-sub { font-size: 11px; color: var(--text2); margin-top: 1px; }
+  .ch-phase-badge {
+    font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 4px;
+    white-space: nowrap; letter-spacing: 0.04em;
+  }
+  .ch-progress-wrap { min-width: 90px; text-align: right; }
+  .ch-pct { font-size: 12px; font-weight: 600; color: var(--text2); }
+  .ch-pbar { height: 4px; border-radius: 2px; background: var(--border2); margin-top: 4px; }
+  .ch-pfill { height: 4px; border-radius: 2px; transition: width 0.4s; }
+  .ch-chevron { color: var(--text3); font-size: 12px; transition: transform 0.2s; }
+  .channel-block.open .ch-chevron { transform: rotate(180deg); }
+
+  /* ── Task list ── */
+  .task-list { display: none; border-top: 1px solid var(--border); }
+  .channel-block.open .task-list { display: block; }
+
+  .task-item {
+    display: grid;
+    grid-template-columns: 20px 1fr auto auto;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 18px 11px 18px;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.12s;
+  }
+  .task-item:last-child { border-bottom: none; }
+  .task-item:hover { background: rgba(255,255,255,0.02); }
+
+  .task-check {
+    width: 16px; height: 16px; border-radius: 4px;
+    border: 1.5px solid var(--border2); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; transition: background 0.15s, border-color 0.15s;
+    background: transparent;
+  }
+  .task-check.done { background: var(--teal); border-color: var(--teal); }
+  .task-check.done::after { content: '✓'; font-size: 10px; color: #fff; font-weight: 700; }
+  .task-check.in-progress { background: var(--amber-dim); border-color: var(--amber); }
+  .task-check.in-progress::after { content: '◐'; font-size: 10px; color: var(--amber); }
+
+  .task-label { font-size: 13px; color: var(--text); line-height: 1.4; }
+  .task-label.done-text { color: var(--text3); text-decoration: line-through; }
+
+  .task-week {
+    font-size: 10px; color: var(--text3); white-space: nowrap;
+    background: var(--surface2); padding: 2px 7px; border-radius: 4px;
+  }
+
+  .task-status-btn {
+    font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 4px;
+    border: none; cursor: pointer; white-space: nowrap; letter-spacing: 0.03em;
+    transition: opacity 0.15s;
+  }
+  .task-status-btn:hover { opacity: 0.8; }
+  .status-todo { background: var(--surface2); color: var(--text3); }
+  .status-active { background: var(--teal-dim); color: var(--teal); }
+  .status-done { background: rgba(29,158,117,0.25); color: #5DCAA5; }
+  .status-blocked { background: var(--coral-dim); color: var(--coral); }
+
+  /* ── Notes field ── */
+  .task-notes-wrap { padding: 0 18px 10px 50px; display: none; }
+  .task-item.has-notes + .task-notes-wrap { display: block; }
+  .notes-input {
+    width: 100%; background: var(--surface2); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); color: var(--text); font-size: 12px;
+    padding: 7px 10px; resize: none; font-family: inherit; outline: none;
+    transition: border-color 0.15s;
+  }
+  .notes-input:focus { border-color: var(--teal); }
+  .notes-input::placeholder { color: var(--text3); }
+
+  /* ── Add task ── */
+  .add-task-row {
+    display: flex; gap: 8px; padding: 10px 18px;
+    border-top: 1px solid var(--border); background: transparent;
+  }
+  .add-task-input {
+    flex: 1; background: var(--surface2); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); color: var(--text); font-size: 12px;
+    padding: 6px 10px; outline: none; font-family: inherit;
+    transition: border-color 0.15s;
+  }
+  .add-task-input:focus { border-color: var(--teal); }
+  .add-task-input::placeholder { color: var(--text3); }
+  .add-btn {
+    background: var(--teal-dim); color: var(--teal); border: 1px solid var(--teal-mid);
+    border-radius: var(--radius-sm); padding: 6px 14px; font-size: 12px; font-weight: 600;
+    cursor: pointer; white-space: nowrap; transition: background 0.15s;
+  }
+  .add-btn:hover { background: var(--teal-mid); }
+
+  /* ── Phase badges ── */
+  .phase-now { background: var(--teal-dim); color: var(--teal); }
+  .phase-w2 { background: var(--blue-dim); color: var(--blue); }
+  .phase-w4 { background: var(--purple-dim); color: #8B84E0; }
+  .phase-w8 { background: var(--amber-dim); color: var(--amber); }
+  .phase-m3 { background: var(--coral-dim); color: var(--coral); }
+
+  /* ── Channel icon colors ── */
+  .icon-reddit { background: rgba(216,90,48,0.13); }
+  .icon-linkedin { background: rgba(55,138,221,0.13); }
+  .icon-email { background: var(--teal-dim); }
+  .icon-facebook { background: var(--blue-dim); }
+  .icon-twitter { background: var(--surface2); }
+  .icon-podcast { background: var(--purple-dim); }
+  .icon-instagram { background: rgba(212,83,126,0.13); }
+  .icon-influencer { background: var(--amber-dim); }
+  .icon-partner { background: var(--teal-dim); }
+
+  /* ── Export / save bar ── */
+  .action-bar {
+    display: flex; gap: 10px; align-items: center;
+    padding: 16px 0; margin-top: 24px;
+    border-top: 1px solid var(--border);
+  }
+  .save-btn {
+    background: var(--teal); color: #fff; border: none;
+    border-radius: var(--radius-sm); padding: 8px 18px; font-size: 13px;
+    font-weight: 600; cursor: pointer; transition: opacity 0.15s;
+  }
+  .save-btn:hover { opacity: 0.85; }
+  .export-btn {
+    background: var(--surface2); color: var(--text2); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 8px 18px; font-size: 13px;
+    cursor: pointer; transition: background 0.15s;
+  }
+  .export-btn:hover { background: var(--surface); color: var(--text); }
+  .save-msg { font-size: 12px; color: var(--teal); display: none; }
+
+  /* ── Last updated ── */
+  .last-updated { font-size: 11px; color: var(--text3); margin-left: auto; }
+
+  /* ── Responsive ── */
+  @media (max-width: 680px) {
+    .page-header { padding: 14px 16px; }
+    .page-body { padding: 16px; }
+    .channel-header { grid-template-columns: 32px 1fr auto; gap: 10px; }
+    .ch-phase-badge, .ch-progress-wrap { display: none; }
+    .summary-bar { grid-template-columns: 1fr 1fr; }
+    .task-item { grid-template-columns: 20px 1fr auto; }
+    .task-week { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<header class="page-header">
+  <div class="header-left">
+    <div class="logo-mark">M</div>
+    <div>
+      <div class="header-title">Mingus Dashboard</div>
+      <div class="header-sub">Marketing implementation tracker</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <a href="/leads" class="nav-link">Leads</a>
+    <a href="#" class="nav-link active">Marketing</a>
+  </div>
+</header>
+
+<main class="page-body">
+
+  <!-- Summary bar -->
+  <div class="summary-bar" id="summary-bar">
+    <div class="stat-card">
+      <div class="stat-label">Total tasks</div>
+      <div class="stat-value" id="total-count">—</div>
+      <div class="stat-sub">across 9 channels</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Completed</div>
+      <div class="stat-value" id="done-count">—</div>
+      <div class="stat-sub" id="done-pct">—% of total</div>
+      <div class="stat-bar"><div class="stat-fill" id="done-bar" style="width:0%"></div></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">In progress</div>
+      <div class="stat-value" id="active-count">—</div>
+      <div class="stat-sub">active right now</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Blocked</div>
+      <div class="stat-value" id="blocked-count">—</div>
+      <div class="stat-sub">need attention</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Not started</div>
+      <div class="stat-value" id="todo-count">—</div>
+      <div class="stat-sub">upcoming</div>
+    </div>
+  </div>
+
+  <!-- Channel sections -->
+  <div id="channels-container"></div>
+
+  <!-- Action bar -->
+  <div class="action-bar">
+    <button class="save-btn" onclick="saveAll()">Save progress</button>
+    <button class="export-btn" onclick="exportCSV()">Export CSV</button>
+    <span class="save-msg" id="save-msg">✓ Saved</span>
+    <span class="last-updated" id="last-updated"></span>
+  </div>
+</main>
+
+<script>
+// ── Data model ──────────────────────────────────────────────────────────────
+const CHANNELS = [
+  {
+    id: 'reddit',
+    name: 'Reddit',
+    sub: 'Engine live · u/Prior_Specialist · 17 communities',
+    phase: 'Active now',
+    phaseClass: 'phase-now',
+    iconClass: 'icon-reddit',
+    icon: '🟠',
+    tasks: [
+      { id: 'r1', label: 'Confirm Reddit API credentials in .env once approved', week: 'Now', status: 'active' },
+      { id: 'r2', label: 'Restart engine after credentials update: sudo systemctl restart mingus-engine', week: 'Now', status: 'blocked' },
+      { id: 'r3', label: 'Review leads queue at dashboard.mingusapp.com/leads — post replies as u/Prior_Specialist', week: 'Daily', status: 'active' },
+      { id: 'r4', label: 'Expand domain_signals.json with keyword library from strategy doc', week: 'Week 1', status: 'todo' },
+      { id: 'r5', label: 'F5Bot: 40+ keywords live — monitor inbox daily', week: 'Now', status: 'done' },
+      { id: 'r6', label: 'Run Anvaka Reddit Map on r/BlackPersonalFinance + r/povertyfinance — find 3–5 new communities', week: 'Week 2', status: 'todo' },
+      { id: 'r7', label: 'Validate new communities on SubredditStats — add high-activity ones via CLI', week: 'Week 2', status: 'todo' },
+      { id: 'r8', label: 'Cross-check peak hours via RedditMetis for top 5 communities', week: 'Week 2', status: 'todo' },
+      { id: 'r9', label: 'Begin soft Mingus mentions in link-safe communities (after 3 weeks comment history)', week: 'Week 5', status: 'todo' },
+      { id: 'r10', label: 'Subscribe to GummySearch ($29/mo) — expand keyword library from pain-point export', week: 'Week 4', status: 'todo' },
+      { id: 'r11', label: 'Activate Reddit Ads using engine-generated ads brief — $300/week ATL + Houston first', week: 'Week 9', status: 'todo' },
+      { id: 'r12', label: 'Scale Reddit Ads to $600/week after validating cost-per-lead', week: 'Week 12', status: 'todo' },
+    ]
+  },
+  {
+    id: 'linkedin',
+    name: 'LinkedIn',
+    sub: 'Founder presence · 3 posts/week · connection cadence',
+    phase: 'Start now',
+    phaseClass: 'phase-now',
+    iconClass: 'icon-linkedin',
+    icon: '💼',
+    tasks: [
+      { id: 'li1', label: 'Optimize LinkedIn profile: headline, about section, banner image, featured section', week: 'Week 1', status: 'todo' },
+      { id: 'li2', label: 'Post launch announcement (niece story hook) — Tuesday or Wednesday 8–10am ET', week: 'Week 1', status: 'todo' },
+      { id: 'li3', label: 'Send 10 targeted connection requests per day — ATL, Houston, DC, Dallas Black professionals', week: 'Daily', status: 'todo' },
+      { id: 'li4', label: 'Comment on 5 posts from target audience each morning before posting', week: 'Daily', status: 'todo' },
+      { id: 'li5', label: 'Post "How stress changes your spending" value post', week: 'Week 2', status: 'todo' },
+      { id: 'li6', label: 'Post "Why I built Mingus" founder story', week: 'Week 1', status: 'todo' },
+      { id: 'li7', label: 'DM everyone who comments on CTA posts within 30 minutes', week: 'Ongoing', status: 'todo' },
+      { id: 'li8', label: 'Post beta spots CTA post — real scarcity only', week: 'Week 3', status: 'todo' },
+      { id: 'li9', label: 'Pin launch post to profile + add link to mingusapp.com in Featured section', week: 'Week 1', status: 'todo' },
+      { id: 'li10', label: 'Activate LinkedIn Sponsored Content — $500/week job title targeting', week: 'Week 14', status: 'todo' },
+    ]
+  },
+  {
+    id: 'email',
+    name: 'Email list',
+    sub: 'The Mingus Weekly · ConvertKit or Beehiiv · lead magnet',
+    phase: 'Week 2',
+    phaseClass: 'phase-w2',
+    iconClass: 'icon-email',
+    icon: '✉️',
+    tasks: [
+      { id: 'em1', label: 'Set up ConvertKit or Beehiiv account (both free to 1,000 subscribers)', week: 'Week 2', status: 'todo' },
+      { id: 'em2', label: 'Connect Vibe Check assessment as email lead magnet on mingusapp.com', week: 'Week 2', status: 'todo' },
+      { id: 'em3', label: 'Write and send The Mingus Weekly #1 — stress-to-spending insight', week: 'Week 2', status: 'todo' },
+      { id: 'em4', label: 'Add every beta signup automatically to email list', week: 'Week 2', status: 'todo' },
+      { id: 'em5', label: 'Send The Mingus Weekly every Tuesday — consistent cadence non-negotiable', week: 'Weekly', status: 'todo' },
+      { id: 'em6', label: 'Add F5Bot leads + Reddit DMs to list (with permission)', week: 'Ongoing', status: 'todo' },
+      { id: 'em7', label: 'Target: 500 subscribers by week 12', week: 'Week 12', status: 'todo' },
+    ]
+  },
+  {
+    id: 'facebook',
+    name: 'Facebook Groups',
+    sub: 'Black professionals by city — ATL, Houston, DC, Dallas',
+    phase: 'Week 2–4',
+    phaseClass: 'phase-w2',
+    iconClass: 'icon-facebook',
+    icon: '👥',
+    tasks: [
+      { id: 'fb1', label: 'Join: "Black Professionals in Atlanta" — read only for 7 days', week: 'Week 2', status: 'todo' },
+      { id: 'fb2', label: 'Join: "Black Professionals in Houston" — read only for 7 days', week: 'Week 2', status: 'todo' },
+      { id: 'fb3', label: 'Join: "Black Professionals in DC" — read only for 7 days', week: 'Week 2', status: 'todo' },
+      { id: 'fb4', label: 'Join: "Financial Independence for Black Women/Men" group', week: 'Week 3', status: 'todo' },
+      { id: 'fb5', label: 'Join: "First Time Home Buyers [ATL/Houston/DC]" groups', week: 'Week 3', status: 'todo' },
+      { id: 'fb6', label: 'First value comment in each group — no links, no Mingus mention', week: 'Week 3', status: 'todo' },
+      { id: 'fb7', label: 'Build Facebook Playwright listener (Phase 2 of Reddit engine)', week: 'Month 2', status: 'todo' },
+      { id: 'fb8', label: 'Launch Facebook Ads — $10/day · ages 25–40 · personal finance + career interests', week: 'Week 8', status: 'todo' },
+    ]
+  },
+  {
+    id: 'twitter',
+    name: 'X / Black Twitter',
+    sub: 'Short punchy takes · engage Black finance creators',
+    phase: 'Week 4',
+    phaseClass: 'phase-w4',
+    iconClass: 'icon-twitter',
+    icon: '🐦',
+    tasks: [
+      { id: 'tw1', label: 'Set up @MingusApp X account — bio, banner, link to mingusapp.com', week: 'Week 4', status: 'todo' },
+      { id: 'tw2', label: 'Post 1 tweet per day — reframe money as a life problem, not a math problem', week: 'Daily', status: 'todo' },
+      { id: 'tw3', label: 'Reply to Dasha Kennedy, Marsha Barnes, Derrius Quarles, Chloé Daniels — add insight, never pitch', week: 'Daily', status: 'todo' },
+      { id: 'tw4', label: 'Post first thread: "7 things Mingus tracks that no budgeting app does"', week: 'Week 4', status: 'todo' },
+      { id: 'tw5', label: '3 replies to others\' posts every morning', week: 'Daily', status: 'todo' },
+      { id: 'tw6', label: '1 thread per week — value-forward, no direct pitch', week: 'Weekly', status: 'todo' },
+    ]
+  },
+  {
+    id: 'podcast',
+    name: 'Podcast guesting',
+    sub: 'Black finance + career podcasts · borrow existing audiences',
+    phase: 'Week 6–8',
+    phaseClass: 'phase-w4',
+    iconClass: 'icon-podcast',
+    icon: '🎙️',
+    tasks: [
+      { id: 'pod1', label: 'Research 15 Black finance/career podcasts with 1K–50K listeners', week: 'Week 5', status: 'todo' },
+      { id: 'pod2', label: 'Write podcast pitch email — founder story angle, not a product pitch', week: 'Week 5', status: 'todo' },
+      { id: 'pod3', label: 'Send pitch to first 5 shows — wait 2 weeks before following up', week: 'Week 6', status: 'todo' },
+      { id: 'pod4', label: 'Goal: 2 podcast bookings by week 10', week: 'Week 10', status: 'todo' },
+      { id: 'pod5', label: 'Repurpose each interview into LinkedIn post + email edition + Twitter thread', week: 'After each', status: 'todo' },
+    ]
+  },
+  {
+    id: 'instagram',
+    name: 'Instagram',
+    sub: 'Carousel posts + Reels repurposed from LinkedIn',
+    phase: 'Week 8+',
+    phaseClass: 'phase-w8',
+    iconClass: 'icon-instagram',
+    icon: '📸',
+    tasks: [
+      { id: 'ig1', label: 'Set up @MingusApp Instagram — bio, link, highlights', week: 'Week 8', status: 'todo' },
+      { id: 'ig2', label: 'Follow + engage: Nedra Glover Tawwab, Kojo Sarfo, Adrienne LDN — comment with insight', week: 'Week 8', status: 'todo' },
+      { id: 'ig3', label: 'Post first carousel: "5 signs your stress is costing you money"', week: 'Week 8', status: 'todo' },
+      { id: 'ig4', label: 'Post 3 carousels per week repurposed from LinkedIn content', week: 'Weekly', status: 'todo' },
+      { id: 'ig5', label: 'First Reel: 30–60 second insight clip from top LinkedIn post', week: 'Week 9', status: 'todo' },
+    ]
+  },
+  {
+    id: 'influencer',
+    name: 'Influencer outreach',
+    sub: 'Dasha Kennedy · Marsha Barnes · Kojo Sarfo · Derrius Quarles',
+    phase: 'Week 4 start',
+    phaseClass: 'phase-w4',
+    iconClass: 'icon-influencer',
+    icon: '⭐',
+    tasks: [
+      { id: 'inf1', label: 'Begin genuine engagement on Dasha Kennedy content — 3 comments/week, no pitch', week: 'Week 4', status: 'todo' },
+      { id: 'inf2', label: 'Begin genuine engagement on Marsha Barnes content — LinkedIn + Instagram', week: 'Week 4', status: 'todo' },
+      { id: 'inf3', label: 'Begin genuine engagement on Kojo Sarfo content — TikTok + Instagram', week: 'Week 4', status: 'todo' },
+      { id: 'inf4', label: 'LinkedIn outreach to Derrius Quarles — peer founder framing', week: 'Week 5', status: 'todo' },
+      { id: 'inf5', label: 'First DM to Dasha Kennedy — feedback ask + free account (after 4 weeks engagement)', week: 'Week 8', status: 'todo' },
+      { id: 'inf6', label: 'First DM to Marsha Barnes — partnership conversation (complementary positioning)', week: 'Week 8', status: 'todo' },
+      { id: 'inf7', label: 'Goal: 1 influencer using Mingus free and sharing organically by week 12', week: 'Week 12', status: 'todo' },
+    ]
+  },
+  {
+    id: 'partnerships',
+    name: 'Strategic partnerships',
+    sub: 'HBCUs · NBMBAA · Black financial advisors · employers',
+    phase: 'Month 3+',
+    phaseClass: 'phase-m3',
+    iconClass: 'icon-partner',
+    icon: '🤝',
+    tasks: [
+      { id: 'p1', label: 'Research HBCU career centers in ATL, Houston, DC — identify right contact', week: 'Month 3', status: 'todo' },
+      { id: 'p2', label: 'Write HBCU outreach email — Mingus as financial wellness resource for new grads', week: 'Month 3', status: 'todo' },
+      { id: 'p3', label: 'Contact NBMBAA and National Urban League Young Professionals — resource partnership', week: 'Month 3', status: 'todo' },
+      { id: 'p4', label: 'Identify 5 Black financial advisors in target cities — referral partnership pitch', week: 'Month 3', status: 'todo' },
+      { id: 'p5', label: 'Explore co-content with The Finance Bar (Marsha Barnes) or BREAUX Capital', week: 'Month 4', status: 'todo' },
+      { id: 'p6', label: 'HR/DEI team outreach at 3 large employers in ATL/Houston/DC — employee benefit angle', week: 'Month 6', status: 'todo' },
+    ]
+  }
+];
+
+// ── State ────────────────────────────────────────────────────────────────────
+let state = {};
+
+function loadState() {
+  try {
+    const saved = localStorage.getItem('mingus_marketing_tracker');
+    if (saved) state = JSON.parse(saved);
+  } catch(e) { state = {}; }
+}
+
+function saveState() {
+  try {
+    localStorage.setItem('mingus_marketing_tracker', JSON.stringify(state));
+    localStorage.setItem('mingus_tracker_saved', new Date().toISOString());
+  } catch(e) {}
+}
+
+function getTaskStatus(taskId) {
+  return state[taskId] || null;
+}
+
+function setTaskStatus(taskId, status) {
+  state[taskId] = status;
+}
+
+function getTaskNotes(taskId) {
+  return state[taskId + '_notes'] || '';
+}
+
+function setTaskNotes(taskId, notes) {
+  state[taskId + '_notes'] = notes;
+}
+
+// ── Render ───────────────────────────────────────────────────────────────────
+function statusLabel(s) {
+  if (s === 'done') return 'Done';
+  if (s === 'active') return 'Active';
+  if (s === 'blocked') return 'Blocked';
+  return 'To do';
+}
+
+function statusClass(s) {
+  if (s === 'done') return 'status-done';
+  if (s === 'active') return 'status-active';
+  if (s === 'blocked') return 'status-blocked';
+  return 'status-todo';
+}
+
+function checkClass(s) {
+  if (s === 'done') return 'done';
+  if (s === 'active') return 'in-progress';
+  return '';
+}
+
+function cycleStatus(taskId) {
+  const cur = getTaskStatus(taskId);
+  const cycle = { null: 'active', 'todo': 'active', 'active': 'done', 'done': 'blocked', 'blocked': 'todo' };
+  const next = cycle[cur] || 'active';
+  setTaskStatus(taskId, next);
+  renderAll();
+  updateSummary();
+}
+
+function cycleStatusBtn(taskId) {
+  cycleStatus(taskId);
+}
+
+function toggleChannel(id) {
+  const block = document.getElementById('ch_' + id);
+  block.classList.toggle('open');
+}
+
+function renderAll() {
+  const container = document.getElementById('channels-container');
+  container.innerHTML = '';
+
+  CHANNELS.forEach(ch => {
+    const tasks = ch.tasks;
+    const total = tasks.length;
+    const done = tasks.filter(t => getTaskStatus(t.id) === 'done').length;
+    const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+
+    const block = document.createElement('div');
+    block.className = 'channel-block';
+    block.id = 'ch_' + ch.id;
+
+    // Section header per phase group
+    block.innerHTML = `
+      <div class="channel-header" onclick="toggleChannel('${ch.id}')">
+        <div class="ch-icon-wrap ${ch.iconClass}">${ch.icon}</div>
+        <div>
+          <div class="ch-name">${ch.name}</div>
+          <div class="ch-sub">${ch.sub}</div>
+        </div>
+        <span class="ch-phase-badge ${ch.phaseClass}">${ch.phase}</span>
+        <div class="ch-progress-wrap">
+          <div class="ch-pct">${done}/${total}</div>
+          <div class="ch-pbar">
+            <div class="ch-pfill" style="width:${pct}%;background:${pct===100?'var(--teal)':'var(--purple)'}"></div>
+          </div>
+        </div>
+        <div class="ch-chevron">▾</div>
+      </div>
+      <div class="task-list" id="tl_${ch.id}">
+        ${tasks.map(t => {
+          const s = getTaskStatus(t.id) || t.status;
+          const notes = getTaskNotes(t.id);
+          return `
+            <div class="task-item ${notes ? 'has-notes' : ''}" id="ti_${t.id}">
+              <div class="task-check ${checkClass(s)}" onclick="cycleStatus('${t.id}')"></div>
+              <div class="task-label ${s === 'done' ? 'done-text' : ''}">${t.label}</div>
+              <span class="task-week">${t.week}</span>
+              <button class="task-status-btn ${statusClass(s)}" onclick="cycleStatusBtn('${t.id}')">${statusLabel(s)}</button>
+            </div>
+            <div class="task-notes-wrap" id="notes_wrap_${t.id}" style="display:${notes ? 'block' : 'none'}">
+              <textarea class="notes-input" rows="2" placeholder="Add notes..." onchange="updateNotes('${t.id}', this.value)">${notes}</textarea>
+            </div>
+          `;
+        }).join('')}
+        <div class="add-task-row">
+          <input class="add-task-input" type="text" placeholder="Add a task to ${ch.name}..." id="add_input_${ch.id}" onkeydown="handleAddKey(event,'${ch.id}')">
+          <button class="add-btn" onclick="addTask('${ch.id}')">+ Add</button>
+        </div>
+      </div>
+    `;
+
+    container.appendChild(block);
+
+    // Auto-open channels that have active/blocked items
+    const hasUrgent = tasks.some(t => {
+      const s = getTaskStatus(t.id) || t.status;
+      return s === 'active' || s === 'blocked';
+    });
+    if (hasUrgent) block.classList.add('open');
+  });
+
+  updateSummary();
+}
+
+function updateNotes(taskId, val) {
+  setTaskNotes(taskId, val);
+  const wrap = document.getElementById('notes_wrap_' + taskId);
+  const item = document.getElementById('ti_' + taskId);
+  if (val.trim()) {
+    item.classList.add('has-notes');
+    wrap.style.display = 'block';
+  } else {
+    item.classList.remove('has-notes');
+    wrap.style.display = 'none';
+  }
+}
+
+function addTask(chId) {
+  const input = document.getElementById('add_input_' + chId);
+  const label = input.value.trim();
+  if (!label) return;
+
+  const ch = CHANNELS.find(c => c.id === chId);
+  const newId = chId + '_custom_' + Date.now();
+  ch.tasks.push({ id: newId, label, week: 'Custom', status: 'todo' });
+  input.value = '';
+  renderAll();
+
+  // Re-open the channel
+  const block = document.getElementById('ch_' + chId);
+  if (block) block.classList.add('open');
+}
+
+function handleAddKey(e, chId) {
+  if (e.key === 'Enter') addTask(chId);
+}
+
+function updateSummary() {
+  let total = 0, done = 0, active = 0, blocked = 0, todo = 0;
+  CHANNELS.forEach(ch => {
+    ch.tasks.forEach(t => {
+      total++;
+      const s = getTaskStatus(t.id) || t.status;
+      if (s === 'done') done++;
+      else if (s === 'active') active++;
+      else if (s === 'blocked') blocked++;
+      else todo++;
+    });
+  });
+
+  document.getElementById('total-count').textContent = total;
+  document.getElementById('done-count').textContent = done;
+  document.getElementById('done-pct').textContent = `${Math.round((done/total)*100)}% of total`;
+  document.getElementById('done-bar').style.width = `${Math.round((done/total)*100)}%`;
+  document.getElementById('active-count').textContent = active;
+  document.getElementById('blocked-count').textContent = blocked;
+  document.getElementById('todo-count').textContent = todo;
+}
+
+// ── Persist ──────────────────────────────────────────────────────────────────
+function saveAll() {
+  saveState();
+  const msg = document.getElementById('save-msg');
+  msg.style.display = 'inline';
+  setTimeout(() => msg.style.display = 'none', 2000);
+  updateLastSaved();
+}
+
+function updateLastSaved() {
+  const ts = localStorage.getItem('mingus_tracker_saved');
+  if (ts) {
+    const d = new Date(ts);
+    document.getElementById('last-updated').textContent =
+      'Last saved: ' + d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+  }
+}
+
+// ── Export CSV ───────────────────────────────────────────────────────────────
+function exportCSV() {
+  const rows = [['Channel','Task','Week','Status','Notes']];
+  CHANNELS.forEach(ch => {
+    ch.tasks.forEach(t => {
+      const s = getTaskStatus(t.id) || t.status;
+      const notes = getTaskNotes(t.id) || '';
+      rows.push([ch.name, `"${t.label.replace(/"/g,'""')}"`, t.week, statusLabel(s), `"${notes.replace(/"/g,'""')}"`]);
+    });
+  });
+  const csv = rows.map(r => r.join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'mingus_marketing_tracker.csv';
+  a.click();
+}
+
+// ── Auto-save on status change ────────────────────────────────────────────────
+const origCycle = cycleStatus;
+window.cycleStatus = function(id) {
+  origCycle(id);
+  saveState();
+  updateLastSaved();
+};
+
+// ── Init ─────────────────────────────────────────────────────────────────────
+loadState();
+renderAll();
+updateLastSaved();
+
+// Auto-save every 2 minutes
+setInterval(() => { saveState(); updateLastSaved(); }, 120000);
+</script>
+</body>
+</html>

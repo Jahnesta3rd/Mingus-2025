@@ -18,7 +18,6 @@ import { TermsCheckGuard } from './components/Auth/TermsCheckGuard';
 import VibeGuard from './guards/VibeGuard';
 import { MCIProvider } from './context/MCIContext';
 import LandingPage from './components/LandingPage';
-import CheckoutPage from './pages/CheckoutPage';
 import PreLaunchTracker from './pages/PreLaunchTracker';
 import { RedirectWithQuery } from './components/routing/RedirectWithQuery';
 import AdminRoute from './components/AdminRoute';
@@ -101,7 +100,7 @@ const router = createBrowserRouter([
   { path: '/register', element: <RegisterPage /> },
   { path: '/forgot-password', element: <ForgotPasswordPage /> },
   { path: '/reset-password', element: <ResetPasswordPage /> },
-  { path: '/checkout', element: <CheckoutPage /> },
+  { path: '/checkout', element: <Navigate to="/register" replace /> },
   { path: '/beta', element: <Navigate to="/register?beta=1" replace /> },
   { path: '/beta/welcome', element: <Navigate to="/welcome" replace /> },
   { path: '/assessments', element: <LeadGenAssessment /> },
@@ -247,6 +246,7 @@ const router = createBrowserRouter([
   },
 
   // Redirects
+  { path: '/pricing', element: <Navigate to="/" replace /> },
   { path: '/career-dashboard', element: <Navigate to="/dashboard" replace /> },
   { path: '/settings/upgrade', element: <Navigate to="/dashboard/upgrade" replace /> },
   { path: '/settings/career', element: <Navigate to="/dashboard/tools?tab=you" replace /> },

@@ -182,7 +182,7 @@ interface MarketConditionsPanelProps {
 
 function MarketConditionsPanel({ userTier }: MarketConditionsPanelProps) {
   const { isAuthenticated } = useAuth();
-  const upgradePlansTo = isAuthenticated ? '/dashboard/upgrade' : '/#pricing';
+  const upgradePlansTo = isAuthenticated ? '/dashboard/upgrade' : '/register';
   const [data, setData] = useState<MarketConditionsResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -444,7 +444,7 @@ export default function FinancialForecastTab({
 }: FinancialForecastTabProps) {
   const { isAuthenticated } = useAuth();
   const { data: careerRiskData, loading: careerRiskLoading } = useCareerRiskData();
-  const upgradePlansTo = isAuthenticated ? '/dashboard/upgrade' : '/#pricing';
+  const upgradePlansTo = isAuthenticated ? '/dashboard/upgrade' : '/register';
   const [dailyCashflow, setDailyCashflow] = useState<DailyCashflowEntry[]>([]);
   const [monthlySummaries, setMonthlySummaries] = useState<MonthlyTableRow[]>([]);
   const [vehicleExpenseTotals, setVehicleExpenseTotals] = useState<{

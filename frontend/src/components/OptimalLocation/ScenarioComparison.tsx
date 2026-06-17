@@ -47,7 +47,7 @@ import {
   TrendingDown,
   Star,
   StarBorder,
-  GitCompare,
+  CompareArrows,
   Download,
   Share,
   Delete,
@@ -528,7 +528,7 @@ const ScenarioComparison: React.FC<ScenarioComparisonProps> = ({
                         label="Selected for Comparison" 
                         color="primary" 
                         size="small" 
-                        icon={<GitCompare />}
+                        icon={<CompareArrows />}
                       />
                     </Box>
                   )}

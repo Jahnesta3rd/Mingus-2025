@@ -73,7 +73,7 @@ const BudgetVehicleAnalytics: React.FC<BudgetVehicleAnalyticsProps> = ({
   userTier
 }) => {
   const { isAuthenticated } = useAuth();
-  const upgradePlansTo = isAuthenticated ? '/dashboard/upgrade' : '/#pricing';
+  const upgradePlansTo = isAuthenticated ? '/dashboard/upgrade' : '/register';
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<BasicAnalyticsData | null>(null);
   const [upgradeDialogOpen, setUpgradeDialogOpen] = useState(false);

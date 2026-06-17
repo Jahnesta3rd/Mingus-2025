@@ -34,7 +34,6 @@ import { AssessmentType } from '../types/assessments';
 import { useAnalytics } from '../hooks/useAnalytics';
 import HeroSection from './sections/HeroSection';
 import FeaturesSection from './sections/FeaturesSection';
-import PricingSection from './sections/PricingSection';
 import FAQSection from './sections/FAQSection';
 import CTASection from './sections/CTASection';
 
@@ -42,16 +41,6 @@ import CTASection from './sections/CTASection';
 interface FAQItem {
   question: string;
   answer: string;
-}
-
-interface PricingTier {
-  name: string;
-  price: string;
-  period: string;
-  description: string;
-  features: string[];
-  popular?: boolean;
-  cta: string;
 }
 
 interface Feature {
@@ -63,79 +52,16 @@ interface Feature {
 // FAQ Data
 const faqData: FAQItem[] = [
   {
-    question: "How does Mingus address the unique financial challenges faced by African American professionals?",
-    answer: "Mingus is specifically designed to address systemic barriers and opportunities in our community. We integrate health data to understand how financial stress affects our well-being, while providing culturally-aware financial planning that accounts for generational wealth gaps, workplace dynamics, and community-specific investment opportunities."
-  },
-  {
-    question: "What makes Mingus different from other finance apps for Black professionals?",
-    answer: "Unlike traditional budgeting apps, Mingus understands the unique financial journey of African American professionals. We provide contextual advice based on our community's specific challenges, generational wealth building goals, and cultural values. Our AI is trained on data that reflects our community's financial patterns and opportunities."
-  },
-  {
     question: "How does Mingus help with career advancement and salary negotiations?",
-    answer: "Mingus offers specialized career guidance that addresses workplace dynamics and bias while providing strategic financial planning. We help you navigate salary negotiations, career moves, and wealth-building opportunities while understanding the unique challenges Black professionals face in corporate environments."
+    answer: "Mingus offers specialized career guidance that addresses workplace dynamics and bias while providing strategic financial planning. We help you navigate salary negotiations, career moves, and wealth-building opportunities while understanding the unique challenges professionals face in corporate environments."
   },
   {
     question: "Can Mingus help me build generational wealth for my family?",
     answer: "Absolutely! Mingus is specifically designed to help break generational financial barriers. We provide tools for estate planning, investment strategies, and wealth transfer planning that honor our community's values while building lasting financial security for future generations."
   },
   {
-    question: "How does Mingus address health disparities that affect our community's financial wellness?",
-    answer: "Mingus integrates health data to understand how systemic health disparities impact our financial wellness. We provide personalized recommendations that address both physical and mental health while building wealth, recognizing the interconnected nature of health and financial stability in our community."
-  },
-  {
     question: "Is my financial data secure and private with Mingus?",
     answer: "Your data security and privacy are our top priorities. We use bank-level 256-bit encryption, multi-factor authentication, and are SOC 2 Type II certified. Your data is never sold or shared without explicit consent, and we regularly undergo third-party security audits to ensure the highest protection standards for our community."
-  }
-];
-
-// Pricing Data
-const pricingTiers: PricingTier[] = [
-  {
-    name: "Budget",
-    price: "$15",
-    period: "per month",
-    description: "Perfect for getting started with basic financial tracking",
-    features: [
-      "Basic expense tracking",
-      "Up to 3 budgets",
-      "Monthly financial reports",
-      "Mobile app access",
-      "Email support"
-    ],
-    cta: "Get Started"
-  },
-  {
-    name: "Mid-tier",
-    price: "$35",
-    period: "per month",
-    description: "Advanced features for serious money management",
-    features: [
-      "Unlimited budgets & categories",
-      "Advanced analytics & insights",
-      "Bill reminders & notifications",
-      "Investment tracking",
-      "Priority customer support",
-      "Custom financial goals",
-      "Export data to Excel/PDF"
-    ],
-    popular: true,
-    cta: "Get Started"
-  },
-  {
-    name: "Professional",
-    price: "$100",
-    period: "per month",
-    description: "Complete financial management suite",
-    features: [
-      "Everything in Mid-tier",
-      "Tax preparation tools",
-      "Financial advisor consultations",
-      "Advanced investment analysis",
-      "Family account management",
-      "API access for integrations",
-      "White-label options"
-    ],
-    cta: "Go Professional"
   }
 ];
 
@@ -178,7 +104,7 @@ const financialWellnessFeatures: Feature[] = [
   {
     icon: <BarChart3 className="w-8 h-8" />,
     title: "Generational Wealth Forecasting",
-    description: "Predict your financial future with AI-powered forecasting that accounts for systemic barriers and opportunities specific to Black professionals."
+    description: "Predict your financial future with AI-powered forecasting that accounts for systemic barriers and opportunities specific to working professionals."
   },
   {
     icon: <Target className="w-8 h-8" />,
@@ -525,7 +451,7 @@ const LandingPage: React.FC = () => {
                 Discover Your Financial & Career Profile
               </h2>
               <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-                Take our assessments to understand your unique situation and get personalized recommendations. All Mingus plans are paid—from $15/mo.
+                Take our assessments to understand your unique situation and get personalized recommendations.
               </p>
             </div>
             
@@ -662,7 +588,6 @@ const LandingPage: React.FC = () => {
               </div>
               <h3 className="text-lg font-semibold text-blue-600 mb-2">Safe Growth</h3>
               <p className="text-sm text-gray-600 mb-4">15-20% salary increase, high success probability</p>
-              <div className="text-xs text-gray-500">Subscribe to see your personalized recommendations</div>
             </div>
             
             {/* Optimal Tier Preview */}
@@ -677,7 +602,6 @@ const LandingPage: React.FC = () => {
               </div>
               <h3 className="text-lg font-semibold text-purple-600 mb-2">Strategic Advance</h3>
               <p className="text-sm text-gray-600 mb-4">25-30% salary increase, moderate stretch</p>
-              <div className="text-xs text-gray-500">Subscribe to see your personalized recommendations</div>
             </div>
             
             {/* Stretch Tier Preview */}
@@ -687,7 +611,6 @@ const LandingPage: React.FC = () => {
               </div>
               <h3 className="text-lg font-semibold text-orange-600 mb-2">Ambitious Leap</h3>
               <p className="text-sm text-gray-600 mb-4">35%+ salary increase, significant growth</p>
-              <div className="text-xs text-gray-500">Subscribe to see your personalized recommendations</div>
             </div>
           </div>
           
@@ -721,7 +644,7 @@ const LandingPage: React.FC = () => {
               Financial Wellness
             </h2>
             <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-              Comprehensive financial tools designed specifically for African American professionals, addressing the unique challenges and opportunities in our community's wealth-building journey.
+              Comprehensive financial tools designed for professionals, addressing the unique challenges and opportunities in your wealth-building journey.
             </p>
           </div>
           
@@ -784,9 +707,6 @@ const LandingPage: React.FC = () => {
         </div>
       </section>
 
-      {/* Pricing Section */}
-      <PricingSection pricingTiers={pricingTiers} navigate={navigate} />
-      
       {/* FAQ Section */}
       <FAQSection
         faqData={faqData}

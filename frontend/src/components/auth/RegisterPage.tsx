@@ -1,9 +1,8 @@
-import React, { useState, useEffect, useCallback, useLayoutEffect, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import SessionSetupTerminalError from './SessionSetupTerminalError';
 import BetaCodeInput from '../BetaCodeInput';
-import { TierSelectionStep, TIERS, type TierOption } from '../../pages/CheckoutPage';
 
 async function pingVibeMingusConverted(leadId: string | null, email: string): Promise<void> {
   const norm = email.trim().toLowerCase();
@@ -53,22 +52,10 @@ const RegisterPage: React.FC = () => {
   const [success, setSuccess] = useState(false);
   const [registrationBeta, setRegistrationBeta] = useState(false);
   const [betaCode, setBetaCode] = useState<string | null>(null);
-  const [selectedTier, setSelectedTier] = useState<TierOption | null>(null);
   const [isRegistering, setIsRegistering] = useState(false);
   const [sessionSetupPending, setSessionSetupPending] = useState(false);
   const [sessionSetupError, setSessionSetupError] = useState(false);
   const postRegisterNavigatedRef = useRef(false);
-
-  useLayoutEffect(() => {
-    if (!loveLedger) return;
-    const emailParam = searchParams.get('email');
-    if (emailParam) {
-      const decoded = decodeURIComponent(emailParam.replace(/\+/g, ' '));
-      setFormData((prev) => ({ ...prev, email: decoded.trim() }));
-    }
-    const budget = TIERS.find((t) => t.id === 'budget');
-    if (budget) setSelectedTier(budget);
-  }, [loveLedger, searchParams]);
 
   useEffect(() => {
     if (
@@ -94,37 +81,31 @@ const RegisterPage: React.FC = () => {
   useEffect(() => {
     if (!success || postRegisterNavigatedRef.current) return;
 
-    if (betaCode) {
-      let cancelled = false;
-      setSessionSetupPending(true);
-      setSessionSetupError(false);
+    let cancelled = false;
+    setSessionSetupPending(true);
+    setSessionSetupError(false);
 
-      (async () => {
-        try {
-          await awaitSessionReady();
-          if (cancelled) return;
-          postRegisterNavigatedRef.current = true;
-          navigate('/welcome', { replace: true });
-        } catch {
-          if (!cancelled) {
-            setSessionSetupError(true);
-          }
-        } finally {
-          if (!cancelled) {
-            setSessionSetupPending(false);
-          }
+    (async () => {
+      try {
+        await awaitSessionReady();
+        if (cancelled) return;
+        postRegisterNavigatedRef.current = true;
+        navigate('/welcome', { replace: true });
+      } catch {
+        if (!cancelled) {
+          setSessionSetupError(true);
         }
-      })();
+      } finally {
+        if (!cancelled) {
+          setSessionSetupPending(false);
+        }
+      }
+    })();
 
-      return () => {
-        cancelled = true;
-      };
-    }
-
-    postRegisterNavigatedRef.current = true;
-    const tierId = selectedTier?.id ?? 'budget';
-    navigate('/checkout', { state: { tierId }, replace: true });
-  }, [success, betaCode, selectedTier, navigate, awaitSessionReady]);
+    return () => {
+      cancelled = true;
+    };
+  }, [success, navigate, awaitSessionReady]);
 
   const handleSessionSetupRetry = useCallback(async () => {
     setSessionSetupError(false);
@@ -157,8 +138,8 @@ const RegisterPage: React.FC = () => {
     e.preventDefault();
     setError('');
 
-    if (!betaCode && !selectedTier) {
-      setError('Please choose a plan or verify a beta invite code.');
+    if (!betaCode) {
+      setError('A beta invite code is required to register.');
       return;
     }
 
@@ -172,7 +153,6 @@ const RegisterPage: React.FC = () => {
         formData.lastName,
         {
           beta_code: betaCode,
-          selected_tier: betaCode ? 'professional' : selectedTier?.id ?? null,
           ...(loveLedger && vcLeadParam ? { vc_lead_id: vcLeadParam } : {}),
         }
       );
@@ -223,7 +203,7 @@ const RegisterPage: React.FC = () => {
           ) : (
             <>
               <h3 className="text-sm font-medium text-green-800">Account created successfully!</h3>
-              <p className="mt-2 text-sm text-green-700">Redirecting to checkout…</p>
+              <p className="mt-2 text-sm text-green-700">Taking you to your welcome…</p>
             </>
           )}
         </div>
@@ -259,116 +239,107 @@ const RegisterPage: React.FC = () => {
             Welcome from Vibe Checkups 💛 Your email is pre-filled.
           </div>
         )}
-        <form className="mt-8 space-y-6 min-w-0" onSubmit={handleSubmit}>
-          <div className="rounded-md shadow-sm space-y-4">
-            <div>
-              <label htmlFor="firstName" className="sr-only">
-                First name
-              </label>
-              <input
-                id="firstName"
-                name="firstName"
-                type="text"
-                autoComplete="given-name"
-                required
-                className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-400 focus:border-violet-500 sm:text-sm"
-                placeholder="First name"
-                value={formData.firstName}
-                onChange={handleChange}
-              />
-            </div>
-            <div>
-              <label htmlFor="lastName" className="sr-only">
-                Last name
-              </label>
-              <input
-                id="lastName"
-                name="lastName"
-                type="text"
-                autoComplete="family-name"
-                className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-400 focus:border-violet-500 sm:text-sm"
-                placeholder="Last name"
-                value={formData.lastName}
-                onChange={handleChange}
-              />
-            </div>
-            <div>
-              <label htmlFor="email" className="sr-only">
-                Email address
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-400 focus:border-violet-500 sm:text-sm"
-                placeholder="Email address"
-                value={formData.email}
-                onChange={handleChange}
-              />
-            </div>
-            <div>
-              <label htmlFor="password" className="sr-only">
-                Password
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="new-password"
-                required
-                minLength={8}
-                className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-400 focus:border-violet-500 sm:text-sm"
-                placeholder="Password (min 8 characters)"
-                value={formData.password}
-                onChange={handleChange}
-              />
-            </div>
-          </div>
 
-          <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm space-y-3">
-            <p className="text-sm font-medium text-gray-800">
-              Have a beta invite code? Enter it here to get free Professional access.
-            </p>
-            <BetaCodeInput onValidCode={handleBetaCode} onClear={handleBetaClear} />
-          </div>
+        <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm space-y-3">
+          <p className="text-sm font-medium text-gray-800">
+            Have a beta invite code? Enter it here to get free Professional access.
+          </p>
+          <BetaCodeInput onValidCode={handleBetaCode} onClear={handleBetaClear} />
+        </div>
 
-          {betaCode ? (
+        {betaCode && (
+          <form className="mt-8 space-y-6 min-w-0" onSubmit={handleSubmit}>
+            <div className="rounded-md shadow-sm space-y-4">
+              <div>
+                <label htmlFor="firstName" className="sr-only">
+                  First name
+                </label>
+                <input
+                  id="firstName"
+                  name="firstName"
+                  type="text"
+                  autoComplete="given-name"
+                  required
+                  className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-400 focus:border-violet-500 sm:text-sm"
+                  placeholder="First name"
+                  value={formData.firstName}
+                  onChange={handleChange}
+                />
+              </div>
+              <div>
+                <label htmlFor="lastName" className="sr-only">
+                  Last name
+                </label>
+                <input
+                  id="lastName"
+                  name="lastName"
+                  type="text"
+                  autoComplete="family-name"
+                  className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-400 focus:border-violet-500 sm:text-sm"
+                  placeholder="Last name"
+                  value={formData.lastName}
+                  onChange={handleChange}
+                />
+              </div>
+              <div>
+                <label htmlFor="email" className="sr-only">
+                  Email address
+                </label>
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  required
+                  className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-400 focus:border-violet-500 sm:text-sm"
+                  placeholder="Email address"
+                  value={formData.email}
+                  onChange={handleChange}
+                />
+              </div>
+              <div>
+                <label htmlFor="password" className="sr-only">
+                  Password
+                </label>
+                <input
+                  id="password"
+                  name="password"
+                  type="password"
+                  autoComplete="new-password"
+                  required
+                  minLength={8}
+                  className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-400 focus:border-violet-500 sm:text-sm"
+                  placeholder="Password (min 8 characters)"
+                  value={formData.password}
+                  onChange={handleChange}
+                />
+              </div>
+            </div>
+
             <div className="rounded-lg border border-violet-200 bg-violet-50 px-4 py-3 text-sm text-violet-900">
               You are registering as a Beta user with full Professional access. No payment required.
             </div>
-          ) : (
-            <div className="min-w-0 overflow-hidden">
-              <TierSelectionStep
-                selectedTier={selectedTier}
-                onSelectTier={setSelectedTier}
-                onContinue={() => {}}
-                loading={loading}
-                hideContinue
-              />
-            </div>
-          )}
 
-          {error && <div className="text-red-600 text-sm text-center">{error}</div>}
-          <div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-violet-600 hover:bg-violet-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-violet-400 disabled:opacity-50"
-            >
-              {loading ? 'Creating account...' : 'Sign up'}
-            </button>
-          </div>
-          <div className="text-center">
-            <p className="text-sm text-gray-600">
-              Already have an account?{' '}
-              <Link to="/login" className="font-medium text-violet-600 hover:text-violet-500">
-                Sign in
-              </Link>
-            </p>
-          </div>
-        </form>
+            {error && <div className="text-red-600 text-sm text-center">{error}</div>}
+            <div>
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-violet-600 hover:bg-violet-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-violet-400 disabled:opacity-50"
+              >
+                {loading ? 'Creating account...' : 'Sign up'}
+              </button>
+            </div>
+            <div className="text-center">
+              <p className="text-sm text-gray-600">
+                Already have an account?{' '}
+                <Link to="/login" className="font-medium text-violet-600 hover:text-violet-500">
+                  Sign in
+                </Link>
+              </p>
+            </div>
+          </form>
+        )}
       </div>
     </div>
   );

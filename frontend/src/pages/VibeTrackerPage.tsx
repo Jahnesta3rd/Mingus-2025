@@ -18,7 +18,7 @@ import ConnectionTrendAssessmentModal from '../components/roster/ConnectionTrend
 
 export default function VibeTrackerPage() {
   const { user, isAuthenticated } = useAuth();
-  const upgradePlansTo = isAuthenticated ? '/dashboard/upgrade' : '/#pricing';
+  const upgradePlansTo = isAuthenticated ? '/dashboard/upgrade' : '/register';
   const {
     data,
     archivedData,
