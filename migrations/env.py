@@ -52,11 +52,14 @@ from backend.models.debt_profile import DebtProfile  # noqa: F401
 from backend.models.gap_analysis import GapAnalysisResult  # noqa: F401
 from backend.models.health_insurance_plan import HealthInsurancePlan  # noqa: F401
 from backend.models.health_insurance_recommendation import HealthInsuranceRecommendation  # noqa: F401
+from backend.models.quick_spend import QuickSpendEntry  # noqa: F401
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
 
+from dotenv import load_dotenv
+load_dotenv()
 # Allow overriding the DB URL via DATABASE_URL (e.g. for Postgres in production)
 database_url = os.environ.get("DATABASE_URL")
 if database_url:
@@ -109,7 +112,7 @@ def run_migrations_online():
     and associate a connection with the context.
 
     """
-    url = os.environ.get("DATABASE_URL") or config.get_main_option("sqlalchemy.url")
+    url = config.get_main_option("sqlalchemy.url")
     connectable = create_engine(url, poolclass=pool.NullPool)
 
     with connectable.connect() as connection:

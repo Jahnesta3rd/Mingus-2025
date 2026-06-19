@@ -221,52 +221,29 @@ export function useSnapshotData(opts?: { reloadKey?: number }) {
         .catch(() => setCard('cash', null, 'error')),
 
       // ── 4. Spending ──────────────────────────────────────────
-      Promise.all([
-        fetch('/api/financial-setup/income', {
-          credentials: 'include',
-          headers,
-        }).then((r) => {
-          if (!r.ok) throw new Error(`${r.status}`);
+      fetch(`/api/expenses/summary/${encodeURIComponent(userEmail)}`, {
+        credentials: 'include',
+        headers,
+      })
+        .then((r) => {
+          if (!r.ok) throw new Error(`HTTP ${r.status}`);
           return r.json();
-        }),
-        fetch('/api/financial-setup/expenses', {
-          credentials: 'include',
-          headers,
-        }).then((r) => {
-          if (!r.ok) throw new Error(`${r.status}`);
-          return r.json();
-        }),
-      ])
-        .then(([incomeData, expensesData]) => {
-          const incomeRows = incomeData.income ?? [];
-          const income_monthly = incomeRows.reduce(
-            (sum: number, row: { amount?: number; frequency?: string; is_active?: boolean }) => {
-              if (row.is_active === false) return sum;
-              const amount = Number(row.amount) || 0;
-              return sum + normalizeMonthly(amount, row.frequency ?? 'monthly');
-            },
-            0,
-          );
-
-          const byCategory = new Map<string, number>();
-          for (const row of expensesData.expenses ?? []) {
-            if (row.is_active === false) continue;
-            const amount = Number(row.amount) || 0;
-            const monthly = normalizeMonthly(amount, row.frequency ?? 'monthly');
-            const cat = (row.category as string) || 'other';
-            byCategory.set(cat, (byCategory.get(cat) ?? 0) + monthly);
-          }
-
-          const top_categories = [...byCategory.entries()]
-            .map(([name, amount]) => ({
-              name,
-              amount,
-              pct_of_income: income_monthly > 0 ? amount / income_monthly : 0,
+        })
+        .then((d) => {
+          const cats = (d.categories ?? [])
+            .map((c: { name: string; amount: number }) => ({
+              name: c.name,
+              amount: c.amount,
+              pct_of_income:
+                d.income_monthly > 0 ? c.amount / d.income_monthly : 0,
             }))
-            .sort((a, b) => b.amount - a.amount)
+            .sort((a: { amount: number }, b: { amount: number }) => b.amount - a.amount)
             .slice(0, 3);
-
-          setCard('spending', { income_monthly, top_categories } as SpendingData, 'ready');
+          setCard(
+            'spending',
+            { income_monthly: d.income_monthly, top_categories: cats },
+            'ready',
+          );
         })
         .catch(() => setCard('spending', null, 'error')),
 

@@ -225,6 +225,92 @@ def _default_headline() -> str:
     return "Keep tracking — patterns emerge with time."
 
 
+def _get_quick_spend_signals(
+    user_id: int, days: int = 30
+) -> dict[str, Any]:
+    """
+    Aggregates quick_spend_entries for the trailing `days` window.
+    Returns spend totals by vibe_signal and by spend_vibe,
+    plus the top signal by amount.
+
+    Returns an empty structure if the table does not exist
+    or has no entries — never raises.
+    """
+    empty: dict[str, Any] = {
+        "period_days": days,
+        "total": 0.0,
+        "by_signal": {},
+        "by_vibe": {},
+        "top_signal": None,
+        "stress_flag": False,
+    }
+    try:
+        import datetime
+
+        from sqlalchemy import func
+
+        from backend.models.database import db
+        from backend.models.quick_spend import QuickSpendEntry
+
+        cutoff = datetime.date.today() - datetime.timedelta(days=days)
+
+        rows = (
+            db.session.query(
+                QuickSpendEntry.vibe_signal,
+                QuickSpendEntry.spend_vibe,
+                func.sum(QuickSpendEntry.amount).label("total"),
+            )
+            .filter(
+                QuickSpendEntry.user_id == user_id,
+                QuickSpendEntry.date >= cutoff,
+            )
+            .group_by(
+                QuickSpendEntry.vibe_signal,
+                QuickSpendEntry.spend_vibe,
+            )
+            .all()
+        )
+
+        if not rows:
+            return empty
+
+        by_signal: dict[str, float] = {}
+        by_vibe: dict[str, float] = {}
+        grand_total = 0.0
+
+        for row in rows:
+            amt = float(row.total)
+            grand_total += amt
+            by_signal[row.vibe_signal] = (
+                by_signal.get(row.vibe_signal, 0.0) + amt
+            )
+            by_vibe[row.spend_vibe] = (
+                by_vibe.get(row.spend_vibe, 0.0) + amt
+            )
+
+        top_signal = max(by_signal, key=by_signal.get) \
+            if by_signal else None
+
+        # stress_flag: stress_spending signal exceeds 15% of total
+        stress_amt = by_signal.get("stress_spending", 0.0)
+        stress_flag = (
+            grand_total > 0 and (stress_amt / grand_total) >= 0.15
+        )
+
+        return {
+            "period_days": days,
+            "total": round(grand_total, 2),
+            "by_signal": {k: round(v, 2) for k, v in by_signal.items()},
+            "by_vibe":   {k: round(v, 2) for k, v in by_vibe.items()},
+            "top_signal": top_signal,
+            "stress_flag": stress_flag,
+        }
+
+    except Exception as e:
+        logger.warning("_get_quick_spend_signals failed: {}", e)
+        return empty
+
+
 def _build_summary_payload(user_id: int) -> dict[str, Any]:
     snapshots = get_snapshots(user_id, days=180)
     count = len(snapshots)
@@ -247,6 +333,8 @@ def _build_summary_payload(user_id: int) -> dict[str, Any]:
     else:
         headline = _default_headline()
 
+    quick_spend_signals = _get_quick_spend_signals(user_id)
+
     return {
         "snapshots_count": count,
         "date_range_days": dr,
@@ -254,6 +342,7 @@ def _build_summary_payload(user_id: int) -> dict[str, Any]:
         "correlations": correlations,
         "has_sufficient_data": has_sufficient,
         "headline_insight": headline,
+        "quick_spend_signals": quick_spend_signals,
     }
 
 

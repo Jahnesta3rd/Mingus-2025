@@ -80,6 +80,7 @@ from .debt_profile import DebtProfile
 from .gap_analysis import GapAnalysisResult
 from .health_insurance_plan import HealthInsurancePlan
 from .health_insurance_recommendation import HealthInsuranceRecommendation
+from .quick_spend import QuickSpendEntry
 
 __all__ = [
     'db',
@@ -165,4 +166,5 @@ __all__ = [
     'GapAnalysisResult',
     'HealthInsurancePlan',
     'HealthInsuranceRecommendation',
+    'QuickSpendEntry',
 ]
