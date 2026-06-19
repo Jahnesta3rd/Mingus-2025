@@ -8,10 +8,12 @@ from decimal import Decimal
 
 from backend.api.profile_endpoints import get_db_connection
 from backend.models.career_profile import CareerProfile
+from backend.models.database import db
 from backend.models.financial_setup import UserIncome
 from backend.models.housing_profile import HousingProfile
 from backend.models.transaction_schedule import IncomeStream
 from backend.models.user_models import User
+from backend.models.user_profile import UserProfile
 
 _ZIP_RE = re.compile(r"\b(\d{5})\b")
 
@@ -81,6 +83,18 @@ def resolve_user_zip_code(user: User) -> str | None:
         zip_code = extract_zip_from_text(hp.zip_or_city if hp else None)
 
     return zip_code
+
+
+def sync_user_profile_zip(user: User, zip_or_city_value: str) -> None:
+    """Mirror housing zip_or_city into user_profiles.zip_code (upsert by email)."""
+    if not user.email:
+        return
+    value = (zip_or_city_value or "").strip()
+    profile = UserProfile.query.filter_by(email=user.email).first()
+    if profile is None:
+        profile = UserProfile(email=user.email)
+        db.session.add(profile)
+    profile.zip_code = value or None
 
 
 def _annualize_income_amount(amount: Decimal | float, frequency: str) -> float:

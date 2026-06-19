@@ -6,6 +6,7 @@ SQLAlchemy models for the Mingus financial application
 
 from .database import db
 from .user_models import User
+from .user_profile import UserProfile
 from .beta_code import BetaCode
 from .beta_invite_log import BetaInviteLog
 from .vehicle_models import Vehicle, MaintenancePrediction, CommuteScenario, MSAGasPrice
@@ -83,6 +84,7 @@ from .health_insurance_recommendation import HealthInsuranceRecommendation
 __all__ = [
     'db',
     'User',
+    'UserProfile',
     'BetaCode',
     'BetaInviteLog',
     'Vehicle',

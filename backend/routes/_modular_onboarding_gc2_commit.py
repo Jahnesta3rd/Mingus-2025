@@ -27,6 +27,7 @@ from backend.models.housing_profile import HousingProfile
 from backend.models.onboarding_progress import OnboardingProgress
 from backend.models.transaction_schedule import IncomeStream
 from backend.models.user_models import User
+from backend.utils.user_profile_context import sync_user_profile_zip
 from backend.models.vehicle_models import Vehicle
 from backend.models.vibe_tracker import VibeTrackedPerson
 
@@ -2047,6 +2048,7 @@ def _commit_housing_module(
         hp.housing_type = validated["housing_type"]
         hp.monthly_cost = float(validated["monthly_cost"])
         hp.zip_or_city = validated["zip_or_city"]
+        sync_user_profile_zip(user, validated["zip_or_city"])
         hp.split_share_pct = validated["split_share_pct"]
         hp.has_buy_goal = bool(validated["has_buy_goal"])
         hp.target_price = (
@@ -2455,6 +2457,7 @@ def _apply_commit_field(
         elif attr == "zip_or_city":
             changed = (cur or "") != cast_value
             hp.zip_or_city = cast_value
+            sync_user_profile_zip(user, cast_value)
         elif attr == "split_share_pct":
             changed = cur != cast_value
             hp.split_share_pct = cast_value
