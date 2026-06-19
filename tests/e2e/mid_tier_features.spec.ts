@@ -48,6 +48,97 @@ const MARCUS = {
   tier: 'mid',
 };
 
+type PersonaLocation = {
+  zip_or_city: string;
+  city: string;
+  state: string;
+};
+
+// HRA-05 persona zips — Houston default matches job engine DEFAULT_MSA (77001 / 26420)
+const PERSONA_HOU = { zip_or_city: '77001', city: 'Houston', state: 'TX' };
+const PERSONA_NYC = { zip_or_city: '10001', city: 'New York', state: 'NY' };
+const PERSONA_PHX = { zip_or_city: '85001', city: 'Phoenix', state: 'AZ' };
+
+const PERSONA_BY_ZIP: Record<string, PersonaLocation> = {
+  '77001': PERSONA_HOU,
+  '10001': PERSONA_NYC,
+  '85001': PERSONA_PHX,
+};
+
+function resolvePersonaForZip(requestZip: string | undefined, defaultPersona: PersonaLocation): PersonaLocation {
+  const digits = (requestZip ?? '').replace(/\D/g, '').slice(0, 5);
+  if (digits && PERSONA_BY_ZIP[digits]) return PERSONA_BY_ZIP[digits];
+  const defaultDigits = defaultPersona.zip_or_city.replace(/\D/g, '').slice(0, 5);
+  return PERSONA_BY_ZIP[defaultDigits] ?? defaultPersona;
+}
+
+function buildProfileSummary(persona: PersonaLocation) {
+  return {
+    success: true,
+    profile: {
+      housing_type: 'rent',
+      monthly_cost: 1400,
+      zip_or_city: persona.zip_or_city,
+      has_buy_goal: true,
+      target_price: 285000,
+      target_timeline_months: 18,
+      profile_complete: true,
+    },
+  };
+}
+
+function buildSearchLocationsResponse(persona: PersonaLocation, requestZip?: string) {
+  const resolved = resolvePersonaForZip(requestZip, persona);
+  const zip = resolved.zip_or_city.replace(/\D/g, '').slice(0, 5) || resolved.zip_or_city;
+  const locations = [0, 1, 2, 3, 4].map((index) => {
+    const street = `${100 + index * 37} Main St`;
+    const address = `${street}, ${resolved.city}, ${resolved.state} ${zip}`;
+    return {
+      id: `${zip}-${index + 1}`,
+      title: `${resolved.city} Residences #${index + 1}`,
+      address,
+      location: address,
+      city: resolved.city,
+      state: resolved.state,
+      zip_code: zip,
+      price: 1200 + index * 150,
+      bedrooms: (index % 3) + 1,
+      bathrooms: (index % 2) + 1,
+      listing_url: null,
+      beta_notice: true,
+    };
+  });
+  return {
+    success: true,
+    data: {
+      search_id: 1,
+      locations,
+      results: locations,
+      total_results: locations.length,
+      zip_resolved: zip,
+      zip_source: 'profile',
+      beta_notice: true,
+    },
+  };
+}
+
+const READINESS_SCORE_DATA = {
+  score: 72,
+  score_band: 'GETTING_THERE',
+  readiness_tier: 'moderate',
+  overall_score: 72,
+  partial_data: false,
+  pillars: {},
+  career_risk: { level: 'LOW' },
+  vehicle_risk: { level: 'STABLE' },
+  combined_modifier: 0,
+  plan: null,
+  plan_loading: false,
+  generated_at: new Date().toISOString(),
+  expires_at: null,
+  latent_nudge: null,
+};
+
 // ── Mock data ─────────────────────────────────────────────────────────────────
 
 const VEHICLE_DASHBOARD_DATA = {
@@ -184,7 +275,7 @@ const HOUSING_DATA = {
     shared_goal_score: 8.4,
   },
   market_analysis: {
-    location: 'Spring, TX',
+    location: 'Houston, TX',
     median_price: 285000,
     price_per_sqft: 145,
     market_trend_yoy: 3.2,
@@ -200,6 +291,17 @@ const HOUSING_DATA = {
     recommended_range_high: 721875,
   },
 };
+
+function buildHousingData(persona: PersonaLocation) {
+  return {
+    ...HOUSING_DATA,
+    market_analysis: {
+      ...HOUSING_DATA.market_analysis,
+      location: `${persona.city}, ${persona.state}`,
+    },
+    tier: 'mid',
+  };
+}
 
 const WELLNESS_DATA = {
   stress_spending: { stress_level: 5, monthly_stress_spend: 85, annual_impact: 1020 },
@@ -242,7 +344,7 @@ let browser: Browser;
 let context: BrowserContext;
 let page: Page;
 
-async function addAllMocks(p: Page) {
+async function addAllMocks(p: Page, persona: PersonaLocation = PERSONA_HOU) {
   await p.route('**/api/auth/verify**', async (route) => {
     if (route.request().method() !== 'GET') return route.fallback();
     await route.fulfill({
@@ -455,26 +557,168 @@ async function addAllMocks(p: Page) {
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
+      body: JSON.stringify(buildProfileSummary(persona)),
+    });
+  });
+
+  await p.route('**/api/housing/search-locations**', async (route) => {
+    if (route.request().method() !== 'POST') return route.fallback();
+    let requestZip: string | undefined;
+    try {
+      const body = route.request().postDataJSON() as { zip_code?: string } | null;
+      requestZip = body?.zip_code;
+    } catch {
+      requestZip = undefined;
+    }
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify(buildSearchLocationsResponse(persona, requestZip)),
+    });
+  });
+
+  await p.route('**/api/housing/readiness-score**', async (route) => {
+    if (route.request().method() !== 'GET') return route.fallback();
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify(READINESS_SCORE_DATA),
+    });
+  });
+
+  await p.route('**/api/housing/recent-searches**', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ searches: [] }),
+    });
+  });
+
+  await p.route('**/api/housing/scenarios**', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ scenarios: [] }),
+    });
+  });
+
+  await p.route('**/api/housing/lease-info**', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ lease_info: null }),
+    });
+  });
+
+  await p.route('**/api/housing/alerts**', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ alerts: [] }),
+    });
+  });
+
+  await p.route('**/api/housing/tier-info**', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
       body: JSON.stringify({
-        success: true,
-        profile: {
-          housing_type: 'rent',
-          monthly_cost: 1400,
-          zip_or_city: 'Spring, TX',
-          has_buy_goal: true,
-          target_price: 285000,
-          target_timeline_months: 18,
-          profile_complete: true,
-        },
+        tier: 'mid_tier',
+        features: { housing_searches_per_month: -1, scenarios_saved: 10 },
       }),
     });
   });
 
-  await p.route('**/api/housing/**', async (route) => {
+  await p.route('**/api/housing/profile**', async (route) => {
+    if (route.request().method() !== 'GET') return route.fallback();
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
-      body: JSON.stringify({ ...HOUSING_DATA, tier: 'mid' }),
+      body: JSON.stringify({
+        zip_or_city: persona.zip_or_city,
+        housing_type: 'rent',
+        monthly_cost: 1400,
+      }),
+    });
+  });
+
+  await p.route('**/api/housing/gap-analysis/**', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ success: true, gap_analysis_id: 1 }),
+    });
+  });
+
+  await p.route('**/api/housing/gap-analysis**', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify(buildHousingData(persona)),
+    });
+  });
+
+  await p.route('**/api/housing/action-plan**', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ success: true, plan_id: 1 }),
+    });
+  });
+
+  await p.route('**/api/housing/analyze-career-scenarios**', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ success: true, scenarios: [] }),
+    });
+  });
+
+  await p.route('**/api/housing/scenario**', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ success: true, scenario_id: 1 }),
+    });
+  });
+
+  await p.route('**/api/housing/new-opportunities**', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ opportunities: [] }),
+    });
+  });
+
+  await p.route('**/api/housing/hprs/**', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ success: true }),
+    });
+  });
+
+  await p.route('**/api/housing/search**', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ success: true, data: { locations: [], total_results: 0 } }),
+    });
+  });
+
+  await p.route('**/api/housing/preferences**', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ success: true }),
+    });
+  });
+
+  await p.route('**/api/housing/commute-cost**', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ success: true, commute_cost: 0 }),
     });
   });
 
@@ -513,6 +757,38 @@ async function addAllMocks(p: Page) {
       contentType: 'application/json',
       body: JSON.stringify({ ready: true }),
     });
+  });
+}
+
+async function captureFirstSearchAddress(p: Page, persona: PersonaLocation): Promise<string> {
+  await p.route('**/api/housing/search-locations**', async (route) => {
+    if (route.request().method() !== 'POST') return route.fallback();
+    let requestZip: string | undefined;
+    try {
+      const body = route.request().postDataJSON() as { zip_code?: string } | null;
+      requestZip = body?.zip_code;
+    } catch {
+      requestZip = undefined;
+    }
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify(buildSearchLocationsResponse(persona, requestZip)),
+    });
+  });
+  await p.goto(`${BASE_URL}/login`, { waitUntil: 'domcontentloaded' });
+  return p.evaluate(async () => {
+    const res = await fetch('/api/housing/search-locations', {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ max_rent: 2000, bedrooms: 2, zip_code: '' }),
+    });
+    const json = (await res.json()) as {
+      data?: { locations?: Array<{ address?: string; location?: string }> };
+    };
+    const first = json.data?.locations?.[0];
+    return first?.address ?? first?.location ?? '';
   });
 }
 
@@ -996,7 +1272,7 @@ test.describe('Mid-tier features', () => {
       'mortgage',
       'buy',
       'down payment',
-      'spring',
+      'houston',
       'tx',
       '$1,400',
       '1,400',
@@ -1025,7 +1301,7 @@ test.describe('Mid-tier features', () => {
       'monthly rent',
       'buy goal',
       '$1,400',
-      'spring',
+      'houston',
       'tx',
       'housing',
       '285,000',
@@ -1053,7 +1329,7 @@ test.describe('Mid-tier features', () => {
       'timeline',
       '18',
       'renting',
-      'spring',
+      'houston',
     ];
     const { found, matched } = await pageContainsAny(page, dpTerms);
     const todayOk = await todayTabHasContent(page);
@@ -1072,7 +1348,7 @@ test.describe('Mid-tier features', () => {
     const { found, matched } = await pageContainsAny(page, [
       'renting',
       'homeowner',
-      'spring',
+      'houston',
       'tx',
       'monthly rent',
       '$1,400',
@@ -1106,7 +1382,7 @@ test.describe('Mid-tier features', () => {
       '$285,000',
       'buy goal',
       'renting',
-      'spring',
+      'houston',
       'housing',
       'monthly rent',
     ];
@@ -1134,7 +1410,7 @@ test.describe('Mid-tier features', () => {
       'partner',
       'buy goal',
       'renting',
-      'spring',
+      'houston',
     ];
     const { found, matched } = await pageContainsAny(page, jointTerms);
     const todayOk = await todayTabHasContent(page);
@@ -1144,14 +1420,14 @@ test.describe('Mid-tier features', () => {
     console.log('MT-H06: Joint financial planning context present ✓');
   });
 
-  test('MT-H07: Market analysis for Spring TX area present (mid-tier+)', async () => {
+  test('MT-H07: Market analysis for Houston TX area present (mid-tier+)', async () => {
     await ensureOnDashboard(page);
     await navigateToHousingCard(page);
 
     const marketTerms = [
       'market analysis',
       'market trend',
-      'spring',
+      'houston',
       'tx',
       'days on market',
       '3.2%',
@@ -1161,7 +1437,7 @@ test.describe('Mid-tier features', () => {
       'inventory',
       '2.1 months',
       'renting',
-      'spring, tx',
+      'houston, tx',
       'housing',
       'monthly rent',
       '285,000',
@@ -1192,7 +1468,7 @@ test.describe('Mid-tier features', () => {
       'target',
       '285,000',
       'renting',
-      'spring',
+      'houston',
       'housing',
       'monthly rent',
     ];
@@ -1202,6 +1478,28 @@ test.describe('Mid-tier features', () => {
     console.log(`MT-H08: Affordability term: "${matched}"`);
     expect(found || todayOk).toBe(true);
     console.log('MT-H08: Mortgage affordability context present ✓');
+  });
+
+  test('search results differ by user location', async () => {
+    const localBrowser = await chromium.launch({ headless: process.env.PLAYWRIGHT_HEADED !== '1' });
+    try {
+      const nycCtx = await localBrowser.newContext();
+      const nycPage = await nycCtx.newPage();
+      const nycAddress = await captureFirstSearchAddress(nycPage, PERSONA_NYC);
+      await nycCtx.close();
+
+      const phxCtx = await localBrowser.newContext();
+      const phxPage = await phxCtx.newPage();
+      const phxAddress = await captureFirstSearchAddress(phxPage, PERSONA_PHX);
+      await phxCtx.close();
+
+      expect(nycAddress).toContain('New York, NY');
+      expect(phxAddress).toContain('Phoenix, AZ');
+      expect(nycAddress).not.toBe(phxAddress);
+      console.log(`Location variance: NYC="${nycAddress}" vs PHX="${phxAddress}" ✓`);
+    } finally {
+      await localBrowser.close();
+    }
   });
 
   // ════════════════════════════════════════════════════════════════════════════
