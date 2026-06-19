@@ -38,6 +38,29 @@ interface UserTier {
   };
 }
 
+interface HousingSearchResult {
+  id: string;
+  title: string;
+  address?: string;
+  location?: string;
+  city?: string;
+  state?: string;
+  zip_code?: string;
+  price: number;
+  bedrooms?: number;
+  bathrooms?: number;
+  listing_url?: string | null;
+  beta_notice?: boolean;
+}
+
+interface HousingSearchResponseMeta {
+  zip_resolved?: string;
+  msa_code?: string;
+  zip_source?: string;
+  beta_notice?: boolean;
+  message?: string;
+}
+
 interface HousingSearchState {
   location: string;
   budget: {
@@ -51,7 +74,8 @@ interface HousingSearchState {
     amenities: string[];
   };
   radius: number; // in miles
-  searchResults: any[];
+  searchResults: HousingSearchResult[];
+  searchResponse: HousingSearchResponseMeta | null;
   loading: boolean;
   error: string | null;
 }
@@ -140,6 +164,39 @@ const getTierFeatures = (tier: UserTier['tier']): UserTier['features'] => {
   return tierConfig[tier].features;
 };
 
+function apartmentsComSearchUrl(city: string, state: string): string {
+  return `https://www.apartments.com/${city.toLowerCase().replace(/\s+/g, '-')}-${state.toLowerCase()}/`;
+}
+
+const ListingLinkCTA: React.FC<{ result: HousingSearchResult }> = ({ result }) => {
+  const listingUrl = result.listing_url?.trim();
+  if (listingUrl) {
+    return (
+      <a
+        href={listingUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-sm font-medium text-purple-700 hover:text-purple-900 underline underline-offset-2 flex items-center gap-1 mt-2"
+      >
+        View listing →
+      </a>
+    );
+  }
+  if (result.city && result.state) {
+    return (
+      <a
+        href={apartmentsComSearchUrl(result.city, result.state)}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-sm text-gray-500 hover:text-gray-700 underline underline-offset-2 flex items-center gap-1 mt-2"
+      >
+        Search on Apartments.com →
+      </a>
+    );
+  }
+  return null;
+};
+
 // ========================================
 // MAIN COMPONENT
 // ========================================
@@ -172,6 +229,7 @@ const OptimalLocationRouter: React.FC<OptimalLocationRouterProps> = ({ className
       },
       radius: 10,
       searchResults: [],
+      searchResponse: null,
       loading: false,
       error: null
     },
@@ -366,6 +424,7 @@ const OptimalLocationRouter: React.FC<OptimalLocationRouterProps> = ({ className
             loading: false,
             error: null,
             searchResults: [],
+            searchResponse: null,
           },
         }));
         return;
@@ -378,6 +437,7 @@ const OptimalLocationRouter: React.FC<OptimalLocationRouterProps> = ({ className
             ...prev.housingSearch,
             loading: false,
             error: 'Please enter a valid 5-digit zip code.',
+            searchResponse: null,
           },
         }));
         return;
@@ -403,6 +463,14 @@ const OptimalLocationRouter: React.FC<OptimalLocationRouterProps> = ({ className
       const resolvedLocation =
         data.data?.search_criteria?.zip_code ?? searchData.location ?? '';
 
+      const responseMeta: HousingSearchResponseMeta = {
+        zip_resolved: data.data?.zip_resolved,
+        msa_code: data.data?.msa_code,
+        zip_source: data.data?.zip_source,
+        beta_notice: data.data?.beta_notice,
+        message: data.data?.message,
+      };
+
       setOptimalLocationState(prev => ({
         ...prev,
         housingSearch: {
@@ -412,7 +480,8 @@ const OptimalLocationRouter: React.FC<OptimalLocationRouterProps> = ({ className
             !submittedLocation && data.data?.search_criteria?.zip_code
               ? data.data.search_criteria.zip_code
               : (searchData.location ?? prev.housingSearch.location),
-          searchResults: data.data?.locations || [],
+          searchResults: (data.data?.locations || data.data?.results || []) as HousingSearchResult[],
+          searchResponse: responseMeta,
           loading: false,
           error: null
         }
@@ -678,6 +747,7 @@ const OptimalLocationRouter: React.FC<OptimalLocationRouterProps> = ({ className
           {optimalLocationState.activeView === 'results' && (
             <ResultsDisplayView
               searchResults={optimalLocationState.housingSearch.searchResults}
+              searchResponse={optimalLocationState.housingSearch.searchResponse}
               scenarios={optimalLocationState.scenarios}
               selectedScenario={optimalLocationState.selectedScenario}
               userTier={userTier}
@@ -1037,15 +1107,22 @@ const ScenarioComparisonView: React.FC<{
 
 // Results Display View
 const ResultsDisplayView: React.FC<{
-  searchResults: any[];
+  searchResults: HousingSearchResult[];
+  searchResponse: HousingSearchResponseMeta | null;
   scenarios: Scenario[];
   selectedScenario: Scenario | null;
   userTier: UserTier;
-}> = ({ searchResults, scenarios, selectedScenario, userTier }) => {
+}> = ({ searchResults, searchResponse, scenarios, selectedScenario, userTier }) => {
   return (
     <div className="space-y-6">
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">Search Results</h2>
+
+        {searchResponse?.beta_notice && (
+          <div className="text-xs text-gray-500 bg-gray-50 border border-gray-200 rounded px-3 py-2 mb-3">
+            Listing details are illustrative. Links open third-party search results.
+          </div>
+        )}
         
         {searchResults.length === 0 ? (
           <div className="text-center py-8">
@@ -1054,18 +1131,24 @@ const ResultsDisplayView: React.FC<{
             <p className="text-sm text-gray-400 mt-2">
               Use the Housing Search to find locations
             </p>
+            {searchResponse?.message && (
+              <p className="text-sm text-gray-600 mt-4">{searchResponse.message}</p>
+            )}
           </div>
         ) : (
           <div className="space-y-4">
             {searchResults.map((result, index) => (
-              <div key={index} className="p-4 border border-gray-200 rounded-lg">
+              <div key={result.id || index} className="p-4 border border-gray-200 rounded-lg">
                 <h3 className="font-medium text-gray-900">{result.title || 'Property'}</h3>
-                <p className="text-sm text-gray-600">{result.location}</p>
+                <p className="text-sm text-gray-600">
+                  {result.address || result.location}
+                </p>
                 <div className="mt-2 flex items-center gap-4 text-sm text-gray-500">
                   <span>${result.price?.toLocaleString()}/mo</span>
-                  <span>{result.bedrooms} bed</span>
-                  <span>{result.bathrooms} bath</span>
+                  {result.bedrooms != null && <span>{result.bedrooms} bed</span>}
+                  {result.bathrooms != null && <span>{result.bathrooms} bath</span>}
                 </div>
+                <ListingLinkCTA result={result} />
               </div>
             ))}
           </div>
