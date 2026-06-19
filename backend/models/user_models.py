@@ -43,8 +43,7 @@ class User(db.Model):
     is_admin = db.Column(db.Boolean, default=False, nullable=False)
     role = db.Column(db.String(32), nullable=True)
     social_spend_monthly = db.Column(db.Float, nullable=True)
-    
-    # Referral system fields (from existing structure)
+    acquisition_source = db.Column(db.String(50), nullable=True)
     referral_code = db.Column(db.String(50), unique=True, nullable=True)
     referred_by = db.Column(db.String(255), nullable=True)
     referral_count = db.Column(db.Integer, default=0)

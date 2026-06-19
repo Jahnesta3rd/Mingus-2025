@@ -1,4 +1,5 @@
 export type ModuleId =
+  | 'acquisition_source'
   | 'income'
   | 'housing'
   | 'vehicle'
@@ -8,6 +9,7 @@ export type ModuleId =
   | 'milestones';
 
 export const MODULE_ORDER: ReadonlyArray<ModuleId> = [
+  'acquisition_source',
   'income',
   'housing',
   'vehicle',
@@ -85,6 +87,10 @@ export const EXPENSE_CATEGORY_IDS: ReadonlyArray<ExpenseCategoryId> = [
   'healthcare',
   'childcare',
 ] as const;
+
+export interface AcquisitionSourceData {
+  acquisition_source?: string;
+}
 
 export interface IncomeData {
   monthly_takehome?: number;
@@ -164,6 +170,7 @@ export interface MilestonesData {
 }
 
 export interface ModuleData {
+  acquisition_source: AcquisitionSourceData;
   income: IncomeData;
   housing: HousingData;
   vehicle: VehicleData;

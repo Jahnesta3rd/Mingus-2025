@@ -1,6 +1,7 @@
 import React from 'react';
 import type { ModuleId } from '../../../types/modularOnboarding';
 import { PlaceholderStep } from './steps/PlaceholderStep';
+import AcquisitionSourceStep from './steps/AcquisitionSourceStep';
 import IncomeStep from './steps/IncomeStep';
 import RecurringExpensesStep from './steps/RecurringExpensesStep';
 import HousingStep from './steps/HousingStep';
@@ -27,6 +28,7 @@ export type StepDefinition = {
 };
 
 export const STEP_ORDER: StepDefinition[] = [
+  { id: 'acquisition_source', label: 'How did you find us?', Component: AcquisitionSourceStep, allowSkip: true, commitOnSubmit: true },
   { id: 'income',             label: 'Income',             Component: IncomeStep,             allowSkip: true, commitOnSubmit: true },
   { id: 'housing',            label: 'Housing',            Component: HousingStep,            allowSkip: true, commitOnSubmit: true },
   { id: 'vehicle',            label: 'Vehicle',            Component: VehicleStep,            allowSkip: true, commitOnSubmit: true },

@@ -31,8 +31,9 @@ if _dbu:
 
 from flask import (
     Flask, request, redirect, url_for, Response, flash,
-    get_flashed_messages, send_file, render_template,
+    get_flashed_messages, send_file, render_template, jsonify,
 )
+import requests
 from psycopg2.extras import RealDictCursor
 
 from storage import db
@@ -48,6 +49,7 @@ HOT_LEAD_THRESHOLD = float(os.getenv("HOT_LEAD_THRESHOLD", "9.0"))
 OUTPUT_DIR = Path(__file__).parent.parent / "output"
 SIGNALS_PATH = Path(__file__).parent.parent / "config" / "domain_signals.json"
 PENDING_PATH = Path(__file__).parent.parent / "config" / "signal_updates_pending.json"
+MINGUS_BACKEND_URL = os.getenv("MINGUS_BACKEND_URL", "http://127.0.0.1:5000")
 
 # ---------------------------------------------------------------------------
 # Inline styles
@@ -130,6 +132,7 @@ def _html(title, body, active=""):
         ("/", "Overview"),
         ("/leads", "Lead Queue"),
         ("/marketing", "Marketing"),
+        ("/pmf", "PMF"),
         ("/communities", "Heat Map"),
         ("/ads", "Ads Brief"),
         ("/signal-library", "Signals"),
@@ -916,7 +919,57 @@ def _remove_from_pending(keyword: str, action: str):
 @app.route("/marketing")
 @requires_auth
 def marketing():
-    return render_template("mingus_marketing_tracker.html")
+    return render_template("marketing.html")
+
+
+# ---------------------------------------------------------------------------
+# GET /pmf — Product-Market Fit tracker (standalone template)
+# ---------------------------------------------------------------------------
+
+@app.route("/pmf")
+@requires_auth
+def pmf():
+    return render_template("pmf.html")
+
+
+# ---------------------------------------------------------------------------
+# Proxy admin API calls to main Mingus backend (JWT auth on backend)
+# ---------------------------------------------------------------------------
+
+@app.route("/api/<path:subpath>", methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"])
+@requires_auth
+def api_proxy(subpath):
+    if request.method == "OPTIONS":
+        return Response("", status=204)
+
+    target = f"{MINGUS_BACKEND_URL}/api/{subpath}"
+    headers = {}
+    auth = request.headers.get("Authorization")
+    if auth:
+        headers["Authorization"] = auth
+    cookie_token = request.cookies.get("mingus_token")
+    if cookie_token and "Authorization" not in headers:
+        headers["Authorization"] = f"Bearer {cookie_token}"
+
+    try:
+        proxied = requests.request(
+            method=request.method,
+            url=target,
+            headers=headers,
+            params=request.args,
+            data=request.get_data(),
+            cookies=request.cookies,
+            allow_redirects=False,
+            timeout=30,
+        )
+    except requests.RequestException as exc:
+        return jsonify({"error": "Backend unavailable", "message": str(exc)}), 502
+
+    excluded = {"content-encoding", "content-length", "transfer-encoding", "connection"}
+    response_headers = [
+        (k, v) for k, v in proxied.headers.items() if k.lower() not in excluded
+    ]
+    return Response(proxied.content, proxied.status_code, response_headers)
 
 
 # ---------------------------------------------------------------------------

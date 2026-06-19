@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 MODULE_ORDER = (
+    "acquisition_source",
     "income",
     "housing",
     "vehicle",

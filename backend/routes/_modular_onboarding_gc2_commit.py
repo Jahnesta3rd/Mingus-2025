@@ -3052,6 +3052,66 @@ def run_commit_field(
     )
 
 
+_VALID_ACQUISITION_SOURCES = frozenset({
+    "reddit",
+    "linkedin",
+    "friend",
+    "email",
+    "instagram",
+    "other",
+})
+
+
+def _commit_acquisition_source_module(
+    *,
+    user: User,
+    uid: str,
+    session: dict,
+    data: dict,
+    save_session: Callable[[str, dict], None],
+    load_row: Callable[[User], OnboardingProgress | None],
+) -> tuple[list[str], list[dict]]:
+    """Persist acquisition_source to users.acquisition_source (skippable when empty)."""
+    committed_fields: list[str] = []
+    failed_fields: list[dict] = []
+
+    source = ""
+    if isinstance(data, dict):
+        raw = data.get("acquisition_source")
+        if isinstance(raw, str):
+            source = raw.strip()
+
+    if not source:
+        return committed_fields, failed_fields
+
+    if source not in _VALID_ACQUISITION_SOURCES:
+        failed_fields.append(
+            {
+                "field_path": "acquisition_source",
+                "error": "validation_failed",
+                "reason": "invalid_value",
+            }
+        )
+        return committed_fields, failed_fields
+
+    try:
+        user.acquisition_source = source
+        db.session.commit()
+        committed_fields.append("acquisition_source")
+    except Exception as e:
+        db.session.rollback()
+        loguru_logger.error("GC2 _commit_acquisition_source_module: {}", e)
+        failed_fields.append(
+            {
+                "field_path": "acquisition_source",
+                "error": "db_error",
+                "reason": str(e),
+            }
+        )
+
+    return committed_fields, failed_fields
+
+
 def run_commit_module(
     *,
     user: User,
@@ -3086,7 +3146,16 @@ def run_commit_module(
                 },
                 200,
             )
-    if module_id == "income":
+    if module_id == "acquisition_source":
+        committed_fields, failed_fields = _commit_acquisition_source_module(
+            user=user,
+            uid=uid,
+            session=session,
+            data=data,
+            save_session=save_session,
+            load_row=load_row,
+        )
+    elif module_id == "income":
         committed_fields, failed_fields = _commit_income_module_dual_write(
             user=user,
             uid=uid,

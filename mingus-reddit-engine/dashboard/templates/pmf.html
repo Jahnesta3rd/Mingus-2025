@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PMF Tracker — Mingus</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #21253a;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.13);
+    --teal: #1D9E75;
+    --teal-dim: rgba(29,158,117,0.15);
+    --teal-mid: rgba(29,158,117,0.35);
+    --purple: #534AB7;
+    --purple-dim: rgba(83,74,183,0.15);
+    --amber: #EF9F27;
+    --amber-dim: rgba(239,159,39,0.13);
+    --coral: #D85A30;
+    --coral-dim: rgba(216,90,48,0.13);
+    --blue: #378ADD;
+    --blue-dim: rgba(55,138,221,0.13);
+    --text: #e8eaf0;
+    --text2: #8b90a8;
+    --text3: #555b78;
+    --radius: 10px;
+    --radius-sm: 6px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  .page-header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border2);
+    padding: 18px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header-left { display: flex; align-items: center; gap: 14px; }
+  .logo-mark {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: linear-gradient(135deg, var(--teal), var(--purple));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700; color: #fff; letter-spacing: -0.5px;
+  }
+  .header-title { font-size: 15px; font-weight: 600; color: var(--text); }
+  .header-sub { font-size: 12px; color: var(--text3); margin-top: 1px; }
+  .header-right { display: flex; align-items: center; gap: 10px; }
+  .nav-link {
+    font-size: 13px; color: var(--text2); text-decoration: none;
+    padding: 5px 10px; border-radius: var(--radius-sm);
+    transition: background 0.15s, color 0.15s;
+  }
+  .nav-link:hover { background: var(--surface2); color: var(--text); }
+  .nav-link.active { background: var(--teal-dim); color: var(--teal); }
+
+  .page-body { padding: 28px; max-width: 1200px; margin: 0 auto; }
+
+  .section-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 14px; margin-top: 28px;
+  }
+  .section-header:first-of-type { margin-top: 0; }
+  .section-title {
+    font-size: 12px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.08em; color: var(--text3);
+  }
+
+  .goal-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 22px;
+  }
+  .goal-label { font-size: 13px; color: var(--text2); margin-bottom: 10px; }
+  .goal-stats { font-size: 13px; color: var(--text); margin-bottom: 12px; }
+  .goal-bar {
+    height: 10px; border-radius: 5px; background: var(--border2); overflow: hidden;
+  }
+  .goal-fill {
+    height: 10px; border-radius: 5px; background: var(--teal);
+    transition: width 0.4s; min-width: 0;
+  }
+
+  .inputs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+  }
+  .input-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+  }
+  .input-label {
+    font-size: 11px; color: var(--text3); text-transform: uppercase;
+    letter-spacing: 0.06em; margin-bottom: 8px;
+  }
+  .input-field {
+    width: 100%; background: var(--surface2); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); color: var(--text); font-size: 18px;
+    font-weight: 600; padding: 8px 10px; outline: none; font-family: inherit;
+    transition: border-color 0.15s;
+  }
+  .input-field:focus { border-color: var(--teal); }
+  .input-suffix { font-size: 11px; color: var(--text3); margin-top: 4px; }
+
+  .summary-bar {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px;
+  }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 18px;
+  }
+  .stat-label {
+    font-size: 11px; color: var(--text3); text-transform: uppercase;
+    letter-spacing: 0.06em; margin-bottom: 6px;
+  }
+  .stat-value { font-size: 24px; font-weight: 600; color: var(--text); line-height: 1; }
+  .stat-sub { font-size: 11px; margin-top: 6px; }
+  .rate-teal { color: var(--teal); }
+  .rate-amber { color: var(--amber); }
+  .rate-coral { color: var(--coral); }
+
+  .funnel-arrow {
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text3); font-size: 18px; padding: 0 2px;
+  }
+  .funnel-row {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr auto 1fr auto 1fr auto 1fr;
+    gap: 8px; align-items: stretch;
+  }
+  @media (max-width: 900px) {
+    .funnel-row { grid-template-columns: 1fr 1fr; }
+    .funnel-arrow { display: none; }
+  }
+
+  .signal-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  @media (max-width: 680px) {
+    .signal-grid { grid-template-columns: 1fr; }
+  }
+  .signal-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 18px;
+  }
+  .signal-name { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+  .signal-threshold { font-size: 11px; color: var(--text3); margin-bottom: 10px; }
+  .signal-value { font-size: 22px; font-weight: 600; margin-bottom: 8px; }
+  .signal-badge {
+    display: inline-block; font-size: 10px; font-weight: 600;
+    padding: 3px 8px; border-radius: 4px; letter-spacing: 0.04em;
+  }
+  .badge-teal { background: var(--teal-dim); color: var(--teal); }
+  .badge-amber { background: var(--amber-dim); color: var(--amber); }
+  .badge-coral { background: var(--coral-dim); color: var(--coral); }
+  .badge-none { background: var(--surface2); color: var(--text3); }
+
+  .checklist-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  @media (max-width: 680px) {
+    .checklist-grid { grid-template-columns: 1fr; }
+  }
+  .checklist-item {
+    display: flex; align-items: flex-start; gap: 10px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    cursor: pointer;
+    transition: border-color 0.15s;
+  }
+  .checklist-item:hover { border-color: var(--border2); }
+  .checklist-item input { margin-top: 3px; accent-color: var(--teal); cursor: pointer; }
+  .checklist-label { font-size: 13px; color: var(--text); line-height: 1.4; }
+
+  .action-bar {
+    display: flex; gap: 10px; align-items: center;
+    padding: 16px 0; margin-top: 24px;
+    border-top: 1px solid var(--border);
+  }
+  .export-btn {
+    background: var(--surface2); color: var(--text2); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 8px 18px; font-size: 13px;
+    cursor: pointer; transition: background 0.15s;
+  }
+  .export-btn:hover { background: var(--surface); color: var(--text); }
+  .autosave-msg { font-size: 12px; color: var(--text3); }
+  .last-updated { font-size: 11px; color: var(--text3); margin-left: auto; }
+
+  @media (max-width: 680px) {
+    .page-header { padding: 14px 16px; }
+    .page-body { padding: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="page-header">
+  <div class="header-left">
+    <div class="logo-mark">M</div>
+    <div>
+      <div class="header-title">Mingus Dashboard</div>
+      <div class="header-sub">Product-Market Fit tracker</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <a href="/leads" class="nav-link">Leads</a>
+    <a href="/marketing" class="nav-link">Marketing</a>
+    <a href="/pmf" class="nav-link active">PMF</a>
+  </div>
+</header>
+
+<main class="page-body">
+
+  <!-- Section 1: Goal progress -->
+  <div class="section-header">
+    <div class="section-title">Goal progress — 10,000 users / 36 months</div>
+  </div>
+  <div class="goal-card">
+    <div class="goal-label">Current total users</div>
+    <div class="goal-stats" id="goal-stats">Loading…</div>
+    <div class="goal-bar">
+      <div class="goal-fill" id="goal-fill" style="width:0%"></div>
+    </div>
+  </div>
+
+  <!-- Section 2: Funnel inputs -->
+  <div class="section-header">
+    <div class="section-title">Funnel inputs</div>
+  </div>
+  <div class="inputs-grid">
+    <div class="input-card">
+      <div class="input-label">Outreach per cycle</div>
+      <input class="input-field" type="number" id="outreach" min="0" step="1" value="500">
+    </div>
+    <div class="input-card">
+      <div class="input-label">Open rate %</div>
+      <input class="input-field" type="number" id="openRate" min="0" max="100" step="0.1" value="50">
+    </div>
+    <div class="input-card">
+      <div class="input-label">Reply rate %</div>
+      <input class="input-field" type="number" id="replyRate" min="0" max="100" step="0.1" value="5">
+    </div>
+    <div class="input-card">
+      <div class="input-label">Demo conversion %</div>
+      <input class="input-field" type="number" id="demoRate" min="0" max="100" step="0.1" value="50">
+    </div>
+    <div class="input-card">
+      <div class="input-label">Customer conversion %</div>
+      <input class="input-field" type="number" id="custRate" min="0" max="100" step="0.1" value="20">
+    </div>
+  </div>
+
+  <!-- Section 3: Funnel breakdown -->
+  <div class="section-header">
+    <div class="section-title">Funnel breakdown</div>
+  </div>
+  <div class="funnel-row" id="funnel-row"></div>
+
+  <!-- Section 4: Monthly targets -->
+  <div class="section-header">
+    <div class="section-title">Monthly targets</div>
+  </div>
+  <div class="summary-bar" id="monthly-targets"></div>
+
+  <!-- Section 5: PMF signals -->
+  <div class="section-header">
+    <div class="section-title">PMF signal indicators</div>
+  </div>
+  <div class="signal-grid" id="signal-grid"></div>
+
+  <!-- Section 6: Data collection checklist -->
+  <div class="section-header">
+    <div class="section-title">Data collection checklist</div>
+  </div>
+  <div class="checklist-grid" id="checklist-grid"></div>
+
+  <div class="action-bar">
+    <span class="autosave-msg" id="autosave-msg">Auto-saved —</span>
+    <button class="export-btn" onclick="exportCSV()">Export CSV</button>
+    <span class="last-updated" id="last-updated"></span>
+  </div>
+</main>
+
+<script>
+const GOAL_USERS = 10000;
+const GOAL_MONTHS = 36;
+const INPUT_KEY = 'mingus_pmf_inputs';
+const CHECKLIST_KEY = 'mingus_pmf_checklist';
+const SAVED_KEY = 'mingus_pmf_saved';
+
+const CHECKLIST_ITEMS = [
+  'Acquisition source (Reddit / LinkedIn / referral / organic search)',
+  'Registration date + last active date (for retention curves)',
+  '"Very disappointed" survey answer (Sean Ellis, after 7 days)',
+  'NPS score + which feature drove the score',
+  'Most-used feature (from telemetry events)',
+  'Whether they converted to paid and which tier',
+  'Primary financial pain point (from onboarding chat)',
+  'Whether they referred anyone (referral code tracking)',
+];
+
+let apiData = {
+  total_users: 0,
+  users_last_7_days: 0,
+  users_last_30_days: 0,
+  organic_signups: null,
+  paid_signups: null,
+  avg_nps: null,
+  very_disappointed_pct: null,
+};
+
+// ── Persistence ──────────────────────────────────────────────────────────────
+function loadInputs() {
+  try {
+    const raw = localStorage.getItem(INPUT_KEY);
+    if (!raw) return;
+    const data = JSON.parse(raw);
+    ['outreach', 'openRate', 'replyRate', 'demoRate', 'custRate'].forEach(id => {
+      if (data[id] != null) document.getElementById(id).value = data[id];
+    });
+  } catch (_) {}
+}
+
+function saveInputs() {
+  const data = {
+    outreach: document.getElementById('outreach').value,
+    openRate: document.getElementById('openRate').value,
+    replyRate: document.getElementById('replyRate').value,
+    demoRate: document.getElementById('demoRate').value,
+    custRate: document.getElementById('custRate').value,
+  };
+  localStorage.setItem(INPUT_KEY, JSON.stringify(data));
+  touchSaved();
+}
+
+function loadChecklist() {
+  try {
+    const raw = localStorage.getItem(CHECKLIST_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch (_) {
+    return {};
+  }
+}
+
+function saveChecklist(state) {
+  localStorage.setItem(CHECKLIST_KEY, JSON.stringify(state));
+  touchSaved();
+}
+
+function touchSaved() {
+  const now = new Date().toISOString();
+  localStorage.setItem(SAVED_KEY, now);
+  updateAutosaveMsg();
+}
+
+function updateAutosaveMsg() {
+  const ts = localStorage.getItem(SAVED_KEY);
+  const el = document.getElementById('autosave-msg');
+  const last = document.getElementById('last-updated');
+  if (ts) {
+    const d = new Date(ts);
+    const fmt = d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+    el.textContent = 'Auto-saved ' + fmt;
+    last.textContent = '';
+  }
+}
+
+// ── Funnel math ──────────────────────────────────────────────────────────────
+function getInputs() {
+  return {
+    outreach: Math.max(0, parseFloat(document.getElementById('outreach').value) || 0),
+    openRate: Math.max(0, parseFloat(document.getElementById('openRate').value) || 0),
+    replyRate: Math.max(0, parseFloat(document.getElementById('replyRate').value) || 0),
+    demoRate: Math.max(0, parseFloat(document.getElementById('demoRate').value) || 0),
+    custRate: Math.max(0, parseFloat(document.getElementById('custRate').value) || 0),
+  };
+}
+
+function calcFunnel(inp) {
+  const opens = Math.ceil(inp.outreach * inp.openRate / 100);
+  const replies = Math.ceil(opens * inp.replyRate / 100);
+  const demos = Math.ceil(replies * inp.demoRate / 100);
+  const customers = Math.ceil(demos * inp.custRate / 100);
+  return { outreach: inp.outreach, opens, replies, demos, customers };
+}
+
+function rateClass(pct) {
+  if (pct >= 40) return 'rate-teal';
+  if (pct >= 15) return 'rate-amber';
+  return 'rate-coral';
+}
+
+function renderFunnelCard(label, count, ratePct, rateLabel) {
+  const cls = rateClass(ratePct);
+  return `
+    <div class="stat-card">
+      <div class="stat-label">${label}</div>
+      <div class="stat-value">${count}</div>
+      <div class="stat-sub ${cls}">${rateLabel}</div>
+    </div>`;
+}
+
+function renderFunnel() {
+  const inp = getInputs();
+  const f = calcFunnel(inp);
+  const row = document.getElementById('funnel-row');
+  const cards = [
+    renderFunnelCard('Outreach', f.outreach, 100, '100% base'),
+    renderFunnelCard('Opens', f.opens, inp.openRate, inp.openRate + '% open rate'),
+    renderFunnelCard('Replies', f.replies, inp.replyRate, inp.replyRate + '% reply rate'),
+    renderFunnelCard('Demos', f.demos, inp.demoRate, inp.demoRate + '% demo conv'),
+    renderFunnelCard('New Users', f.customers, inp.custRate, inp.custRate + '% cust conv'),
+  ];
+  row.innerHTML = cards.map((c, i) =>
+    (i > 0 ? '<div class="funnel-arrow">→</div>' : '') + c
+  ).join('');
+  return f;
+}
+
+function renderGoal() {
+  const total = apiData.total_users || 0;
+  const pct = Math.min(100, (total / GOAL_USERS) * 100);
+  const remaining = Math.max(0, GOAL_USERS - total);
+  document.getElementById('goal-stats').textContent =
+    `${total.toLocaleString()} users · ${pct.toFixed(1)}% to goal · ${remaining.toLocaleString()} remaining`;
+  document.getElementById('goal-fill').style.width = pct + '%';
+}
+
+function renderMonthlyTargets(funnel) {
+  const total = apiData.total_users || 0;
+  const usersNeeded = Math.ceil(Math.max(0, GOAL_USERS - total) / GOAL_MONTHS);
+  const customersPerCycle = funnel.customers;
+  const cycles = customersPerCycle > 0
+    ? Math.ceil(usersNeeded / customersPerCycle)
+    : null;
+  const totalOutreach = cycles != null ? cycles * funnel.outreach : null;
+
+  const cards = [
+    { label: 'Users needed / month', value: usersNeeded.toLocaleString() },
+    {
+      label: 'Outreach cycles / month',
+      value: cycles != null ? cycles.toLocaleString() : '—',
+    },
+    {
+      label: 'Total outreach / month',
+      value: totalOutreach != null ? totalOutreach.toLocaleString() : '—',
+    },
+    {
+      label: 'Customers per cycle',
+      value: customersPerCycle.toLocaleString(),
+    },
+  ];
+
+  document.getElementById('monthly-targets').innerHTML = cards.map(c => `
+    <div class="stat-card">
+      <div class="stat-label">${c.label}</div>
+      <div class="stat-value">${c.value}</div>
+    </div>
+  `).join('');
+}
+
+// ── PMF signals ──────────────────────────────────────────────────────────────
+function signalBadge(kind, label) {
+  const map = { teal: 'badge-teal', amber: 'badge-amber', coral: 'badge-coral', none: 'badge-none' };
+  return `<span class="signal-badge ${map[kind] || 'badge-none'}">${label}</span>`;
+}
+
+function retentionStatus() {
+  return { value: 'No data yet', badge: signalBadge('none', 'No data'), kind: 'none' };
+}
+
+function seanEllisStatus() {
+  const pct = apiData.very_disappointed_pct;
+  if (pct == null) return { value: 'No data yet', badge: signalBadge('none', 'No data'), kind: 'none' };
+  let kind = 'coral';
+  let label = 'Not yet';
+  if (pct >= 40) { kind = 'teal'; label = 'Threshold met'; }
+  else if (pct >= 30) { kind = 'amber'; label = 'Getting close'; }
+  return { value: pct + '%', badge: signalBadge(kind, label), kind };
+}
+
+function npsStatus() {
+  const score = apiData.avg_nps;
+  if (score == null) return { value: 'No data yet', badge: signalBadge('none', 'No data'), kind: 'none' };
+  let kind = 'coral';
+  let label = 'Not yet';
+  if (score >= 5) { kind = 'teal'; label = 'Strong PMF'; }
+  else if (score >= 3.5) { kind = 'amber'; label = 'Getting close'; }
+  return { value: score.toFixed(1), badge: signalBadge(kind, label), kind };
+}
+
+function organicStatus() {
+  const organic = apiData.organic_signups;
+  const total = apiData.total_users;
+  if (organic == null || !total) return { value: 'No data yet', badge: signalBadge('none', 'No data'), kind: 'none' };
+  const pct = (organic / total) * 100;
+  let kind = 'coral';
+  let label = 'Not yet';
+  if (pct >= 20) { kind = 'teal'; label = 'Threshold met'; }
+  else if (pct >= 15) { kind = 'amber'; label = 'Getting close'; }
+  return { value: pct.toFixed(1) + '%', badge: signalBadge(kind, label), kind };
+}
+
+function renderSignals() {
+  const signals = [
+    {
+      name: '40-20-10 retention',
+      threshold: 'Week 1→40%, Week 4→20%, Week 8→10%',
+      source: 'Manual / future telemetry',
+      ...retentionStatus(),
+    },
+    {
+      name: 'Sean Ellis "very disappointed"',
+      threshold: '≥40%',
+      source: 'very_disappointed_pct from API',
+      ...seanEllisStatus(),
+    },
+    {
+      name: 'NPS score',
+      threshold: '≥5.0 = strong PMF',
+      source: 'avg_nps from API',
+      ...npsStatus(),
+    },
+    {
+      name: 'Organic referral rate',
+      threshold: '≥20%',
+      source: 'organic_signups / total_users from API',
+      ...organicStatus(),
+    },
+  ];
+
+  document.getElementById('signal-grid').innerHTML = signals.map(s => `
+    <div class="signal-card">
+      <div class="signal-name">${s.name}</div>
+      <div class="signal-threshold">${s.threshold} · ${s.source}</div>
+      <div class="signal-value">${s.value}</div>
+      ${s.badge}
+    </div>
+  `).join('');
+}
+
+// ── Checklist ────────────────────────────────────────────────────────────────
+function renderChecklist() {
+  const state = loadChecklist();
+  const grid = document.getElementById('checklist-grid');
+  grid.innerHTML = CHECKLIST_ITEMS.map((label, i) => {
+    const key = 'item_' + i;
+    const checked = !!state[key];
+    return `
+      <label class="checklist-item">
+        <input type="checkbox" data-key="${key}" ${checked ? 'checked' : ''}>
+        <span class="checklist-label">${label}</span>
+      </label>`;
+  }).join('');
+
+  grid.querySelectorAll('input[type=checkbox]').forEach(cb => {
+    cb.addEventListener('change', () => {
+      const st = loadChecklist();
+      st[cb.dataset.key] = cb.checked;
+      saveChecklist(st);
+    });
+  });
+}
+
+// ── Recalculate all ──────────────────────────────────────────────────────────
+function recalculate() {
+  const funnel = renderFunnel();
+  renderGoal();
+  renderMonthlyTargets(funnel);
+  renderSignals();
+}
+
+// ── API ──────────────────────────────────────────────────────────────────────
+async function loadApiData() {
+  const headers = {};
+  const token = localStorage.getItem('mingus_token');
+  if (token) headers['Authorization'] = 'Bearer ' + token;
+
+  try {
+    const res = await fetch('/api/admin/pmf/overview', {
+      credentials: 'include',
+      headers,
+    });
+    if (res.ok) {
+      apiData = await res.json();
+    }
+  } catch (_) {}
+
+  recalculate();
+}
+
+// ── Export CSV ───────────────────────────────────────────────────────────────
+function exportCSV() {
+  const inp = getInputs();
+  const funnel = calcFunnel(inp);
+  const checklist = loadChecklist();
+  const total = apiData.total_users || 0;
+  const usersNeeded = Math.ceil(Math.max(0, GOAL_USERS - total) / GOAL_MONTHS);
+  const cycles = funnel.customers > 0 ? Math.ceil(usersNeeded / funnel.customers) : '';
+
+  const rows = [
+    ['Section', 'Field', 'Value'],
+    ['API', 'total_users', apiData.total_users],
+    ['API', 'users_last_7_days', apiData.users_last_7_days],
+    ['API', 'users_last_30_days', apiData.users_last_30_days],
+    ['API', 'organic_signups', apiData.organic_signups ?? ''],
+    ['API', 'paid_signups', apiData.paid_signups ?? ''],
+    ['API', 'avg_nps', apiData.avg_nps ?? ''],
+    ['API', 'very_disappointed_pct', apiData.very_disappointed_pct ?? ''],
+    ['Funnel input', 'outreach_per_cycle', inp.outreach],
+    ['Funnel input', 'open_rate_pct', inp.openRate],
+    ['Funnel input', 'reply_rate_pct', inp.replyRate],
+    ['Funnel input', 'demo_conversion_pct', inp.demoRate],
+    ['Funnel input', 'customer_conversion_pct', inp.custRate],
+    ['Funnel calc', 'opens', funnel.opens],
+    ['Funnel calc', 'replies', funnel.replies],
+    ['Funnel calc', 'demos', funnel.demos],
+    ['Funnel calc', 'customers_per_cycle', funnel.customers],
+    ['Monthly', 'users_needed_per_month', usersNeeded],
+    ['Monthly', 'outreach_cycles_per_month', cycles],
+    ['Monthly', 'total_outreach_per_month', cycles ? cycles * funnel.outreach : ''],
+  ];
+
+  CHECKLIST_ITEMS.forEach((label, i) => {
+    rows.push(['Checklist', label, checklist['item_' + i] ? 'checked' : 'unchecked']);
+  });
+
+  const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'mingus_pmf_snapshot.csv';
+  a.click();
+}
+
+// ── Init ─────────────────────────────────────────────────────────────────────
+loadInputs();
+renderChecklist();
+updateAutosaveMsg();
+
+['outreach', 'openRate', 'replyRate', 'demoRate', 'custRate'].forEach(id => {
+  document.getElementById(id).addEventListener('input', () => {
+    saveInputs();
+    recalculate();
+  });
+});
+
+loadApiData();
+setInterval(() => {
+  saveInputs();
+  saveChecklist(loadChecklist());
+}, 60000);
+</script>
+</body>
+</html>
