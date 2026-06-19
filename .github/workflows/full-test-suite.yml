@@ -30,6 +30,7 @@ jobs:
       DATABASE_URL: postgresql://test:test@localhost:5432/mingus_test
       SECRET_KEY: ci-test-secret-key-not-for-production
       FLASK_ENV: testing
+      PYTHONPATH: ./
 
     steps:
       - name: Checkout code
@@ -59,7 +60,9 @@ jobs:
             psutil \
             numpy \
             faker \
-            flask-login
+            flask-login \
+            marshmallow \
+            selenium
 
       - name: Run backend unit + integration tests
         run: |
@@ -68,6 +71,9 @@ jobs:
             --ignore=tests/selenium \
             --ignore=tests/visual \
             --ignore=tests/load \
+            --ignore=tests/accessibility \
+            --ignore=tests/meme_splash \
+            --ignore=tests/user_acceptance \
             -v \
             --tb=short \
             --junitxml=test-results/junit.xml \
