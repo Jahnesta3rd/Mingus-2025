@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ChevronLeft } from 'lucide-react';
 import { useAuth } from '../../../hooks/useAuth';
 import { commitModule } from '../../../lib/modularOnboarding';
 import type { ModuleData, ModuleId } from '../../../types/modularOnboarding';
@@ -305,6 +306,11 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
     setCurrentIndex(moduleIndex(moduleId));
   }, []);
 
+  const handleBack = useCallback(() => {
+    if (isSubmitting || currentIndex === 0) return;
+    setCurrentIndex((prev) => Math.max(0, prev - 1));
+  }, [currentIndex, isSubmitting]);
+
   if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center px-4 py-8">
@@ -317,7 +323,21 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
     <div className="flex h-dvh flex-col bg-[#F8FAFC]">
       <div className="mx-auto flex w-full max-w-4xl flex-col gap-3 px-4 pt-6 sm:flex-row sm:items-start sm:justify-between sm:px-6">
         <div className="min-w-0 flex-1">
-          <ProgressIndicator currentIndex={currentIndex} total={STEP_ORDER.length} stepLabel={currentStep.label} />
+          <div className="flex items-start gap-3">
+            {!isFirstStep && (
+              <button
+                type="button"
+                onClick={handleBack}
+                disabled={isSubmitting}
+                aria-label={`Back to step ${currentIndex} of ${STEP_ORDER.length}`}
+                className="mt-0.5 inline-flex min-h-11 shrink-0 items-center gap-1 rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <ChevronLeft className="h-4 w-4" aria-hidden="true" />
+                Back
+              </button>
+            )}
+            <ProgressIndicator currentIndex={currentIndex} total={STEP_ORDER.length} stepLabel={currentStep.label} />
+          </div>
         </div>
         <div className="flex shrink-0 justify-end sm:pt-0">
           <OnboardingSaveAndExit disabled={isSubmitting} />
@@ -366,16 +386,7 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
       </div>
 
       <div className="sticky bottom-0 border-t border-slate-200 bg-white/95 backdrop-blur">
-        <div className="mx-auto flex w-full max-w-4xl flex-col gap-3 px-4 py-4 sm:px-6 min-[640px]:flex-row min-[640px]:justify-between">
-          <button
-            type="button"
-            onClick={() => setCurrentIndex((prev) => Math.max(0, prev - 1))}
-            disabled={isFirstStep || isSubmitting}
-            aria-label={`Back to step ${Math.max(currentIndex, 1)} of ${STEP_ORDER.length}`}
-            className="min-h-11 w-full rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 disabled:cursor-not-allowed disabled:opacity-50 min-[640px]:w-auto"
-          >
-            Back
-          </button>
+        <div className="mx-auto flex w-full max-w-4xl flex-col gap-3 px-4 py-4 sm:px-6 min-[640px]:flex-row min-[640px]:justify-end">
           {!STEP_ORDER[currentIndex].commitOnSubmit && (
             <button
               type="button"
