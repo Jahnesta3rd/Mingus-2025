@@ -3,7 +3,7 @@
 
 from backend.routes.admin import admin_bp
 from backend.routes.admin_beta import admin_beta_bp
-from backend.routes.admin_pmf import admin_pmf_bp
+from backend.routes.admin_pmf import admin_pmf_bp, admin_sean_ellis_bp
 from backend.routes.beta import beta_bp
 from backend.routes.feedback import feedback_bp
 from backend.routes.life_correlation import life_correlation_bp
@@ -59,6 +59,7 @@ def register_backend_blueprints(app):
     app.register_blueprint(admin_bp)
     app.register_blueprint(admin_beta_bp)
     app.register_blueprint(admin_pmf_bp)
+    app.register_blueprint(admin_sean_ellis_bp)
     app.register_blueprint(beta_bp)
     app.register_blueprint(feedback_bp)
     app.register_blueprint(telemetry_bp)

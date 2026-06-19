@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 import NPSSurvey from '../NPSSurvey';
+import SeanEllisSurvey from '../SeanEllisSurvey';
 import { useAuth } from '../../hooks/useAuth';
 import { useNPSSurvey } from '../../hooks/useNPSSurvey';
+import { useSeanEllisSurvey } from '../../hooks/useSeanEllisSurvey';
 import { ImportantDateModalProvider } from '../../context/ImportantDateModalContext';
 
 const VC_IMPORT_SHOWN_KEY = 'vc_import_shown';
@@ -13,6 +15,7 @@ const DashboardLayout: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { shouldShow, markShown, reloadStatus } = useNPSSurvey();
+  const { shouldShow: shouldShowSeanEllis, dismiss, markSubmitted } = useSeanEllisSurvey();
   const [showVcWelcome, setShowVcWelcome] = useState(false);
   const [vcWelcomeHadLead, setVcWelcomeHadLead] = useState(true);
 
@@ -109,6 +112,9 @@ const DashboardLayout: React.FC = () => {
       </div>
       {user?.isAuthenticated && shouldShow ? (
         <NPSSurvey onDismiss={dismissNpsSurvey} />
+      ) : null}
+      {user?.isAuthenticated && shouldShowSeanEllis ? (
+        <SeanEllisSurvey onDismiss={dismiss} onSubmitted={markSubmitted} />
       ) : null}
     </div>
   );

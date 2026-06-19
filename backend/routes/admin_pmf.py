@@ -6,14 +6,15 @@ from __future__ import annotations
 from datetime import datetime, timedelta, timezone
 
 from flask import Blueprint, g, jsonify
-from sqlalchemy import func, inspect, text
+from sqlalchemy import func, inspect
 
 from backend.auth.decorators import require_auth
 from backend.models.database import db
-from backend.models.feedback import NPSSurvey
+from backend.models.feedback import NPSSurvey, SeanEllisSurvey
 from backend.models.user_models import User
 
 admin_pmf_bp = Blueprint("admin_pmf", __name__, url_prefix="/api/admin/pmf")
+admin_sean_ellis_bp = Blueprint("admin_sean_ellis", __name__, url_prefix="/api/admin/sean-ellis")
 
 
 def _user_for_jwt():
@@ -72,22 +73,18 @@ def _avg_nps() -> float | None:
 
 
 def _very_disappointed_pct() -> float | None:
-    if not _table_exists("sean_ellis_survey"):
-        return None
-    if not _column_exists("sean_ellis_survey", "response"):
-        return None
-    total = db.session.execute(
-        text("SELECT COUNT(*) FROM sean_ellis_survey")
-    ).scalar()
-    if not total:
-        return None
-    very_disappointed = db.session.execute(
-        text(
-            "SELECT COUNT(*) FROM sean_ellis_survey "
-            "WHERE response = 'very_disappointed'"
+    try:
+        total = db.session.query(SeanEllisSurvey).count()
+        if total < 5:
+            return None
+        vd = (
+            db.session.query(SeanEllisSurvey)
+            .filter_by(response="very_disappointed")
+            .count()
         )
-    ).scalar()
-    return round(100.0 * float(very_disappointed) / float(total), 1)
+        return round((vd / total) * 100, 1)
+    except Exception:
+        return None
 
 
 @admin_pmf_bp.route("/overview", methods=["GET"])
@@ -111,6 +108,49 @@ def overview():
                 "paid_signups": _paid_signups(),
                 "avg_nps": _avg_nps(),
                 "very_disappointed_pct": _very_disappointed_pct(),
+            }
+        ),
+        200,
+    )
+
+
+@admin_sean_ellis_bp.route("/results", methods=["GET"])
+@require_auth
+def sean_ellis_results():
+    user = _user_for_jwt()
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+    if not _is_admin_user(user):
+        return _admin_forbidden()
+
+    total = db.session.query(SeanEllisSurvey).count()
+    very_disappointed = (
+        db.session.query(SeanEllisSurvey).filter_by(response="very_disappointed").count()
+    )
+    somewhat_disappointed = (
+        db.session.query(SeanEllisSurvey)
+        .filter_by(response="somewhat_disappointed")
+        .count()
+    )
+    not_disappointed = (
+        db.session.query(SeanEllisSurvey).filter_by(response="not_disappointed").count()
+    )
+    no_longer_use = (
+        db.session.query(SeanEllisSurvey).filter_by(response="no_longer_use").count()
+    )
+    very_disappointed_pct = (
+        round((very_disappointed / total) * 100, 1) if total >= 5 else None
+    )
+
+    return (
+        jsonify(
+            {
+                "total_responses": total,
+                "very_disappointed": very_disappointed,
+                "somewhat_disappointed": somewhat_disappointed,
+                "not_disappointed": not_disappointed,
+                "no_longer_use": no_longer_use,
+                "very_disappointed_pct": very_disappointed_pct,
             }
         ),
         200,

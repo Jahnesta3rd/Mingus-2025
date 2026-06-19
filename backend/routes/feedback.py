@@ -7,10 +7,14 @@ from flask import Blueprint, jsonify, request, g
 
 from backend.auth.decorators import require_auth
 from backend.models.database import db
-from backend.models.feedback import FeatureRating, NPSSurvey
+from backend.models.feedback import FeatureRating, NPSSurvey, SeanEllisSurvey
 from backend.models.user_models import User
 
 feedback_bp = Blueprint("feedback", __name__, url_prefix="/api/feedback")
+
+SEAN_ELLIS_RESPONSES = frozenset(
+    {"very_disappointed", "somewhat_disappointed", "not_disappointed", "no_longer_use"}
+)
 
 
 def _user_for_jwt():
@@ -150,3 +154,53 @@ def nps_status():
         ),
         200,
     )
+
+
+@feedback_bp.route("/sean-ellis/status", methods=["GET"])
+@require_auth
+def sean_ellis_status():
+    user = _user_for_jwt()
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    submitted = SeanEllisSurvey.query.filter_by(user_id=user.id).first() is not None
+    created = user.created_at or datetime.utcnow()
+    days_since_signup = max(0, (datetime.utcnow() - created).days)
+    should_show = days_since_signup >= 7 and not submitted
+
+    return (
+        jsonify(
+            {
+                "should_show": should_show,
+                "submitted": submitted,
+                "days_since_signup": days_since_signup,
+            }
+        ),
+        200,
+    )
+
+
+@feedback_bp.route("/sean-ellis", methods=["POST"])
+@require_auth
+def sean_ellis_submit():
+    data = request.get_json(silent=True) or {}
+    response = (data.get("response") or "").strip()
+    if response not in SEAN_ELLIS_RESPONSES:
+        return jsonify({"error": "Invalid response"}), 400
+
+    user = _user_for_jwt()
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    if SeanEllisSurvey.query.filter_by(user_id=user.id).first():
+        return jsonify({"error": "Already submitted"}), 409
+
+    db.session.add(
+        SeanEllisSurvey(
+            user_id=user.id,
+            response=response,
+            submitted_at=datetime.utcnow(),
+        )
+    )
+    db.session.commit()
+    return jsonify({"success": True}), 200
