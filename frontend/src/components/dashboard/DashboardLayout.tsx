@@ -110,11 +110,11 @@ const DashboardLayout: React.FC = () => {
           </ImportantDateModalProvider>
         </div>
       </div>
-      {user?.isAuthenticated && shouldShow ? (
-        <NPSSurvey onDismiss={dismissNpsSurvey} />
-      ) : null}
       {user?.isAuthenticated && shouldShowSeanEllis ? (
         <SeanEllisSurvey onDismiss={dismiss} onSubmitted={markSubmitted} />
+      ) : null}
+      {user?.isAuthenticated && !shouldShowSeanEllis && shouldShow ? (
+        <NPSSurvey onDismiss={dismissNpsSurvey} />
       ) : null}
     </div>
   );
