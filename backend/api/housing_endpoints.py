@@ -24,6 +24,7 @@ from backend.models.database import db
 from backend.models.housing_models import HousingSearch, HousingScenario
 from backend.models.housing_profile import HousingProfile
 from backend.services.feature_flag_service import feature_flag_service, FeatureFlag
+from backend.utils.user_profile_context import resolve_search_zip
 from datetime import datetime, timedelta
 from typing import Dict, Any, List
 
@@ -239,12 +240,29 @@ def search_locations():
         if db_user_id is None:
             return jsonify({'error': 'User not found'}), 404
         
+        request_zip = data.get('zip_code')
+        request_zip_stripped = (request_zip or '').strip()
+        if request_zip_stripped and len(request_zip_stripped) < 5:
+            return jsonify({'error': 'Please enter a valid 5-digit zip code.'}), 422
+
+        zip_resolution = resolve_search_zip(db_user_id, request_zip, db.session)
+        if zip_resolution is None:
+            return jsonify({
+                'error': (
+                    'Location required. Add a zip code to your profile or enter one above.'
+                ),
+                'code': 'ZIP_REQUIRED',
+            }), 400
+
+        resolved_zip = zip_resolution.zip_code
+        zip_source = zip_resolution.source
+
         # Create search record
         search_criteria = {
             'max_rent': data.get('max_rent'),
             'bedrooms': data.get('bedrooms'),
             'commute_time': data.get('commute_time', 30),
-            'zip_code': data.get('zip_code'),
+            'zip_code': resolved_zip,
             'housing_type': data.get('housing_type', 'apartment'),
             'min_bathrooms': data.get('min_bathrooms', 1),
             'max_distance_from_work': data.get('max_distance_from_work', 15)
@@ -254,7 +272,7 @@ def search_locations():
         housing_search = HousingSearch(
             user_id=db_user_id,
             search_criteria=search_criteria,
-            msa_area=data.get('zip_code', '')[:5],  # Use first 5 digits as MSA
+            msa_area=resolved_zip[:5],
             lease_end_date=data.get('lease_end_date'),
             results_count=0  # Will be updated after search
         )
@@ -263,7 +281,7 @@ def search_locations():
         db.session.commit()
         
         # Simulate location search
-        zip_code = search_criteria.get('zip_code', '00000')
+        zip_code = resolved_zip
         max_rent = search_criteria.get('max_rent', 2000)
         bedrooms = search_criteria.get('bedrooms', 2)
         bathrooms = search_criteria.get('min_bathrooms', 1)
@@ -312,6 +330,7 @@ def search_locations():
             'locations': locations,
             'total_results': len(locations),
             'search_criteria': search_criteria,
+            'zip_source': zip_source,
             'note': 'Beta: results are illustrative. Live listings coming soon.'
         }
         

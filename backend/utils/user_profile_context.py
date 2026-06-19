@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 import json
+import logging
 import re
 from decimal import Decimal
+from typing import NamedTuple
 
 from backend.api.profile_endpoints import get_db_connection
 from backend.models.career_profile import CareerProfile
@@ -15,7 +17,14 @@ from backend.models.transaction_schedule import IncomeStream
 from backend.models.user_models import User
 from backend.models.user_profile import UserProfile
 
+logger = logging.getLogger(__name__)
+
 _ZIP_RE = re.compile(r"\b(\d{5})\b")
+
+
+class SearchZipResolution(NamedTuple):
+    zip_code: str
+    source: str  # 'request' | 'housing_profile' | 'user_profiles'
 
 _INCOME_ANNUAL_MULTIPLIERS = {
     "weekly": 52,
@@ -83,6 +92,51 @@ def resolve_user_zip_code(user: User) -> str | None:
         zip_code = extract_zip_from_text(hp.zip_or_city if hp else None)
 
     return zip_code
+
+
+def resolve_search_zip(
+    user_id: int,
+    request_zip: str | None,
+    db_session=None,
+) -> SearchZipResolution | None:
+    """
+    Resolve zip for housing search with fallback chain (HRA-01 / JRA-01 pattern).
+
+    1. Request zip when len(strip) >= 5
+    2. housing_profile.zip_or_city for user_id
+    3. user_profiles.zip_code for user (when column populated)
+    4. None
+    """
+    session = db_session or db.session
+    raw_request = (request_zip or "").strip()
+    if raw_request and len(raw_request) >= 5:
+        return SearchZipResolution(zip_code=raw_request, source="request")
+
+    hp = session.query(HousingProfile).filter_by(user_id=user_id).first()
+    if hp and hp.zip_or_city and hp.zip_or_city.strip():
+        logger.warning(
+            "housing_zip_fallback user_id=%s source=housing_profile",
+            user_id,
+        )
+        return SearchZipResolution(
+            zip_code=hp.zip_or_city.strip(),
+            source="housing_profile",
+        )
+
+    user = session.query(User).filter_by(id=user_id).first()
+    if user and user.email:
+        profile = session.query(UserProfile).filter_by(email=user.email).first()
+        if profile and profile.zip_code and str(profile.zip_code).strip():
+            logger.warning(
+                "housing_zip_fallback user_id=%s source=user_profiles",
+                user_id,
+            )
+            return SearchZipResolution(
+                zip_code=str(profile.zip_code).strip(),
+                source="user_profiles",
+            )
+
+    return None
 
 
 def sync_user_profile_zip(user: User, zip_or_city_value: str) -> None:
