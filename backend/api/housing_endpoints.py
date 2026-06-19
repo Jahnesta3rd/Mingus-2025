@@ -11,7 +11,6 @@ tier restrictions and rate limiting following MINGUS security patterns.
 """
 
 import logging
-import random
 from flask import Blueprint, request, jsonify
 from flask_cors import cross_origin
 from backend.auth.decorators import (
@@ -23,13 +22,76 @@ from backend.auth.decorators import (
 from backend.models.database import db
 from backend.models.housing_models import HousingSearch, HousingScenario
 from backend.models.housing_profile import HousingProfile
+from backend.data.zip_to_msa import ZIP_TO_MSA
 from backend.services.feature_flag_service import feature_flag_service, FeatureFlag
-from backend.utils.user_profile_context import resolve_search_zip
+from backend.utils.user_profile_context import extract_zip_from_text, resolve_search_zip
 from datetime import datetime, timedelta
 from typing import Dict, Any, List
 
 # Configure logging
 logger = logging.getLogger(__name__)
+
+EMPTY_LISTINGS_MESSAGE = (
+    'No listings found for this location yet. '
+    'Try a nearby zip code or check back soon.'
+)
+
+# Retired HRA-03 (June 2026). Replaced with make_zip_aware_mock().
+# Swap for ExternalAPIService.get_rental_listings() when API key is available.
+
+ZIP_CITY_MAP = {
+    '10': ('New York', 'NY'),
+    '85': ('Phoenix', 'AZ'),
+    '77': ('Houston', 'TX'),
+    '60': ('Chicago', 'IL'),
+    '30': ('Atlanta', 'GA'),
+    '90': ('Los Angeles', 'CA'),
+    '98': ('Seattle', 'WA'),
+    '80': ('Denver', 'CO'),
+    '19': ('Philadelphia', 'PA'),
+    '02': ('Boston', 'MA'),
+}
+
+
+def resolve_msa_code_for_zip(zip_code: str) -> str:
+    """Resolve CBSA msa_code from a zip string."""
+    digits = extract_zip_from_text(zip_code) or (zip_code[:5] if zip_code else '')
+    if not digits:
+        return ''
+    return ZIP_TO_MSA.get(digits, '') or ''
+
+
+def make_zip_aware_mock(resolved_zip: str, msa_code: str, index: int) -> Dict[str, Any]:
+    """Zip-aware illustrative listing (HRA-03 Path B until live API keys are available)."""
+    prefix = resolved_zip[:2] if resolved_zip else '77'
+    city, state = ZIP_CITY_MAP.get(prefix, ('Unknown City', 'XX'))
+
+    street_pool = [
+        f'{100 + index * 37} Main St',
+        f'{200 + index * 41} Oak Ave',
+        f'{300 + index * 29} Maple Dr',
+        f'{400 + index * 53} Park Blvd',
+        f'{500 + index * 61} Cedar Ln',
+    ]
+    street = street_pool[index % len(street_pool)]
+    address = f'{street}, {city}, {state} {resolved_zip}'
+
+    return {
+        'id': f'{resolved_zip}-{index + 1}',
+        'title': f'{city} Residences #{index + 1}',
+        'address': address,
+        'location': address,
+        'city': city,
+        'state': state,
+        'zip_code': resolved_zip,
+        'price': 1200 + (index * 150) + (hash(resolved_zip) % 300),
+        'bedrooms': (index % 3) + 1,
+        'bathrooms': (index % 2) + 1,
+        'listing_url': None,
+        'msa_code': msa_code,
+        'note': 'Beta: illustrative listing. Live data coming soon.',
+        'beta_notice': True,
+    }
 
 # Create blueprint
 housing_api = Blueprint('housing_api', __name__, url_prefix='/api/housing')
@@ -256,6 +318,13 @@ def search_locations():
 
         resolved_zip = zip_resolution.zip_code
         zip_source = zip_resolution.source
+        msa_code = resolve_msa_code_for_zip(resolved_zip)
+        logger.info(
+            'housing_search zip=%s msa=%s source=%s',
+            resolved_zip,
+            msa_code,
+            zip_source,
+        )
 
         # Create search record
         search_criteria = {
@@ -272,67 +341,36 @@ def search_locations():
         housing_search = HousingSearch(
             user_id=db_user_id,
             search_criteria=search_criteria,
-            msa_area=resolved_zip[:5],
+            msa_area=msa_code or resolved_zip[:5],
             lease_end_date=data.get('lease_end_date'),
             results_count=0  # Will be updated after search
         )
         
         db.session.add(housing_search)
         db.session.commit()
-        
-        # Simulate location search
-        zip_code = resolved_zip
-        max_rent = search_criteria.get('max_rent', 2000)
-        bedrooms = search_criteria.get('bedrooms', 2)
-        bathrooms = search_criteria.get('min_bathrooms', 1)
-        housing_type = search_criteria.get('housing_type', 'apartment')
 
-        STREET_NAMES = [
-            'Main St', 'Oak Ave', 'Maple Dr', 'Park Blvd', 'Cedar Ln',
-            'Elm St', 'Willow Way', 'Highland Ave', 'Riverside Dr', 'Sunset Blvd'
+        locations = [
+            make_zip_aware_mock(resolved_zip, msa_code, i)
+            for i in range(5)
         ]
-        PROPERTY_NAMES = [
-            'The {street} Residences', '{street} Commons', 'Park at {street}',
-            '{street} Place', 'The {street} Apartments'
-        ]
-
-        def make_mock_location(i):
-            street_num = random.randint(100, 999)
-            street = random.choice(STREET_NAMES)
-            base_rent = int(max_rent * random.uniform(0.75, 0.98))
-            name_template = random.choice(PROPERTY_NAMES)
-            property_name = name_template.format(street=street.split()[0])
-            return {
-                'id': f'mock-{i+1}',
-                'title': property_name,
-                'location': f'{street_num} {street}, {zip_code}',
-                'price': base_rent,
-                'bedrooms': bedrooms,
-                'bathrooms': bathrooms,
-                'housing_type': housing_type,
-                'score': round(random.uniform(72, 96), 1),
-                'commute_time_minutes': random.randint(15, 45),
-                'distance_miles': round(random.uniform(1.2, 12.5), 1),
-                'amenities': random.sample(
-                    ['Parking', 'Gym', 'Pool', 'Pet Friendly', 'In-Unit Laundry',
-                     'Rooftop', 'Concierge', 'Storage'],
-                    k=random.randint(2, 4)
-                ),
-                'available': True,
-                'source': 'Mingus Housing Search (beta)',
-            }
-
-        mock_count = random.randint(3, 6)
-        locations = [make_mock_location(i) for i in range(mock_count)]
 
         search_results = {
             'search_id': housing_search.id,
             'locations': locations,
+            'results': locations,
             'total_results': len(locations),
             'search_criteria': search_criteria,
+            'zip_resolved': resolved_zip,
+            'msa_code': msa_code,
             'zip_source': zip_source,
-            'note': 'Beta: results are illustrative. Live listings coming soon.'
         }
+
+        if not locations:
+            search_results['message'] = EMPTY_LISTINGS_MESSAGE
+            search_results['beta_notice'] = True
+        else:
+            search_results['note'] = 'Beta: results are illustrative. Live listings coming soon.'
+            search_results['beta_notice'] = True
         
         # Update search record with results count
         housing_search.results_count = len(search_results['locations'])
