@@ -230,6 +230,14 @@ limiter.init_app(app)
 # Register API blueprints
 app.register_blueprint(auth_api)
 app.register_blueprint(assessment_api)
+
+try:
+    from backend.api.assessment_endpoints import init_assessment_db
+    init_assessment_db()
+    logger.info("Assessment database initialized at startup")
+except Exception as e:
+    logger.error(f"Failed to initialize assessment database at startup: {e}")
+
 app.register_blueprint(meme_api)
 app.register_blueprint(user_preferences_api)
 app.register_blueprint(profile_api)

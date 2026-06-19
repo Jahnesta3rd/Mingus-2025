@@ -17,8 +17,9 @@ from werkzeug.exceptions import BadRequest, InternalServerError
 from sqlalchemy import Table, Column, Integer, Text, Float, DateTime, MetaData, literal_column
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from ..utils.validation import APIValidator
-from ..services.email_service import EmailService
 from ..models.database import db
+from ..tasks.lead_magnet_email_tasks import send_lead_magnet_results
+from ..auth.decorators import jwt_required
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -49,6 +50,68 @@ def get_db_connection():
     conn = psycopg2.connect(os.environ['DATABASE_URL'])
     conn.cursor_factory = psycopg2.extras.RealDictCursor
     return conn
+
+
+def _mask_email(email: str) -> str:
+    """Mask email for health responses: jo**@mac.com (or hash prefix if stored hashed)."""
+    if not email:
+        return "****@****"
+    if "@" in email:
+        local, domain = email.split("@", 1)
+        prefix = local[:2] if len(local) >= 2 else local
+        return f"{prefix}**@{domain}"
+    return f"{email[:2]}**@redacted"
+
+
+@assessment_api.route('/health/email', methods=['GET'])
+def health_email():
+    """Public health check for lead magnet email pipeline."""
+    resend_key = os.environ.get("RESEND_API_KEY")
+    resend_key_present = bool(resend_key and resend_key.strip())
+    from_email = os.environ.get("FROM_EMAIL", "hello@mingusapp.com")
+
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute(
+            """
+            SELECT email, assessment_type, completed_at
+            FROM assessments
+            ORDER BY completed_at DESC
+            LIMIT 5
+            """
+        )
+        rows = cursor.fetchall()
+        conn.close()
+
+        last_5_sends = []
+        for row in rows:
+            completed_at = row["completed_at"]
+            if isinstance(completed_at, datetime):
+                completed_at = completed_at.isoformat()
+            elif completed_at is not None:
+                completed_at = str(completed_at)
+            last_5_sends.append(
+                {
+                    "email_masked": _mask_email(row["email"] or ""),
+                    "assessment_type": row["assessment_type"],
+                    "completed_at": completed_at,
+                }
+            )
+
+        status = "ok" if resend_key_present and last_5_sends else "degraded"
+        return jsonify(
+            {
+                "resend_key_present": resend_key_present,
+                "from_email": from_email,
+                "last_5_sends": last_5_sends,
+                "status": status,
+            }
+        )
+    except Exception:
+        logger.exception("health_email: database query failed")
+        return jsonify({"status": "degraded", "reason": "db_error"})
+
 
 def init_assessment_db():
     """Initialize assessment database tables"""
@@ -230,18 +293,14 @@ def submit_assessment():
         )
         if not is_testing:
             try:
-                email_service = EmailService()
-                email_sent = email_service.send_assessment_results(
-                    email=sanitized_data['email'],
-                    first_name=sanitized_data.get('firstName', 'there'),
-                    assessment_type=sanitized_data['assessmentType'],
-                    results=results,
-                    recommendations=results.get('recommendations', [])
+                send_lead_magnet_results.delay(
+                    sanitized_data['email'],
+                    sanitized_data.get('firstName', 'there'),
+                    sanitized_data['assessmentType'],
+                    results,
+                    results.get('recommendations', []),
                 )
-                if email_sent:
-                    logger.info(f"Results email sent successfully to {sanitized_data['email']}")
-                else:
-                    logger.warning(f"Failed to send results email to {sanitized_data['email']}")
+                email_sent = True
             except Exception as email_error:
                 logger.exception("Error sending results email: %s", email_error)
                 email_sent = False
@@ -269,6 +328,7 @@ def submit_assessment():
             conn.close()
 
 @assessment_api.route('/assessments/<int:assessment_id>/download', methods=['GET'])
+@jwt_required
 def download_assessment_pdf(assessment_id):
     """
     Download test assessment PDF (temporary - returns sample PDF for all assessments)

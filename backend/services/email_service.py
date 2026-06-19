@@ -5,15 +5,9 @@ try:
 except ModuleNotFoundError:  # pragma: no cover
     resend = None
 from typing import Optional
+from loguru import logger as loguru_logger
 
 logger = logging.getLogger(__name__)
-
-# Configure Resend only if the dependency is available.
-if resend is not None:
-    resend.api_key = os.getenv("RESEND_API_KEY", "")
-
-FROM_EMAIL = os.getenv("FROM_EMAIL", "hello@mingusapp.com")
-FROM_NAME  = os.getenv("FROM_NAME",  "Mingus")
 
 ASSESSMENT_LABELS = {
     "ai-risk":                "AI Replacement Risk",
@@ -24,6 +18,17 @@ ASSESSMENT_LABELS = {
 }
 
 class EmailService:
+
+    def __init__(self) -> None:
+        self.from_email = os.environ.get("FROM_EMAIL", "hello@mingusapp.com")
+        self.from_name = os.environ.get("FROM_NAME", "Mingus")
+        if not self.from_email.endswith("@mingusapp.com"):
+            loguru_logger.warning(
+                "FROM_EMAIL domain mismatch — Resend may reject: {}",
+                self.from_email,
+            )
+        if resend is not None:
+            resend.api_key = os.environ.get("RESEND_API_KEY", "")
 
     def send_email(
         self,
@@ -40,7 +45,7 @@ class EmailService:
                 logger.warning("Resend dependency not installed; skipping email send.")
                 return False
 
-            from_addr = mail_from if mail_from else f"{FROM_NAME} <{FROM_EMAIL}>"
+            from_addr = mail_from if mail_from else f"{self.from_name} <{self.from_email}>"
             payload: dict = {
                 "from": from_addr,
                 "to": [to],
@@ -81,6 +86,7 @@ class EmailService:
         assessment_type: str,
         results: dict,
         recommendations: list,
+        reply_to: Optional[str] = None,
     ) -> bool:
         try:
             if resend is None:
@@ -128,12 +134,15 @@ class EmailService:
 </body>
 </html>"""
 
-            resend.Emails.send({
-                "from":    f"{FROM_NAME} <{FROM_EMAIL}>",
+            payload: dict = {
+                "from":    f"{self.from_name} <{self.from_email}>",
                 "to":      [email],
                 "subject": f"Your {label} Results — Mingus",
                 "html":    html,
-            })
+            }
+            if reply_to:
+                payload["reply_to"] = [reply_to]
+            resend.Emails.send(payload)
             return True
 
         except Exception as e:
@@ -165,7 +174,7 @@ class EmailService:
 </html>"""
 
             resend.Emails.send({
-                "from":    f"{FROM_NAME} <{FROM_EMAIL}>",
+                "from":    f"{self.from_name} <{self.from_email}>",
                 "to":      [email],
                 "subject": "Welcome to Mingus 🎉",
                 "html":    html,

@@ -16,19 +16,20 @@ EMAIL_CONFIG = {
 }
 
 # Email Templates
+# Templates not yet created — using inline HTML
 EMAIL_TEMPLATES = {
-    'assessment_results': {
-        'subject': '🎯 Your {assessment_title} Results Are Ready!',
-        'template': 'assessment_results.html'
-    },
-    'welcome': {
-        'subject': '🎉 Welcome to Mingus - Your Personal Finance Journey Starts Here!',
-        'template': 'welcome.html'
-    },
-    'follow_up': {
-        'subject': '💡 Ready to Take Your Next Step?',
-        'template': 'follow_up.html'
-    }
+    # 'assessment_results': {
+    #     'subject': '🎯 Your {assessment_title} Results Are Ready!',
+    #     'template': 'assessment_results.html'
+    # },
+    # 'welcome': {
+    #     'subject': '🎉 Welcome to Mingus - Your Personal Finance Journey Starts Here!',
+    #     'template': 'welcome.html'
+    # },
+    # 'follow_up': {
+    #     'subject': '💡 Ready to Take Your Next Step?',
+    #     'template': 'follow_up.html'
+    # },
 }
 
 # Assessment-specific content
