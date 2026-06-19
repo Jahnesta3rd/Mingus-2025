@@ -683,11 +683,8 @@ const RecommendationTiers: React.FC<RecommendationTiersProps> = ({
     });
     
     if (action === 'apply_clicked') {
-      // Navigate to application or external job posting
       if (job.job.url) {
         window.open(job.job.url, '_blank');
-      } else {
-        window.open(`/apply/${job.job.job_id}`, '_blank');
       }
     }
   };
@@ -1163,6 +1160,13 @@ const TierCard: React.FC<{
   );
 };
 
+function formatMatchScore(score?: number): string {
+  if (score == null || score <= 0) {
+    return '—';
+  }
+  return `${Math.round(score)}`;
+}
+
 // Job Preview Card Component
 const JobPreviewCard: React.FC<{
   job: JobRecommendation;
@@ -1171,6 +1175,8 @@ const JobPreviewCard: React.FC<{
   percentileData: PercentileData | null;
   marketPersonal: MarketConditionsPersonal | null;
 }> = ({ job, onInteraction, compact, marketPersonal }) => {
+  const [detailsExpanded, setDetailsExpanded] = useState(false);
+
   const getTierColor = (tier: string) => {
     switch (tier) {
       case 'conservative': return 'blue';
@@ -1184,6 +1190,7 @@ const JobPreviewCard: React.FC<{
 
   const tierColor = getTierColor(job.tier);
   const advancement = job.job.description?.trim();
+  const hasApplyUrl = Boolean(job.job.url?.trim());
 
   const percentileLiftLine = useMemo(() => {
     if (!marketPersonal || !job.job.salary_max || job.job.salary_max <= 0) {
@@ -1245,22 +1252,58 @@ const JobPreviewCard: React.FC<{
         
         <div className="flex gap-2">
           <button
-            onClick={() => onInteraction(job, 'view_details')}
+            onClick={() => {
+              setDetailsExpanded((prev) => !prev);
+              onInteraction(job, 'view_details');
+            }}
             className="text-gray-600 hover:text-gray-900 text-sm font-medium transition-colors focus:ring-2 focus:ring-blue-500 focus:outline-none rounded px-2 py-1"
             aria-label={`View details for ${job.job.title} at ${job.job.company}`}
+            aria-expanded={detailsExpanded}
           >
             View Details
           </button>
-          <button
-            onClick={() => onInteraction(job, 'apply_clicked')}
-            className={`bg-${tierColor}-600 hover:bg-${tierColor}-700 text-white px-3 py-1 rounded text-sm font-medium transition-colors flex items-center gap-1 focus:ring-2 focus:ring-${tierColor}-500 focus:outline-none touch-manipulation`}
-            aria-label={`Apply to ${job.job.title} at ${job.job.company}`}
-          >
-            Apply
-            <ExternalLink className="h-3 w-3" />
-          </button>
+          {hasApplyUrl ? (
+            <button
+              onClick={() => onInteraction(job, 'apply_clicked')}
+              className={`bg-${tierColor}-600 hover:bg-${tierColor}-700 text-white px-3 py-1 rounded text-sm font-medium transition-colors flex items-center gap-1 focus:ring-2 focus:ring-${tierColor}-500 focus:outline-none touch-manipulation`}
+              aria-label={`Apply to ${job.job.title} at ${job.job.company}`}
+            >
+              Apply
+              <ExternalLink className="h-3 w-3" />
+            </button>
+          ) : (
+            // TODO JRA Phase 2: populate job_postings.url from live job
+            // board API (Indeed Publisher / LinkedIn Jobs / Adzuna).
+            // Show Apply button only when url is non-null.
+            null
+          )}
         </div>
       </div>
+
+      {detailsExpanded ? (
+        <div className="mt-3 border-t border-gray-100 pt-3 space-y-1 text-sm text-gray-700">
+          <p>
+            <span className="font-medium text-gray-800">Job title: </span>
+            {job.job.title}
+          </p>
+          <p>
+            <span className="font-medium text-gray-800">Company: </span>
+            {job.job.company}
+          </p>
+          <p>
+            <span className="font-medium text-gray-800">Salary range: </span>
+            {formatSalaryK(job.job.salary_min, job.job.salary_max)}
+          </p>
+          <p>
+            <span className="font-medium text-gray-800">Match score: </span>
+            {formatMatchScore(job.job.overall_score)}
+          </p>
+          <p>
+            <span className="font-medium text-gray-800">Advancement trajectory: </span>
+            {advancement || '—'}
+          </p>
+        </div>
+      ) : null}
     </div>
   );
 };

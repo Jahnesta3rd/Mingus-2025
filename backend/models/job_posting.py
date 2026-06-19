@@ -52,6 +52,7 @@ class JobPosting(db.Model):
     seniority_level = db.Column(db.String(20), nullable=False)
     is_management = db.Column(db.Boolean, nullable=False, default=False)
     advancement_trajectory = db.Column(db.String(300), nullable=False)
+    url = db.Column(db.Text, nullable=True)
     source = db.Column(db.String(50), nullable=False, default="seed_2026")
     is_active = db.Column(db.Boolean, nullable=False, default=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)

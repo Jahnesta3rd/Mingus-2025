@@ -170,7 +170,7 @@ def _query_curated_jobs(msa: str) -> List[Dict[str, Any]]:
             SELECT id, title, company,
                    city || ', ' || state AS location,
                    msa_code AS msa, career_field, seniority_level,
-                   salary_min, salary_max, advancement_trajectory
+                   salary_min, salary_max, advancement_trajectory, url
             FROM job_postings
             WHERE msa_code = %s AND is_active = true
             ORDER BY career_field, seniority_level, title
