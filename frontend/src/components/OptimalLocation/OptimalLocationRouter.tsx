@@ -157,6 +157,8 @@ const OptimalLocationRouter: React.FC<OptimalLocationRouterProps> = ({ className
 
   // State management
   const [userTier, setUserTier] = useState<UserTier | null>(null);
+  const [locationSource, setLocationSource] = useState<'profile' | 'manual' | null>(null);
+  const [zipError, setZipError] = useState<boolean>(false);
   const [optimalLocationState, setOptimalLocationState] = useState<OptimalLocationState>({
     activeView: 'search',
     housingSearch: {
@@ -244,6 +246,37 @@ const OptimalLocationRouter: React.FC<OptimalLocationRouterProps> = ({ className
         }));
       }
 
+      try {
+        const token = localStorage.getItem('mingus_token');
+        const profileHeaders: HeadersInit = {
+          'X-CSRF-Token': token || 'test-token',
+        };
+        if (token) {
+          profileHeaders.Authorization = `Bearer ${token}`;
+        }
+        const profileRes = await fetch('/api/housing/profile-summary', {
+          credentials: 'include',
+          headers: profileHeaders,
+        });
+        if (profileRes.ok) {
+          const profileData = await profileRes.json();
+          const profileZip =
+            profileData.profile?.zip_or_city ?? profileData.profile?.zip_code ?? '';
+          if (profileZip.trim().length >= 5) {
+            setOptimalLocationState(prev => ({
+              ...prev,
+              housingSearch: {
+                ...prev.housingSearch,
+                location: profileZip.trim(),
+              },
+            }));
+            setLocationSource('profile');
+          }
+        }
+      } catch {
+        // Non-fatal — user can type manually
+      }
+
       // Track page view
       await trackPageView('optimal_location_router', {
         user_id: user?.id,
@@ -322,17 +355,63 @@ const OptimalLocationRouter: React.FC<OptimalLocationRouterProps> = ({ className
         body: JSON.stringify(mappedPayload),
       });
 
+      const data = await response.json().catch(() => ({}));
+
+      if (response.status === 400 && data.code === 'ZIP_REQUIRED') {
+        setZipError(true);
+        setOptimalLocationState(prev => ({
+          ...prev,
+          housingSearch: {
+            ...prev.housingSearch,
+            loading: false,
+            error: null,
+            searchResults: [],
+          },
+        }));
+        return;
+      }
+
+      if (response.status === 422) {
+        setOptimalLocationState(prev => ({
+          ...prev,
+          housingSearch: {
+            ...prev.housingSearch,
+            loading: false,
+            error: 'Please enter a valid 5-digit zip code.',
+          },
+        }));
+        return;
+      }
+
       if (!response.ok) {
         throw new Error('Housing search failed');
       }
 
-      const data = await response.json();
-      
+      setZipError(false);
+
+      const submittedLocation = (searchData.location ?? '').trim();
+      const zipSource = data.data?.zip_source as string | undefined;
+      if (zipSource === 'request') {
+        setLocationSource('manual');
+      } else if (
+        (zipSource === 'housing_profile' || zipSource === 'user_profiles') &&
+        !submittedLocation
+      ) {
+        setLocationSource('profile');
+      }
+
+      const resolvedLocation =
+        data.data?.search_criteria?.zip_code ?? searchData.location ?? '';
+
       setOptimalLocationState(prev => ({
         ...prev,
         housingSearch: {
           ...prev.housingSearch,
           ...searchData,
+          location:
+            !submittedLocation && data.data?.search_criteria?.zip_code
+              ? data.data.search_criteria.zip_code
+              : (searchData.location ?? prev.housingSearch.location),
           searchResults: data.data?.locations || [],
           loading: false,
           error: null
@@ -340,7 +419,7 @@ const OptimalLocationRouter: React.FC<OptimalLocationRouterProps> = ({ className
       }));
 
       await trackInteraction('housing_search_completed', {
-        location: searchData.location,
+        location: resolvedLocation,
         budget_range: searchData.budget,
         results_count: data.data?.locations?.length || 0,
         user_tier: userTier?.tier
@@ -572,8 +651,14 @@ const OptimalLocationRouter: React.FC<OptimalLocationRouterProps> = ({ className
             <HousingSearchView
               state={optimalLocationState.housingSearch}
               userTier={userTier}
+              locationSource={locationSource}
+              zipError={zipError}
               onSubmit={handleSearchSubmit}
               onViewChange={handleViewChange}
+              onLocationChange={() => {
+                setLocationSource('manual');
+                setZipError(false);
+              }}
             />
           )}
 
@@ -623,15 +708,30 @@ const OptimalLocationRouter: React.FC<OptimalLocationRouterProps> = ({ className
 const HousingSearchView: React.FC<{
   state: HousingSearchState;
   userTier: UserTier;
+  locationSource: 'profile' | 'manual' | null;
+  zipError: boolean;
   onSubmit: (data: Partial<HousingSearchState>) => void;
   onViewChange: (view: OptimalLocationState['activeView']) => void;
-}> = ({ state, userTier, onSubmit, onViewChange }) => {
+  onLocationChange: () => void;
+}> = ({
+  state,
+  userTier,
+  locationSource,
+  zipError,
+  onSubmit,
+  onViewChange,
+  onLocationChange,
+}) => {
   const [formData, setFormData] = useState({
     location: state.location,
     budget: state.budget,
     preferences: state.preferences,
     radius: state.radius
   });
+
+  useEffect(() => {
+    setFormData(prev => ({ ...prev, location: state.location }));
+  }, [state.location]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -672,11 +772,28 @@ const HousingSearchView: React.FC<{
               type="text"
               id="location"
               value={formData.location}
-              onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
+              onChange={(e) => {
+                setFormData(prev => ({ ...prev, location: e.target.value }));
+                onLocationChange();
+              }}
               placeholder="Enter city, state, or ZIP code"
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-400 focus:border-violet-500"
               disabled={!userTier.features.showBasicSearch}
             />
+            {locationSource === 'profile' && (
+              <span className="text-xs text-purple-700 flex items-center gap-1 mt-1">
+                <MapPin className="w-3 h-3" />
+                Searching near your profile location
+              </span>
+            )}
+            {zipError && (
+              <div className="mt-2 text-sm text-gray-600">
+                Add a zip code to search near you — or type any city or zip above.{' '}
+                <a href="/settings/profile" className="text-purple-700 underline">
+                  Update your profile
+                </a>
+              </div>
+            )}
           </div>
 
           {/* Budget Range */}
@@ -827,7 +944,7 @@ const HousingSearchView: React.FC<{
       </div>
 
       {/* Search Results Preview */}
-      {state.searchResults.length > 0 && (
+      {state.searchResults.length > 0 && !zipError && (
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">
             Found {state.searchResults.length} locations
