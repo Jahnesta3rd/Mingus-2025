@@ -15,7 +15,11 @@ const ACCEPT = '.pdf,.docx,.doc,.txt';
 export interface CareerResumeUploadSectionProps {
   /** Called after a successful parse with extracted pre-fill values. */
   onPrefill?: (data: CareerResumePrefill) => void;
-  /** Show "Skip — I'll fill this in manually" (CareerStep onboarding). */
+  /** When true, show dismissed banner instead of upload UI. */
+  dismissed?: boolean;
+  /** Restore upload UI after subsection skip. */
+  onRestore?: () => void;
+  /** Show "Skip resume upload →" (CareerStep onboarding). */
   showSkipLink?: boolean;
   /** Element id to scroll to when skip is clicked. */
   manualFieldsAnchorId?: string;
@@ -28,6 +32,8 @@ export interface CareerResumeUploadSectionProps {
 
 export default function CareerResumeUploadSection({
   onPrefill,
+  dismissed = false,
+  onRestore,
   showSkipLink = false,
   manualFieldsAnchorId,
   onSkipManual,
@@ -108,6 +114,28 @@ export default function CareerResumeUploadSection({
     variant === 'profile'
       ? 'Resume uploaded — your career profile has been updated'
       : 'Resume uploaded — fields pre-filled below';
+
+  if (dismissed) {
+    return (
+      <section
+        className={`rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] p-5 ${className}`}
+        aria-label="Resume upload skipped"
+      >
+        <p className="text-sm text-[#64748B]">
+          Upload skipped — you can add your resume later from your profile.
+        </p>
+        {onRestore && (
+          <button
+            type="button"
+            onClick={onRestore}
+            className="mt-2 text-sm font-medium text-[#5B2D8E] underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5B2D8E] focus-visible:ring-offset-2"
+          >
+            Show upload again →
+          </button>
+        )}
+      </section>
+    );
+  }
 
   return (
     <section
@@ -205,13 +233,19 @@ export default function CareerResumeUploadSection({
       )}
 
       {showSkipLink && (
-        <button
-          type="button"
-          onClick={handleSkip}
-          className="mt-4 text-sm text-[#64748B] underline-offset-2 hover:text-[#1E293B] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5B2D8E] focus-visible:ring-offset-2"
-        >
-          Skip — I&apos;ll fill this in manually
-        </button>
+        <div className="mt-4">
+          <button
+            type="button"
+            onClick={handleSkip}
+            className="text-sm text-[#64748B] underline-offset-2 hover:text-[#1E293B] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5B2D8E] focus-visible:ring-offset-2"
+          >
+            Skip resume upload →
+          </button>
+          <p className="mt-1 text-xs text-[#94A3B8]">
+            This only skips the upload. You can still fill in your career details below, or skip the
+            whole step at the bottom.
+          </p>
+        </div>
       )}
     </section>
   );

@@ -1,29 +1,24 @@
 import React, { useCallback, useState } from 'react';
 import { Trash2 } from 'lucide-react';
 import { useAuth } from '../../../../hooks/useAuth';
+import MilestonePickerModal, { type NewMilestoneEvent } from '../../../MilestonePickerModal';
+import {
+  BABY_CATEGORIES,
+  LEGACY_FIELD_TO_CATEGORY,
+  MILESTONE_META,
+  type MilestoneCategory,
+} from '../../../../data/milestoneCategories';
 import type { StepProps } from '../StepDefinitions';
 
-type EventType =
-  | 'graduation'
-  | 'wedding'
-  | 'birth'
-  | 'retirement'
-  | 'home_purchase'
-  | 'greek_event'
-  | 'other';
-type RowField = 'name' | 'event_date' | 'event_type' | 'estimated_cost';
+type RowField = 'name' | 'event_date' | 'estimated_cost';
 type Row = {
   id: string;
   name: string;
   event_date: string;
-  event_type: EventType;
+  category?: MilestoneCategory;
   estimated_cost: string;
 };
 type RowErrors = Partial<Record<RowField, string>>;
-
-const inputClass =
-  'w-full min-h-11 rounded-lg border border-[#E2E8F0] bg-white px-3 py-2.5 text-[#1E293B] placeholder:text-[#64748B] focus:border-[#5B2D8E] focus:outline-none focus:ring-1 focus:ring-[#5B2D8E]';
-const labelClass = 'mb-1.5 block text-sm font-medium text-[#1E293B]';
 
 function newId(): string {
   return crypto.randomUUID();
@@ -31,6 +26,31 @@ function newId(): string {
 
 function todayIso(): string {
   return new Date().toISOString().slice(0, 10);
+}
+
+function formatUsd(amount: number): string {
+  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
+}
+
+function formatDisplayDate(iso: string): string {
+  const parsed = new Date(`${iso}T12:00:00`);
+  if (Number.isNaN(parsed.getTime())) return iso;
+  return parsed.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function resolveCategory(raw: Record<string, unknown>): MilestoneCategory | undefined {
+  if (typeof raw.category === 'string') {
+    return raw.category as MilestoneCategory;
+  }
+  if (typeof raw.event_type === 'string') {
+    const legacy = LEGACY_FIELD_TO_CATEGORY[raw.event_type as keyof typeof LEGACY_FIELD_TO_CATEGORY];
+    if (legacy) return legacy;
+  }
+  if (typeof raw.type === 'string') {
+    const legacy = LEGACY_FIELD_TO_CATEGORY[raw.type as keyof typeof LEGACY_FIELD_TO_CATEGORY];
+    if (legacy) return legacy;
+  }
+  return undefined;
 }
 
 function validateRow(row: Row): RowErrors {
@@ -46,15 +66,25 @@ function validateRow(row: Row): RowErrors {
   return next;
 }
 
-export default function MilestonesStep({ initialData, onSubmit, onSkip }: StepProps) {
-  const { getAccessToken } = useAuth();
+export default function MilestonesStep({
+  initialData,
+  onSubmit,
+  onSkip,
+  isSubmitting: isSkipInFlight,
+}: StepProps) {
+  const { getAccessToken, user } = useAuth();
   const [rows, setRows] = useState<Row[]>(() => {
     if (Array.isArray(initialData.events)) {
       return (initialData.events as Array<Record<string, unknown>>).map((r) => ({
-        id: newId(),
+        id: typeof r.id === 'string' ? r.id : newId(),
         name: typeof r.name === 'string' ? r.name : '',
-        event_date: typeof r.event_date === 'string' ? r.event_date : typeof r.date === 'string' ? r.date : '',
-        event_type: typeof r.event_type === 'string' ? (r.event_type as EventType) : 'other',
+        event_date:
+          typeof r.event_date === 'string'
+            ? r.event_date
+            : typeof r.date === 'string'
+              ? r.date
+              : '',
+        category: resolveCategory(r),
         estimated_cost:
           typeof r.estimated_cost === 'number'
             ? String(r.estimated_cost)
@@ -71,19 +101,12 @@ export default function MilestonesStep({ initialData, onSubmit, onSkip }: StepPr
   const [showValidationSummary, setShowValidationSummary] = useState(false);
   const [submitBanner, setSubmitBanner] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [pickerOpen, setPickerOpen] = useState(false);
 
   const clearValidationFeedback = useCallback(() => {
     setErrorsByRow({});
     setShowValidationSummary(false);
   }, []);
-
-  const updateRow = useCallback(
-    (id: string, patch: Partial<Row>) => {
-      clearValidationFeedback();
-      setRows((prev) => prev.map((x) => (x.id === id ? { ...x, ...patch } : x)));
-    },
-    [clearValidationFeedback]
-  );
 
   const removeRow = useCallback(
     (id: string) => {
@@ -93,10 +116,23 @@ export default function MilestonesStep({ initialData, onSubmit, onSkip }: StepPr
     [clearValidationFeedback]
   );
 
-  const addRow = useCallback(() => {
-    clearValidationFeedback();
-    setRows((prev) => [...prev, { id: newId(), name: '', event_date: '', event_type: 'other', estimated_cost: '' }]);
-  }, [clearValidationFeedback]);
+  const handleAddEvent = useCallback(
+    async (event: NewMilestoneEvent) => {
+      clearValidationFeedback();
+      setRows((prev) => [
+        ...prev,
+        {
+          id: event.id,
+          name: event.name,
+          event_date: event.date,
+          category: event.category,
+          estimated_cost: event.cost != null ? String(event.cost) : '',
+        },
+      ]);
+      setPickerOpen(false);
+    },
+    [clearValidationFeedback]
+  );
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -114,7 +150,7 @@ export default function MilestonesStep({ initialData, onSubmit, onSkip }: StepPr
       const errs = validateRow(row);
       nextErrors[row.id] = errs;
       if (!firstInvalid && Object.keys(errs).length) {
-        const order: RowField[] = ['name', 'event_date', 'event_type', 'estimated_cost'];
+        const order: RowField[] = ['name', 'event_date', 'estimated_cost'];
         const field = order.find((f) => errs[f]);
         if (field) firstInvalid = { id: row.id, field };
       }
@@ -122,8 +158,6 @@ export default function MilestonesStep({ initialData, onSubmit, onSkip }: StepPr
     setErrorsByRow(nextErrors);
     if (firstInvalid) {
       setShowValidationSummary(true);
-      const el = document.getElementById(`${firstInvalid.id}-${firstInvalid.field}`);
-      el?.focus();
       return;
     }
     setShowValidationSummary(false);
@@ -131,11 +165,13 @@ export default function MilestonesStep({ initialData, onSubmit, onSkip }: StepPr
     setIsSubmitting(true);
     try {
       const events = rows.map((row) => ({
+        id: row.id,
         name: row.name.trim(),
         date: row.event_date,
         cost: row.estimated_cost.trim() ? Number.parseFloat(row.estimated_cost) : 0,
         recurring: false,
-        type: row.event_type,
+        category: row.category,
+        type: row.category ?? 'custom',
       }));
       await onSubmit({ events });
     } catch (err) {
@@ -172,22 +208,24 @@ export default function MilestonesStep({ initialData, onSubmit, onSkip }: StepPr
           </div>
         )}
 
-        {rows.length === 0 ? (
-          <div className="mt-6 rounded-xl border border-dashed border-[#CBD5E1] bg-[#F8FAFC] p-6 text-center">
-            <button
-              type="button"
-              onClick={addRow}
-              className="min-h-11 rounded-lg text-sm font-medium text-[#6D28D9] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5B2D8E] focus-visible:ring-offset-2"
-            >
-              + Add an event
-            </button>
-          </div>
-        ) : (
-          <div className="mt-6 space-y-4">
-            {rows.map((row, idx) => (
-              <div key={row.id} className="rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] p-4">
-                <div className="mb-3 flex items-center justify-between gap-2">
-                  <p className="text-sm font-medium text-[#64748B]">Event {idx + 1}</p>
+        {rows.length > 0 && (
+          <ul className="mt-6 space-y-3" aria-label="Added milestones">
+            {rows.map((row) => {
+              const emoji = row.category ? MILESTONE_META[row.category]?.emoji ?? '📅' : '📅';
+              const cost = row.estimated_cost.trim() ? Number.parseFloat(row.estimated_cost) : 0;
+              return (
+                <li
+                  key={row.id}
+                  className="flex items-center gap-3 rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] p-4"
+                >
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center text-lg" aria-hidden>
+                    {emoji}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium text-[#1E293B]">{row.name}</p>
+                    <p className="text-sm text-[#64748B]">{formatDisplayDate(row.event_date)}</p>
+                    {cost > 0 && <p className="text-sm text-[#64748B]">{formatUsd(cost)}</p>}
+                  </div>
                   <button
                     type="button"
                     className="rounded p-2 text-[#64748B] hover:bg-red-50 hover:text-red-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5B2D8E]"
@@ -196,56 +234,41 @@ export default function MilestonesStep({ initialData, onSubmit, onSkip }: StepPr
                   >
                     <Trash2 className="h-5 w-5" aria-hidden />
                   </button>
-                </div>
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <div className="sm:col-span-2">
-                    <label className={labelClass} htmlFor={`${row.id}-name`}>Event name *</label>
-                    <input id={`${row.id}-name`} className={inputClass} value={row.name} onChange={(e) => updateRow(row.id, { name: e.target.value })} />
-                    {errorsByRow[row.id]?.name && <p className="mt-1 text-sm text-red-600">{errorsByRow[row.id].name}</p>}
-                  </div>
-                  <div>
-                    <label className={labelClass} htmlFor={`${row.id}-event_date`}>Date *</label>
-                    <input id={`${row.id}-event_date`} className={inputClass} type="date" value={row.event_date} onChange={(e) => updateRow(row.id, { event_date: e.target.value })} />
-                    {errorsByRow[row.id]?.event_date && <p className="mt-1 text-sm text-red-600">{errorsByRow[row.id].event_date}</p>}
-                  </div>
-                  <div>
-                    <label className={labelClass} htmlFor={`${row.id}-event_type`}>Type *</label>
-                    <select id={`${row.id}-event_type`} className={inputClass} value={row.event_type} onChange={(e) => updateRow(row.id, { event_type: e.target.value as EventType })}>
-                      <option value="graduation">Graduation</option>
-                      <option value="wedding">Wedding</option>
-                      <option value="birth">Birthday</option>
-                      <option value="retirement">Retirement</option>
-                      <option value="home_purchase">Home Purchase</option>
-                      <option value="greek_event">Fraternity/Sorority event</option>
-                      <option value="other">Other</option>
-                    </select>
-                  </div>
-                  <div className="sm:col-span-2">
-                    <label className={labelClass} htmlFor={`${row.id}-estimated_cost`}>Estimated cost (optional)</label>
-                    <input id={`${row.id}-estimated_cost`} className={inputClass} type="number" min={0} step="0.01" value={row.estimated_cost} onChange={(e) => updateRow(row.id, { estimated_cost: e.target.value })} />
-                    {errorsByRow[row.id]?.estimated_cost && <p className="mt-1 text-sm text-red-600">{errorsByRow[row.id].estimated_cost}</p>}
-                  </div>
-                </div>
-              </div>
-            ))}
-            <button
-              type="button"
-              onClick={addRow}
-              className="min-h-11 rounded-lg text-sm font-medium text-[#6D28D9] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5B2D8E] focus-visible:ring-offset-2"
-            >
-              + Add an event
-            </button>
-          </div>
+                </li>
+              );
+            })}
+          </ul>
         )}
+
+        <div className={rows.length > 0 ? 'mt-4' : 'mt-6'}>
+          <button
+            type="button"
+            onClick={() => setPickerOpen(true)}
+            className="w-full rounded-xl border-2 border-dashed border-gray-200 p-4 text-sm text-purple-600 transition-colors hover:border-purple-300 hover:bg-purple-50"
+          >
+            + Add a milestone
+          </button>
+          <p className="mt-2 text-center text-xs text-gray-400">
+            Nothing coming up? Use &quot;Skip for now&quot; below — no need to add placeholder events.
+          </p>
+        </div>
       </div>
+
+      <MilestonePickerModal
+        isOpen={pickerOpen}
+        onClose={() => setPickerOpen(false)}
+        onSave={handleAddEvent}
+        userId={user?.id ?? ''}
+      />
 
       <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end sm:gap-4">
         <button
           type="button"
           onClick={() => onSkip()}
-          className="min-h-11 w-full rounded-lg text-center text-sm text-[#64748B] hover:text-[#1E293B] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5B2D8E] focus-visible:ring-offset-2 sm:w-auto sm:px-4"
+          disabled={isSkipInFlight}
+          className="min-h-11 w-full rounded-lg text-center text-sm text-[#64748B] hover:text-[#1E293B] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5B2D8E] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:px-4"
         >
-          Skip for now
+          {isSkipInFlight ? 'Skipping…' : 'Skip for now'}
         </button>
         <button
           type="submit"

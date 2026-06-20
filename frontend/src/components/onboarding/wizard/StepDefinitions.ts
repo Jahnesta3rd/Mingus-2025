@@ -15,6 +15,7 @@ export interface StepProps {
   initialData: Record<string, unknown>;
   onSubmit: (data: Record<string, unknown>) => void | Promise<void>;
   onSkip: () => void;
+  isSubmitting: boolean;
   isFirstStep: boolean;
   isLastStep: boolean;
 }

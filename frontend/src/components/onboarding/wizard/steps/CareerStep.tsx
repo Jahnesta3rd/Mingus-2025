@@ -57,7 +57,7 @@ function todayIso(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
-export default function CareerStep({ initialData, onSubmit, onSkip }: StepProps) {
+export default function CareerStep({ initialData, onSubmit, onSkip, isSubmitting: isSkipInFlight }: StepProps) {
   const { getAccessToken } = useAuth();
   const [occupationKey, setOccupationKey] = useState<string>('');
   const [occupationTouched, setOccupationTouched] = useState<boolean>(false);
@@ -247,17 +247,17 @@ export default function CareerStep({ initialData, onSubmit, onSkip }: StepProps)
           </div>
         )}
 
-        {!uploadSectionDismissed && (
-          <div className="mt-6">
-            <CareerResumeUploadSection
-              onPrefill={handleResumePrefill}
-              showSkipLink
-              manualFieldsAnchorId="career-manual-fields"
-              onSkipManual={() => setUploadSectionDismissed(true)}
-              variant="onboarding"
-            />
-          </div>
-        )}
+        <div className="mt-6">
+          <CareerResumeUploadSection
+            dismissed={uploadSectionDismissed}
+            onRestore={() => setUploadSectionDismissed(false)}
+            onPrefill={handleResumePrefill}
+            showSkipLink={!uploadSectionDismissed}
+            manualFieldsAnchorId="career-manual-fields"
+            onSkipManual={() => setUploadSectionDismissed(true)}
+            variant="onboarding"
+          />
+        </div>
 
         <div id="career-manual-fields" className="mt-6 grid gap-3 sm:grid-cols-2">
           <div className="sm:col-span-2">
@@ -424,9 +424,10 @@ export default function CareerStep({ initialData, onSubmit, onSkip }: StepProps)
         <button
           type="button"
           onClick={() => onSkip()}
-          className="min-h-11 w-full rounded-lg text-center text-sm text-[#64748B] hover:text-[#1E293B] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5B2D8E] focus-visible:ring-offset-2 sm:w-auto sm:px-4"
+          disabled={isSkipInFlight}
+          className="min-h-11 w-full rounded-lg text-center text-sm text-[#64748B] hover:text-[#1E293B] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5B2D8E] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:px-4"
         >
-          Skip for now
+          {isSkipInFlight ? 'Skipping…' : 'Skip for now'}
         </button>
         <button
           type="submit"

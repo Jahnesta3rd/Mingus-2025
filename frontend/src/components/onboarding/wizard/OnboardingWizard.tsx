@@ -25,19 +25,28 @@ type FailedField = {
 function parseStatusComplete(raw: unknown): boolean {
   if (!raw || typeof raw !== 'object') return false;
   const payload = raw as {
-    db?: { is_complete?: boolean; completed_modules?: unknown } | null;
-    session?: { completed_modules?: unknown };
+    db?: { is_complete?: boolean; completed_modules?: unknown; skipped_modules?: unknown } | null;
+    session?: { completed_modules?: unknown; skipped_modules?: unknown };
   };
   if (payload.db?.is_complete === true) return true;
+  const sessionModule = payload.session?.current_module;
+  if (sessionModule === 'complete') return true;
   const fromSession = Array.isArray(payload.session?.completed_modules)
     ? payload.session.completed_modules
     : [];
   const fromDb =
     payload.db && Array.isArray(payload.db.completed_modules) ? payload.db.completed_modules : [];
-  const completedSet = new Set<string>(
-    [...fromSession, ...fromDb].filter((x): x is string => typeof x === 'string')
+  const skippedFromSession = Array.isArray(payload.session?.skipped_modules)
+    ? payload.session.skipped_modules
+    : [];
+  const skippedFromDb =
+    payload.db && Array.isArray(payload.db.skipped_modules) ? payload.db.skipped_modules : [];
+  const doneSet = new Set<string>(
+    [...fromSession, ...fromDb, ...skippedFromSession, ...skippedFromDb].filter(
+      (x): x is string => typeof x === 'string'
+    )
   );
-  return STEP_ORDER.every((step) => completedSet.has(step.id));
+  return STEP_ORDER.every((step) => doneSet.has(step.id));
 }
 
 function parseStatusModule(raw: unknown): string | null {
@@ -159,8 +168,9 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
       setCurrentIndex(moduleIndex(body.next_module));
       return;
     }
-    setCurrentIndex((prev) => Math.min(prev + 1, STEP_ORDER.length - 1));
-  }, [currentIndex, headers]);
+    // No open modules left (all completed or skipped) — finish onboarding.
+    finishOnboarding();
+  }, [currentIndex, finishOnboarding, headers]);
 
   const completeFinalStep = useCallback(
     async (data: Record<string, unknown> = {}) => {
@@ -380,6 +390,7 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
           initialData={initialDataByStep[currentStep.id] ?? {}}
           onSubmit={handleStepSubmit}
           onSkip={handleSkip}
+          isSubmitting={isSubmitting}
           isFirstStep={isFirstStep}
           isLastStep={isLastStep}
         />

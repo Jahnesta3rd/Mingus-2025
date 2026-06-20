@@ -46,7 +46,7 @@ function mapHousingType(ownership: Ownership): 'rent' | 'own' {
   return ownership === 'rent' ? 'rent' : 'own';
 }
 
-export default function HousingStep({ initialData, onSubmit, onSkip }: StepProps) {
+export default function HousingStep({ initialData, onSubmit, onSkip, isSubmitting: isSkipInFlight }: StepProps) {
   const { getAccessToken } = useAuth();
   const [ownership, setOwnership] = useState<Ownership | ''>(
     typeof initialData.ownership === 'string' ? (initialData.ownership as Ownership) : ''
@@ -550,9 +550,10 @@ export default function HousingStep({ initialData, onSubmit, onSkip }: StepProps
         <button
           type="button"
           onClick={() => onSkip()}
-          className="min-h-11 w-full rounded-lg text-center text-sm text-[#64748B] hover:text-[#1E293B] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5B2D8E] focus-visible:ring-offset-2 sm:w-auto sm:px-4"
+          disabled={isSkipInFlight}
+          className="min-h-11 w-full rounded-lg text-center text-sm text-[#64748B] hover:text-[#1E293B] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5B2D8E] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:px-4"
         >
-          Skip for now
+          {isSkipInFlight ? 'Skipping…' : 'Skip for now'}
         </button>
         <button
           type="submit"

@@ -68,12 +68,13 @@ type AssessableEntry = {
   monthlyCost: number;
 };
 
-export default function RosterStep({ onSubmit, onSkip }: StepProps) {
+export default function RosterStep({ onSubmit, onSkip, isSubmitting }: StepProps) {
   const { getAccessToken } = useAuth();
   const [pageError, setPageError] = useState<string | null>(null);
   const [relationshipStatus, setRelationshipStatus] = useState<RelationshipStatusAnswer | null>(
     null
   );
+  const [relationshipQuestionSkipped, setRelationshipQuestionSkipped] = useState(false);
   const [phase, setPhase] = useState<RosterPhase>('seed');
   const [assessmentQueue, setAssessmentQueue] = useState<AssessableEntry[]>([]);
   const [queueIndex, setQueueIndex] = useState(0);
@@ -194,43 +195,79 @@ export default function RosterStep({ onSubmit, onSkip }: StepProps) {
 
   const currentAssess = assessmentQueue[queueIndex];
 
+  const selectRelationshipStatus = (value: RelationshipStatusAnswer) => {
+    setRelationshipStatus(value);
+    setRelationshipQuestionSkipped(false);
+  };
+
+  const skipRelationshipQuestion = () => {
+    setRelationshipStatus(null);
+    setRelationshipQuestionSkipped(true);
+  };
+
   const renderRelationshipQuestion = () => (
     <div className="rounded-xl border border-[#E2E8F0] bg-white p-6 shadow-sm">
       <h2 className="text-lg font-semibold text-[#1E293B]">Are you currently in a relationship?</h2>
       <p className="mt-1 text-sm text-[#64748B]">Helps us personalize your financial planning.</p>
-      <div className="mt-4 space-y-3">
-        <div className="flex flex-wrap gap-2">
-          {RELATIONSHIP_STATUS_ROW_1.map((opt) => (
-            <button
-              key={opt.value}
-              type="button"
-              onClick={() => setRelationshipStatus(opt.value)}
-              className={relationshipPillClass(relationshipStatus === opt.value)}
-            >
-              {opt.label}
-            </button>
-          ))}
+
+      {relationshipQuestionSkipped ? (
+        <div
+          className="mt-4 rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] px-4 py-3"
+          role="status"
+          aria-live="polite"
+        >
+          <p className="text-sm text-[#64748B]">
+            Question skipped — you can answer this later from your profile.
+          </p>
+          <button
+            type="button"
+            onClick={() => setRelationshipQuestionSkipped(false)}
+            className="mt-2 text-sm font-medium text-[#6D28D9] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5B2D8E] focus-visible:ring-offset-2"
+          >
+            Answer this question
+          </button>
         </div>
-        <div className="flex flex-wrap gap-2">
-          {RELATIONSHIP_STATUS_ROW_2.map((opt) => (
-            <button
-              key={opt.value}
-              type="button"
-              onClick={() => setRelationshipStatus(opt.value)}
-              className={relationshipPillClass(relationshipStatus === opt.value)}
-            >
-              {opt.label}
-            </button>
-          ))}
-        </div>
-      </div>
-      <button
-        type="button"
-        onClick={() => setRelationshipStatus(null)}
-        className="mt-3 text-xs text-gray-400 hover:text-gray-600"
-      >
-        Skip for now →
-      </button>
+      ) : (
+        <>
+          <div className="mt-4 space-y-3">
+            <div className="flex flex-wrap gap-2">
+              {RELATIONSHIP_STATUS_ROW_1.map((opt) => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => selectRelationshipStatus(opt.value)}
+                  className={relationshipPillClass(relationshipStatus === opt.value)}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {RELATIONSHIP_STATUS_ROW_2.map((opt) => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => selectRelationshipStatus(opt.value)}
+                  className={relationshipPillClass(relationshipStatus === opt.value)}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={skipRelationshipQuestion}
+            className="mt-3 text-sm text-[#64748B] hover:text-[#1E293B] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5B2D8E] focus-visible:ring-offset-2"
+          >
+            Prefer not to say
+          </button>
+          <p className="mt-1 text-xs text-[#94A3B8]">
+            This only skips the question above. You can still add people below, or skip the whole
+            step at the bottom.
+          </p>
+        </>
+      )}
     </div>
   );
 
@@ -270,6 +307,7 @@ export default function RosterStep({ onSubmit, onSkip }: StepProps) {
             onSkip();
           }}
           setPageError={setPageError}
+          isSubmitting={isSubmitting}
         />
       ) : null}
 

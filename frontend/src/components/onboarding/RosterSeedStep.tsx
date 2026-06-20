@@ -45,6 +45,7 @@ export interface RosterSeedStepProps {
   }) => void;
   onSkip: () => void;
   setPageError: (msg: string | null) => void;
+  isSubmitting?: boolean;
 }
 
 interface VibePersonPayload {
@@ -128,7 +129,12 @@ function emptyRow(): RosterPersonRow {
   };
 }
 
-export default function RosterSeedStep({ onSubmitted, onSkip, setPageError }: RosterSeedStepProps) {
+export default function RosterSeedStep({
+  onSubmitted,
+  onSkip,
+  setPageError,
+  isSubmitting = false,
+}: RosterSeedStepProps) {
   const { getAccessToken, user } = useAuth();
   const [people, setPeople] = useState<RosterPersonRow[]>(() => [emptyRow()]);
   const [existingRosterCount, setExistingRosterCount] = useState(0);
@@ -438,15 +444,23 @@ export default function RosterSeedStep({ onSubmitted, onSkip, setPageError }: Ro
         </div>
       </div>
 
-      <button
-        type="submit"
-        disabled={submitting || !hasAnyNickname}
-        className="min-h-11 w-full rounded-xl bg-[#5B2D8E] py-3 font-semibold text-white transition hover:opacity-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5B2D8E] focus-visible:ring-offset-2 disabled:opacity-50"
-      >
-        {submitting ? 'Adding…' : 'Add to my Roster →'}
-      </button>
-
-      {/* Skip button removed pending R-A (no-one-to-enter) follow-up. */}
+      <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end sm:gap-4">
+        <button
+          type="button"
+          onClick={() => onSkip()}
+          disabled={isSubmitting}
+          className="min-h-11 w-full rounded-lg text-center text-sm text-[#64748B] hover:text-[#1E293B] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5B2D8E] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:px-4"
+        >
+          {isSubmitting ? 'Skipping…' : 'Skip for now'}
+        </button>
+        <button
+          type="submit"
+          disabled={submitting || !hasAnyNickname}
+          className="min-h-11 w-full rounded-xl bg-[#5B2D8E] py-3 font-semibold text-white transition hover:opacity-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5B2D8E] focus-visible:ring-offset-2 disabled:opacity-50 sm:w-auto sm:min-w-[200px]"
+        >
+          {submitting ? 'Adding…' : 'Add to my Roster →'}
+        </button>
+      </div>
     </form>
   );
 }
