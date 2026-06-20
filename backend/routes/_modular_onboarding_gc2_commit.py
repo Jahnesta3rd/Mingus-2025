@@ -3129,7 +3129,12 @@ def run_commit_module(
     failed_fields: list[dict] = []
     if module_id == "milestones":
         completed_set = set(session.get("completed_modules") or [])
-        missing = [m for m in MODULE_ORDER if m != "milestones" and m not in completed_set]
+        skipped_set = set(session.get("skipped_modules") or [])
+        missing = [
+            m
+            for m in MODULE_ORDER
+            if m != "milestones" and m not in completed_set and m not in skipped_set
+        ]
         if missing:
             return (
                 {
@@ -3268,16 +3273,19 @@ def run_commit_module(
             completed.append(module_id)
         session["completed_modules"] = completed
         done_set = set(session["completed_modules"] or [])
+        skip_set = set(session.get("skipped_modules") or [])
         next_module = None
         all_done = True
         for mid in MODULE_ORDER:
-            if mid in done_set:
+            if mid in done_set or mid in skip_set:
                 continue
             all_done = False
             next_module = mid
             break
         if not all_done and next_module is not None:
             session["current_module"] = next_module
+        elif all_done:
+            session["current_module"] = "complete"
         upsert_db_progress(user, session)
     else:
         row = load_row(user)
@@ -3287,7 +3295,8 @@ def run_commit_module(
             db.session.commit()
         next_module = session.get("current_module")
         done_s = set(session.get("completed_modules") or [])
-        all_done = set(MODULE_ORDER).issubset(done_s)
+        skip_s = set(session.get("skipped_modules") or [])
+        all_done = all(mid in done_s or mid in skip_s for mid in MODULE_ORDER)
 
     try:
         save_session(uid, session)

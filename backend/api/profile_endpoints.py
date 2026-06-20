@@ -70,9 +70,10 @@ def _compute_onboarding_steps(user, email: str):
     if getattr(row, 'current_module', None) == 'complete' or getattr(row, 'completed_at', None) is not None:
         return list(MODULE_ORDER), []
     completed_set = set(row.completed_modules or [])
+    skipped_set = set(row.skipped_modules or [])
 
-    steps_completed = [mid for mid in MODULE_ORDER if mid in completed_set]
-    steps_remaining = [mid for mid in MODULE_ORDER if mid not in completed_set]
+    steps_completed = [mid for mid in MODULE_ORDER if mid in completed_set or mid in skipped_set]
+    steps_remaining = [mid for mid in MODULE_ORDER if mid not in completed_set and mid not in skipped_set]
     return steps_completed, steps_remaining
 
 # Create blueprint

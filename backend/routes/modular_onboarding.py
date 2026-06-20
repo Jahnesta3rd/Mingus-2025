@@ -186,11 +186,13 @@ def _upsert_db_progress(user: User, session: dict) -> None:
     else:
         row.completed_modules = list(session.get("completed_modules") or [])
         row.skipped_modules = list(session.get("skipped_modules") or [])
-        row.current_module = session.get("current_module") or MODULE_ORDER[0]
         row.last_activity_at = now
-    completed_set = set(row.completed_modules or [])
-    all_completed = all(mid in completed_set for mid in MODULE_ORDER)
-    row.completed_at = now if all_completed else None
+    if _session_all_done(session):
+        row.completed_at = now
+        row.current_module = ONBOARDING_TERMINAL_MODULE
+    else:
+        row.completed_at = None
+        row.current_module = session.get("current_module") or MODULE_ORDER[0]
     db.session.commit()
 
 
@@ -209,6 +211,15 @@ def _next_open_module(session: dict) -> str | None:
             continue
         return mid
     return None
+
+
+def _session_all_done(session: dict) -> bool:
+    done = set(session.get("completed_modules") or [])
+    skip = set(session.get("skipped_modules") or [])
+    return all(mid in done or mid in skip for mid in MODULE_ORDER)
+
+
+ONBOARDING_TERMINAL_MODULE = "complete"
 
 
 def _strip_ready_tokens(text: str) -> str:
@@ -1269,12 +1280,15 @@ def post_skip_module():
     skipped = set(session.get("skipped_modules") or [])
     skipped.add(module_id)
     session["skipped_modules"] = list(skipped)
+    nxt = _next_open_module(session)
+    if nxt:
+        session["current_module"] = nxt
+    elif _session_all_done(session):
+        session["current_module"] = ONBOARDING_TERMINAL_MODULE
     _save_session(uid, session)
     _upsert_db_progress(user, session)
 
-    nxt = _next_open_module(session)
-    done = set(session.get("completed_modules") or [])
-    all_done = all(mid in done for mid in MODULE_ORDER)
+    all_done = _session_all_done(session)
     return jsonify({"next_module": nxt, "all_done": all_done}), 200
 
 
@@ -1318,12 +1332,11 @@ def get_status():
     session = _get_session(uid, user)
     row = _load_row(user)
     session_for_response = dict(session)
-    skipped_set = set(row.skipped_modules or []) if row else set(session.get("skipped_modules") or [])
-    if skipped_set:
-        for mid in MODULE_ORDER:
-            if mid in skipped_set:
-                session_for_response["current_module"] = mid
-                break
+    nxt = _next_open_module(session)
+    if nxt:
+        session_for_response["current_module"] = nxt
+    elif _session_all_done(session):
+        session_for_response["current_module"] = ONBOARDING_TERMINAL_MODULE
     elif row and row.current_module:
         session_for_response.setdefault("current_module", row.current_module)
     payload = {
