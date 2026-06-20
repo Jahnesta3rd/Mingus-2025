@@ -65,6 +65,12 @@ def daily_outlook_client(app):
 
 
 @pytest.fixture
+def client(daily_outlook_client):
+    """HTTP client with daily_outlook_api routes registered."""
+    return daily_outlook_client
+
+
+@pytest.fixture
 def sample_outlook(app, sample_user):
     """Create a sample daily outlook for today."""
     with app.app_context():
