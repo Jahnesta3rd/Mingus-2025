@@ -15,7 +15,7 @@ jobs:
       postgres:
         image: postgres:16
         env:
-          POSTGRES_USER: test
+          POSTGRES_USER: root
           POSTGRES_PASSWORD: test
           POSTGRES_DB: mingus_test
         ports:
@@ -27,8 +27,8 @@ jobs:
           --health-retries 20
 
     env:
-      DATABASE_URL: postgresql://test:test@localhost:5432/mingus_test
-      PGUSER: test
+      DATABASE_URL: postgresql://root:test@localhost:5432/mingus_test
+      PGUSER: root
       PGPASSWORD: test
       PGHOST: localhost
       PGPORT: 5432
