@@ -17,7 +17,6 @@ import asyncio
 from datetime import datetime, date, timedelta, timezone
 from decimal import Decimal
 from unittest.mock import Mock, patch, MagicMock
-from flask import Flask
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
@@ -32,34 +31,16 @@ from backend.models.daily_outlook import (
     RelationshipStatus, TemplateTier, TemplateCategory
 )
 from backend.models.user_models import User
-from backend.api.daily_outlook_api import daily_outlook_api
 from backend.services.feature_flag_service import FeatureFlagService, FeatureTier
 # from backend.tasks.daily_outlook_tasks import generate_daily_outlooks
 from backend.utils.cache import CacheManager
 from backend.utils.notifications import NotificationService
-from tests.db_helpers import configure_app_for_tests, initialize_shared_schema, cleanup_test_data, persist_test_user
+from tests.db_helpers import persist_test_user
 
 
 class TestDailyOutlookEndToEndFlow:
     """Test suite for end-to-end user flow testing"""
-    
-    @pytest.fixture
-    def app(self):
-        """Create test Flask application"""
-        app = Flask(__name__)
-        configure_app_for_tests(app)
-        db.init_app(app)
-        initialize_shared_schema(db)
-        with app.app_context():
-            yield app
-            cleanup_test_data(db)
-    
-    @pytest.fixture
-    def client(self, app):
-        """Create test client"""
-        app.register_blueprint(daily_outlook_api)
-        return app.test_client()
-    
+
     @pytest.fixture
     def sample_user(self, app):
         """Create sample user for testing"""
@@ -229,18 +210,7 @@ class TestDailyOutlookEndToEndFlow:
 
 class TestNotificationDelivery:
     """Test suite for notification delivery testing"""
-    
-    @pytest.fixture
-    def app(self):
-        """Create test Flask application"""
-        app = Flask(__name__)
-        configure_app_for_tests(app)
-        db.init_app(app)
-        initialize_shared_schema(db)
-        with app.app_context():
-            yield app
-            cleanup_test_data(db)
-    
+
     def test_daily_outlook_notification_generation(self, app):
         """Test daily outlook notification generation"""
         with app.app_context():
@@ -342,18 +312,7 @@ class TestNotificationDelivery:
 
 class TestBackgroundTaskExecution:
     """Test suite for background task execution"""
-    
-    @pytest.fixture
-    def app(self):
-        """Create test Flask application"""
-        app = Flask(__name__)
-        configure_app_for_tests(app)
-        db.init_app(app)
-        initialize_shared_schema(db)
-        with app.app_context():
-            yield app
-            cleanup_test_data(db)
-    
+
     def test_daily_outlook_generation_task(self, app):
         """Test daily outlook generation background task"""
         with app.app_context():
@@ -446,24 +405,7 @@ class TestBackgroundTaskExecution:
 
 class TestCrossTierFeatureAccess:
     """Test suite for cross-tier feature access validation"""
-    
-    @pytest.fixture
-    def app(self):
-        """Create test Flask application"""
-        app = Flask(__name__)
-        configure_app_for_tests(app)
-        db.init_app(app)
-        initialize_shared_schema(db)
-        with app.app_context():
-            yield app
-            cleanup_test_data(db)
-    
-    @pytest.fixture
-    def client(self, app):
-        """Create test client"""
-        app.register_blueprint(daily_outlook_api)
-        return app.test_client()
-    
+
     def test_budget_tier_access(self, client, app):
         """Test budget tier access to daily outlook"""
         with app.app_context():
@@ -553,24 +495,7 @@ class TestCrossTierFeatureAccess:
 
 class TestPerformanceBenchmarking:
     """Test suite for performance benchmarking"""
-    
-    @pytest.fixture
-    def app(self):
-        """Create test Flask application"""
-        app = Flask(__name__)
-        configure_app_for_tests(app)
-        db.init_app(app)
-        initialize_shared_schema(db)
-        with app.app_context():
-            yield app
-            cleanup_test_data(db)
-    
-    @pytest.fixture
-    def client(self, app):
-        """Create test client"""
-        app.register_blueprint(daily_outlook_api)
-        return app.test_client()
-    
+
     def test_api_response_time(self, client, app):
         """Test API response time performance"""
         with app.app_context():

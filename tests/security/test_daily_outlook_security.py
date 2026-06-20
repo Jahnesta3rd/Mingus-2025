@@ -23,7 +23,6 @@ import hmac
 from datetime import datetime, date, timedelta, timezone
 from decimal import Decimal
 from unittest.mock import Mock, patch, MagicMock
-from flask import Flask
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
@@ -35,52 +34,17 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 from backend.models.database import db
 from backend.models.daily_outlook import DailyOutlook, UserRelationshipStatus, RelationshipStatus
 from backend.models.user_models import User
-from backend.api.daily_outlook_api import daily_outlook_api
 from backend.auth.decorators import require_auth, get_current_user_id
 from backend.utils.validation import APIValidator
 from backend.utils.encryption import EncryptionService
 from backend.utils.rate_limiting import RateLimiter
-from tests.db_helpers import configure_app_for_tests, initialize_shared_schema, cleanup_test_data, persist_test_user
-
-
-def _seed_today_outlook(user_id: int) -> DailyOutlook:
-    """Create today's outlook so POST endpoints can reach validation/business logic."""
-    outlook = DailyOutlook(
-        user_id=user_id,
-        date=date.today(),
-        balance_score=75,
-        financial_weight=Decimal('0.30'),
-        wellness_weight=Decimal('0.25'),
-        relationship_weight=Decimal('0.25'),
-        career_weight=Decimal('0.20'),
-        quick_actions=[{'id': 'test', 'title': 'Test', 'description': 'Test action'}],
-        streak_count=1,
-    )
-    db.session.add(outlook)
-    db.session.commit()
-    return outlook
+from tests.daily_outlook_fixtures import seed_today_outlook
+from tests.db_helpers import persist_test_user
 
 
 class TestUserDataPrivacy:
     """Test suite for user data privacy validation"""
-    
-    @pytest.fixture
-    def app(self):
-        """Create test Flask application"""
-        app = Flask(__name__)
-        configure_app_for_tests(app)
-        db.init_app(app)
-        initialize_shared_schema(db)
-        with app.app_context():
-            yield app
-            cleanup_test_data(db)
-    
-    @pytest.fixture
-    def client(self, app):
-        """Create test client"""
-        app.register_blueprint(daily_outlook_api)
-        return app.test_client()
-    
+
     @pytest.fixture
     def test_user(self, app):
         """Create test user"""
@@ -278,24 +242,7 @@ class TestUserDataPrivacy:
 
 class TestAPIEndpointSecurity:
     """Test suite for API endpoint security testing"""
-    
-    @pytest.fixture
-    def app(self):
-        """Create test Flask application"""
-        app = Flask(__name__)
-        configure_app_for_tests(app)
-        db.init_app(app)
-        initialize_shared_schema(db)
-        with app.app_context():
-            yield app
-            cleanup_test_data(db)
-    
-    @pytest.fixture
-    def client(self, app):
-        """Create test client"""
-        app.register_blueprint(daily_outlook_api)
-        return app.test_client()
-    
+
     def test_authentication_required(self, client):
         """Test that authentication is required for all endpoints"""
         endpoints = [
@@ -388,24 +335,7 @@ class TestAPIEndpointSecurity:
 
 class TestInputValidationAndSanitization:
     """Test suite for input validation and sanitization"""
-    
-    @pytest.fixture
-    def app(self):
-        """Create test Flask application"""
-        app = Flask(__name__)
-        configure_app_for_tests(app)
-        db.init_app(app)
-        initialize_shared_schema(db)
-        with app.app_context():
-            yield app
-            cleanup_test_data(db)
-    
-    @pytest.fixture
-    def client(self, app):
-        """Create test client"""
-        app.register_blueprint(daily_outlook_api)
-        return app.test_client()
-    
+
     @pytest.fixture
     def test_user(self, app):
         """Create test user"""
@@ -422,7 +352,7 @@ class TestInputValidationAndSanitization:
     def test_sql_injection_prevention(self, client, app, test_user):
         """Test SQL injection prevention"""
         with app.app_context():
-            _seed_today_outlook(test_user.id)
+            seed_today_outlook(test_user.id)
         with patch('backend.api.daily_outlook_api.get_current_user_id', return_value=test_user.id):
             with patch('backend.api.daily_outlook_api.check_user_tier_access', return_value=True):
                 malicious_payloads = [
@@ -445,7 +375,7 @@ class TestInputValidationAndSanitization:
     def test_xss_prevention(self, client, app, test_user):
         """Test XSS prevention"""
         with app.app_context():
-            _seed_today_outlook(test_user.id)
+            seed_today_outlook(test_user.id)
         with patch('backend.api.daily_outlook_api.get_current_user_id', return_value=test_user.id):
             with patch('backend.api.daily_outlook_api.check_user_tier_access', return_value=True):
                 xss_payloads = [
@@ -491,7 +421,7 @@ class TestInputValidationAndSanitization:
     def test_input_type_validation(self, client, app, test_user):
         """Test input type validation"""
         with app.app_context():
-            _seed_today_outlook(test_user.id)
+            seed_today_outlook(test_user.id)
         with patch('backend.api.daily_outlook_api.get_current_user_id', return_value=test_user.id):
             with patch('backend.api.daily_outlook_api.check_user_tier_access', return_value=True):
                 invalid_inputs = [
@@ -539,24 +469,7 @@ class TestInputValidationAndSanitization:
 
 class TestRateLimitingEffectiveness:
     """Test suite for rate limiting effectiveness"""
-    
-    @pytest.fixture
-    def app(self):
-        """Create test Flask application"""
-        app = Flask(__name__)
-        configure_app_for_tests(app)
-        db.init_app(app)
-        initialize_shared_schema(db)
-        with app.app_context():
-            yield app
-            cleanup_test_data(db)
-    
-    @pytest.fixture
-    def client(self, app):
-        """Create test client"""
-        app.register_blueprint(daily_outlook_api)
-        return app.test_client()
-    
+
     def test_rate_limiting_by_ip(self, client, app):
         """Test rate limiting by IP address"""
         with app.app_context():
@@ -635,18 +548,7 @@ class TestRateLimitingEffectiveness:
 
 class TestDataEncryptionAndProtection:
     """Test suite for data encryption and protection"""
-    
-    @pytest.fixture
-    def app(self):
-        """Create test Flask application"""
-        app = Flask(__name__)
-        configure_app_for_tests(app)
-        db.init_app(app)
-        initialize_shared_schema(db)
-        with app.app_context():
-            yield app
-            cleanup_test_data(db)
-    
+
     def test_sensitive_data_encryption(self, app):
         """Test that sensitive data is encrypted with proper Fernet encryption"""
         import os
@@ -768,18 +670,7 @@ class TestDataEncryptionAndProtection:
 
 class TestSessionManagement:
     """Test suite for session management"""
-    
-    @pytest.fixture
-    def app(self):
-        """Create test Flask application"""
-        app = Flask(__name__)
-        configure_app_for_tests(app)
-        db.init_app(app)
-        initialize_shared_schema(db)
-        with app.app_context():
-            yield app
-            cleanup_test_data(db)
-    
+
     def test_session_timeout(self, app):
         """Test session timeout"""
         with app.app_context():

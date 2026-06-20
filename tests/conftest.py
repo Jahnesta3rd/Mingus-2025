@@ -7,9 +7,13 @@ including authentication bypass for API endpoint testing.
 """
 
 import pytest
+from datetime import date
+from decimal import Decimal
 from unittest.mock import patch
 from flask import Flask
 
+from backend.api.daily_outlook_api import daily_outlook_api
+from backend.models.daily_outlook import DailyOutlook
 from backend.models.database import db
 from tests.db_helpers import (
     cleanup_test_data,
@@ -51,6 +55,40 @@ def sample_user(app):
             last_name="User",
             tier="budget",
         )
+
+
+@pytest.fixture
+def daily_outlook_client(app):
+    """Flask test client with production daily_outlook_api blueprint registered."""
+    app.register_blueprint(daily_outlook_api)
+    return app.test_client()
+
+
+@pytest.fixture
+def sample_outlook(app, sample_user):
+    """Create a sample daily outlook for today."""
+    with app.app_context():
+        outlook = DailyOutlook(
+            user_id=sample_user.id,
+            date=date.today(),
+            balance_score=75,
+            financial_weight=Decimal("0.30"),
+            wellness_weight=Decimal("0.25"),
+            relationship_weight=Decimal("0.25"),
+            career_weight=Decimal("0.20"),
+            primary_insight="Your financial progress is on track!",
+            quick_actions=[
+                {"id": "action_1", "title": "Review budget", "description": "Check monthly spending"},
+                {"id": "action_2", "title": "Update goals", "description": "Review financial goals"},
+            ],
+            encouragement_message="Great job maintaining your streak!",
+            surprise_element="Did you know...",
+            streak_count=5,
+            user_rating=4,
+        )
+        db.session.add(outlook)
+        db.session.commit()
+        return outlook
 
 
 @pytest.fixture(autouse=True, scope="function")

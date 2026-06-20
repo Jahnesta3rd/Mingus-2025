@@ -21,7 +21,6 @@ import time
 from datetime import datetime, date, timedelta, timezone
 from decimal import Decimal
 from unittest.mock import Mock, patch, MagicMock
-from flask import Flask
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
@@ -43,73 +42,14 @@ from backend.services.feature_flag_service import FeatureFlagService, FeatureTie
 from backend.utils.cache import CacheManager
 from backend.utils.daily_outlook_utils import calculate_streak_count, update_user_relationship_status, check_user_tier_access
 from backend.tasks.daily_outlook_tasks import generate_daily_outlooks
-from tests.db_helpers import (
-    configure_app_for_tests,
-    initialize_shared_schema,
-    cleanup_test_data,
-    persist_test_user,
-)
 
 
-# Module-level fixtures - available to all test classes
-@pytest.fixture
-def app():
-    """Create Flask app for testing"""
-    app = Flask(__name__)
-    configure_app_for_tests(app)
-    
-    # Initialize database
-    db.init_app(app)
-    initialize_shared_schema(db)
-    
-    with app.app_context():
-        yield app
-        cleanup_test_data(db)
-
+# Module-level client uses the test API blueprint (no auth decorators).
 @pytest.fixture
 def client(app):
-    """Create test client"""
+    """Create test client against tests.api.test_daily_outlook_api."""
     app.register_blueprint(test_daily_outlook_api)
     return app.test_client()
-
-@pytest.fixture
-def sample_user(app):
-    """Create sample user for testing"""
-    with app.app_context():
-        return persist_test_user(
-            db,
-            user_id='test_user_123',
-            email='test@example.com',
-            first_name='Test',
-            last_name='User',
-            tier='budget',
-        )
-
-@pytest.fixture
-def sample_outlook(app, sample_user):
-    """Create sample daily outlook for testing"""
-    with app.app_context():
-        outlook = DailyOutlook(
-            user_id=sample_user.id,
-            date=date.today(),
-            balance_score=75,
-            financial_weight=Decimal('0.30'),
-            wellness_weight=Decimal('0.25'),
-            relationship_weight=Decimal('0.25'),
-            career_weight=Decimal('0.20'),
-            primary_insight="Your financial progress is on track!",
-            quick_actions=[
-                {"id": "action_1", "title": "Review budget", "description": "Check monthly spending"},
-                {"id": "action_2", "title": "Update goals", "description": "Review financial goals"}
-            ],
-            encouragement_message="Great job maintaining your streak!",
-            surprise_element="Did you know...",
-            streak_count=5,
-            user_rating=4
-        )
-        db.session.add(outlook)
-        db.session.commit()
-        return outlook
 
 
 class TestDailyOutlookModels:
