@@ -27,6 +27,33 @@ async function readErrorMessage(res: Response): Promise<string> {
 
 type RosterPhase = 'seed' | 'assess' | 'submitting';
 
+type RelationshipStatusAnswer =
+  | 'single'
+  | 'partnered'
+  | 'married'
+  | 'separated'
+  | 'divorced'
+  | 'widowed'
+  | 'complicated';
+
+const RELATIONSHIP_STATUS_ROW_1: { label: string; value: RelationshipStatusAnswer }[] = [
+  { label: 'Single', value: 'single' },
+  { label: 'In a relationship', value: 'partnered' },
+  { label: 'Married', value: 'married' },
+];
+
+const RELATIONSHIP_STATUS_ROW_2: { label: string; value: RelationshipStatusAnswer }[] = [
+  { label: 'Separated', value: 'separated' },
+  { label: 'Divorced', value: 'divorced' },
+  { label: 'Widowed', value: 'widowed' },
+  { label: "It's complicated", value: 'complicated' },
+];
+
+const relationshipPillClass = (selected: boolean) =>
+  selected
+    ? 'rounded-lg border border-purple-600 bg-purple-600 px-4 py-2 text-sm text-white'
+    : 'rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-700 hover:border-purple-500';
+
 type PeoplePayload = {
   nickname: string;
   card_type: 'person' | 'kids' | 'social' | 'family';
@@ -44,6 +71,9 @@ type AssessableEntry = {
 export default function RosterStep({ onSubmit, onSkip }: StepProps) {
   const { getAccessToken } = useAuth();
   const [pageError, setPageError] = useState<string | null>(null);
+  const [relationshipStatus, setRelationshipStatus] = useState<RelationshipStatusAnswer | null>(
+    null
+  );
   const [phase, setPhase] = useState<RosterPhase>('seed');
   const [assessmentQueue, setAssessmentQueue] = useState<AssessableEntry[]>([]);
   const [queueIndex, setQueueIndex] = useState(0);
@@ -60,6 +90,25 @@ export default function RosterStep({ onSubmit, onSkip }: StepProps) {
     return Array.isArray(json.people) ? json.people.length : 0;
   }, [getAccessToken]);
 
+  const patchRelationshipStatus = useCallback(
+    async (status: RelationshipStatusAnswer) => {
+      try {
+        const res = await fetch('/api/user/me', {
+          method: 'PATCH',
+          credentials: 'include',
+          headers: buildHeaders(getAccessToken),
+          body: JSON.stringify({ relationship_status: status }),
+        });
+        if (!res.ok) {
+          console.error('Failed to save relationship_status:', await readErrorMessage(res));
+        }
+      } catch (err) {
+        console.error('Failed to save relationship_status:', err);
+      }
+    },
+    [getAccessToken]
+  );
+
   const finalizeSubmit = useCallback(
     async (peopleOverride?: PeoplePayload[]) => {
       const people = peopleOverride ?? pendingPayload?.people;
@@ -67,6 +116,9 @@ export default function RosterStep({ onSubmit, onSkip }: StepProps) {
       setPhase('submitting');
       setPageError(null);
       try {
+        if (relationshipStatus !== null) {
+          await patchRelationshipStatus(relationshipStatus);
+        }
         const count = await fetchRosterCount();
         await onSubmit({
           count,
@@ -82,7 +134,7 @@ export default function RosterStep({ onSubmit, onSkip }: StepProps) {
         setPageError(err instanceof Error ? err.message : 'Could not save roster');
       }
     },
-    [fetchRosterCount, onSubmit, pendingPayload]
+    [fetchRosterCount, onSubmit, patchRelationshipStatus, pendingPayload, relationshipStatus]
   );
 
   const advanceQueue = useCallback(() => {
@@ -142,15 +194,58 @@ export default function RosterStep({ onSubmit, onSkip }: StepProps) {
 
   const currentAssess = assessmentQueue[queueIndex];
 
+  const renderRelationshipQuestion = () => (
+    <div className="rounded-xl border border-[#E2E8F0] bg-white p-6 shadow-sm">
+      <h2 className="text-lg font-semibold text-[#1E293B]">Are you currently in a relationship?</h2>
+      <p className="mt-1 text-sm text-[#64748B]">Helps us personalize your financial planning.</p>
+      <div className="mt-4 space-y-3">
+        <div className="flex flex-wrap gap-2">
+          {RELATIONSHIP_STATUS_ROW_1.map((opt) => (
+            <button
+              key={opt.value}
+              type="button"
+              onClick={() => setRelationshipStatus(opt.value)}
+              className={relationshipPillClass(relationshipStatus === opt.value)}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {RELATIONSHIP_STATUS_ROW_2.map((opt) => (
+            <button
+              key={opt.value}
+              type="button"
+              onClick={() => setRelationshipStatus(opt.value)}
+              className={relationshipPillClass(relationshipStatus === opt.value)}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+      </div>
+      <button
+        type="button"
+        onClick={() => setRelationshipStatus(null)}
+        className="mt-3 text-xs text-gray-400 hover:text-gray-600"
+      >
+        Skip for now →
+      </button>
+    </div>
+  );
+
   return (
     <div className="space-y-4">
       {phase === 'seed' ? (
-        <div className="rounded-xl border border-[#E2E8F0] bg-white p-6 shadow-sm">
-          <h1 className="font-serif text-2xl font-semibold text-[#1E293B] sm:text-3xl">Roster</h1>
-          <p className="mt-2 text-sm text-[#64748B]">
-            Add people to your roster to personalize relationship and spending insights.
-          </p>
-        </div>
+        <>
+          {renderRelationshipQuestion()}
+          <div className="rounded-xl border border-[#E2E8F0] bg-white p-6 shadow-sm">
+            <h1 className="font-serif text-2xl font-semibold text-[#1E293B] sm:text-3xl">Roster</h1>
+            <p className="mt-2 text-sm text-[#64748B]">
+              Add people to your roster to personalize relationship and spending insights.
+            </p>
+          </div>
+        </>
       ) : null}
 
       {pageError && (

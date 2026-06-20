@@ -270,6 +270,7 @@ def get_user_profile():
         current_balance = None
         balance_last_updated = None
         important_dates = None
+        relationship_status = None
         tier_value = 'budget'
         profile_row = None
         users_row = None
@@ -280,6 +281,7 @@ def get_user_profile():
                 conn = get_db_connection()
                 cursor = conn.cursor()
                 profiles_columns = _table_columns(cursor, 'user_profiles')
+                users_columns = _table_columns(cursor, 'users')
                 ext_uid = get_current_user_id()
                 if ext_uid is not None:
                     cursor.execute(
@@ -302,11 +304,17 @@ def get_user_profile():
                         if t:
                             tier_value = t
                 if user_email:
+                    user_select = 'first_name, last_name'
+                    if 'relationship_status' in users_columns:
+                        user_select += ', relationship_status'
                     cursor.execute(
-                        'SELECT first_name, last_name FROM users WHERE email = %s',
+                        f'SELECT {user_select} FROM users WHERE email = %s',
                         (user_email,),
                     )
                     users_row = cursor.fetchone()
+                    if users_row and 'relationship_status' in users_row:
+                        rs = users_row.get('relationship_status')
+                        relationship_status = rs if rs is None else str(rs).strip() or None
                     cursor.execute(
                         'SELECT * FROM user_profiles WHERE email = %s',
                         (user_email,),
@@ -359,6 +367,7 @@ def get_user_profile():
         }
         if important_dates is not None:
             profile_out['important_dates'] = important_dates
+        profile_out['relationship_status'] = relationship_status
 
         jwt_user = get_current_jwt_user()
         # Bridge JWT external user_id (UUID) → users.id (integer PK) for internal APIs

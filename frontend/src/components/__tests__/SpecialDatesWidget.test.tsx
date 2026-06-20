@@ -202,29 +202,21 @@ describe('SpecialDatesWidget', () => {
     });
   });
 
-  describe('5. Add date opens modal callback when provided', () => {
-    it('empty state + Add date button calls onRequestAddDate', async () => {
-      const onRequestAddDate = jest.fn();
+  describe('5. Add milestone opens MilestonePickerModal', () => {
+    it('empty state + Add milestone button opens the picker', async () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
         json: async () => mockProfileResponse(null),
       });
 
-      render(
-        <SpecialDatesWidget
-          userId="user-1"
-          userEmail="test@example.com"
-          onRequestAddDate={onRequestAddDate}
-        />
-      );
+      render(<SpecialDatesWidget userId="user-1" userEmail="test@example.com" />);
       await waitFor(() => expect(screen.getByText(/No important dates yet/)).toBeInTheDocument());
 
-      fireEvent.click(screen.getByRole('button', { name: '+ Add date' }));
-      expect(onRequestAddDate).toHaveBeenCalledTimes(1);
+      fireEvent.click(screen.getByRole('button', { name: '+ Add milestone' }));
+      expect(screen.getByText('What are you planning for?')).toBeInTheDocument();
     });
 
-    it('header + Add date calls onRequestAddDate when events exist', async () => {
-      const onRequestAddDate = jest.fn();
+    it('header + Add milestone opens the picker when events exist', async () => {
       const future = new Date();
       future.setDate(future.getDate() + 14);
       const futureStr = future.toISOString().slice(0, 10);
@@ -240,17 +232,11 @@ describe('SpecialDatesWidget', () => {
           }),
       });
 
-      render(
-        <SpecialDatesWidget
-          userId="user-1"
-          userEmail="test@example.com"
-          onRequestAddDate={onRequestAddDate}
-        />
-      );
+      render(<SpecialDatesWidget userId="user-1" userEmail="test@example.com" />);
       await waitFor(() => expect(screen.getByText('Vacation')).toBeInTheDocument());
 
-      fireEvent.click(screen.getByRole('button', { name: '+ Add date' }));
-      expect(onRequestAddDate).toHaveBeenCalledTimes(1);
+      fireEvent.click(screen.getByRole('button', { name: '+ Add milestone' }));
+      expect(screen.getByText('What are you planning for?')).toBeInTheDocument();
     });
   });
 });

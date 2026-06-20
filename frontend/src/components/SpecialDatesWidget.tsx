@@ -1,5 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import {
+  LEGACY_FIELD_TO_CATEGORY,
+  MILESTONE_META,
+  type MilestoneCategory,
+} from '../data/milestoneCategories';
 import { computeForecastImpact } from '../utils/forecastImpact';
+import MilestonePickerModal, { type NewMilestoneEvent } from './MilestonePickerModal';
 
 // ========================================
 // TYPES (API shape: important_dates)
@@ -12,10 +18,13 @@ interface DatedCost {
 }
 
 interface CustomEvent {
+  id?: string;
   name: string;
+  category?: MilestoneCategory;
   date: string;
   cost: number;
   person_nickname?: string;
+  notes?: string;
 }
 
 interface ImportantDatesData {
@@ -66,13 +75,10 @@ interface NormalizedEvent {
 // HELPERS
 // ========================================
 
-const EVENT_EMOJI: Record<string, string> = {
-  birthday: '🎂',
-  vacation: '✈️',
-  car_inspection: '🚗',
-  sisters_wedding: '💍',
-  custom: '📅',
-};
+function resolveEventEmoji(category?: MilestoneCategory): string {
+  const meta = category ? MILESTONE_META[category] : null;
+  return meta?.emoji ?? '📅';
+}
 
 function formatLabel(key: string): string {
   return key
@@ -133,7 +139,7 @@ function normalizeEvents(data: ImportantDatesData | null): NormalizedEvent[] {
         name: 'Birthday',
         date: nextDate,
         cost: 0,
-        emoji: EVENT_EMOJI.birthday,
+        emoji: resolveEventEmoji(LEGACY_FIELD_TO_CATEGORY.birthday),
       });
     }
   }
@@ -143,7 +149,7 @@ function normalizeEvents(data: ImportantDatesData | null): NormalizedEvent[] {
       name: formatLabel('vacation'),
       date: data.vacation.date,
       cost: data.vacation.cost,
-      emoji: EVENT_EMOJI.vacation,
+      emoji: resolveEventEmoji(LEGACY_FIELD_TO_CATEGORY.vacation),
     });
   }
   if (data.car_inspection?.date && data.car_inspection.date >= today) {
@@ -151,7 +157,7 @@ function normalizeEvents(data: ImportantDatesData | null): NormalizedEvent[] {
       name: formatLabel('car_inspection'),
       date: data.car_inspection.date,
       cost: data.car_inspection.cost,
-      emoji: EVENT_EMOJI.car_inspection,
+      emoji: resolveEventEmoji(LEGACY_FIELD_TO_CATEGORY.car_inspection),
     });
   }
   if (data.sisters_wedding?.date && data.sisters_wedding.date >= today) {
@@ -159,7 +165,7 @@ function normalizeEvents(data: ImportantDatesData | null): NormalizedEvent[] {
       name: formatLabel('sisters_wedding'),
       date: data.sisters_wedding.date,
       cost: data.sisters_wedding.cost,
-      emoji: EVENT_EMOJI.sisters_wedding,
+      emoji: resolveEventEmoji(LEGACY_FIELD_TO_CATEGORY.sisters_wedding),
     });
   }
 
@@ -167,10 +173,10 @@ function normalizeEvents(data: ImportantDatesData | null): NormalizedEvent[] {
   custom.forEach((ev) => {
     if (ev.date >= today) {
       out.push({
-        name: ev.name.charAt(0).toUpperCase() + ev.name.slice(1),
+        name: ev.name,
         date: ev.date,
         cost: ev.cost,
-        emoji: EVENT_EMOJI.custom,
+        emoji: resolveEventEmoji(ev.category),
       });
     }
   });
@@ -208,7 +214,7 @@ export default function SpecialDatesWidget({
   userEmail,
   className = '',
   onNavigateToForecast,
-  onRequestAddDate,
+  onRequestAddDate: _onRequestAddDate,
   importantDatesRefreshKey = 0,
 }: SpecialDatesWidgetProps) {
   const [profile, setProfile] = useState<ProfileResponse | null>(null);
@@ -217,6 +223,7 @@ export default function SpecialDatesWidget({
   const [cashflow, setCashflow] = useState<DailyCashflow[]>([]);
   const [cashflowLoading, setCashflowLoading] = useState(true);
   const [tooltipIndex, setTooltipIndex] = useState<number | null>(null);
+  const [pickerOpen, setPickerOpen] = useState(false);
 
   const fetchProfile = useCallback(async () => {
     try {
@@ -284,86 +291,156 @@ export default function SpecialDatesWidget({
   const events = normalizeEvents(importantDates);
   const isEmpty = events.length === 0 && !loading && !error;
 
-  const openAdd = onRequestAddDate;
+  const handleSaveMilestone = useCallback(
+    async (event: NewMilestoneEvent) => {
+      const token = localStorage.getItem('mingus_token');
+      if (!token) throw new Error('Not authenticated');
 
-  const addControl = openAdd ? (
+      const current = profile?.profile?.important_dates ?? null;
+      const existing = current?.custom_events ?? current?.customEvents ?? [];
+      const newEvent: CustomEvent = {
+        id: event.id,
+        name: event.name,
+        category: event.category,
+        date: event.date,
+        cost: event.cost ?? 0,
+        ...(event.notes ? { notes: event.notes } : {}),
+      };
+
+      const response = await fetch('/api/user/profile', {
+        method: 'PATCH',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          important_dates: {
+            custom_events: [...existing, newEvent],
+          },
+        }),
+      });
+
+      if (!response.ok) throw new Error('Save failed');
+
+      setProfile((prev) => {
+        if (!prev) return prev;
+        const prevDates: ImportantDatesData = prev.profile.important_dates ?? {
+          birthday: null,
+          vacation: null,
+          car_inspection: null,
+          sisters_wedding: null,
+        };
+        const prevCustom = prevDates.custom_events ?? prevDates.customEvents ?? [];
+        return {
+          ...prev,
+          profile: {
+            ...prev.profile,
+            important_dates: {
+              ...prevDates,
+              custom_events: [...prevCustom, newEvent],
+            },
+          },
+        };
+      });
+    },
+    [profile]
+  );
+
+  const pickerModal = (
+    <MilestonePickerModal
+      isOpen={pickerOpen}
+      onClose={() => setPickerOpen(false)}
+      onSave={handleSaveMilestone}
+      userId={userId}
+    />
+  );
+
+  const addControl = (
     <button
       type="button"
-      onClick={openAdd}
-      className="inline-flex min-h-11 shrink-0 items-center justify-center rounded-lg border border-gray-900 bg-white px-4 text-sm font-semibold text-gray-900 transition-colors hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:ring-offset-2"
+      onClick={() => setPickerOpen(true)}
+      className="shrink-0 text-sm text-purple-600 underline hover:text-purple-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-600 focus-visible:ring-offset-2"
     >
-      + Add date
+      + Add milestone
     </button>
-  ) : null;
+  );
 
   // Loading: skeleton
   if (loading) {
     return (
-      <div
-        className={`rounded-xl bg-white p-6 shadow-sm ${className}`}
-        role="status"
-        aria-label="Loading important dates"
-      >
-        <h2 className="mb-4 text-lg font-semibold text-gray-900">Important dates</h2>
-        <div className="max-h-[320px] space-y-0 overflow-hidden">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="flex items-center gap-3 border-b border-gray-100 py-3 last:border-0">
-              <div className="h-8 w-8 animate-pulse rounded-full bg-gray-200" />
-              <div className="flex-1 space-y-1">
-                <div className="h-4 w-28 animate-pulse rounded bg-gray-200" />
-                <div className="h-3 w-16 animate-pulse rounded bg-gray-100" />
+      <>
+        <div
+          className={`rounded-xl bg-white p-6 shadow-sm ${className}`}
+          role="status"
+          aria-label="Loading important dates"
+        >
+          <h2 className="mb-4 text-lg font-semibold text-gray-900">Important dates</h2>
+          <div className="max-h-[320px] space-y-0 overflow-hidden">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="flex items-center gap-3 border-b border-gray-100 py-3 last:border-0">
+                <div className="h-8 w-8 animate-pulse rounded-full bg-gray-200" />
+                <div className="flex-1 space-y-1">
+                  <div className="h-4 w-28 animate-pulse rounded bg-gray-200" />
+                  <div className="h-3 w-16 animate-pulse rounded bg-gray-100" />
+                </div>
+                <div className="h-6 w-14 animate-pulse rounded-full bg-gray-200" />
               </div>
-              <div className="h-6 w-14 animate-pulse rounded-full bg-gray-200" />
-            </div>
-          ))}
+            ))}
+          </div>
+          <div className="mt-4 h-4 w-48 animate-pulse rounded bg-gray-100" />
         </div>
-        <div className="mt-4 h-4 w-48 animate-pulse rounded bg-gray-100" />
-      </div>
+        {pickerModal}
+      </>
     );
   }
 
   // Error: whole card clickable retry
   if (error) {
     return (
-      <button
-        type="button"
-        onClick={fetchProfile}
-        className={`block w-full rounded-xl bg-white p-6 text-left shadow-sm transition-opacity hover:opacity-90 ${className}`}
-      >
-        <p className="text-gray-700">{error}</p>
-      </button>
+      <>
+        <button
+          type="button"
+          onClick={fetchProfile}
+          className={`block w-full rounded-xl bg-white p-6 text-left shadow-sm transition-opacity hover:opacity-90 ${className}`}
+        >
+          <p className="text-gray-700">{error}</p>
+        </button>
+        {pickerModal}
+      </>
     );
   }
 
   // Empty state
   if (isEmpty) {
     return (
-      <div className={`rounded-xl bg-white p-6 shadow-sm ${className}`}>
-        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-          <h2 className="text-lg font-semibold text-gray-900">Important dates</h2>
-          {addControl}
-        </div>
-        <p className="mb-4 text-gray-600">
-          No important dates yet. Add birthdays, trips, or other dates — we&apos;ll show how they line up with
-          your cash forecast.
-        </p>
-        <p>
-          {openAdd ? (
+      <>
+        <div className={`rounded-xl bg-white p-6 shadow-sm ${className}`}>
+          <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <h2 className="text-lg font-semibold text-gray-900">Important dates</h2>
+            {addControl}
+          </div>
+          <p className="mb-4 text-gray-600">
+            No important dates yet. Add birthdays, trips, or other dates — we&apos;ll show how they line up with
+            your cash forecast.
+          </p>
+          <p>
             <button
               type="button"
-              onClick={openAdd}
+              onClick={() => setPickerOpen(true)}
               className="inline-flex min-h-11 items-center text-sm font-semibold text-[#6D28D9] underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6D28D9] focus-visible:ring-offset-2"
             >
               Add your first date →
             </button>
-          ) : null}
-        </p>
-      </div>
+          </p>
+        </div>
+        {pickerModal}
+      </>
     );
   }
 
   return (
-    <div className={`rounded-xl bg-white p-6 shadow-sm ${className}`} role="region" aria-label="Important dates">
+    <>
+      <div className={`rounded-xl bg-white p-6 shadow-sm ${className}`} role="region" aria-label="Important dates">
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <h2 className="text-lg font-semibold text-gray-900">Important dates</h2>
         {addControl}
@@ -469,6 +546,8 @@ export default function SpecialDatesWidget({
           );
         })}
       </ul>
-    </div>
+      </div>
+      {pickerModal}
+    </>
   );
 }

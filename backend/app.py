@@ -21,6 +21,7 @@ from backend.routes.faith_card import faith_card_bp
 from backend.routes.bug_report import bug_report_bp
 from backend.routes.modular_onboarding import modular_onboarding_bp
 from backend.routes.user import user_bp as user_agreement_bp
+from backend.routes import user_api  # noqa: F401 — PATCH /api/user/me on user_bp
 from backend.routes.vehicle_dashboard_routes import vehicle_dashboard_public_bp
 from backend.routes.vin_advisor import vin_advisor_bp
 from backend.routes.hprs import hprs_bp
