@@ -6,7 +6,8 @@ import DashboardSkeleton from '../components/DashboardSkeleton';
 import QuickSetupOverlay from '../components/QuickSetupOverlay';
 import SpendingMilestonesWidget from '../components/SpendingMilestonesWidget';
 import SpecialDatesWidget from '../components/SpecialDatesWidget';
-import NewParentChecklistCard from '../components/NewParentChecklistCard';
+import NewParentChecklistCard, { detectHasBabyMilestone } from '../components/NewParentChecklistCard';
+import CostOfSummerLoveCard from '../components/CostOfSummerLoveCard';
 import ArticleLibraryCard from '../components/ArticleLibraryCard';
 import ParentingImpactSimulator from '../components/ParentingImpactSimulator';
 import TodayTab from '../components/TodayTab';
@@ -203,21 +204,6 @@ function hasMidTierAccess(tier: AuthUserTier | null): boolean {
   return tier === 'mid_tier' || tier === 'professional';
 }
 
-const BABY_MILESTONE_RE = /\b(baby|birth|newborn|pregnancy|pregnant|expecting|childbirth)\b/i;
-
-function detectBabyMilestone(importantDates: Record<string, unknown> | null | undefined): boolean {
-  if (!importantDates || typeof importantDates !== 'object') return false;
-  const customs = (importantDates.custom_events ?? importantDates.customEvents) as unknown;
-  if (!Array.isArray(customs)) return false;
-  return customs.some((ev) => {
-    if (!ev || typeof ev !== 'object') return false;
-    const row = ev as Record<string, unknown>;
-    if (row.event_type === 'birth' || row.type === 'birth') return true;
-    const name = typeof row.name === 'string' ? row.name : '';
-    return BABY_MILESTONE_RE.test(name);
-  });
-}
-
 const CareerProtectionDashboard: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { user, userTier, isAuthenticated, loading: authLoading, getAccessToken } = useAuth();
@@ -259,6 +245,8 @@ const CareerProtectionDashboard: React.FC = () => {
   const [parentChecklistLoaded, setParentChecklistLoaded] = useState(false);
   const [parentChecklistError, setParentChecklistError] = useState(false);
   const [hasBabyMilestone, setHasBabyMilestone] = useState(false);
+  const [relationshipStatus, setRelationshipStatus] = useState<string | null>(null);
+  const [showParentingChecklist, setShowParentingChecklist] = useState(false);
 
   const loadParentChecklistFromProfile = useCallback(async () => {
     if (!user?.id) return;
@@ -279,10 +267,17 @@ const CareerProtectionDashboard: React.FC = () => {
       );
       if (!response.ok) throw new Error('Failed to load profile');
       const data = await response.json();
-      const importantDates = data?.profile?.important_dates as Record<string, unknown> | undefined;
+      const profile = data?.profile as Record<string, unknown> | undefined;
+      const importantDates = profile?.important_dates as Record<string, unknown> | undefined;
       const rawIds = importantDates?.parent_checklist;
+      const customEvents = (importantDates?.custom_events ?? importantDates?.customEvents) as
+        | Array<{ category?: string | null }>
+        | undefined;
       setParentChecklistIds(Array.isArray(rawIds) ? (rawIds as string[]) : []);
-      setHasBabyMilestone(detectBabyMilestone(importantDates));
+      setHasBabyMilestone(detectHasBabyMilestone(customEvents));
+      setRelationshipStatus(
+        typeof profile?.relationship_status === 'string' ? profile.relationship_status : null
+      );
       setParentChecklistLoaded(true);
     } catch {
       setParentChecklistError(true);
@@ -293,6 +288,20 @@ const CareerProtectionDashboard: React.FC = () => {
   useEffect(() => {
     void loadParentChecklistFromProfile();
   }, [loadParentChecklistFromProfile, importantDatesRefreshKey]);
+
+  const handleChecklistUpdate = useCallback(
+    async (ids: string[]) => {
+      if (parentChecklistError && ids.length === 0) {
+        await loadParentChecklistFromProfile();
+        return;
+      }
+      setParentChecklistIds(ids);
+    },
+    [loadParentChecklistFromProfile, parentChecklistError]
+  );
+
+  // Plans tab: no roster fetch — treat null relationship_status as unknown, not single.
+  const isSingleProxy = relationshipStatus === 'single';
 
   // Handle mobile detection (non-data-fetching, safe)
   useEffect(() => {
@@ -589,22 +598,61 @@ const CareerProtectionDashboard: React.FC = () => {
                 importantDatesRefreshKey={importantDatesRefreshKey}
                 className="mt-6"
               />
-              <NewParentChecklistCard
-                userId={user?.id ?? ''}
-                completedIds={parentChecklistIds}
-                hasBabyMilestone={hasBabyMilestone}
-                isLoading={!parentChecklistLoaded}
-                profileError={parentChecklistError}
-                onViewForecast={() => handleTabChange('forecast')}
-                onUpdate={async (ids) => {
-                  if (parentChecklistError && ids.length === 0) {
-                    await loadParentChecklistFromProfile();
-                    return;
-                  }
-                  setParentChecklistIds(ids);
-                }}
-                className="mt-0"
-              />
+              {hasBabyMilestone ? (
+                <NewParentChecklistCard
+                  userId={user?.id ?? ''}
+                  completedIds={parentChecklistIds}
+                  hasBabyMilestone
+                  isLoading={!parentChecklistLoaded}
+                  profileError={parentChecklistError}
+                  onViewForecast={() => handleTabChange('forecast')}
+                  onUpdate={handleChecklistUpdate}
+                  className="mt-0"
+                />
+              ) : isSingleProxy ? (
+                <>
+                  <CostOfSummerLoveCard
+                    onExploreChecklist={() => setShowParentingChecklist(true)}
+                    className="mt-0"
+                  />
+                  {showParentingChecklist ? (
+                    <NewParentChecklistCard
+                      userId={user?.id ?? ''}
+                      completedIds={parentChecklistIds}
+                      hasBabyMilestone={false}
+                      isLoading={!parentChecklistLoaded}
+                      profileError={parentChecklistError}
+                      onViewForecast={() => handleTabChange('forecast')}
+                      onUpdate={handleChecklistUpdate}
+                      className="mt-0"
+                    />
+                  ) : null}
+                </>
+              ) : (
+                <>
+                  {!showParentingChecklist ? (
+                    <button
+                      type="button"
+                      onClick={() => setShowParentingChecklist(true)}
+                      className="w-full cursor-pointer rounded-xl border border-gray-200 bg-gray-50 p-4 text-left text-sm text-gray-600 hover:border-purple-300"
+                    >
+                      Planning a family? See the financial checklist →
+                    </button>
+                  ) : null}
+                  {showParentingChecklist ? (
+                    <NewParentChecklistCard
+                      userId={user?.id ?? ''}
+                      completedIds={parentChecklistIds}
+                      hasBabyMilestone={false}
+                      isLoading={!parentChecklistLoaded}
+                      profileError={parentChecklistError}
+                      onViewForecast={() => handleTabChange('forecast')}
+                      onUpdate={handleChecklistUpdate}
+                      className="mt-0"
+                    />
+                  ) : null}
+                </>
+              )}
               <ParentingImpactSimulator
                 onViewForecast={() => handleTabChange('forecast')}
               />

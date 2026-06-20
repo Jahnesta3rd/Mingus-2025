@@ -38,6 +38,7 @@ class User(db.Model):
     last_name = db.Column(db.String(100), nullable=True)
     primary_financial_goal = db.Column(db.String(255), nullable=True)
     tier = db.Column(db.String(50), default='budget', nullable=False)
+    purchased_modules = db.Column(db.JSON, nullable=False, default=list)
     is_beta = db.Column(db.Boolean, default=False, nullable=False)
     beta_batch = db.Column(db.String(30), nullable=True)
     is_admin = db.Column(db.Boolean, default=False, nullable=False)

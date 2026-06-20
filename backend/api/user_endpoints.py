@@ -15,6 +15,7 @@ from backend.auth.decorators import require_auth, get_current_user_id, get_curre
 from backend.api.profile_endpoints import get_db_connection
 from backend.models.career_profile import CareerProfile
 from backend.models.database import db
+from backend.services.module_access_service import get_user_modules
 
 VALID_EMPLOYER_TYPES = frozenset({
     'public_company',
@@ -374,6 +375,7 @@ def get_user_profile():
         # (e.g. GET /api/vin-advisor/<id>). Keep when refactoring profile responses.
         if jwt_user is not None:
             profile_out['db_user_id'] = jwt_user.id
+            profile_out['modules'] = get_user_modules(jwt_user.id)
         career_fields = _career_profile_fields(jwt_user.id if jwt_user else None)
         profile_out.update(career_fields)
 

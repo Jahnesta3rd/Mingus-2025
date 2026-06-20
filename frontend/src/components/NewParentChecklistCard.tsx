@@ -1,12 +1,23 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 import { CHECKLIST_ITEMS, type ChecklistItem } from '../data/parentChecklist';
+import { BABY_CATEGORIES, type MilestoneCategory } from '../data/milestoneCategories';
 import { csrfHeaders } from '../utils/csrfHeaders';
+
+/** Derive from custom_events whose category is in BABY_CATEGORIES — not name string matching. */
+export function detectHasBabyMilestone(
+  custom_events: Array<{ category?: string | null }> | undefined | null
+): boolean {
+  return (custom_events ?? []).some(
+    (event) => event.category && BABY_CATEGORIES.includes(event.category as MilestoneCategory)
+  );
+}
 
 interface NewParentChecklistCardProps {
   userId: string;
   completedIds: string[];
   onUpdate: (ids: string[]) => void;
+  /** Auto-expands the checklist when true. Parent should derive via BABY_CATEGORIES on custom_events.category, not name matching. */
   hasBabyMilestone?: boolean;
   className?: string;
   isLoading?: boolean;
