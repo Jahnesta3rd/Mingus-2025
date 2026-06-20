@@ -28,6 +28,7 @@ from backend.models.housing_models import (
     HousingSearch, HousingScenario, UserHousingPreferences, CommuteRouteCache
 )
 from backend.services.optimal_location_service import OptimalLocationService
+from tests.db_helpers import configure_app_for_tests, ensure_all_models_imported
 
 class TestOptimalLocationPerformance(unittest.TestCase):
     """Performance tests for the Optimal Location feature"""
@@ -36,14 +37,13 @@ class TestOptimalLocationPerformance(unittest.TestCase):
         """Set up performance test environment"""
         # Create Flask app for testing
         self.app = Flask(__name__)
-        self.app.config['TESTING'] = True
-        self.app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
-        self.app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+        configure_app_for_tests(self.app)
         
         # Register blueprint
         self.app.register_blueprint(optimal_location_api)
         
         # Initialize database
+        ensure_all_models_imported()
         db.init_app(self.app)
         
         with self.app.app_context():
@@ -55,6 +55,7 @@ class TestOptimalLocationPerformance(unittest.TestCase):
     def tearDown(self):
         """Clean up performance test database"""
         with self.app.app_context():
+            db.session.remove()
             db.drop_all()
     
     def _setup_performance_test_data(self):

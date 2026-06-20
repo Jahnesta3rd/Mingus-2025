@@ -4,7 +4,6 @@ Pytest configuration and fixtures for backend tests
 import pytest
 import os
 import sys
-import tempfile
 import json
 from datetime import datetime
 from flask import Flask
@@ -16,22 +15,18 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 from backend.models.database import db, init_database
 from backend.api import register_all_apis
 from backend.middleware.security import SecurityMiddleware
+from tests.db_helpers import configure_app_for_tests, ensure_all_models_imported
 
 @pytest.fixture
 def app():
     """Create Flask application for testing"""
-    # Create temporary database
-    db_fd, db_path = tempfile.mkstemp()
-    
     app = Flask(__name__)
-    app.config['TESTING'] = True
-    app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    configure_app_for_tests(app)
     app.config['SECRET_KEY'] = 'test-secret-key'
     app.config['WTF_CSRF_ENABLED'] = False
     
-    # Initialize database
-    init_database(app)
+    ensure_all_models_imported()
+    db.init_app(app)
     
     # Register all API blueprints
     register_all_apis(app)
@@ -45,9 +40,6 @@ def app():
         yield app
         db.session.remove()
         db.drop_all()
-    
-    os.close(db_fd)
-    os.unlink(db_path)
 
 @pytest.fixture
 def client(app):

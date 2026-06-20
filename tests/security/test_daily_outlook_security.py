@@ -40,6 +40,7 @@ from backend.auth.decorators import require_auth, get_current_user_id
 from backend.utils.validation import APIValidator
 from backend.utils.encryption import EncryptionService
 from backend.utils.rate_limiting import RateLimiter
+from tests.db_helpers import configure_app_for_tests, ensure_all_models_imported
 
 
 class TestUserDataPrivacy:
@@ -49,14 +50,14 @@ class TestUserDataPrivacy:
     def app(self):
         """Create test Flask application"""
         app = Flask(__name__)
-        app.config['TESTING'] = True
-        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
-        app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+        configure_app_for_tests(app)
         
+        ensure_all_models_imported()
         db.init_app(app)
         with app.app_context():
             db.create_all()
             yield app
+            db.session.remove()
             db.drop_all()
     
     @pytest.fixture
@@ -269,14 +270,14 @@ class TestAPIEndpointSecurity:
     def app(self):
         """Create test Flask application"""
         app = Flask(__name__)
-        app.config['TESTING'] = True
-        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
-        app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+        configure_app_for_tests(app)
         
+        ensure_all_models_imported()
         db.init_app(app)
         with app.app_context():
             db.create_all()
             yield app
+            db.session.remove()
             db.drop_all()
     
     @pytest.fixture
@@ -386,14 +387,14 @@ class TestInputValidationAndSanitization:
     def app(self):
         """Create test Flask application"""
         app = Flask(__name__)
-        app.config['TESTING'] = True
-        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
-        app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+        configure_app_for_tests(app)
         
+        ensure_all_models_imported()
         db.init_app(app)
         with app.app_context():
             db.create_all()
             yield app
+            db.session.remove()
             db.drop_all()
     
     @pytest.fixture
@@ -543,14 +544,14 @@ class TestRateLimitingEffectiveness:
     def app(self):
         """Create test Flask application"""
         app = Flask(__name__)
-        app.config['TESTING'] = True
-        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
-        app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+        configure_app_for_tests(app)
         
+        ensure_all_models_imported()
         db.init_app(app)
         with app.app_context():
             db.create_all()
             yield app
+            db.session.remove()
             db.drop_all()
     
     @pytest.fixture
@@ -657,14 +658,14 @@ class TestDataEncryptionAndProtection:
     def app(self):
         """Create test Flask application"""
         app = Flask(__name__)
-        app.config['TESTING'] = True
-        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
-        app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+        configure_app_for_tests(app)
         
+        ensure_all_models_imported()
         db.init_app(app)
         with app.app_context():
             db.create_all()
             yield app
+            db.session.remove()
             db.drop_all()
     
     def test_sensitive_data_encryption(self, app):
@@ -793,14 +794,14 @@ class TestSessionManagement:
     def app(self):
         """Create test Flask application"""
         app = Flask(__name__)
-        app.config['TESTING'] = True
-        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
-        app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+        configure_app_for_tests(app)
         
+        ensure_all_models_imported()
         db.init_app(app)
         with app.app_context():
             db.create_all()
             yield app
+            db.session.remove()
             db.drop_all()
     
     def test_session_timeout(self, app):

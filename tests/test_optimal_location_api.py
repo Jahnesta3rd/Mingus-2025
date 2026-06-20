@@ -24,6 +24,7 @@ from backend.models.user_models import User
 from backend.models.housing_models import (
     HousingSearch, HousingScenario, UserHousingPreferences, CommuteRouteCache
 )
+from tests.db_helpers import configure_app_for_tests, ensure_all_models_imported
 
 class TestOptimalLocationAPI(unittest.TestCase):
     """Unit tests for the Optimal Location API endpoints"""
@@ -32,14 +33,13 @@ class TestOptimalLocationAPI(unittest.TestCase):
         """Set up test Flask app and database"""
         # Create Flask app for testing
         self.app = Flask(__name__)
-        self.app.config['TESTING'] = True
-        self.app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
-        self.app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+        configure_app_for_tests(self.app)
         
         # Register blueprint
         self.app.register_blueprint(optimal_location_api)
         
         # Initialize database
+        ensure_all_models_imported()
         db.init_app(self.app)
         
         with self.app.app_context():
@@ -51,6 +51,7 @@ class TestOptimalLocationAPI(unittest.TestCase):
     def tearDown(self):
         """Clean up test database"""
         with self.app.app_context():
+            db.session.remove()
             db.drop_all()
     
     def _setup_test_data(self):
@@ -681,14 +682,13 @@ class TestOptimalLocationAPIIntegration(unittest.TestCase):
         """Set up integration test environment"""
         # Create Flask app for testing
         self.app = Flask(__name__)
-        self.app.config['TESTING'] = True
-        self.app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
-        self.app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+        configure_app_for_tests(self.app)
         
         # Register blueprint
         self.app.register_blueprint(optimal_location_api)
         
         # Initialize database
+        ensure_all_models_imported()
         db.init_app(self.app)
         
         with self.app.app_context():
@@ -700,6 +700,7 @@ class TestOptimalLocationAPIIntegration(unittest.TestCase):
     def tearDown(self):
         """Clean up integration test database"""
         with self.app.app_context():
+            db.session.remove()
             db.drop_all()
     
     def _setup_integration_test_data(self):

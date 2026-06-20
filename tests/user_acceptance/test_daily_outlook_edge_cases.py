@@ -33,6 +33,7 @@ from backend.models import db, DailyOutlook, UserRelationshipStatus, DailyOutloo
 from tests.api.test_daily_outlook_api import test_daily_outlook_api
 from backend.services.feature_flag_service import FeatureFlagService, FeatureTier
 from backend.utils.cache import CacheManager
+from tests.db_helpers import configure_app_for_tests, ensure_all_models_imported
 
 
 class TestEdgeCases:
@@ -42,14 +43,14 @@ class TestEdgeCases:
     def app(self):
         """Create test Flask application"""
         app = Flask(__name__)
-        app.config['TESTING'] = True
-        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
-        app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+        configure_app_for_tests(app)
         
+        ensure_all_models_imported()
         db.init_app(app)
         with app.app_context():
             db.create_all()
             yield app
+            db.session.remove()
             db.drop_all()
     
     @pytest.fixture

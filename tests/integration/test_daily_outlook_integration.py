@@ -37,6 +37,7 @@ from backend.services.feature_flag_service import FeatureFlagService, FeatureTie
 # from backend.tasks.daily_outlook_tasks import generate_daily_outlooks
 from backend.utils.cache import CacheManager
 from backend.utils.notifications import NotificationService
+from tests.db_helpers import configure_app_for_tests, ensure_all_models_imported
 
 
 class TestDailyOutlookEndToEndFlow:
@@ -46,14 +47,14 @@ class TestDailyOutlookEndToEndFlow:
     def app(self):
         """Create test Flask application"""
         app = Flask(__name__)
-        app.config['TESTING'] = True
-        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
-        app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+        configure_app_for_tests(app)
         
+        ensure_all_models_imported()
         db.init_app(app)
         with app.app_context():
             db.create_all()
             yield app
+            db.session.remove()
             db.drop_all()
     
     @pytest.fixture
@@ -223,14 +224,14 @@ class TestNotificationDelivery:
     def app(self):
         """Create test Flask application"""
         app = Flask(__name__)
-        app.config['TESTING'] = True
-        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
-        app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+        configure_app_for_tests(app)
         
+        ensure_all_models_imported()
         db.init_app(app)
         with app.app_context():
             db.create_all()
             yield app
+            db.session.remove()
             db.drop_all()
     
     def test_daily_outlook_notification_generation(self, app):
@@ -336,14 +337,14 @@ class TestBackgroundTaskExecution:
     def app(self):
         """Create test Flask application"""
         app = Flask(__name__)
-        app.config['TESTING'] = True
-        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
-        app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+        configure_app_for_tests(app)
         
+        ensure_all_models_imported()
         db.init_app(app)
         with app.app_context():
             db.create_all()
             yield app
+            db.session.remove()
             db.drop_all()
     
     def test_daily_outlook_generation_task(self, app):
@@ -446,14 +447,14 @@ class TestCrossTierFeatureAccess:
     def app(self):
         """Create test Flask application"""
         app = Flask(__name__)
-        app.config['TESTING'] = True
-        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
-        app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+        configure_app_for_tests(app)
         
+        ensure_all_models_imported()
         db.init_app(app)
         with app.app_context():
             db.create_all()
             yield app
+            db.session.remove()
             db.drop_all()
     
     @pytest.fixture
@@ -556,14 +557,14 @@ class TestPerformanceBenchmarking:
     def app(self):
         """Create test Flask application"""
         app = Flask(__name__)
-        app.config['TESTING'] = True
-        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
-        app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+        configure_app_for_tests(app)
         
+        ensure_all_models_imported()
         db.init_app(app)
         with app.app_context():
             db.create_all()
             yield app
+            db.session.remove()
             db.drop_all()
     
     @pytest.fixture

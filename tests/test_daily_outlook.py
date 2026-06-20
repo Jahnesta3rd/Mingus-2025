@@ -43,6 +43,7 @@ from backend.services.feature_flag_service import FeatureFlagService, FeatureTie
 from backend.utils.cache import CacheManager
 from backend.utils.daily_outlook_utils import calculate_streak_count, update_user_relationship_status, check_user_tier_access
 from backend.tasks.daily_outlook_tasks import generate_daily_outlooks
+from tests.db_helpers import configure_app_for_tests, ensure_all_models_imported
 
 
 # Module-level fixtures - available to all test classes
@@ -50,16 +51,16 @@ from backend.tasks.daily_outlook_tasks import generate_daily_outlooks
 def app():
     """Create Flask app for testing"""
     app = Flask(__name__)
-    app.config['TESTING'] = True
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    configure_app_for_tests(app)
     
     # Initialize database
+    ensure_all_models_imported()
     db.init_app(app)
     
     with app.app_context():
         db.create_all()
         yield app
+        db.session.remove()
         db.drop_all()
 
 @pytest.fixture

@@ -38,6 +38,7 @@ from backend.models.user_models import User
 from backend.api.daily_outlook_api import daily_outlook_api
 from backend.utils.cache import CacheManager
 from backend.utils.notifications import NotificationService
+from tests.db_helpers import configure_app_for_tests, ensure_all_models_imported
 
 
 class LoadTestResults:
@@ -105,14 +106,14 @@ class TestConcurrentUserAccess:
     def app(self):
         """Create test Flask application"""
         app = Flask(__name__)
-        app.config['TESTING'] = True
-        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
-        app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+        configure_app_for_tests(app)
         
+        ensure_all_models_imported()
         db.init_app(app)
         with app.app_context():
             db.create_all()
             yield app
+            db.session.remove()
             db.drop_all()
     
     @pytest.fixture
@@ -326,14 +327,14 @@ class TestDatabasePerformanceUnderLoad:
     def app(self):
         """Create test Flask application"""
         app = Flask(__name__)
-        app.config['TESTING'] = True
-        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
-        app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+        configure_app_for_tests(app)
         
+        ensure_all_models_imported()
         db.init_app(app)
         with app.app_context():
             db.create_all()
             yield app
+            db.session.remove()
             db.drop_all()
     
     def test_concurrent_database_writes(self, app):
@@ -817,14 +818,14 @@ class TestAPIPerformanceUnderLoad:
     def app(self):
         """Create test Flask application"""
         app = Flask(__name__)
-        app.config['TESTING'] = True
-        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
-        app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+        configure_app_for_tests(app)
         
+        ensure_all_models_imported()
         db.init_app(app)
         with app.app_context():
             db.create_all()
             yield app
+            db.session.remove()
             db.drop_all()
     
     @pytest.fixture

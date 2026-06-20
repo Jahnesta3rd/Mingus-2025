@@ -40,6 +40,7 @@ from backend.api.daily_outlook_api import daily_outlook_api
 from tests.api.test_daily_outlook_api import test_daily_outlook_api
 from backend.services.feature_flag_service import FeatureFlagService, FeatureTier
 from backend.utils.cache import CacheManager
+from tests.db_helpers import configure_app_for_tests, ensure_all_models_imported
 
 
 class TestMayaPersona:
@@ -49,14 +50,14 @@ class TestMayaPersona:
     def app(self):
         """Create test Flask application"""
         app = Flask(__name__)
-        app.config['TESTING'] = True
-        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
-        app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+        configure_app_for_tests(app)
         
+        ensure_all_models_imported()
         db.init_app(app)
         with app.app_context():
             db.create_all()
             yield app
+            db.session.remove()
             db.drop_all()
     
     @pytest.fixture
@@ -248,14 +249,14 @@ class TestMarcusPersona:
     def app(self):
         """Create test Flask application"""
         app = Flask(__name__)
-        app.config['TESTING'] = True
-        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
-        app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+        configure_app_for_tests(app)
         
+        ensure_all_models_imported()
         db.init_app(app)
         with app.app_context():
             db.create_all()
             yield app
+            db.session.remove()
             db.drop_all()
     
     @pytest.fixture
@@ -439,14 +440,14 @@ class TestDrWilliamsPersona:
     def app(self):
         """Create test Flask application"""
         app = Flask(__name__)
-        app.config['TESTING'] = True
-        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
-        app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+        configure_app_for_tests(app)
         
+        ensure_all_models_imported()
         db.init_app(app)
         with app.app_context():
             db.create_all()
             yield app
+            db.session.remove()
             db.drop_all()
     
     @pytest.fixture
@@ -630,14 +631,14 @@ class TestPersonaComparison:
     def app(self):
         """Create test Flask application"""
         app = Flask(__name__)
-        app.config['TESTING'] = True
-        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
-        app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+        configure_app_for_tests(app)
         
+        ensure_all_models_imported()
         db.init_app(app)
         with app.app_context():
             db.create_all()
             yield app
+            db.session.remove()
             db.drop_all()
     
     def test_persona_weighting_differences(self, app):
