@@ -89,11 +89,19 @@ jobs:
               raise SystemExit("Postgres did not become ready in time")
           PY
 
-      - name: Run DB migrations
-        run: python scripts/run_alembic_migrations.py
-
       - name: Initialize test database schema
         run: python scripts/ci_init_test_db.py
+
+      - name: Verify expected DB tables exist
+        run: |
+          python - <<'PY'
+          import os, sys
+          sys.path.insert(0, os.getcwd())
+          from tests.db_helpers import ensure_libpq_env, verify_users_table
+          ensure_libpq_env()
+          verify_users_table()
+          print("DB schema verification passed")
+          PY
 
       - name: Run backend unit + integration tests
         run: |

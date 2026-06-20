@@ -89,10 +89,62 @@ def run_alembic_migrations() -> None:
     from alembic.config import Config
 
     ensure_libpq_env()
+    url = get_test_database_uri()
+    cfg = Config()
+    cfg.set_main_option("script_location", "migrations")
+    cfg.set_main_option("sqlalchemy.url", url)
+    try:
+        command.upgrade(cfg, "head")
+    except Exception as exc:
+        print_alembic_diagnostics(cfg)
+        raise RuntimeError(f"Alembic upgrade failed: {exc}") from exc
+
+
+def stamp_alembic_head() -> None:
+    """Mark Alembic at head without running migrations (after create_all in CI)."""
+    from alembic import command
+    from alembic.config import Config
+
+    ensure_libpq_env()
     cfg = Config()
     cfg.set_main_option("script_location", "migrations")
     cfg.set_main_option("sqlalchemy.url", get_test_database_uri())
-    command.upgrade(cfg, "head")
+    command.stamp(cfg, "head")
+    print("Alembic stamped at head")
+
+
+def print_alembic_diagnostics(cfg) -> None:
+    """Print Alembic history/current to stderr for CI debugging."""
+    from alembic import command
+
+    print("--- Alembic diagnostics ---", flush=True)
+    try:
+        command.current(cfg)
+    except Exception as exc:
+        print(f"alembic current failed: {exc}", flush=True)
+    try:
+        command.history(cfg, verbose=True)
+    except Exception as exc:
+        print(f"alembic history failed: {exc}", flush=True)
+
+
+def verify_users_table() -> None:
+    """Fail fast if the users table is missing after schema init."""
+    import psycopg2
+
+    ensure_libpq_env()
+    conn = psycopg2.connect(os.environ["DATABASE_URL"])
+    try:
+        with conn.cursor() as cur:
+            cur.execute("SELECT to_regclass('public.users')")
+            users_exists = cur.fetchone()[0]
+        print(f"users table exists: {users_exists}")
+        if users_exists is None:
+            raise RuntimeError(
+                "'users' table not found — run create_all or fix Alembic migrations."
+            )
+    finally:
+        conn.close()
 
 
 def initialize_shared_schema(db=None) -> None:

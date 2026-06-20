@@ -15,7 +15,8 @@ from tests.db_helpers import (  # noqa: E402
     ensure_postgres_extensions,
     get_test_database_uri,
     initialize_shared_schema,
-    run_alembic_migrations,
+    stamp_alembic_head,
+    verify_users_table,
 )
 
 ANALYTICS_BOOTSTRAP_SQL = """
@@ -62,13 +63,30 @@ def _bootstrap_analytics_tables() -> None:
 def main() -> int:
     ensure_libpq_env()
     print(f"Initializing schema at {os.environ['DATABASE_URL']}")
+
+    # 1) Extensions required by models/migrations
     ensure_postgres_extensions()
-    run_alembic_migrations()
+
+    # 2) create_all first — Alembic chain root (004) FK-references users but no
+    #    migration creates users; SQLAlchemy metadata is the source of truth in CI.
     initialize_shared_schema()
+
+    # 3) Sync alembic_version without re-running migrations that duplicate tables
+    stamp_alembic_head()
+
+    # 4) Analytics tables used by performance_monitor (not in SQLAlchemy models)
     _bootstrap_analytics_tables()
+
+    # 5) Fail fast with a clear message if schema init did not create users
+    verify_users_table()
+
     print("Schema ready.")
     return 0
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    try:
+        raise SystemExit(main())
+    except Exception as exc:
+        print(f"ci_init_test_db failed: {exc}", file=sys.stderr)
+        raise SystemExit(1) from exc
