@@ -153,7 +153,7 @@ class TestOptimalLocationIntegration(unittest.TestCase):
         """Get authentication headers for testing"""
         return {
             'Authorization': f'Bearer test_token_{user_id}',
-            'X-CSRF-Token': 'test_csrf_token_12345',
+            'X-CSRF-Token': 'test-token',
             'Content-Type': 'application/json'
         }
     

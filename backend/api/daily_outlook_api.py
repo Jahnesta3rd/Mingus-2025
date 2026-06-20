@@ -11,7 +11,7 @@ Endpoints:
 - POST /api/daily-outlook/action-completed - Mark action as completed
 - POST /api/daily-outlook/rating - Submit user rating
 - GET /api/daily-outlook/streak - Get current streak information
-- POST /api/relationship-status - Update relationship status
+- POST /api/daily-outlook/relationship-status - Update relationship status
 """
 
 import logging
@@ -22,8 +22,9 @@ from backend.models.user_models import User
 from backend.models.daily_outlook import (
     DailyOutlook, UserRelationshipStatus, RelationshipStatus
 )
-from backend.auth.decorators import require_auth, require_csrf, get_current_user_id
+from backend.auth.decorators import require_auth, require_csrf, get_current_user_id, validate_csrf_token
 from backend.utils.validation import APIValidator
+from backend.utils.daily_outlook_utils import calculate_streak_count
 from backend.services.feature_flag_service import FeatureFlagService, FeatureTier, FeatureFlag
 from datetime import datetime, date, timedelta
 from decimal import Decimal
@@ -112,47 +113,6 @@ def validate_request_data(schema_class, data: Dict[str, Any]) -> tuple[bool, Lis
         logger.error(f"Validation error: {e}")
         return False, [f"Validation failed: {str(e)}"], {}
 
-def calculate_streak_count(user_id: int, current_date: date) -> int:
-    """Calculate user's current streak count"""
-    try:
-        # Get the most recent outlook before today
-        yesterday = current_date - timedelta(days=1)
-        recent_outlook = DailyOutlook.query.filter(
-            and_(
-                DailyOutlook.user_id == user_id,
-                DailyOutlook.date < current_date
-            )
-        ).order_by(desc(DailyOutlook.date)).first()
-        
-        if not recent_outlook:
-            return 0
-        
-        # Count consecutive days with outlooks
-        streak_count = 0
-        check_date = recent_outlook.date
-        
-        while True:
-            outlook = DailyOutlook.query.filter(
-                and_(
-                    DailyOutlook.user_id == user_id,
-                    DailyOutlook.date == check_date
-                )
-            ).first()
-            
-            if not outlook:
-                break
-                
-            streak_count += 1
-            check_date -= timedelta(days=1)
-            
-            # Prevent infinite loop
-            if streak_count > 365:
-                break
-        
-        return streak_count
-    except Exception as e:
-        logger.error(f"Error calculating streak for user {user_id}: {e}")
-        return 0
 
 def update_user_relationship_status(user_id: int, status: str, satisfaction_score: int, financial_impact_score: int) -> bool:
     """Update user's relationship status"""

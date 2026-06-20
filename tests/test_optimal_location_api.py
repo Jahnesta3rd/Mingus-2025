@@ -91,7 +91,7 @@ class TestOptimalLocationAPI(unittest.TestCase):
         """Get authentication headers for testing"""
         return {
             'Authorization': f'Bearer test_token_{user_id}',
-            'X-CSRF-Token': 'test_csrf_token_12345',
+            'X-CSRF-Token': 'test-token',
             'Content-Type': 'application/json'
         }
     
@@ -540,16 +540,16 @@ class TestOptimalLocationAPI(unittest.TestCase):
             'commute_time': 30,
             'zip_code': '10001'
         }
-        
+
         headers = self._get_auth_headers()
-        headers['X-CSRF-Token'] = 'invalid_token'  # Invalid CSRF token
-        
+        headers['X-CSRF-Token'] = 'invalid_token'
+
         response = self.client.post(
             '/api/housing/search',
             data=json.dumps(search_data),
             headers=headers
         )
-        
+
         self.assertEqual(response.status_code, 403)
         data = json.loads(response.data)
         
@@ -770,7 +770,7 @@ class TestOptimalLocationAPIIntegration(unittest.TestCase):
         """Get authentication headers for testing"""
         return {
             'Authorization': f'Bearer test_token_{user_id}',
-            'X-CSRF-Token': 'test_csrf_token_12345',
+            'X-CSRF-Token': 'test-token',
             'Content-Type': 'application/json'
         }
     

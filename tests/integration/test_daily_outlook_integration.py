@@ -124,14 +124,14 @@ class TestDailyOutlookEndToEndFlow:
                 assert response.status_code == 200
                 streak_data = response.get_json()
                 assert streak_data['success'] is True
-                assert 'current_streak' in streak_data or 'current_streak' in streak_data.get('streak_info', {}) or 'current_streak' in streak_data.get('streak_info', {})
+                assert 'current_streak' in streak_data['streak_info']
     
     def test_user_journey_with_relationship_status_update(self, client, sample_user):
         """Test user journey including relationship status update"""
         with patch('backend.api.daily_outlook_api.get_current_user_id', return_value=sample_user.id):
             with patch('backend.api.daily_outlook_api.check_user_tier_access', return_value=True):
                 # Step 1: Update relationship status
-                response = client.post('/api/relationship-status',
+                response = client.post('/api/daily-outlook/relationship-status',
                                      json={
                                          'status': 'single_career_focused',
                                          'satisfaction_score': 8,
@@ -168,16 +168,31 @@ class TestDailyOutlookEndToEndFlow:
     def test_user_journey_with_tier_upgrade(self, client, sample_user):
         """Test user journey with tier upgrade"""
         with patch('backend.api.daily_outlook_api.get_current_user_id', return_value=sample_user.id):
+            with patch('backend.api.daily_outlook_api.check_user_tier_access', return_value=True):
+                outlook = DailyOutlook(
+                    user_id=sample_user.id,
+                    date=date.today(),
+                    balance_score=75,
+                    financial_weight=Decimal('0.30'),
+                    wellness_weight=Decimal('0.25'),
+                    relationship_weight=Decimal('0.25'),
+                    career_weight=Decimal('0.20'),
+                    primary_insight="Tier access check",
+                    streak_count=1,
+                )
+                db.session.add(outlook)
+                db.session.commit()
+
             # Start with budget tier
             with patch('backend.api.daily_outlook_api.check_user_tier_access', return_value=True):
                 response = client.get('/api/daily-outlook/')
                 assert response.status_code == 200
-            
-            # Upgrade to professional tier
-            sample_user.tier = 'professional'
+
+            user = User.query.get(sample_user.id)
+            user.tier = 'professional'
             db.session.commit()
-            
-            # Should still have access
+
+            # Should still have access after upgrade
             with patch('backend.api.daily_outlook_api.check_user_tier_access', return_value=True):
                 response = client.get('/api/daily-outlook/')
                 assert response.status_code == 200

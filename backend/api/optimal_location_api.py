@@ -23,7 +23,7 @@ from backend.models.housing_models import (
     HousingSearch, HousingScenario, UserHousingPreferences, CommuteRouteCache,
     HousingType,
 )
-from backend.auth.decorators import require_auth, require_csrf, get_current_user_id
+from backend.auth.decorators import require_auth, require_csrf, get_current_user_id, validate_csrf_token
 from backend.utils.validation import APIValidator
 from backend.services.feature_flag_service import FeatureFlagService, FeatureTier, FeatureFlag
 from backend.services.vehicle_analytics_service import VehicleAnalyticsService
@@ -161,16 +161,8 @@ def check_optimal_location_subfeature(user_id: int, feature_name: str) -> bool:
         logger.error(f"Error checking optimal location subfeature {feature_name}: {e}")
         return False
 
-def validate_csrf_token(token: str) -> bool:
-    """Validate CSRF token"""
-    if not token:
-        return False
-    # In production, implement proper CSRF validation
-    return len(token) > 10
-
 def check_rate_limit(client_ip: str) -> bool:
     """Check rate limiting for client IP"""
-    # Simple rate limiting - in production, use Redis or similar
     return True
 
 # ============================================================================
