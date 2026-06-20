@@ -515,12 +515,16 @@ class TestOptimalLocationAPI(unittest.TestCase):
             'commute_time': 30,
             'zip_code': '10001'
         }
-        
-        response = self.client.post(
-            '/api/housing/search',
-            data=json.dumps(search_data)
-            # No authentication headers
-        )
+
+        self.app.config['TESTING'] = False
+        try:
+            response = self.client.post(
+                '/api/housing/search',
+                data=json.dumps(search_data)
+                # No authentication headers
+            )
+        finally:
+            self.app.config['TESTING'] = True
         
         self.assertEqual(response.status_code, 401)
         data = json.loads(response.data)

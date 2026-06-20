@@ -54,20 +54,22 @@ def sample_user(app):
 
 
 @pytest.fixture(autouse=True, scope="function")
-def disable_auth_for_tests():
-    """Bypass JWT auth and no-op route decorators for API tests."""
-    fake_payload = {
-        "user_id": "test_user",
-        "email": "test@example.com",
-        "exp": 9999999999,
-    }
-    passthrough = lambda f: f
-    with patch("backend.auth.decorators.jwt.decode", return_value=fake_payload):
-        with patch("backend.auth.decorators.require_auth", passthrough):
-            with patch("backend.auth.decorators.require_csrf", passthrough):
-                with patch("backend.auth.decorators.require_admin", passthrough):
-                    with patch("backend.api.daily_outlook_api.require_auth", passthrough):
-                        with patch("backend.api.daily_outlook_api.require_csrf", passthrough):
-                            with patch("backend.api.optimal_location_api.require_auth", passthrough):
-                                with patch("backend.api.optimal_location_api.require_csrf", passthrough):
-                                    yield
+def mock_auth_defaults():
+    """Default auth/tier mocks for API modules used across pytest suites."""
+    def _default_user_id():
+        return 1
+
+    def _allow_tier(user_id, required_tier=None):
+        return True
+
+    patches = [
+        patch("backend.api.daily_outlook_api.get_current_user_id", _default_user_id),
+        patch("backend.api.daily_outlook_api.check_user_tier_access", _allow_tier),
+        patch("backend.api.optimal_location_api.get_current_user_id", _default_user_id),
+        patch(
+            "backend.api.optimal_location_api.check_optimal_location_feature_access",
+            lambda _uid: True,
+        ),
+    ]
+    with patches[0], patches[1], patches[2], patches[3]:
+        yield

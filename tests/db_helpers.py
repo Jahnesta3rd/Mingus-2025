@@ -9,7 +9,7 @@ from types import SimpleNamespace
 
 from sqlalchemy import text
 
-DEFAULT_TEST_DATABASE_URL = "postgresql://test:test@localhost:5432/mingus_test"
+DEFAULT_TEST_DATABASE_URL = "postgresql://root:test@localhost:5432/mingus_test"
 
 REQUIRED_CI_TABLES = (
     "users",
@@ -45,7 +45,7 @@ def ensure_libpq_env() -> None:
     except Exception:
         pass
 
-    os.environ.setdefault("PGUSER", "test")
+    os.environ.setdefault("PGUSER", "root")
     os.environ.setdefault("PGPASSWORD", "test")
     os.environ.setdefault("PGHOST", "localhost")
     os.environ.setdefault("PGPORT", "5432")
