@@ -165,10 +165,10 @@ class ExpenseRecord(db.Model):
     
     # Indexes
     __table_args__ = (
-        db.Index('idx_expense_user_date', 'user_id', 'expense_date'),
+        db.Index('idx_expense_record_user_date', 'user_id', 'expense_date'),
         db.Index('idx_tax_expense_category', 'category'),
-        db.Index('idx_expense_tax_year', 'tax_year'),
-        db.Index('idx_expense_business', 'is_business_expense'),
+        db.Index('idx_expense_record_tax_year', 'tax_year'),
+        db.Index('idx_expense_record_business', 'is_business_expense'),
         db.CheckConstraint('amount >= 0', name='check_positive_amount'),
         db.CheckConstraint('business_percentage >= 0.0 AND business_percentage <= 100.0', name='check_business_percentage'),
     )

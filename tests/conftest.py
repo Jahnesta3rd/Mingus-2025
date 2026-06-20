@@ -11,21 +11,29 @@ from unittest.mock import patch
 from flask import Flask
 
 from backend.models.database import db
-from tests.db_helpers import configure_app_for_tests, destroy_test_database, ensure_all_models_imported
+from tests.db_helpers import (
+    cleanup_test_data,
+    configure_app_for_tests,
+    initialize_shared_schema,
+)
+
+
+@pytest.fixture(scope="session", autouse=True)
+def _shared_db_schema():
+    """Create Postgres schema once for the entire test session."""
+    initialize_shared_schema(db)
+    yield
 
 
 @pytest.fixture
-def app():
+def app(_shared_db_schema):
     """Flask app backed by PostgreSQL (DATABASE_URL from CI or local default)."""
     flask_app = Flask(__name__)
     configure_app_for_tests(flask_app)
-    ensure_all_models_imported()
     db.init_app(flask_app)
     with flask_app.app_context():
-        db.create_all()
         yield flask_app
-        db.session.remove()
-        db.drop_all()
+        cleanup_test_data(db)
 
 
 @pytest.fixture(autouse=True, scope="function")

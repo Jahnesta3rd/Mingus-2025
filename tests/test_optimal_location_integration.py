@@ -26,7 +26,7 @@ from backend.models.housing_models import (
     HousingSearch, HousingScenario, UserHousingPreferences, CommuteRouteCache
 )
 from backend.services.optimal_location_service import OptimalLocationService
-from tests.db_helpers import configure_app_for_tests, ensure_all_models_imported
+from tests.db_helpers import configure_app_for_tests, initialize_shared_schema, cleanup_test_data
 
 class TestOptimalLocationIntegration(unittest.TestCase):
     """Integration tests for the Optimal Location feature"""
@@ -41,11 +41,10 @@ class TestOptimalLocationIntegration(unittest.TestCase):
         self.app.register_blueprint(optimal_location_api)
         
         # Initialize database
-        ensure_all_models_imported()
         db.init_app(self.app)
+        initialize_shared_schema(db)
         
         with self.app.app_context():
-            db.create_all()
             self._setup_test_data()
         
         self.client = self.app.test_client()
@@ -53,8 +52,7 @@ class TestOptimalLocationIntegration(unittest.TestCase):
     def tearDown(self):
         """Clean up integration test database"""
         with self.app.app_context():
-            db.session.remove()
-            db.drop_all()
+            cleanup_test_data(db)
     
     def _setup_test_data(self):
         """Set up comprehensive test data for integration tests"""

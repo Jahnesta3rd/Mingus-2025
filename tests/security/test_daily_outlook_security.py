@@ -40,7 +40,7 @@ from backend.auth.decorators import require_auth, get_current_user_id
 from backend.utils.validation import APIValidator
 from backend.utils.encryption import EncryptionService
 from backend.utils.rate_limiting import RateLimiter
-from tests.db_helpers import configure_app_for_tests, ensure_all_models_imported
+from tests.db_helpers import configure_app_for_tests, initialize_shared_schema, cleanup_test_data
 
 
 class TestUserDataPrivacy:
@@ -51,14 +51,11 @@ class TestUserDataPrivacy:
         """Create test Flask application"""
         app = Flask(__name__)
         configure_app_for_tests(app)
-        
-        ensure_all_models_imported()
         db.init_app(app)
+        initialize_shared_schema(db)
         with app.app_context():
-            db.create_all()
             yield app
-            db.session.remove()
-            db.drop_all()
+            cleanup_test_data(db)
     
     @pytest.fixture
     def client(self, app):
@@ -271,14 +268,11 @@ class TestAPIEndpointSecurity:
         """Create test Flask application"""
         app = Flask(__name__)
         configure_app_for_tests(app)
-        
-        ensure_all_models_imported()
         db.init_app(app)
+        initialize_shared_schema(db)
         with app.app_context():
-            db.create_all()
             yield app
-            db.session.remove()
-            db.drop_all()
+            cleanup_test_data(db)
     
     @pytest.fixture
     def client(self, app):
@@ -388,14 +382,11 @@ class TestInputValidationAndSanitization:
         """Create test Flask application"""
         app = Flask(__name__)
         configure_app_for_tests(app)
-        
-        ensure_all_models_imported()
         db.init_app(app)
+        initialize_shared_schema(db)
         with app.app_context():
-            db.create_all()
             yield app
-            db.session.remove()
-            db.drop_all()
+            cleanup_test_data(db)
     
     @pytest.fixture
     def client(self, app):
@@ -545,14 +536,11 @@ class TestRateLimitingEffectiveness:
         """Create test Flask application"""
         app = Flask(__name__)
         configure_app_for_tests(app)
-        
-        ensure_all_models_imported()
         db.init_app(app)
+        initialize_shared_schema(db)
         with app.app_context():
-            db.create_all()
             yield app
-            db.session.remove()
-            db.drop_all()
+            cleanup_test_data(db)
     
     @pytest.fixture
     def client(self, app):
@@ -659,14 +647,11 @@ class TestDataEncryptionAndProtection:
         """Create test Flask application"""
         app = Flask(__name__)
         configure_app_for_tests(app)
-        
-        ensure_all_models_imported()
         db.init_app(app)
+        initialize_shared_schema(db)
         with app.app_context():
-            db.create_all()
             yield app
-            db.session.remove()
-            db.drop_all()
+            cleanup_test_data(db)
     
     def test_sensitive_data_encryption(self, app):
         """Test that sensitive data is encrypted with proper Fernet encryption"""
@@ -795,14 +780,11 @@ class TestSessionManagement:
         """Create test Flask application"""
         app = Flask(__name__)
         configure_app_for_tests(app)
-        
-        ensure_all_models_imported()
         db.init_app(app)
+        initialize_shared_schema(db)
         with app.app_context():
-            db.create_all()
             yield app
-            db.session.remove()
-            db.drop_all()
+            cleanup_test_data(db)
     
     def test_session_timeout(self, app):
         """Test session timeout"""

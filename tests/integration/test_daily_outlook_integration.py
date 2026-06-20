@@ -37,7 +37,7 @@ from backend.services.feature_flag_service import FeatureFlagService, FeatureTie
 # from backend.tasks.daily_outlook_tasks import generate_daily_outlooks
 from backend.utils.cache import CacheManager
 from backend.utils.notifications import NotificationService
-from tests.db_helpers import configure_app_for_tests, ensure_all_models_imported
+from tests.db_helpers import configure_app_for_tests, initialize_shared_schema, cleanup_test_data
 
 
 class TestDailyOutlookEndToEndFlow:
@@ -48,14 +48,11 @@ class TestDailyOutlookEndToEndFlow:
         """Create test Flask application"""
         app = Flask(__name__)
         configure_app_for_tests(app)
-        
-        ensure_all_models_imported()
         db.init_app(app)
+        initialize_shared_schema(db)
         with app.app_context():
-            db.create_all()
             yield app
-            db.session.remove()
-            db.drop_all()
+            cleanup_test_data(db)
     
     @pytest.fixture
     def client(self, app):
@@ -225,14 +222,11 @@ class TestNotificationDelivery:
         """Create test Flask application"""
         app = Flask(__name__)
         configure_app_for_tests(app)
-        
-        ensure_all_models_imported()
         db.init_app(app)
+        initialize_shared_schema(db)
         with app.app_context():
-            db.create_all()
             yield app
-            db.session.remove()
-            db.drop_all()
+            cleanup_test_data(db)
     
     def test_daily_outlook_notification_generation(self, app):
         """Test daily outlook notification generation"""
@@ -338,14 +332,11 @@ class TestBackgroundTaskExecution:
         """Create test Flask application"""
         app = Flask(__name__)
         configure_app_for_tests(app)
-        
-        ensure_all_models_imported()
         db.init_app(app)
+        initialize_shared_schema(db)
         with app.app_context():
-            db.create_all()
             yield app
-            db.session.remove()
-            db.drop_all()
+            cleanup_test_data(db)
     
     def test_daily_outlook_generation_task(self, app):
         """Test daily outlook generation background task"""
@@ -448,14 +439,11 @@ class TestCrossTierFeatureAccess:
         """Create test Flask application"""
         app = Flask(__name__)
         configure_app_for_tests(app)
-        
-        ensure_all_models_imported()
         db.init_app(app)
+        initialize_shared_schema(db)
         with app.app_context():
-            db.create_all()
             yield app
-            db.session.remove()
-            db.drop_all()
+            cleanup_test_data(db)
     
     @pytest.fixture
     def client(self, app):
@@ -558,14 +546,11 @@ class TestPerformanceBenchmarking:
         """Create test Flask application"""
         app = Flask(__name__)
         configure_app_for_tests(app)
-        
-        ensure_all_models_imported()
         db.init_app(app)
+        initialize_shared_schema(db)
         with app.app_context():
-            db.create_all()
             yield app
-            db.session.remove()
-            db.drop_all()
+            cleanup_test_data(db)
     
     @pytest.fixture
     def client(self, app):

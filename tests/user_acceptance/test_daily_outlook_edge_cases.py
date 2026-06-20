@@ -33,7 +33,7 @@ from backend.models import db, DailyOutlook, UserRelationshipStatus, DailyOutloo
 from tests.api.test_daily_outlook_api import test_daily_outlook_api
 from backend.services.feature_flag_service import FeatureFlagService, FeatureTier
 from backend.utils.cache import CacheManager
-from tests.db_helpers import configure_app_for_tests, ensure_all_models_imported
+from tests.db_helpers import configure_app_for_tests, initialize_shared_schema, cleanup_test_data
 
 
 class TestEdgeCases:
@@ -44,14 +44,11 @@ class TestEdgeCases:
         """Create test Flask application"""
         app = Flask(__name__)
         configure_app_for_tests(app)
-        
-        ensure_all_models_imported()
         db.init_app(app)
+        initialize_shared_schema(db)
         with app.app_context():
-            db.create_all()
             yield app
-            db.session.remove()
-            db.drop_all()
+            cleanup_test_data(db)
     
     @pytest.fixture
     def client(self, app):

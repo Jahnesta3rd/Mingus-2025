@@ -268,10 +268,10 @@ class BusinessExpense(db.Model):
     
     # Indexes
     __table_args__ = (
-        db.Index('idx_expense_vehicle_date', 'fleet_vehicle_id', 'expense_date'),
-        db.Index('idx_expense_category', 'category'),
-        db.Index('idx_expense_tax_year', 'tax_year'),
-        db.Index('idx_expense_business', 'is_business_expense'),
+        db.Index('idx_business_expense_vehicle_date', 'fleet_vehicle_id', 'expense_date'),
+        db.Index('idx_business_expense_category', 'category'),
+        db.Index('idx_business_expense_tax_year', 'tax_year'),
+        db.Index('idx_business_expense_business', 'is_business_expense'),
         db.CheckConstraint('amount >= 0', name='check_positive_amount'),
         db.CheckConstraint('business_percentage >= 0.0 AND business_percentage <= 100.0', name='check_business_percentage'),
         db.CheckConstraint('deductible_amount >= 0', name='check_positive_deductible'),

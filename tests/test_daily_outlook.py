@@ -43,7 +43,7 @@ from backend.services.feature_flag_service import FeatureFlagService, FeatureTie
 from backend.utils.cache import CacheManager
 from backend.utils.daily_outlook_utils import calculate_streak_count, update_user_relationship_status, check_user_tier_access
 from backend.tasks.daily_outlook_tasks import generate_daily_outlooks
-from tests.db_helpers import configure_app_for_tests, ensure_all_models_imported
+from tests.db_helpers import configure_app_for_tests, initialize_shared_schema, cleanup_test_data
 
 
 # Module-level fixtures - available to all test classes
@@ -54,14 +54,12 @@ def app():
     configure_app_for_tests(app)
     
     # Initialize database
-    ensure_all_models_imported()
     db.init_app(app)
+    initialize_shared_schema(db)
     
     with app.app_context():
-        db.create_all()
         yield app
-        db.session.remove()
-        db.drop_all()
+        cleanup_test_data(db)
 
 @pytest.fixture
 def client(app):

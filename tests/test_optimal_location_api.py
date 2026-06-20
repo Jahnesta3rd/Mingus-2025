@@ -24,7 +24,7 @@ from backend.models.user_models import User
 from backend.models.housing_models import (
     HousingSearch, HousingScenario, UserHousingPreferences, CommuteRouteCache
 )
-from tests.db_helpers import configure_app_for_tests, ensure_all_models_imported
+from tests.db_helpers import configure_app_for_tests, initialize_shared_schema, cleanup_test_data
 
 class TestOptimalLocationAPI(unittest.TestCase):
     """Unit tests for the Optimal Location API endpoints"""
@@ -39,11 +39,10 @@ class TestOptimalLocationAPI(unittest.TestCase):
         self.app.register_blueprint(optimal_location_api)
         
         # Initialize database
-        ensure_all_models_imported()
         db.init_app(self.app)
+        initialize_shared_schema(db)
         
         with self.app.app_context():
-            db.create_all()
             self._setup_test_data()
         
         self.client = self.app.test_client()
@@ -51,8 +50,7 @@ class TestOptimalLocationAPI(unittest.TestCase):
     def tearDown(self):
         """Clean up test database"""
         with self.app.app_context():
-            db.session.remove()
-            db.drop_all()
+            cleanup_test_data(db)
     
     def _setup_test_data(self):
         """Set up test data"""
@@ -688,11 +686,10 @@ class TestOptimalLocationAPIIntegration(unittest.TestCase):
         self.app.register_blueprint(optimal_location_api)
         
         # Initialize database
-        ensure_all_models_imported()
         db.init_app(self.app)
+        initialize_shared_schema(db)
         
         with self.app.app_context():
-            db.create_all()
             self._setup_integration_test_data()
         
         self.client = self.app.test_client()
@@ -700,8 +697,7 @@ class TestOptimalLocationAPIIntegration(unittest.TestCase):
     def tearDown(self):
         """Clean up integration test database"""
         with self.app.app_context():
-            db.session.remove()
-            db.drop_all()
+            cleanup_test_data(db)
     
     def _setup_integration_test_data(self):
         """Set up comprehensive test data for integration tests"""

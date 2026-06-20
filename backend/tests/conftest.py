@@ -12,20 +12,24 @@ from unittest.mock import Mock, patch
 # Add backend to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-from backend.models.database import db, init_database
+from backend.models.database import db
 from backend.api import register_all_apis
 from backend.middleware.security import SecurityMiddleware
-from tests.db_helpers import configure_app_for_tests, ensure_all_models_imported
+from tests.db_helpers import configure_app_for_tests, initialize_shared_schema, cleanup_test_data
+
+@pytest.fixture(scope="session", autouse=True)
+def _shared_db_schema():
+    initialize_shared_schema(db)
+    yield
 
 @pytest.fixture
-def app():
+def app(_shared_db_schema):
     """Create Flask application for testing"""
     app = Flask(__name__)
     configure_app_for_tests(app)
     app.config['SECRET_KEY'] = 'test-secret-key'
     app.config['WTF_CSRF_ENABLED'] = False
     
-    ensure_all_models_imported()
     db.init_app(app)
     
     # Register all API blueprints
@@ -36,10 +40,8 @@ def app():
     security_middleware.init_app(app)
     
     with app.app_context():
-        db.create_all()
         yield app
-        db.session.remove()
-        db.drop_all()
+        cleanup_test_data(db)
 
 @pytest.fixture
 def client(app):
