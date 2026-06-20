@@ -1034,7 +1034,7 @@ def stripe_webhook():
                 exc_info=True,
             )
 
-    if event_type == "payment_intent.succeeded":
+    elif event_type == "payment_intent.succeeded":
         intent = data_object
         metadata = intent.get("metadata") or {}
         target_tier = (metadata.get("target_tier") or "").strip()
@@ -1042,7 +1042,13 @@ def stripe_webhook():
         user_external_id = metadata.get("user_external_id")
 
         if not target_tier:
-            logger.warning("Stripe webhook payment_intent.succeeded missing target_tier metadata")
+            from backend.services.payment_service import handle_payment_intent_succeeded_for_module
+
+            if not handle_payment_intent_succeeded_for_module(intent):
+                logger.warning(
+                    "Stripe webhook payment_intent.succeeded missing target_tier "
+                    "and module checkout metadata"
+                )
         else:
             try:
                 user = None

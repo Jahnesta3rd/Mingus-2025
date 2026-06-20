@@ -53,19 +53,107 @@ def create_module_checkout_session(
     if not price_id:
         raise ValueError(f'No Stripe price configured for module: {module}')
 
+    session_metadata = {
+        'module': module,
+        'user_db_id': str(user.id),
+        'user_external_id': user.user_id,
+        'user_email': user.email or '',
+    }
     return stripe.checkout.Session.create(
         mode='subscription',
         line_items=[{'price': price_id, 'quantity': 1}],
         success_url=success_url,
         cancel_url=cancel_url,
-        metadata={
-            'module': module,
-            'user_db_id': str(user.id),
-            'user_external_id': user.user_id,
-            'user_email': user.email or '',
-        },
+        metadata=session_metadata,
+        subscription_data={'metadata': session_metadata},
         client_reference_id=str(user.id),
     )
+
+
+def _session_to_dict(session: Any) -> dict[str, Any]:
+    if isinstance(session, dict):
+        return session
+    to_dict = getattr(session, 'to_dict', None)
+    if callable(to_dict):
+        return to_dict()
+    return dict(session)
+
+
+def resolve_checkout_session_from_payment_intent(intent: dict[str, Any]) -> dict[str, Any] | None:
+    """Resolve Checkout Session for a PaymentIntent (payment or subscription checkout)."""
+    pi_id = intent.get('id')
+    if not pi_id:
+        return None
+
+    try:
+        sessions = stripe.checkout.Session.list(payment_intent=pi_id, limit=1)
+        if sessions.data:
+            return _session_to_dict(sessions.data[0])
+    except stripe.error.StripeError as exc:
+        logger.warning(
+            'Could not list checkout sessions for payment_intent=%s: %s',
+            pi_id,
+            exc,
+        )
+
+    invoice_id = intent.get('invoice')
+    if not invoice_id:
+        return None
+
+    try:
+        invoice = stripe.Invoice.retrieve(invoice_id)
+        subscription_id = invoice.get('subscription')
+        if not subscription_id:
+            return None
+        sessions = stripe.checkout.Session.list(subscription=subscription_id, limit=1)
+        if sessions.data:
+            return _session_to_dict(sessions.data[0])
+    except stripe.error.StripeError as exc:
+        logger.warning(
+            'Could not resolve checkout session from invoice for payment_intent=%s: %s',
+            pi_id,
+            exc,
+        )
+
+    return None
+
+
+def handle_payment_intent_succeeded_for_module(intent: dict[str, Any]) -> bool:
+    """
+    Grant a module add-on when payment_intent.succeeded fires without target_tier.
+
+    Stripe endpoints often subscribe only to payment_intent.succeeded; module metadata
+    lives on the Checkout Session (or subscription), not the PaymentIntent.
+    """
+    metadata = intent.get('metadata') or {}
+    module = (metadata.get('module') or '').strip()
+    if module and module in MODULE_IDS:
+        handle_checkout_session_completed({
+            'id': intent.get('id'),
+            'metadata': metadata,
+        })
+        return True
+
+    session = resolve_checkout_session_from_payment_intent(intent)
+    if session is None:
+        return False
+
+    session_module = (session.get('metadata') or {}).get('module')
+    if not session_module and session.get('subscription'):
+        try:
+            subscription = stripe.Subscription.retrieve(session.get('subscription'))
+            session_module = (subscription.get('metadata') or {}).get('module')
+        except stripe.error.StripeError as exc:
+            logger.warning(
+                'Could not load subscription metadata for payment_intent=%s: %s',
+                intent.get('id'),
+                exc,
+            )
+    if session_module:
+        handle_checkout_session_completed(session)
+        return True
+
+    return False
 
 
 def handle_checkout_session_completed(session: dict[str, Any]) -> None:
