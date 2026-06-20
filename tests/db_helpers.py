@@ -69,6 +69,40 @@ def ensure_all_models_imported() -> None:
     import backend.models.tax_adjacent_models  # noqa: F401
 
 
+def ensure_housingtype_enum_values() -> None:
+    """Ensure housingtype enum accepts lowercase values used by API/tests."""
+    import psycopg2
+
+    ensure_libpq_env()
+    conn = psycopg2.connect(os.environ["DATABASE_URL"])
+    try:
+        with conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    """
+                    DO $$
+                    BEGIN
+                      IF EXISTS (SELECT 1 FROM pg_type WHERE typname = 'housingtype') THEN
+                        BEGIN
+                          ALTER TYPE housingtype ADD VALUE IF NOT EXISTS 'apartment';
+                        EXCEPTION WHEN duplicate_object THEN NULL;
+                        END;
+                        BEGIN
+                          ALTER TYPE housingtype ADD VALUE IF NOT EXISTS 'house';
+                        EXCEPTION WHEN duplicate_object THEN NULL;
+                        END;
+                        BEGIN
+                          ALTER TYPE housingtype ADD VALUE IF NOT EXISTS 'condo';
+                        EXCEPTION WHEN duplicate_object THEN NULL;
+                        END;
+                      END IF;
+                    END$$;
+                    """
+                )
+    finally:
+        conn.close()
+
+
 def ensure_postgres_extensions() -> None:
     """Create extensions expected by migrations and UUID defaults."""
     import psycopg2
@@ -173,6 +207,7 @@ def initialize_shared_schema(db=None) -> None:
         db.init_app(app)
         with app.app_context():
             db.create_all()
+        ensure_housingtype_enum_values()
         _schema_initialized = True
 
 

@@ -47,6 +47,7 @@ class TestOptimalLocationPerformance(unittest.TestCase):
         initialize_shared_schema(db)
         
         with self.app.app_context():
+            cleanup_test_data(db)
             self._setup_performance_test_data()
         
         self.client = self.app.test_client()

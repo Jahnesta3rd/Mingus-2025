@@ -23,7 +23,8 @@ from backend.api.optimal_location_api import optimal_location_api
 from backend.models.database import db
 from backend.models.user_models import User
 from backend.models.housing_models import (
-    HousingSearch, HousingScenario, UserHousingPreferences, CommuteRouteCache
+    HousingSearch, HousingScenario, UserHousingPreferences, CommuteRouteCache,
+    HousingType,
 )
 from backend.services.optimal_location_service import OptimalLocationService
 from tests.db_helpers import configure_app_for_tests, initialize_shared_schema, cleanup_test_data
@@ -45,6 +46,7 @@ class TestOptimalLocationIntegration(unittest.TestCase):
         initialize_shared_schema(db)
         
         with self.app.app_context():
+            cleanup_test_data(db)
             self._setup_test_data()
         
         self.client = self.app.test_client()
@@ -137,7 +139,7 @@ class TestOptimalLocationIntegration(unittest.TestCase):
         preferences = UserHousingPreferences(
             user_id=2,
             max_commute_time=30,
-            preferred_housing_type='apartment',
+            preferred_housing_type=HousingType.APARTMENT,
             min_bedrooms=2,
             max_bedrooms=3,
             max_rent_percentage=Decimal('30.0'),

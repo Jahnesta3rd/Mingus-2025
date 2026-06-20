@@ -10,12 +10,12 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
 
-from tests.db_helpers import (  # noqa: E402
+from tests.db_helpers import (
     ensure_libpq_env,
-    ensure_postgres_extensions,
     get_test_database_uri,
     initialize_shared_schema,
     stamp_alembic_head,
+    truncate_all_tables,
     verify_users_table,
 )
 
@@ -60,11 +60,34 @@ def _bootstrap_analytics_tables() -> None:
         conn.close()
 
 
+def _reset_test_data() -> None:
+    """Clear any leftover rows so init is safe to re-run locally."""
+    import psycopg2
+    from flask import Flask
+    from backend.models.database import db
+
+    ensure_libpq_env()
+    app = Flask("ci_init_reset")
+    app.config["SQLALCHEMY_DATABASE_URI"] = get_test_database_uri()
+    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+    db.init_app(app)
+    with app.app_context():
+        try:
+            truncate_all_tables(db)
+        except Exception:
+            pass
+
+
 def main() -> int:
     ensure_libpq_env()
     print(f"Initializing schema at {os.environ['DATABASE_URL']}")
 
+    # 0) Clear leftover data when re-running init against an existing DB
+    _reset_test_data()
+
     # 1) Extensions required by models/migrations
+    from tests.db_helpers import ensure_postgres_extensions  # noqa: E402
+
     ensure_postgres_extensions()
 
     # 2) create_all first — Alembic chain root (004) FK-references users but no

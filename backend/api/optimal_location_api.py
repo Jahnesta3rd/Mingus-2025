@@ -20,7 +20,8 @@ from flask_cors import cross_origin
 from backend.models.database import db
 from backend.models.user_models import User
 from backend.models.housing_models import (
-    HousingSearch, HousingScenario, UserHousingPreferences, CommuteRouteCache
+    HousingSearch, HousingScenario, UserHousingPreferences, CommuteRouteCache,
+    HousingType,
 )
 from backend.auth.decorators import require_auth, require_csrf, get_current_user_id
 from backend.utils.validation import APIValidator
@@ -586,9 +587,13 @@ def update_housing_preferences():
             preferences = UserHousingPreferences(user_id=user_id)
             db.session.add(preferences)
         
-        # Update preferences
+        # Update preferences (schema field names differ from model column names)
+        preference_field_map = {'housing_type': 'preferred_housing_type'}
         for field, value in validated_data.items():
-            setattr(preferences, field, value)
+            attr = preference_field_map.get(field, field)
+            if attr == 'preferred_housing_type' and isinstance(value, str):
+                value = HousingType(value)
+            setattr(preferences, attr, value)
         
         preferences.updated_at = datetime.utcnow()
         

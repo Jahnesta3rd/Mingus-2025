@@ -15,6 +15,11 @@ class HousingType(enum.Enum):
     HOUSE = "house"
     CONDO = "condo"
 
+
+def _housing_type_values(enum_cls):
+    """Store enum values (apartment/house/condo), not member names, in Postgres."""
+    return [member.value for member in enum_cls]
+
 class HousingSearch(db.Model):
     """
     Housing search model for tracking user housing searches and criteria
@@ -114,7 +119,10 @@ class UserHousingPreferences(db.Model):
     max_commute_time = db.Column(db.Integer, nullable=True)  # minutes
     
     # Housing type preference
-    preferred_housing_type = db.Column(db.Enum(HousingType), nullable=True)
+    preferred_housing_type = db.Column(
+        db.Enum(HousingType, values_callable=_housing_type_values),
+        nullable=True,
+    )
     
     # Bedroom preferences
     min_bedrooms = db.Column(db.Integer, nullable=True)

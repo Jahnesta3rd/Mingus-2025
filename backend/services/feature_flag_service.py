@@ -123,6 +123,18 @@ class FeatureFlagService:
             }
         }
 
+    @staticmethod
+    def _lookup_user(user_id):
+        """Resolve User by internal PK (int) or external user_id string."""
+        from backend.models.user_models import User
+        from backend.models.database import db
+
+        if user_id is None:
+            return None
+        if isinstance(user_id, int):
+            return db.session.query(User).filter_by(id=user_id).first()
+        return db.session.query(User).filter_by(user_id=str(user_id)).first()
+
     def get_user_tier(self, user_id: str) -> FeatureTier:
         """
         Get user's current subscription tier
@@ -138,8 +150,7 @@ class FeatureFlagService:
                 logger.warning(f"get_user_tier called outside app context for user {user_id}")
                 return FeatureTier.BUDGET
             
-            # Use current session context
-            user = db.session.query(User).filter_by(user_id=user_id).first()
+            user = self._lookup_user(user_id)
             if user and user.tier:
                 # Map string tier to FeatureTier enum
                 tier_mapping = {
