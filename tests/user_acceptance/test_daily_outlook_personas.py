@@ -45,13 +45,13 @@ from tests.db_helpers import configure_app_for_tests, ensure_all_models_imported
 
 class TestMayaPersona:
     """Test suite for Maya persona (Budget Tier - Single, Career-Focused)"""
-    
+
     @pytest.fixture
     def app(self):
         """Create test Flask application"""
         app = Flask(__name__)
         configure_app_for_tests(app)
-        
+
         ensure_all_models_imported()
         db.init_app(app)
         with app.app_context():
@@ -59,14 +59,14 @@ class TestMayaPersona:
             yield app
             db.session.remove()
             db.drop_all()
-    
+
     @pytest.fixture
     def client(self, app):
         """Create test client"""
         # Use test API that doesn't require authentication
         app.register_blueprint(test_daily_outlook_api)
         return app.test_client()
-    
+
     @pytest.fixture
     def maya_user(self, app):
         """Create Maya persona user"""
@@ -82,7 +82,7 @@ class TestMayaPersona:
             db.session.commit()
             db.session.refresh(user)  # Ensure object is fresh and bound
             return user
-    
+
     @pytest.fixture
     def maya_relationship_status(self, app, maya_user):
         """Create Maya's relationship status"""
@@ -99,7 +99,7 @@ class TestMayaPersona:
             db.session.commit()
             db.session.refresh(rel_status)  # Ensure object is fresh and bound
             return rel_status
-    
+
     def test_maya_daily_outlook_generation(self, client, app, maya_user, maya_relationship_status):
         """Test Maya's daily outlook generation with career focus"""
         with app.app_context():
@@ -126,25 +126,25 @@ class TestMayaPersona:
                     )
                     db.session.add(outlook)
                     db.session.commit()
-                    
+
                     # Test API response
                     response = client.get('/api/daily-outlook/')
                     assert response.status_code == 200
                     data = response.get_json()
-                    
+
                     # Validate Maya-specific content
                     assert data['outlook']['career_weight'] == 0.25
                     assert data['outlook']['relationship_weight'] == 0.15
                     assert "career growth" in data['outlook']['primary_insight'].lower()
                     assert data['outlook']['streak_count'] == 12
-                    
+
                     # Validate quick actions are career and financial focused
                     quick_actions = data['outlook']['quick_actions']
                     career_actions = [action for action in quick_actions if 'career' in action['id']]
                     financial_actions = [action for action in quick_actions if 'financial' in action['id']]
                     assert len(career_actions) > 0
                     assert len(financial_actions) > 0
-    
+
     def test_maya_relationship_status_impact(self, client, app, maya_user, maya_relationship_status):
         """Test how Maya's relationship status impacts daily outlook"""
         with app.app_context():
@@ -158,7 +158,7 @@ class TestMayaPersona:
                                              'financial_impact_score': 8  # Positive financial impact
                                          })
                     assert response.status_code == 200
-                    
+
                     # Verify relationship status affects weighting
                     outlook = DailyOutlook(
                         user_id=maya_user.id,
@@ -173,15 +173,15 @@ class TestMayaPersona:
                     )
                     db.session.add(outlook)
                     db.session.commit()
-                    
+
                     response = client.get('/api/daily-outlook/')
                     assert response.status_code == 200
                     data = response.get_json()
-                    
+
                     # Career and financial should be prioritized over relationship
                     assert data['outlook']['career_weight'] >= data['outlook']['relationship_weight']
                     assert data['outlook']['financial_weight'] >= data['outlook']['relationship_weight']
-    
+
     def test_maya_tier_restrictions(self, client, app, maya_user):
         """Test Maya's tier restrictions and feature availability"""
         with app.app_context():
@@ -190,14 +190,14 @@ class TestMayaPersona:
                 with patch('backend.api.daily_outlook_api.check_user_tier_access', return_value=True):
                     response = client.get('/api/daily-outlook/')
                     assert response.status_code in [200, 404]  # 404 if no outlook exists
-                
+
                 # Test that Maya cannot access professional features
                 with patch('tests.api.test_daily_outlook_api.check_user_tier_access', return_value=False):
                     response = client.get('/api/daily-outlook/')
                     assert response.status_code == 403
                     data = response.get_json()
                     assert data['error'] == 'Insufficient tier access for daily outlook feature'
-    
+
     def test_maya_habit_formation(self, client, app, maya_user):
         """Test Maya's habit formation mechanisms"""
         with app.app_context():
@@ -219,19 +219,19 @@ class TestMayaPersona:
                             viewed_at=datetime.now(timezone.utc)
                         )
                         db.session.add(outlook)
-                    
+
                     db.session.commit()
-                    
+
                     # Test streak milestone achievement
                     response = client.get('/api/daily-outlook/')
                     assert response.status_code == 200
                     data = response.get_json()
-                    
+
                     assert data['streak_info']['current_streak'] == 7
                     # Note: milestone_reached may not be in test API response
                     if 'milestone_reached' in data['streak_info']:
                         assert data['streak_info']['milestone_reached'] is True
-                    
+
                     # Test action completion habit formation
                     response = client.post('/api/daily-outlook/action-completed',
                                          json={
@@ -244,13 +244,13 @@ class TestMayaPersona:
 
 class TestMarcusPersona:
     """Test suite for Marcus persona (Mid-Tier - Dating, Financial Growth)"""
-    
+
     @pytest.fixture
     def app(self):
         """Create test Flask application"""
         app = Flask(__name__)
         configure_app_for_tests(app)
-        
+
         ensure_all_models_imported()
         db.init_app(app)
         with app.app_context():
@@ -258,14 +258,14 @@ class TestMarcusPersona:
             yield app
             db.session.remove()
             db.drop_all()
-    
+
     @pytest.fixture
     def client(self, app):
         """Create test client"""
         # Use test API that doesn't require authentication
         app.register_blueprint(test_daily_outlook_api)
         return app.test_client()
-    
+
     @pytest.fixture
     def marcus_user(self, app):
         """Create Marcus persona user"""
@@ -281,7 +281,7 @@ class TestMarcusPersona:
             db.session.commit()
             db.session.refresh(user)  # Ensure object is fresh and bound
             return user
-    
+
     @pytest.fixture
     def marcus_relationship_status(self, app, marcus_user):
         """Create Marcus's relationship status"""
@@ -298,7 +298,7 @@ class TestMarcusPersona:
             db.session.commit()
             db.session.refresh(rel_status)  # Ensure object is fresh and bound
             return rel_status
-    
+
     def test_marcus_daily_outlook_generation(self, client, app, marcus_user, marcus_relationship_status):
         """Test Marcus's daily outlook generation with relationship focus"""
         with app.app_context():
@@ -325,25 +325,25 @@ class TestMarcusPersona:
                     )
                     db.session.add(outlook)
                     db.session.commit()
-                    
+
                     # Test API response
                     response = client.get('/api/daily-outlook/')
                     assert response.status_code == 200
                     data = response.get_json()
-                    
+
                     # Validate Marcus-specific content
                     assert data['outlook']['relationship_weight'] == 0.30
                     assert data['outlook']['financial_weight'] == 0.30
                     assert "relationship" in data['outlook']['primary_insight'].lower()
                     assert data['outlook']['streak_count'] == 8
-                    
+
                     # Validate quick actions are relationship and financial focused
                     quick_actions = data['outlook']['quick_actions']
                     relationship_actions = [action for action in quick_actions if 'relationship' in action['id']]
                     financial_actions = [action for action in quick_actions if 'financial' in action['id']]
                     assert len(relationship_actions) > 0
                     assert len(financial_actions) > 0
-    
+
     def test_marcus_relationship_status_impact(self, client, app, marcus_user, marcus_relationship_status):
         """Test how Marcus's relationship status impacts daily outlook"""
         with app.app_context():
@@ -357,7 +357,7 @@ class TestMarcusPersona:
                                              'financial_impact_score': 8
                                          })
                     assert response.status_code == 200
-                    
+
                     # Verify relationship status affects weighting
                     outlook = DailyOutlook(
                         user_id=marcus_user.id,
@@ -372,15 +372,15 @@ class TestMarcusPersona:
                     )
                     db.session.add(outlook)
                     db.session.commit()
-                    
+
                     response = client.get('/api/daily-outlook/')
                     assert response.status_code == 200
                     data = response.get_json()
-                    
+
                     # Relationship and financial should be prioritized
                     assert data['outlook']['relationship_weight'] >= data['outlook']['career_weight']
                     assert data['outlook']['financial_weight'] >= data['outlook']['career_weight']
-    
+
     def test_marcus_tier_features(self, client, app, marcus_user):
         """Test Marcus's mid-tier feature availability"""
         with app.app_context():
@@ -388,13 +388,13 @@ class TestMarcusPersona:
                 with patch('backend.api.daily_outlook_api.check_user_tier_access', return_value=True):
                     response = client.get('/api/daily-outlook/')
                     assert response.status_code in [200, 404]
-                    
+
                     # Test history access
                     response = client.get('/api/daily-outlook/history')
                     assert response.status_code == 200
                     data = response.get_json()
                     assert data['success'] is True
-    
+
     def test_marcus_habit_formation(self, client, app, marcus_user):
         """Test Marcus's habit formation mechanisms"""
         with app.app_context():
@@ -417,7 +417,7 @@ class TestMarcusPersona:
                     )
                     db.session.add(outlook)
                     db.session.commit()
-                    
+
                     # Test action completion
                     response = client.post('/api/daily-outlook/action-completed',
                                          json={
@@ -426,7 +426,7 @@ class TestMarcusPersona:
                                              'completion_notes': 'Planned romantic dinner'
                                          })
                     assert response.status_code == 200
-                    
+
                     # Test rating submission
                     response = client.post('/api/daily-outlook/rating',
                                          json={'rating': 5})
@@ -435,13 +435,13 @@ class TestMarcusPersona:
 
 class TestDrWilliamsPersona:
     """Test suite for Dr. Williams persona (Professional Tier - Married, Established)"""
-    
+
     @pytest.fixture
     def app(self):
         """Create test Flask application"""
         app = Flask(__name__)
         configure_app_for_tests(app)
-        
+
         ensure_all_models_imported()
         db.init_app(app)
         with app.app_context():
@@ -449,14 +449,14 @@ class TestDrWilliamsPersona:
             yield app
             db.session.remove()
             db.drop_all()
-    
+
     @pytest.fixture
     def client(self, app):
         """Create test client"""
         # Use test API that doesn't require authentication
         app.register_blueprint(test_daily_outlook_api)
         return app.test_client()
-    
+
     @pytest.fixture
     def dr_williams_user(self, app):
         """Create Dr. Williams persona user"""
@@ -472,7 +472,7 @@ class TestDrWilliamsPersona:
             db.session.commit()
             db.session.refresh(user)  # Ensure object is fresh and bound
             return user
-    
+
     @pytest.fixture
     def dr_williams_relationship_status(self, app, dr_williams_user):
         """Create Dr. Williams's relationship status"""
@@ -489,7 +489,7 @@ class TestDrWilliamsPersona:
             db.session.commit()
             db.session.refresh(rel_status)  # Ensure object is fresh and bound
             return rel_status
-    
+
     def test_dr_williams_daily_outlook_generation(self, client, app, dr_williams_user, dr_williams_relationship_status):
         """Test Dr. Williams's daily outlook generation with family focus"""
         with app.app_context():
@@ -516,25 +516,25 @@ class TestDrWilliamsPersona:
                     )
                     db.session.add(outlook)
                     db.session.commit()
-                    
+
                     # Test API response
                     response = client.get('/api/daily-outlook/')
                     assert response.status_code == 200
                     data = response.get_json()
-                    
+
                     # Validate Dr. Williams-specific content
                     assert data['outlook']['wellness_weight'] == 0.30  # High wellness for family health
                     assert data['outlook']['financial_weight'] == 0.25
                     assert "family" in data['outlook']['primary_insight'].lower()
                     assert data['outlook']['streak_count'] == 15
-                    
+
                     # Validate quick actions are family and financial focused
                     quick_actions = data['outlook']['quick_actions']
                     family_actions = [action for action in quick_actions if 'family' in action['id']]
                     financial_actions = [action for action in quick_actions if 'financial' in action['id']]
                     assert len(family_actions) > 0
                     assert len(financial_actions) > 0
-    
+
     def test_dr_williams_relationship_status_impact(self, client, app, dr_williams_user, dr_williams_relationship_status):
         """Test how Dr. Williams's relationship status impacts daily outlook"""
         with app.app_context():
@@ -548,7 +548,7 @@ class TestDrWilliamsPersona:
                                              'financial_impact_score': 9
                                          })
                     assert response.status_code == 200
-                    
+
                     # Verify relationship status affects weighting
                     outlook = DailyOutlook(
                         user_id=dr_williams_user.id,
@@ -563,14 +563,14 @@ class TestDrWilliamsPersona:
                     )
                     db.session.add(outlook)
                     db.session.commit()
-                    
+
                     response = client.get('/api/daily-outlook/')
                     assert response.status_code == 200
                     data = response.get_json()
-                    
+
                     # Wellness should be prioritized for family health
                     assert data['outlook']['wellness_weight'] >= data['outlook']['career_weight']
-    
+
     def test_dr_williams_professional_tier_features(self, client, app, dr_williams_user):
         """Test Dr. Williams's professional tier feature availability"""
         with app.app_context():
@@ -579,13 +579,13 @@ class TestDrWilliamsPersona:
                     # Test all professional tier features
                     response = client.get('/api/daily-outlook/')
                     assert response.status_code in [200, 404]
-                    
+
                     response = client.get('/api/daily-outlook/history')
                     assert response.status_code == 200
-                    
+
                     response = client.get('/api/daily-outlook/streak')
                     assert response.status_code == 200
-    
+
     def test_dr_williams_habit_formation(self, client, app, dr_williams_user):
         """Test Dr. Williams's habit formation mechanisms"""
         with app.app_context():
@@ -608,7 +608,7 @@ class TestDrWilliamsPersona:
                     )
                     db.session.add(outlook)
                     db.session.commit()
-                    
+
                     # Test action completion
                     response = client.post('/api/daily-outlook/action-completed',
                                          json={
@@ -617,7 +617,7 @@ class TestDrWilliamsPersona:
                                              'completion_notes': 'Rebalanced portfolio for optimal growth'
                                          })
                     assert response.status_code == 200
-                    
+
                     # Test rating submission
                     response = client.post('/api/daily-outlook/rating',
                                          json={'rating': 5})
@@ -626,13 +626,13 @@ class TestDrWilliamsPersona:
 
 class TestPersonaComparison:
     """Test suite for comparing persona experiences"""
-    
+
     @pytest.fixture
     def app(self):
         """Create test Flask application"""
         app = Flask(__name__)
         configure_app_for_tests(app)
-        
+
         ensure_all_models_imported()
         db.init_app(app)
         with app.app_context():
@@ -640,7 +640,7 @@ class TestPersonaComparison:
             yield app
             db.session.remove()
             db.drop_all()
-    
+
     def test_persona_weighting_differences(self, app):
         """Test how different personas receive different weightings"""
         with app.app_context():
@@ -666,10 +666,10 @@ class TestPersonaComparison:
                 last_name='Williams',
                 tier='professional'
             )
-            
+
             db.session.add_all([maya, marcus, dr_williams])
             db.session.commit()
-            
+
             # Create relationship statuses
             maya_rel = UserRelationshipStatus(
                 user_id=maya.id,
@@ -689,10 +689,10 @@ class TestPersonaComparison:
                 satisfaction_score=9,
                 financial_impact_score=9
             )
-            
+
             db.session.add_all([maya_rel, marcus_rel, dr_williams_rel])
             db.session.commit()
-            
+
             # Create outlooks for each persona
             maya_outlook = DailyOutlook(
                 user_id=maya.id,
@@ -703,7 +703,7 @@ class TestPersonaComparison:
                 relationship_weight=Decimal('0.15'),
                 career_weight=Decimal('0.25')
             )
-            
+
             marcus_outlook = DailyOutlook(
                 user_id=marcus.id,
                 date=date.today(),
@@ -713,7 +713,7 @@ class TestPersonaComparison:
                 relationship_weight=Decimal('0.30'),
                 career_weight=Decimal('0.15')
             )
-            
+
             dr_williams_outlook = DailyOutlook(
                 user_id=dr_williams.id,
                 date=date.today(),
@@ -723,15 +723,15 @@ class TestPersonaComparison:
                 relationship_weight=Decimal('0.25'),
                 career_weight=Decimal('0.20')
             )
-            
+
             db.session.add_all([maya_outlook, marcus_outlook, dr_williams_outlook])
             db.session.commit()
-            
+
             # Validate persona-specific weightings
             assert maya_outlook.career_weight > maya_outlook.relationship_weight  # Maya: Career-focused
             assert marcus_outlook.relationship_weight > marcus_outlook.career_weight  # Marcus: Relationship-focused
             assert dr_williams_outlook.wellness_weight > dr_williams_outlook.career_weight  # Dr. Williams: Family wellness-focused
-    
+
     def test_persona_tier_feature_access(self, app):
         """Test tier-based feature access across personas"""
         with app.app_context():
@@ -739,23 +739,23 @@ class TestPersonaComparison:
             maya = User(user_id='maya_tier_404', email='maya@example.com', tier='budget')
             marcus = User(user_id='marcus_tier_505', email='marcus@example.com', tier='mid_tier')
             dr_williams = User(user_id='dr_williams_tier_606', email='dr.williams@example.com', tier='professional')
-            
+
             db.session.add_all([maya, marcus, dr_williams])
             db.session.commit()
-            
+
             # Test tier access
             feature_service = FeatureFlagService()
-            
+
             # All should have access to daily outlook
             assert feature_service.check_user_tier_access(maya.id, FeatureTier.BUDGET)
             assert feature_service.check_user_tier_access(marcus.id, FeatureTier.BUDGET)
             assert feature_service.check_user_tier_access(dr_williams.id, FeatureTier.BUDGET)
-            
+
             # Only professional should have access to advanced features
             assert not feature_service.check_user_tier_access(maya.id, FeatureTier.PROFESSIONAL)
             assert not feature_service.check_user_tier_access(marcus.id, FeatureTier.PROFESSIONAL)
             assert feature_service.check_user_tier_access(dr_williams.id, FeatureTier.PROFESSIONAL)
-    
+
     def test_persona_habit_formation_patterns(self, app):
         """Test how different personas form habits"""
         with app.app_context():
@@ -763,10 +763,10 @@ class TestPersonaComparison:
             maya = User(user_id='maya_tier_404', email='maya@example.com', tier='budget')
             marcus = User(user_id='marcus_tier_505', email='marcus@example.com', tier='mid_tier')
             dr_williams = User(user_id='dr_williams_tier_606', email='dr.williams@example.com', tier='professional')
-            
+
             db.session.add_all([maya, marcus, dr_williams])
             db.session.commit()
-            
+
             # Create outlooks with different action patterns
             maya_outlook = DailyOutlook(
                 user_id=maya.id,
@@ -781,7 +781,7 @@ class TestPersonaComparison:
                     {"id": "financial_1", "title": "Review budget", "priority": "high"}
                 ]
             )
-            
+
             marcus_outlook = DailyOutlook(
                 user_id=marcus.id,
                 date=date.today(),
@@ -795,7 +795,7 @@ class TestPersonaComparison:
                     {"id": "financial_1", "title": "Review investments", "priority": "high"}
                 ]
             )
-            
+
             dr_williams_outlook = DailyOutlook(
                 user_id=dr_williams.id,
                 date=date.today(),
@@ -809,23 +809,23 @@ class TestPersonaComparison:
                     {"id": "financial_1", "title": "Review retirement portfolio", "priority": "high"}
                 ]
             )
-            
+
             db.session.add_all([maya_outlook, marcus_outlook, dr_williams_outlook])
             db.session.commit()
-            
+
             # Validate persona-specific action patterns
             maya_actions = maya_outlook.quick_actions
             marcus_actions = marcus_outlook.quick_actions
             dr_williams_actions = dr_williams_outlook.quick_actions
-            
+
             # Maya: Career and financial focused
             assert any('career' in action['id'] for action in maya_actions)
             assert any('financial' in action['id'] for action in maya_actions)
-            
+
             # Marcus: Relationship and financial focused
             assert any('relationship' in action['id'] for action in marcus_actions)
             assert any('financial' in action['id'] for action in marcus_actions)
-            
+
             # Dr. Williams: Family and financial focused
             assert any('family' in action['id'] for action in dr_williams_actions)
             assert any('financial' in action['id'] for action in dr_williams_actions)
