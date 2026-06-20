@@ -56,6 +56,8 @@ interface SpecialDatesWidgetProps {
   onRequestAddDate?: () => void;
   /** Increment to refetch profile after a date was saved elsewhere. */
   importantDatesRefreshKey?: number;
+  /** Called after a milestone is saved successfully via the picker modal. */
+  onMilestoneSaved?: (event: NewMilestoneEvent) => void;
 }
 
 /** Shape from GET /api/cash-flow/backward-compatibility/{userEmail} forecast.daily_cashflow */
@@ -216,6 +218,7 @@ export default function SpecialDatesWidget({
   onNavigateToForecast,
   onRequestAddDate: _onRequestAddDate,
   importantDatesRefreshKey = 0,
+  onMilestoneSaved,
 }: SpecialDatesWidgetProps) {
   const [profile, setProfile] = useState<ProfileResponse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -342,8 +345,9 @@ export default function SpecialDatesWidget({
           },
         };
       });
+      onMilestoneSaved?.(event);
     },
-    [profile]
+    [onMilestoneSaved, profile]
   );
 
   const pickerModal = (

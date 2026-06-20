@@ -75,3 +75,38 @@ def has_module(user_id: int, module: str) -> bool:
 def get_user_modules(user_id: int) -> dict[str, bool]:
     """Return access flags for every known module (for profile API responses)."""
     return {module: has_module(user_id, module) for module in sorted(MODULE_IDS)}
+
+
+def grant_module(user_id: int, module: str) -> bool:
+    """
+    Grant a subscription module to a user (append to purchased_modules).
+
+    No-op when the user already has access via tier bundle or prior purchase.
+    """
+    module_key = _normalize_module(module)
+    if module_key is None:
+        return False
+
+    try:
+        user = db.session.query(User).filter_by(id=user_id).first()
+        if user is None:
+            return False
+
+        if has_module(user_id, module_key):
+            return True
+
+        purchased = list(user.purchased_modules or [])
+        if module_key not in purchased:
+            purchased.append(module_key)
+            user.purchased_modules = purchased
+            db.session.commit()
+        return True
+    except Exception as exc:
+        logger.error(
+            "Error granting module for user_id=%s module=%s: %s",
+            user_id,
+            module,
+            exc,
+        )
+        db.session.rollback()
+        return False

@@ -1022,6 +1022,18 @@ def stripe_webhook():
     event_type = event.get("type")
     data_object = event.get("data", {}).get("object", {})
 
+    if event_type == "checkout.session.completed":
+        try:
+            from backend.services.payment_service import handle_checkout_session_completed
+
+            handle_checkout_session_completed(data_object)
+        except Exception as e:
+            logger.error(
+                "Error handling checkout.session.completed webhook: %s",
+                e,
+                exc_info=True,
+            )
+
     if event_type == "payment_intent.succeeded":
         intent = data_object
         metadata = intent.get("metadata") or {}

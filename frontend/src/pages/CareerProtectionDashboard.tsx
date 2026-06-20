@@ -1,11 +1,14 @@
 import React, { useState, useEffect, useRef, useCallback, lazy, Suspense } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import RecommendationTiers from '../components/RecommendationTiers';
 import DashboardErrorBoundary from '../components/DashboardErrorBoundary';
 import DashboardSkeleton from '../components/DashboardSkeleton';
 import QuickSetupOverlay from '../components/QuickSetupOverlay';
 import SpendingMilestonesWidget from '../components/SpendingMilestonesWidget';
 import SpecialDatesWidget from '../components/SpecialDatesWidget';
+import type { NewMilestoneEvent } from '../components/MilestonePickerModal';
+import FamilyAddonUpsellCard from '../components/FamilyAddonUpsellCard';
+import { BABY_CATEGORIES } from '../data/milestoneCategories';
 import NewParentChecklistCard, { detectHasBabyMilestone } from '../components/NewParentChecklistCard';
 import CostOfSummerLoveCard from '../components/CostOfSummerLoveCard';
 import ArticleLibraryCard from '../components/ArticleLibraryCard';
@@ -34,6 +37,7 @@ import EmployerBackfillModal, {
   isEmployerBackfillDismissed,
 } from '../components/EmployerBackfillModal';
 import { csrfHeaders } from '../utils/csrfHeaders';
+import type { UserProfile as UserProfileData } from '../types/UserProfile';
 
 // Lazy load the full Daily Outlook component for performance
 const DailyOutlook = lazy(() => import('../components/DailyOutlook'));
@@ -206,6 +210,7 @@ function hasMidTierAccess(tier: AuthUserTier | null): boolean {
 
 const CareerProtectionDashboard: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
   const { user, userTier, isAuthenticated, loading: authLoading, getAccessToken } = useAuth();
   const { openAddImportantDate, importantDatesRefreshKey } = useImportantDateModal();
   const { trackPageView, trackInteraction } = useAnalytics();
@@ -245,8 +250,10 @@ const CareerProtectionDashboard: React.FC = () => {
   const [parentChecklistLoaded, setParentChecklistLoaded] = useState(false);
   const [parentChecklistError, setParentChecklistError] = useState(false);
   const [hasBabyMilestone, setHasBabyMilestone] = useState(false);
+  const [hasFamilyAddon, setHasFamilyAddon] = useState(false);
   const [relationshipStatus, setRelationshipStatus] = useState<string | null>(null);
   const [showParentingChecklist, setShowParentingChecklist] = useState(false);
+  const [showFamilyUpsell, setShowFamilyUpsell] = useState(false);
 
   const loadParentChecklistFromProfile = useCallback(async () => {
     if (!user?.id) return;
@@ -267,14 +274,15 @@ const CareerProtectionDashboard: React.FC = () => {
       );
       if (!response.ok) throw new Error('Failed to load profile');
       const data = await response.json();
-      const profile = data?.profile as Record<string, unknown> | undefined;
-      const importantDates = profile?.important_dates as Record<string, unknown> | undefined;
+      const profile = data?.profile as UserProfileData | undefined;
+      const importantDates = profile?.important_dates;
       const rawIds = importantDates?.parent_checklist;
       const customEvents = (importantDates?.custom_events ?? importantDates?.customEvents) as
         | Array<{ category?: string | null }>
         | undefined;
       setParentChecklistIds(Array.isArray(rawIds) ? (rawIds as string[]) : []);
       setHasBabyMilestone(detectHasBabyMilestone(customEvents));
+      setHasFamilyAddon(profile?.modules?.family_addon === true);
       setRelationshipStatus(
         typeof profile?.relationship_status === 'string' ? profile.relationship_status : null
       );
@@ -288,6 +296,27 @@ const CareerProtectionDashboard: React.FC = () => {
   useEffect(() => {
     void loadParentChecklistFromProfile();
   }, [loadParentChecklistFromProfile, importantDatesRefreshKey]);
+
+  const handleChecklistUpgrade = useCallback(() => {
+    navigate('/dashboard/upgrade?module=family_addon&from=checklist');
+  }, [navigate]);
+
+  const handleFamilyUpsellUpgrade = useCallback(() => {
+    navigate('/dashboard/upgrade?module=family_addon&from=plans');
+  }, [navigate]);
+
+  const handleMilestoneSaved = useCallback(
+    (savedEvent: NewMilestoneEvent) => {
+      void loadParentChecklistFromProfile();
+      if (
+        BABY_CATEGORIES.includes(savedEvent.category) &&
+        !hasFamilyAddon
+      ) {
+        setShowFamilyUpsell(true);
+      }
+    },
+    [hasFamilyAddon, loadParentChecklistFromProfile]
+  );
 
   const handleChecklistUpdate = useCallback(
     async (ids: string[]) => {
@@ -590,18 +619,26 @@ const CareerProtectionDashboard: React.FC = () => {
           {dashboardState.activeTab === 'plans' && (
             <div className="space-y-6">
               <SpendingMilestonesWidget userId={user?.id ?? ''} className="mt-0" />
+              <FamilyAddonUpsellCard
+                isVisible={showFamilyUpsell}
+                onUpgrade={handleFamilyUpsellUpgrade}
+                onDismiss={() => setShowFamilyUpsell(false)}
+              />
               <SpecialDatesWidget
                 userId={user?.id ?? ''}
                 userEmail={user?.email ?? ''}
                 onNavigateToForecast={() => handleTabChange('forecast')}
                 onRequestAddDate={openAddImportantDate}
                 importantDatesRefreshKey={importantDatesRefreshKey}
+                onMilestoneSaved={handleMilestoneSaved}
                 className="mt-6"
               />
               {hasBabyMilestone ? (
                 <NewParentChecklistCard
                   userId={user?.id ?? ''}
                   completedIds={parentChecklistIds}
+                  hasFamilyAddon={hasFamilyAddon}
+                  onUpgrade={handleChecklistUpgrade}
                   hasBabyMilestone
                   isLoading={!parentChecklistLoaded}
                   profileError={parentChecklistError}
@@ -619,6 +656,8 @@ const CareerProtectionDashboard: React.FC = () => {
                     <NewParentChecklistCard
                       userId={user?.id ?? ''}
                       completedIds={parentChecklistIds}
+                      hasFamilyAddon={hasFamilyAddon}
+                      onUpgrade={handleChecklistUpgrade}
                       hasBabyMilestone={false}
                       isLoading={!parentChecklistLoaded}
                       profileError={parentChecklistError}
@@ -643,6 +682,8 @@ const CareerProtectionDashboard: React.FC = () => {
                     <NewParentChecklistCard
                       userId={user?.id ?? ''}
                       completedIds={parentChecklistIds}
+                      hasFamilyAddon={hasFamilyAddon}
+                      onUpgrade={handleChecklistUpgrade}
                       hasBabyMilestone={false}
                       isLoading={!parentChecklistLoaded}
                       profileError={parentChecklistError}

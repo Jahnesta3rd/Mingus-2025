@@ -17,6 +17,9 @@ interface NewParentChecklistCardProps {
   userId: string;
   completedIds: string[];
   onUpdate: (ids: string[]) => void;
+  hasFamilyAddon: boolean;
+  /** Parent navigates to the upgrade flow (e.g. /dashboard/upgrade). */
+  onUpgrade: () => void;
   /** Auto-expands the checklist when true. Parent should derive via BABY_CATEGORIES on custom_events.category, not name matching. */
   hasBabyMilestone?: boolean;
   className?: string;
@@ -24,6 +27,8 @@ interface NewParentChecklistCardProps {
   profileError?: boolean;
   onViewForecast?: () => void;
 }
+
+const FREE_TIER_ITEM_NUMBERS = new Set([1, 2, 3]);
 
 const TOTAL_ITEMS = 12;
 
@@ -100,16 +105,40 @@ function formatMonthly(amount: number): string {
   return `$${amount.toLocaleString(undefined, { maximumFractionDigits: 0 })}/month`;
 }
 
+function ChecklistUpsellCard({ onUpgrade }: { onUpgrade: () => void }) {
+  return (
+    <div className="mx-4 rounded-xl bg-white p-5 shadow-lg">
+      <h3 className="mb-2 text-base font-semibold text-gray-900">
+        You&apos;ve got 9 more moves to make
+      </h3>
+      <p className="mb-4 text-sm text-gray-600">
+        Before this baby arrives. Including a 30-day insurance window that closes whether
+        you&apos;re ready or not.
+      </p>
+      <p className="mb-3 text-xs text-gray-500">Unlock the full checklist — $12/month</p>
+      <button
+        type="button"
+        onClick={onUpgrade}
+        className="w-full rounded-lg bg-purple-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-purple-700"
+      >
+        Unlock New Parent Checklist →
+      </button>
+    </div>
+  );
+}
+
 function ChecklistItemRow({
   item,
   checked,
   impactAmount,
   onToggle,
+  disabled = false,
 }: {
   item: ChecklistItem;
   checked: boolean;
   impactAmount?: number;
   onToggle: () => void;
+  disabled?: boolean;
 }) {
   const textMuted = checked ? 'text-gray-400' : 'text-gray-800';
   const bodyMuted = checked ? 'text-gray-400' : 'text-gray-500';
@@ -118,12 +147,14 @@ function ChecklistItemRow({
     <div className="flex items-start gap-3">
       <button
         type="button"
-        onClick={onToggle}
+        onClick={disabled ? undefined : onToggle}
+        disabled={disabled}
         aria-checked={checked}
+        aria-disabled={disabled}
         role="checkbox"
         className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded border ${
           checked ? 'border-teal-500 bg-teal-500' : 'border-gray-300 bg-white'
-        }`}
+        } ${disabled ? 'cursor-not-allowed opacity-60' : ''}`}
       >
         {checked ? (
           <svg viewBox="0 0 12 12" className="h-3 w-3 text-white" aria-hidden="true">
@@ -169,6 +200,8 @@ export default function NewParentChecklistCard({
   userId,
   completedIds,
   onUpdate,
+  hasFamilyAddon,
+  onUpgrade,
   hasBabyMilestone = false,
   className = '',
   isLoading = false,
@@ -181,10 +214,14 @@ export default function NewParentChecklistCard({
   const [impactConfirmed, setImpactConfirmed] = useState<Map<string, number>>(() => new Map());
 
   const expanded = hasBabyMilestone || manuallyOpened;
+  const isPaywallGated = !hasFamilyAddon && hasBabyMilestone;
   const completedSet = new Set(completedIds);
   const completedCount = completedIds.length;
   const activeItems = CHECKLIST_ITEMS.filter((item) => !completedSet.has(item.id));
   const doneItems = CHECKLIST_ITEMS.filter((item) => completedSet.has(item.id));
+  const freeActiveItems = activeItems.filter((item) => FREE_TIER_ITEM_NUMBERS.has(item.number));
+  const freeDoneItems = doneItems.filter((item) => FREE_TIER_ITEM_NUMBERS.has(item.number));
+  const gatedItems = CHECKLIST_ITEMS.filter((item) => !FREE_TIER_ITEM_NUMBERS.has(item.number));
   const impactMonthlyTotal = Array.from(impactConfirmed.values()).reduce((sum, n) => sum + n, 0);
 
   useEffect(() => {
@@ -326,7 +363,7 @@ export default function NewParentChecklistCard({
         />
       </div>
 
-      {completedCount < TOTAL_ITEMS ? (
+      {!isPaywallGated && completedCount < TOTAL_ITEMS ? (
         <button
           type="button"
           onClick={handleMarkAllDone}
@@ -337,7 +374,7 @@ export default function NewParentChecklistCard({
       ) : null}
 
       <div className="mt-4 max-h-[480px] space-y-3 overflow-y-auto">
-        {activeItems.map((item) => (
+        {(isPaywallGated ? freeActiveItems : activeItems).map((item) => (
           <ChecklistItemRow
             key={item.id}
             item={item}
@@ -347,19 +384,19 @@ export default function NewParentChecklistCard({
           />
         ))}
 
-        {doneItems.length > 0 && !completedExpanded ? (
+        {(isPaywallGated ? freeDoneItems : doneItems).length > 0 && !completedExpanded ? (
           <button
             type="button"
             onClick={() => setCompletedExpanded(true)}
             className="flex w-full items-center gap-1 text-sm text-gray-500"
           >
-            <span>{doneItems.length} completed</span>
+            <span>{(isPaywallGated ? freeDoneItems : doneItems).length} completed</span>
             <ChevronDown className="h-4 w-4" aria-hidden="true" />
           </button>
         ) : null}
 
         {completedExpanded
-          ? doneItems.map((item) => (
+          ? (isPaywallGated ? freeDoneItems : doneItems).map((item) => (
               <ChecklistItemRow
                 key={item.id}
                 item={item}
@@ -369,6 +406,30 @@ export default function NewParentChecklistCard({
               />
             ))
           : null}
+
+        {isPaywallGated ? (
+          <div className="relative overflow-hidden">
+            <div className="space-y-3">
+              {gatedItems.map((item) => (
+                <ChecklistItemRow
+                  key={item.id}
+                  item={item}
+                  checked={completedSet.has(item.id)}
+                  impactAmount={impactConfirmed.get(item.id)}
+                  onToggle={() => {}}
+                  disabled
+                />
+              ))}
+            </div>
+            <div
+              className="absolute inset-0 z-10 bg-white/40 backdrop-blur-sm"
+              aria-hidden="true"
+            />
+            <div className="absolute inset-0 z-20 flex items-center justify-center">
+              <ChecklistUpsellCard onUpgrade={onUpgrade} />
+            </div>
+          </div>
+        ) : null}
       </div>
 
       {impactConfirmed.size > 0 ? (
