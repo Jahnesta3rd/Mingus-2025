@@ -58,9 +58,9 @@ class TestOptimalLocationIntegration(unittest.TestCase):
         """Set up comprehensive test data for integration tests"""
         # Create test users with different tiers
         users = [
-            User(id=1, email='budget@example.com', first_name='Budget', last_name='User', tier='budget'),
-            User(id=2, email='midtier@example.com', first_name='Mid', last_name='Tier', tier='mid_tier'),
-            User(id=3, email='professional@example.com', first_name='Professional', last_name='User', tier='professional')
+            User(id=1, user_id='budget_test_user', email='budget@example.com', first_name='Budget', last_name='User', tier='budget'),
+            User(id=2, user_id='midtier_test_user', email='midtier@example.com', first_name='Mid', last_name='Tier', tier='mid_tier'),
+            User(id=3, user_id='professional_test_user', email='professional@example.com', first_name='Professional', last_name='User', tier='professional')
         ]
         
         db.session.add_all(users)

@@ -10,7 +10,13 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
 
-from tests.db_helpers import get_test_database_uri, initialize_shared_schema  # noqa: E402
+from tests.db_helpers import (  # noqa: E402
+    ensure_libpq_env,
+    ensure_postgres_extensions,
+    get_test_database_uri,
+    initialize_shared_schema,
+    run_alembic_migrations,
+)
 
 ANALYTICS_BOOTSTRAP_SQL = """
 CREATE TABLE IF NOT EXISTS api_performance (
@@ -43,7 +49,8 @@ CREATE TABLE IF NOT EXISTS system_resources (
 def _bootstrap_analytics_tables() -> None:
     import psycopg2
 
-    conn = psycopg2.connect(get_test_database_uri())
+    ensure_libpq_env()
+    conn = psycopg2.connect(os.environ["DATABASE_URL"])
     try:
         with conn:
             with conn.cursor() as cur:
@@ -53,9 +60,10 @@ def _bootstrap_analytics_tables() -> None:
 
 
 def main() -> int:
-    if not os.environ.get("DATABASE_URL"):
-        os.environ["DATABASE_URL"] = get_test_database_uri()
+    ensure_libpq_env()
     print(f"Initializing schema at {os.environ['DATABASE_URL']}")
+    ensure_postgres_extensions()
+    run_alembic_migrations()
     initialize_shared_schema()
     _bootstrap_analytics_tables()
     print("Schema ready.")

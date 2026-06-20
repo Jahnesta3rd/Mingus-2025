@@ -14,6 +14,35 @@ _schema_lock = threading.Lock()
 _schema_initialized = False
 
 
+def ensure_libpq_env() -> None:
+    """Set DATABASE_URL and PG* vars so clients never fall back to the OS user."""
+    url = get_test_database_uri()
+    os.environ["DATABASE_URL"] = url
+
+    try:
+        from urllib.parse import urlparse
+
+        parsed = urlparse(url)
+        if parsed.username:
+            os.environ["PGUSER"] = parsed.username
+        if parsed.password:
+            os.environ["PGPASSWORD"] = parsed.password
+        if parsed.hostname:
+            os.environ["PGHOST"] = parsed.hostname
+        if parsed.port:
+            os.environ["PGPORT"] = str(parsed.port)
+        if parsed.path and parsed.path != "/":
+            os.environ["PGDATABASE"] = parsed.path.lstrip("/")
+    except Exception:
+        pass
+
+    os.environ.setdefault("PGUSER", "test")
+    os.environ.setdefault("PGPASSWORD", "test")
+    os.environ.setdefault("PGHOST", "localhost")
+    os.environ.setdefault("PGPORT", "5432")
+    os.environ.setdefault("PGDATABASE", "mingus_test")
+
+
 def get_test_database_uri() -> str:
     """Return the PostgreSQL URL used for tests (CI sets DATABASE_URL)."""
     url = os.environ.get("DATABASE_URL", DEFAULT_TEST_DATABASE_URL)
@@ -40,6 +69,32 @@ def ensure_all_models_imported() -> None:
     import backend.models.tax_adjacent_models  # noqa: F401
 
 
+def ensure_postgres_extensions() -> None:
+    """Create extensions expected by migrations and UUID defaults."""
+    import psycopg2
+
+    ensure_libpq_env()
+    conn = psycopg2.connect(os.environ["DATABASE_URL"])
+    try:
+        with conn:
+            with conn.cursor() as cur:
+                cur.execute('CREATE EXTENSION IF NOT EXISTS "pgcrypto"')
+    finally:
+        conn.close()
+
+
+def run_alembic_migrations() -> None:
+    """Apply Alembic migrations to head using DATABASE_URL."""
+    from alembic import command
+    from alembic.config import Config
+
+    ensure_libpq_env()
+    cfg = Config()
+    cfg.set_main_option("script_location", "migrations")
+    cfg.set_main_option("sqlalchemy.url", get_test_database_uri())
+    command.upgrade(cfg, "head")
+
+
 def initialize_shared_schema(db=None) -> None:
     """Create all tables once per test run (idempotent via checkfirst)."""
     global _schema_initialized
@@ -49,6 +104,9 @@ def initialize_shared_schema(db=None) -> None:
     with _schema_lock:
         if _schema_initialized:
             return
+
+        ensure_libpq_env()
+        ensure_postgres_extensions()
 
         from flask import Flask
 

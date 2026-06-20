@@ -60,7 +60,14 @@ class TestOptimalLocationPerformance(unittest.TestCase):
         """Set up test data for performance testing"""
         # Create test users
         users = [
-            User(id=i, email=f'user{i}@example.com', first_name=f'User{i}', last_name='Test', tier='mid_tier')
+            User(
+                id=i,
+                user_id=f'perf_test_user_{i}',
+                email=f'user{i}@example.com',
+                first_name=f'User{i}',
+                last_name='Test',
+                tier='mid_tier',
+            )
             for i in range(1, 101)  # 100 users
         ]
         

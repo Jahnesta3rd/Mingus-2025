@@ -14,6 +14,7 @@ from backend.models.database import db
 from tests.db_helpers import (
     cleanup_test_data,
     configure_app_for_tests,
+    ensure_libpq_env,
     initialize_shared_schema,
 )
 
@@ -21,6 +22,7 @@ from tests.db_helpers import (
 @pytest.fixture(scope="session", autouse=True)
 def _shared_db_schema():
     """Create Postgres schema once for the entire test session."""
+    ensure_libpq_env()
     initialize_shared_schema(db)
     yield
 
