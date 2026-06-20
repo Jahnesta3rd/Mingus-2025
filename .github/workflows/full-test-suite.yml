@@ -37,19 +37,6 @@ jobs:
       FLASK_ENV: testing
       PYTHONPATH: ./
 
-    defaults:
-      run:
-        env:
-          DATABASE_URL: ${{ env.DATABASE_URL }}
-          PGUSER: ${{ env.PGUSER }}
-          PGPASSWORD: ${{ env.PGPASSWORD }}
-          PGHOST: ${{ env.PGHOST }}
-          PGPORT: ${{ env.PGPORT }}
-          PGDATABASE: ${{ env.PGDATABASE }}
-          SECRET_KEY: ${{ env.SECRET_KEY }}
-          FLASK_ENV: ${{ env.FLASK_ENV }}
-          PYTHONPATH: ${{ env.PYTHONPATH }}
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
