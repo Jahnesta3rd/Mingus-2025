@@ -11,6 +11,14 @@ from sqlalchemy import text
 
 DEFAULT_TEST_DATABASE_URL = "postgresql://test:test@localhost:5432/mingus_test"
 
+REQUIRED_CI_TABLES = (
+    "users",
+    "daily_outlooks",
+    "wellness_scores",
+    "user_relationship_status",
+    "user_housing_preferences",
+)
+
 _schema_lock = threading.Lock()
 _schema_initialized = False
 
@@ -119,6 +127,100 @@ def ensure_housingtype_enum_values() -> None:
         conn.close()
 
 
+def wait_for_postgres(max_attempts: int = 60, sleep_seconds: float = 2.0) -> None:
+    """Block until DATABASE_URL accepts connections."""
+    import time
+    import psycopg2
+
+    ensure_libpq_env()
+    url = os.environ["DATABASE_URL"]
+    for attempt in range(1, max_attempts + 1):
+        try:
+            conn = psycopg2.connect(url)
+            conn.close()
+            print("Postgres reachable")
+            return
+        except Exception as exc:
+            print(f"waiting for postgres ({attempt}/{max_attempts}): {exc}")
+            time.sleep(sleep_seconds)
+    raise RuntimeError("Postgres did not become ready in time")
+
+
+def ensure_root_role() -> None:
+    """Create a login role for OS user 'root' when clients omit PGUSER (CI workaround)."""
+    import psycopg2
+
+    ensure_libpq_env()
+    conn = psycopg2.connect(os.environ["DATABASE_URL"])
+    try:
+        conn.autocommit = True
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                DO $$
+                BEGIN
+                  IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'root') THEN
+                    CREATE ROLE root LOGIN;
+                  END IF;
+                END$$;
+                """
+            )
+            db_name = os.environ.get("PGDATABASE", "mingus_test")
+            cur.execute(
+                """
+                SELECT EXISTS(
+                  SELECT FROM pg_database WHERE datname = %s
+                )
+                """,
+                (db_name,),
+            )
+            if cur.fetchone()[0]:
+                cur.execute(f'GRANT CONNECT ON DATABASE "{db_name}" TO root')
+        print("root role ensured")
+    finally:
+        conn.close()
+
+
+def verify_ci_schema(required_tables: tuple[str, ...] | None = None) -> None:
+    """Fail fast if critical tables are missing after schema init."""
+    from sqlalchemy import create_engine, inspect
+
+    ensure_libpq_env()
+    tables = required_tables or REQUIRED_CI_TABLES
+    engine = create_engine(get_test_database_uri())
+    try:
+        inspector = inspect(engine)
+        missing = [name for name in tables if not inspector.has_table(name)]
+    finally:
+        engine.dispose()
+
+    if missing:
+        raise RuntimeError(
+            f"Missing tables after schema init: {missing}. "
+            "Run scripts/ci_init_test_db.py or fix Alembic/model bootstrap."
+        )
+    print(f"Verified CI tables: {', '.join(tables)}")
+
+
+def verify_users_table() -> None:
+    """Fail fast if the users table is missing after schema init."""
+    verify_ci_schema(("users",))
+
+
+def init_ci_database_schema() -> None:
+    """Bootstrap CI Postgres: extensions, create_all, then Alembic sync."""
+    ensure_libpq_env()
+    ensure_postgres_extensions()
+    initialize_shared_schema()
+    try:
+        run_alembic_migrations()
+        print("Alembic upgrade head completed")
+    except Exception as exc:
+        print(f"Alembic upgrade skipped ({exc}); stamping head after create_all")
+        stamp_alembic_head()
+    verify_ci_schema()
+
+
 def ensure_postgres_extensions() -> None:
     """Create extensions expected by migrations and UUID defaults."""
     import psycopg2
@@ -176,25 +278,6 @@ def print_alembic_diagnostics(cfg) -> None:
         command.history(cfg, verbose=True)
     except Exception as exc:
         print(f"alembic history failed: {exc}", flush=True)
-
-
-def verify_users_table() -> None:
-    """Fail fast if the users table is missing after schema init."""
-    import psycopg2
-
-    ensure_libpq_env()
-    conn = psycopg2.connect(os.environ["DATABASE_URL"])
-    try:
-        with conn.cursor() as cur:
-            cur.execute("SELECT to_regclass('public.users')")
-            users_exists = cur.fetchone()[0]
-        print(f"users table exists: {users_exists}")
-        if users_exists is None:
-            raise RuntimeError(
-                "'users' table not found — run create_all or fix Alembic migrations."
-            )
-    finally:
-        conn.close()
 
 
 def initialize_shared_schema(db=None) -> None:

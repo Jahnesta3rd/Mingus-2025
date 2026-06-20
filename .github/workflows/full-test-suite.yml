@@ -89,6 +89,16 @@ jobs:
               raise SystemExit("Postgres did not become ready in time")
           PY
 
+      - name: Ensure root role exists (CI workaround)
+        run: |
+          python - <<'PY'
+          import os, sys
+          sys.path.insert(0, os.getcwd())
+          from tests.db_helpers import ensure_libpq_env, ensure_root_role
+          ensure_libpq_env()
+          ensure_root_role()
+          PY
+
       - name: Initialize test database schema
         run: python scripts/ci_init_test_db.py
 
@@ -97,9 +107,9 @@ jobs:
           python - <<'PY'
           import os, sys
           sys.path.insert(0, os.getcwd())
-          from tests.db_helpers import ensure_libpq_env, verify_users_table
+          from tests.db_helpers import ensure_libpq_env, verify_ci_schema
           ensure_libpq_env()
-          verify_users_table()
+          verify_ci_schema()
           print("DB schema verification passed")
           PY
 

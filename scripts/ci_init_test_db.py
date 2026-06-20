@@ -10,13 +10,14 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
 
-from tests.db_helpers import (
+from tests.db_helpers import (  # noqa: E402
     ensure_libpq_env,
+    ensure_root_role,
     get_test_database_uri,
-    initialize_shared_schema,
-    stamp_alembic_head,
+    init_ci_database_schema,
     truncate_all_tables,
-    verify_users_table,
+    verify_ci_schema,
+    wait_for_postgres,
 )
 
 ANALYTICS_BOOTSTRAP_SQL = """
@@ -62,7 +63,6 @@ def _bootstrap_analytics_tables() -> None:
 
 def _reset_test_data() -> None:
     """Clear any leftover rows so init is safe to re-run locally."""
-    import psycopg2
     from flask import Flask
     from backend.models.database import db
 
@@ -79,30 +79,24 @@ def _reset_test_data() -> None:
 
 
 def main() -> int:
+    if not os.environ.get("DATABASE_URL"):
+        print("DATABASE_URL not set", file=sys.stderr)
+        return 2
+
     ensure_libpq_env()
     print(f"Initializing schema at {os.environ['DATABASE_URL']}")
 
-    # 0) Clear leftover data when re-running init against an existing DB
+    wait_for_postgres()
+    ensure_root_role()
     _reset_test_data()
 
-    # 1) Extensions required by models/migrations
-    from tests.db_helpers import ensure_postgres_extensions  # noqa: E402
+    # create_all + alembic upgrade (fallback stamp) + table verification
+    init_ci_database_schema()
 
-    ensure_postgres_extensions()
-
-    # 2) create_all first — Alembic chain root (004) FK-references users but no
-    #    migration creates users; SQLAlchemy metadata is the source of truth in CI.
-    initialize_shared_schema()
-
-    # 3) Sync alembic_version without re-running migrations that duplicate tables
-    stamp_alembic_head()
-
-    # 4) Analytics tables used by performance_monitor (not in SQLAlchemy models)
+    # Analytics tables used by performance_monitor (not in SQLAlchemy models)
     _bootstrap_analytics_tables()
 
-    # 5) Fail fast with a clear message if schema init did not create users
-    verify_users_table()
-
+    verify_ci_schema()
     print("Schema ready.")
     return 0
 
