@@ -115,27 +115,36 @@ def validate_request_data(schema_class, data: Dict[str, Any]) -> tuple[bool, Lis
 
 
 def update_user_relationship_status(user_id: int, status: str, satisfaction_score: int, financial_impact_score: int) -> bool:
-    """Update user's relationship status"""
+    """Update user's relationship status with defensive validation."""
     try:
-        # Get or create relationship status record
+        if not (1 <= int(satisfaction_score) <= 10):
+            logger.error(f"Invalid satisfaction_score {satisfaction_score} for user {user_id}")
+            raise ValueError(f"satisfaction_score out of range: {satisfaction_score!r}")
+        if not (1 <= int(financial_impact_score) <= 10):
+            logger.error(f"Invalid financial_impact_score {financial_impact_score} for user {user_id}")
+            raise ValueError(f"financial_impact_score out of range: {financial_impact_score!r}")
+
         relationship_status = UserRelationshipStatus.query.filter_by(user_id=user_id).first()
-        
+
         if not relationship_status:
             relationship_status = UserRelationshipStatus(
                 user_id=user_id,
                 status=RelationshipStatus(status),
-                satisfaction_score=satisfaction_score,
-                financial_impact_score=financial_impact_score
+                satisfaction_score=int(satisfaction_score),
+                financial_impact_score=int(financial_impact_score),
             )
             db.session.add(relationship_status)
         else:
             relationship_status.status = RelationshipStatus(status)
-            relationship_status.satisfaction_score = satisfaction_score
-            relationship_status.financial_impact_score = financial_impact_score
+            relationship_status.satisfaction_score = int(satisfaction_score)
+            relationship_status.financial_impact_score = int(financial_impact_score)
             relationship_status.updated_at = datetime.utcnow()
-        
+
         db.session.commit()
         return True
+    except ValueError:
+        db.session.rollback()
+        raise
     except Exception as e:
         logger.error(f"Error updating relationship status for user {user_id}: {e}")
         db.session.rollback()
@@ -655,22 +664,28 @@ def update_relationship_status():
             validated_data['satisfaction_score'],
             validated_data['financial_impact_score']
         )
-        
+
         if not success:
             return jsonify({
                 'error': 'Update failed',
                 'message': 'Failed to update relationship status'
             }), 500
-        
+
         # Get updated relationship status
         relationship_status = UserRelationshipStatus.query.filter_by(user_id=user_id).first()
-        
+
         return jsonify({
             'success': True,
             'message': 'Relationship status updated successfully',
             'relationship_status': relationship_status.to_dict() if relationship_status else None
         }), 200
-        
+
+    except ValueError as exc:
+        db.session.rollback()
+        return jsonify({
+            'error': 'Validation failed',
+            'message': str(exc),
+        }), 400
     except Exception as e:
         logger.error(f"Error updating relationship status for user {user_id}: {e}")
         db.session.rollback()

@@ -192,8 +192,8 @@ class DailyOutlookService:
                 individual_scores.career_score * weights['career']
             )
             
-            # Round to integer (0-100)
-            balance_score = int(round(weighted_score))
+            # Round to integer and clamp to DB-valid range (0-100)
+            balance_score = max(0, min(100, int(round(weighted_score))))
             
             logger.info(f"Calculated balance score for user {user_id}: {balance_score}")
             return balance_score, individual_scores

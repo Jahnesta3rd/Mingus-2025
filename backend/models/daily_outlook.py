@@ -6,6 +6,7 @@ SQLAlchemy models for daily outlook feature
 
 from datetime import datetime, date
 from decimal import Decimal
+from sqlalchemy import event
 from .database import db
 import enum
 
@@ -171,6 +172,47 @@ class UserRelationshipStatus(db.Model):
             'financial_impact_score': self.financial_impact_score,
             'updated_at': self.updated_at.isoformat()
         }
+
+
+def _validate_daily_outlook(mapper, connection, target):
+    """Enforce model ranges before insert/update to produce clear errors."""
+    if target.balance_score is None:
+        raise ValueError("DailyOutlook.balance_score is required")
+    if not (0 <= int(target.balance_score) <= 100):
+        raise ValueError(f"balance_score out of range: {target.balance_score!r}")
+
+    for field in ("financial_weight", "wellness_weight", "relationship_weight", "career_weight"):
+        val = getattr(target, field, None)
+        if val is None:
+            raise ValueError(f"{field} is required")
+        try:
+            fv = float(val)
+        except (TypeError, ValueError) as exc:
+            raise ValueError(f"{field} must be numeric") from exc
+        if not (0.0 <= fv <= 100.0):
+            raise ValueError(f"{field} out of range: {val!r}")
+
+    if target.streak_count is not None and int(target.streak_count) < 0:
+        raise ValueError(f"streak_count must be >= 0: {target.streak_count!r}")
+
+
+def _validate_relationship_status(mapper, connection, target):
+    """Enforce relationship status ranges before insert/update."""
+    if target.satisfaction_score is None:
+        raise ValueError("UserRelationshipStatus.satisfaction_score is required")
+    if not (1 <= int(target.satisfaction_score) <= 10):
+        raise ValueError(f"satisfaction_score out of range: {target.satisfaction_score!r}")
+
+    if target.financial_impact_score is None:
+        raise ValueError("UserRelationshipStatus.financial_impact_score is required")
+    if not (1 <= int(target.financial_impact_score) <= 10):
+        raise ValueError(f"financial_impact_score out of range: {target.financial_impact_score!r}")
+
+
+event.listen(DailyOutlook, "before_insert", _validate_daily_outlook)
+event.listen(DailyOutlook, "before_update", _validate_daily_outlook)
+event.listen(UserRelationshipStatus, "before_insert", _validate_relationship_status)
+event.listen(UserRelationshipStatus, "before_update", _validate_relationship_status)
 
 
 class DailyOutlookTemplate(db.Model):

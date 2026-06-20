@@ -167,13 +167,13 @@ class TestDailyOutlookModels:
                 db.session.add(outlook)
                 db.session.commit()
             
-            # Test weight constraint
+            # Test weight constraint (DB allows 0-100)
             with pytest.raises(Exception):
                 outlook = DailyOutlook(
                     user_id=sample_user.id,
                     date=date.today(),
                     balance_score=75,
-                    financial_weight=Decimal('1.50'),  # Invalid: > 1.0
+                    financial_weight=Decimal('150.00'),  # Invalid: > 100
                     wellness_weight=Decimal('0.25'),
                     relationship_weight=Decimal('0.25'),
                     career_weight=Decimal('0.20')

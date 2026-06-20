@@ -91,6 +91,7 @@ def ensure_all_models_imported() -> None:
     import backend.models  # noqa: F401
     import backend.models.professional_tier_models  # noqa: F401
     import backend.models.tax_adjacent_models  # noqa: F401
+    import backend.models.wellness  # noqa: F401
 
 
 def ensure_housingtype_enum_values() -> None:
@@ -312,11 +313,20 @@ def initialize_shared_schema(db=None) -> None:
 
 def truncate_all_tables(db) -> None:
     """Remove row data between tests without dropping schema objects."""
+    import sys
+
+    from sqlalchemy import inspect
+
     ensure_all_models_imported()
     with db.engine.begin() as conn:
         conn.execute(text("SET session_replication_role = 'replica'"))
+        inspector = inspect(conn)
         for table in reversed(db.metadata.sorted_tables):
-            conn.execute(text(f'TRUNCATE TABLE "{table.name}" RESTART IDENTITY CASCADE'))
+            try:
+                if inspector.has_table(table.name):
+                    conn.execute(text(f'TRUNCATE TABLE "{table.name}" RESTART IDENTITY CASCADE'))
+            except Exception as exc:
+                print(f"Warning: truncate {table.name} failed: {exc}", file=sys.stderr)
         conn.execute(text("SET session_replication_role = 'origin'"))
 
 
