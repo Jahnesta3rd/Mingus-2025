@@ -208,16 +208,16 @@ def verify_users_table() -> None:
 
 
 def init_ci_database_schema() -> None:
-    """Bootstrap CI Postgres: extensions, create_all, then Alembic sync."""
+    """Bootstrap CI Postgres: create_all from models, then stamp Alembic at head.
+
+    Do not run ``alembic upgrade`` after ``create_all`` — migrations overlap with
+    SQLAlchemy metadata (e.g. vehicles) and raise DuplicateTable in CI logs.
+    Alembic chain also lacks a revision that creates ``users``; models are canonical.
+    """
     ensure_libpq_env()
     ensure_postgres_extensions()
     initialize_shared_schema()
-    try:
-        run_alembic_migrations()
-        print("Alembic upgrade head completed")
-    except Exception as exc:
-        print(f"Alembic upgrade skipped ({exc}); stamping head after create_all")
-        stamp_alembic_head()
+    stamp_alembic_head()
     verify_ci_schema()
 
 

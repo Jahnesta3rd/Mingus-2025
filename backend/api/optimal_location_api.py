@@ -89,6 +89,15 @@ class CommuteCostSchema(Schema):
 # UTILITY FUNCTIONS
 # ============================================================================
 
+def _housing_type_to_json(value) -> str | None:
+    """Serialize HousingType enum (or string) for JSON responses."""
+    if value is None:
+        return None
+    if isinstance(value, HousingType):
+        return value.value
+    return str(value)
+
+
 def check_user_tier_access(user_id: int, required_tier: FeatureTier) -> bool:
     """Check if user has access to a specific tier feature"""
     try:
@@ -604,7 +613,7 @@ def update_housing_preferences():
             'message': 'Housing preferences updated successfully',
             'preferences': {
                 'max_commute_time': preferences.max_commute_time,
-                'preferred_housing_type': preferences.preferred_housing_type,
+                'preferred_housing_type': _housing_type_to_json(preferences.preferred_housing_type),
                 'min_bedrooms': preferences.min_bedrooms,
                 'max_bedrooms': preferences.max_bedrooms,
                 'max_rent_percentage': float(preferences.max_rent_percentage) if preferences.max_rent_percentage else None,

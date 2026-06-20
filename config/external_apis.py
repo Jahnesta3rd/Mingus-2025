@@ -68,14 +68,14 @@ class ExternalAPIConfig:
             'headers': self._get_headers_config(api_name)
         }
     
-    def _get_timeout_config(self, api_name: str) -> Dict[str, int]:
-        """Get timeout configuration for API"""
+    def _get_timeout_config(self, api_name: str) -> tuple[int, int]:
+        """Get timeout as (connect, read) seconds for requests library."""
         timeouts = {
-            'rentals': {'connect': 10, 'read': 30},
-            'zillow': {'connect': 10, 'read': 30},
-            'google_maps': {'connect': 5, 'read': 15}
+            'rentals': (10, 30),
+            'zillow': (10, 30),
+            'google_maps': (5, 15),
         }
-        return timeouts.get(api_name, {'connect': 10, 'read': 30})
+        return timeouts.get(api_name, (10, 30))
     
     def _get_retry_strategy(self, api_name: str) -> Retry:
         """Get retry strategy for API"""
