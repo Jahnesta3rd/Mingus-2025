@@ -43,7 +43,12 @@ from backend.services.feature_flag_service import FeatureFlagService, FeatureTie
 from backend.utils.cache import CacheManager
 from backend.utils.daily_outlook_utils import calculate_streak_count, update_user_relationship_status, check_user_tier_access
 from backend.tasks.daily_outlook_tasks import generate_daily_outlooks
-from tests.db_helpers import configure_app_for_tests, initialize_shared_schema, cleanup_test_data
+from tests.db_helpers import (
+    configure_app_for_tests,
+    initialize_shared_schema,
+    cleanup_test_data,
+    persist_test_user,
+)
 
 
 # Module-level fixtures - available to all test classes
@@ -71,18 +76,14 @@ def client(app):
 def sample_user(app):
     """Create sample user for testing"""
     with app.app_context():
-        user = User(
+        return persist_test_user(
+            db,
             user_id='test_user_123',
             email='test@example.com',
             first_name='Test',
             last_name='User',
-            tier='budget'
+            tier='budget',
         )
-        db.session.add(user)
-        db.session.commit()
-        # Refresh the user to ensure it's properly attached
-        db.session.refresh(user)
-        return user
 
 @pytest.fixture
 def sample_outlook(app, sample_user):
@@ -275,19 +276,9 @@ class TestDynamicWeightingAlgorithm:
     
     def test_calculate_dynamic_weights_basic(self):
         """Test basic dynamic weight calculation"""
-        # Mock external database calls
-        with patch('backend.services.daily_outlook_service.sqlite3.connect') as mock_connect:
-            mock_conn = MagicMock()
-            mock_cursor = MagicMock()
-            mock_connect.return_value = mock_conn
-            mock_conn.cursor.return_value = mock_cursor
-            
-            # Mock database responses
-            mock_cursor.fetchone.return_value = None  # No relationship status
-            mock_cursor.fetchall.return_value = []    # No additional data
-            
-            service = DailyOutlookService()
-            weights = service.calculate_dynamic_weights(1)  # Mock user ID
+        service = DailyOutlookService()
+        with patch.object(service, 'get_user_relationship_status', return_value=None):
+            weights = service.calculate_dynamic_weights(1)
             
             # Verify weights sum to 1.0
             total_weight = sum(weights.values())
@@ -304,18 +295,12 @@ class TestDynamicWeightingAlgorithm:
     
     def test_calculate_dynamic_weights_relationship_focused(self):
         """Test dynamic weights for relationship-focused user"""
-        # Mock external database calls
-        with patch('backend.services.daily_outlook_service.sqlite3.connect') as mock_connect:
-            mock_conn = MagicMock()
-            mock_cursor = MagicMock()
-            mock_connect.return_value = mock_conn
-            mock_conn.cursor.return_value = mock_cursor
-            
-            # Mock database responses
-            mock_cursor.fetchone.return_value = None  # No relationship status
-            mock_cursor.fetchall.return_value = []    # No additional data
-            
-            service = DailyOutlookService()
+        service = DailyOutlookService()
+        with patch.object(
+            service,
+            'get_user_relationship_status',
+            return_value=RelationshipStatus.EARLY_RELATIONSHIP,
+        ):
             weights = service.calculate_dynamic_weights(1)  # Mock user ID
             
             # With default weights, financial has highest weight

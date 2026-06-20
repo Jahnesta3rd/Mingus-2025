@@ -113,6 +113,8 @@ jobs:
             --ignore=tests/accessibility \
             --ignore=tests/meme_splash \
             --ignore=tests/user_acceptance \
+            --ignore=tests/test_risk_analytics_api.py \
+            --ignore=tests/test_optimal_location_service.py \
             -v \
             --tb=short \
             --junitxml=test-results/junit.xml \

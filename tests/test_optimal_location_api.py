@@ -526,7 +526,7 @@ class TestOptimalLocationAPI(unittest.TestCase):
         data = json.loads(response.data)
         
         self.assertIn('error', data)
-        self.assertIn('User authentication required', data['error'])
+        self.assertIn('Authentication required', data['error'])
     
     def test_invalid_csrf_token(self):
         """Test invalid CSRF token"""

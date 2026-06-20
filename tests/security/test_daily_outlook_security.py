@@ -40,7 +40,7 @@ from backend.auth.decorators import require_auth, get_current_user_id
 from backend.utils.validation import APIValidator
 from backend.utils.encryption import EncryptionService
 from backend.utils.rate_limiting import RateLimiter
-from tests.db_helpers import configure_app_for_tests, initialize_shared_schema, cleanup_test_data
+from tests.db_helpers import configure_app_for_tests, initialize_shared_schema, cleanup_test_data, persist_test_user
 
 
 class TestUserDataPrivacy:
@@ -67,16 +67,14 @@ class TestUserDataPrivacy:
     def test_user(self, app):
         """Create test user"""
         with app.app_context():
-            user = User(
+            return persist_test_user(
+                db,
                 user_id='privacy_user_123',
                 email='privacy@example.com',
                 first_name='Privacy',
                 last_name='Test',
-                tier='budget'
+                tier='budget',
             )
-            db.session.add(user)
-            db.session.commit()
-            return user
     
     def test_user_data_isolation(self, client, app, test_user):
         """Test that users can only access their own data"""
@@ -398,16 +396,14 @@ class TestInputValidationAndSanitization:
     def test_user(self, app):
         """Create test user"""
         with app.app_context():
-            user = User(
+            return persist_test_user(
+                db,
                 user_id='validation_user_303',
                 email='validation@example.com',
                 first_name='Validation',
                 last_name='Test',
-                tier='budget'
+                tier='budget',
             )
-            db.session.add(user)
-            db.session.commit()
-            return user
     
     def test_sql_injection_prevention(self, client, test_user):
         """Test SQL injection prevention"""
@@ -795,11 +791,10 @@ class TestSessionManagement:
                 return (datetime.now(timezone.utc) - session_start).total_seconds() < timeout_minutes * 60
             
             # Test valid session
-            recent_session = datetime.utcnow() - timedelta(minutes=15)
+            recent_session = datetime.now(timezone.utc) - timedelta(minutes=15)
             assert is_session_valid(recent_session)
-            
-            # Test expired session
-            old_session = datetime.utcnow() - timedelta(minutes=45)
+
+            old_session = datetime.now(timezone.utc) - timedelta(minutes=45)
             assert not is_session_valid(old_session)
     
     def test_session_invalidation(self, app):

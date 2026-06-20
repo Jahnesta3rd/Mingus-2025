@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import os
 import threading
+from types import SimpleNamespace
 
 from sqlalchemy import text
 
@@ -53,6 +54,21 @@ def get_test_database_uri() -> str:
             "Set DATABASE_URL to a postgres URL or start the CI postgres service."
         )
     return url
+
+
+def persist_test_user(db, **kwargs) -> SimpleNamespace:
+    """Insert a user and return scalar fields safe to use outside the session."""
+    from backend.models.user_models import User
+
+    user = User(**kwargs)
+    db.session.add(user)
+    db.session.commit()
+    return SimpleNamespace(
+        id=user.id,
+        user_id=user.user_id,
+        email=user.email,
+        tier=getattr(user, "tier", None),
+    )
 
 
 def configure_app_for_tests(app) -> None:
