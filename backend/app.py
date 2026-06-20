@@ -33,6 +33,7 @@ from backend.routes.wellness_routes import wellness_public_bp
 from backend.routes.gamification_routes import gamification_public_bp
 from backend.routes.user_activity_routes import user_activity_public_bp
 from backend.routes.daily_outlook_routes import daily_outlook_public_bp
+from backend.api.daily_outlook_api import daily_outlook_api
 from backend.models.onboarding_progress import OnboardingProgress  # noqa: F401
 from backend.models.database import db
 from backend.api.employer_health import employer_health_api
@@ -89,6 +90,7 @@ def register_backend_blueprints(app):
     app.register_blueprint(gamification_public_bp)
     app.register_blueprint(user_activity_public_bp)
     app.register_blueprint(daily_outlook_public_bp)
+    app.register_blueprint(daily_outlook_api)
     # Vehicle dashboard GET /api/vehicles/dashboard (alongside ``vehicle_api`` in root app).
     app.register_blueprint(vehicle_dashboard_public_bp)
     app.register_blueprint(vin_advisor_bp)
