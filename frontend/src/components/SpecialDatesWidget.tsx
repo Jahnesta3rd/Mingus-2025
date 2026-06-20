@@ -5,6 +5,7 @@ import {
   type MilestoneCategory,
 } from '../data/milestoneCategories';
 import { computeForecastImpact } from '../utils/forecastImpact';
+import { csrfHeaders } from '../utils/csrfHeaders';
 import MilestonePickerModal, { type NewMilestoneEvent } from './MilestonePickerModal';
 
 // ========================================
@@ -236,8 +237,10 @@ export default function SpecialDatesWidget({
       const response = await fetch(
         `/api/user/profile?userId=${encodeURIComponent(userId)}`,
         {
+          credentials: 'include',
           headers: {
-            Authorization: `Bearer ${token}`,
+            ...csrfHeaders(),
+            Authorization: `Bearer ${token ?? ''}`,
             'Content-Type': 'application/json',
           },
         }
@@ -297,7 +300,6 @@ export default function SpecialDatesWidget({
   const handleSaveMilestone = useCallback(
     async (event: NewMilestoneEvent) => {
       const token = localStorage.getItem('mingus_token');
-      if (!token) throw new Error('Not authenticated');
 
       const current = profile?.profile?.important_dates ?? null;
       const existing = current?.custom_events ?? current?.customEvents ?? [];
@@ -312,8 +314,10 @@ export default function SpecialDatesWidget({
 
       const response = await fetch('/api/user/profile', {
         method: 'PATCH',
+        credentials: 'include',
         headers: {
-          Authorization: `Bearer ${token}`,
+          ...csrfHeaders(),
+          Authorization: `Bearer ${token ?? ''}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
