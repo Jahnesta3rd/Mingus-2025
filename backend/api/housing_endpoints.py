@@ -49,16 +49,20 @@ def resolve_msa_code_for_zip(zip_code: str) -> str:
 
 
 def _extract_listings_from_api_payload(data: Any) -> List[Any]:
-    """Pull listing rows from Rentals.com API payload shapes."""
+    """Pull listing rows from RentCast (top-level array) or legacy nested shapes."""
     if data is None:
         return []
     if isinstance(data, list):
         return data
     if isinstance(data, dict):
-        for key in ('listings', 'results', 'properties', 'data'):
+        for key in ('listings', 'data'):
             value = data.get(key)
             if isinstance(value, list):
                 return value
+    logger.warning(
+        'Unexpected rental listings payload shape: %s',
+        type(data).__name__,
+    )
     return []
 
 
@@ -68,32 +72,35 @@ def _normalize_rental_listing(
     msa_code: str,
     index: int,
 ) -> Dict[str, Any]:
-    """Map external API listing fields to housing search response shape."""
-    city = raw.get('city') or raw.get('City') or ''
-    state = raw.get('state') or raw.get('State') or ''
-    zip_code = raw.get('zip_code') or raw.get('zip') or raw.get('postal_code') or resolved_zip
-    street = raw.get('address') or raw.get('street_address') or raw.get('street') or ''
-    address = raw.get('full_address') or raw.get('location')
-    if not address and street:
-        address = f'{street}, {city}, {state} {zip_code}'.strip(', ')
-    price = raw.get('price') or raw.get('rent') or raw.get('monthly_rent') or 0
-    listing_id = str(raw.get('id') or raw.get('listing_id') or f'{resolved_zip}-{index + 1}')
-    listing_url = raw.get('listing_url') or raw.get('url') or raw.get('link')
+    """Map RentCast listing fields to housing search response shape."""
+    city = raw.get('city')
+    state = raw.get('state')
+    zip_code = raw.get('zipCode') or raw.get('zip_code') or resolved_zip
+    address = raw.get('formattedAddress') or raw.get('addressLine1')
+    if not address:
+        address = raw.get('address') or raw.get('full_address') or raw.get('location')
+    price = raw.get('price')
+    listing_id = str(raw.get('id') or f'{resolved_zip}-{index + 1}')
+    listing_url = raw.get('url') or raw.get('listing_url') or raw.get('link')
+    property_type = raw.get('propertyType') or raw.get('property_type')
     title = raw.get('title') or raw.get('name')
     if not title:
-        title = f'{city} Residences #{index + 1}' if city else f'Listing #{index + 1}'
+        title = f'{city} {property_type}'.strip() if city else f'Listing #{index + 1}'
 
     return {
         'id': listing_id,
         'title': title,
-        'address': address or street,
-        'location': address or street,
+        'address': address,
+        'location': address,
         'city': city,
         'state': state,
         'zip_code': zip_code,
         'price': price,
         'bedrooms': raw.get('bedrooms'),
         'bathrooms': raw.get('bathrooms'),
+        'property_type': property_type,
+        'days_on_market': raw.get('daysOnMarket'),
+        'listed_date': raw.get('listedDate'),
         'listing_url': listing_url,
         'msa_code': msa_code,
     }

@@ -131,7 +131,7 @@ class HousingFeatureDeployer:
                 'DATABASE_URL',
                 'REDIS_URL',
                 'SECRET_KEY',
-                'RENTALS_API_KEY',
+                'RENTCAST_API_KEY',
                 'ZILLOW_RAPIDAPI_KEY',
                 'GOOGLE_MAPS_API_KEY'
             ]
@@ -192,10 +192,10 @@ class HousingFeatureDeployer:
     def _validate_api_keys(self) -> bool:
         """Validate external API keys"""
         try:
-            # Test Rentals.com API
-            rentals_key = os.environ.get('RENTALS_API_KEY')
-            if not rentals_key or len(rentals_key) < 10:
-                logger.error("Invalid Rentals.com API key")
+            # Test RentCast API
+            rentcast_key = os.environ.get('RENTCAST_API_KEY')
+            if not rentcast_key or len(rentcast_key) < 10:
+                logger.error("Invalid RentCast API key")
                 return False
             
             # Test Zillow API

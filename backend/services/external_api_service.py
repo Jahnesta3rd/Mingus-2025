@@ -3,10 +3,10 @@
 MINGUS External API Service
 
 Service for integrating with external APIs for the Optimal Living Location feature.
-Provides methods for Rentals.com, Zillow, and Google Maps Distance Matrix API integration.
+Provides methods for RentCast, Zillow, and Google Maps Distance Matrix API integration.
 
 Features:
-- Rental listings from Rentals.com
+- Rental listings from RentCast
 - Home listings from Zillow via RapidAPI
 - Route distance calculations from Google Maps
 - Caching for route calculations
@@ -46,7 +46,7 @@ class ExternalAPIService:
     Service for integrating with external APIs for optimal living location features.
     
     Provides methods for:
-    - Rental listings from Rentals.com
+    - Rental listings from RentCast
     - Home listings from Zillow
     - Route distance calculations from Google Maps
     - Caching and rate limiting
@@ -76,104 +76,109 @@ class ExternalAPIService:
         return session
     
     # ============================================================================
-    # RENTALS.COM API INTEGRATION
+    # RENTCAST RENTAL LISTINGS API
     # ============================================================================
-    
+
+    _HOUSING_TYPE_MAP = {
+        'apartment': 'Apartment',
+        'house': 'Single Family',
+        'condo': 'Condo',
+    }
+
     def get_rental_listings(self, zip_code: str, filters: Dict[str, Any] = None) -> Dict[str, Any]:
         """
-        Get rental listings from Rentals.com API.
-        
+        Get long-term rental listings from RentCast API.
+
         Args:
             zip_code: 5-digit US zipcode
-            filters: Dictionary of search filters
-            
+            filters: Search filters (price_max, max_rent, bedrooms, min_bathrooms, housing_type, limit)
+
         Returns:
             Dictionary containing rental listings and metadata
         """
+        filters = filters or {}
         try:
-            # Check rate limits
             if rate_limiter.is_rate_limited('rentals'):
-                return self._create_rate_limit_response('rentals')
-            
-            # Prepare search parameters
-            search_params = self._prepare_rentals_search_params(zip_code, filters)
-            
-            # Make API request
-            response = self._make_rentals_request('search', search_params)
-            
-            # Record request for rate limiting
-            rate_limiter.record_request('rentals')
-            
-            if response['success']:
-                return {
-                    'success': True,
-                    'data': response['data'],
-                    'source': 'rentals.com',
-                    'zip_code': zip_code,
-                    'filters_applied': filters or {},
-                    'retrieved_at': datetime.utcnow().isoformat()
-                }
-            else:
-                return response
-                
-        except Exception as e:
-            logger.error(f"Error getting rental listings for zipcode {zip_code}: {e}")
-            return self._create_error_response('rentals', str(e))
-    
-    def _prepare_rentals_search_params(self, zip_code: str, filters: Dict[str, Any] = None) -> Dict[str, Any]:
-        """Prepare search parameters for Rentals.com API"""
-        params = {
-            'zip_code': zip_code,
-            'limit': filters.get('limit', 50) if filters else 50,
-            'offset': filters.get('offset', 0) if filters else 0
-        }
-        
-        if filters:
-            # Map filter parameters to API parameters
-            for filter_key, filter_value in filters.items():
-                if filter_key in rentals_config.SEARCH_PARAMS:
-                    api_param = rentals_config.SEARCH_PARAMS[filter_key]
-                    params[api_param] = filter_value
-        
-        return params
-    
-    def _make_rentals_request(self, endpoint: str, params: Dict[str, Any]) -> Dict[str, Any]:
-        """Make request to Rentals.com API"""
-        try:
-            url = f"{self.rentals_base_url}{rentals_config.ENDPOINTS[endpoint]}"
-            headers = external_api_config._get_headers_config('rentals')
-            
+                return self._rentcast_error_response('Rate limit exceeded for rentcast API')
+
+            params = self._prepare_rentcast_search_params(zip_code, filters)
+            url = f"{self.rentals_base_url}{rentals_config.ENDPOINTS['search']}"
+            headers = {
+                'X-Api-Key': os.environ.get('RENTCAST_API_KEY', ''),
+                'Accept': 'application/json',
+            }
+
             response = self.session.get(
                 url,
-                params=params,
                 headers=headers,
-                timeout=external_api_config._get_timeout_config('rentals')
+                params=params,
+                timeout=10,
             )
-            
-            if response.status_code == 200:
-                data = response.json()
-                return {
-                    'success': True,
-                    'data': data,
-                    'status_code': response.status_code
-                }
-            else:
-                error_msg = rentals_config.ERROR_CODES.get(
-                    response.status_code, 
-                    f"HTTP {response.status_code}"
-                )
-                return {
-                    'success': False,
-                    'error': error_msg,
-                    'status_code': response.status_code
-                }
-                
-        except requests.exceptions.RequestException as e:
-            logger.error(f"Rentals.com API request failed: {e}")
+            response.raise_for_status()
+
+            rate_limiter.record_request('rentals')
+            payload = response.json()
+            listings = self._extract_rentcast_listings(payload)
+
             return {
-                'success': False,
-                'error': f"Request failed: {str(e)}"
+                'success': True,
+                'data': listings,
+                'source': 'rentcast',
+                'zip_code': zip_code,
+                'filters_applied': filters,
+                'retrieved_at': datetime.utcnow().isoformat(),
             }
+
+        except Exception as e:
+            logger.error('ExternalAPIService.get_rental_listings failed: %s', e)
+            return self._rentcast_error_response(str(e))
+
+    def _prepare_rentcast_search_params(
+        self,
+        zip_code: str,
+        filters: Dict[str, Any],
+    ) -> Dict[str, Any]:
+        """Map Mingus filter dict to RentCast query parameters."""
+        params: Dict[str, Any] = {
+            'zipCode': zip_code,
+            'limit': filters.get('limit', 20),
+        }
+        max_price = filters.get('max_rent') or filters.get('price_max')
+        if max_price:
+            params['maxPrice'] = max_price
+        if filters.get('bedrooms'):
+            params['bedrooms'] = filters['bedrooms']
+        if filters.get('min_bathrooms'):
+            params['bathrooms'] = filters['min_bathrooms']
+        housing_type = filters.get('housing_type')
+        if housing_type in self._HOUSING_TYPE_MAP:
+            params['propertyType'] = self._HOUSING_TYPE_MAP[housing_type]
+        return params
+
+    @staticmethod
+    def _extract_rentcast_listings(payload: Any) -> List[Any]:
+        """RentCast returns a top-level JSON array."""
+        if isinstance(payload, list):
+            return payload
+        if isinstance(payload, dict):
+            for key in ('listings', 'data'):
+                value = payload.get(key)
+                if isinstance(value, list):
+                    return value
+        logger.warning(
+            'Unexpected RentCast listings payload shape: %s',
+            type(payload).__name__,
+        )
+        return []
+
+    def _rentcast_error_response(self, error_message: str) -> Dict[str, Any]:
+        return {
+            'success': False,
+            'data': [],
+            'source': 'rentcast',
+            'error': error_message,
+            'timestamp': datetime.utcnow().isoformat(),
+        }
     
     # ============================================================================
     # ZILLOW API INTEGRATION
@@ -460,7 +465,7 @@ class ExternalAPIService:
         try:
             # Check API key availability
             api_keys_status = {
-                'rentals_api_key': bool(os.environ.get('RENTALS_API_KEY')),
+                'rentcast_api_key': bool(os.environ.get('RENTCAST_API_KEY')),
                 'zillow_rapidapi_key': bool(os.environ.get('ZILLOW_RAPIDAPI_KEY')),
                 'google_maps_api_key': bool(os.environ.get('GOOGLE_MAPS_API_KEY'))
             }

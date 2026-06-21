@@ -34,7 +34,7 @@ class APIKeyRotationManager:
             'rentals': {
                 'rotation_interval_days': int(os.environ.get('RENTALS_KEY_ROTATION_DAYS', 90)),
                 'backup_keys': int(os.environ.get('RENTALS_BACKUP_KEYS', 2)),
-                'current_key': os.environ.get('RENTALS_API_KEY'),
+                'current_key': os.environ.get('RENTCAST_API_KEY'),
                 'backup_keys_list': self._parse_backup_keys('RENTALS_BACKUP_KEYS')
             },
             'zillow': {

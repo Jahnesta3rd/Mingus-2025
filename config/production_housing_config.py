@@ -35,7 +35,7 @@ class ProductionHousingConfig:
     def _validate_environment(self):
         """Validate required environment variables"""
         required_vars = [
-            'RENTALS_API_KEY',
+            'RENTCAST_API_KEY',
             'ZILLOW_RAPIDAPI_KEY', 
             'GOOGLE_MAPS_API_KEY',
             'DATABASE_URL',
@@ -106,12 +106,12 @@ class ProductionHousingConfig:
         """Setup production API configurations"""
         self.api_configs = {
             'rentals': {
-                'api_key': os.environ.get('RENTALS_API_KEY'),
-                'base_url': os.environ.get('RENTALS_BASE_URL', 'https://api.rentals.com/v1'),
-                'timeout': int(os.environ.get('RENTALS_TIMEOUT', 30)),
-                'retry_attempts': int(os.environ.get('RENTALS_RETRY_ATTEMPTS', 3)),
-                'rate_limit_per_minute': int(os.environ.get('RENTALS_RATE_LIMIT', 60)),
-                'rate_limit_per_hour': int(os.environ.get('RENTALS_HOURLY_LIMIT', 1000))
+                'api_key': os.environ.get('RENTCAST_API_KEY'),
+                'base_url': os.environ.get('RENTCAST_BASE_URL', 'https://api.rentcast.io/v1'),
+                'timeout': int(os.environ.get('RENTCAST_TIMEOUT', 10)),
+                'retry_attempts': int(os.environ.get('RENTCAST_RETRY_ATTEMPTS', 3)),
+                'rate_limit_per_minute': int(os.environ.get('RENTCAST_RATE_LIMIT', 60)),
+                'rate_limit_per_hour': int(os.environ.get('RENTCAST_HOURLY_LIMIT', 50))
             },
             'zillow': {
                 'api_key': os.environ.get('ZILLOW_RAPIDAPI_KEY'),

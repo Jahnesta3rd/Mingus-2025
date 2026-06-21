@@ -41,7 +41,7 @@ class ExternalAPIConfig:
     def _validate_api_keys(self):
         """Validate that required API keys are present"""
         required_keys = {
-            'RENTALS_API_KEY': os.environ.get('RENTALS_API_KEY'),
+            'RENTCAST_API_KEY': os.environ.get('RENTCAST_API_KEY'),
             'ZILLOW_RAPIDAPI_KEY': os.environ.get('ZILLOW_RAPIDAPI_KEY'),
             'GOOGLE_MAPS_API_KEY': os.environ.get('GOOGLE_MAPS_API_KEY')
         }
@@ -137,8 +137,7 @@ class ExternalAPIConfig:
         api_specific_headers = {
             'rentals': {
                 **base_headers,
-                'X-API-Key': os.environ.get('RENTALS_API_KEY', ''),
-                'Content-Type': 'application/json'
+                'X-Api-Key': os.environ.get('RENTCAST_API_KEY', ''),
             },
             'zillow': {
                 **base_headers,
@@ -154,43 +153,12 @@ class ExternalAPIConfig:
         return api_specific_headers.get(api_name, base_headers)
 
 class RentalsAPIConfig:
-    """Configuration for Rentals.com API integration"""
-    
-    BASE_URL = "https://api.rentals.com/v1"
+    """Configuration for RentCast rental listings API (HRA-03b)."""
+
+    BASE_URL = "https://api.rentcast.io/v1"
     ENDPOINTS = {
-        'search': '/listings/search',
-        'details': '/listings/{listing_id}',
-        'photos': '/listings/{listing_id}/photos',
-        'amenities': '/listings/{listing_id}/amenities'
+        'search': '/listings/rental/long-term',
     }
-    
-    # Search parameters and filters
-    SEARCH_PARAMS = {
-        'location': 'zip_code',
-        'price_min': 'min_price',
-        'price_max': 'max_price',
-        'bedrooms': 'bedrooms',
-        'bathrooms': 'bathrooms',
-        'property_type': 'property_type',
-        'pet_friendly': 'pet_friendly',
-        'furnished': 'furnished',
-        'parking': 'parking',
-        'laundry': 'laundry',
-        'air_conditioning': 'air_conditioning',
-        'dishwasher': 'dishwasher',
-        'pool': 'pool',
-        'gym': 'gym'
-    }
-    
-    # Property types supported
-    PROPERTY_TYPES = [
-        'apartment',
-        'house',
-        'condo',
-        'townhouse',
-        'studio',
-        'loft'
-    ]
     
     # Rate limiting
     RATE_LIMITS = {
