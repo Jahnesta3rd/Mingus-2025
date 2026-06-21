@@ -35,7 +35,16 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 # Import application modules
-from backend.models import db, DailyOutlook, UserRelationshipStatus, DailyOutlookTemplate, RelationshipStatus, TemplateTier, TemplateCategory, User
+from backend.models import (
+    db,
+    DailyOutlook,
+    UserRelationshipStatus,
+    DailyOutlookTemplate,
+    RelationshipStatus,
+    TemplateTier,
+    TemplateCategory,
+    User,
+)
 from backend.api.daily_outlook_api import daily_outlook_api
 from tests.api.test_daily_outlook_api import test_daily_outlook_api
 from backend.services.feature_flag_service import FeatureFlagService, FeatureTier
@@ -113,12 +122,30 @@ class TestMayaPersona:
                         career_weight=Decimal('0.25'),  # High career weight
                         primary_insight="Your career growth is accelerating! Focus on skill development.",
                         quick_actions=[
-                            {"id": "career_1", "title": "Update LinkedIn profile", "description": "Add recent projects", "priority": "high"},
-                            {"id": "financial_1", "title": "Review budget", "description": "Track monthly expenses", "priority": "high"},
-                            {"id": "wellness_1", "title": "Take a break", "description": "Step away from computer", "priority": "medium"}
+                            {
+                                "id": "career_1",
+                                "title": "Update LinkedIn profile",
+                                "description": "Add recent projects",
+                                "priority": "high",
+                            },
+                            {
+                                "id": "financial_1",
+                                "title": "Review budget",
+                                "description": "Track monthly expenses",
+                                "priority": "high",
+                            },
+                            {
+                                "id": "wellness_1",
+                                "title": "Take a break",
+                                "description": "Step away from computer",
+                                "priority": "medium",
+                            },
                         ],
                         encouragement_message="You're building the foundation for financial success!",
-                        surprise_element="Did you know? 78% of software developers see salary increases within 2 years.",
+                        surprise_element=(
+                            "Did you know? 78% of software developers see salary "
+                            "increases within 2 years."
+                        ),
                         streak_count=12
                     )
                     db.session.add(outlook)
@@ -148,12 +175,14 @@ class TestMayaPersona:
             with patch('tests.api.test_daily_outlook_api.get_current_user_id', return_value=maya_user.id):
                 with patch('tests.api.test_daily_outlook_api.check_user_tier_access', return_value=True):
                     # Test relationship status update
-                    response = client.post('/api/relationship-status',
-                                         json={
-                                             'status': 'single_career_focused',
-                                             'satisfaction_score': 9,  # High satisfaction with single life
-                                             'financial_impact_score': 8  # Positive financial impact
-                                         })
+                    response = client.post(
+                        '/api/relationship-status',
+                        json={
+                            'status': 'single_career_focused',
+                            'satisfaction_score': 9,  # High satisfaction with single life
+                            'financial_impact_score': 8,  # Positive financial impact
+                        },
+                    )
                     assert response.status_code == 200
 
                     # Verify relationship status affects weighting
@@ -230,12 +259,14 @@ class TestMayaPersona:
                         assert data['streak_info']['milestone_reached'] is True
 
                     # Test action completion habit formation
-                    response = client.post('/api/daily-outlook/action-completed',
-                                         json={
-                                             'action_id': 'career_1',
-                                             'completion_status': True,
-                                             'completion_notes': 'Updated LinkedIn with new projects'
-                                         })
+                    response = client.post(
+                        '/api/daily-outlook/action-completed',
+                        json={
+                            'action_id': 'career_1',
+                            'completion_status': True,
+                            'completion_notes': 'Updated LinkedIn with new projects',
+                        },
+                    )
                     assert response.status_code == 200
 
 
@@ -309,9 +340,24 @@ class TestMarcusPersona:
                         career_weight=Decimal('0.15'),
                         primary_insight="Your relationship is thriving! Consider financial planning together.",
                         quick_actions=[
-                            {"id": "relationship_1", "title": "Plan date night", "description": "Budget for special evening", "priority": "high"},
-                            {"id": "financial_1", "title": "Review investment portfolio", "description": "Check 401k performance", "priority": "high"},
-                            {"id": "wellness_1", "title": "Couple's workout", "description": "Exercise together", "priority": "medium"}
+                            {
+                                "id": "relationship_1",
+                                "title": "Plan date night",
+                                "description": "Budget for special evening",
+                                "priority": "high",
+                            },
+                            {
+                                "id": "financial_1",
+                                "title": "Review investment portfolio",
+                                "description": "Check 401k performance",
+                                "priority": "high",
+                            },
+                            {
+                                "id": "wellness_1",
+                                "title": "Couple's workout",
+                                "description": "Exercise together",
+                                "priority": "medium",
+                            },
                         ],
                         encouragement_message="Love and financial growth go hand in hand!",
                         surprise_element="Couples who discuss finances regularly are 30% more likely to stay together.",
@@ -344,12 +390,14 @@ class TestMarcusPersona:
             with patch('backend.api.daily_outlook_api.get_current_user_id', return_value=marcus_user.id):
                 with patch('backend.api.daily_outlook_api.check_user_tier_access', return_value=True):
                     # Test relationship status update
-                    response = client.post('/api/relationship-status',
-                                         json={
-                                             'status': 'dating',
-                                             'satisfaction_score': 9,
-                                             'financial_impact_score': 8
-                                         })
+                    response = client.post(
+                        '/api/relationship-status',
+                        json={
+                            'status': 'dating',
+                            'satisfaction_score': 9,
+                            'financial_impact_score': 8,
+                        },
+                    )
                     assert response.status_code == 200
 
                     # Verify relationship status affects weighting
@@ -404,8 +452,18 @@ class TestMarcusPersona:
                         relationship_weight=Decimal('0.30'),
                         career_weight=Decimal('0.15'),
                         quick_actions=[
-                            {"id": "relationship_1", "title": "Plan date night", "description": "Budget for special evening", "priority": "high"},
-                            {"id": "financial_1", "title": "Review investment portfolio", "description": "Check 401k performance", "priority": "high"}
+                            {
+                                "id": "relationship_1",
+                                "title": "Plan date night",
+                                "description": "Budget for special evening",
+                                "priority": "high",
+                            },
+                            {
+                                "id": "financial_1",
+                                "title": "Review investment portfolio",
+                                "description": "Check 401k performance",
+                                "priority": "high",
+                            },
                         ],
                         streak_count=5
                     )
@@ -413,17 +471,21 @@ class TestMarcusPersona:
                     db.session.commit()
 
                     # Test action completion
-                    response = client.post('/api/daily-outlook/action-completed',
-                                         json={
-                                             'action_id': 'relationship_1',
-                                             'completion_status': True,
-                                             'completion_notes': 'Planned romantic dinner'
-                                         })
+                    response = client.post(
+                        '/api/daily-outlook/action-completed',
+                        json={
+                            'action_id': 'relationship_1',
+                            'completion_status': True,
+                            'completion_notes': 'Planned romantic dinner',
+                        },
+                    )
                     assert response.status_code == 200
 
                     # Test rating submission
-                    response = client.post('/api/daily-outlook/rating',
-                                         json={'rating': 5})
+                    response = client.post(
+                        '/api/daily-outlook/rating',
+                        json={'rating': 5},
+                    )
                     assert response.status_code == 200
 
 
@@ -495,14 +557,35 @@ class TestDrWilliamsPersona:
                         wellness_weight=Decimal('0.30'),
                         relationship_weight=Decimal('0.25'),
                         career_weight=Decimal('0.20'),
-                        primary_insight="Your family's financial future is secure. Consider advanced investment strategies.",
+                        primary_insight=(
+                            "Your family's financial future is secure. "
+                            "Consider advanced investment strategies."
+                        ),
                         quick_actions=[
-                            {"id": "financial_1", "title": "Review retirement portfolio", "description": "Optimize 401k allocation", "priority": "high"},
-                            {"id": "family_1", "title": "Plan family vacation", "description": "Budget for summer trip", "priority": "high"},
-                            {"id": "wellness_1", "title": "Family wellness check", "description": "Schedule annual physicals", "priority": "medium"}
+                            {
+                                "id": "financial_1",
+                                "title": "Review retirement portfolio",
+                                "description": "Optimize 401k allocation",
+                                "priority": "high",
+                            },
+                            {
+                                "id": "family_1",
+                                "title": "Plan family vacation",
+                                "description": "Budget for summer trip",
+                                "priority": "high",
+                            },
+                            {
+                                "id": "wellness_1",
+                                "title": "Family wellness check",
+                                "description": "Schedule annual physicals",
+                                "priority": "medium",
+                            },
                         ],
                         encouragement_message="Your financial wisdom is creating generational wealth!",
-                        surprise_element="Families with comprehensive financial plans are 40% more likely to achieve long-term goals.",
+                        surprise_element=(
+                            "Families with comprehensive financial plans are 40% more likely to "
+                            "achieve long-term goals."
+                        ),
                         streak_count=15
                     )
                     db.session.add(outlook)
@@ -526,18 +609,22 @@ class TestDrWilliamsPersona:
                     assert len(family_actions) > 0
                     assert len(financial_actions) > 0
 
-    def test_dr_williams_relationship_status_impact(self, client, app, dr_williams_user, dr_williams_relationship_status):
+    def test_dr_williams_relationship_status_impact(
+        self, client, app, dr_williams_user, dr_williams_relationship_status
+    ):
         """Test how Dr. Williams's relationship status impacts daily outlook"""
         with app.app_context():
             with patch('backend.api.daily_outlook_api.get_current_user_id', return_value=dr_williams_user.id):
                 with patch('backend.api.daily_outlook_api.check_user_tier_access', return_value=True):
                     # Test relationship status update
-                    response = client.post('/api/relationship-status',
-                                         json={
-                                             'status': 'married',
-                                             'satisfaction_score': 9,
-                                             'financial_impact_score': 9
-                                         })
+                    response = client.post(
+                        '/api/relationship-status',
+                        json={
+                            'status': 'married',
+                            'satisfaction_score': 9,
+                            'financial_impact_score': 9,
+                        },
+                    )
                     assert response.status_code == 200
 
                     # Verify relationship status affects weighting
