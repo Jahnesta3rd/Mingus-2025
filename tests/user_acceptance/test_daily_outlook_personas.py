@@ -592,8 +592,18 @@ class TestDrWilliamsPersona:
                         relationship_weight=Decimal('0.25'),
                         career_weight=Decimal('0.20'),
                         quick_actions=[
-                            {"id": "financial_1", "title": "Review retirement portfolio", "description": "Optimize 401k allocation", "priority": "high"},
-                            {"id": "family_1", "title": "Plan family vacation", "description": "Budget for summer trip", "priority": "high"}
+                            {
+                                "id": "financial_1",
+                                "title": "Review retirement portfolio",
+                                "description": "Optimize 401k allocation",
+                                "priority": "high",
+                            },
+                            {
+                                "id": "family_1",
+                                "title": "Plan family vacation",
+                                "description": "Budget for summer trip",
+                                "priority": "high",
+                            },
                         ],
                         streak_count=20
                     )
@@ -601,17 +611,21 @@ class TestDrWilliamsPersona:
                     db.session.commit()
 
                     # Test action completion
-                    response = client.post('/api/daily-outlook/action-completed',
-                                         json={
-                                             'action_id': 'financial_1',
-                                             'completion_status': True,
-                                             'completion_notes': 'Rebalanced portfolio for optimal growth'
-                                         })
+                    response = client.post(
+                        '/api/daily-outlook/action-completed',
+                        json={
+                            'action_id': 'financial_1',
+                            'completion_status': True,
+                            'completion_notes': 'Rebalanced portfolio for optimal growth',
+                        },
+                    )
                     assert response.status_code == 200
 
                     # Test rating submission
-                    response = client.post('/api/daily-outlook/rating',
-                                         json={'rating': 5})
+                    response = client.post(
+                        '/api/daily-outlook/rating',
+                        json={'rating': 5},
+                    )
                     assert response.status_code == 200
 
 
@@ -718,7 +732,10 @@ class TestPersonaComparison:
             # Validate persona-specific weightings
             assert maya_outlook.career_weight > maya_outlook.relationship_weight  # Maya: Career-focused
             assert marcus_outlook.relationship_weight > marcus_outlook.career_weight  # Marcus: Relationship-focused
-            assert dr_williams_outlook.wellness_weight > dr_williams_outlook.career_weight  # Dr. Williams: Family wellness-focused
+            assert (
+                dr_williams_outlook.wellness_weight
+                > dr_williams_outlook.career_weight
+            )  # Dr. Williams: Family wellness-focused
 
     def test_persona_tier_feature_access(self, app):
         """Test tier-based feature access across personas"""
