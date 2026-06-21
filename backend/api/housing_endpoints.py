@@ -23,6 +23,7 @@ from backend.models.database import db
 from backend.models.housing_models import HousingSearch, HousingScenario
 from backend.models.housing_profile import HousingProfile
 from backend.data.zip_to_msa import ZIP_TO_MSA
+from backend.services.external_api_service import external_api_service
 from backend.services.feature_flag_service import feature_flag_service, FeatureFlag
 from backend.utils.user_profile_context import extract_zip_from_text, resolve_search_zip
 from datetime import datetime, timedelta
@@ -36,21 +37,7 @@ EMPTY_LISTINGS_MESSAGE = (
     'Try a nearby zip code or check back soon.'
 )
 
-# Retired HRA-03 (June 2026). Replaced with make_zip_aware_mock().
-# Swap for ExternalAPIService.get_rental_listings() when API key is available.
-
-ZIP_CITY_MAP = {
-    '10': ('New York', 'NY'),
-    '85': ('Phoenix', 'AZ'),
-    '77': ('Houston', 'TX'),
-    '60': ('Chicago', 'IL'),
-    '30': ('Atlanta', 'GA'),
-    '90': ('Los Angeles', 'CA'),
-    '98': ('Seattle', 'WA'),
-    '80': ('Denver', 'CO'),
-    '19': ('Philadelphia', 'PA'),
-    '02': ('Boston', 'MA'),
-}
+# Retired by HRA-03 completion (June 2026). Live listings via ExternalAPIService.
 
 
 def resolve_msa_code_for_zip(zip_code: str) -> str:
@@ -61,36 +48,54 @@ def resolve_msa_code_for_zip(zip_code: str) -> str:
     return ZIP_TO_MSA.get(digits, '') or ''
 
 
-def make_zip_aware_mock(resolved_zip: str, msa_code: str, index: int) -> Dict[str, Any]:
-    """Zip-aware illustrative listing (HRA-03 Path B until live API keys are available)."""
-    prefix = resolved_zip[:2] if resolved_zip else '77'
-    city, state = ZIP_CITY_MAP.get(prefix, ('Unknown City', 'XX'))
+def _extract_listings_from_api_payload(data: Any) -> List[Any]:
+    """Pull listing rows from Rentals.com API payload shapes."""
+    if data is None:
+        return []
+    if isinstance(data, list):
+        return data
+    if isinstance(data, dict):
+        for key in ('listings', 'results', 'properties', 'data'):
+            value = data.get(key)
+            if isinstance(value, list):
+                return value
+    return []
 
-    street_pool = [
-        f'{100 + index * 37} Main St',
-        f'{200 + index * 41} Oak Ave',
-        f'{300 + index * 29} Maple Dr',
-        f'{400 + index * 53} Park Blvd',
-        f'{500 + index * 61} Cedar Ln',
-    ]
-    street = street_pool[index % len(street_pool)]
-    address = f'{street}, {city}, {state} {resolved_zip}'
+
+def _normalize_rental_listing(
+    raw: Dict[str, Any],
+    resolved_zip: str,
+    msa_code: str,
+    index: int,
+) -> Dict[str, Any]:
+    """Map external API listing fields to housing search response shape."""
+    city = raw.get('city') or raw.get('City') or ''
+    state = raw.get('state') or raw.get('State') or ''
+    zip_code = raw.get('zip_code') or raw.get('zip') or raw.get('postal_code') or resolved_zip
+    street = raw.get('address') or raw.get('street_address') or raw.get('street') or ''
+    address = raw.get('full_address') or raw.get('location')
+    if not address and street:
+        address = f'{street}, {city}, {state} {zip_code}'.strip(', ')
+    price = raw.get('price') or raw.get('rent') or raw.get('monthly_rent') or 0
+    listing_id = str(raw.get('id') or raw.get('listing_id') or f'{resolved_zip}-{index + 1}')
+    listing_url = raw.get('listing_url') or raw.get('url') or raw.get('link')
+    title = raw.get('title') or raw.get('name')
+    if not title:
+        title = f'{city} Residences #{index + 1}' if city else f'Listing #{index + 1}'
 
     return {
-        'id': f'{resolved_zip}-{index + 1}',
-        'title': f'{city} Residences #{index + 1}',
-        'address': address,
-        'location': address,
+        'id': listing_id,
+        'title': title,
+        'address': address or street,
+        'location': address or street,
         'city': city,
         'state': state,
-        'zip_code': resolved_zip,
-        'price': 1200 + (index * 150) + (hash(resolved_zip) % 300),
-        'bedrooms': (index % 3) + 1,
-        'bathrooms': (index % 2) + 1,
-        'listing_url': None,
+        'zip_code': zip_code,
+        'price': price,
+        'bedrooms': raw.get('bedrooms'),
+        'bathrooms': raw.get('bathrooms'),
+        'listing_url': listing_url,
         'msa_code': msa_code,
-        'note': 'Beta: illustrative listing. Live data coming soon.',
-        'beta_notice': True,
     }
 
 # Create blueprint
@@ -349,31 +354,52 @@ def search_locations():
         db.session.add(housing_search)
         db.session.commit()
 
-        locations = [
-            make_zip_aware_mock(resolved_zip, msa_code, i)
-            for i in range(5)
-        ]
+        rental_filters = {
+            'price_max': search_criteria.get('max_rent'),
+            'bedrooms': search_criteria.get('bedrooms'),
+            'bathrooms': search_criteria.get('min_bathrooms'),
+            'property_type': search_criteria.get('housing_type'),
+            'limit': 20,
+        }
+
+        listings: List[Dict[str, Any]] = []
+        try:
+            api_result = external_api_service.get_rental_listings(
+                resolved_zip,
+                rental_filters,
+            )
+            if api_result.get('success'):
+                raw_listings = _extract_listings_from_api_payload(api_result.get('data'))
+                listings = [
+                    _normalize_rental_listing(item, resolved_zip, msa_code, i)
+                    for i, item in enumerate(raw_listings)
+                    if isinstance(item, dict)
+                ]
+            else:
+                logger.warning(
+                    'ExternalAPIService.get_rental_listings returned no success: %s',
+                    api_result.get('error'),
+                )
+        except Exception as e:
+            logger.error('ExternalAPIService.get_rental_listings failed: %s', e)
+            listings = []
 
         search_results = {
             'search_id': housing_search.id,
-            'locations': locations,
-            'results': locations,
-            'total_results': len(locations),
+            'locations': listings,
+            'results': listings,
+            'total_results': len(listings),
             'search_criteria': search_criteria,
             'zip_resolved': resolved_zip,
             'msa_code': msa_code,
             'zip_source': zip_source,
         }
 
-        if not locations:
+        if not listings:
             search_results['message'] = EMPTY_LISTINGS_MESSAGE
             search_results['beta_notice'] = True
-        else:
-            search_results['note'] = 'Beta: results are illustrative. Live listings coming soon.'
-            search_results['beta_notice'] = True
-        
-        # Update search record with results count
-        housing_search.results_count = len(search_results['locations'])
+
+        housing_search.results_count = len(listings)
         db.session.commit()
         
         # Get user's remaining searches for the month

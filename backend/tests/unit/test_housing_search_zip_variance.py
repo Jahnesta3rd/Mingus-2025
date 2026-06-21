@@ -1,4 +1,4 @@
-"""Unit tests for zip-aware housing search listings (HRA-03)."""
+"""Unit tests for housing search listing normalization (HRA-03)."""
 
 from __future__ import annotations
 
@@ -6,22 +6,31 @@ import logging
 import os
 import sys
 
-import pytest
-
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", ".."))
 
 from backend.api.housing_endpoints import (  # noqa: E402
-    make_zip_aware_mock,
+    _extract_listings_from_api_payload,
+    _normalize_rental_listing,
     resolve_msa_code_for_zip,
 )
 
 
 class TestHousingSearchZipVariance:
-    def test_different_zips_return_different_cities(self):
+    def test_different_zips_normalize_to_different_cities(self):
         msa_nyc = resolve_msa_code_for_zip('10001')
         msa_phx = resolve_msa_code_for_zip('85001')
-        nyc = make_zip_aware_mock('10001', msa_nyc, 0)
-        phx = make_zip_aware_mock('85001', msa_phx, 0)
+        nyc = _normalize_rental_listing(
+            {'city': 'New York', 'state': 'NY', 'rent': 2400, 'bedrooms': 2},
+            '10001',
+            msa_nyc,
+            0,
+        )
+        phx = _normalize_rental_listing(
+            {'city': 'Phoenix', 'state': 'AZ', 'rent': 1600, 'bedrooms': 2},
+            '85001',
+            msa_phx,
+            0,
+        )
 
         assert nyc['city'] != phx['city']
         assert nyc['zip_code'] == '10001'
@@ -29,7 +38,6 @@ class TestHousingSearchZipVariance:
         assert nyc['title'].startswith('New York')
         assert phx['title'].startswith('Phoenix')
         assert 'listing_url' in nyc
-        assert nyc['listing_url'] is None
 
     def test_msa_codes_differ_by_zip(self):
         assert resolve_msa_code_for_zip('10001') == '35620'
@@ -48,3 +56,11 @@ class TestHousingSearchZipVariance:
         )
         assert 'housing_search zip=10001' in caplog.text
         assert 'msa=35620' in caplog.text
+
+    def test_extract_listings_from_nested_payload(self):
+        payload = {'listings': [{'id': '1', 'city': 'Chicago', 'state': 'IL'}]}
+        assert len(_extract_listings_from_api_payload(payload)) == 1
+
+    def test_extract_listings_from_list_payload(self):
+        payload = [{'id': '1', 'city': 'Chicago', 'state': 'IL'}]
+        assert len(_extract_listings_from_api_payload(payload)) == 1
