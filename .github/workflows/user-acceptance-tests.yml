@@ -87,12 +87,6 @@ jobs:
       with:
         files: junit.xml
         check_name: User Acceptance Tests Results
-    
-    - name: Comment PR with test results
-      if: github.event_name == 'pull_request'
-      uses: py-actions/pytest-github-actions-annotate-failures@v3
-      with:
-        pytest_json_report: pytest-report.json
 
   lint:
     name: Code Quality Checks
