@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lead Queue — Mingus</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #21253a;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.13);
+    --teal: #1D9E75;
+    --teal-dim: rgba(29,158,117,0.15);
+    --teal-mid: rgba(29,158,117,0.35);
+    --purple: #534AB7;
+    --amber: #EF9F27;
+    --coral: #E05C6A;
+    --text: #e8eaf0;
+    --text2: #8b90a8;
+    --text3: #555b78;
+    --radius: 10px;
+    --radius-sm: 6px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  .page-header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border2);
+    padding: 18px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header-left { display: flex; align-items: center; gap: 14px; }
+  .logo-mark {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: linear-gradient(135deg, var(--teal), var(--purple));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700; color: #fff;
+  }
+  .header-title { font-size: 15px; font-weight: 600; }
+  .header-sub { font-size: 12px; color: var(--text3); margin-top: 1px; }
+  .header-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .nav-link {
+    font-size: 13px; color: var(--text2); text-decoration: none;
+    padding: 5px 10px; border-radius: var(--radius-sm);
+  }
+  .nav-link:hover { background: var(--surface2); color: var(--text); }
+  .nav-link.active { background: var(--teal-dim); color: var(--teal); }
+
+  .page-body { padding: 28px; max-width: 1200px; margin: 0 auto; }
+
+  .section-title {
+    font-size: 18px; font-weight: 600; margin-bottom: 16px;
+  }
+  .section-count { color: var(--text3); font-size: 13px; font-weight: 400; }
+
+  .filter-bar {
+    display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
+    margin-bottom: 18px;
+  }
+  .filter-bar select,
+  .filter-bar input[type="number"],
+  .filter-bar input[type="text"] {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); color: var(--text);
+    padding: 6px 10px; font-size: 13px; outline: none;
+  }
+  .filter-bar select:focus,
+  .filter-bar input:focus { border-color: var(--teal); }
+  .filter-btn {
+    background: var(--surface2); color: var(--text2);
+    border: 1px solid var(--border); border-radius: var(--radius-sm);
+    padding: 6px 14px; font-size: 12px; cursor: pointer;
+  }
+  .filter-btn:hover { background: var(--teal-dim); color: var(--teal); }
+
+  .import-btn {
+    background: var(--surface2);
+    color: var(--text2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm, 4px);
+    padding: 6px 14px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background 0.15s;
+    white-space: nowrap;
+  }
+  .import-btn:hover {
+    background: var(--teal-dim);
+    color: var(--teal);
+    border-color: var(--teal-mid, var(--teal));
+  }
+  .source-ig {
+    background: rgba(212,83,126,0.13);
+    color: #D4536A;
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-weight: 600;
+    margin-left: 6px;
+  }
+
+  .leads-table {
+    width: 100%; border-collapse: collapse; font-size: 13px;
+  }
+  .leads-table th {
+    text-align: left; padding: 8px 12px;
+    background: var(--surface); color: var(--text3);
+    border-bottom: 1px solid var(--border2);
+    font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em;
+  }
+  .leads-table td {
+    padding: 8px 12px; border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+  .leads-table tr:hover td { background: var(--surface); }
+  .leads-table a { color: var(--teal); text-decoration: none; }
+  .leads-table a:hover { text-decoration: underline; }
+
+  .score-hot { color: #FF6B6B; font-weight: 600; }
+  .score-high { color: var(--amber); font-weight: 600; }
+  .score-ok { color: var(--text3); }
+  .community-badge {
+    display: inline-flex; align-items: center;
+    font-family: ui-monospace, monospace; font-size: 12px;
+  }
+  .date-cell { color: var(--text3); font-size: 12px; }
+
+  .funnel-card {
+    background: var(--surface2, #1e1e2e);
+    border: 1px solid var(--border, #2d2d44);
+    border-radius: 8px;
+    padding: 16px 24px;
+    margin-bottom: 20px;
+  }
+  .funnel-title {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text2, #888);
+    margin-bottom: 12px;
+  }
+  .funnel-stats {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .fstat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+  .fstat-sep {
+    color: var(--text2, #555);
+    font-size: 18px;
+    padding-bottom: 16px;
+  }
+  .fstat-val {
+    font-size: 28px;
+    font-weight: 700;
+    font-family: monospace;
+    color: var(--text, #fff);
+  }
+  .fstat-label {
+    font-size: 10px;
+    color: var(--text2, #888);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .fstat-blue  { color: #5B9BD5; }
+  .fstat-green { color: #4CAF7D; }
+  .fstat-gray  { color: #666; }
+
+  .ig-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 6px;
+    flex-wrap: wrap;
+  }
+  .ig-btn {
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 4px;
+    border: 1px solid var(--border, #2d2d44);
+    background: var(--surface2, #1e1e2e);
+    color: var(--text2, #aaa);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .ig-btn:disabled {
+    opacity: 0.35;
+    cursor: default;
+  }
+  .btn-dm:hover:not(:disabled) {
+    background: rgba(91,155,213,0.15);
+    color: #5B9BD5;
+    border-color: #5B9BD5;
+  }
+  .btn-reply:hover:not(:disabled) {
+    background: rgba(76,175,125,0.15);
+    color: #4CAF7D;
+    border-color: #4CAF7D;
+  }
+  .btn-cold:hover:not(:disabled) {
+    background: rgba(150,150,150,0.1);
+    color: #888;
+    border-color: #555;
+  }
+  .ig-state {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+  .dm-sent   { background: rgba(91,155,213,0.12); color: #5B9BD5; }
+  .got-reply { background: rgba(76,175,125,0.12); color: #4CAF7D; }
+  .no-reply  { background: rgba(150,150,150,0.08); color: #666; }
+
+  .leads-table tr.ig-row td:first-child {
+    border-left: 3px solid var(--border2);
+  }
+  .leads-table tr.ig-dm-sent td:first-child {
+    border-left: 3px solid #5B9BD5;
+  }
+  .leads-table tr.ig-got-reply td:first-child {
+    border-left: 3px solid #4CAF7D;
+  }
+  .leads-table tr.ig-no-reply {
+    opacity: 0.55;
+  }
+  .leads-table tr.ig-no-reply td:first-child {
+    border-left: 3px solid #666;
+  }
+
+  @media (max-width: 680px) {
+    .page-header { padding: 14px 16px; }
+    .page-body { padding: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="page-header">
+  <div class="header-left">
+    <div class="logo-mark">M</div>
+    <div>
+      <div class="header-title">Mingus Dashboard</div>
+      <div class="header-sub">Lead queue</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <a href="/" class="nav-link">Overview</a>
+    <a href="/leads" class="nav-link active">Leads</a>
+    <a href="/marketing" class="nav-link">Marketing</a>
+    <a href="/pmf" class="nav-link">PMF</a>
+    <a href="/communities" class="nav-link">Heat Map</a>
+    <a href="/ads" class="nav-link">Ads Brief</a>
+    <a href="/signal-library" class="nav-link">Signals</a>
+    <a href="/weekly-report" class="nav-link">Reports</a>
+  </div>
+</header>
+
+<main class="page-body">
+  <h2 class="section-title">
+    Lead Queue
+    <span class="section-count" id="row-count"></span>
+  </h2>
+
+  <div id="ig-funnel-card" class="funnel-card">
+    <div class="funnel-title">Instagram DM Funnel</div>
+    <div class="funnel-stats">
+      <div class="fstat">
+        <span class="fstat-val" id="f-total">—</span>
+        <span class="fstat-label">Imported</span>
+      </div>
+      <div class="fstat fstat-sep">→</div>
+      <div class="fstat">
+        <span class="fstat-val" id="f-not-contacted">—</span>
+        <span class="fstat-label">Not Contacted</span>
+      </div>
+      <div class="fstat fstat-sep">→</div>
+      <div class="fstat">
+        <span class="fstat-val fstat-blue" id="f-dm-sent">—</span>
+        <span class="fstat-label">DM Sent</span>
+      </div>
+      <div class="fstat fstat-sep">→</div>
+      <div class="fstat">
+        <span class="fstat-val fstat-green" id="f-got-reply">—</span>
+        <span class="fstat-label">Got Reply</span>
+      </div>
+      <div class="fstat">
+        <span class="fstat-val fstat-gray" id="f-no-reply">—</span>
+        <span class="fstat-label">No Reply</span>
+      </div>
+    </div>
+  </div>
+
+  <form method="get" class="filter-bar" id="filter-form">
+    <select name="domain" id="domain-filter">
+      <option value="">All domains</option>
+      {% for d in domains %}
+      <option value="{{ d }}" {% if d == filters.domain %}selected{% endif %}>{{ d }}</option>
+      {% endfor %}
+    </select>
+    <select name="community" id="community-filter">
+      <option value="">All communities</option>
+      <option value="instagram_follows" {% if filters.community == 'instagram_follows' %}selected{% endif %}>
+        Instagram Follows
+      </option>
+      {% for c in communities %}
+      <option value="{{ c }}" {% if filters.community == c %}selected{% endif %}>{{ c }}</option>
+      {% endfor %}
+    </select>
+    <input type="text" name="subreddit" placeholder="subreddit" value="{{ filters.subreddit }}"
+      style="width:160px">
+    <input type="number" name="min_score" placeholder="min score"
+      value="{{ filters.min_score or '' }}" step="0.1" style="width:100px">
+    <input type="number" name="days" placeholder="days" value="{{ filters.days }}" style="width:70px">
+    <button type="submit" class="filter-btn">Filter</button>
+    <button type="button" class="import-btn"
+      onclick="document.getElementById('ig-file').click()">
+      &#8679; Import Instagram
+    </button>
+    <input type="file" id="ig-file" accept=".csv"
+      style="display:none"
+      onchange="handleIGImport(this)">
+    <span id="import-status"
+      style="font-size:12px; margin-left:12px;"></span>
+  </form>
+
+  <table class="leads-table">
+    <thead>
+      <tr>
+        <th>Score</th>
+        <th>Community</th>
+        <th>Domain</th>
+        <th>Title</th>
+        <th>Date</th>
+      </tr>
+    </thead>
+    <tbody id="leads-tbody"></tbody>
+  </table>
+</main>
+
+<script>
+const LEADS = {{ leads | tojson }};
+const HOT_THRESHOLD = {{ hot_threshold }};
+
+function scoreClass(score) {
+  const s = parseFloat(score) || 0;
+  if (s >= HOT_THRESHOLD) return 'score-hot';
+  if (s >= 8.0) return 'score-high';
+  return 'score-ok';
+}
+
+function escapeHtml(str) {
+  return String(str || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function igRowStateClass(lead) {
+  if (lead.source !== 'instagram') return '';
+  if (lead.response_got_dm) return 'ig-row ig-got-reply';
+  if (lead.no_reply) return 'ig-row ig-no-reply';
+  if (lead.responded) return 'ig-row ig-dm-sent';
+  return 'ig-row ig-not-contacted';
+}
+
+function igActionButtons(lead) {
+  if (lead.source !== 'instagram') return '';
+
+  const dmSent = lead.responded;
+  const gotReply = lead.response_got_dm;
+  const noReply = lead.no_reply;
+
+  let stateLabel = '';
+  if (gotReply) {
+    stateLabel = '<span class="ig-state got-reply">✓ Got Reply</span>';
+  } else if (noReply) {
+    stateLabel = '<span class="ig-state no-reply">✗ No Reply</span>';
+  } else if (dmSent) {
+    stateLabel = '<span class="ig-state dm-sent">↗ DM Sent</span>';
+  }
+
+  return (
+    '<div class="ig-actions">' +
+      stateLabel +
+      '<button class="ig-btn btn-dm" onclick="markLead(\'' + escapeHtml(lead.id) + '\',\'dm-sent\')" ' +
+        (dmSent ? 'disabled' : '') + '>↗ DM Sent</button>' +
+      '<button class="ig-btn btn-reply" onclick="markLead(\'' + escapeHtml(lead.id) + '\',\'got-reply\')" ' +
+        (gotReply ? 'disabled' : '') + '>✓ Got Reply</button>' +
+      '<button class="ig-btn btn-cold" onclick="markLead(\'' + escapeHtml(lead.id) + '\',\'no-reply\')" ' +
+        (noReply ? 'disabled' : '') + '>✗ No Reply</button>' +
+    '</div>'
+  );
+}
+
+function renderLead(lead) {
+  const score = parseFloat(lead.composite_score) || 0;
+  const cls = scoreClass(score);
+  const dateStr = lead.ingested_at
+    ? new Date(lead.ingested_at).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit' })
+    : '';
+
+  let snippetHTML = escapeHtml((lead.title || '').substring(0, 60));
+  let communityBadgeExtra = '';
+  let communityLabel = lead.subreddit ? ('r/' + escapeHtml(lead.subreddit)) : '?';
+
+  if (lead.source === 'instagram' && lead.ig_handle) {
+    snippetHTML =
+      '<a href="https://instagram.com/' + escapeHtml(lead.ig_handle) +
+      '" target="_blank" rel="noopener">@' +
+      escapeHtml(lead.ig_handle) + '</a>' +
+      igActionButtons(lead);
+    communityLabel = 'Instagram';
+    communityBadgeExtra = '<span class="source-ig">IG</span>';
+  } else if (snippetHTML) {
+    snippetHTML = '<a href="/leads/' + escapeHtml(lead.id) + '">' + snippetHTML + '</a>';
+  }
+
+  return (
+    '<tr class="' + igRowStateClass(lead) + '" data-source="' + escapeHtml(lead.source || '') + '" data-lead-id="' + escapeHtml(lead.id) + '">' +
+      '<td class="' + cls + '">' + score.toFixed(1) + '</td>' +
+      '<td><span class="community-badge">' + communityLabel + communityBadgeExtra + '</span></td>' +
+      '<td>' + escapeHtml(lead.domain_id || '—') + '</td>' +
+      '<td>' + snippetHTML + '</td>' +
+      '<td class="date-cell">' + dateStr + '</td>' +
+    '</tr>'
+  );
+}
+
+function applyCommunityFilter() {
+  const community = document.getElementById('community-filter').value;
+  const rows = LEADS.filter(function(lead) {
+    if (community === 'instagram_follows') {
+      return lead.source === 'instagram';
+    }
+    if (community) {
+      return lead.subreddit === community;
+    }
+    return true;
+  });
+  document.getElementById('leads-tbody').innerHTML = rows.map(renderLead).join('');
+  document.getElementById('row-count').textContent = '(' + rows.length + ' shown)';
+}
+
+document.getElementById('community-filter').addEventListener('change', applyCommunityFilter);
+
+async function handleIGImport(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const st = document.getElementById('import-status');
+  st.textContent = 'Uploading...';
+  st.style.color = 'var(--teal)';
+  const fd = new FormData();
+  fd.append('file', file);
+  try {
+    const res = await fetch('/import/instagram',
+      { method: 'POST', body: fd, credentials: 'same-origin' });
+    const d = await res.json();
+    if (!res.ok) {
+      st.textContent = 'Error: ' + d.error;
+      st.style.color = 'var(--coral, #E05C6A)';
+      return;
+    }
+    st.textContent =
+      d.inserted + ' imported, ' + d.skipped + ' skipped.';
+    st.style.color = 'var(--teal)';
+    setTimeout(() => location.reload(), 1800);
+  } catch(err) {
+    st.textContent = 'Upload failed — see console.';
+    st.style.color = 'var(--coral, #E05C6A)';
+    console.error(err);
+  }
+  input.value = '';
+}
+
+async function loadFunnelStats() {
+  try {
+    const r = await fetch('/leads/ig-funnel-stats', { credentials: 'same-origin' });
+    const d = await r.json();
+    document.getElementById('f-total').textContent = d.total;
+    document.getElementById('f-not-contacted').textContent = d.not_contacted;
+    document.getElementById('f-dm-sent').textContent = d.dm_sent;
+    document.getElementById('f-got-reply').textContent = d.got_reply;
+    document.getElementById('f-no-reply').textContent = d.no_reply;
+  } catch(e) {
+    console.warn('Funnel stats unavailable', e);
+  }
+}
+
+async function markLead(leadId, action) {
+  try {
+    const r = await fetch('/leads/' + leadId + '/' + action, {
+      method: 'PATCH',
+      credentials: 'same-origin',
+    });
+    if (!r.ok) throw new Error(await r.text());
+    const lead = LEADS.find(function(l) { return l.id === leadId; });
+    if (lead) {
+      if (action === 'dm-sent') lead.responded = true;
+      if (action === 'got-reply') {
+        lead.response_got_dm = true;
+        lead.responded = true;
+      }
+      if (action === 'no-reply') lead.no_reply = true;
+      const row = document.querySelector('[data-lead-id="' + leadId + '"]');
+      if (row) row.outerHTML = renderLead(lead);
+    }
+    await loadFunnelStats();
+  } catch(e) {
+    alert('Could not update lead: ' + e.message);
+  }
+}
+
+loadFunnelStats();
+applyCommunityFilter();
+</script>
+</body>
+</html>

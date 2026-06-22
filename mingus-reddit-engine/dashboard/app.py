@@ -1,6 +1,8 @@
 """Mingus Reddit Engine — founder dashboard (Flask, port 5001)."""
 
 import functools
+import csv
+import io
 import json
 import os
 import re
@@ -297,11 +299,12 @@ def overview():
 def leads():
     domain_filter = request.args.get("domain", "")
     subreddit_filter = request.args.get("subreddit", "")
-    min_score = float(request.args.get("min_score", "0"))
-    days = int(request.args.get("days", "14"))
+    community_filter = request.args.get("community", "")
+    min_score = float(request.args.get("min_score", "0") or "0")
+    days = int(request.args.get("days", "14") or "14")
 
     conditions = [
-        "l.responded = FALSE",
+        "(l.responded = FALSE OR l.source = 'instagram')",
         "l.ingested_at >= NOW() - (%s || ' days')::INTERVAL",
     ]
     params: list = [str(days)]
@@ -318,56 +321,314 @@ def leads():
     where = " AND ".join(conditions)
     rows = _query(
         f"SELECT l.id, l.composite_score, c.name AS subreddit, l.domain_id, "
-        f"l.title, l.ingested_at "
+        f"l.title, l.body, l.source, l.ig_handle, l.responded, "
+        f"l.response_got_dm, l.no_reply, l.ingested_at "
         f"FROM leads l LEFT JOIN communities c ON c.id = l.community_id "
-        f"WHERE {where} ORDER BY l.composite_score DESC NULLS LAST LIMIT 200",
+        f"WHERE {where} "
+        f"ORDER BY CASE WHEN l.source = 'instagram' THEN 1 ELSE 0 END, "
+        f"l.composite_score DESC NULLS LAST, l.ingested_at DESC NULLS LAST "
+        f"LIMIT 500",
         params,
     )
 
-    # Domain options for filter
     domains = [r["domain_id"] for r in _query(
         "SELECT DISTINCT domain_id FROM leads WHERE domain_id IS NOT NULL ORDER BY domain_id"
     )]
-    domain_opts = "<option value=''>All domains</option>" + "".join(
-        f'<option value="{d}" {"selected" if d == domain_filter else ""}>{d}</option>'
-        for d in domains
+    communities = [r["name"] for r in _query(
+        "SELECT DISTINCT c.name FROM leads l "
+        "JOIN communities c ON c.id = l.community_id "
+        "WHERE c.name IS NOT NULL ORDER BY c.name"
+    )]
+
+    leads_data = []
+    for r in rows:
+        ingested = r.get("ingested_at")
+        leads_data.append({
+            "id": str(r["id"]),
+            "composite_score": float(r["composite_score"] or 0),
+            "subreddit": r.get("subreddit"),
+            "domain_id": r.get("domain_id"),
+            "title": r.get("title") or "",
+            "body": r.get("body") or "",
+            "source": r.get("source") or "",
+            "ig_handle": r.get("ig_handle") or "",
+            "responded": bool(r.get("responded")),
+            "response_got_dm": bool(r.get("response_got_dm")),
+            "no_reply": bool(r.get("no_reply")),
+            "ingested_at": ingested.isoformat() if ingested else None,
+        })
+
+    return render_template(
+        "leads.html",
+        leads=leads_data,
+        domains=domains,
+        communities=communities,
+        hot_threshold=HOT_LEAD_THRESHOLD,
+        filters={
+            "domain": domain_filter,
+            "subreddit": subreddit_filter,
+            "community": community_filter,
+            "min_score": min_score if min_score else "",
+            "days": days,
+        },
     )
 
-    filter_html = f"""
-<form method="get" class="filter-bar">
-  <select name="domain">{domain_opts}</select>
-  <input type="text" name="subreddit" placeholder="subreddit" value="{subreddit_filter}" style="width:160px">
-  <input type="number" name="min_score" placeholder="min score" value="{min_score or ''}" step="0.1" style="width:100px">
-  <input type="number" name="days" placeholder="days" value="{days}" style="width:70px">
-  <button type="submit" class="btn">Filter</button>
-</form>"""
 
-    rows_html = ""
-    for r in rows:
-        score = float(r.get("composite_score") or 0)
-        cls = _score_cls(score)
-        title = (r.get("title") or "")[:60]
-        date_str = r["ingested_at"].strftime("%m/%d") if r.get("ingested_at") else ""
-        rows_html += (
-            f'<tr>'
-            f'<td class="{cls}">{score:.1f}</td>'
-            f'<td>r/{r.get("subreddit") or "?"}</td>'
-            f'<td>{r.get("domain_id") or "—"}</td>'
-            f'<td><a href="/leads/{r["id"]}">{title}</a></td>'
-            f'<td style="color:#555">{date_str}</td>'
-            f'</tr>'
-        )
+# ---------------------------------------------------------------------------
+# POST /import/instagram — Instagram follows CSV import
+# ---------------------------------------------------------------------------
 
-    body = f"""
-<h2>Lead Queue <span style="color:#555;font-size:0.85rem">({len(rows)} shown)</span></h2>
-{filter_html}
-<table>
-  <thead><tr>
-    <th>Score</th><th>Community</th><th>Domain</th><th>Title</th><th>Date</th>
-  </tr></thead>
-  <tbody>{rows_html}</tbody>
-</table>"""
-    return _html("Leads", body, active="/leads")
+def _parse_followed_at(raw):
+    if not raw or not raw.strip():
+        return datetime.utcnow()
+    raw = raw.strip()
+    try:
+        if "T" in raw or " " in raw:
+            return datetime.fromisoformat(raw.replace("Z", "+00:00").replace("+00:00", ""))
+        return datetime.strptime(raw, "%Y-%m-%d")
+    except ValueError:
+        return datetime.utcnow()
+
+
+@app.route("/import/instagram", methods=["POST"])
+@requires_auth
+def import_instagram_leads():
+    uploaded = request.files.get("file")
+    if not uploaded or not uploaded.filename:
+        return jsonify({"error": "No file provided"}), 400
+
+    if not uploaded.filename.lower().endswith(".csv"):
+        return jsonify({"error": "File must be a .csv"}), 400
+
+    try:
+        text = uploaded.read().decode("utf-8-sig")
+        reader = csv.DictReader(io.StringIO(text))
+        if not reader.fieldnames:
+            return jsonify({
+                "error": "CSV must have a username or ig_handle column",
+            }), 400
+
+        normalized = {
+            (name or "").strip().lower(): name
+            for name in reader.fieldnames
+            if name
+        }
+        if "username" in normalized:
+            handle_col = normalized["username"]
+        elif "ig_handle" in normalized:
+            handle_col = normalized["ig_handle"]
+        else:
+            return jsonify({
+                "error": "CSV must have a username or ig_handle column",
+            }), 400
+
+        followed_col = normalized.get("followed_at")
+
+        inserted = 0
+        skipped = 0
+        total_rows = 0
+
+        conn = db.get_connection()
+        try:
+            with conn.cursor() as cur:
+                for row in reader:
+                    total_rows += 1
+                    handle = (row.get(handle_col) or "").strip().lstrip("@")
+                    if not handle:
+                        skipped += 1
+                        continue
+
+                    cur.execute(
+                        "SELECT id FROM leads WHERE ig_handle = %s LIMIT 1",
+                        (handle,),
+                    )
+                    if cur.fetchone():
+                        skipped += 1
+                        continue
+
+                    ingested_at = _parse_followed_at(
+                        row.get(followed_col, "") if followed_col else ""
+                    )
+                    snippet = f"@{handle} (Instagram follow)"
+
+                    cur.execute(
+                        """
+                        INSERT INTO leads (
+                            id, ig_handle, url, body,
+                            source, domain_id,
+                            platform, post_id,
+                            pain_score, readiness_score, composite_score,
+                            notified, responded, ingested_at
+                        ) VALUES (
+                            gen_random_uuid(),
+                            %s, %s, %s,
+                            %s, %s,
+                            %s, %s,
+                            0, 0, 0.0,
+                            FALSE, FALSE,
+                            %s
+                        )
+                        """,
+                        (
+                            handle,
+                            f"https://instagram.com/{handle}",
+                            snippet,
+                            "instagram",
+                            "uncategorized",
+                            "instagram",
+                            f"instagram:{handle}",
+                            ingested_at,
+                        ),
+                    )
+                    inserted += 1
+            conn.commit()
+        except Exception as e:
+            conn.rollback()
+            app.logger.exception("IG import failed")
+            return jsonify({"error": "Import failed", "detail": str(e)}), 500
+        finally:
+            db.release_connection(conn)
+
+        app.logger.info(f"IG import: {inserted} inserted, {skipped} skipped")
+        return jsonify({
+            "status": "ok",
+            "inserted": inserted,
+            "skipped": skipped,
+            "total_rows": total_rows,
+        })
+    except UnicodeDecodeError:
+        return jsonify({"error": "File must be a valid UTF-8 CSV"}), 400
+
+
+# ---------------------------------------------------------------------------
+# IG DM funnel — stats + state transitions
+# ---------------------------------------------------------------------------
+
+@app.route("/leads/ig-funnel-stats")
+@requires_auth
+def ig_funnel_stats():
+    conn = db.get_connection()
+    try:
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute(
+                """
+                SELECT
+                  COUNT(*) AS total,
+                  COUNT(*) FILTER (WHERE responded = TRUE) AS dm_sent,
+                  COUNT(*) FILTER (WHERE response_got_dm = TRUE) AS got_reply,
+                  COUNT(*) FILTER (WHERE no_reply = TRUE) AS no_reply,
+                  COUNT(*) FILTER (
+                    WHERE responded = FALSE
+                    AND no_reply = FALSE
+                  ) AS not_contacted
+                FROM leads
+                WHERE source = 'instagram'
+                """
+            )
+            row = cur.fetchone() or {}
+        return jsonify({
+            "total": int(row.get("total") or 0),
+            "dm_sent": int(row.get("dm_sent") or 0),
+            "got_reply": int(row.get("got_reply") or 0),
+            "no_reply": int(row.get("no_reply") or 0),
+            "not_contacted": int(row.get("not_contacted") or 0),
+        })
+    except Exception as e:
+        app.logger.exception("IG funnel stats failed")
+        return jsonify({"error": "Stats failed", "detail": str(e)}), 500
+    finally:
+        db.release_connection(conn)
+
+
+@app.route("/leads/<lead_id>/dm-sent", methods=["PATCH"])
+@requires_auth
+def lead_dm_sent(lead_id):
+    conn = db.get_connection()
+    try:
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute(
+                "SELECT id, source FROM leads WHERE id = %s",
+                (lead_id,),
+            )
+            row = cur.fetchone()
+            if not row:
+                return jsonify({"error": "Lead not found"}), 404
+            if row["source"] != "instagram":
+                return jsonify({"error": "Not an Instagram lead"}), 400
+            cur.execute(
+                "UPDATE leads SET responded = TRUE WHERE id = %s",
+                (lead_id,),
+            )
+        conn.commit()
+        return jsonify({"status": "ok", "lead_id": lead_id, "state": "dm_sent"})
+    except Exception as e:
+        conn.rollback()
+        app.logger.exception("DM sent update failed")
+        return jsonify({"error": "Update failed", "detail": str(e)}), 500
+    finally:
+        db.release_connection(conn)
+
+
+@app.route("/leads/<lead_id>/got-reply", methods=["PATCH"])
+@requires_auth
+def lead_got_reply(lead_id):
+    conn = db.get_connection()
+    try:
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute(
+                "SELECT id, source FROM leads WHERE id = %s",
+                (lead_id,),
+            )
+            row = cur.fetchone()
+            if not row:
+                return jsonify({"error": "Lead not found"}), 404
+            if row["source"] != "instagram":
+                return jsonify({"error": "Not an Instagram lead"}), 400
+            cur.execute(
+                """
+                UPDATE leads
+                SET response_got_dm = TRUE, responded = TRUE
+                WHERE id = %s
+                """,
+                (lead_id,),
+            )
+        conn.commit()
+        return jsonify({"status": "ok", "lead_id": lead_id, "state": "got_reply"})
+    except Exception as e:
+        conn.rollback()
+        app.logger.exception("Got reply update failed")
+        return jsonify({"error": "Update failed", "detail": str(e)}), 500
+    finally:
+        db.release_connection(conn)
+
+
+@app.route("/leads/<lead_id>/no-reply", methods=["PATCH"])
+@requires_auth
+def lead_no_reply(lead_id):
+    conn = db.get_connection()
+    try:
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute(
+                "SELECT id, source FROM leads WHERE id = %s",
+                (lead_id,),
+            )
+            row = cur.fetchone()
+            if not row:
+                return jsonify({"error": "Lead not found"}), 404
+            if row["source"] != "instagram":
+                return jsonify({"error": "Not an Instagram lead"}), 400
+            cur.execute(
+                "UPDATE leads SET no_reply = TRUE WHERE id = %s",
+                (lead_id,),
+            )
+        conn.commit()
+        return jsonify({"status": "ok", "lead_id": lead_id, "state": "no_reply"})
+    except Exception as e:
+        conn.rollback()
+        app.logger.exception("No reply update failed")
+        return jsonify({"error": "Update failed", "detail": str(e)}), 500
+    finally:
+        db.release_connection(conn)
 
 
 # ---------------------------------------------------------------------------

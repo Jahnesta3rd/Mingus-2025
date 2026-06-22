@@ -24,6 +24,8 @@ CREATE TABLE IF NOT EXISTS communities (
 CREATE TABLE IF NOT EXISTS leads (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     platform TEXT NOT NULL,
+    source TEXT DEFAULT 'reddit',
+    ig_handle TEXT,
     post_id TEXT UNIQUE NOT NULL,
     community_id UUID REFERENCES communities(id),
     author TEXT,
@@ -85,9 +87,14 @@ CREATE TABLE IF NOT EXISTS signal_library_updates (
     date TIMESTAMP DEFAULT NOW()
 );
 
+CREATE INDEX IF NOT EXISTS idx_leads_ig_handle ON leads(ig_handle);
 CREATE INDEX IF NOT EXISTS idx_leads_post_id ON leads(post_id);
 CREATE INDEX IF NOT EXISTS idx_leads_composite ON leads(composite_score DESC);
 CREATE INDEX IF NOT EXISTS idx_leads_notified ON leads(notified) WHERE notified = false;
 CREATE INDEX IF NOT EXISTS idx_leads_community ON leads(community_id);
 CREATE INDEX IF NOT EXISTS idx_communities_heat ON communities(heat_score DESC);
 CREATE INDEX IF NOT EXISTS idx_communities_tier ON communities(priority_tier);
+
+-- IG import columns (idempotent on existing databases)
+ALTER TABLE leads ADD COLUMN IF NOT EXISTS source TEXT DEFAULT 'reddit';
+ALTER TABLE leads ADD COLUMN IF NOT EXISTS ig_handle TEXT;

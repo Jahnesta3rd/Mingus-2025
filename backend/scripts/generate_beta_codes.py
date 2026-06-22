@@ -29,11 +29,20 @@ def main():
 
     with app.app_context():
         created = BetaCode.generate_bulk(args.count, args.batch)
+        rows = [
+            {
+                "code": row.code,
+                "status": row.status,
+                "batch": row.batch or "",
+                "created_at": row.created_at.isoformat() if row.created_at else "",
+            }
+            for row in created
+        ]
 
-    for row in created:
-        print(row.code)
+    for row in rows:
+        print(row["code"])
 
-    print(f"Generated {len(created)} codes for batch {args.batch}", file=sys.stderr)
+    print(f"Generated {len(rows)} codes for batch {args.batch}", file=sys.stderr)
 
     data_dir = os.path.join(_REPO_ROOT, "backend", "data")
     os.makedirs(data_dir, exist_ok=True)
@@ -43,15 +52,8 @@ def main():
     with open(csv_path, "w", newline="", encoding="utf-8") as f:
         w = csv.writer(f)
         w.writerow(["code", "status", "batch", "created_at"])
-        for row in created:
-            w.writerow(
-                [
-                    row.code,
-                    row.status,
-                    row.batch or "",
-                    row.created_at.isoformat() if row.created_at else "",
-                ]
-            )
+        for row in rows:
+            w.writerow([row["code"], row["status"], row["batch"], row["created_at"]])
 
     print(f"Wrote {csv_path}", file=sys.stderr)
 
