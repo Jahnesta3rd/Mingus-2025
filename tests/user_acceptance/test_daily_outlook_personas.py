@@ -99,9 +99,7 @@ class TestMayaPersona:
             db.session.refresh(rel_status)  # Ensure object is fresh and bound
             return rel_status
 
-    def test_maya_daily_outlook_generation(
-        self, client, app, maya_user, maya_relationship_status
-    ):
+    def test_maya_daily_outlook_generation(self, client, app, maya_user, maya_relationship_status):
         """Test Maya's daily outlook generation with career focus"""
         with app.app_context():
             with patch(
@@ -117,13 +115,9 @@ class TestMayaPersona:
                         user_id=maya_user.id,
                         date=date.today(),
                         balance_score=72,
-                        financial_weight=Decimal(
-                            "0.40"
-                        ),  # High financial weight for budget tier
+                        financial_weight=Decimal("0.40"),  # High financial weight for budget tier
                         wellness_weight=Decimal("0.20"),
-                        relationship_weight=Decimal(
-                            "0.15"
-                        ),  # Lower relationship weight for single career-focused
+                        relationship_weight=Decimal("0.15"),  # Lower relationship weight for single career-focused
                         career_weight=Decimal("0.25"),  # High career weight
                         primary_insight="Your career growth is accelerating! Focus on skill development.",
                         quick_actions=[
@@ -148,8 +142,7 @@ class TestMayaPersona:
                         ],
                         encouragement_message="You're building the foundation for financial success!",
                         surprise_element=(
-                            "Did you know? 78% of software developers see salary "
-                            "increases within 2 years."
+                            "Did you know? 78% of software developers see salary " "increases within 2 years."
                         ),
                         streak_count=12,
                     )
@@ -169,20 +162,12 @@ class TestMayaPersona:
 
                     # Validate quick actions are career and financial focused
                     quick_actions = data["outlook"]["quick_actions"]
-                    career_actions = [
-                        action for action in quick_actions if "career" in action["id"]
-                    ]
-                    financial_actions = [
-                        action
-                        for action in quick_actions
-                        if "financial" in action["id"]
-                    ]
+                    career_actions = [action for action in quick_actions if "career" in action["id"]]
+                    financial_actions = [action for action in quick_actions if "financial" in action["id"]]
                     assert len(career_actions) > 0
                     assert len(financial_actions) > 0
 
-    def test_maya_relationship_status_impact(
-        self, client, app, maya_user, maya_relationship_status
-    ):
+    def test_maya_relationship_status_impact(self, client, app, maya_user, maya_relationship_status):
         """Test how Maya's relationship status impacts daily outlook"""
         with app.app_context():
             with patch(
@@ -211,9 +196,7 @@ class TestMayaPersona:
                         balance_score=75,
                         financial_weight=Decimal("0.35"),
                         wellness_weight=Decimal("0.25"),
-                        relationship_weight=Decimal(
-                            "0.15"
-                        ),  # Low for single career-focused
+                        relationship_weight=Decimal("0.15"),  # Low for single career-focused
                         career_weight=Decimal("0.25"),
                         primary_insight="Your single status allows you to focus entirely on career growth!",
                         streak_count=5,
@@ -226,14 +209,8 @@ class TestMayaPersona:
                     data = response.get_json()
 
                     # Career and financial should be prioritized over relationship
-                    assert (
-                        data["outlook"]["career_weight"]
-                        >= data["outlook"]["relationship_weight"]
-                    )
-                    assert (
-                        data["outlook"]["financial_weight"]
-                        >= data["outlook"]["relationship_weight"]
-                    )
+                    assert data["outlook"]["career_weight"] >= data["outlook"]["relationship_weight"]
+                    assert data["outlook"]["financial_weight"] >= data["outlook"]["relationship_weight"]
 
     def test_maya_tier_restrictions(self, client, app, maya_user):
         """Test Maya's tier restrictions and feature availability"""
@@ -261,10 +238,7 @@ class TestMayaPersona:
                     response = client.get("/api/daily-outlook/")
                     assert response.status_code == 403
                     data = response.get_json()
-                    assert (
-                        data["error"]
-                        == "Insufficient tier access for daily outlook feature"
-                    )
+                    assert data["error"] == "Insufficient tier access for daily outlook feature"
 
     def test_maya_habit_formation(self, client, app, maya_user):
         """Test Maya's habit formation mechanisms"""
@@ -360,9 +334,7 @@ class TestMarcusPersona:
         """Create Marcus's relationship status"""
         with app.app_context():
             # Re-query user to ensure it's in session
-            user = (
-                db.session.get(User, marcus_user.id) if marcus_user.id else marcus_user
-            )
+            user = db.session.get(User, marcus_user.id) if marcus_user.id else marcus_user
             rel_status = UserRelationshipStatus(
                 user_id=user.id,
                 status=RelationshipStatus.DATING,
@@ -374,9 +346,7 @@ class TestMarcusPersona:
             db.session.refresh(rel_status)  # Ensure object is fresh and bound
             return rel_status
 
-    def test_marcus_daily_outlook_generation(
-        self, client, app, marcus_user, marcus_relationship_status
-    ):
+    def test_marcus_daily_outlook_generation(self, client, app, marcus_user, marcus_relationship_status):
         """Test Marcus's daily outlook generation with relationship focus"""
         with app.app_context():
             with patch(
@@ -394,9 +364,7 @@ class TestMarcusPersona:
                         balance_score=82,
                         financial_weight=Decimal("0.30"),
                         wellness_weight=Decimal("0.25"),
-                        relationship_weight=Decimal(
-                            "0.30"
-                        ),  # High relationship weight for dating
+                        relationship_weight=Decimal("0.30"),  # High relationship weight for dating
                         career_weight=Decimal("0.15"),
                         primary_insight="Your relationship is thriving! Consider financial planning together.",
                         quick_actions=[
@@ -439,22 +407,12 @@ class TestMarcusPersona:
 
                     # Validate quick actions are relationship and financial focused
                     quick_actions = data["outlook"]["quick_actions"]
-                    relationship_actions = [
-                        action
-                        for action in quick_actions
-                        if "relationship" in action["id"]
-                    ]
-                    financial_actions = [
-                        action
-                        for action in quick_actions
-                        if "financial" in action["id"]
-                    ]
+                    relationship_actions = [action for action in quick_actions if "relationship" in action["id"]]
+                    financial_actions = [action for action in quick_actions if "financial" in action["id"]]
                     assert len(relationship_actions) > 0
                     assert len(financial_actions) > 0
 
-    def test_marcus_relationship_status_impact(
-        self, client, app, marcus_user, marcus_relationship_status
-    ):
+    def test_marcus_relationship_status_impact(self, client, app, marcus_user, marcus_relationship_status):
         """Test how Marcus's relationship status impacts daily outlook"""
         with app.app_context():
             with patch(
@@ -496,14 +454,8 @@ class TestMarcusPersona:
                     data = response.get_json()
 
                     # Relationship and financial should be prioritized
-                    assert (
-                        data["outlook"]["relationship_weight"]
-                        >= data["outlook"]["career_weight"]
-                    )
-                    assert (
-                        data["outlook"]["financial_weight"]
-                        >= data["outlook"]["career_weight"]
-                    )
+                    assert data["outlook"]["relationship_weight"] >= data["outlook"]["career_weight"]
+                    assert data["outlook"]["financial_weight"] >= data["outlook"]["career_weight"]
 
     def test_marcus_tier_features(self, client, app, marcus_user):
         """Test Marcus's mid-tier feature availability"""
@@ -625,11 +577,7 @@ class TestDrWilliamsPersona:
         """Create Dr. Williams's relationship status"""
         with app.app_context():
             # Re-query user to ensure it's in session
-            user = (
-                db.session.get(User, dr_williams_user.id)
-                if dr_williams_user.id
-                else dr_williams_user
-            )
+            user = db.session.get(User, dr_williams_user.id) if dr_williams_user.id else dr_williams_user
             rel_status = UserRelationshipStatus(
                 user_id=user.id,
                 status=RelationshipStatus.MARRIED,
@@ -641,9 +589,7 @@ class TestDrWilliamsPersona:
             db.session.refresh(rel_status)  # Ensure object is fresh and bound
             return rel_status
 
-    def test_dr_williams_daily_outlook_generation(
-        self, client, app, dr_williams_user, dr_williams_relationship_status
-    ):
+    def test_dr_williams_daily_outlook_generation(self, client, app, dr_williams_user, dr_williams_relationship_status):
         """Test Dr. Williams's daily outlook generation with family focus"""
         with app.app_context():
             with patch(
@@ -664,8 +610,7 @@ class TestDrWilliamsPersona:
                         relationship_weight=Decimal("0.25"),
                         career_weight=Decimal("0.20"),
                         primary_insight=(
-                            "Your family's financial future is secure. "
-                            "Consider advanced investment strategies."
+                            "Your family's financial future is secure. " "Consider advanced investment strategies."
                         ),
                         quick_actions=[
                             {
@@ -703,23 +648,15 @@ class TestDrWilliamsPersona:
                     data = response.get_json()
 
                     # Validate Dr. Williams-specific content
-                    assert (
-                        data["outlook"]["wellness_weight"] == 0.30
-                    )  # High wellness for family health
+                    assert data["outlook"]["wellness_weight"] == 0.30  # High wellness for family health
                     assert data["outlook"]["financial_weight"] == 0.25
                     assert "family" in data["outlook"]["primary_insight"].lower()
                     assert data["outlook"]["streak_count"] == 15
 
                     # Validate quick actions are family and financial focused
                     quick_actions = data["outlook"]["quick_actions"]
-                    family_actions = [
-                        action for action in quick_actions if "family" in action["id"]
-                    ]
-                    financial_actions = [
-                        action
-                        for action in quick_actions
-                        if "financial" in action["id"]
-                    ]
+                    family_actions = [action for action in quick_actions if "family" in action["id"]]
+                    financial_actions = [action for action in quick_actions if "financial" in action["id"]]
                     assert len(family_actions) > 0
                     assert len(financial_actions) > 0
 
@@ -767,14 +704,9 @@ class TestDrWilliamsPersona:
                     data = response.get_json()
 
                     # Wellness should be prioritized for family health
-                    assert (
-                        data["outlook"]["wellness_weight"]
-                        >= data["outlook"]["career_weight"]
-                    )
+                    assert data["outlook"]["wellness_weight"] >= data["outlook"]["career_weight"]
 
-    def test_dr_williams_professional_tier_features(
-        self, client, app, dr_williams_user
-    ):
+    def test_dr_williams_professional_tier_features(self, client, app, dr_williams_user):
         """Test Dr. Williams's professional tier feature availability"""
         with app.app_context():
             with patch(
@@ -954,12 +886,8 @@ class TestPersonaComparison:
             db.session.commit()
 
             # Validate persona-specific weightings
-            assert (
-                maya_outlook.career_weight > maya_outlook.relationship_weight
-            )  # Maya: Career-focused
-            assert (
-                marcus_outlook.relationship_weight > marcus_outlook.career_weight
-            )  # Marcus: Relationship-focused
+            assert maya_outlook.career_weight > maya_outlook.relationship_weight  # Maya: Career-focused
+            assert marcus_outlook.relationship_weight > marcus_outlook.career_weight  # Marcus: Relationship-focused
             assert (
                 dr_williams_outlook.wellness_weight > dr_williams_outlook.career_weight
             )  # Dr. Williams: Family wellness-focused
@@ -968,12 +896,8 @@ class TestPersonaComparison:
         """Test tier-based feature access across personas"""
         with app.app_context():
             # Create personas with different tiers
-            maya = User(
-                user_id="maya_tier_404", email="maya@example.com", tier="budget"
-            )
-            marcus = User(
-                user_id="marcus_tier_505", email="marcus@example.com", tier="mid_tier"
-            )
+            maya = User(user_id="maya_tier_404", email="maya@example.com", tier="budget")
+            marcus = User(user_id="marcus_tier_505", email="marcus@example.com", tier="mid_tier")
             dr_williams = User(
                 user_id="dr_williams_tier_606",
                 email="dr.williams@example.com",
@@ -989,31 +913,19 @@ class TestPersonaComparison:
             # All should have access to daily outlook
             assert feature_service.check_user_tier_access(maya.id, FeatureTier.BUDGET)
             assert feature_service.check_user_tier_access(marcus.id, FeatureTier.BUDGET)
-            assert feature_service.check_user_tier_access(
-                dr_williams.id, FeatureTier.BUDGET
-            )
+            assert feature_service.check_user_tier_access(dr_williams.id, FeatureTier.BUDGET)
 
             # Only professional should have access to advanced features
-            assert not feature_service.check_user_tier_access(
-                maya.id, FeatureTier.PROFESSIONAL
-            )
-            assert not feature_service.check_user_tier_access(
-                marcus.id, FeatureTier.PROFESSIONAL
-            )
-            assert feature_service.check_user_tier_access(
-                dr_williams.id, FeatureTier.PROFESSIONAL
-            )
+            assert not feature_service.check_user_tier_access(maya.id, FeatureTier.PROFESSIONAL)
+            assert not feature_service.check_user_tier_access(marcus.id, FeatureTier.PROFESSIONAL)
+            assert feature_service.check_user_tier_access(dr_williams.id, FeatureTier.PROFESSIONAL)
 
     def test_persona_habit_formation_patterns(self, app):
         """Test how different personas form habits"""
         with app.app_context():
             # Create personas
-            maya = User(
-                user_id="maya_tier_404", email="maya@example.com", tier="budget"
-            )
-            marcus = User(
-                user_id="marcus_tier_505", email="marcus@example.com", tier="mid_tier"
-            )
+            maya = User(user_id="maya_tier_404", email="maya@example.com", tier="budget")
+            marcus = User(user_id="marcus_tier_505", email="marcus@example.com", tier="mid_tier")
             dr_williams = User(
                 user_id="dr_williams_tier_606",
                 email="dr.williams@example.com",

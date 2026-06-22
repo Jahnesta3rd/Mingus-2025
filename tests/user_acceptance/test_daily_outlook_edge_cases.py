@@ -489,10 +489,7 @@ class TestEdgeCases:
                     response = client.get("/api/daily-outlook/")
                     assert response.status_code == 403
                     data = response.get_json()
-                    assert (
-                        data["error"]
-                        == "Insufficient tier access for daily outlook feature"
-                    )
+                    assert data["error"] == "Insufficient tier access for daily outlook feature"
 
     # ============================================================================
     # Data Validation Edge Cases
