@@ -66,6 +66,7 @@ from .bug_report import BugReport
 from .onboarding_progress import OnboardingProgress
 from .housing_profile import HousingProfile
 from .career_profile import CareerProfile
+from .career_commitment_profile import CareerCommitmentProfile
 from .llm_usage import LlmUsage
 from .agreement_acceptance import AgreementAcceptance
 from .job_posting import JobPosting
@@ -150,6 +151,7 @@ __all__ = [
     'OnboardingProgress',
     'HousingProfile',
     'CareerProfile',
+    'CareerCommitmentProfile',
     'LlmUsage',
     'AgreementAcceptance',
     'JobPosting',

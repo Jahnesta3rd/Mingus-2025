@@ -1,10 +1,40 @@
 import React from 'react';
-import type { CareerRiskData } from '../types/snapshot';
+import type { CareerRiskBand, CareerRiskData, CommitmentType } from '../types/snapshot';
 
 interface CareerRiskPanelProps {
   data: CareerRiskData | null;
   loading?: boolean;
   onOpenEmployerBackfill?: () => void;
+}
+
+const COMMITMENT_CHIP: Record<
+  'type_1' | 'type_2' | 'type_3',
+  { bg: string; text: string; label: string }
+> = {
+  type_1: { bg: '#F3F4F6', text: '#4B5563', label: 'CAREER PATH: EXPLORING' },
+  type_2: { bg: '#FEF3C7', text: '#92400E', label: 'CAREER PATH: BUILDING' },
+  type_3: { bg: '#DCFCE7', text: '#166534', label: 'CAREER PATH: INVESTED' },
+};
+
+function isClassifiedCommitmentType(
+  value: CommitmentType | null | undefined,
+): value is 'type_1' | 'type_2' | 'type_3' {
+  return value === 'type_1' || value === 'type_2' || value === 'type_3';
+}
+
+function careerBandChipStyle(band: CareerRiskBand): { bg: string; text: string } {
+  switch (band) {
+    case 'LOW':
+      return { bg: '#DCFCE7', text: '#166534' };
+    case 'MODERATE':
+      return { bg: '#FEF3C7', text: '#92400E' };
+    case 'HIGH':
+      return { bg: '#FFEDD5', text: '#9A3412' };
+    case 'CRITICAL':
+      return { bg: '#FEE2E2', text: '#991B1B' };
+    default:
+      return { bg: '#F3F4F6', text: '#4B5563' };
+  }
 }
 
 function formatPct(prob: number): string {
@@ -120,6 +150,10 @@ export default function CareerRiskPanel({
   }
 
   const employerName = data.employer_name?.trim() || 'Your employer';
+  const band = data.career_risk_band ?? null;
+  const commitmentType = isClassifiedCommitmentType(data.commitment_type)
+    ? data.commitment_type
+    : null;
 
   return (
     <div className="rounded-xl border border-[#E2E8F0] bg-white p-6 shadow-sm">
@@ -128,6 +162,38 @@ export default function CareerRiskPanel({
         {formatPct(data.probability_12mo)}
       </p>
       <p className="text-sm text-[#64748B]">Estimated 12-month job separation probability</p>
+
+      {band ? (
+        <div className="mt-3">
+          <span
+            className="inline-flex rounded-full px-2.5 py-1 text-xs font-semibold"
+            style={{
+              backgroundColor: careerBandChipStyle(band).bg,
+              color: careerBandChipStyle(band).text,
+            }}
+          >
+            RISK BAND: {band}
+          </span>
+        </div>
+      ) : null}
+
+      {commitmentType ? (
+        <div className={band ? 'mt-2' : 'mt-3'}>
+          <span
+            className="inline-flex rounded-full px-2.5 py-1 text-xs font-semibold"
+            style={{
+              backgroundColor: COMMITMENT_CHIP[commitmentType].bg,
+              color: COMMITMENT_CHIP[commitmentType].text,
+            }}
+          >
+            {COMMITMENT_CHIP[commitmentType].label}
+          </span>
+        </div>
+      ) : null}
+
+      {commitmentType && data.classification_rationale ? (
+        <p className="mt-2 text-xs text-gray-500">{data.classification_rationale}</p>
+      ) : null}
 
       <div className="mt-4 grid gap-2 text-sm text-[#1E293B] sm:grid-cols-3">
         <div className="rounded-lg bg-[#F8FAFC] px-3 py-2">
@@ -227,6 +293,11 @@ export default function CareerRiskPanel({
             data={data}
             onOpenEmployerBackfill={onOpenEmployerBackfill}
           />
+          {(data.pipeline_credit ?? 0) > 0 ? (
+            <p className="mt-2 text-xs text-green-800">
+              Active skill development detected — parallel pipeline credit applied (-4 pts).
+            </p>
+          ) : null}
         </div>
       </div>
     </div>

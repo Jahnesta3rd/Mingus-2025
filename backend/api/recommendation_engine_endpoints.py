@@ -23,6 +23,10 @@ from backend.auth.decorators import get_current_jwt_user, require_auth
 from backend.models.career_profile import CareerProfile
 from backend.models.housing_profile import HousingProfile
 from backend.models.user_models import User
+from backend.services.job_recommendation_routing import (
+    apply_commitment_routing,
+    get_commitment_type,
+)
 from backend.scripts.job_postings_seed_data import MSA_CONFIG
 from backend.data.zip_to_msa import ZIP_TO_MSA, MSA_DISPLAY_NAMES
 
@@ -211,6 +215,8 @@ def process_resume_complete():
         if not user:
             return jsonify({'success': False, 'error': 'User not found'}), 404
 
+        commitment_type = get_commitment_type(user.id)
+
         cp = CareerProfile.query.filter_by(user_id=user.id).first()
         if not cp or _career_profile_incomplete(cp):
             return jsonify({
@@ -223,10 +229,17 @@ def process_resume_complete():
         career_profile = _build_career_profile_dict(cp, msa)
 
         recommendations = engine.process_recommendations(str(user.user_id), career_profile)
+        recommendations, commitment_context = apply_commitment_routing(
+            commitment_type,
+            recommendations,
+            user_field=career_profile.get('bls_career_field'),
+            career_profile=cp,
+        )
 
         return jsonify({
             'success': True,
             'recommendations': recommendations,
+            'commitment_context': commitment_context,
             'career_profile_used': {
                 'bls_career_field': career_profile.get('bls_career_field'),
                 'seniority_level': career_profile.get('seniority_level'),

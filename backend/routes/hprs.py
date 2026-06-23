@@ -18,6 +18,7 @@ from backend.models.hprs_plan import HprsPlan
 from backend.models.hprs_score import HprsScore
 from backend.models.user_models import User
 from backend.services.hprs_service import compute_full_hprs, generate_hprs_plan
+from backend.services.hprs_career_risk_service import get_commitment_pipeline_context
 
 logger = logging.getLogger(__name__)
 
@@ -54,6 +55,8 @@ def _score_result_from_row(row: HprsScore) -> dict[str, Any]:
     if partial_data is None:
         partial_data = bool(inputs_snapshot.get("partial_data", False))
 
+    commitment_context = get_commitment_pipeline_context(row.user_id, db.session)
+
     return {
         "overall_score": int(row.overall_score),
         "readiness_tier": row.readiness_tier,
@@ -86,6 +89,8 @@ def _score_result_from_row(row: HprsScore) -> dict[str, Any]:
             "band": row.career_risk_band,
             "modifier": int(row.career_modifier or 0),
             "active_layoff": False,
+            "pipeline_credit": int(commitment_context.get("pipeline_credit") or 0),
+            "commitment_type": commitment_context.get("commitment_type"),
         },
         "vehicle_risk": {
             "score": row.vehicle_risk_score,

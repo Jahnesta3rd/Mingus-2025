@@ -95,6 +95,16 @@ export interface CareerData {
 }
 
 // ─── Career Risk (CR9d) ────────────────────────────────────────
+export type CommitmentType = 'type_1' | 'type_2' | 'type_3' | 'unclassified';
+
+export interface CommitmentContext {
+  type: 'type_1' | 'type_2' | 'type_3';
+  framing: string;
+  cta_label: string;
+}
+
+export type CareerRiskBand = 'LOW' | 'MODERATE' | 'HIGH' | 'CRITICAL';
+
 export interface CareerRiskData {
   probability_12mo: number;
   market_multiplier: number;
@@ -109,6 +119,10 @@ export interface CareerRiskData {
     | 'unresolved'
     | 'unsupported';
   employer_health_score?: number;
+  pipeline_credit?: number;
+  commitment_type?: CommitmentType | null;
+  classification_rationale?: string | null;
+  career_risk_band?: CareerRiskBand | null;
   employer_layoff_event?: {
     filing_date: string;
     confidence: number;

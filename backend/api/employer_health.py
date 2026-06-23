@@ -10,7 +10,7 @@ from datetime import date, datetime
 from flask import Blueprint, g, jsonify, request
 from flask_cors import cross_origin
 
-from backend.auth.decorators import require_auth
+from backend.auth.decorators import get_current_user_db_id, require_auth
 from backend.models.database import db
 from backend.models.employer import Employer, EmployerHealthSnapshot, LayoffEvent
 from backend.services.employer_health_scoring import (
@@ -18,6 +18,7 @@ from backend.services.employer_health_scoring import (
     get_multiplier,
     refresh_employer_health,
 )
+from backend.services.hprs_career_risk_service import get_commitment_pipeline_context
 from backend.services.sec_edgar_client import SecEdgarClient
 
 logger = logging.getLogger(__name__)
@@ -215,3 +216,23 @@ def employer_history(cik):
             "history": [_history_entry(s) for s in snapshots],
         }
     ), 200
+
+
+@employer_health_api.route("/api/career-risk/commitment-context", methods=["GET", "OPTIONS"])
+@cross_origin()
+@require_auth
+def career_risk_commitment_context():
+    """Commitment type and pipeline credit eligibility for career risk attribution."""
+    if request.method == "OPTIONS":
+        return jsonify({}), 200
+
+    user_id = get_current_user_db_id()
+    if user_id is None:
+        return jsonify({
+            "commitment_type": None,
+            "pipeline_credit": 0,
+            "classification_rationale": None,
+            "career_risk_band": None,
+        }), 200
+
+    return jsonify(get_commitment_pipeline_context(user_id, db.session)), 200

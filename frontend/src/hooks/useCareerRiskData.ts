@@ -109,6 +109,31 @@ export async function fetchCareerRiskData(
     employerMult,
   );
 
+  let pipeline_credit = 0;
+  let commitment_type: CareerRiskData['commitment_type'] = null;
+  let classification_rationale: string | null = null;
+  let career_risk_band: CareerRiskData['career_risk_band'] = null;
+  try {
+    const commitmentRes = await fetch('/api/career-risk/commitment-context', {
+      credentials: 'include',
+      headers,
+    });
+    if (commitmentRes.ok) {
+      const commitmentJson = (await commitmentRes.json()) as {
+        pipeline_credit?: number;
+        commitment_type?: CareerRiskData['commitment_type'];
+        classification_rationale?: string | null;
+        career_risk_band?: CareerRiskData['career_risk_band'];
+      };
+      pipeline_credit = Number(commitmentJson.pipeline_credit ?? 0);
+      commitment_type = commitmentJson.commitment_type ?? null;
+      classification_rationale = commitmentJson.classification_rationale ?? null;
+      career_risk_band = commitmentJson.career_risk_band ?? null;
+    }
+  } catch {
+    // Optional attribution fields — omit on failure.
+  }
+
   return {
     probability_12mo: probability,
     market_multiplier: marketMult,
@@ -119,6 +144,10 @@ export async function fetchCareerRiskData(
     employer_layoff_event: employerLayoffEvent,
     employer_health_components: employerHealthComponents,
     employer_name: resolvedEmployerName || undefined,
+    pipeline_credit,
+    commitment_type,
+    classification_rationale,
+    career_risk_band,
   };
 }
 

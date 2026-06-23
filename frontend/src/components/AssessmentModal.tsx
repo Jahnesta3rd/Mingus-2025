@@ -22,8 +22,12 @@ export interface AssessmentQuestion {
   question: string;
   type: 'single' | 'multiple' | 'scale' | 'text' | 'email';
   options?: string[];
+  /** When set, stores these values instead of option label strings (e.g. booleans, ints). */
+  optionValues?: Array<string | number | boolean | null>;
   required: boolean;
   placeholder?: string;
+  sectionHeader?: { title: string; subtitle?: string };
+  skippable?: boolean;
 }
 
 export interface AssessmentConfig {
@@ -568,6 +572,43 @@ const assessmentConfigs: Record<AssessmentType, AssessmentConfig> = {
           '6-12 months',
           'More than a year'
         ]
+      },
+      {
+        id: 'skill_development_frequency',
+        question: 'How often do you actively develop skills in your field outside of work?',
+        type: 'scale',
+        required: false,
+        sectionHeader: {
+          title: 'Career Development',
+          subtitle: 'These questions help us understand your career trajectory.',
+        },
+        options: ['Never', 'Rarely', 'Sometimes', 'Most weeks', 'Every week'],
+        optionValues: [1, 2, 3, 4, 5],
+      },
+      {
+        id: 'field_research_done',
+        question: 'Have you researched income paths or career trajectories in your current field in the last 6 months?',
+        type: 'single',
+        required: false,
+        options: ['Yes', 'No'],
+        optionValues: [true, false],
+      },
+      {
+        id: 'real_world_signal',
+        question: 'Have you earned income, built projects, or received formal recognition in your field beyond your day job?',
+        type: 'single',
+        required: false,
+        options: ['Yes', 'No', 'Exploring / In progress'],
+        optionValues: [true, false, null],
+      },
+      {
+        id: 'pivot_intent',
+        question: 'If you could switch careers tomorrow with no financial risk, would you?',
+        type: 'single',
+        required: false,
+        skippable: true,
+        options: ['Yes, I would switch', 'No, I am happy here', 'Not sure'],
+        optionValues: ['yes', 'happy_where_i_am', 'not_sure'],
       }
     ]
   },
@@ -758,6 +799,18 @@ const AssessmentModal: React.FC<AssessmentModalProps> = ({
   const totalSteps = config ? config.questions.length : 0;
   const currentQuestion = config ? config.questions[currentStep] : null;
 
+  const getStoredOptionValue = useCallback((question: AssessmentQuestion, index: number) => {
+    if (question.optionValues && index < question.optionValues.length) {
+      return question.optionValues[index];
+    }
+    return question.options?.[index];
+  }, []);
+
+  const isStoredOptionSelected = useCallback((question: AssessmentQuestion, index: number) => {
+    const stored = answers[question.id];
+    return stored === getStoredOptionValue(question, index);
+  }, [answers, getStoredOptionValue]);
+
   // Handle modal visibility
   useEffect(() => {
     if (isOpen) {
@@ -826,7 +879,11 @@ const AssessmentModal: React.FC<AssessmentModalProps> = ({
 
   // Handle next step
   const handleNext = useCallback(() => {
-    if (currentQuestion && currentQuestion.required && !answers[currentQuestion.id]) {
+    if (
+      currentQuestion &&
+      currentQuestion.required &&
+      (answers[currentQuestion.id] === undefined || answers[currentQuestion.id] === '')
+    ) {
       setError('This question is required');
       return;
     }
@@ -1046,6 +1103,17 @@ const AssessmentModal: React.FC<AssessmentModalProps> = ({
     }
   }, [config, answers, onSubmit, onClose]);
 
+  const handleSkipQuestion = useCallback(() => {
+    if (!currentQuestion) return;
+    handleAnswerChange(currentQuestion.id, null);
+    setError(null);
+    if (currentStep < totalSteps - 1) {
+      setCurrentStep(prev => prev + 1);
+    } else {
+      handleSubmit();
+    }
+  }, [currentQuestion, currentStep, totalSteps, handleAnswerChange, handleSubmit]);
+
   // Handle retaking assessment
   const handleRetake = useCallback(() => {
     setShowResults(false);
@@ -1178,12 +1246,27 @@ const AssessmentModal: React.FC<AssessmentModalProps> = ({
                 </div>
               </div>
 
+              {currentQuestion.sectionHeader && (
+                <div className="border-t border-gray-600 pt-6">
+                  <h4 className="text-base font-semibold text-violet-300">
+                    {currentQuestion.sectionHeader.title}
+                  </h4>
+                  {currentQuestion.sectionHeader.subtitle && (
+                    <p className="text-sm text-gray-400 mt-1">
+                      {currentQuestion.sectionHeader.subtitle}
+                    </p>
+                  )}
+                </div>
+              )}
+
               <div>
                 <h3 className="text-lg font-semibold text-white mb-2">
                   {currentQuestion.question}
                 </h3>
-                {currentQuestion.required && (
+                {currentQuestion.required ? (
                   <p className="text-gray-400 text-sm">* Required</p>
+                ) : (
+                  <p className="text-gray-400 text-sm">Optional</p>
                 )}
               </div>
 
@@ -1262,7 +1345,7 @@ const AssessmentModal: React.FC<AssessmentModalProps> = ({
                         <label
                           key={index}
                           className={`flex items-center p-3 rounded-lg border cursor-pointer transition-all duration-200 focus-within:outline-none focus-within:ring-2 focus-within:ring-violet-500 focus-within:ring-offset-2 focus-within:ring-offset-gray-900 ${
-                            answers[currentQuestion.id] === option
+                            isStoredOptionSelected(currentQuestion, index)
                               ? 'border-violet-500 bg-violet-500 bg-opacity-10'
                               : 'border-gray-700 hover:border-gray-600'
                           }`}
@@ -1270,18 +1353,21 @@ const AssessmentModal: React.FC<AssessmentModalProps> = ({
                           <input
                             type="radio"
                             name={currentQuestion.id}
-                            value={option}
-                            checked={answers[currentQuestion.id] === option}
-                            onChange={(e) => handleAnswerChange(currentQuestion.id, e.target.value)}
+                            value={String(option)}
+                            checked={isStoredOptionSelected(currentQuestion, index)}
+                            onChange={() => handleAnswerChange(
+                              currentQuestion.id,
+                              getStoredOptionValue(currentQuestion, index)
+                            )}
                             className="sr-only focus:not-sr-only focus:outline-none focus:ring-2 focus:ring-violet-400 focus:ring-offset-2"
                             aria-describedby={`${currentQuestion.id}-help`}
                           />
                           <div className={`w-4 h-4 rounded-full border-2 mr-3 flex items-center justify-center ${
-                            answers[currentQuestion.id] === option
+                            isStoredOptionSelected(currentQuestion, index)
                               ? 'border-violet-500 bg-violet-500'
                               : 'border-gray-400'
                           }`}>
-                            {answers[currentQuestion.id] === option && (
+                            {isStoredOptionSelected(currentQuestion, index) && (
                               <div className="w-2 h-2 bg-white rounded-full" />
                             )}
                           </div>
@@ -1375,7 +1461,7 @@ const AssessmentModal: React.FC<AssessmentModalProps> = ({
                               ? 'cursor-not-allowed opacity-50' 
                               : 'cursor-pointer'
                           } ${
-                            answers[currentQuestion.id] === option
+                            isStoredOptionSelected(currentQuestion, index)
                               ? 'border-violet-500 bg-violet-500 bg-opacity-10'
                               : 'border-gray-700 hover:border-gray-600'
                           }`}
@@ -1383,19 +1469,22 @@ const AssessmentModal: React.FC<AssessmentModalProps> = ({
                           <input
                             type="radio"
                             name={currentQuestion.id}
-                            value={option}
-                            checked={answers[currentQuestion.id] === option}
-                            onChange={(e) => handleAnswerChange(currentQuestion.id, e.target.value)}
+                            value={String(option)}
+                            checked={isStoredOptionSelected(currentQuestion, index)}
+                            onChange={() => handleAnswerChange(
+                              currentQuestion.id,
+                              getStoredOptionValue(currentQuestion, index)
+                            )}
                             disabled={isSubmitting}
                             className="sr-only focus:not-sr-only focus:outline-none focus:ring-2 focus:ring-violet-400 focus:ring-offset-2 disabled:opacity-50"
                             aria-describedby={`${currentQuestion.id}-help`}
                           />
                           <div className={`w-4 h-4 rounded-full border-2 mr-3 flex items-center justify-center ${
-                            answers[currentQuestion.id] === option
+                            isStoredOptionSelected(currentQuestion, index)
                               ? 'border-violet-500 bg-violet-500'
                               : 'border-gray-400'
                           }`}>
-                            {answers[currentQuestion.id] === option && (
+                            {isStoredOptionSelected(currentQuestion, index) && (
                               <div className="w-2 h-2 bg-white rounded-full" />
                             )}
                           </div>
@@ -1410,6 +1499,17 @@ const AssessmentModal: React.FC<AssessmentModalProps> = ({
                        'Select the option that best represents your rating on this scale'}
                     </p>
                   </fieldset>
+                )}
+
+                {currentQuestion.skippable && (
+                  <button
+                    type="button"
+                    onClick={handleSkipQuestion}
+                    disabled={isSubmitting}
+                    className="text-sm text-violet-300 hover:text-violet-200 underline underline-offset-2 disabled:opacity-50"
+                  >
+                    Skip
+                  </button>
                 )}
               </div>
 
@@ -1436,7 +1536,7 @@ const AssessmentModal: React.FC<AssessmentModalProps> = ({
 
           <button
             onClick={handleNext}
-            disabled={loading || isSubmitting || (currentQuestion?.required && !answers[currentQuestion.id])}
+            disabled={loading || isSubmitting || (currentQuestion?.required && answers[currentQuestion.id] === undefined)}
             className="flex items-center space-x-2 bg-gradient-to-r from-violet-500 to-purple-500 hover:from-violet-600 hover:to-purple-600 disabled:from-gray-600 disabled:to-gray-600 text-white px-6 py-2 rounded-lg font-semibold transition-all duration-200 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-violet-400 focus:ring-offset-2 focus:ring-offset-gray-800"
           >
             {(loading || isSubmitting) ? (

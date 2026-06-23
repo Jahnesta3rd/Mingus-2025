@@ -18,8 +18,11 @@ from sqlalchemy import Table, Column, Integer, Text, Float, DateTime, MetaData, 
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from ..utils.validation import APIValidator
 from ..models.database import db
+from ..models.user_models import User
+from ..models.career_commitment_profile import CareerCommitmentProfile
+from ..services.career_commitment_service import compute_commitment_type
 from ..tasks.lead_magnet_email_tasks import send_lead_magnet_results
-from ..auth.decorators import jwt_required
+from ..auth.decorators import jwt_required, get_current_user_db_id
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -44,12 +47,98 @@ _user_profiles_table = Table(
 # Create blueprint
 assessment_api = Blueprint('assessment_api', __name__, url_prefix='/api')
 
+_CAREER_COMMITMENT_FIELDS = (
+    'skill_development_frequency',
+    'field_research_done',
+    'real_world_signal',
+    'pivot_intent',
+)
+
 
 def get_db_connection():
     """Get PostgreSQL database connection"""
     conn = psycopg2.connect(os.environ['DATABASE_URL'])
     conn.cursor_factory = psycopg2.extras.RealDictCursor
     return conn
+
+
+def _resolve_user_id_for_assessment(email: str) -> int | None:
+    """Resolve a Mingus user id from JWT or registered email."""
+    user_id = get_current_user_db_id()
+    if user_id is not None:
+        return user_id
+    user = User.query.filter_by(email=email.lower().strip()).first()
+    return user.id if user else None
+
+
+def _career_commitment_fields_provided(answers: dict) -> bool:
+    """True when at least one commitment field carries a meaningful answer."""
+    has_meaningful = False
+    for field in _CAREER_COMMITMENT_FIELDS:
+        if field not in answers:
+            continue
+        value = answers[field]
+        if field == 'pivot_intent' and value is None:
+            continue
+        if value is not None:
+            has_meaningful = True
+        elif field == 'real_world_signal' and value is None:
+            other_keys = [
+                f for f in _CAREER_COMMITMENT_FIELDS
+                if f != 'real_world_signal' and f in answers
+            ]
+            if not other_keys:
+                has_meaningful = True
+    return has_meaningful
+
+
+def _maybe_process_career_commitment(sanitized_data: dict) -> dict | None:
+    """Persist optional career commitment answers and classify when present."""
+    if sanitized_data.get('assessmentType') != 'layoff-risk':
+        return None
+
+    answers = sanitized_data.get('answers') or {}
+    if not _career_commitment_fields_provided(answers):
+        return None
+
+    email = sanitized_data.get('email')
+    if not email:
+        return None
+
+    user_id = _resolve_user_id_for_assessment(email)
+    if user_id is None:
+        logger.info(
+            "Skipping career commitment upsert — no registered user for assessment email"
+        )
+        return None
+
+    profile = CareerCommitmentProfile.query.filter_by(user_id=user_id).first()
+    if profile is None:
+        profile = CareerCommitmentProfile(user_id=user_id, review_stage='initial')
+        db.session.add(profile)
+
+    if 'skill_development_frequency' in answers:
+        freq = answers['skill_development_frequency']
+        if freq is not None:
+            freq = int(freq)
+            if freq < 1 or freq > 5:
+                raise BadRequest('skill_development_frequency must be between 1 and 5')
+        profile.skill_development_frequency = freq
+
+    if 'field_research_done' in answers:
+        profile.field_research_done = answers['field_research_done']
+
+    if 'real_world_signal' in answers:
+        profile.real_world_signal = answers['real_world_signal']
+
+    if 'pivot_intent' in answers:
+        pivot = answers['pivot_intent']
+        if pivot is not None and pivot not in ('yes', 'happy_where_i_am', 'not_sure'):
+            raise BadRequest('Invalid pivot_intent value')
+        profile.pivot_intent = pivot
+
+    db.session.flush()
+    return compute_commitment_type(user_id, db.session)
 
 
 def _mask_email(email: str) -> str:
@@ -267,6 +356,23 @@ def submit_assessment():
         ))
         
         conn.commit()
+
+        commitment_result = None
+        try:
+            commitment_result = _maybe_process_career_commitment(sanitized_data)
+        except BadRequest:
+            raise
+        except Exception as commitment_err:
+            logger.warning(
+                "Career commitment classification failed: %s", commitment_err
+            )
+
+        if commitment_result:
+            results['commitment_type'] = commitment_result['commitment_type']
+            results['commitment_score'] = commitment_result['commitment_score']
+            results['classification_rationale'] = commitment_result[
+                'classification_rationale'
+            ]
 
         try:
             sync_assessments_to_profile(sanitized_data['email'])

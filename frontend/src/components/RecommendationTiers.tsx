@@ -5,6 +5,7 @@ import { useAnalytics } from '../hooks/useAnalytics';
 import { useAuth, type AuthUserTier } from '../hooks/useAuth';
 import { csrfHeaders } from '../utils/csrfHeaders';
 import type { MarketConditionsPersonal, MarketConditionsResponse } from '../types/marketConditions';
+import type { CommitmentContext } from '../types/snapshot';
 import { interpolatePercentile, oesPercentilesFromPersonal } from '../utils/percentileUtils';
 
 interface JobRecommendation {
@@ -118,6 +119,34 @@ interface ProcessResumeApiResponse {
     reach?: ApiJobItem[];
     conservative?: ApiJobItem[];
   };
+  commitment_context?: CommitmentContext | null;
+}
+
+function commitmentCtaPath(type: CommitmentContext['type']): string {
+  if (type === 'type_1') return '/dashboard/career/salary-benchmarks';
+  if (type === 'type_2') return '/dashboard/career/second-job';
+  return '/dashboard/career/recommendations';
+}
+
+function CommitmentFramingBar({ context }: { context: CommitmentContext }) {
+  return (
+    <div
+      className="text-sm text-slate-800"
+      style={{
+        backgroundColor: '#EDE9FE',
+        borderRadius: 8,
+        padding: '12px 16px',
+      }}
+    >
+      <p>{context.framing}</p>
+      <Link
+        to={commitmentCtaPath(context.type)}
+        className="mt-2 inline-block text-[13px] font-medium text-[#5B21B6] hover:underline"
+      >
+        {context.cta_label}
+      </Link>
+    </div>
+  );
 }
 
 const RECOMMENDATIONS_API = '/api/recommendations/process-resume';
@@ -453,6 +482,7 @@ const RecommendationTiers: React.FC<RecommendationTiersProps> = ({
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [percentileData, setPercentileData] = useState<PercentileData | null>(null);
   const [marketPersonal, setMarketPersonal] = useState<MarketConditionsPersonal | null>(null);
+  const [commitmentContext, setCommitmentContext] = useState<CommitmentContext | null>(null);
   const [fetchedCareerProfile, setFetchedCareerProfile] = useState<CareerProfileSummary | null>(
     null
   );
@@ -493,6 +523,7 @@ const RecommendationTiers: React.FC<RecommendationTiersProps> = ({
       setApiEmpty(false);
       setApiProfileIncomplete(false);
       setNeedsSignIn(false);
+      setCommitmentContext(null);
 
       try {
         const response = await fetch(RECOMMENDATIONS_API, {
@@ -529,6 +560,7 @@ const RecommendationTiers: React.FC<RecommendationTiersProps> = ({
         }
 
         const recommendations = payload.recommendations;
+        setCommitmentContext(payload.commitment_context ?? null);
         if (allTiersEmpty(recommendations)) {
           setApiEmpty(true);
           setTiers(buildTiersFromApiResponse(recommendations));
@@ -788,6 +820,7 @@ const RecommendationTiers: React.FC<RecommendationTiersProps> = ({
 
       {hasJobResults && (
         <>
+          {commitmentContext ? <CommitmentFramingBar context={commitmentContext} /> : null}
           {percentileData?.status === 'ok' && percentileData.percentile_label && (
             <IncomeStandingBanner percentileData={percentileData} />
           )}

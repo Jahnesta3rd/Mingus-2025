@@ -18,7 +18,9 @@ from backend.models.hprs_plan import HprsPlan
 from backend.models.hprs_score import HprsScore
 from backend.models.hprs_score_history import HprsScoreHistory
 from backend.models.in_app_notification import InAppNotification
-from backend.services.hprs_career_risk_service import derive_career_risk
+from backend.services.hprs_career_risk_service import (
+    compute_career_risk_for_hprs as _derive_career_risk_for_hprs,
+)
 from backend.services.hprs_input_service import get_hprs_inputs
 from backend.services.hprs_score_service import compute_hprs_score
 from backend.services.hprs_vehicle_risk_service import derive_vehicle_risk
@@ -127,6 +129,8 @@ def _assemble_result(
             "band": row.career_risk_band,
             "modifier": int(row.career_modifier or 0),
             "active_layoff": bool(career_result.get("active_layoff", False)),
+            "pipeline_credit": int(career_result.get("pipeline_credit") or 0),
+            "commitment_type": career_result.get("commitment_type"),
         },
         "vehicle_risk": {
             "score": row.vehicle_risk_score,
@@ -160,10 +164,10 @@ def compute_full_hprs(user_id: int) -> dict:
         return {"error": "score_computation_failed"}
 
     try:
-        career_result = derive_career_risk(user_id)
+        career_result = compute_career_risk_for_hprs(user_id)
     except Exception:
         logger.warning(
-            "compute_full_hprs: derive_career_risk failed for user_id=%s",
+            "compute_full_hprs: compute_career_risk_for_hprs failed for user_id=%s",
             user_id,
             exc_info=True,
         )
@@ -186,6 +190,11 @@ def compute_full_hprs(user_id: int) -> dict:
         return {"error": "score_computation_failed"}
 
     return _assemble_result(row, career_result, vehicle_result)
+
+
+def compute_career_risk_for_hprs(user_id: int) -> dict:
+    """Derive career risk with commitment pipeline credit for HPRS."""
+    return _derive_career_risk_for_hprs(user_id)
 
 
 def _prompt_value(value: Any) -> str:

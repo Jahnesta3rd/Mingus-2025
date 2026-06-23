@@ -328,4 +328,107 @@ describe('RecommendationTiers', () => {
     expect(screen.getByText('Add income sources →')).toBeInTheDocument();
     expect(screen.getByText('Add your zip for local data →')).toBeInTheDocument();
   });
+
+  it('renders type_2 commitment framing bar with second income CTA', async () => {
+    (global.fetch as jest.Mock).mockImplementation((url: string) => {
+      if (String(url).includes('/api/career/income-percentile')) {
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          json: async () => ({ status: 'no_career_data' }),
+        });
+      }
+      return Promise.resolve({
+        ok: true,
+        status: 200,
+        json: async () => ({
+          success: true,
+          commitment_context: {
+            type: 'type_2',
+            framing:
+              'Here are income paths that keep your options open while you build your parallel path.',
+            cta_label: 'Find a second income stream',
+          },
+          recommendations: {
+            conservative: [
+              {
+                job_id: '1',
+                title: 'Staff Software Engineer',
+                company: 'Acme Corp',
+                seniority_level: 'senior',
+                salary_min: 140000,
+                salary_max: 180000,
+                advancement_trajectory: 'Principal Engineer',
+              },
+            ],
+            same_level: [],
+            reach: [],
+          },
+        }),
+      });
+    });
+
+    renderTiers({
+      userTier: 'professional',
+      careerProfile: { current_role: 'Engineer', industry: 'Technology' },
+    });
+
+    await waitFor(() => {
+      expect(
+        screen.getByText(
+          /Here are income paths that keep your options open while you build your parallel path/,
+        ),
+      ).toBeInTheDocument();
+    });
+    const cta = screen.getByRole('link', { name: 'Find a second income stream' });
+    expect(cta).toHaveAttribute('href', '/dashboard/career/second-job');
+    const bar = cta.closest('div');
+    expect(bar).toHaveStyle({ backgroundColor: '#EDE9FE' });
+  });
+
+  it('omits commitment framing bar when commitment_context is null', async () => {
+    (global.fetch as jest.Mock).mockImplementation((url: string) => {
+      if (String(url).includes('/api/career/income-percentile')) {
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          json: async () => ({ status: 'no_career_data' }),
+        });
+      }
+      return Promise.resolve({
+        ok: true,
+        status: 200,
+        json: async () => ({
+          success: true,
+          commitment_context: null,
+          recommendations: {
+            conservative: [
+              {
+                job_id: '1',
+                title: 'Staff Software Engineer',
+                company: 'Acme Corp',
+                seniority_level: 'senior',
+                salary_min: 140000,
+                salary_max: 180000,
+                advancement_trajectory: 'Principal Engineer',
+              },
+            ],
+            same_level: [],
+            reach: [],
+          },
+        }),
+      });
+    });
+
+    renderTiers({
+      userTier: 'professional',
+      careerProfile: { current_role: 'Engineer', industry: 'Technology' },
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText('Staff Software Engineer')).toBeInTheDocument();
+    });
+    expect(screen.queryByText('Find a second income stream')).not.toBeInTheDocument();
+    expect(screen.queryByText(/parallel path/)).not.toBeInTheDocument();
+  });
 });

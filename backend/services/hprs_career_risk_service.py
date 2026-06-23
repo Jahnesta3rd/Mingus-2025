@@ -37,6 +37,71 @@ def _modifier_for_band(band: str) -> int:
     return _BAND_MODIFIERS.get(band, 0)
 
 
+def _band_from_score(score: int) -> str:
+    score = max(0, min(100, int(score)))
+    if score <= 24:
+        return "LOW"
+    if score <= 49:
+        return "MODERATE"
+    if score <= 74:
+        return "HIGH"
+    return "CRITICAL"
+
+
+def _commitment_pipeline_context(user_id: int, db_session) -> tuple[str | None, int, int]:
+    from backend.models.career_commitment_profile import CareerCommitmentProfile
+
+    commitment_profile = (
+        db_session.query(CareerCommitmentProfile).filter_by(user_id=user_id).first()
+    )
+    commitment_type = commitment_profile.commitment_type if commitment_profile else None
+    skill_freq = commitment_profile.skill_development_frequency if commitment_profile else 0
+
+    pipeline_credit = 0
+    if commitment_type in ("type_2", "type_3") and (skill_freq or 0) >= 4:
+        pipeline_credit = 4
+
+    return commitment_type, skill_freq or 0, pipeline_credit
+
+
+def get_commitment_pipeline_context(user_id: int, db_session) -> dict[str, int | str | None]:
+    from backend.services.career_commitment_service import get_classification_rationale
+
+    commitment_type, _skill_freq, pipeline_credit = _commitment_pipeline_context(
+        user_id,
+        db_session,
+    )
+    row = db_session.query(HprsScore).filter_by(user_id=user_id).first()
+    return {
+        "commitment_type": commitment_type,
+        "pipeline_credit": pipeline_credit,
+        "classification_rationale": get_classification_rationale(commitment_type),
+        "career_risk_band": row.career_risk_band if row else None,
+    }
+
+
+def apply_pipeline_credit(result: dict[str, Any], user_id: int, db_session) -> dict[str, Any]:
+    """Apply commitment pipeline credit and attach commitment context to a career risk result."""
+    updated = dict(result)
+    career_risk_score = max(0, min(100, int(updated["career_risk_score"])))
+
+    commitment_type, _skill_freq, pipeline_credit = _commitment_pipeline_context(
+        user_id,
+        db_session,
+    )
+
+    if pipeline_credit > 0:
+        career_risk_score = max(0, career_risk_score - pipeline_credit)
+        band = _band_from_score(career_risk_score)
+        updated["career_risk_band"] = band
+        updated["career_modifier"] = _modifier_for_band(band)
+
+    updated["career_risk_score"] = career_risk_score
+    updated["pipeline_credit"] = pipeline_credit
+    updated["commitment_type"] = commitment_type
+    return updated
+
+
 def _health_score_int(snapshot_score: Any) -> int | None:
     if snapshot_score is None:
         return None
@@ -108,14 +173,18 @@ def _update_hprs_score_row(user_id: int, result: dict[str, Any]) -> None:
     db.session.commit()
 
 
+def _finalize_career_risk(user_id: int, result: dict[str, Any]) -> dict[str, Any]:
+    finalized = apply_pipeline_credit(result, user_id, db.session)
+    _update_hprs_score_row(user_id, finalized)
+    return finalized
+
+
 def derive_career_risk(user_id: int) -> dict:
     """Derive career risk from profile/employer data and update hprs_scores."""
     try:
         career = CareerProfile.query.filter_by(user_id=user_id).first()
         if career is None:
-            result = dict(_FALLBACK)
-            _update_hprs_score_row(user_id, result)
-            return result
+            return _finalize_career_risk(user_id, dict(_FALLBACK))
 
         employer_cik = (career.employer_cik or "").strip()
         employer_type = career.employer_type
@@ -130,8 +199,7 @@ def derive_career_risk(user_id: int) -> dict:
                 "data_source": data_source,
                 "employer_health_score": None,
             }
-            _update_hprs_score_row(user_id, result)
-            return result
+            return _finalize_career_risk(user_id, result)
 
         cik_padded = _pad_cik(employer_cik)
         employer = db.session.query(Employer).filter_by(cik=cik_padded).first()
@@ -145,8 +213,7 @@ def derive_career_risk(user_id: int) -> dict:
                 "data_source": data_source,
                 "employer_health_score": None,
             }
-            _update_hprs_score_row(user_id, result)
-            return result
+            return _finalize_career_risk(user_id, result)
 
         active_layoff = _has_active_layoff(employer.id)
         snapshot = get_latest_snapshot(employer.id, db_session=db.session)
@@ -162,8 +229,7 @@ def derive_career_risk(user_id: int) -> dict:
                 "data_source": data_source,
                 "employer_health_score": None,
             }
-            _update_hprs_score_row(user_id, result)
-            return result
+            return _finalize_career_risk(user_id, result)
 
         snapshot_source = snapshot.data_source if snapshot else None
         if health_score is None and active_layoff:
@@ -183,10 +249,12 @@ def derive_career_risk(user_id: int) -> dict:
             "data_source": data_source,
             "employer_health_score": health_score,
         }
-        _update_hprs_score_row(user_id, result)
-        return result
+        return _finalize_career_risk(user_id, result)
     except Exception:
         db.session.rollback()
-        result = dict(_FALLBACK)
-        _update_hprs_score_row(user_id, result)
-        return result
+        return _finalize_career_risk(user_id, dict(_FALLBACK))
+
+
+def compute_career_risk_for_hprs(user_id: int) -> dict:
+    """Derive career risk with commitment pipeline credit for HPRS."""
+    return derive_career_risk(user_id)
