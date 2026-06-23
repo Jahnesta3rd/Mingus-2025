@@ -301,8 +301,8 @@ def search_locations():
         if not data:
             return jsonify({'error': 'No data provided'}), 400
         
-        # Validate required fields
-        required_fields = ['max_rent', 'bedrooms', 'zip_code']
+        # Validate required fields (zip resolved via fallback chain below)
+        required_fields = ['max_rent', 'bedrooms']
         for field in required_fields:
             if field not in data:
                 return jsonify({'error': f'Missing required field: {field}'}), 400
@@ -317,7 +317,10 @@ def search_locations():
         request_zip = data.get('zip_code')
         request_zip_stripped = (request_zip or '').strip()
         if request_zip_stripped and len(request_zip_stripped) < 5:
-            return jsonify({'error': 'Please enter a valid 5-digit zip code.'}), 422
+            return jsonify({
+                'error': 'Please enter a valid 5-digit zip code.',
+                'code': 'ZIP_TOO_SHORT',
+            }), 422
 
         zip_resolution = resolve_search_zip(db_user_id, request_zip, db.session)
         if zip_resolution is None:
