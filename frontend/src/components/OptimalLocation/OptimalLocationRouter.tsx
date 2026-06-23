@@ -216,6 +216,7 @@ const OptimalLocationRouter: React.FC<OptimalLocationRouterProps> = ({ className
   const [userTier, setUserTier] = useState<UserTier | null>(null);
   const [locationSource, setLocationSource] = useState<'profile' | 'manual' | null>(null);
   const [zipError, setZipError] = useState<boolean>(false);
+  const [zipValidationError, setZipValidationError] = useState<boolean>(false);
   const [optimalLocationState, setOptimalLocationState] = useState<OptimalLocationState>({
     activeView: 'search',
     housingSearch: {
@@ -321,18 +322,27 @@ const OptimalLocationRouter: React.FC<OptimalLocationRouterProps> = ({ className
           const profileZip =
             profileData.profile?.zip_or_city ?? profileData.profile?.zip_code ?? '';
           if (profileZip.trim().length >= 5) {
-            setOptimalLocationState(prev => ({
-              ...prev,
-              housingSearch: {
-                ...prev.housingSearch,
-                location: profileZip.trim(),
-              },
-            }));
-            setLocationSource('profile');
+            setOptimalLocationState(prev => {
+              if (prev.housingSearch.location.trim()) {
+                return prev;
+              }
+              return {
+                ...prev,
+                housingSearch: {
+                  ...prev.housingSearch,
+                  location: profileZip.trim(),
+                },
+              };
+            });
+            setLocationSource(prev => (prev === 'manual' ? 'manual' : 'profile'));
+          } else {
+            setLocationSource(null);
           }
+        } else {
+          setLocationSource(null);
         }
       } catch {
-        // Non-fatal — user can type manually
+        setLocationSource(null);
       }
 
       // Track page view
@@ -417,6 +427,23 @@ const OptimalLocationRouter: React.FC<OptimalLocationRouterProps> = ({ className
 
       if (response.status === 400 && data.code === 'ZIP_REQUIRED') {
         setZipError(true);
+        setZipValidationError(false);
+        setOptimalLocationState(prev => ({
+          ...prev,
+          housingSearch: {
+            ...prev.housingSearch,
+            loading: false,
+            error: null,
+            searchResults: [],
+            searchResponse: null,
+          },
+        }));
+        return;
+      }
+
+      if (response.status === 422 && data.code === 'ZIP_TOO_SHORT') {
+        setZipValidationError(true);
+        setZipError(false);
         setOptimalLocationState(prev => ({
           ...prev,
           housingSearch: {
@@ -431,12 +458,15 @@ const OptimalLocationRouter: React.FC<OptimalLocationRouterProps> = ({ className
       }
 
       if (response.status === 422) {
+        setZipValidationError(true);
+        setZipError(false);
         setOptimalLocationState(prev => ({
           ...prev,
           housingSearch: {
             ...prev.housingSearch,
             loading: false,
-            error: 'Please enter a valid 5-digit zip code.',
+            error: null,
+            searchResults: [],
             searchResponse: null,
           },
         }));
@@ -448,6 +478,7 @@ const OptimalLocationRouter: React.FC<OptimalLocationRouterProps> = ({ className
       }
 
       setZipError(false);
+      setZipValidationError(false);
 
       const submittedLocation = (searchData.location ?? '').trim();
       const zipSource = data.data?.zip_source as string | undefined;
@@ -722,11 +753,13 @@ const OptimalLocationRouter: React.FC<OptimalLocationRouterProps> = ({ className
               userTier={userTier}
               locationSource={locationSource}
               zipError={zipError}
+              zipValidationError={zipValidationError}
               onSubmit={handleSearchSubmit}
               onViewChange={handleViewChange}
               onLocationChange={() => {
                 setLocationSource('manual');
                 setZipError(false);
+                setZipValidationError(false);
               }}
             />
           )}
@@ -780,6 +813,7 @@ const HousingSearchView: React.FC<{
   userTier: UserTier;
   locationSource: 'profile' | 'manual' | null;
   zipError: boolean;
+  zipValidationError: boolean;
   onSubmit: (data: Partial<HousingSearchState>) => void;
   onViewChange: (view: OptimalLocationState['activeView']) => void;
   onLocationChange: () => void;
@@ -788,6 +822,7 @@ const HousingSearchView: React.FC<{
   userTier,
   locationSource,
   zipError,
+  zipValidationError,
   onSubmit,
   onViewChange,
   onLocationChange,
@@ -800,8 +835,16 @@ const HousingSearchView: React.FC<{
   });
 
   useEffect(() => {
-    setFormData(prev => ({ ...prev, location: state.location }));
-  }, [state.location]);
+    setFormData(prev => {
+      if (locationSource === 'manual') {
+        return prev;
+      }
+      if (prev.location.trim() !== '' || !state.location) {
+        return prev;
+      }
+      return { ...prev, location: state.location };
+    });
+  }, [state.location, locationSource]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -859,10 +902,15 @@ const HousingSearchView: React.FC<{
             {zipError && (
               <div className="mt-2 text-sm text-gray-600">
                 Add a zip code to search near you — or type any city or zip above.{' '}
-                <a href="/settings/profile" className="text-purple-700 underline">
+                <a href="/dashboard/profile" className="text-purple-700 underline">
                   Update your profile
                 </a>
               </div>
+            )}
+            {zipValidationError && (
+              <p className="mt-2 text-sm text-gray-600">
+                Please enter a valid 5-digit zip code.
+              </p>
             )}
           </div>
 
@@ -1014,7 +1062,7 @@ const HousingSearchView: React.FC<{
       </div>
 
       {/* Search Results Preview */}
-      {state.searchResults.length > 0 && !zipError && (
+      {state.searchResults.length > 0 && !zipError && !zipValidationError && (
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">
             Found {state.searchResults.length} locations
