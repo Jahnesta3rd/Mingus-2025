@@ -2,10 +2,28 @@ import { useCallback, useEffect, useState, type ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { csrfHeaders } from '../../utils/csrfHeaders';
 
+export interface GapAnalysisData {
+  gap_analysis_id?: number;
+  home_price?: number;
+  monthly_piti?: number;
+  target_down_payment?: number;
+  required_gross_income?: number;
+  required_monthly_savings?: number;
+  timeline_months?: number;
+  gaps?: Record<string, unknown>;
+  all_on_track?: boolean;
+  any_blocked?: boolean;
+  any_stretched?: boolean;
+  [key: string]: unknown;
+}
+
 export interface HomeownershipActionPlanProps {
   gapAnalysisId: number;
+  userEmail?: string;
   userTier: 'budget' | 'mid_tier' | 'professional';
+  gapData?: GapAnalysisData | null;
   onBack: () => void;
+  onSecondJobSelected?: (income: number, label: string) => void;
   className?: string;
 }
 
@@ -107,8 +125,11 @@ function PillarCard({ children }: { children: ReactNode }) {
 
 export function HomeownershipActionPlan({
   gapAnalysisId,
+  userEmail: _userEmail,
   userTier: _userTier,
+  gapData: _gapData,
   onBack,
+  onSecondJobSelected,
   className = '',
 }: HomeownershipActionPlanProps) {
   const navigate = useNavigate();
@@ -164,8 +185,12 @@ export function HomeownershipActionPlan({
     void fetchPlan();
   }, [fetchPlan, fetchKey]);
 
-  const goToSecondJobs = () => {
+  const handleAddSecondJobToPlan = (label: string) => {
     const target = plan?.pillar_3.monthly_target ?? 0;
+    if (onSecondJobSelected) {
+      onSecondJobSelected(target, label);
+      return;
+    }
     navigate(`/dashboard/tools?tab=financial-forecast&secondJobIncome=${target}`);
   };
 
@@ -294,13 +319,30 @@ export function HomeownershipActionPlan({
                 </span>
               ))}
             </div>
-            <button
-              type="button"
-              onClick={goToSecondJobs}
-              className="mt-2 text-sm text-[#7C3AED] underline hover:text-[#6D28D9]"
-            >
-              Find second jobs →
-            </button>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {(plan.pillar_3.job_types?.length
+                ? plan.pillar_3.job_types
+                : ['Second income']
+              ).map((job) => (
+                <button
+                  key={job}
+                  type="button"
+                  onClick={() => handleAddSecondJobToPlan(job)}
+                  className="rounded-full border border-amber-300 bg-amber-50 px-4 py-2 text-sm font-medium text-amber-800 hover:bg-amber-100"
+                >
+                  Add {job} to plan (+{formatCurrency(plan.pillar_3.monthly_target || 0)}/mo)
+                </button>
+              ))}
+            </div>
+            {!onSecondJobSelected ? (
+              <button
+                type="button"
+                onClick={() => handleAddSecondJobToPlan('Second income')}
+                className="mt-2 text-sm text-[#7C3AED] underline hover:text-[#6D28D9]"
+              >
+                Find second jobs →
+              </button>
+            ) : null}
             {plan.pillar_3.timeline_months != null ? (
               <TimelineChip months={plan.pillar_3.timeline_months} />
             ) : null}

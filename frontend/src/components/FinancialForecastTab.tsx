@@ -16,6 +16,7 @@ import type { MarketConditionsResponse } from '../types/marketConditions';
 
 import BalanceEntryWidget from './BalanceEntryWidget';
 import CareerRiskPanel from './CareerRiskPanel';
+import CompanyScreenWidget from './CompanyScreenWidget';
 import PeopleCostSummary from './roster/PeopleCostSummary';
 import { useCareerRiskData } from '../hooks/useCareerRiskData';
 
@@ -442,7 +443,7 @@ export default function FinancialForecastTab({
   className = '',
   onOpenEmployerBackfill,
 }: FinancialForecastTabProps) {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, getAccessToken } = useAuth();
   const { data: careerRiskData, loading: careerRiskLoading } = useCareerRiskData();
   const upgradePlansTo = isAuthenticated ? '/dashboard/upgrade' : '/register';
   const [dailyCashflow, setDailyCashflow] = useState<DailyCashflowEntry[]>([]);
@@ -722,6 +723,7 @@ export default function FinancialForecastTab({
         loading={careerRiskLoading}
         onOpenEmployerBackfill={onOpenEmployerBackfill}
       />
+      <CompanyScreenWidget authToken={getAccessToken() ?? ''} />
       <MarketConditionsPanel userTier={userTier} />
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         {/* Card 1 — Today's Balance */}

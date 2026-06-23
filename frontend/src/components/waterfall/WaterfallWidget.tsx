@@ -71,6 +71,54 @@ const POOL_USE_PILLS = [
 const MIN_ANNOTATION_COMPLETENESS = 0.2;
 const MIN_OPTIMIZED_COMPLETENESS = 0.3;
 
+const HOUSING_OVERLAY_INCOME_KEY = 'mingus_housingSecondJobIncome';
+const HOUSING_OVERLAY_LABEL_KEY = 'mingus_housingSecondJobLabel';
+const DEBT_OVERLAY_INCOME_KEY = 'mingus_debtSecondJobIncome';
+const DEBT_OVERLAY_LABEL_KEY = 'mingus_debtSecondJobLabel';
+
+function readStoredOverlay(
+  incomeKey: string,
+  labelKey: string,
+): { income: number; label: string | null } {
+  const raw = sessionStorage.getItem(incomeKey);
+  const income = raw != null ? parseFloat(raw) : NaN;
+  if (isNaN(income) || income <= 0) {
+    return { income: 0, label: null };
+  }
+  return { income, label: sessionStorage.getItem(labelKey) };
+}
+
+export type WaterfallWidgetProps = {
+  housingSecondJobIncome?: number | null;
+  housingSecondJobLabel?: string | null;
+  debtSecondJobIncome?: number | null;
+  debtSecondJobLabel?: string | null;
+};
+
+function IncomeOverlayBadge({
+  label,
+  amount,
+  color,
+  borderColor,
+  bgColor,
+}: {
+  label: string;
+  amount: number;
+  color: string;
+  borderColor: string;
+  bgColor: string;
+}) {
+  return (
+    <div
+      className="rounded-lg border-2 border-dashed px-3 py-2 text-sm"
+      style={{ borderColor, background: bgColor, color }}
+    >
+      <span className="font-medium">{label}</span>
+      <span className="ml-1 tabular-nums">(+{formatUsd(amount)}/mo)</span>
+    </div>
+  );
+}
+
 type BucketKey = keyof AllocationPercents;
 
 const BUCKET_META: Record<
@@ -227,12 +275,21 @@ function BucketRow({
   );
 }
 
-export const WaterfallWidget: React.FC = () => {
+export const WaterfallWidget: React.FC<WaterfallWidgetProps> = ({
+  housingSecondJobIncome: housingIncomeProp,
+  housingSecondJobLabel: housingLabelProp,
+  debtSecondJobIncome: debtIncomeProp,
+  debtSecondJobLabel: debtLabelProp,
+}) => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const userTier = deriveUserTier(user);
 
-  const [monthlyIncome, setMonthlyIncome] = useState(6000);
+  const [baseMonthlyIncome, setBaseMonthlyIncome] = useState(6000);
+  const [housingOverlayIncome, setHousingOverlayIncome] = useState(0);
+  const [housingOverlayLabel, setHousingOverlayLabel] = useState<string | null>(null);
+  const [debtOverlayIncome, setDebtOverlayIncome] = useState(0);
+  const [debtOverlayLabel, setDebtOverlayLabel] = useState<string | null>(null);
   const [allocations, setAllocations] = useState<AllocationPercents>(DEFAULT_ALLOCATIONS);
   const [waterfallCtx, setWaterfallCtx] = useState<WaterfallContext | null>(null);
   const [showOptimized, setShowOptimized] = useState(false);
@@ -243,14 +300,38 @@ export const WaterfallWidget: React.FC = () => {
       .catch(() => setWaterfallCtx(null));
 
     const params = new URLSearchParams(window.location.search);
-    const secondJobIncome = params.get('secondJobIncome');
-    if (secondJobIncome) {
-      const extra = parseFloat(secondJobIncome);
-      if (!isNaN(extra) && extra > 0) {
-        setMonthlyIncome((prev) => prev + extra);
-      }
+    const urlSecondJobIncome = params.get('secondJobIncome');
+    const urlHousingIncome =
+      urlSecondJobIncome != null ? parseFloat(urlSecondJobIncome) : NaN;
+
+    const storedHousing = readStoredOverlay(HOUSING_OVERLAY_INCOME_KEY, HOUSING_OVERLAY_LABEL_KEY);
+    const storedDebt = readStoredOverlay(DEBT_OVERLAY_INCOME_KEY, DEBT_OVERLAY_LABEL_KEY);
+
+    const housingIncome =
+      housingIncomeProp ??
+      (!isNaN(urlHousingIncome) && urlHousingIncome > 0 ? urlHousingIncome : storedHousing.income);
+    const housingLabel =
+      housingLabelProp ??
+      (housingIncome > 0
+        ? storedHousing.label || 'Housing plan income'
+        : null);
+
+    const debtIncome = debtIncomeProp ?? storedDebt.income;
+    const debtLabel =
+      debtLabelProp ?? (debtIncome > 0 ? storedDebt.label || 'Debt payoff income' : null);
+
+    if (housingIncome > 0) {
+      setHousingOverlayIncome(housingIncome);
+      setHousingOverlayLabel(housingLabel);
     }
-  }, []);
+    if (debtIncome > 0) {
+      setDebtOverlayIncome(debtIncome);
+      setDebtOverlayLabel(debtLabel);
+    }
+  }, [housingIncomeProp, housingLabelProp, debtIncomeProp, debtLabelProp]);
+
+  const monthlyIncome = baseMonthlyIncome + housingOverlayIncome + debtOverlayIncome;
+  const combinedOverlayIncome = housingOverlayIncome + debtOverlayIncome;
 
   const optimizedAllocations = useMemo(
     () => computeOptimizedAllocations(allocations, waterfallCtx),
@@ -304,18 +385,49 @@ export const WaterfallWidget: React.FC = () => {
               {formatUsd(monthlyIncome)}
             </span>
           </div>
+          {(housingOverlayIncome > 0 || debtOverlayIncome > 0) && (
+            <p className="text-xs tabular-nums" style={{ color: 'var(--ink-mid)' }}>
+              Base {formatUsd(baseMonthlyIncome)}
+              {combinedOverlayIncome > 0 ? ` + overlays ${formatUsd(combinedOverlayIncome)}` : ''}
+            </p>
+          )}
           <input
             type="range"
             min={2000}
             max={20000}
             step={100}
-            value={monthlyIncome}
-            onChange={(e) => setMonthlyIncome(Number(e.target.value))}
+            value={baseMonthlyIncome}
+            onChange={(e) => setBaseMonthlyIncome(Number(e.target.value))}
             className="waterfall-income-slider"
           />
           <div className="flex justify-between text-xs" style={{ color: 'var(--ink-mid)' }}>
             <span>$2,000</span>
             <span>$20,000</span>
+          </div>
+          <div className="space-y-2 pt-1">
+            {debtOverlayIncome > 0 ? (
+              <IncomeOverlayBadge
+                label={debtOverlayLabel ?? 'Debt payoff income'}
+                amount={debtOverlayIncome}
+                color="#1D4ED8"
+                borderColor="#93C5FD"
+                bgColor="rgba(59,130,246,0.08)"
+              />
+            ) : null}
+            {housingOverlayIncome > 0 ? (
+              <IncomeOverlayBadge
+                label={housingOverlayLabel ?? 'Housing plan income'}
+                amount={housingOverlayIncome}
+                color="#B45309"
+                borderColor="#FCD34D"
+                bgColor="rgba(245,158,11,0.08)"
+              />
+            ) : null}
+            {debtOverlayIncome > 0 && housingOverlayIncome > 0 ? (
+              <p className="text-xs font-semibold tabular-nums text-[#5B2D8E]">
+                Combined additional income: {formatUsd(combinedOverlayIncome)}/mo
+              </p>
+            ) : null}
           </div>
         </label>
       </section>

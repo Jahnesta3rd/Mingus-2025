@@ -28,7 +28,13 @@ import AnalyticsDashboard from '../components/AnalyticsDashboard';
 import HousingLocationTile from '../components/HousingLocationTile';
 import { HousingReadinessCard } from '../components/housing/HousingReadinessCard';
 import { HprsLatentNudgeCard } from '../components/housing/HprsLatentNudgeCard';
-import RentVsBuyPanel from '../components/housing/RentVsBuyPanel';
+import {
+  RentVsBuyCalculator,
+  type GapAnalysisParams,
+} from '../components/housing/RentVsBuyCalculator';
+import HomeownershipActionPlan, {
+  type GapAnalysisData,
+} from '../components/housing/HomeownershipActionPlan';
 import OptimalLocationRouter from '../components/OptimalLocation/OptimalLocationRouter';
 import DashboardWellnessSection from '../components/DashboardWellnessSection';
 import YouTab from '../components/YouTab';
@@ -36,6 +42,7 @@ import DebtAnalyzerTab from '../components/DebtAnalyzerTab';
 import EmployerBackfillModal, {
   isEmployerBackfillDismissed,
 } from '../components/EmployerBackfillModal';
+import { deriveUserTier } from '../components/fluency';
 import { csrfHeaders } from '../utils/csrfHeaders';
 import type { UserProfile as UserProfileData } from '../types/UserProfile';
 
@@ -247,6 +254,11 @@ const CareerProtectionDashboard: React.FC = () => {
   const [todayCardIndex, setTodayCardIndex] = useState(0);
   const [hprsRefreshToken, setHprsRefreshToken] = useState(0);
   const [parentChecklistIds, setParentChecklistIds] = useState<string[]>([]);
+  const [rvbView, setRvbView] = useState<'calculator' | 'action_plan'>('calculator');
+  const [gapAnalysisId, setGapAnalysisId] = useState<number | null>(null);
+  const [gapData, setGapData] = useState<GapAnalysisData | null>(null);
+  const [housingSecondJobIncome, setHousingSecondJobIncome] = useState<number | null>(null);
+  const [housingSecondJobLabel, setHousingSecondJobLabel] = useState<string | null>(null);
   const [parentChecklistLoaded, setParentChecklistLoaded] = useState(false);
   const [parentChecklistError, setParentChecklistError] = useState(false);
   const [hasBabyMilestone, setHasBabyMilestone] = useState(false);
@@ -514,6 +526,51 @@ const CareerProtectionDashboard: React.FC = () => {
     setActiveTab(mainTabToStoreTab('today'));
   };
 
+  const handlePlanRequested = useCallback(async (params: GapAnalysisParams) => {
+    try {
+      const token = localStorage.getItem('mingus_token');
+      const res = await fetch('/api/housing/gap-analysis', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          ...csrfHeaders(),
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify(params),
+      });
+      if (!res.ok) return;
+      const data = (await res.json()) as GapAnalysisData;
+      if (data.gap_analysis_id == null) return;
+      setGapAnalysisId(data.gap_analysis_id);
+      setGapData(data);
+      setRvbView('action_plan');
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  const handleHousingSecondJobSelected = useCallback(
+    (income: number, label: string) => {
+      setHousingSecondJobIncome(income);
+      setHousingSecondJobLabel(label);
+      sessionStorage.setItem('mingus_housingSecondJobIncome', String(income));
+      sessionStorage.setItem('mingus_housingSecondJobLabel', label);
+      navigate('/dashboard/waterfall');
+    },
+    [navigate],
+  );
+
+  // Keep sessionStorage in sync when returning to dashboard with overlay state
+  useEffect(() => {
+    if (housingSecondJobIncome != null && housingSecondJobIncome > 0) {
+      sessionStorage.setItem('mingus_housingSecondJobIncome', String(housingSecondJobIncome));
+    }
+    if (housingSecondJobLabel) {
+      sessionStorage.setItem('mingus_housingSecondJobLabel', housingSecondJobLabel);
+    }
+  }, [housingSecondJobIncome, housingSecondJobLabel]);
+
   const handleTabChange = async (tab: MainTabId) => {
     setDashboardState((prev) => ({ ...prev, activeTab: tab }));
     setActiveTab(mainTabToStoreTab(tab));
@@ -751,7 +808,25 @@ const CareerProtectionDashboard: React.FC = () => {
               <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
                 <HprsLatentNudgeCard onActivated={() => setHprsRefreshToken((t) => t + 1)} />
                 <HousingReadinessCard refreshTrigger={hprsRefreshToken} />
-                <RentVsBuyPanel />
+                <div className="mt-6">
+                  {rvbView === 'calculator' && (
+                    <RentVsBuyCalculator
+                      userEmail={user?.email ?? ''}
+                      userTier={deriveUserTier(user)}
+                      onPlanRequested={handlePlanRequested}
+                    />
+                  )}
+                  {rvbView === 'action_plan' && gapAnalysisId != null && gapData && (
+                    <HomeownershipActionPlan
+                      userEmail={user?.email ?? ''}
+                      userTier={deriveUserTier(user)}
+                      gapAnalysisId={gapAnalysisId}
+                      gapData={gapData}
+                      onBack={() => setRvbView('calculator')}
+                      onSecondJobSelected={handleHousingSecondJobSelected}
+                    />
+                  )}
+                </div>
                 <HousingLocationTile />
               </div>
             </CardJobHome>

@@ -3,10 +3,18 @@ import { Link } from 'react-router-dom';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { csrfHeaders } from '../../utils/csrfHeaders';
 
+export interface GapAnalysisParams {
+  home_price: number;
+  down_payment_pct: number;
+  interest_rate: number;
+  loan_term_years: number;
+  timeline_months: number;
+}
+
 export interface RentVsBuyCalculatorProps {
   userEmail: string;
   userTier: 'budget' | 'mid_tier' | 'professional';
-  onPlanRequested: (gapAnalysisId: number) => void;
+  onPlanRequested: (params: GapAnalysisParams) => void;
   className?: string;
 }
 
@@ -680,7 +688,15 @@ export function RentVsBuyCalculator({
               ) : (
                 <button
                   type="button"
-                  onClick={() => onPlanRequested(gapResult.gap_analysis_id)}
+                  onClick={() =>
+                    onPlanRequested({
+                      home_price: homePrice,
+                      down_payment_pct: downPaymentPct / 100,
+                      interest_rate: interestRate / 100,
+                      loan_term_years: loanTermYears,
+                      timeline_months: monthsToTarget,
+                    })
+                  }
                   className="mt-4 w-full rounded-full bg-[#7C3AED] px-4 py-3 text-sm font-semibold text-white hover:bg-[#6D28D9]"
                 >
                   See my action plan →

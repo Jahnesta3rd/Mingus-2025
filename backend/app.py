@@ -38,6 +38,7 @@ from backend.api.daily_outlook_api import daily_outlook_api
 from backend.models.onboarding_progress import OnboardingProgress  # noqa: F401
 from backend.models.database import db
 from backend.api.employer_health import employer_health_api
+from backend.api.company_screen import company_screen_bp
 from backend.routes.parent_checklist import parent_checklist_bp
 from backend.routes.articles import articles_bp
 from backend.routes.debt_analyzer import debt_analyzer_bp
@@ -103,6 +104,7 @@ def register_backend_blueprints(app):
     app.register_blueprint(waterfall_context_bp)
     app.register_blueprint(plaid_bp)
     app.register_blueprint(employer_health_api)
+    app.register_blueprint(company_screen_bp)
     app.register_blueprint(parent_checklist_bp)
     app.register_blueprint(articles_bp)
     app.register_blueprint(debt_analyzer_bp)
