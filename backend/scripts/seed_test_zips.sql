@@ -2,58 +2,67 @@
 -- Run: psql "$DATABASE_URL" -f backend/scripts/seed_test_zips.sql
 --
 -- Persona mapping (user_id → zip → CBSA):
---   9  Maya Johnson (Budget e2e)     → 77001 → 26420 Houston
---  31  probe test user               → 60601 → 16980 Chicago
---  40  career rec-seed               → 10001 → 35620 NYC
---  41  career designer seed          → 85001 → 38060 Phoenix
---  50  housing test user             → 30301 → 12060 Atlanta
+--   9  Maya (Phoenix)     → 85001 → 38060
+--  10  Chicago persona    → 60601 → 16980
+--  11  Jasmine (Houston)  → 77001 → 26420
+--  40  Marcus (NYC)       → 10001 → 35620
+--  41  Atlanta persona    → 30301 → 12060
 
 BEGIN;
 
--- housing_profile (primary source for resolve_search_zip)
-UPDATE housing_profile SET zip_or_city = '77001', updated_at = NOW() WHERE user_id = 9;
-UPDATE housing_profile SET zip_or_city = '60601', updated_at = NOW() WHERE user_id = 31;
-UPDATE housing_profile SET zip_or_city = '10001', updated_at = NOW() WHERE user_id = 40;
-UPDATE housing_profile SET zip_or_city = '85001', updated_at = NOW() WHERE user_id = 41;
-UPDATE housing_profile SET zip_or_city = '30301', updated_at = NOW() WHERE user_id = 50;
+UPDATE housing_profile SET zip_or_city = '10001', updated_at = NOW()
+  WHERE user_id = 40;   -- NYC (Marcus)
+UPDATE housing_profile SET zip_or_city = '85001', updated_at = NOW()
+  WHERE user_id = 9;    -- Phoenix (Maya)
+UPDATE housing_profile SET zip_or_city = '77001', updated_at = NOW()
+  WHERE user_id = 11;   -- Houston (Jasmine)
+UPDATE housing_profile SET zip_or_city = '60601', updated_at = NOW()
+  WHERE user_id = 10;   -- Chicago
+UPDATE housing_profile SET zip_or_city = '30301', updated_at = NOW()
+  WHERE user_id = 41;   -- Atlanta
+
+-- Users 10 and 11 may lack housing_profile rows (e2e personas)
+INSERT INTO housing_profile (
+  user_id, housing_type, monthly_cost, zip_or_city, has_buy_goal,
+  down_payment_saved, created_at, updated_at
+)
+VALUES
+  (10, 'rent', 1400, '60601', false, 0, NOW(), NOW()),
+  (11, 'rent', 1400, '77001', false, 0, NOW(), NOW())
+ON CONFLICT (user_id) DO UPDATE
+  SET zip_or_city = EXCLUDED.zip_or_city, updated_at = NOW();
 
 -- Mirror into user_profiles.zip_code (JRA-01 fallback chain)
-UPDATE user_profiles SET zip_code = '77001', updated_at = NOW()
-  WHERE email = 'maya.johnson.test@gmail.com';
-UPDATE user_profiles SET zip_code = '60601', updated_at = NOW()
-  WHERE email = 'probe.0528@mingustest.local';
-UPDATE user_profiles SET zip_code = '10001', updated_at = NOW()
-  WHERE email = 'rec-seed-d791ded7@example.com';
-UPDATE user_profiles SET zip_code = '85001', updated_at = NOW()
-  WHERE email = 'designer-ae4e6a50@example.com';
-UPDATE user_profiles SET zip_code = '30301', updated_at = NOW()
-  WHERE email = 'housing.test.a.06052026@gmail.com';
+UPDATE user_profiles up
+SET zip_code = mapping.zip, updated_at = NOW()
+FROM (
+  VALUES
+    (9, '85001'),
+    (10, '60601'),
+    (11, '77001'),
+    (40, '10001'),
+    (41, '30301')
+) AS mapping(user_id, zip)
+JOIN users u ON u.id = mapping.user_id
+WHERE up.email = u.email;
 
 COMMIT;
 
 -- Verify (optional):
--- SELECT hp.user_id, u.email, hp.zip_or_city, up.zip_code
--- FROM housing_profile hp
--- JOIN users u ON u.id = hp.user_id
--- LEFT JOIN user_profiles up ON up.email = u.email
--- WHERE hp.user_id IN (9, 31, 40, 41, 50)
--- ORDER BY hp.user_id;
+-- SELECT user_id, zip_or_city FROM housing_profile
+-- WHERE user_id IN (9, 10, 11, 40, 41)
+-- ORDER BY user_id;
 
 -- =============================================================================
 -- ROLLBACK (restore pre-HRA-05 values captured 2026-06-19)
 -- =============================================================================
 -- BEGIN;
 -- UPDATE housing_profile SET zip_or_city = '30318', updated_at = NOW() WHERE user_id = 9;
--- UPDATE housing_profile SET zip_or_city = '30319', updated_at = NOW() WHERE user_id = 31;
+-- UPDATE housing_profile SET zip_or_city = '30319', updated_at = NOW() WHERE user_id = 10;
+-- UPDATE housing_profile SET zip_or_city = '30314', updated_at = NOW() WHERE user_id = 11;
 -- UPDATE housing_profile SET zip_or_city = '10001', updated_at = NOW() WHERE user_id = 40;
 -- UPDATE housing_profile SET zip_or_city = '85001', updated_at = NOW() WHERE user_id = 41;
--- UPDATE housing_profile SET zip_or_city = '30314', updated_at = NOW() WHERE user_id = 50;
--- UPDATE user_profiles SET zip_code = NULL, updated_at = NOW()
---   WHERE email IN (
---     'maya.johnson.test@gmail.com',
---     'probe.0528@mingustest.local',
---     'rec-seed-d791ded7@example.com',
---     'designer-ae4e6a50@example.com',
---     'housing.test.a.06052026@gmail.com'
---   );
+-- UPDATE user_profiles up SET zip_code = NULL, updated_at = NOW()
+-- FROM users u
+-- WHERE up.email = u.email AND u.id IN (9, 10, 11, 40, 41);
 -- COMMIT;
