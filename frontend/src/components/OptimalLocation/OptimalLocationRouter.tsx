@@ -15,7 +15,8 @@ import {
   Star,
   Lock,
   CheckCircle,
-  XCircle
+  XCircle,
+  X
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { useAnalytics } from '../../hooks/useAnalytics';
@@ -164,8 +165,12 @@ const getTierFeatures = (tier: UserTier['tier']): UserTier['features'] => {
   return tierConfig[tier].features;
 };
 
-function apartmentsComSearchUrl(city: string, state: string): string {
-  return `https://www.apartments.com/${city.toLowerCase().replace(/\s+/g, '-')}-${state.toLowerCase()}/`;
+function apartmentsComFallbackUrl(city?: string, location?: string): string | null {
+  const query = (city || location || '').trim();
+  if (!query) {
+    return null;
+  }
+  return `https://www.apartments.com/search/?q=${encodeURIComponent(query)}`;
 }
 
 const ListingLinkCTA: React.FC<{ result: HousingSearchResult }> = ({ result }) => {
@@ -182,19 +187,43 @@ const ListingLinkCTA: React.FC<{ result: HousingSearchResult }> = ({ result }) =
       </a>
     );
   }
-  if (result.city && result.state) {
+  const fallbackUrl = apartmentsComFallbackUrl(result.city, result.location || result.address);
+  if (fallbackUrl) {
     return (
       <a
-        href={apartmentsComSearchUrl(result.city, result.state)}
+        href={fallbackUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className="text-sm text-gray-500 hover:text-gray-700 underline underline-offset-2 flex items-center gap-1 mt-2"
+        className="text-sm text-purple-400 hover:text-purple-600 underline underline-offset-2 flex items-center gap-1 mt-2"
       >
         Search on Apartments.com →
       </a>
     );
   }
   return null;
+};
+
+const BetaListingsBanner: React.FC = () => {
+  const [dismissed, setDismissed] = useState(false);
+  if (dismissed) {
+    return null;
+  }
+  return (
+    <div className="flex items-start justify-between gap-3 text-xs text-amber-900 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 mb-3">
+      <p>
+        Live listings coming soon — enter your zip to be notified when your market is
+        available.
+      </p>
+      <button
+        type="button"
+        onClick={() => setDismissed(true)}
+        className="shrink-0 text-amber-700 hover:text-amber-900"
+        aria-label="Dismiss beta listings notice"
+      >
+        <X className="h-4 w-4" />
+      </button>
+    </div>
+  );
 };
 
 // ========================================
@@ -1062,6 +1091,9 @@ const HousingSearchView: React.FC<{
       </div>
 
       {/* Search Results Preview */}
+      {state.searchResponse?.beta_notice && state.searchResults.length === 0 && (
+        <BetaListingsBanner />
+      )}
       {state.searchResults.length > 0 && !zipError && !zipValidationError && (
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">
@@ -1166,10 +1198,8 @@ const ResultsDisplayView: React.FC<{
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">Search Results</h2>
 
-        {searchResponse?.beta_notice && (
-          <div className="text-xs text-gray-500 bg-gray-50 border border-gray-200 rounded px-3 py-2 mb-3">
-            Listing details are illustrative. Links open third-party search results.
-          </div>
+        {searchResponse?.beta_notice && searchResults.length === 0 && (
+          <BetaListingsBanner />
         )}
         
         {searchResults.length === 0 ? (
