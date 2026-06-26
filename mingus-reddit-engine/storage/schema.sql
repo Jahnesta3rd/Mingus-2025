@@ -47,7 +47,18 @@ CREATE TABLE IF NOT EXISTS leads (
     response_upvotes INTEGER,
     response_got_dm BOOLEAN,
     lead_quality_rating INTEGER,
-    promoted_to_ad_brief BOOLEAN DEFAULT FALSE
+    promoted_to_ad_brief BOOLEAN DEFAULT FALSE,
+    pipeline_stage TEXT DEFAULT 'prospect'
+      CHECK (pipeline_stage IN (
+        'prospect',
+        'meeting_booked',
+        'qualified',
+        'offer_made',
+        'decision_pending',
+        'closed_won',
+        'closed_lost'
+      )),
+    updated_at TIMESTAMP DEFAULT NOW()
 );
 
 CREATE TABLE IF NOT EXISTS ad_briefs (
@@ -92,9 +103,24 @@ CREATE INDEX IF NOT EXISTS idx_leads_post_id ON leads(post_id);
 CREATE INDEX IF NOT EXISTS idx_leads_composite ON leads(composite_score DESC);
 CREATE INDEX IF NOT EXISTS idx_leads_notified ON leads(notified) WHERE notified = false;
 CREATE INDEX IF NOT EXISTS idx_leads_community ON leads(community_id);
+CREATE INDEX IF NOT EXISTS idx_leads_pipeline_stage ON leads(pipeline_stage);
+CREATE INDEX IF NOT EXISTS idx_leads_updated_at ON leads(updated_at DESC);
 CREATE INDEX IF NOT EXISTS idx_communities_heat ON communities(heat_score DESC);
 CREATE INDEX IF NOT EXISTS idx_communities_tier ON communities(priority_tier);
 
 -- IG import columns (idempotent on existing databases)
 ALTER TABLE leads ADD COLUMN IF NOT EXISTS source TEXT DEFAULT 'reddit';
 ALTER TABLE leads ADD COLUMN IF NOT EXISTS ig_handle TEXT;
+ALTER TABLE leads ADD COLUMN IF NOT EXISTS pipeline_stage TEXT DEFAULT 'prospect';
+ALTER TABLE leads DROP CONSTRAINT IF EXISTS chk_leads_pipeline_stage;
+ALTER TABLE leads ADD CONSTRAINT chk_leads_pipeline_stage
+  CHECK (pipeline_stage IN (
+    'prospect',
+    'meeting_booked',
+    'qualified',
+    'offer_made',
+    'decision_pending',
+    'closed_won',
+    'closed_lost'
+  ));
+ALTER TABLE leads ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW();

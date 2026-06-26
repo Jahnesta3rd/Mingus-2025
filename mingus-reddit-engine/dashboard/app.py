@@ -186,6 +186,20 @@ def requires_auth(f):
     return decorated
 
 
+require_basic_auth = requires_auth
+
+
+PIPELINE_STAGES = frozenset({
+    "prospect",
+    "meeting_booked",
+    "qualified",
+    "offer_made",
+    "decision_pending",
+    "closed_won",
+    "closed_lost",
+})
+
+
 # ---------------------------------------------------------------------------
 # DB helpers (raw queries not yet in db.py)
 # ---------------------------------------------------------------------------
@@ -322,7 +336,8 @@ def leads():
     rows = _query(
         f"SELECT l.id, l.composite_score, c.name AS subreddit, l.domain_id, "
         f"l.title, l.body, l.source, l.ig_handle, l.responded, "
-        f"l.response_got_dm, l.no_reply, l.ingested_at "
+        f"l.response_got_dm, l.no_reply, l.pipeline_stage, l.ingested_at, "
+        f"l.updated_at "
         f"FROM leads l LEFT JOIN communities c ON c.id = l.community_id "
         f"WHERE {where} "
         f"ORDER BY CASE WHEN l.source = 'instagram' THEN 1 ELSE 0 END, "
@@ -343,6 +358,7 @@ def leads():
     leads_data = []
     for r in rows:
         ingested = r.get("ingested_at")
+        updated = r.get("updated_at")
         leads_data.append({
             "id": str(r["id"]),
             "composite_score": float(r["composite_score"] or 0),
@@ -355,7 +371,9 @@ def leads():
             "responded": bool(r.get("responded")),
             "response_got_dm": bool(r.get("response_got_dm")),
             "no_reply": bool(r.get("no_reply")),
+            "pipeline_stage": r.get("pipeline_stage") or "prospect",
             "ingested_at": ingested.isoformat() if ingested else None,
+            "updated_at": updated.isoformat() if updated else None,
         })
 
     return render_template(
@@ -1191,6 +1209,56 @@ def marketing():
 @requires_auth
 def pmf():
     return render_template("pmf.html")
+
+
+# ---------------------------------------------------------------------------
+# PUT /api/leads/<lead_id>/pipeline-stage — Update pipeline stage
+# ---------------------------------------------------------------------------
+
+@app.route("/api/leads/<lead_id>/pipeline-stage", methods=["PUT"])
+@require_basic_auth
+def update_lead_pipeline_stage(lead_id):
+    data = request.get_json(silent=True)
+    if not data or "pipeline_stage" not in data:
+        return jsonify({"error": "pipeline_stage is required"}), 400
+
+    pipeline_stage = data["pipeline_stage"]
+    if pipeline_stage not in PIPELINE_STAGES:
+        return jsonify({"error": "Invalid pipeline_stage"}), 400
+
+    conn = db.get_connection()
+    try:
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute(
+                """
+                UPDATE leads
+                SET pipeline_stage = %s, updated_at = NOW()
+                WHERE id = %s
+                RETURNING id, pipeline_stage, updated_at
+                """,
+                (pipeline_stage, lead_id),
+            )
+            row = cur.fetchone()
+            if not row:
+                return jsonify({"error": "Lead not found"}), 404
+        conn.commit()
+        updated_at = row["updated_at"]
+        if hasattr(updated_at, "isoformat"):
+            updated_at = updated_at.isoformat()
+        return jsonify({
+            "status": "ok",
+            "lead_id": str(row["id"]),
+            "pipeline_stage": row["pipeline_stage"],
+            "updated_at": updated_at,
+        })
+    except Exception as e:
+        conn.rollback()
+        app.logger.exception(
+            "Pipeline stage update failed for lead %s", lead_id,
+        )
+        return jsonify({"error": "Update failed", "detail": str(e)}), 500
+    finally:
+        db.release_connection(conn)
 
 
 # ---------------------------------------------------------------------------

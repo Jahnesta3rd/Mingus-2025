@@ -8,9 +8,11 @@
   :root {
     --bg: #0f1117;
     --surface: #1a1d27;
+    --surface1: #1a1d27;
     --surface2: #21253a;
     --border: rgba(255,255,255,0.07);
     --border2: rgba(255,255,255,0.13);
+    --border-hover: rgba(255,255,255,0.13);
     --teal: #1D9E75;
     --teal-dim: rgba(29,158,117,0.15);
     --teal-mid: rgba(29,158,117,0.35);
@@ -18,8 +20,10 @@
     --amber: #EF9F27;
     --coral: #E05C6A;
     --text: #e8eaf0;
+    --text1: #e8eaf0;
     --text2: #8b90a8;
     --text3: #555b78;
+    --surface3: #2a2e42;
     --radius: 10px;
     --radius-sm: 6px;
   }
@@ -251,6 +255,128 @@
     border-left: 3px solid #666;
   }
 
+  .col-stage {
+    width: 140px;
+    text-align: left;
+    white-space: nowrap;
+  }
+
+  .stage-cell {
+    position: relative;
+  }
+
+  .stage-badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 8px;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.15s;
+    position: relative;
+  }
+
+  /* Stage colors */
+  .stage-prospect         { background: rgba(100, 100, 120, 0.2); color: #8a8fa8; }
+  .stage-meeting_booked   { background: rgba(91, 155, 213, 0.2);  color: #5B9BD5; }
+  .stage-qualified        { background: rgba(192, 192, 0, 0.2);   color: #d4a500; }
+  .stage-offer_made       { background: rgba(165, 110, 255, 0.2); color: #a56eff; }
+  .stage-decision_pending { background: rgba(255, 180, 0, 0.2);   color: #f4a460; }
+  .stage-closed_won       { background: rgba(76, 175, 125, 0.2);  color: #4CAF7D; }
+  .stage-closed_lost      { background: rgba(200, 80, 80, 0.2);   color: #c85050; }
+
+  .stage-badge:hover {
+    opacity: 1;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  }
+
+  /* Dropdown menu */
+  .stage-dropdown {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    min-width: 160px;
+    z-index: 100;
+    margin-top: 4px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+  }
+
+  .stage-dropdown.show {
+    display: block;
+  }
+
+  .stage-option {
+    padding: 8px 12px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background 0.1s;
+    color: var(--text2);
+  }
+
+  .stage-option:hover {
+    background: var(--surface3);
+    color: var(--text1);
+  }
+
+  .stage-option.divider {
+    border-top: 1px solid var(--border);
+    margin-top: 4px;
+    padding-top: 4px;
+  }
+
+  #stage-filter {
+    background: var(--surface2);
+    color: var(--text2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 6px 10px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: border 0.15s;
+  }
+
+  #stage-filter:hover {
+    border-color: var(--border-hover);
+  }
+
+  #stage-filter:focus {
+    outline: none;
+    border-color: var(--teal);
+  }
+
+  .pipeline-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 12px;
+    padding: 16px;
+    background: var(--surface1);
+    border-radius: 6px;
+    margin-bottom: 20px;
+  }
+
+  .stage-stat {
+    text-align: center;
+  }
+
+  .stage-stat .stat-label {
+    font-size: 11px;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+  }
+
+  .stage-stat .stat-value {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--teal);
+  }
+
   @media (max-width: 680px) {
     .page-header { padding: 14px 16px; }
     .page-body { padding: 16px; }
@@ -335,6 +461,17 @@
     <input type="number" name="min_score" placeholder="min score"
       value="{{ filters.min_score or '' }}" step="0.1" style="width:100px">
     <input type="number" name="days" placeholder="days" value="{{ filters.days }}" style="width:70px">
+    <label for="stage-filter" style="margin-left: 12px;">Stage:</label>
+    <select id="stage-filter" onchange="filterByStage(this.value)" style="margin-left: 4px;">
+      <option value="">All stages</option>
+      <option value="prospect">Prospect</option>
+      <option value="meeting_booked">Meeting Booked</option>
+      <option value="qualified">Qualified</option>
+      <option value="offer_made">Offer Made</option>
+      <option value="decision_pending">Decision Pending</option>
+      <option value="closed_won">Closed (Won)</option>
+      <option value="closed_lost">Closed (Lost)</option>
+    </select>
     <button type="submit" class="filter-btn">Filter</button>
     <button type="button" class="import-btn"
       onclick="document.getElementById('ig-file').click()">
@@ -347,12 +484,44 @@
       style="font-size:12px; margin-left:12px;"></span>
   </form>
 
+  <div class="pipeline-summary" id="pipeline-summary">
+    <div class="stage-stat">
+      <div class="stat-label">Prospect</div>
+      <div class="stat-value" id="stat-prospect">—</div>
+    </div>
+    <div class="stage-stat">
+      <div class="stat-label">Meeting Booked</div>
+      <div class="stat-value" id="stat-meeting_booked">—</div>
+    </div>
+    <div class="stage-stat">
+      <div class="stat-label">Qualified</div>
+      <div class="stat-value" id="stat-qualified">—</div>
+    </div>
+    <div class="stage-stat">
+      <div class="stat-label">Offer Made</div>
+      <div class="stat-value" id="stat-offer_made">—</div>
+    </div>
+    <div class="stage-stat">
+      <div class="stat-label">Decision Pending</div>
+      <div class="stat-value" id="stat-decision_pending">—</div>
+    </div>
+    <div class="stage-stat">
+      <div class="stat-label">Won</div>
+      <div class="stat-value" id="stat-closed_won">—</div>
+    </div>
+    <div class="stage-stat">
+      <div class="stat-label">Lost</div>
+      <div class="stat-value" id="stat-closed_lost">—</div>
+    </div>
+  </div>
+
   <table class="leads-table">
     <thead>
       <tr>
         <th>Score</th>
         <th>Community</th>
         <th>Domain</th>
+        <th class="col-stage">Stage</th>
         <th>Title</th>
         <th>Date</th>
       </tr>
@@ -364,6 +533,141 @@
 <script>
 const LEADS = {{ leads | tojson }};
 const HOT_THRESHOLD = {{ hot_threshold }};
+let currentStageFilter = '';
+
+function filterByStage(stage) {
+  currentStageFilter = stage;
+  renderLeadsTable();
+}
+
+function shouldDisplayLead(lead) {
+  if (currentStageFilter && (lead.pipeline_stage || 'prospect') !== currentStageFilter) {
+    return false;
+  }
+
+  const community = document.getElementById('community-filter').value;
+  if (community === 'instagram_follows') {
+    return lead.source === 'instagram';
+  }
+  if (community) {
+    return lead.subreddit === community;
+  }
+  return true;
+}
+
+function renderLeadsTable() {
+  const rows = LEADS.filter(shouldDisplayLead);
+  document.getElementById('leads-tbody').innerHTML = rows.map(renderLead).join('');
+  document.getElementById('row-count').textContent = '(' + rows.length + ' shown)';
+  updatePipelineSummary(rows);
+}
+
+function updatePipelineSummary(leads) {
+  const stages = [
+    'prospect', 'meeting_booked', 'qualified', 'offer_made',
+    'decision_pending', 'closed_won', 'closed_lost',
+  ];
+
+  stages.forEach(function(stage) {
+    const count = leads.filter(function(l) {
+      return (l.pipeline_stage || 'prospect') === stage;
+    }).length;
+    const el = document.getElementById('stat-' + stage);
+    if (el) el.textContent = count.toString();
+  });
+}
+
+const PIPELINE_STAGES = [
+  { value: 'prospect', label: 'Prospect' },
+  { value: 'meeting_booked', label: 'Meeting Booked' },
+  { value: 'qualified', label: 'Qualified' },
+  { value: 'offer_made', label: 'Offer Made' },
+  { value: 'decision_pending', label: 'Decision Pending' },
+  { value: 'closed_won', label: 'Closed Won', divider: true },
+  { value: 'closed_lost', label: 'Closed Lost' },
+];
+
+const STAGE_LABELS = Object.fromEntries(
+  PIPELINE_STAGES.map(function(s) { return [s.value, s.label]; })
+);
+
+function stageLabel(stage) {
+  return STAGE_LABELS[stage] || 'Prospect';
+}
+
+function closeAllStageDropdowns() {
+  document.querySelectorAll('.stage-dropdown.show').forEach(function(el) {
+    el.classList.remove('show');
+  });
+}
+
+function toggleStageDropdown(event, leadId) {
+  event.stopPropagation();
+  const dropdown = document.getElementById('stage-dropdown-' + leadId);
+  if (!dropdown) return;
+  const isOpen = dropdown.classList.contains('show');
+  closeAllStageDropdowns();
+  if (!isOpen) dropdown.classList.add('show');
+}
+
+function renderStageBadge(lead) {
+  const stage = lead.pipeline_stage || 'prospect';
+  const id = escapeHtml(lead.id);
+  const options = PIPELINE_STAGES.map(function(s) {
+    return (
+      '<div class="stage-option' + (s.divider ? ' divider' : '') + '" ' +
+        'data-lead-id="' + id + '" data-stage="' + s.value + '">' +
+        escapeHtml(s.label) +
+      '</div>'
+    );
+  }).join('');
+
+  return (
+    '<div class="stage-cell">' +
+      '<span class="stage-badge stage-' + escapeHtml(stage) + '" ' +
+        'onclick="toggleStageDropdown(event, \'' + id + '\')">' +
+        escapeHtml(stageLabel(stage)) +
+      '</span>' +
+      '<div class="stage-dropdown" id="stage-dropdown-' + id + '">' +
+        options +
+      '</div>' +
+    '</div>'
+  );
+}
+
+async function updatePipelineStage(leadId, stage) {
+  closeAllStageDropdowns();
+  try {
+    const r = await fetch('/api/leads/' + leadId + '/pipeline-stage', {
+      method: 'PUT',
+      credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ pipeline_stage: stage }),
+    });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error || r.statusText);
+    const lead = LEADS.find(function(l) { return l.id === leadId; });
+    if (lead) {
+      lead.pipeline_stage = d.pipeline_stage;
+      lead.updated_at = d.updated_at;
+      renderLeadsTable();
+    }
+  } catch (e) {
+    alert('Could not update stage: ' + e.message);
+  }
+}
+
+document.addEventListener('click', function(event) {
+  const option = event.target.closest('.stage-option');
+  if (option) {
+    event.stopPropagation();
+    updatePipelineStage(option.dataset.leadId, option.dataset.stage);
+    return;
+  }
+  if (!event.target.closest('.stage-cell')) {
+    closeAllStageDropdowns();
+  }
+});
 
 function scoreClass(score) {
   const s = parseFloat(score) || 0;
@@ -445,6 +749,7 @@ function renderLead(lead) {
       '<td class="' + cls + '">' + score.toFixed(1) + '</td>' +
       '<td><span class="community-badge">' + communityLabel + communityBadgeExtra + '</span></td>' +
       '<td>' + escapeHtml(lead.domain_id || '—') + '</td>' +
+      '<td class="col-stage">' + renderStageBadge(lead) + '</td>' +
       '<td>' + snippetHTML + '</td>' +
       '<td class="date-cell">' + dateStr + '</td>' +
     '</tr>'
@@ -452,18 +757,7 @@ function renderLead(lead) {
 }
 
 function applyCommunityFilter() {
-  const community = document.getElementById('community-filter').value;
-  const rows = LEADS.filter(function(lead) {
-    if (community === 'instagram_follows') {
-      return lead.source === 'instagram';
-    }
-    if (community) {
-      return lead.subreddit === community;
-    }
-    return true;
-  });
-  document.getElementById('leads-tbody').innerHTML = rows.map(renderLead).join('');
-  document.getElementById('row-count').textContent = '(' + rows.length + ' shown)';
+  renderLeadsTable();
 }
 
 document.getElementById('community-filter').addEventListener('change', applyCommunityFilter);
@@ -526,8 +820,7 @@ async function markLead(leadId, action) {
         lead.responded = true;
       }
       if (action === 'no-reply') lead.no_reply = true;
-      const row = document.querySelector('[data-lead-id="' + leadId + '"]');
-      if (row) row.outerHTML = renderLead(lead);
+      renderLeadsTable();
     }
     await loadFunnelStats();
   } catch(e) {
@@ -536,7 +829,7 @@ async function markLead(leadId, action) {
 }
 
 loadFunnelStats();
-applyCommunityFilter();
+renderLeadsTable();
 </script>
 </body>
 </html>
