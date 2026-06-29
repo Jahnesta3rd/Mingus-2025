@@ -2,6 +2,7 @@
 
 import functools
 import csv
+import html
 import io
 import json
 import os
@@ -31,9 +32,72 @@ if _dbu:
     os.environ["PGDATABASE"] = _p.path.lstrip("/")
     os.environ["PGSSLMODE"] = "require"
 
+# ---------------------------------------------------------------------------
+# Sentry — admin dashboard backend error tracking
+# ---------------------------------------------------------------------------
+
+import sentry_sdk
+from sentry_sdk.integrations.flask import FlaskIntegration
+
+
+def _sentry_integrations():
+    integrations = [FlaskIntegration()]
+    try:
+        from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
+        integrations.append(SqlalchemyIntegration())
+    except Exception:
+        pass
+    return integrations
+
+
+def filter_admin_sensitive_data(event, hint):
+    """Remove PII and sensitive data from Sentry events."""
+    if "request" in event and "data" in event["request"]:
+        data = event["request"]["data"]
+        if isinstance(data, dict):
+            sensitive_keys = [
+                "password", "passwd", "pwd",
+                "token", "api_key", "secret",
+                "authorization", "auth",
+                "credit_card", "ssn", "social_security",
+                "bank_account", "routing_number",
+            ]
+            event["request"]["data"] = {
+                key: "[REDACTED]" if any(s in key.lower() for s in sensitive_keys) else value
+                for key, value in data.items()
+            }
+
+    if "request" in event and "headers" in event["request"]:
+        headers = event["request"]["headers"]
+        if isinstance(headers, dict):
+            for key in ("authorization", "cookie", "x-api-key", "x-auth-token"):
+                if key in headers:
+                    headers[key] = "[REDACTED]"
+
+    for breadcrumb in event.get("breadcrumbs", []):
+        data = breadcrumb.get("data")
+        if isinstance(data, dict):
+            for key in list(data.keys()):
+                if any(s in key.lower() for s in ("password", "token", "api_key", "secret")):
+                    data[key] = "[REDACTED]"
+
+    return event
+
+
+SENTRY_DSN_BACKEND = os.getenv("SENTRY_DSN_ADMIN_BACKEND", "")
+if SENTRY_DSN_BACKEND:
+    sentry_sdk.init(
+        dsn=SENTRY_DSN_BACKEND,
+        integrations=_sentry_integrations(),
+        environment=os.getenv("SENTRY_ENVIRONMENT", "production"),
+        traces_sample_rate=1.0,
+        before_send=filter_admin_sensitive_data,
+        debug=False,
+    )
+
 from flask import (
     Flask, request, redirect, url_for, Response, flash,
-    get_flashed_messages, send_file, render_template, jsonify,
+    get_flashed_messages, send_file, render_template, jsonify, g,
 )
 import requests
 from psycopg2.extras import RealDictCursor
@@ -43,15 +107,77 @@ from intelligence import heat_map
 from pipeline import ads_brief as ads_brief_mod
 from pipeline.ads_brief import export_for_reddit_ads, zip_reddit_ads_export
 from reporting import feedback_loop
+from utils.sentry_helpers import admin_error_handler, track_db_operation, track_csv_import
 
 app = Flask(__name__)
 app.secret_key = os.getenv("FLASK_SECRET_KEY", "mingus-dev-secret-2024")
+
+SENTRY_DSN_ADMIN = os.getenv("SENTRY_DSN_ADMIN_FRONTEND", "")
+SENTRY_ENVIRONMENT = os.getenv("SENTRY_ENVIRONMENT", "production")
+DASHBOARD_USER = os.getenv("DASHBOARD_USER", "admin")
 
 HOT_LEAD_THRESHOLD = float(os.getenv("HOT_LEAD_THRESHOLD", "9.0"))
 OUTPUT_DIR = Path(__file__).parent.parent / "output"
 SIGNALS_PATH = Path(__file__).parent.parent / "config" / "domain_signals.json"
 PENDING_PATH = Path(__file__).parent.parent / "config" / "signal_updates_pending.json"
 MINGUS_BACKEND_URL = os.getenv("MINGUS_BACKEND_URL", "http://127.0.0.1:5000")
+
+# ---------------------------------------------------------------------------
+# Sentry admin context middleware
+# ---------------------------------------------------------------------------
+
+@app.before_request
+def before_request_sentry_context():
+    """Capture admin context and request breadcrumbs for Sentry."""
+    if not SENTRY_DSN_BACKEND:
+        return
+
+    admin_id = request.headers.get("X-Admin-Id")
+    admin_email = request.headers.get("X-Admin-Email")
+
+    auth = request.authorization
+    if auth and auth.username:
+        admin_id = admin_id or auth.username
+        admin_email = admin_email or f"{auth.username}@dashboard.mingusapp.com"
+    elif not admin_id:
+        admin_id = DASHBOARD_USER
+        admin_email = admin_email or f"{DASHBOARD_USER}@dashboard.mingusapp.com"
+
+    if admin_id and admin_email:
+        sentry_sdk.set_user({
+            "id": admin_id,
+            "email": admin_email,
+            "username": admin_email.split("@")[0],
+        })
+        g.admin_id = admin_id
+        g.admin_email = admin_email
+
+    sentry_sdk.set_tag("service", "admin-dashboard")
+    sentry_sdk.set_tag("endpoint", request.endpoint or "unknown")
+    sentry_sdk.set_tag("method", request.method)
+
+    sentry_sdk.add_breadcrumb(
+        category="http.request",
+        message=f"{request.method} {request.path}",
+        level="info",
+        data={
+            "method": request.method,
+            "path": request.path,
+            "remote_addr": request.remote_addr,
+            "user_agent": (request.headers.get("User-Agent") or "unknown")[:100],
+        },
+    )
+
+
+@app.teardown_request
+def teardown_request_sentry(exc=None):
+    """Add teardown breadcrumb when a request fails."""
+    if exc is not None and SENTRY_DSN_BACKEND:
+        sentry_sdk.add_breadcrumb(
+            category="request.teardown",
+            message=f"Request failed: {type(exc).__name__}",
+            level="error",
+        )
 
 # ---------------------------------------------------------------------------
 # Inline styles
@@ -126,7 +252,43 @@ hr { border: none; border-top: 1px solid #333; margin: 18px 0; }
 """
 
 
-def _html(title, body, active=""):
+@app.context_processor
+def inject_sentry():
+    return {
+        "sentry_dsn": SENTRY_DSN_ADMIN,
+        "sentry_environment": SENTRY_ENVIRONMENT,
+        "admin_user": DASHBOARD_USER,
+        "admin_email": f"{DASHBOARD_USER}@dashboard.mingusapp.com",
+    }
+
+
+def _sentry_head():
+    if not SENTRY_DSN_ADMIN:
+        return ""
+    return (
+        '<!-- Sentry Error Tracking (Admin Dashboard) -->\n'
+        f'<script src="/static/js/sentry-admin-init.js" '
+        f'data-sentry-dsn="{html.escape(SENTRY_DSN_ADMIN, quote=True)}" '
+        f'data-sentry-environment="{html.escape(SENTRY_ENVIRONMENT, quote=True)}"></script>'
+    )
+
+
+def _sentry_page_init(page_name):
+    if not SENTRY_DSN_ADMIN or not page_name:
+        return ""
+    admin_id = json.dumps(DASHBOARD_USER)
+    admin_email = json.dumps(f"{DASHBOARD_USER}@dashboard.mingusapp.com")
+    page = json.dumps(page_name)
+    return f"""<script>
+document.addEventListener('DOMContentLoaded', function() {{
+  if (window.trackAdminPageView) window.trackAdminPageView({page});
+  if (window.setSentryAdminContext) window.setSentryAdminContext({admin_id}, {admin_email});
+  console.log('✓ ' + {page} + ' page initialized with Sentry tracking');
+}});
+</script>"""
+
+
+def _html(title, body, active="", page_name=None):
     flash_html = ""
     for msg in get_flashed_messages():
         flash_html += f'<div class="flash">{msg}</div>'
@@ -145,12 +307,15 @@ def _html(title, body, active=""):
         f'{label}</a>'
         for href, label in nav_links
     )
+    sentry_head = _sentry_head()
+    sentry_init = _sentry_page_init(page_name)
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Mingus — {title}</title>
+  {sentry_head}
   <style>{CSS}</style>
 </head>
 <body>
@@ -160,6 +325,7 @@ def _html(title, body, active=""):
     {flash_html}
     {body}
   </div>
+  {sentry_init}
 </body>
 </html>"""
 
@@ -301,7 +467,7 @@ def overview():
 <h2>Quick Actions</h2>
 <ul style="list-style:none;line-height:2">{links_html}</ul>
 """
-    return _html("Overview", body, active="/")
+    return _html("Overview", body, active="/", page_name="overview")
 
 
 # ---------------------------------------------------------------------------
@@ -410,6 +576,7 @@ def _parse_followed_at(raw):
 
 @app.route("/import/instagram", methods=["POST"])
 @requires_auth
+@admin_error_handler("instagram_import")
 def import_instagram_leads():
     uploaded = request.files.get("file")
     if not uploaded or not uploaded.filename:
@@ -420,102 +587,105 @@ def import_instagram_leads():
 
     try:
         text = uploaded.read().decode("utf-8-sig")
-        reader = csv.DictReader(io.StringIO(text))
-        if not reader.fieldnames:
-            return jsonify({
-                "error": "CSV must have a username or ig_handle column",
-            }), 400
-
-        normalized = {
-            (name or "").strip().lower(): name
-            for name in reader.fieldnames
-            if name
-        }
-        if "username" in normalized:
-            handle_col = normalized["username"]
-        elif "ig_handle" in normalized:
-            handle_col = normalized["ig_handle"]
-        else:
-            return jsonify({
-                "error": "CSV must have a username or ig_handle column",
-            }), 400
-
-        followed_col = normalized.get("followed_at")
-
-        inserted = 0
-        skipped = 0
-        total_rows = 0
-
-        conn = db.get_connection()
-        try:
-            with conn.cursor() as cur:
-                for row in reader:
-                    total_rows += 1
-                    handle = (row.get(handle_col) or "").strip().lstrip("@")
-                    if not handle:
-                        skipped += 1
-                        continue
-
-                    cur.execute(
-                        "SELECT id FROM leads WHERE ig_handle = %s LIMIT 1",
-                        (handle,),
-                    )
-                    if cur.fetchone():
-                        skipped += 1
-                        continue
-
-                    ingested_at = _parse_followed_at(
-                        row.get(followed_col, "") if followed_col else ""
-                    )
-                    snippet = f"@{handle} (Instagram follow)"
-
-                    cur.execute(
-                        """
-                        INSERT INTO leads (
-                            id, ig_handle, url, body,
-                            source, domain_id,
-                            platform, post_id,
-                            pain_score, readiness_score, composite_score,
-                            notified, responded, ingested_at
-                        ) VALUES (
-                            gen_random_uuid(),
-                            %s, %s, %s,
-                            %s, %s,
-                            %s, %s,
-                            0, 0, 0.0,
-                            FALSE, FALSE,
-                            %s
-                        )
-                        """,
-                        (
-                            handle,
-                            f"https://instagram.com/{handle}",
-                            snippet,
-                            "instagram",
-                            "uncategorized",
-                            "instagram",
-                            f"instagram:{handle}",
-                            ingested_at,
-                        ),
-                    )
-                    inserted += 1
-            conn.commit()
-        except Exception as e:
-            conn.rollback()
-            app.logger.exception("IG import failed")
-            return jsonify({"error": "Import failed", "detail": str(e)}), 500
-        finally:
-            db.release_connection(conn)
-
-        app.logger.info(f"IG import: {inserted} inserted, {skipped} skipped")
-        return jsonify({
-            "status": "ok",
-            "inserted": inserted,
-            "skipped": skipped,
-            "total_rows": total_rows,
-        })
     except UnicodeDecodeError:
         return jsonify({"error": "File must be a valid UTF-8 CSV"}), 400
+
+    reader = csv.DictReader(io.StringIO(text))
+    if not reader.fieldnames:
+        return jsonify({
+            "error": "CSV must have a username or ig_handle column",
+        }), 400
+
+    normalized = {
+        (name or "").strip().lower(): name
+        for name in reader.fieldnames
+        if name
+    }
+    if "username" in normalized:
+        handle_col = normalized["username"]
+    elif "ig_handle" in normalized:
+        handle_col = normalized["ig_handle"]
+    else:
+        return jsonify({
+            "error": "CSV must have a username or ig_handle column",
+        }), 400
+
+    followed_col = normalized.get("followed_at")
+    total_rows = 0
+
+    with track_csv_import(uploaded.filename, "insert") as stats:
+        with track_db_operation("import_leads", {"source": "instagram"}):
+            conn = db.get_connection()
+            try:
+                with conn.cursor() as cur:
+                    for row in reader:
+                        total_rows += 1
+                        handle = (row.get(handle_col) or "").strip().lstrip("@")
+                        if not handle:
+                            stats["skipped"] += 1
+                            continue
+
+                        cur.execute(
+                            "SELECT id FROM leads WHERE ig_handle = %s LIMIT 1",
+                            (handle,),
+                        )
+                        if cur.fetchone():
+                            stats["skipped"] += 1
+                            continue
+
+                        ingested_at = _parse_followed_at(
+                            row.get(followed_col, "") if followed_col else ""
+                        )
+                        snippet = f"@{handle} (Instagram follow)"
+
+                        cur.execute(
+                            """
+                            INSERT INTO leads (
+                                id, ig_handle, url, body,
+                                source, domain_id,
+                                platform, post_id,
+                                pain_score, readiness_score, composite_score,
+                                notified, responded, ingested_at
+                            ) VALUES (
+                                gen_random_uuid(),
+                                %s, %s, %s,
+                                %s, %s,
+                                %s, %s,
+                                0, 0, 0.0,
+                                FALSE, FALSE,
+                                %s
+                            )
+                            """,
+                            (
+                                handle,
+                                f"https://instagram.com/{handle}",
+                                snippet,
+                                "instagram",
+                                "uncategorized",
+                                "instagram",
+                                f"instagram:{handle}",
+                                ingested_at,
+                            ),
+                        )
+                        stats["inserted"] += 1
+                conn.commit()
+            except Exception:
+                conn.rollback()
+                app.logger.exception("IG import failed")
+                raise
+            finally:
+                db.release_connection(conn)
+
+    app.logger.info(
+        "IG import: %s inserted, %s skipped", stats["inserted"], stats["skipped"],
+    )
+    return jsonify({
+        "status": "ok",
+        "inserted": stats["inserted"],
+        "skipped": stats["skipped"],
+        "total_rows": total_rows,
+        "errors": stats["errors"],
+    })
 
 
 # ---------------------------------------------------------------------------
@@ -524,129 +694,134 @@ def import_instagram_leads():
 
 @app.route("/leads/ig-funnel-stats")
 @requires_auth
+@admin_error_handler("ig_funnel_stats")
 def ig_funnel_stats():
-    conn = db.get_connection()
-    try:
-        with conn.cursor(cursor_factory=RealDictCursor) as cur:
-            cur.execute(
-                """
-                SELECT
-                  COUNT(*) AS total,
-                  COUNT(*) FILTER (WHERE responded = TRUE) AS dm_sent,
-                  COUNT(*) FILTER (WHERE response_got_dm = TRUE) AS got_reply,
-                  COUNT(*) FILTER (WHERE no_reply = TRUE) AS no_reply,
-                  COUNT(*) FILTER (
-                    WHERE responded = FALSE
-                    AND no_reply = FALSE
-                  ) AS not_contacted
-                FROM leads
-                WHERE source = 'instagram'
-                """
-            )
-            row = cur.fetchone() or {}
-        return jsonify({
-            "total": int(row.get("total") or 0),
-            "dm_sent": int(row.get("dm_sent") or 0),
-            "got_reply": int(row.get("got_reply") or 0),
-            "no_reply": int(row.get("no_reply") or 0),
-            "not_contacted": int(row.get("not_contacted") or 0),
-        })
-    except Exception as e:
-        app.logger.exception("IG funnel stats failed")
-        return jsonify({"error": "Stats failed", "detail": str(e)}), 500
-    finally:
-        db.release_connection(conn)
+    with track_db_operation("fetch_ig_funnel_stats"):
+        conn = db.get_connection()
+        try:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute(
+                    """
+                    SELECT
+                      COUNT(*) AS total,
+                      COUNT(*) FILTER (WHERE responded = TRUE) AS dm_sent,
+                      COUNT(*) FILTER (WHERE response_got_dm = TRUE) AS got_reply,
+                      COUNT(*) FILTER (WHERE no_reply = TRUE) AS no_reply,
+                      COUNT(*) FILTER (
+                        WHERE responded = FALSE
+                        AND no_reply = FALSE
+                      ) AS not_contacted
+                    FROM leads
+                    WHERE source = 'instagram'
+                    """
+                )
+                row = cur.fetchone() or {}
+            return jsonify({
+                "total": int(row.get("total") or 0),
+                "dm_sent": int(row.get("dm_sent") or 0),
+                "got_reply": int(row.get("got_reply") or 0),
+                "no_reply": int(row.get("no_reply") or 0),
+                "not_contacted": int(row.get("not_contacted") or 0),
+            })
+        finally:
+            db.release_connection(conn)
 
 
 @app.route("/leads/<lead_id>/dm-sent", methods=["PATCH"])
 @requires_auth
+@admin_error_handler("lead_dm_sent")
 def lead_dm_sent(lead_id):
-    conn = db.get_connection()
-    try:
-        with conn.cursor(cursor_factory=RealDictCursor) as cur:
-            cur.execute(
-                "SELECT id, source FROM leads WHERE id = %s",
-                (lead_id,),
-            )
-            row = cur.fetchone()
-            if not row:
-                return jsonify({"error": "Lead not found"}), 404
-            if row["source"] != "instagram":
-                return jsonify({"error": "Not an Instagram lead"}), 400
-            cur.execute(
-                "UPDATE leads SET responded = TRUE WHERE id = %s",
-                (lead_id,),
-            )
-        conn.commit()
-        return jsonify({"status": "ok", "lead_id": lead_id, "state": "dm_sent"})
-    except Exception as e:
-        conn.rollback()
-        app.logger.exception("DM sent update failed")
-        return jsonify({"error": "Update failed", "detail": str(e)}), 500
-    finally:
-        db.release_connection(conn)
+    with track_db_operation("lead_dm_sent", {"lead_id": lead_id}):
+        conn = db.get_connection()
+        try:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute(
+                    "SELECT id, source FROM leads WHERE id = %s",
+                    (lead_id,),
+                )
+                row = cur.fetchone()
+                if not row:
+                    return jsonify({"error": "Lead not found"}), 404
+                if row["source"] != "instagram":
+                    return jsonify({"error": "Not an Instagram lead"}), 400
+                cur.execute(
+                    "UPDATE leads SET responded = TRUE WHERE id = %s",
+                    (lead_id,),
+                )
+            conn.commit()
+            return jsonify({"status": "ok", "lead_id": lead_id, "state": "dm_sent"})
+        except Exception:
+            conn.rollback()
+            app.logger.exception("DM sent update failed")
+            raise
+        finally:
+            db.release_connection(conn)
 
 
 @app.route("/leads/<lead_id>/got-reply", methods=["PATCH"])
 @requires_auth
+@admin_error_handler("lead_got_reply")
 def lead_got_reply(lead_id):
-    conn = db.get_connection()
-    try:
-        with conn.cursor(cursor_factory=RealDictCursor) as cur:
-            cur.execute(
-                "SELECT id, source FROM leads WHERE id = %s",
-                (lead_id,),
-            )
-            row = cur.fetchone()
-            if not row:
-                return jsonify({"error": "Lead not found"}), 404
-            if row["source"] != "instagram":
-                return jsonify({"error": "Not an Instagram lead"}), 400
-            cur.execute(
-                """
-                UPDATE leads
-                SET response_got_dm = TRUE, responded = TRUE
-                WHERE id = %s
-                """,
-                (lead_id,),
-            )
-        conn.commit()
-        return jsonify({"status": "ok", "lead_id": lead_id, "state": "got_reply"})
-    except Exception as e:
-        conn.rollback()
-        app.logger.exception("Got reply update failed")
-        return jsonify({"error": "Update failed", "detail": str(e)}), 500
-    finally:
-        db.release_connection(conn)
+    with track_db_operation("lead_got_reply", {"lead_id": lead_id}):
+        conn = db.get_connection()
+        try:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute(
+                    "SELECT id, source FROM leads WHERE id = %s",
+                    (lead_id,),
+                )
+                row = cur.fetchone()
+                if not row:
+                    return jsonify({"error": "Lead not found"}), 404
+                if row["source"] != "instagram":
+                    return jsonify({"error": "Not an Instagram lead"}), 400
+                cur.execute(
+                    """
+                    UPDATE leads
+                    SET response_got_dm = TRUE, responded = TRUE
+                    WHERE id = %s
+                    """,
+                    (lead_id,),
+                )
+            conn.commit()
+            return jsonify({"status": "ok", "lead_id": lead_id, "state": "got_reply"})
+        except Exception:
+            conn.rollback()
+            app.logger.exception("Got reply update failed")
+            raise
+        finally:
+            db.release_connection(conn)
 
 
 @app.route("/leads/<lead_id>/no-reply", methods=["PATCH"])
 @requires_auth
+@admin_error_handler("lead_no_reply")
 def lead_no_reply(lead_id):
-    conn = db.get_connection()
-    try:
-        with conn.cursor(cursor_factory=RealDictCursor) as cur:
-            cur.execute(
-                "SELECT id, source FROM leads WHERE id = %s",
-                (lead_id,),
-            )
-            row = cur.fetchone()
-            if not row:
-                return jsonify({"error": "Lead not found"}), 404
-            if row["source"] != "instagram":
-                return jsonify({"error": "Not an Instagram lead"}), 400
-            cur.execute(
-                "UPDATE leads SET no_reply = TRUE WHERE id = %s",
-                (lead_id,),
-            )
-        conn.commit()
-        return jsonify({"status": "ok", "lead_id": lead_id, "state": "no_reply"})
-    except Exception as e:
-        conn.rollback()
-        app.logger.exception("No reply update failed")
-        return jsonify({"error": "Update failed", "detail": str(e)}), 500
-    finally:
-        db.release_connection(conn)
+    with track_db_operation("lead_no_reply", {"lead_id": lead_id}):
+        conn = db.get_connection()
+        try:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute(
+                    "SELECT id, source FROM leads WHERE id = %s",
+                    (lead_id,),
+                )
+                row = cur.fetchone()
+                if not row:
+                    return jsonify({"error": "Lead not found"}), 404
+                if row["source"] != "instagram":
+                    return jsonify({"error": "Not an Instagram lead"}), 400
+                cur.execute(
+                    "UPDATE leads SET no_reply = TRUE WHERE id = %s",
+                    (lead_id,),
+                )
+            conn.commit()
+            return jsonify({"status": "ok", "lead_id": lead_id, "state": "no_reply"})
+        except Exception:
+            conn.rollback()
+            app.logger.exception("No reply update failed")
+            raise
+        finally:
+            db.release_connection(conn)
 
 
 # ---------------------------------------------------------------------------
@@ -716,7 +891,7 @@ def lead_detail(lead_id):
 <h3>Drafted Reply — edit before posting</h3>
 <div class="detail-box">{lead.get("drafted_reply") or "(no draft — run reply crafter)"}</div>
 """
-    return _html("Lead Detail", body, active="/leads")
+    return _html("Lead Detail", body, active="/leads", page_name="lead-detail")
 
 
 @app.route("/leads/<lead_id>/respond", methods=["POST"])
@@ -803,7 +978,7 @@ def communities():
   <tbody>{rows_html}</tbody>
 </table>
 """
-    return _html("Heat Map", body, active="/communities")
+    return _html("Heat Map", body, active="/communities", page_name="communities")
 
 
 @app.route("/communities/heat-check", methods=["POST"])
@@ -844,7 +1019,7 @@ def communities_add_form():
   <a href="/communities" class="btn">Cancel</a>
 </form>
 """
-    return _html("Add Community", body, active="/communities")
+    return _html("Add Community", body, active="/communities", page_name="communities-add")
 
 
 @app.route("/communities/add", methods=["POST"])
@@ -895,7 +1070,7 @@ def ads():
     <button class="btn btn-green">Generate Now</button>
   </form>
 </div>"""
-        return _html("Ads Brief", body, active="/ads")
+        return _html("Ads Brief", body, active="/ads", page_name="ads")
 
     brief_id = str(brief_row["id"])
     tc = brief_row.get("top_communities") or []
@@ -956,7 +1131,7 @@ def ads():
 <table style="width:auto"><thead><tr><th>Date</th><th>Status</th></tr></thead>
 <tbody>{past_rows}</tbody></table>
 """
-    return _html("Ads Brief", body, active="/ads")
+    return _html("Ads Brief", body, active="/ads", page_name="ads")
 
 
 @app.route("/ads/generate", methods=["POST"])
@@ -1125,7 +1300,7 @@ def signal_library():
 <h3>All Domains</h3>
 {domains_html}
 """
-    return _html("Signal Library", body, active="/signal-library")
+    return _html("Signal Library", body, active="/signal-library", page_name="signal-library")
 
 
 @app.route("/signal-library/add", methods=["POST"])
@@ -1217,6 +1392,7 @@ def pmf():
 
 @app.route("/api/leads/<lead_id>/pipeline-stage", methods=["PUT"])
 @require_basic_auth
+@admin_error_handler("update_lead_pipeline_stage")
 def update_lead_pipeline_stage(lead_id):
     data = request.get_json(silent=True)
     if not data or "pipeline_stage" not in data:
@@ -1226,39 +1402,40 @@ def update_lead_pipeline_stage(lead_id):
     if pipeline_stage not in PIPELINE_STAGES:
         return jsonify({"error": "Invalid pipeline_stage"}), 400
 
-    conn = db.get_connection()
-    try:
-        with conn.cursor(cursor_factory=RealDictCursor) as cur:
-            cur.execute(
-                """
-                UPDATE leads
-                SET pipeline_stage = %s, updated_at = NOW()
-                WHERE id = %s
-                RETURNING id, pipeline_stage, updated_at
-                """,
-                (pipeline_stage, lead_id),
+    with track_db_operation("update_pipeline_stage", {"lead_id": lead_id}):
+        conn = db.get_connection()
+        try:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute(
+                    """
+                    UPDATE leads
+                    SET pipeline_stage = %s, updated_at = NOW()
+                    WHERE id = %s
+                    RETURNING id, pipeline_stage, updated_at
+                    """,
+                    (pipeline_stage, lead_id),
+                )
+                row = cur.fetchone()
+                if not row:
+                    return jsonify({"error": "Lead not found"}), 404
+            conn.commit()
+            updated_at = row["updated_at"]
+            if hasattr(updated_at, "isoformat"):
+                updated_at = updated_at.isoformat()
+            return jsonify({
+                "status": "ok",
+                "lead_id": str(row["id"]),
+                "pipeline_stage": row["pipeline_stage"],
+                "updated_at": updated_at,
+            })
+        except Exception:
+            conn.rollback()
+            app.logger.exception(
+                "Pipeline stage update failed for lead %s", lead_id,
             )
-            row = cur.fetchone()
-            if not row:
-                return jsonify({"error": "Lead not found"}), 404
-        conn.commit()
-        updated_at = row["updated_at"]
-        if hasattr(updated_at, "isoformat"):
-            updated_at = updated_at.isoformat()
-        return jsonify({
-            "status": "ok",
-            "lead_id": str(row["id"]),
-            "pipeline_stage": row["pipeline_stage"],
-            "updated_at": updated_at,
-        })
-    except Exception as e:
-        conn.rollback()
-        app.logger.exception(
-            "Pipeline stage update failed for lead %s", lead_id,
-        )
-        return jsonify({"error": "Update failed", "detail": str(e)}), 500
-    finally:
-        db.release_connection(conn)
+            raise
+        finally:
+            db.release_connection(conn)
 
 
 # ---------------------------------------------------------------------------
@@ -1267,6 +1444,7 @@ def update_lead_pipeline_stage(lead_id):
 
 @app.route("/api/<path:subpath>", methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"])
 @requires_auth
+@admin_error_handler("api_proxy")
 def api_proxy(subpath):
     if request.method == "OPTIONS":
         return Response("", status=204)
@@ -1292,7 +1470,25 @@ def api_proxy(subpath):
             timeout=30,
         )
     except requests.RequestException as exc:
+        if SENTRY_DSN_BACKEND:
+            with sentry_sdk.push_scope() as scope:
+                scope.set_tag("action", "api_proxy")
+                scope.set_tag("subpath", subpath)
+                scope.set_extra("target", target)
+                sentry_sdk.capture_exception(exc)
         return jsonify({"error": "Backend unavailable", "message": str(exc)}), 502
+
+    if proxied.status_code >= 500 and SENTRY_DSN_BACKEND:
+        sentry_sdk.add_breadcrumb(
+            category="api-proxy",
+            message=f"Backend returned {proxied.status_code} for {subpath}",
+            level="error",
+            data={
+                "subpath": subpath,
+                "status": proxied.status_code,
+                "target": target,
+            },
+        )
 
     excluded = {"content-encoding", "content-length", "transfer-encoding", "connection"}
     response_headers = [
@@ -1397,7 +1593,7 @@ def weekly_report():
 {dropdown}
 {report_html}
 """
-    return _html("Weekly Report", body, active="/weekly-report")
+    return _html("Weekly Report", body, active="/weekly-report", page_name="weekly-report")
 
 
 # ---------------------------------------------------------------------------

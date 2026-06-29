@@ -4,6 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Marketing Tracker — Mingus</title>
+{% if sentry_dsn %}
+<!-- Sentry Error Tracking (Admin Dashboard) -->
+<script src="/static/js/sentry-admin-init.js"
+        data-sentry-dsn="{{ sentry_dsn }}"
+        data-sentry-environment="{{ sentry_environment }}"></script>
+{% endif %}
 <style>
   :root {
     --bg: #0f1117;
@@ -698,6 +704,7 @@ function updateSummary() {
 // ── Persist ──────────────────────────────────────────────────────────────────
 function saveAll() {
   saveState();
+  window.trackAdminAction?.('Marketing tracker saved');
   const msg = document.getElementById('save-msg');
   msg.style.display = 'inline';
   setTimeout(() => msg.style.display = 'none', 2000);
@@ -715,6 +722,7 @@ function updateLastSaved() {
 
 // ── Export CSV ───────────────────────────────────────────────────────────────
 function exportCSV() {
+  window.trackAdminAction?.('Marketing tracker CSV export');
   const rows = [['Channel','Task','Week','Status','Notes']];
   CHANNELS.forEach(ch => {
     ch.tasks.forEach(t => {
@@ -740,6 +748,12 @@ window.cycleStatus = function(id) {
 };
 
 // ── Init ─────────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', function() {
+  window.trackAdminPageView?.('marketing');
+  window.setSentryAdminContext?.({{ admin_user | tojson }}, {{ admin_email | tojson }});
+  console.log('✓ Marketing page initialized with Sentry tracking');
+});
+
 loadState();
 renderAll();
 updateLastSaved();

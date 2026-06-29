@@ -4,6 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Lead Queue — Mingus</title>
+{% if sentry_dsn %}
+<!-- Sentry Error Tracking (Admin Dashboard) -->
+<script src="/static/js/sentry-admin-init.js"
+        data-sentry-dsn="{{ sentry_dsn }}"
+        data-sentry-environment="{{ sentry_environment }}"></script>
+{% endif %}
 <style>
   :root {
     --bg: #0f1117;
@@ -637,6 +643,8 @@ function renderStageBadge(lead) {
 
 async function updatePipelineStage(leadId, stage) {
   closeAllStageDropdowns();
+  const startTime = Date.now();
+  window.trackAdminAction?.('Pipeline stage update', { leadId: leadId, stage: stage });
   try {
     const r = await fetch('/api/leads/' + leadId + '/pipeline-stage', {
       method: 'PUT',
@@ -644,8 +652,14 @@ async function updatePipelineStage(leadId, stage) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ pipeline_stage: stage }),
     });
+    const duration = Date.now() - startTime;
     const d = await r.json();
-    if (!r.ok) throw new Error(d.error || r.statusText);
+    if (!r.ok) {
+      const error = new Error(d.error || r.statusText);
+      window.trackAdminApiCall?.('/api/leads/' + leadId + '/pipeline-stage', r.status, duration, error);
+      throw error;
+    }
+    window.trackAdminApiCall?.('/api/leads/' + leadId + '/pipeline-stage', 200, duration);
     const lead = LEADS.find(function(l) { return l.id === leadId; });
     if (lead) {
       lead.pipeline_stage = d.pipeline_stage;
@@ -653,6 +667,8 @@ async function updatePipelineStage(leadId, stage) {
       renderLeadsTable();
     }
   } catch (e) {
+    const duration = Date.now() - startTime;
+    window.trackAdminApiCall?.('/api/leads/' + leadId + '/pipeline-stage', 0, duration, e);
     alert('Could not update stage: ' + e.message);
   }
 }
@@ -768,22 +784,40 @@ async function handleIGImport(input) {
   const st = document.getElementById('import-status');
   st.textContent = 'Uploading...';
   st.style.color = 'var(--teal)';
+  const startTime = Date.now();
+  window.trackAdminAction?.('CSV import started', {
+    fileName: file.name,
+    fileSize: file.size,
+    fileType: file.type,
+  });
   const fd = new FormData();
   fd.append('file', file);
   try {
     const res = await fetch('/import/instagram',
       { method: 'POST', body: fd, credentials: 'same-origin' });
+    const duration = Date.now() - startTime;
     const d = await res.json();
     if (!res.ok) {
+      const error = new Error(d.error || 'Import failed');
+      window.trackAdminApiCall?.('/import/instagram', res.status, duration, error);
       st.textContent = 'Error: ' + d.error;
       st.style.color = 'var(--coral, #E05C6A)';
       return;
     }
+    window.trackAdminApiCall?.('/import/instagram', 200, duration);
+    window.trackAdminAction?.('CSV import completed', {
+      inserted: d.inserted,
+      skipped: d.skipped,
+      durationMs: duration,
+      fileName: file.name,
+    });
     st.textContent =
       d.inserted + ' imported, ' + d.skipped + ' skipped.';
     st.style.color = 'var(--teal)';
     setTimeout(() => location.reload(), 1800);
   } catch(err) {
+    const duration = Date.now() - startTime;
+    window.trackAdminApiCall?.('/import/instagram', 0, duration, err);
     st.textContent = 'Upload failed — see console.';
     st.style.color = 'var(--coral, #E05C6A)';
     console.error(err);
@@ -792,26 +826,46 @@ async function handleIGImport(input) {
 }
 
 async function loadFunnelStats() {
+  window.trackAdminAction?.('Loading IG funnel stats');
+  const startTime = Date.now();
   try {
     const r = await fetch('/leads/ig-funnel-stats', { credentials: 'same-origin' });
+    const duration = Date.now() - startTime;
+    if (!r.ok) {
+      const error = new Error('Failed to load funnel stats: ' + r.status);
+      window.trackAdminApiCall?.('/leads/ig-funnel-stats', r.status, duration, error);
+      throw error;
+    }
     const d = await r.json();
+    window.trackAdminApiCall?.('/leads/ig-funnel-stats', 200, duration);
     document.getElementById('f-total').textContent = d.total;
     document.getElementById('f-not-contacted').textContent = d.not_contacted;
     document.getElementById('f-dm-sent').textContent = d.dm_sent;
     document.getElementById('f-got-reply').textContent = d.got_reply;
     document.getElementById('f-no-reply').textContent = d.no_reply;
   } catch(e) {
+    const duration = Date.now() - startTime;
+    window.trackAdminApiCall?.('/leads/ig-funnel-stats', 0, duration, e);
     console.warn('Funnel stats unavailable', e);
   }
 }
 
 async function markLead(leadId, action) {
+  const endpoint = '/leads/' + leadId + '/' + action;
+  const startTime = Date.now();
+  window.trackAdminAction?.('Lead state update', { leadId: leadId, action: action });
   try {
-    const r = await fetch('/leads/' + leadId + '/' + action, {
+    const r = await fetch(endpoint, {
       method: 'PATCH',
       credentials: 'same-origin',
     });
-    if (!r.ok) throw new Error(await r.text());
+    const duration = Date.now() - startTime;
+    if (!r.ok) {
+      const error = new Error(await r.text());
+      window.trackAdminApiCall?.(endpoint, r.status, duration, error);
+      throw error;
+    }
+    window.trackAdminApiCall?.(endpoint, 200, duration);
     const lead = LEADS.find(function(l) { return l.id === leadId; });
     if (lead) {
       if (action === 'dm-sent') lead.responded = true;
@@ -824,9 +878,18 @@ async function markLead(leadId, action) {
     }
     await loadFunnelStats();
   } catch(e) {
+    const duration = Date.now() - startTime;
+    window.trackAdminApiCall?.(endpoint, 0, duration, e);
     alert('Could not update lead: ' + e.message);
   }
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+  window.trackAdminPageView?.('leads');
+  window.setSentryAdminContext?.({{ admin_user | tojson }}, {{ admin_email | tojson }});
+  window.trackAdminAction?.('Leads data loaded', { count: LEADS.length });
+  console.log('✓ Leads page initialized with Sentry tracking');
+});
 
 loadFunnelStats();
 renderLeadsTable();
