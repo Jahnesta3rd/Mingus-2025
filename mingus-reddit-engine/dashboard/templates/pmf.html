@@ -10,6 +10,11 @@
         data-sentry-dsn="{{ sentry_dsn }}"
         data-sentry-environment="{{ sentry_environment }}"></script>
 {% endif %}
+{% if axiom_token %}
+<script src="/static/js/axiom-logger.js"
+        data-axiom-token="{{ axiom_token }}"
+        data-axiom-dataset="{{ axiom_dataset }}"></script>
+{% endif %}
 <style>
   :root {
     --bg: #0f1117;

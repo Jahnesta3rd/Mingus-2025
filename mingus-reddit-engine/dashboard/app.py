@@ -108,8 +108,10 @@ from pipeline import ads_brief as ads_brief_mod
 from pipeline.ads_brief import export_for_reddit_ads, zip_reddit_ads_export
 from reporting import feedback_loop
 from utils.sentry_helpers import admin_error_handler, track_db_operation, track_csv_import
+from utils.axiom_logger import setup_axiom_logging
 
 app = Flask(__name__)
+setup_axiom_logging(app)
 app.secret_key = os.getenv("FLASK_SECRET_KEY", "mingus-dev-secret-2024")
 
 SENTRY_DSN_ADMIN = os.getenv("SENTRY_DSN_ADMIN_FRONTEND", "")
@@ -253,24 +255,35 @@ hr { border: none; border-top: 1px solid #333; margin: 18px 0; }
 
 
 @app.context_processor
-def inject_sentry():
+def inject_monitoring():
     return {
         "sentry_dsn": SENTRY_DSN_ADMIN,
         "sentry_environment": SENTRY_ENVIRONMENT,
         "admin_user": DASHBOARD_USER,
         "admin_email": f"{DASHBOARD_USER}@dashboard.mingusapp.com",
+        "axiom_token": os.getenv("AXIOM_API_TOKEN", ""),
+        "axiom_dataset": os.getenv("AXIOM_DATASET_FRONTEND", ""),
     }
 
 
 def _sentry_head():
-    if not SENTRY_DSN_ADMIN:
-        return ""
-    return (
-        '<!-- Sentry Error Tracking (Admin Dashboard) -->\n'
-        f'<script src="/static/js/sentry-admin-init.js" '
-        f'data-sentry-dsn="{html.escape(SENTRY_DSN_ADMIN, quote=True)}" '
-        f'data-sentry-environment="{html.escape(SENTRY_ENVIRONMENT, quote=True)}"></script>'
-    )
+    parts = []
+    if SENTRY_DSN_ADMIN:
+        parts.append(
+            '<!-- Sentry Error Tracking (Admin Dashboard) -->\n'
+            f'<script src="/static/js/sentry-admin-init.js" '
+            f'data-sentry-dsn="{html.escape(SENTRY_DSN_ADMIN, quote=True)}" '
+            f'data-sentry-environment="{html.escape(SENTRY_ENVIRONMENT, quote=True)}"></script>'
+        )
+    axiom_token = os.getenv("AXIOM_API_TOKEN", "")
+    if axiom_token:
+        axiom_dataset = os.getenv("AXIOM_DATASET_FRONTEND", "")
+        parts.append(
+            f'<script src="/static/js/axiom-logger.js" '
+            f'data-axiom-token="{html.escape(axiom_token, quote=True)}" '
+            f'data-axiom-dataset="{html.escape(axiom_dataset, quote=True)}"></script>'
+        )
+    return "\n".join(parts)
 
 
 def _sentry_page_init(page_name):
@@ -1594,6 +1607,16 @@ def weekly_report():
 {report_html}
 """
     return _html("Weekly Report", body, active="/weekly-report", page_name="weekly-report")
+
+
+# ---------------------------------------------------------------------------
+# GET /test-axiom — verify backend Axiom logging
+# ---------------------------------------------------------------------------
+
+@app.route("/test-axiom")
+def test_axiom():
+    app.logger.info("Test backend log from /test-axiom endpoint")
+    return jsonify({"status": "ok", "message": "Test log sent to Axiom"})
 
 
 # ---------------------------------------------------------------------------
