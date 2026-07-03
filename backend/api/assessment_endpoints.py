@@ -633,11 +633,11 @@ def get_assessment_history():
                 a.assessment_type,
                 lr.score,
                 lr.risk_level,
-                a.created_at
+                lr.created_at
             FROM assessments a
             LEFT JOIN lead_magnet_results lr ON a.id = lr.assessment_id
             WHERE a.user_id = %s
-            ORDER BY a.assessment_type, a.created_at DESC
+            ORDER BY a.assessment_type, lr.created_at DESC
         ''', (user_id,))
         rows = cursor.fetchall()
 
