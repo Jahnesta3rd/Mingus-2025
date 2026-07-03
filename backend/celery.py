@@ -22,7 +22,7 @@ celery = Celery(
         "backend.tasks.spirit_tasks",
         "backend.tasks.spirit_reminder",
         "backend.tasks.vibe_financial_alert_tasks",
-        "backend.tasks.plaid_tasks",
+        "backend.tasks.assessment_followup_tasks",
     ],
 )
 
@@ -44,6 +44,10 @@ celery.conf.beat_schedule = {
     "spirit-practice-reminders": {
         "task": "backend.tasks.spirit_reminder.send_spirit_reminders",
         "schedule": crontab(minute="*/15"),
+    },
+    "assessment-followup-scan": {
+        "task": "backend.tasks.assessment_followup_tasks.scan_assessment_followups",
+        "schedule": crontab(minute=0),
     },
 }
 

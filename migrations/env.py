@@ -53,6 +53,8 @@ from backend.models.gap_analysis import GapAnalysisResult  # noqa: F401
 from backend.models.health_insurance_plan import HealthInsurancePlan  # noqa: F401
 from backend.models.health_insurance_recommendation import HealthInsuranceRecommendation  # noqa: F401
 from backend.models.quick_spend import QuickSpendEntry  # noqa: F401
+from backend.models.assessment_token import AssessmentToken  # noqa: F401
+from backend.models.assessment_event import AssessmentEvent  # noqa: F401
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

@@ -36,6 +36,7 @@ class SecurityMiddleware:
             '/api/auth/verify',
             '/api/auth/forgot-password',
             '/api/assessments',
+            '/api/analytics/assessment-event',
             # Stripe webhooks must be callable by Stripe without CSRF/auth
             '/api/stripe/webhook',
             # Beta code validation before signup (no auth; Flask-Limiter on route)
@@ -54,6 +55,9 @@ class SecurityMiddleware:
         for endpoint in public_endpoints:
             if request.path.startswith(endpoint) or path.startswith(endpoint):
                 return True
+        # Public assessment funnel (token-gated, no login)
+        if '/public-results' in path or '/track-click' in path or '/resend-token' in path:
+            return True
         # Allow any path that looks like auth (handles proxy prefix, trailing slash)
         if 'auth/login' in path or 'auth/verify' in path or 'auth/register' in path or 'auth/forgot-password' in path:
             return True

@@ -9,6 +9,7 @@ from .user_models import User
 from .user_profile import UserProfile
 from .beta_code import BetaCode
 from .beta_invite_log import BetaInviteLog
+from .lead_magnet_email_log import LeadMagnetEmailLog
 from .vehicle_models import Vehicle, MaintenancePrediction, CommuteScenario, MSAGasPrice
 from .housing_models import HousingSearch, HousingScenario, UserHousingPreferences, CommuteRouteCache, HousingType
 from .daily_outlook import DailyOutlook, UserRelationshipStatus, DailyOutlookTemplate, RelationshipStatus, TemplateTier, TemplateCategory
@@ -82,6 +83,8 @@ from .debt_profile import DebtProfile
 from .gap_analysis import GapAnalysisResult
 from .health_insurance_plan import HealthInsurancePlan
 from .health_insurance_recommendation import HealthInsuranceRecommendation
+from .assessment_token import AssessmentToken
+from .assessment_event import AssessmentEvent
 from .quick_spend import QuickSpendEntry
 
 __all__ = [
@@ -90,6 +93,7 @@ __all__ = [
     'UserProfile',
     'BetaCode',
     'BetaInviteLog',
+    'LeadMagnetEmailLog',
     'Vehicle',
     'MaintenancePrediction',
     'CommuteScenario',
@@ -173,4 +177,6 @@ __all__ = [
     'HealthInsurancePlan',
     'HealthInsuranceRecommendation',
     'QuickSpendEntry',
+    'AssessmentToken',
+    'AssessmentEvent',
 ]

@@ -47,6 +47,7 @@ from backend.api.health_insurance_endpoints import health_insurance_bp
 from backend.routes.expenses_summary import expenses_summary_bp
 from backend.routes.quick_spend_api import quick_spend_bp
 from backend.routes.payment_routes import payment_bp
+from backend.api.admin_assessment_analytics import admin_assessment_analytics_bp
 from backend.cli.employer_refresh import register_employer_cli
 from backend.cli.hprs_refresh import register_hprs_cli
 from backend.cli.warn_scan import scan_warn_notices
@@ -113,6 +114,7 @@ def register_backend_blueprints(app):
     app.register_blueprint(expenses_summary_bp)
     app.register_blueprint(quick_spend_bp)
     app.register_blueprint(payment_bp)
+    app.register_blueprint(admin_assessment_analytics_bp)
     register_employer_cli(app)
     register_hprs_cli(app)
     app.cli.add_command(scan_warn_notices)

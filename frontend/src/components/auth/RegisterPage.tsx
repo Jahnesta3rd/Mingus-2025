@@ -56,6 +56,17 @@ const RegisterPage: React.FC = () => {
   const [sessionSetupPending, setSessionSetupPending] = useState(false);
   const [sessionSetupError, setSessionSetupError] = useState(false);
   const postRegisterNavigatedRef = useRef(false);
+  const fromAssessment = searchParams.get('from') === 'assessment';
+  const assessmentIdParam = searchParams.get('assessment_id');
+  const assessmentTokenParam = searchParams.get('token');
+
+  useEffect(() => {
+    if (!fromAssessment) return;
+    const emailParam = searchParams.get('email');
+    if (emailParam) {
+      setFormData((prev) => ({ ...prev, email: emailParam }));
+    }
+  }, [fromAssessment, searchParams]);
 
   useEffect(() => {
     if (
@@ -154,6 +165,12 @@ const RegisterPage: React.FC = () => {
         {
           beta_code: betaCode,
           ...(loveLedger && vcLeadParam ? { vc_lead_id: vcLeadParam } : {}),
+          ...(fromAssessment && assessmentIdParam
+            ? { assessment_id: assessmentIdParam }
+            : {}),
+          ...(fromAssessment && assessmentTokenParam
+            ? { token: assessmentTokenParam }
+            : {}),
         }
       );
       if (loveLedger) {

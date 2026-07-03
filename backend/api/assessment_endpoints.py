@@ -12,7 +12,7 @@ import hashlib
 import hmac
 import secrets
 from datetime import datetime
-from flask import Blueprint, request, jsonify, current_app, send_file
+from flask import Blueprint, request, jsonify, current_app, send_file, redirect
 from werkzeug.exceptions import BadRequest, InternalServerError
 from sqlalchemy import Table, Column, Integer, Text, Float, DateTime, MetaData, literal_column
 from sqlalchemy.dialects.postgresql import insert as pg_insert
@@ -21,8 +21,12 @@ from ..models.database import db
 from ..models.user_models import User
 from ..models.career_commitment_profile import CareerCommitmentProfile
 from ..services.career_commitment_service import compute_commitment_type
-from ..tasks.lead_magnet_email_tasks import send_lead_magnet_results
+from ..models.assessment_token import AssessmentToken
+from ..tasks.lead_magnet_email_tasks import send_lead_magnet_results, resend_lead_magnet_link
 from ..auth.decorators import jwt_required, get_current_user_db_id
+from ..services.assessment_analytics_service import log_assessment_event
+from ..services.assessment_recommendations import get_tier_recommendations
+from backend.middleware.limiter_ext import limiter
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -258,6 +262,12 @@ def init_assessment_db():
             conn.commit()
         except Exception:
             pass
+        try:
+            cursor.execute('ALTER TABLE assessments ADD COLUMN IF NOT EXISTS email_plain TEXT')
+            cursor.execute('ALTER TABLE assessments ADD COLUMN IF NOT EXISTS user_id INTEGER')
+            conn.commit()
+        except Exception:
+            pass
         conn.commit()
         logger.info("Assessment database initialized successfully")
         
@@ -308,16 +318,18 @@ def submit_assessment():
         conn = get_db_connection()
         cursor = conn.cursor()
         
-        # Hash email for privacy
-        email_hash = hashlib.sha256(sanitized_data['email'].encode()).hexdigest()
+        # Hash email for privacy; keep plain email for follow-up sends
+        normalized_email = sanitized_data['email'].lower().strip()
+        email_hash = hashlib.sha256(normalized_email.encode()).hexdigest()
         
-        # Insert assessment data with encrypted email
+        # Insert assessment data with hashed email + plain email for follow-ups
         cursor.execute('''
-            INSERT INTO assessments (email, first_name, phone, assessment_type, answers, completed_at)
-            VALUES (%s, %s, %s, %s, %s, %s)
+            INSERT INTO assessments (email, email_plain, first_name, phone, assessment_type, answers, completed_at)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
             RETURNING id
         ''', (
-            email_hash,  # Store hashed email instead of plain text
+            email_hash,
+            normalized_email,
             sanitized_data.get('firstName'),
             sanitized_data.get('phone'),
             sanitized_data['assessmentType'],
@@ -356,6 +368,25 @@ def submit_assessment():
         ))
         
         conn.commit()
+
+        # Generate signed token for public results link
+        email_hash_lower = hashlib.sha256(normalized_email.encode()).hexdigest()
+        assessment_token = AssessmentToken(
+            assessment_id=assessment_id,
+            email_hash=email_hash_lower,
+        )
+        db.session.add(assessment_token)
+        db.session.commit()
+
+        log_assessment_event(
+            assessment_id,
+            email_hash_lower,
+            "submitted",
+            metadata={
+                "assessment_type": sanitized_data['assessmentType'],
+                "email": normalized_email,
+            },
+        )
 
         commitment_result = None
         try:
@@ -405,6 +436,8 @@ def submit_assessment():
                     sanitized_data['assessmentType'],
                     results,
                     results.get('recommendations', []),
+                    assessment_id,
+                    assessment_token.token,
                 )
                 email_sent = True
             except Exception as email_error:
@@ -469,6 +502,328 @@ def download_assessment_pdf(assessment_id):
     except Exception as e:
         logger.error(f"Error serving PDF: {e}")
         return jsonify({'success': False, 'error': str(e)}), 500
+
+def _parse_json_field(value, default):
+    """Parse a DB JSON/text column; pass through if already decoded."""
+    if value is None:
+        return default
+    if isinstance(value, (dict, list)):
+        return value
+    try:
+        return json.loads(value)
+    except (TypeError, ValueError):
+        return default
+
+
+@assessment_api.route('/assessments/<int:assessment_id>/public-results', methods=['GET'])
+def get_public_assessment_results(assessment_id):
+    """
+    Public endpoint: returns assessment results if valid token provided.
+    No auth required, but token must be valid (not expired, not used).
+    """
+    token = request.args.get('token')
+
+    if not token:
+        return jsonify({'error': 'Token required'}), 400
+
+    token_obj = AssessmentToken.query.filter_by(
+        token=token, assessment_id=assessment_id
+    ).first()
+
+    if not token_obj:
+        return jsonify({'error': 'Invalid or expired token'}), 401
+
+    if token_obj.is_used:
+        return jsonify({'error': 'Assessment already redeemed'}), 410
+
+    if datetime.utcnow() >= token_obj.expires_at:
+        return jsonify({'error': 'Invalid or expired token'}), 401
+
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        cursor.execute('''
+            SELECT id, assessment_type, score, risk_level, recommendations, subscores, created_at
+            FROM lead_magnet_results
+            WHERE assessment_id = %s
+        ''', (assessment_id,))
+        result = cursor.fetchone()
+
+        if not result:
+            return jsonify({'error': 'Assessment not found'}), 404
+
+        tier_recs = get_tier_recommendations(result['assessment_type'], result['score'])
+
+        return jsonify({
+            'assessment_id': assessment_id,
+            'assessment_type': result['assessment_type'],
+            'score': result['score'],
+            'risk_level': result['risk_level'],
+            'recommendations': _parse_json_field(result['recommendations'], []),
+            'subscores': _parse_json_field(result['subscores'], {}),
+            'next_steps': tier_recs.get('next_steps', []),
+            'tier_title': tier_recs.get('tier_title', ''),
+            'actions': tier_recs.get('actions', []),
+            'created_at': result['created_at'].isoformat() if result['created_at'] else None,
+        }), 200
+
+    except Exception as e:
+        logger.error(f"Error in get_public_assessment_results: {e}")
+        return jsonify({'error': 'Internal server error'}), 500
+    finally:
+        if 'conn' in locals():
+            conn.close()
+
+
+@assessment_api.route('/user/assessments', methods=['GET'])
+@jwt_required
+def get_user_assessments():
+    """Return assessments linked to the authenticated user."""
+    user_id = get_current_user_db_id()
+    if user_id is None:
+        return jsonify({'error': 'Authentication required'}), 401
+
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute('''
+            SELECT a.id, a.assessment_type, lr.score, a.created_at
+            FROM assessments a
+            LEFT JOIN lead_magnet_results lr ON a.id = lr.assessment_id
+            WHERE a.user_id = %s
+            ORDER BY a.created_at DESC
+        ''', (user_id,))
+        rows = cursor.fetchall()
+
+        assessments = []
+        for row in rows:
+            created_at = row['created_at']
+            assessments.append({
+                'id': row['id'],
+                'assessment_type': row['assessment_type'],
+                'score': row['score'],
+                'created_at': created_at.isoformat() if created_at else None,
+            })
+
+        return jsonify({'assessments': assessments}), 200
+
+    except Exception as e:
+        logger.error(f"Error in get_user_assessments: {e}")
+        return jsonify({'error': 'Internal server error'}), 500
+    finally:
+        if 'conn' in locals():
+            conn.close()
+
+
+@assessment_api.route('/user/assessments/history', methods=['GET'])
+@jwt_required
+def get_assessment_history():
+    """Assessment history grouped by type with score trends."""
+    user_id = get_current_user_db_id()
+    if user_id is None:
+        return jsonify({'error': 'Authentication required'}), 401
+
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute('''
+            SELECT
+                a.id,
+                a.assessment_type,
+                lr.score,
+                lr.risk_level,
+                a.created_at
+            FROM assessments a
+            LEFT JOIN lead_magnet_results lr ON a.id = lr.assessment_id
+            WHERE a.user_id = %s
+            ORDER BY a.assessment_type, a.created_at DESC
+        ''', (user_id,))
+        rows = cursor.fetchall()
+
+        by_type: dict[str, list] = {}
+        for row in rows:
+            atype = row['assessment_type']
+            created_at = row['created_at']
+            by_type.setdefault(atype, []).append({
+                'id': row['id'],
+                'score': row['score'],
+                'risk_level': row['risk_level'],
+                'created_at': created_at.isoformat() if created_at else None,
+            })
+
+        trends: dict[str, dict] = {}
+        for atype, assessments in by_type.items():
+            if len(assessments) >= 2:
+                latest = assessments[0]['score']
+                previous = assessments[1]['score']
+                delta = None
+                trend = 'stable'
+                if latest is not None and previous is not None:
+                    delta = latest - previous
+                    trend = 'up' if delta > 0 else 'down' if delta < 0 else 'stable'
+                trends[atype] = {
+                    'latest_score': latest,
+                    'previous_score': previous,
+                    'delta': delta,
+                    'trend': trend,
+                    'history': assessments,
+                }
+            else:
+                trends[atype] = {
+                    'latest_score': assessments[0]['score'] if assessments else None,
+                    'history': assessments,
+                }
+
+        return jsonify({'assessments_by_type': by_type, 'trends': trends}), 200
+
+    except Exception as e:
+        logger.error(f"Error in get_assessment_history: {e}")
+        return jsonify({'error': 'Internal server error'}), 500
+    finally:
+        if 'conn' in locals():
+            conn.close()
+
+
+_FRONTEND_ASSESSMENT_EVENTS = frozenset({'results_viewed', 'link_clicked'})
+
+
+@assessment_api.route('/assessments/<int:assessment_id>/track-click', methods=['GET'])
+def track_assessment_link_click(assessment_id):
+    """Log email link click, then redirect to public results page."""
+    token = request.args.get('token')
+    if not token:
+        return jsonify({'error': 'Token required'}), 400
+
+    token_obj = AssessmentToken.query.filter_by(
+        assessment_id=assessment_id,
+        token=token,
+    ).first()
+    if token_obj:
+        log_assessment_event(
+            assessment_id,
+            token_obj.email_hash,
+            'link_clicked',
+            token=token,
+            metadata={'user_agent': request.headers.get('User-Agent')},
+        )
+
+    public_base = os.environ.get('PUBLIC_APP_URL', 'https://mingusapp.com').rstrip('/')
+    return redirect(f'{public_base}/assessment-results/{assessment_id}?token={token}')
+
+
+@assessment_api.route('/analytics/assessment-event', methods=['POST'])
+def log_assessment_event_endpoint():
+    """Log frontend funnel events (results_viewed, link_clicked)."""
+    data = request.get_json(silent=True) or {}
+    assessment_id = data.get('assessment_id')
+    token = data.get('token')
+    event_type = data.get('event_type')
+
+    if not all([assessment_id, token, event_type]):
+        return jsonify({'error': 'Missing fields'}), 400
+
+    if event_type not in _FRONTEND_ASSESSMENT_EVENTS:
+        return jsonify({'error': 'Invalid event_type'}), 400
+
+    try:
+        assessment_id = int(assessment_id)
+    except (TypeError, ValueError):
+        return jsonify({'error': 'Invalid assessment_id'}), 400
+
+    token_obj = AssessmentToken.query.filter_by(
+        assessment_id=assessment_id,
+        token=token,
+    ).first()
+
+    if not token_obj:
+        return jsonify({'error': 'Invalid token'}), 401
+
+    log_assessment_event(
+        assessment_id,
+        token_obj.email_hash,
+        event_type,
+        token=token,
+        metadata={'user_agent': request.headers.get('User-Agent')},
+    )
+
+    return jsonify({'success': True}), 200
+
+
+def _resend_rate_limit_key():
+    data = request.get_json(silent=True) or {}
+    assessment_id = request.view_args.get('assessment_id', '')
+    email = (data.get('email') or '').lower().strip()
+    return f"assessment-resend:{assessment_id}:{email}"
+
+
+@assessment_api.route('/assessments/<int:assessment_id>/resend-token', methods=['POST'])
+@limiter.limit("3 per day", key_func=_resend_rate_limit_key)
+def resend_assessment_token(assessment_id):
+    """Request a new results link when the original email was lost."""
+    data = request.get_json(silent=True) or {}
+    email = (data.get('email') or '').lower().strip()
+
+    if not email:
+        return jsonify({'error': 'Email required'}), 400
+
+    email_hash = hashlib.sha256(email.encode()).hexdigest()
+
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute(
+            'SELECT id, email FROM assessments WHERE id = %s',
+            (assessment_id,),
+        )
+        assessment_row = cursor.fetchone()
+        if not assessment_row:
+            return jsonify({'error': 'Assessment not found'}), 404
+
+        if assessment_row['email'] != email_hash:
+            return jsonify({'error': 'Email does not match this assessment'}), 403
+
+        redeemed = AssessmentToken.query.filter_by(
+            assessment_id=assessment_id,
+            is_used=True,
+        ).first()
+        if redeemed:
+            return jsonify({'error': 'Assessment already redeemed'}), 410
+
+        new_token = AssessmentToken(assessment_id=assessment_id, email_hash=email_hash)
+        db.session.add(new_token)
+        db.session.commit()
+
+        is_testing = (
+            os.environ.get('FLASK_ENV') == 'testing'
+            or os.environ.get('TESTING', '').lower() in ('1', 'true', 'yes')
+            or (current_app.config.get('TESTING') if current_app else False)
+        )
+        if not is_testing:
+            try:
+                resend_lead_magnet_link.delay(assessment_id, email, new_token.token)
+            except Exception as email_err:
+                logger.exception("Resend email queue failed: %s", email_err)
+
+        log_assessment_event(
+            assessment_id,
+            email_hash,
+            "token_resent",
+            token=new_token.token,
+        )
+
+        return jsonify({
+            'success': True,
+            'message': 'Check your email for the new link',
+        }), 200
+
+    except Exception as e:
+        logger.error(f"Error in resend_assessment_token: {e}")
+        return jsonify({'error': 'Internal server error'}), 500
+    finally:
+        if 'conn' in locals():
+            conn.close()
+
 
 @assessment_api.route('/assessments/<int:assessment_id>/results', methods=['GET'])
 def get_assessment_results(assessment_id):

@@ -9,8 +9,8 @@ from datetime import datetime
 from flask import Flask
 from unittest.mock import Mock, patch
 
-# Add backend to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+# Add repo root to path (not backend/ — that shadows the celery package)
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
 from backend.models.database import db
 from backend.api import register_all_apis
@@ -106,3 +106,24 @@ def mock_user():
 def mock_db_session():
     """Mock database session"""
     return Mock()
+
+
+@pytest.fixture
+def db_session(app):
+    """SQLAlchemy session bound to the test Flask app."""
+    with app.app_context():
+        yield db.session
+
+
+@pytest.fixture(autouse=True)
+def celery_config():
+    """Use eager execution in tests so tasks run synchronously."""
+    from backend.celery import celery as celery_app
+
+    celery_app.conf.update(
+        task_always_eager=True,
+        task_eager_propagates=False,
+        broker_url="memory://",
+        result_backend="cache+memory://",
+    )
+    return celery_app

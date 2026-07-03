@@ -38,6 +38,7 @@ import HomeownershipActionPlan, {
 import OptimalLocationRouter from '../components/OptimalLocation/OptimalLocationRouter';
 import DashboardWellnessSection from '../components/DashboardWellnessSection';
 import YouTab from '../components/YouTab';
+import { SavedAssessments } from '../components/SavedAssessments';
 import DebtAnalyzerTab from '../components/DebtAnalyzerTab';
 import EmployerBackfillModal, {
   isEmployerBackfillDismissed,
@@ -771,10 +772,13 @@ const CareerProtectionDashboard: React.FC = () => {
           )}
 
           {dashboardState.activeTab === 'you' && (
-            <YouTab
-              focusField={youTabFocusField}
-              onFocusConsumed={() => setYouTabFocusField(undefined)}
-            />
+            <div className="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6 lg:px-8">
+              <SavedAssessments />
+              <YouTab
+                focusField={youTabFocusField}
+                onFocusConsumed={() => setYouTabFocusField(undefined)}
+              />
+            </div>
           )}
 
           {dashboardState.activeTab === 'vehicle' && (

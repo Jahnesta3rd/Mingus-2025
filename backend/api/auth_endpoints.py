@@ -9,6 +9,9 @@ import json
 import secrets
 import uuid
 import jwt
+import hashlib
+import psycopg2
+import psycopg2.extras
 from datetime import datetime, timedelta
 from flask import Blueprint, request, jsonify
 from werkzeug.exceptions import BadRequest
@@ -20,6 +23,8 @@ from sqlalchemy.dialects.postgresql import JSONB, insert as pg_insert
 from backend.constants.onboarding import MODULE_ORDER
 from backend.models.database import db
 from backend.models.user_models import User
+from backend.models.assessment_token import AssessmentToken
+from backend.services.assessment_analytics_service import log_assessment_event
 from backend.models.vibe_checkups import VibeCheckupsLead
 from backend.services import life_ledger_service as life_ledger_svc
 from backend.utils.password import hash_password, check_password, verify_password_strength
@@ -102,6 +107,85 @@ auth_api = Blueprint('auth_api', __name__, url_prefix='/api/auth')
 JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY', 'your-jwt-secret-key-change-in-production')
 JWT_ALGORITHM = 'HS256'
 JWT_ACCESS_TOKEN_EXPIRE_MINUTES = int(os.environ.get('JWT_ACCESS_TOKEN_EXPIRE_MINUTES', '1440'))  # 24 hours
+
+
+def _get_assessment_db_connection():
+    conn = psycopg2.connect(os.environ['DATABASE_URL'])
+    conn.cursor_factory = psycopg2.extras.RealDictCursor
+    return conn
+
+
+def _redeem_assessment_token_on_signup(user: User, data: dict, email: str) -> None:
+    """Mark assessment token used and link assessment to the new user."""
+    assessment_id = data.get('assessment_id') or data.get('assessmentId')
+    token_value = data.get('token')
+    if not assessment_id:
+        return
+
+    try:
+        assessment_id = int(assessment_id)
+    except (TypeError, ValueError):
+        return
+
+    query = AssessmentToken.query.filter_by(assessment_id=assessment_id)
+    if token_value:
+        token_obj = query.filter_by(token=token_value).first()
+    else:
+        token_obj = query.order_by(AssessmentToken.created_at.desc()).first()
+
+    if not token_obj:
+        return
+
+    email_hash = hashlib.sha256(email.lower().encode()).hexdigest()
+    if token_obj.email_hash != email_hash:
+        logger.warning(
+            "Assessment token email mismatch for user_id=%s assessment_id=%s",
+            user.id,
+            assessment_id,
+        )
+        return
+
+    token_obj.is_used = True
+    token_obj.redeemed_by_user_id = user.id
+    db.session.commit()
+
+    log_assessment_event(
+        assessment_id,
+        email_hash,
+        "signup_completed",
+        token=token_obj.token,
+        metadata={"user_id": user.id},
+    )
+
+    conn = None
+    try:
+        conn = _get_assessment_db_connection()
+        cursor = conn.cursor()
+        cursor.execute(
+            '''
+            UPDATE assessments
+            SET user_id = %s
+            WHERE id = %s
+            ''',
+            (user.id, assessment_id),
+        )
+        conn.commit()
+    except Exception as link_err:
+        logger.warning(
+            "Failed to link assessment %s to user %s: %s",
+            assessment_id,
+            user.id,
+            link_err,
+        )
+    finally:
+        if conn is not None:
+            conn.close()
+
+    try:
+        from backend.api.assessment_endpoints import sync_assessments_to_profile
+        sync_assessments_to_profile(email)
+    except Exception as sync_err:
+        logger.warning("Post-signup assessment profile sync failed: %s", sync_err)
 
 
 def generate_jwt_token(user_id: str, email: str, expiry: timedelta = None) -> str:
@@ -273,6 +357,8 @@ def register():
             profile_row_id,
             email,
         )
+
+        _redeem_assessment_token_on_signup(new_user, data, email)
 
         vc_lead_id = (data.get("vc_lead_id") or data.get("vcLeadId") or "").strip()
         if not vc_lead_id:

@@ -48,6 +48,7 @@ import SnapshotPage from './pages/SnapshotPage';
 import HealthInsuranceAdvisor from './components/HealthInsuranceAdvisor';
 import { useAuth } from './hooks/useAuth';
 import { LeadGenAssessment } from './pages/LeadGenAssessment';
+import { PublicAssessmentResults } from './pages/PublicAssessmentResults';
 
 function localCalendarDateYmd(): string {
   const d = new Date();
@@ -104,6 +105,7 @@ const router = createBrowserRouter([
   { path: '/beta', element: <Navigate to="/register?beta=1" replace /> },
   { path: '/beta/welcome', element: <Navigate to="/welcome" replace /> },
   { path: '/assessments', element: <LeadGenAssessment /> },
+  { path: '/assessment-results/:assessmentId', element: <PublicAssessmentResults /> },
   { path: '/vibe-checkups', element: <VibeCheckupsPage /> },
   {
     path: '/body-check',

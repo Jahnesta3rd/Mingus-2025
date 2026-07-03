@@ -71,6 +71,9 @@ export interface RegisterOptions {
   is_beta?: boolean;
   /** Vibe Checkups lead UUID for Life Ledger import after registration. */
   vc_lead_id?: string | null;
+  /** Lead magnet assessment to link after signup. */
+  assessment_id?: string | number | null;
+  token?: string | null;
 }
 
 export type AuthUserTier = 'budget' | 'mid_tier' | 'professional';
@@ -267,6 +270,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           ...(options?.tier ? { tier: options.tier } : {}),
           ...(options?.is_beta === true ? { is_beta: true } : {}),
           ...(options?.vc_lead_id ? { vc_lead_id: options.vc_lead_id } : {}),
+          ...(options?.assessment_id != null
+            ? { assessment_id: options.assessment_id }
+            : {}),
+          ...(options?.token ? { token: options.token } : {}),
         }),
       });
 

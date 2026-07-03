@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"></head>
+<body style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#1a1a1a;max-width:600px;margin:0 auto;padding:0">
+  <div style="background:#5B2D8E;color:#fff;padding:24px;text-align:center">
+    <p style="margin:0;font-size:0.85rem;opacity:0.9">Mingus Assessment Results</p>
+    <h1 style="margin:8px 0 0;font-size:1.5rem;font-weight:700">Your {{ assessment_label }} Results</h1>
+  </div>
+  <div style="padding:24px">
+    {% if first_name %}
+    <p>Hi {{ first_name }},</p>
+    {% endif %}
+    <p>Thanks for completing your assessment. Here's a personalized summary of your results:</p>
+
+    <div style="background:#f3f4f6;border-radius:8px;padding:20px;margin:20px 0;text-align:center">
+      {% if score is defined %}
+      <p style="font-size:2.5rem;font-weight:bold;margin:0;color:#5B2D8E">{{ score }}<span style="font-size:1rem;color:#6b7280">/100</span></p>
+      {% elif results_data.score is defined %}
+      <p style="font-size:2.5rem;font-weight:bold;margin:0;color:#5B2D8E">{{ results_data.score }}<span style="font-size:1rem;color:#6b7280">/100</span></p>
+      {% endif %}
+      {% if risk_level %}
+      <p style="color:#6b7280;margin:8px 0 0">Risk level: <strong>{{ risk_level }}</strong></p>
+      {% elif results_data.risk_level %}
+      <p style="color:#6b7280;margin:8px 0 0">Risk level: <strong>{{ results_data.risk_level }}</strong></p>
+      {% endif %}
+      {% if percentile %}
+      <p style="color:#6b7280;margin:8px 0 0">Percentile: <strong>{{ percentile }}th</strong></p>
+      {% elif results_data.percentile %}
+      <p style="color:#6b7280;margin:8px 0 0">Percentile: <strong>{{ results_data.percentile }}th</strong></p>
+      {% endif %}
+    </div>
+
+    {% set insights = key_insights or results_data.key_insights or [] %}
+    {% if insights %}
+    <h2 style="font-size:1.1rem;color:#5B2D8E">Key Insights</h2>
+    <ul style="padding-left:20px;line-height:1.6">
+      {% for item in insights %}
+      <li style="margin-bottom:8px">{{ item }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+
+    {% set steps = next_steps or results_data.next_steps or results_data.recommendations or [] %}
+    {% if steps %}
+    <h2 style="font-size:1.1rem;color:#5B2D8E">Next Steps</h2>
+    <ul style="padding-left:20px;line-height:1.6">
+      {% for step in steps %}
+      <li style="margin-bottom:8px">{{ step }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+
+    {% set cta_text = cta or results_data.cta or "View Full Dashboard" %}
+    {% set cta_href = cta_link or results_data.cta_link or "https://mingusapp.com/dashboard" %}
+    <p style="margin-top:32px;text-align:center">
+      <a href="{{ cta_href }}"
+         style="background:#5B2D8E;color:#fff;padding:14px 28px;border-radius:6px;text-decoration:none;font-weight:600;display:inline-block">
+        {{ cta_text }}
+      </a>
+    </p>
+
+    <hr style="border:none;border-top:1px solid #e5e7eb;margin:32px 0">
+    <p style="color:#9ca3af;font-size:0.8rem;text-align:center">
+      © 2025 Mingus · <a href="https://mingusapp.com" style="color:#9ca3af">mingusapp.com</a>
+    </p>
+  </div>
+</body>
+</html>
