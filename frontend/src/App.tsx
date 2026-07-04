@@ -41,6 +41,8 @@ import SpiritFinance from './pages/SpiritFinance';
 import SettingsPage from './pages/SettingsPage';
 import OnboardingRouter from './components/OnboardingRouter';
 import FinancialForecastPage from './pages/FinancialForecastPage';
+import EnhancedCalculatorPage from './pages/EnhancedCalculatorPage';
+import ScenarioManagement from './components/ScenarioManagement';
 import WaterfallPage from './pages/WaterfallPage';
 import UpgradePage from './pages/UpgradePage';
 import DashboardProfilePage from './pages/DashboardProfilePage';
@@ -106,6 +108,8 @@ const router = createBrowserRouter([
   { path: '/beta/welcome', element: <Navigate to="/welcome" replace /> },
   { path: '/assessments', element: <LeadGenAssessment /> },
   { path: '/assessment-results/:assessmentId', element: <PublicAssessmentResults /> },
+  { path: '/enhanced-calculator', element: <EnhancedCalculatorPage /> },
+  { path: '/scenarios', element: <ScenarioManagement /> },
   { path: '/vibe-checkups', element: <VibeCheckupsPage /> },
   {
     path: '/body-check',

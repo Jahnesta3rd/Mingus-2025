@@ -1,4 +1,5 @@
 module.exports = {
+  roots: ['<rootDir>/src'],
   testEnvironment: 'jsdom',
   setupFilesAfterEnv: ['<rootDir>/src/setupTests.ts'],
   moduleNameMapper: {
@@ -25,7 +26,12 @@ module.exports = {
   coverageDirectory: 'coverage',
   coverageReporters: ['text', 'lcov', 'html'],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json'],
-  testPathIgnorePatterns: ['/node_modules/', '/dist/'],
+  testPathIgnorePatterns: ['/node_modules/', '/dist/', '/coverage/'],
+  modulePathIgnorePatterns: [
+    '<rootDir>/../backups/',
+    '<rootDir>/../Mingus-Cypress-Tests/',
+    '<rootDir>/../backend/',
+  ],
   transformIgnorePatterns: [
     'node_modules/(?!(lucide-react|@testing-library)/)',
   ],
