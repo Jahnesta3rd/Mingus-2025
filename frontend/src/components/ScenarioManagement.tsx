@@ -14,8 +14,11 @@ import {
   Pencil,
   PiggyBank,
   Trash2,
+  Upload,
   X,
 } from 'lucide-react';
+import BulkExportModal from './BulkExportModal';
+import ImportModal from './ImportModal';
 import {
   deleteScenario,
   duplicateScenario,
@@ -671,6 +674,8 @@ const ScenarioManagement: React.FC = () => {
   });
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
+  const [importModalOpen, setImportModalOpen] = useState(false);
+  const [exportModalOpen, setExportModalOpen] = useState(false);
   const [message, setMessage] = useState('');
 
   const refreshScenarios = useCallback(() => {
@@ -958,7 +963,25 @@ const ScenarioManagement: React.FC = () => {
           </nav>
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <h1 className="text-3xl font-semibold text-slate-900">Scenario Management</h1>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => setExportModalOpen(true)}
+                aria-label="Bulk Export"
+                className="inline-flex items-center rounded bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+              >
+                <Download className="h-4 w-4 sm:mr-2" />
+                <span className="hidden sm:inline">Bulk Export</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setImportModalOpen(true)}
+                aria-label="Import"
+                className="inline-flex items-center rounded bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+              >
+                <Upload className="h-4 w-4 sm:mr-2" />
+                <span className="hidden sm:inline">Import</span>
+              </button>
               <button
                 type="button"
                 onClick={() => setViewMode('list')}
@@ -1303,6 +1326,26 @@ const ScenarioManagement: React.FC = () => {
           setBulkDeleteOpen(false);
         }}
         onConfirm={handleDeleteConfirm}
+      />
+
+      <BulkExportModal
+        isOpen={exportModalOpen}
+        onClose={() => setExportModalOpen(false)}
+        scenarios={scenarios}
+        onImportClick={() => {
+          setExportModalOpen(false);
+          setImportModalOpen(true);
+        }}
+      />
+
+      <ImportModal
+        isOpen={importModalOpen}
+        onClose={() => setImportModalOpen(false)}
+        onImportComplete={(count) => {
+          refreshScenarios();
+          setImportModalOpen(false);
+          setMessage(`✓ Imported ${count} scenarios`);
+        }}
       />
     </div>
   );
