@@ -62,8 +62,12 @@ function localCalendarDateYmd(): string {
 
 const OnboardingRouteWrapper: React.FC = () => {
   const navigate = useNavigate();
-  const handleOnboardingComplete = () => {
-    navigate('/snapshot');
+  const handleOnboardingComplete = (destination?: 'dashboard' | 'goal-planning') => {
+    if (destination === 'goal-planning') {
+      navigate('/dashboard/tools?tab=goal-planning', { replace: true });
+      return;
+    }
+    navigate('/snapshot', { replace: true });
   };
   return <OnboardingRouter onComplete={handleOnboardingComplete} />;
 };
@@ -203,6 +207,7 @@ const router = createBrowserRouter([
       { path: 'waterfall', element: <WaterfallPage /> },
       { path: 'upgrade', element: <UpgradePage /> },
       { path: 'tools', element: <CareerProtectionDashboard /> },
+      { path: 'goals', element: <Navigate to="/dashboard/tools?tab=goal-planning" replace /> },
       { path: 'profile', element: <DashboardProfilePage /> },
       { path: 'vibe-checkups', element: <CheckupsHub /> },
       { path: 'weekly-checkin', element: <WeeklyCheckinForm /> },

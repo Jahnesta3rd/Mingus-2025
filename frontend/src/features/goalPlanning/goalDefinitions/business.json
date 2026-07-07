@@ -1,0 +1,43 @@
+{
+  "id": "business",
+  "label": "Start a Business",
+  "icon": "briefcase",
+  "description": "Launch a new business venture",
+  "timelineUnit": "years",
+  "fields": [
+    {
+      "name": "initialInvestment",
+      "label": "Initial investment",
+      "type": "currency",
+      "required": true,
+      "min": 1000,
+      "helpText": "Startup costs before monthly operations."
+    },
+    {
+      "name": "monthlyCost",
+      "label": "Monthly operating cost",
+      "type": "currency",
+      "required": true,
+      "min": 100,
+      "helpText": "Rent, software, payroll, and recurring expenses."
+    },
+    {
+      "name": "timeline",
+      "label": "Timeline (years)",
+      "type": "number",
+      "required": true,
+      "default": 3,
+      "min": 0.5,
+      "max": 15,
+      "helpText": "When you want to launch with funding in place."
+    },
+    {
+      "name": "savedAmount",
+      "label": "Amount already saved",
+      "type": "currency",
+      "required": false,
+      "min": 0,
+      "helpText": "Capital you can invest today."
+    }
+  ]
+}

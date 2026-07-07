@@ -1,0 +1,259 @@
+.card {
+  border: 1px solid #e5e7eb;
+  border-radius: 0.875rem;
+  background: white;
+  overflow: hidden;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.cardSelected {
+  border-color: var(--mingus-purple, #583fbc);
+  box-shadow: 0 4px 16px rgba(88, 63, 188, 0.1);
+}
+
+.cardExpanded {
+  border-color: rgba(88, 63, 188, 0.35);
+}
+
+.headerButton {
+  width: 100%;
+  padding: 1rem 1.15rem;
+  border: none;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.headerTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.titleBlock {
+  flex: 1;
+  min-width: 0;
+}
+
+.recommendedBadge {
+  display: inline-block;
+  margin-bottom: 0.35rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--mingus-purple, #583fbc);
+}
+
+.title {
+  margin: 0;
+  font-size: 0.95rem;
+  letter-spacing: 0.04em;
+  color: var(--ink, #1a1a2e);
+}
+
+.description {
+  margin: 0.35rem 0 0;
+  font-size: 0.9rem;
+  color: var(--ink-mid, #5c5c7a);
+  line-height: 1.45;
+}
+
+.expandIcon {
+  color: var(--ink-mid, #5c5c7a);
+  flex-shrink: 0;
+}
+
+.metrics {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.85rem;
+  font-size: 0.85rem;
+  color: var(--ink-mid, #5c5c7a);
+}
+
+.metric {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.metric strong {
+  color: var(--ink, #1a1a2e);
+}
+
+.metricDivider {
+  color: #d1d5db;
+}
+
+.feasibilityHigh {
+  color: #047857;
+}
+
+.feasibilityMedium {
+  color: #b45309;
+}
+
+.feasibilityLow {
+  color: #b91c1c;
+}
+
+.body {
+  padding: 0 1.15rem 1.15rem;
+  border-top: 1px solid #f1f5f9;
+}
+
+.columns {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+@media (min-width: 640px) {
+  .columns {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.column h5,
+.block h5 {
+  margin: 0 0 0.5rem;
+  font-size: 0.9rem;
+}
+
+.block {
+  margin-top: 1.15rem;
+}
+
+.list {
+  margin: 0;
+  padding-left: 1.1rem;
+  font-size: 0.88rem;
+  line-height: 1.45;
+  color: var(--ink, #1a1a2e);
+}
+
+.list li + li {
+  margin-top: 0.3rem;
+}
+
+.moduleGrid {
+  display: grid;
+  gap: 0.65rem;
+}
+
+@media (min-width: 640px) {
+  .moduleGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.moduleCard {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 0.75rem;
+  border-radius: 0.6rem;
+  border: 1px solid #e5e7eb;
+  background: #fafafa;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.15s ease;
+}
+
+.moduleCard:hover {
+  border-color: var(--mingus-purple, #583fbc);
+}
+
+.moduleCard strong {
+  font-size: 0.88rem;
+}
+
+.moduleCard span {
+  font-size: 0.8rem;
+  color: var(--ink-mid, #5c5c7a);
+  line-height: 1.35;
+}
+
+.moduleCta {
+  margin-top: auto;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--mingus-purple, #583fbc);
+}
+
+.enrichmentGroup {
+  margin-top: 0.75rem;
+  padding: 0.75rem;
+  border-radius: 0.6rem;
+  background: #f9fafb;
+  border: 1px solid #ececf4;
+}
+
+.enrichmentGroup h6 {
+  margin: 0 0 0.45rem;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ink-mid, #5c5c7a);
+}
+
+.trackedHint {
+  text-transform: none;
+  letter-spacing: normal;
+  font-weight: 400;
+  font-size: 0.75rem;
+}
+
+.enrichmentItem {
+  padding: 0.5rem 0;
+  border-top: 1px solid #ececf4;
+}
+
+.enrichmentItem:first-of-type {
+  border-top: none;
+  padding-top: 0;
+}
+
+.enrichmentItem strong {
+  display: block;
+  font-size: 0.88rem;
+}
+
+.enrichmentItem p {
+  margin: 0.15rem 0 0;
+  font-size: 0.8rem;
+  color: var(--ink-mid, #5c5c7a);
+}
+
+.filteredNotice {
+  margin: 0.75rem 0 0;
+  font-size: 0.82rem;
+  color: var(--ink-mid, #5c5c7a);
+  line-height: 1.4;
+}
+
+.projectionTableWrap {
+  overflow-x: auto;
+}
+
+.projectionTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.projectionTable th,
+.projectionTable td {
+  padding: 0.5rem 0.65rem;
+  border-bottom: 1px solid #ececf4;
+  text-align: left;
+}
+
+.projectionTable th {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ink-mid, #5c5c7a);
+}

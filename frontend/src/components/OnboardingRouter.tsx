@@ -2,8 +2,10 @@ import React from 'react';
 import { useAuth } from '../hooks/useAuth';
 import OnboardingWizard from './onboarding/wizard/OnboardingWizard';
 
+export type OnboardingCompletionDestination = 'dashboard' | 'goal-planning';
+
 export interface OnboardingRouterProps {
-  onComplete: () => void;
+  onComplete?: (destination?: OnboardingCompletionDestination) => void;
 }
 
 export default function OnboardingRouter({ onComplete }: OnboardingRouterProps) {

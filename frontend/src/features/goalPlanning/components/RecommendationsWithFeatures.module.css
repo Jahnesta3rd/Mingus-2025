@@ -1,0 +1,246 @@
+.recommendations {
+  max-width: 48rem;
+  margin: 0 auto;
+  padding: 0 1rem 2rem;
+}
+
+.header {
+  margin-bottom: 1.25rem;
+}
+
+.header h3 {
+  margin: 0 0 0.35rem;
+  font-family: Fraunces, Georgia, serif;
+  font-size: 1.5rem;
+  color: var(--ink, #1a1a2e);
+}
+
+.goalSummary {
+  margin: 0;
+  color: var(--ink-mid, #5c5c7a);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.pathList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.analysisSummary {
+  display: grid;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+  padding: 1rem;
+  border-radius: 0.75rem;
+  background: #f7f7fb;
+  border: 1px solid #ececf4;
+}
+
+.analysisSummary dl {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin: 0;
+}
+
+.analysisSummary dt {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ink-mid, #5c5c7a);
+}
+
+.analysisSummary dd {
+  margin: 0.15rem 0 0;
+  font-weight: 600;
+  color: var(--ink, #1a1a2e);
+}
+
+.pathTabs {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding-bottom: 0.25rem;
+  margin-bottom: 1rem;
+}
+
+.pathTab {
+  flex-shrink: 0;
+  padding: 0.55rem 0.85rem;
+  border: 1px solid #d7d7e5;
+  border-radius: 999px;
+  background: white;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--ink-mid, #5c5c7a);
+  cursor: pointer;
+}
+
+.pathTabActive {
+  border-color: var(--mingus-purple, #583fbc);
+  background: rgba(88, 63, 188, 0.08);
+  color: var(--mingus-purple, #583fbc);
+}
+
+.pathCard {
+  padding: 1.25rem;
+  border-radius: 0.875rem;
+  border: 1px solid rgba(88, 63, 188, 0.15);
+  background: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.pathTitleRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.pathTitleRow h4 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.badge {
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(88, 63, 188, 0.12);
+  color: var(--mingus-purple, #583fbc);
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.metaRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  color: var(--ink-mid, #5c5c7a);
+}
+
+.metaRow strong {
+  color: var(--ink, #1a1a2e);
+}
+
+.section {
+  margin-top: 1.25rem;
+}
+
+.section h5 {
+  margin: 0 0 0.65rem;
+  font-size: 0.95rem;
+}
+
+.list {
+  margin: 0;
+  padding-left: 1.1rem;
+  color: var(--ink, #1a1a2e);
+}
+
+.list li + li {
+  margin-top: 0.35rem;
+}
+
+.moduleGrid {
+  display: grid;
+  gap: 0.75rem;
+}
+
+@media (min-width: 640px) {
+  .moduleGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.moduleCard {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.85rem;
+  border-radius: 0.65rem;
+  border: 1px solid #e5e7eb;
+  background: #fafafa;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.moduleCard:hover {
+  border-color: var(--mingus-purple, #583fbc);
+  box-shadow: 0 2px 8px rgba(88, 63, 188, 0.08);
+}
+
+.moduleCard strong {
+  font-size: 0.95rem;
+}
+
+.moduleCard span {
+  font-size: 0.82rem;
+  color: var(--ink-mid, #5c5c7a);
+  line-height: 1.4;
+}
+
+.moduleCta {
+  margin-top: auto;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--mingus-purple, #583fbc);
+}
+
+.enrichmentBlock {
+  margin-top: 1rem;
+  padding: 0.85rem;
+  border-radius: 0.65rem;
+  background: #f9fafb;
+  border: 1px solid #ececf4;
+}
+
+.enrichmentBlock h6 {
+  margin: 0 0 0.5rem;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ink-mid, #5c5c7a);
+}
+
+.enrichmentItem {
+  padding: 0.55rem 0;
+  border-top: 1px solid #ececf4;
+}
+
+.enrichmentItem:first-of-type {
+  border-top: none;
+  padding-top: 0;
+}
+
+.enrichmentItem strong {
+  display: block;
+  font-size: 0.92rem;
+}
+
+.enrichmentItem p {
+  margin: 0.2rem 0 0;
+  font-size: 0.82rem;
+  color: var(--ink-mid, #5c5c7a);
+}
+
+.actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.secondaryButton {
+  padding: 0.65rem 1rem;
+  border: 1px solid #d7d7e5;
+  border-radius: 0.625rem;
+  background: white;
+  font-weight: 600;
+  cursor: pointer;
+}

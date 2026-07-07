@@ -40,6 +40,7 @@ import DashboardWellnessSection from '../components/DashboardWellnessSection';
 import YouTab from '../components/YouTab';
 import { SavedAssessments } from '../components/SavedAssessments';
 import DebtAnalyzerTab from '../components/DebtAnalyzerTab';
+import GoalPlanningTab from '../features/goalPlanning/components/GoalPlanningTab.jsx';
 import EmployerBackfillModal, {
   isEmployerBackfillDismissed,
 } from '../components/EmployerBackfillModal';
@@ -56,6 +57,7 @@ type MainTabId =
   | 'forecast'
   | 'debt'
   | 'plans'
+  | 'goal-planning'
   | 'discover'
   | 'you'
   | 'vehicle'
@@ -121,6 +123,8 @@ function mainTabToStoreTab(tab: MainTabId): LegacyStoreTab {
       return 'overview';
     case 'plans':
       return 'overview';
+    case 'goal-planning':
+      return 'overview';
     case 'discover':
       return 'recommendations';
     case 'location':
@@ -159,6 +163,8 @@ function legacyQueryTabToMainTab(tab: string): MainTabId | null {
       return 'discover';
     case 'overview':
       return 'plans';
+    case 'goal-planning':
+      return 'goal-planning';
     case 'you':
       return 'you';
     case 'life-ledger':
@@ -183,6 +189,7 @@ const BOTTOM_NAV_TABS: { id: MainTabId; label: string }[] = [
   { id: 'forecast', label: 'Forecast' },
   { id: 'debt', label: 'Debt' },
   { id: 'plans', label: 'Plans' },
+  { id: 'goal-planning', label: 'Goals' },
   { id: 'discover', label: 'Discover' },
   { id: 'you', label: 'You' },
 ];
@@ -758,6 +765,10 @@ const CareerProtectionDashboard: React.FC = () => {
             </div>
           )}
 
+          {dashboardState.activeTab === 'goal-planning' && (
+            <GoalPlanningTab />
+          )}
+
           {dashboardState.activeTab === 'discover' && (
             <div className="space-y-6">
               <ArticleLibraryCard />
@@ -922,6 +933,14 @@ const CareerProtectionDashboard: React.FC = () => {
                     <path d="M16 2v4M8 2v4M3 10h18" />
                     <path d="m9 15 2 2 4-4" />
                   </svg>
+                )}
+                {tab.id === 'goal-planning' && (
+                  <span
+                    style={{ fontSize: '18px', lineHeight: 1 }}
+                    aria-hidden
+                  >
+                    🎯
+                  </span>
                 )}
                 {tab.id === 'discover' && (
                   <svg

@@ -1,0 +1,44 @@
+{
+  "id": "apartment_move",
+  "label": "Move to New Apartment",
+  "icon": "building",
+  "description": "Relocate to a new place",
+  "timelineUnit": "months",
+  "fields": [
+    {
+      "name": "monthlyRent",
+      "label": "Target monthly rent",
+      "type": "currency",
+      "required": true,
+      "min": 100,
+      "helpText": "Expected rent at your new apartment."
+    },
+    {
+      "name": "movingCosts",
+      "label": "Moving costs estimate",
+      "type": "currency",
+      "required": false,
+      "default": 3000,
+      "min": 0,
+      "helpText": "Truck rental, movers, deposits, and setup costs."
+    },
+    {
+      "name": "timeline",
+      "label": "Timeline (months)",
+      "type": "number",
+      "required": true,
+      "default": 12,
+      "min": 1,
+      "max": 60,
+      "helpText": "When you plan to move."
+    },
+    {
+      "name": "currentRent",
+      "label": "Current monthly rent",
+      "type": "currency",
+      "required": false,
+      "min": 0,
+      "helpText": "Helps estimate the monthly cost change."
+    }
+  ]
+}

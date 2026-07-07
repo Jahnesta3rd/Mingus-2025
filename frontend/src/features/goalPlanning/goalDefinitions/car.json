@@ -1,0 +1,45 @@
+{
+  "id": "car_purchase",
+  "label": "Buy a Car",
+  "icon": "car",
+  "description": "Purchase a vehicle",
+  "timelineUnit": "years",
+  "fields": [
+    {
+      "name": "carPrice",
+      "label": "Target car price",
+      "type": "currency",
+      "required": true,
+      "min": 500,
+      "helpText": "Price before taxes and fees."
+    },
+    {
+      "name": "downPaymentPercent",
+      "label": "Down payment %",
+      "type": "percent",
+      "required": true,
+      "default": 10,
+      "min": 0,
+      "max": 100,
+      "helpText": "A higher down payment lowers monthly payments."
+    },
+    {
+      "name": "timeline",
+      "label": "Timeline (years)",
+      "type": "number",
+      "required": true,
+      "default": 2,
+      "min": 0.25,
+      "max": 10,
+      "helpText": "When you want to make the purchase."
+    },
+    {
+      "name": "savedAmount",
+      "label": "Amount already saved",
+      "type": "currency",
+      "required": false,
+      "min": 0,
+      "helpText": "Funds already set aside for the vehicle."
+    }
+  ]
+}

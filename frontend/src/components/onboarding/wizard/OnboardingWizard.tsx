@@ -6,15 +6,21 @@ import { commitModule } from '../../../lib/modularOnboarding';
 import type { ModuleData, ModuleId } from '../../../types/modularOnboarding';
 import { csrfHeaders } from '../../../utils/csrfHeaders';
 import { ProgressIndicator } from './ProgressIndicator';
-import { STEP_ORDER } from './StepDefinitions';
+import { STEP_ORDER, BACKEND_MODULE_IDS, type WizardStepId } from './StepDefinitions';
 import { OnboardingSaveAndExit } from '../OnboardingSaveAndExit';
+import OnboardingGoalCompletion from '../OnboardingGoalCompletion';
+import type { OnboardingModuleData } from '../../hooks/useGoalFormPrefill';
+import {
+  ONBOARDING_GOAL_ROUTE_KEY,
+  clearStoredOnboardingPrefill,
+} from '../../hooks/useGoalFormPrefill';
 
 const BASE = '/api/modular-onboarding';
 const FINAL_ERROR = "Couldn't complete onboarding. Please try again.";
 
-const STEP_LABEL_BY_ID: Record<ModuleId, string> = Object.fromEntries(
+const STEP_LABEL_BY_ID: Record<WizardStepId, string> = Object.fromEntries(
   STEP_ORDER.map((s) => [s.id, s.label])
-) as Record<ModuleId, string>;
+) as Record<WizardStepId, string>;
 
 type FailedField = {
   field_path: string;
@@ -46,7 +52,7 @@ function parseStatusComplete(raw: unknown): boolean {
       (x): x is string => typeof x === 'string'
     )
   );
-  return STEP_ORDER.every((step) => doneSet.has(step.id));
+  return BACKEND_MODULE_IDS.every((stepId) => doneSet.has(stepId));
 }
 
 function parseStatusModule(raw: unknown): string | null {
@@ -68,15 +74,16 @@ function moduleIndex(moduleId: string | null): number {
 }
 
 function isModuleId(value: string): value is ModuleId {
-  return STEP_ORDER.some((s) => s.id === value);
+  return BACKEND_MODULE_IDS.includes(value as ModuleId);
 }
 
 export interface OnboardingWizardProps {
-  onComplete?: () => void;
+  onComplete?: (destination?: 'dashboard' | 'goal-planning') => void;
 }
 
 export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
   const navigate = useNavigate();
+  const [wizardPhase, setWizardPhase] = useState<'steps' | 'goal_completion'>('steps');
 
   const finishOnboarding = useCallback(() => {
     // HPRS-13: YES path — queue plan generation if user has home purchase goal
@@ -91,12 +98,30 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
       }).catch(() => {}); // fire-and-forget — failure is silent
     }
 
+    setWizardPhase('goal_completion');
+  }, []);
+
+  const continueAfterGoal = useCallback(() => {
+    const route = sessionStorage.getItem(ONBOARDING_GOAL_ROUTE_KEY);
     if (onComplete) {
-      onComplete();
+      onComplete(route === 'goal-planning' ? 'goal-planning' : 'dashboard');
       return;
     }
-    navigate('/dashboard', { replace: true });
-  }, [onComplete, navigate]);
+    if (route === 'goal-planning') {
+      navigate('/dashboard/tools?tab=goal-planning', { replace: true });
+      return;
+    }
+    navigate('/snapshot', { replace: true });
+  }, [navigate, onComplete]);
+
+  const skipGoalCompletion = useCallback(() => {
+    clearStoredOnboardingPrefill();
+    if (onComplete) {
+      onComplete('dashboard');
+      return;
+    }
+    navigate('/snapshot', { replace: true });
+  }, [navigate, onComplete]);
   const { getAccessToken } = useAuth();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
@@ -104,7 +129,7 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
   const [error, setError] = useState<string | null>(null);
   const [incompleteModules, setIncompleteModules] = useState<ModuleId[]>([]);
   const [initialDataByStep] = useState<Record<string, Record<string, unknown>>>({});
-  const committedModulesRef = useRef<Partial<Record<ModuleId, Record<string, unknown>>>>({});
+  const committedModulesRef = useRef<OnboardingModuleData>({});
 
   const currentStep = STEP_ORDER[currentIndex];
   const StepComponent = currentStep.Component;
@@ -211,6 +236,10 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
 
       if (body.ok === true && body.all_done === true) {
         setIncompleteModules([]);
+        committedModulesRef.current = {
+          ...committedModulesRef.current,
+          milestones: data,
+        };
         finishOnboarding();
         return;
       }
@@ -242,6 +271,15 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
         setIncompleteModules([]);
       }
       try {
+        if (stepDef.clientOnly) {
+          committedModulesRef.current = {
+            ...committedModulesRef.current,
+            [stepDef.id]: data,
+          };
+          setCurrentIndex((prev) => Math.min(prev + 1, STEP_ORDER.length - 1));
+          return;
+        }
+
         if (isLastStep) {
           await completeFinalStep(data);
         } else if (stepDef.commitOnSubmit) {
@@ -249,7 +287,7 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
           if (!token) {
             throw new Error('You must be signed in to continue.');
           }
-          const resp = await commitModule(token, stepDef.id, data as ModuleData[ModuleId]);
+          const resp = await commitModule(token, stepDef.id as ModuleId, data as ModuleData[ModuleId]);
           committedModulesRef.current = {
             ...committedModulesRef.current,
             [stepDef.id]: data,
@@ -302,13 +340,22 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
     setIsSubmitting(true);
     setError(null);
     try {
+      const step = STEP_ORDER[currentIndex];
+      if (step.clientOnly) {
+        committedModulesRef.current = {
+          ...committedModulesRef.current,
+          goal_intent: { goal_intent: 'prefer_not_to_say', interested: false },
+        };
+        setCurrentIndex((prev) => Math.min(prev + 1, STEP_ORDER.length - 1));
+        return;
+      }
       await persistSkipAndAdvance();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to continue');
     } finally {
       setIsSubmitting(false);
     }
-  }, [isSubmitting, persistSkipAndAdvance]);
+  }, [currentIndex, isSubmitting, persistSkipAndAdvance]);
 
   const goToIncompleteModule = useCallback((moduleId: ModuleId) => {
     setIncompleteModules([]);
@@ -325,6 +372,20 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
     return (
       <div className="flex min-h-screen items-center justify-center px-4 py-8">
         <div className="h-8 w-8 animate-spin rounded-full border-2 border-neutral-200 border-t-neutral-600" />
+      </div>
+    );
+  }
+
+  if (wizardPhase === 'goal_completion') {
+    return (
+      <div className="flex min-h-screen flex-col bg-[#F8FAFC]">
+        <div className="mx-auto w-full max-w-4xl flex-1 overflow-y-auto px-4 py-8 sm:px-6">
+          <OnboardingGoalCompletion
+            onboardingData={committedModulesRef.current}
+            onContinueToDashboard={continueAfterGoal}
+            onSkip={skipGoalCompletion}
+          />
+        </div>
       </div>
     );
   }

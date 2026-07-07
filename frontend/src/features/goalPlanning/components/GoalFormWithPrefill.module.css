@@ -1,0 +1,26 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.banner {
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 1rem 1.25rem;
+  border-radius: 0.75rem;
+  background: rgba(88, 63, 188, 0.06);
+  border: 1px solid rgba(88, 63, 188, 0.18);
+}
+
+.banner strong {
+  display: block;
+  margin-bottom: 0.35rem;
+  color: var(--ink, #1a1a2e);
+}
+
+.banner p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--ink-mid, #5c5c7a);
+}

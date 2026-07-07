@@ -43,6 +43,7 @@ from backend.routes.parent_checklist import parent_checklist_bp
 from backend.routes.articles import articles_bp
 from backend.routes.debt_analyzer import debt_analyzer_bp
 from backend.routes.second_job_advisor import second_job_advisor_bp
+from backend.routes.goal_planning import goal_planning_bp
 from backend.api.health_insurance_endpoints import health_insurance_bp
 from backend.routes.expenses_summary import expenses_summary_bp
 from backend.routes.quick_spend_api import quick_spend_bp
@@ -110,6 +111,7 @@ def register_backend_blueprints(app):
     app.register_blueprint(articles_bp)
     app.register_blueprint(debt_analyzer_bp)
     app.register_blueprint(second_job_advisor_bp)
+    app.register_blueprint(goal_planning_bp)
     app.register_blueprint(health_insurance_bp)
     app.register_blueprint(expenses_summary_bp)
     app.register_blueprint(quick_spend_bp)

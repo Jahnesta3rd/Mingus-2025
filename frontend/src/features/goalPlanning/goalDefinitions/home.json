@@ -1,0 +1,45 @@
+{
+  "id": "home_purchase",
+  "label": "Buy a Home",
+  "icon": "home",
+  "description": "Purchase a residential property",
+  "timelineUnit": "years",
+  "fields": [
+    {
+      "name": "homePrice",
+      "label": "Target home price",
+      "type": "currency",
+      "required": true,
+      "min": 1000,
+      "helpText": "Estimated purchase price before closing costs."
+    },
+    {
+      "name": "downPaymentPercent",
+      "label": "Down payment %",
+      "type": "percent",
+      "required": true,
+      "default": 20,
+      "min": 0,
+      "max": 100,
+      "helpText": "Typical down payments range from 5% to 20%."
+    },
+    {
+      "name": "timeline",
+      "label": "Timeline (years)",
+      "type": "number",
+      "required": true,
+      "default": 5,
+      "min": 0.5,
+      "max": 30,
+      "helpText": "How long you want to take to reach this goal."
+    },
+    {
+      "name": "savedAmount",
+      "label": "Amount already saved",
+      "type": "currency",
+      "required": false,
+      "min": 0,
+      "helpText": "Cash you already have earmarked for this purchase."
+    }
+  ]
+}

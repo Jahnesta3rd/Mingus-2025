@@ -1,0 +1,35 @@
+{
+  "id": "baby",
+  "label": "Have a Baby",
+  "icon": "baby",
+  "description": "Prepare financially for a new baby",
+  "timelineUnit": "years",
+  "fields": [
+    {
+      "name": "preparationCost",
+      "label": "Preparation budget",
+      "type": "currency",
+      "required": true,
+      "min": 500,
+      "helpText": "Nursery, gear, medical co-pays, and upfront costs."
+    },
+    {
+      "name": "timeline",
+      "label": "Timeline (years)",
+      "type": "number",
+      "required": true,
+      "default": 2,
+      "min": 0.25,
+      "max": 10,
+      "helpText": "When you want to be financially ready."
+    },
+    {
+      "name": "savedAmount",
+      "label": "Amount already saved",
+      "type": "currency",
+      "required": false,
+      "min": 0,
+      "helpText": "Baby fund you have already started."
+    }
+  ]
+}
