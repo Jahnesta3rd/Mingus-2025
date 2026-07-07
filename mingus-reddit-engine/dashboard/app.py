@@ -408,6 +408,196 @@ def _exec(sql, params=()):
         db.release_connection(conn)
 
 
+def _iso_ts(value):
+    if value is None:
+        return None
+    if hasattr(value, "isoformat"):
+        return value.isoformat()
+    return str(value)
+
+
+def _current_logged_by():
+    auth = request.authorization
+    if auth and auth.username:
+        return auth.username
+    return getattr(g, "admin_id", None) or DASHBOARD_USER
+
+
+_ATTEMPT_AT_COLUMNS = {
+    1: "attempt_1_at",
+    2: "attempt_2_at",
+    3: "attempt_3_at",
+}
+
+
+def _lead_attempt_history_sql():
+    return """
+        (SELECT json_agg(
+            json_build_object(
+                'attempt_number', attempt_number,
+                'attempted_at', attempted_at,
+                'channel', channel,
+                'notes', notes
+            ) ORDER BY attempt_number ASC
+        )
+        FROM lead_contact_attempts
+        WHERE lead_id = l.id) AS attempt_history
+    """
+
+
+def _normalize_attempt_history(raw):
+    if raw is None:
+        return []
+    if isinstance(raw, str):
+        return json.loads(raw)
+    return raw
+
+
+def _lead_row_to_dict(row):
+    ingested = row.get("ingested_at")
+    updated = row.get("updated_at")
+    return {
+        "id": str(row["id"]),
+        "composite_score": float(row.get("composite_score") or 0),
+        "subreddit": row.get("subreddit"),
+        "domain_id": row.get("domain_id"),
+        "title": row.get("title") or "",
+        "body": row.get("body") or "",
+        "source": row.get("source") or "",
+        "ig_handle": row.get("ig_handle") or "",
+        "author": row.get("author") or "",
+        "responded": bool(row.get("responded")),
+        "response_got_dm": bool(row.get("response_got_dm")),
+        "no_reply": bool(row.get("no_reply")),
+        "pipeline_stage": row.get("pipeline_stage") or "prospect",
+        "contact_attempt_count": int(row.get("contact_attempt_count") or 0),
+        "attempt_1_at": _iso_ts(row.get("attempt_1_at")),
+        "attempt_2_at": _iso_ts(row.get("attempt_2_at")),
+        "attempt_3_at": _iso_ts(row.get("attempt_3_at")),
+        "requeued_at": _iso_ts(row.get("requeued_at")),
+        "attempt_history": _normalize_attempt_history(row.get("attempt_history")),
+        "ingested_at": ingested.isoformat() if ingested else None,
+        "updated_at": updated.isoformat() if updated else None,
+    }
+
+
+def _fetch_lead_row(cur, lead_id):
+    cur.execute(
+        f"""
+        SELECT l.id, l.composite_score, c.name AS subreddit, l.domain_id,
+               l.title, l.body, l.source, l.ig_handle, l.author, l.responded,
+               l.response_got_dm, l.no_reply, l.pipeline_stage, l.ingested_at,
+               l.updated_at, l.contact_attempt_count, l.attempt_1_at,
+               l.attempt_2_at, l.attempt_3_at, l.requeued_at,
+               {_lead_attempt_history_sql()}
+        FROM leads l
+        LEFT JOIN communities c ON c.id = l.community_id
+        WHERE l.id = %s
+        """,
+        (lead_id,),
+    )
+    return cur.fetchone()
+
+
+def _lead_log_attempt_impl(
+    lead_id,
+    channel="instagram_dm",
+    notes=None,
+    require_instagram=False,
+):
+    with track_db_operation("lead_log_attempt", {"lead_id": lead_id}):
+        conn = db.get_connection()
+        try:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute(
+                    """
+                    SELECT id, contact_attempt_count, response_got_dm, no_reply,
+                           source, author
+                    FROM leads
+                    WHERE id = %s
+                    """,
+                    (lead_id,),
+                )
+                lead = cur.fetchone()
+                if not lead:
+                    return jsonify({"error": "Lead not found"}), 404
+
+                if require_instagram and lead["source"] != "instagram":
+                    return jsonify({"error": "Not an Instagram lead"}), 400
+
+                count = int(lead.get("contact_attempt_count") or 0)
+                if lead.get("response_got_dm"):
+                    return jsonify({
+                        "error": "Cannot log attempt: lead already has response_got_dm=TRUE",
+                    }), 409
+                if lead.get("no_reply"):
+                    return jsonify({
+                        "error": "Cannot log attempt: lead already has no_reply=TRUE",
+                    }), 409
+                if count >= 3:
+                    return jsonify({
+                        "error": "Cannot log attempt: lead already has 3 attempts",
+                    }), 409
+
+                next_attempt = count + 1
+                attempt_col = _ATTEMPT_AT_COLUMNS[next_attempt]
+                logged_by = _current_logged_by()
+
+                cur.execute(
+                    f"""
+                    UPDATE leads
+                    SET contact_attempt_count = %s,
+                        {attempt_col} = NOW(),
+                        responded = TRUE,
+                        updated_at = NOW()
+                    WHERE id = %s
+                    """,
+                    (next_attempt, lead_id),
+                )
+                cur.execute(
+                    """
+                    INSERT INTO lead_contact_attempts (
+                        lead_id, attempt_number, channel, attempted_at,
+                        notes, logged_by
+                    ) VALUES (%s, %s, %s, NOW(), %s, %s)
+                    ON CONFLICT (lead_id, attempt_number) DO UPDATE SET
+                        channel = EXCLUDED.channel,
+                        attempted_at = EXCLUDED.attempted_at,
+                        notes = EXCLUDED.notes,
+                        logged_by = EXCLUDED.logged_by
+                    """,
+                    (lead_id, next_attempt, channel, notes, logged_by),
+                )
+                updated = _fetch_lead_row(cur, lead_id)
+
+            conn.commit()
+
+            if SENTRY_DSN_BACKEND:
+                with sentry_sdk.push_scope() as scope:
+                    scope.set_tag("lead_id", lead_id)
+                    scope.set_tag("attempt_number", next_attempt)
+                    scope.set_tag("source", lead.get("source") or "unknown")
+                    scope.set_tag("author", lead.get("author") or "unknown")
+                    sentry_sdk.capture_message(
+                        "lead_contact_attempt_logged",
+                        level="info",
+                    )
+
+            lead_payload = _lead_row_to_dict(updated)
+            return jsonify({
+                "success": True,
+                "message": f"Attempt {next_attempt} logged",
+                "lead": lead_payload,
+                "attempt_number": next_attempt,
+            })
+        except Exception:
+            conn.rollback()
+            app.logger.exception("Log attempt failed for lead %s", lead_id)
+            raise
+        finally:
+            db.release_connection(conn)
+
+
 # ---------------------------------------------------------------------------
 # Score badge helper
 # ---------------------------------------------------------------------------
@@ -516,7 +706,9 @@ def leads():
         f"SELECT l.id, l.composite_score, c.name AS subreddit, l.domain_id, "
         f"l.title, l.body, l.source, l.ig_handle, l.responded, "
         f"l.response_got_dm, l.no_reply, l.pipeline_stage, l.ingested_at, "
-        f"l.updated_at "
+        f"l.updated_at, l.contact_attempt_count, l.attempt_1_at, "
+        f"l.attempt_2_at, l.attempt_3_at, l.requeued_at, "
+        f"{_lead_attempt_history_sql()} "
         f"FROM leads l LEFT JOIN communities c ON c.id = l.community_id "
         f"WHERE {where} "
         f"ORDER BY CASE WHEN l.source = 'instagram' THEN 1 ELSE 0 END, "
@@ -534,26 +726,7 @@ def leads():
         "WHERE c.name IS NOT NULL ORDER BY c.name"
     )]
 
-    leads_data = []
-    for r in rows:
-        ingested = r.get("ingested_at")
-        updated = r.get("updated_at")
-        leads_data.append({
-            "id": str(r["id"]),
-            "composite_score": float(r["composite_score"] or 0),
-            "subreddit": r.get("subreddit"),
-            "domain_id": r.get("domain_id"),
-            "title": r.get("title") or "",
-            "body": r.get("body") or "",
-            "source": r.get("source") or "",
-            "ig_handle": r.get("ig_handle") or "",
-            "responded": bool(r.get("responded")),
-            "response_got_dm": bool(r.get("response_got_dm")),
-            "no_reply": bool(r.get("no_reply")),
-            "pipeline_stage": r.get("pipeline_stage") or "prospect",
-            "ingested_at": ingested.isoformat() if ingested else None,
-            "updated_at": updated.isoformat() if updated else None,
-        })
+    leads_data = [_lead_row_to_dict(r) for r in rows]
 
     return render_template(
         "leads.html",
@@ -740,35 +913,214 @@ def ig_funnel_stats():
             db.release_connection(conn)
 
 
-@app.route("/leads/<lead_id>/dm-sent", methods=["PATCH"])
+@app.route("/leads/attempt-report")
 @requires_auth
-@admin_error_handler("lead_dm_sent")
-def lead_dm_sent(lead_id):
-    with track_db_operation("lead_dm_sent", {"lead_id": lead_id}):
+@admin_error_handler("lead_attempt_report")
+def lead_attempt_report():
+    source_filter = request.args.get("source", "").strip()
+    days = int(request.args.get("days", "30") or "30")
+
+    filter_conditions = []
+    filter_params: list = []
+    if source_filter:
+        filter_conditions.append("source = %s")
+        filter_params.append(source_filter)
+
+    where_sql = ""
+    if filter_conditions:
+        where_sql = "WHERE " + " AND ".join(filter_conditions)
+
+    with track_db_operation("lead_attempt_report", {"source": source_filter or "all"}):
         conn = db.get_connection()
         try:
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
                 cur.execute(
-                    "SELECT id, source FROM leads WHERE id = %s",
-                    (lead_id,),
+                    f"""
+                    SELECT
+                      COUNT(*) AS total_leads,
+                      COUNT(*) FILTER (
+                        WHERE contact_attempt_count = 0 AND no_reply = FALSE
+                      ) AS not_contacted,
+                      COUNT(*) FILTER (
+                        WHERE contact_attempt_count = 1
+                          AND response_got_dm = FALSE
+                          AND no_reply = FALSE
+                      ) AS awaiting_attempt_2,
+                      COUNT(*) FILTER (
+                        WHERE contact_attempt_count = 2
+                          AND response_got_dm = FALSE
+                          AND no_reply = FALSE
+                      ) AS awaiting_attempt_3,
+                      COUNT(*) FILTER (WHERE response_got_dm = TRUE) AS terminal_got_reply,
+                      COUNT(*) FILTER (WHERE no_reply = TRUE) AS terminal_no_reply,
+                      COUNT(*) FILTER (
+                        WHERE requeued_at > NOW() - (%s || ' days')::INTERVAL
+                      ) AS requeued_period
+                    FROM leads
+                    {where_sql}
+                    """,
+                    [str(days)] + filter_params,
                 )
-                row = cur.fetchone()
-                if not row:
-                    return jsonify({"error": "Lead not found"}), 404
-                if row["source"] != "instagram":
-                    return jsonify({"error": "Not an Instagram lead"}), 400
+                summary_row = cur.fetchone() or {}
+
+                detail_conditions = [
+                    "contact_attempt_count > 0",
+                    "response_got_dm = FALSE",
+                    "no_reply = FALSE",
+                ]
+                if source_filter:
+                    detail_conditions.append("source = %s")
+                detail_where = "WHERE " + " AND ".join(detail_conditions)
+                detail_params = [source_filter] if source_filter else []
+
                 cur.execute(
-                    "UPDATE leads SET responded = TRUE WHERE id = %s",
+                    f"""
+                    SELECT id, author, source, contact_attempt_count,
+                      CASE
+                        WHEN contact_attempt_count = 0 THEN 'log_attempt_1'
+                        WHEN contact_attempt_count = 1 THEN 'log_attempt_2'
+                        WHEN contact_attempt_count = 2 THEN 'log_attempt_3'
+                        WHEN contact_attempt_count >= 3
+                          AND response_got_dm = FALSE THEN 'awaiting_response'
+                      END AS next_action,
+                      CASE
+                        WHEN attempt_1_at IS NULL THEN NULL
+                        ELSE (NOW()::date - attempt_1_at::date)
+                      END AS days_since_first,
+                      (
+                        SELECT MAX(t)
+                        FROM unnest(
+                          ARRAY[attempt_1_at, attempt_2_at, attempt_3_at]
+                        ) AS t
+                      ) AS last_attempt_at
+                    FROM leads
+                    {detail_where}
+                    ORDER BY last_attempt_at DESC NULLS LAST
+                    LIMIT 100
+                    """,
+                    detail_params,
+                )
+                detail_rows = cur.fetchall()
+        finally:
+            db.release_connection(conn)
+
+    details = []
+    for row in detail_rows:
+        details.append({
+            "lead_id": str(row["id"]),
+            "author": row.get("author") or "",
+            "source": row.get("source") or "",
+            "attempts": int(row.get("contact_attempt_count") or 0),
+            "next_action": row.get("next_action"),
+            "days_since_first": (
+                int(row["days_since_first"])
+                if row.get("days_since_first") is not None
+                else None
+            ),
+            "last_attempt_at": _iso_ts(row.get("last_attempt_at")),
+        })
+
+    return jsonify({
+        "summary": {
+            "total_leads": int(summary_row.get("total_leads") or 0),
+            "not_contacted": int(summary_row.get("not_contacted") or 0),
+            "awaiting_attempt_2": int(summary_row.get("awaiting_attempt_2") or 0),
+            "awaiting_attempt_3": int(summary_row.get("awaiting_attempt_3") or 0),
+            "terminal_got_reply": int(summary_row.get("terminal_got_reply") or 0),
+            "terminal_no_reply": int(summary_row.get("terminal_no_reply") or 0),
+            "requeued_period": int(summary_row.get("requeued_period") or 0),
+        },
+        "details": details,
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+    })
+
+
+@app.route("/leads/<lead_id>/log-attempt", methods=["PATCH"])
+@requires_auth
+@admin_error_handler("lead_log_attempt")
+def lead_log_attempt(lead_id):
+    body = request.get_json(silent=True) or {}
+    channel = body.get("channel") or "instagram_dm"
+    notes = body.get("notes")
+    if not isinstance(channel, str) or not channel.strip():
+        return jsonify({"error": "channel must be a non-empty string"}), 400
+    if notes is not None and not isinstance(notes, str):
+        return jsonify({"error": "notes must be a string"}), 400
+    return _lead_log_attempt_impl(
+        lead_id,
+        channel=channel.strip(),
+        notes=notes,
+    )
+
+
+@app.route("/leads/<lead_id>/requeue", methods=["PATCH"])
+@requires_auth
+@admin_error_handler("lead_requeue")
+def lead_requeue(lead_id):
+    body = request.get_json(silent=True) or {}
+    reason = body.get("reason") if isinstance(body, dict) else None
+    if reason is not None and not isinstance(reason, str):
+        return jsonify({"error": "reason must be a string"}), 400
+
+    with track_db_operation("lead_requeue", {"lead_id": lead_id}):
+        conn = db.get_connection()
+        try:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute("SELECT id FROM leads WHERE id = %s", (lead_id,))
+                if not cur.fetchone():
+                    return jsonify({"error": "Lead not found"}), 404
+
+                cur.execute(
+                    """
+                    UPDATE leads
+                    SET contact_attempt_count = 0,
+                        attempt_1_at = NULL,
+                        attempt_2_at = NULL,
+                        attempt_3_at = NULL,
+                        no_reply = FALSE,
+                        responded = FALSE,
+                        response_got_dm = FALSE,
+                        requeued_at = NOW(),
+                        updated_at = NOW()
+                    WHERE id = %s
+                    """,
                     (lead_id,),
                 )
+                updated = _fetch_lead_row(cur, lead_id)
+
             conn.commit()
-            return jsonify({"status": "ok", "lead_id": lead_id, "state": "dm_sent"})
+
+            if SENTRY_DSN_BACKEND:
+                with sentry_sdk.push_scope() as scope:
+                    scope.set_tag("lead_id", lead_id)
+                    scope.set_tag("reason", reason or "unspecified")
+                    sentry_sdk.capture_message("lead_requeued", level="info")
+
+            return jsonify({
+                "success": True,
+                "message": "Lead re-queued and reset to attempt 0",
+                "lead": _lead_row_to_dict(updated),
+            })
         except Exception:
             conn.rollback()
-            app.logger.exception("DM sent update failed")
+            app.logger.exception("Requeue failed for lead %s", lead_id)
             raise
         finally:
             db.release_connection(conn)
+
+
+@app.route("/leads/<lead_id>/dm-sent", methods=["PATCH"])
+@requires_auth
+@admin_error_handler("lead_dm_sent")
+def lead_dm_sent(lead_id):
+    body = request.get_json(silent=True) or {}
+    notes = body.get("notes") if isinstance(body, dict) else None
+    return _lead_log_attempt_impl(
+        lead_id,
+        channel="instagram_dm",
+        notes=notes,
+        require_instagram=True,
+    )
 
 
 @app.route("/leads/<lead_id>/got-reply", methods=["PATCH"])

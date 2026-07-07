@@ -230,6 +230,11 @@
     color: #5B9BD5;
     border-color: #5B9BD5;
   }
+  .btn-log-attempt:hover:not(:disabled) {
+    background: rgba(91,155,213,0.15);
+    color: #5B9BD5;
+    border-color: #5B9BD5;
+  }
   .btn-reply:hover:not(:disabled) {
     background: rgba(76,175,125,0.15);
     color: #4CAF7D;
@@ -239,6 +244,11 @@
     background: rgba(150,150,150,0.1);
     color: #888;
     border-color: #555;
+  }
+  .btn-requeue:hover:not(:disabled) {
+    background: rgba(29,158,117,0.15);
+    color: var(--teal);
+    border-color: var(--teal);
   }
   .ig-state {
     font-size: 11px;
@@ -270,6 +280,19 @@
     width: 140px;
     text-align: left;
     white-space: nowrap;
+  }
+
+  .col-attempts {
+    width: 80px;
+    text-align: center;
+    font-size: 0.85em;
+    color: #666;
+  }
+
+  .attempt-done {
+    color: #5B9BD5;
+    font-weight: 600;
+    font-size: 12px;
   }
 
   .stage-cell {
@@ -533,6 +556,9 @@
         <th>Community</th>
         <th>Domain</th>
         <th class="col-stage">Stage</th>
+        <th class="col-attempts">Attempt 1</th>
+        <th class="col-attempts">Attempt 2</th>
+        <th class="col-attempts">Attempt 3</th>
         <th>Title</th>
         <th>Date</th>
       </tr>
@@ -709,37 +735,84 @@ function igRowStateClass(lead) {
   if (lead.source !== 'instagram') return '';
   if (lead.response_got_dm) return 'ig-row ig-got-reply';
   if (lead.no_reply) return 'ig-row ig-no-reply';
-  if (lead.responded) return 'ig-row ig-dm-sent';
+  if ((lead.contact_attempt_count || 0) > 0 || lead.responded) return 'ig-row ig-dm-sent';
   return 'ig-row ig-not-contacted';
+}
+
+function renderAttemptColumns(lead) {
+  const formatAttempt = function(timestamp) {
+    if (!timestamp) return '—';
+    const date = new Date(timestamp);
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return '<span class="attempt-done">✓ ' + m + '/' + d + '</span>';
+  };
+
+  return (
+    '<td class="col-attempts">' + formatAttempt(lead.attempt_1_at) + '</td>' +
+    '<td class="col-attempts">' + formatAttempt(lead.attempt_2_at) + '</td>' +
+    '<td class="col-attempts">' + formatAttempt(lead.attempt_3_at) + '</td>'
+  );
 }
 
 function igActionButtons(lead) {
   if (lead.source !== 'instagram') return '';
 
-  const dmSent = lead.responded;
-  const gotReply = lead.response_got_dm;
-  const noReply = lead.no_reply;
+  const count = lead.contact_attempt_count || 0;
+  const canLog = count < 3 && !lead.response_got_dm && !lead.no_reply;
+  const nextNum = count + 1;
+  const leadId = escapeHtml(lead.id);
 
-  let stateLabel = '';
-  if (gotReply) {
-    stateLabel = '<span class="ig-state got-reply">✓ Got Reply</span>';
-  } else if (noReply) {
-    stateLabel = '<span class="ig-state no-reply">✗ No Reply</span>';
-  } else if (dmSent) {
-    stateLabel = '<span class="ig-state dm-sent">↗ DM Sent</span>';
+  let html = '<div class="ig-actions">';
+
+  if (lead.response_got_dm) {
+    html += '<span class="ig-state got-reply">✓ Got Reply</span>';
+  } else if (lead.no_reply) {
+    html += '<span class="ig-state no-reply">✗ No Reply</span>';
+  } else if (count > 0) {
+    html += '<span class="ig-state dm-sent">↗ Attempt ' + count + '/3</span>';
   }
 
-  return (
-    '<div class="ig-actions">' +
-      stateLabel +
-      '<button class="ig-btn btn-dm" onclick="markLead(\'' + escapeHtml(lead.id) + '\',\'dm-sent\')" ' +
-        (dmSent ? 'disabled' : '') + '>↗ DM Sent</button>' +
-      '<button class="ig-btn btn-reply" onclick="markLead(\'' + escapeHtml(lead.id) + '\',\'got-reply\')" ' +
-        (gotReply ? 'disabled' : '') + '>✓ Got Reply</button>' +
-      '<button class="ig-btn btn-cold" onclick="markLead(\'' + escapeHtml(lead.id) + '\',\'no-reply\')" ' +
-        (noReply ? 'disabled' : '') + '>✗ No Reply</button>' +
-    '</div>'
+  const logText = canLog ? ('↗ Attempt ' + nextNum) : '↗ Max Attempts';
+  const logTitle = canLog ? ('Log attempt ' + nextNum) : 'All attempts logged';
+  html += (
+    '<button class="ig-btn btn-log-attempt" data-lead-id="' + leadId + '" ' +
+      (!canLog ? 'disabled' : '') +
+      ' title="' + escapeHtml(logTitle) + '" onclick="onLogAttemptClick(event)">' +
+      logText +
+    '</button>'
   );
+
+  html += (
+    '<button class="ig-btn btn-reply" data-lead-id="' + leadId + '" ' +
+      (lead.response_got_dm ? 'disabled' : '') +
+      ' title="' + (lead.response_got_dm ? 'Reply already logged' : 'Mark reply received') + '" ' +
+      'onclick="onGotReplyClick(event)">' +
+      '✓ Got Reply' +
+    '</button>'
+  );
+
+  const noReplyDisabled = lead.no_reply || lead.response_got_dm;
+  html += (
+    '<button class="ig-btn btn-cold" data-lead-id="' + leadId + '" ' +
+      (noReplyDisabled ? 'disabled' : '') +
+      ' title="' + (lead.no_reply ? 'No reply already logged' : 'Mark as no reply') + '" ' +
+      'onclick="onNoReplyClick(event)">' +
+      '✗ No Reply' +
+    '</button>'
+  );
+
+  if (lead.no_reply) {
+    html += (
+      '<button class="ig-btn btn-requeue" data-lead-id="' + leadId + '" ' +
+        'title="Reset lead to attempt 0" onclick="onRequeueClick(event)">' +
+        '↻ Re-queue' +
+      '</button>'
+    );
+  }
+
+  html += '</div>';
+  return html;
 }
 
 function renderLead(lead) {
@@ -771,6 +844,7 @@ function renderLead(lead) {
       '<td><span class="community-badge">' + communityLabel + communityBadgeExtra + '</span></td>' +
       '<td>' + escapeHtml(lead.domain_id || '—') + '</td>' +
       '<td class="col-stage">' + renderStageBadge(lead) + '</td>' +
+      renderAttemptColumns(lead) +
       '<td>' + snippetHTML + '</td>' +
       '<td class="date-cell">' + dateStr + '</td>' +
     '</tr>'
@@ -855,6 +929,82 @@ async function loadFunnelStats() {
   }
 }
 
+function applyLeadUpdate(leadId, updatedLead) {
+  const lead = LEADS.find(function(l) { return l.id === leadId; });
+  if (lead && updatedLead) {
+    Object.assign(lead, updatedLead);
+    renderLeadsTable();
+  }
+}
+
+async function onLogAttemptClick(event) {
+  const leadId = event.currentTarget.dataset.leadId;
+  const endpoint = '/leads/' + leadId + '/log-attempt';
+  const startTime = Date.now();
+  window.trackAdminAction?.('Lead log attempt', { leadId: leadId });
+  try {
+    const r = await fetch(endpoint, {
+      method: 'PATCH',
+      credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ channel: 'instagram_dm' }),
+    });
+    const duration = Date.now() - startTime;
+    const d = await r.json();
+    if (!r.ok) {
+      const error = new Error(d.error || r.statusText);
+      window.trackAdminApiCall?.(endpoint, r.status, duration, error);
+      throw error;
+    }
+    window.trackAdminApiCall?.(endpoint, 200, duration);
+    applyLeadUpdate(leadId, d.lead);
+    await loadFunnelStats();
+  } catch (e) {
+    const duration = Date.now() - startTime;
+    window.trackAdminApiCall?.(endpoint, 0, duration, e);
+    alert('Could not log attempt: ' + e.message);
+  }
+}
+
+function onGotReplyClick(event) {
+  markLead(event.currentTarget.dataset.leadId, 'got-reply');
+}
+
+function onNoReplyClick(event) {
+  markLead(event.currentTarget.dataset.leadId, 'no-reply');
+}
+
+async function onRequeueClick(event) {
+  const leadId = event.currentTarget.dataset.leadId;
+  if (!confirm('Re-queue this lead and reset all attempt counters to 0?')) return;
+
+  const endpoint = '/leads/' + leadId + '/requeue';
+  const startTime = Date.now();
+  window.trackAdminAction?.('Lead requeue', { leadId: leadId });
+  try {
+    const r = await fetch(endpoint, {
+      method: 'PATCH',
+      credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ reason: 'Manual re-queue from leads UI' }),
+    });
+    const duration = Date.now() - startTime;
+    const d = await r.json();
+    if (!r.ok) {
+      const error = new Error(d.error || r.statusText);
+      window.trackAdminApiCall?.(endpoint, r.status, duration, error);
+      throw error;
+    }
+    window.trackAdminApiCall?.(endpoint, 200, duration);
+    applyLeadUpdate(leadId, d.lead);
+    await loadFunnelStats();
+  } catch (e) {
+    const duration = Date.now() - startTime;
+    window.trackAdminApiCall?.(endpoint, 0, duration, e);
+    alert('Could not re-queue lead: ' + e.message);
+  }
+}
+
 async function markLead(leadId, action) {
   const endpoint = '/leads/' + leadId + '/' + action;
   const startTime = Date.now();
@@ -865,20 +1015,30 @@ async function markLead(leadId, action) {
       credentials: 'same-origin',
     });
     const duration = Date.now() - startTime;
+    const responseText = await r.text();
+    let d = null;
+    try {
+      d = responseText ? JSON.parse(responseText) : null;
+    } catch (parseErr) {
+      d = null;
+    }
     if (!r.ok) {
-      const error = new Error(await r.text());
+      const error = new Error((d && d.error) || responseText || r.statusText);
       window.trackAdminApiCall?.(endpoint, r.status, duration, error);
       throw error;
     }
     window.trackAdminApiCall?.(endpoint, 200, duration);
     const lead = LEADS.find(function(l) { return l.id === leadId; });
     if (lead) {
-      if (action === 'dm-sent') lead.responded = true;
-      if (action === 'got-reply') {
-        lead.response_got_dm = true;
-        lead.responded = true;
+      if (d && d.lead) {
+        Object.assign(lead, d.lead);
+      } else {
+        if (action === 'got-reply') {
+          lead.response_got_dm = true;
+          lead.responded = true;
+        }
+        if (action === 'no-reply') lead.no_reply = true;
       }
-      if (action === 'no-reply') lead.no_reply = true;
       renderLeadsTable();
     }
     await loadFunnelStats();
