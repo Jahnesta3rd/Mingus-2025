@@ -42,6 +42,15 @@ from backend.api.company_screen import company_screen_bp
 from backend.routes.parent_checklist import parent_checklist_bp
 from backend.routes.articles import articles_bp
 from backend.routes.debt_analyzer import debt_analyzer_bp
+from backend.routes.expense_audit_api import expense_audit_bp
+from backend.routes.independence_cost_api import independence_cost_bp
+from backend.routes.interim_housing_api import interim_housing_bp
+from backend.routes.phased_independence_api import phased_independence_bp
+from backend.routes.lease_break_api import lease_break_bp
+from backend.routes.borrowing_api import borrowing_bp
+from backend.routes.integration_api import integration_bp
+from backend.routes.relationship_checkin_api import relationship_checkin_bp
+from backend.routes.side_income_api import side_income_bp
 from backend.routes.second_job_advisor import second_job_advisor_bp
 from backend.routes.goal_planning import goal_planning_bp
 from backend.api.health_insurance_endpoints import health_insurance_bp
@@ -110,6 +119,15 @@ def register_backend_blueprints(app):
     app.register_blueprint(parent_checklist_bp)
     app.register_blueprint(articles_bp)
     app.register_blueprint(debt_analyzer_bp)
+    app.register_blueprint(expense_audit_bp)
+    app.register_blueprint(independence_cost_bp)
+    app.register_blueprint(interim_housing_bp)
+    app.register_blueprint(phased_independence_bp)
+    app.register_blueprint(lease_break_bp)
+    app.register_blueprint(borrowing_bp)
+    app.register_blueprint(integration_bp)
+    app.register_blueprint(relationship_checkin_bp)
+    app.register_blueprint(side_income_bp)
     app.register_blueprint(second_job_advisor_bp)
     app.register_blueprint(goal_planning_bp)
     app.register_blueprint(health_insurance_bp)

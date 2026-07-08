@@ -11,6 +11,7 @@ import HousingCheckInCardBody from './HousingCheckInCardBody';
 import WellnessCheckInCardBody from './WellnessCheckInCardBody';
 import { CARD_CONFIGS } from './cardConfigs';
 import ArticleRecommendationStrip from './ArticleRecommendationStrip';
+import IndependenceCostCard from './IndependenceCostCard';
 import MingusQuickSpend from './MingusQuickSpend';
 import { useCardPriority } from '../hooks/useCardPriority';
 
@@ -19,6 +20,7 @@ export interface TodayTabProps {
   userTier: 'budget' | 'mid_tier' | 'professional';
   initialCardIndex?: number;
   onCardChange?: (index: number) => void;
+  onIndependencePurchaseClick?: () => void;
   className?: string;
 }
 
@@ -102,6 +104,7 @@ const TodayTab: React.FC<TodayTabProps> = ({
   userTier,
   initialCardIndex,
   onCardChange,
+  onIndependencePurchaseClick,
   className = '',
 }) => {
   const navigate = useNavigate();
@@ -143,6 +146,12 @@ const TodayTab: React.FC<TodayTabProps> = ({
       </h1>
 
       <div style={{ padding: '0 16px' }}>
+        {onIndependencePurchaseClick ? (
+          <IndependenceCostCard
+            onPurchaseClick={onIndependencePurchaseClick}
+            className="mb-4"
+          />
+        ) : null}
         {!isReady ? (
           <CardStackSkeleton />
         ) : (

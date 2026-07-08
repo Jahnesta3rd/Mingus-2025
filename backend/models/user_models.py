@@ -5,6 +5,7 @@ SQLAlchemy models for user management
 """
 
 from datetime import datetime
+from sqlalchemy import false as sa_false
 from .database import db
 
 class User(db.Model):
@@ -57,6 +58,12 @@ class User(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
     last_vibe_moment_shown_at = db.Column(db.DateTime, nullable=True)
+    has_independence_calculator_dismissed = db.Column(
+        db.Boolean,
+        nullable=False,
+        default=False,
+        server_default=sa_false(),
+    )
 
     # Plaid bank connection (optional; mid-tier / professional)
     plaid_access_token = db.Column(db.String(255), nullable=True)

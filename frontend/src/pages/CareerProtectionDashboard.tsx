@@ -11,6 +11,14 @@ import FamilyAddonUpsellCard from '../components/FamilyAddonUpsellCard';
 import { BABY_CATEGORIES } from '../data/milestoneCategories';
 import NewParentChecklistCard, { detectHasBabyMilestone } from '../components/NewParentChecklistCard';
 import CostOfSummerLoveCard from '../components/CostOfSummerLoveCard';
+import IndependenceCostCard from '../components/IndependenceCostCard';
+import ExpenseAuditCard from '../components/ExpenseAuditCard';
+import InterimHousingComparison from '../components/InterimHousingComparison';
+import PhasedIndependencePlanner from '../components/PhasedIndependencePlanner';
+import LeaseBreakAnalysis from '../components/LeaseBreakAnalysis';
+import BorrowingScenarios from '../components/BorrowingScenarios';
+import RelationshipMilestoneCheckin from '../components/RelationshipMilestoneCheckin';
+import SideIncomeAccelerator from '../components/SideIncomeAccelerator';
 import ArticleLibraryCard from '../components/ArticleLibraryCard';
 import ParentingImpactSimulator from '../components/ParentingImpactSimulator';
 import TodayTab from '../components/TodayTab';
@@ -45,6 +53,7 @@ import EmployerBackfillModal, {
   isEmployerBackfillDismissed,
 } from '../components/EmployerBackfillModal';
 import { deriveUserTier } from '../components/fluency';
+import { getShouldRecommend } from '../api/independenceCostAPI';
 import { csrfHeaders } from '../utils/csrfHeaders';
 import type { UserProfile as UserProfileData } from '../types/UserProfile';
 
@@ -274,6 +283,21 @@ const CareerProtectionDashboard: React.FC = () => {
   const [relationshipStatus, setRelationshipStatus] = useState<string | null>(null);
   const [showParentingChecklist, setShowParentingChecklist] = useState(false);
   const [showFamilyUpsell, setShowFamilyUpsell] = useState(false);
+  const [iccSideIncomeParams, setIccSideIncomeParams] = useState<{
+    monthlyGap: number;
+    startupCostNeeded: number;
+    timelineMonths: number;
+    partnerId: string;
+    iccAssessmentId: string;
+  } | null>(null);
+  const [iccAssessmentData, setIccAssessmentData] = useState<{
+    person_id: string;
+    partner_name?: string;
+    icc_assessment_id?: string;
+    monthly_gap?: number;
+    startup_cost?: number;
+    zip_code?: string;
+  } | null>(null);
 
   const loadParentChecklistFromProfile = useCallback(async () => {
     if (!user?.id) return;
@@ -317,12 +341,57 @@ const CareerProtectionDashboard: React.FC = () => {
     void loadParentChecklistFromProfile();
   }, [loadParentChecklistFromProfile, importantDatesRefreshKey]);
 
+  useEffect(() => {
+    if (authLoading || !isAuthenticated || dashboardState.activeTab !== 'plans') {
+      return;
+    }
+
+    let cancelled = false;
+    (async () => {
+      try {
+        const payload = await getShouldRecommend({ getAccessToken });
+        if (cancelled) return;
+        if (payload.should_recommend && payload.partner_id) {
+          setIccAssessmentData({
+            person_id: payload.partner_id,
+            partner_name: payload.partner_name,
+            icc_assessment_id: payload.icc_assessment_id,
+            monthly_gap: payload.gap,
+            startup_cost: payload.startup_cost,
+          });
+        } else {
+          setIccAssessmentData(null);
+        }
+      } catch {
+        if (!cancelled) {
+          setIccAssessmentData(null);
+        }
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [authLoading, dashboardState.activeTab, getAccessToken, isAuthenticated]);
+
   const handleChecklistUpgrade = useCallback(() => {
     navigate('/dashboard/upgrade?module=family_addon&from=checklist');
   }, [navigate]);
 
   const handleFamilyUpsellUpgrade = useCallback(() => {
     navigate('/dashboard/upgrade?module=family_addon&from=plans');
+  }, [navigate]);
+
+  const handleIndependenceCostPurchase = useCallback(() => {
+    navigate('/dashboard/upgrade?module=rfr_addon&from=plans');
+  }, [navigate]);
+
+  const handleIccSideIncomeJobSelected = useCallback(() => {
+    navigate('/dashboard/tools?tab=debt&subTab=second-job');
+  }, [navigate]);
+
+  const handleTodayIndependencePurchase = useCallback(() => {
+    navigate('/dashboard/upgrade?module=rfr_addon&from=today');
   }, [navigate]);
 
   const handleMilestoneSaved = useCallback(
@@ -481,6 +550,41 @@ const CareerProtectionDashboard: React.FC = () => {
     const fromToday = searchParams.get('from') === 'today';
     const cardParam = searchParams.get('card');
     const openOverlay = searchParams.get('openOverlay');
+    const iccSideIncome = searchParams.get('icc-side-income') === '1';
+    const iccGap = searchParams.get('icc-gap');
+    const iccStartup = searchParams.get('icc-startup');
+    const iccTimeline = searchParams.get('icc-timeline');
+    const iccPartner = searchParams.get('icc-partner');
+    const iccAssessment = searchParams.get('icc-assessment');
+
+    if (
+      iccSideIncome &&
+      iccGap &&
+      iccStartup &&
+      iccTimeline &&
+      iccPartner &&
+      iccAssessment
+    ) {
+      const monthlyGap = Number(iccGap);
+      const startupCostNeeded = Number(iccStartup);
+      const timelineMonths = Number(iccTimeline);
+      if (
+        Number.isFinite(monthlyGap) &&
+        monthlyGap > 0 &&
+        Number.isFinite(startupCostNeeded) &&
+        startupCostNeeded > 0 &&
+        Number.isFinite(timelineMonths) &&
+        timelineMonths > 0
+      ) {
+        setIccSideIncomeParams({
+          monthlyGap,
+          startupCostNeeded,
+          timelineMonths,
+          partnerId: iccPartner,
+          iccAssessmentId: iccAssessment,
+        });
+      }
+    }
 
     if (cardParam !== null) {
       const idx = parseInt(cardParam, 10);
@@ -489,7 +593,7 @@ const CareerProtectionDashboard: React.FC = () => {
       }
     }
 
-    if (!tab && !focus && !editProfile && !fromToday && cardParam === null && !openOverlay) return;
+    if (!tab && !focus && !editProfile && !fromToday && cardParam === null && !openOverlay && !iccSideIncome) return;
 
     if (focus === 'zip') {
       setYouTabFocusField('zip_code');
@@ -526,6 +630,12 @@ const CareerProtectionDashboard: React.FC = () => {
     if (fromToday) next.delete('from');
     if (cardParam !== null) next.delete('card');
     if (openOverlay) next.delete('openOverlay');
+    if (iccSideIncome) next.delete('icc-side-income');
+    if (iccGap) next.delete('icc-gap');
+    if (iccStartup) next.delete('icc-startup');
+    if (iccTimeline) next.delete('icc-timeline');
+    if (iccPartner) next.delete('icc-partner');
+    if (iccAssessment) next.delete('icc-assessment');
     setSearchParams(next, { replace: true });
   }, [searchParams, setActiveTab, setSearchParams]);
 
@@ -590,6 +700,21 @@ const CareerProtectionDashboard: React.FC = () => {
       risk_level: dashboardState.riskLevel
     }).catch(err => console.error('Failed to track tab change:', err));
   };
+
+  const handleExploreIccSideIncome = useCallback(
+    (params: {
+      monthlyGap: number;
+      startupCostNeeded: number;
+      timelineMonths: number;
+      partnerId: string;
+      iccAssessmentId: string;
+    }) => {
+      setIccSideIncomeParams(params);
+      setDashboardState((prev) => ({ ...prev, activeTab: 'plans' }));
+      setActiveTab(mainTabToStoreTab('plans'));
+    },
+    [setActiveTab],
+  );
 
   const handleCloseFullDailyOutlook = () => {
     setDashboardState(prev => ({ ...prev, showFullDailyOutlook: false }));
@@ -661,6 +786,7 @@ const CareerProtectionDashboard: React.FC = () => {
               userTier={userTier ?? 'budget'}
               initialCardIndex={todayCardIndex}
               onCardChange={setTodayCardIndex}
+              onIndependencePurchaseClick={handleTodayIndependencePurchase}
             />
           )}
 
@@ -683,6 +809,58 @@ const CareerProtectionDashboard: React.FC = () => {
 
           {dashboardState.activeTab === 'plans' && (
             <div className="space-y-6">
+              {iccAssessmentData?.person_id ? (
+                <RelationshipMilestoneCheckin
+                  personId={iccAssessmentData.person_id}
+                  partnerName={iccAssessmentData.partner_name}
+                  className="mt-0"
+                />
+              ) : null}
+              <IndependenceCostCard
+                onPurchaseClick={handleIndependenceCostPurchase}
+                onExploreSideIncome={handleExploreIccSideIncome}
+                className="mt-0"
+              />
+              {iccAssessmentData?.icc_assessment_id ? (
+                <ExpenseAuditCard
+                  iccAssessmentId={iccAssessmentData.icc_assessment_id}
+                  monthlyGap={iccAssessmentData.monthly_gap}
+                  className="mt-0"
+                />
+              ) : null}
+              {iccAssessmentData?.icc_assessment_id ? (
+                <InterimHousingComparison
+                  monthlyGap={iccAssessmentData.monthly_gap}
+                  startupCostNeeded={iccAssessmentData.startup_cost}
+                  zipCode={iccAssessmentData.zip_code}
+                  className="mt-0"
+                />
+              ) : null}
+              {iccAssessmentData?.icc_assessment_id ? (
+                <PhasedIndependencePlanner
+                  totalGap={iccAssessmentData.monthly_gap ?? 765}
+                  monthlySavings={600}
+                  startupCostFull={iccAssessmentData.startup_cost}
+                  className="mt-0"
+                />
+              ) : null}
+              {iccAssessmentData?.icc_assessment_id ? (
+                <LeaseBreakAnalysis className="mt-0" />
+              ) : null}
+              {iccAssessmentData?.icc_assessment_id ? (
+                <BorrowingScenarios className="mt-0" />
+              ) : null}
+              {iccSideIncomeParams ? (
+                <SideIncomeAccelerator
+                  monthlyGap={iccSideIncomeParams.monthlyGap}
+                  startupCostNeeded={iccSideIncomeParams.startupCostNeeded}
+                  timelineMonths={iccSideIncomeParams.timelineMonths}
+                  iccAssessmentId={iccSideIncomeParams.iccAssessmentId}
+                  partnerId={iccSideIncomeParams.partnerId}
+                  onJobSelected={handleIccSideIncomeJobSelected}
+                  className="mt-0"
+                />
+              ) : null}
               <SpendingMilestonesWidget userId={user?.id ?? ''} className="mt-0" />
               <FamilyAddonUpsellCard
                 isVisible={showFamilyUpsell}

@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ChevronDown, ChevronUp, Loader2, X } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { csrfHeaders } from '../utils/csrfHeaders';
 
 export interface DebtAnalyzerTabProps {
@@ -325,6 +325,7 @@ function NumberField({
 }
 
 export function DebtAnalyzerTab({ userEmail: _userEmail, userTier, className = '' }: DebtAnalyzerTabProps) {
+  const [searchParams] = useSearchParams();
   const [subTab, setSubTab] = useState<SubTab>('analyzer');
   const [profileLoading, setProfileLoading] = useState(true);
   const [profile, setProfile] = useState<DebtProfile | null>(null);
@@ -339,6 +340,12 @@ export function DebtAnalyzerTab({ userEmail: _userEmail, userTier, className = '
   const [federalDismissed, setFederalDismissed] = useState(false);
   const [partialDismissed, setPartialDismissed] = useState(false);
   const autoModalShown = useRef(false);
+
+  useEffect(() => {
+    if (searchParams.get('subTab') === 'second-job') {
+      setSubTab('second-job');
+    }
+  }, [searchParams]);
 
   const [secondJobForm, setSecondJobForm] = useState({
     current_job: '',

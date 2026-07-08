@@ -6,13 +6,19 @@ from __future__ import annotations
 import json
 import logging
 import re
+from datetime import datetime
 from typing import Any
 
 import anthropic
 from flask import Blueprint, jsonify, request
 
-from backend.auth.decorators import require_auth
+from backend.auth.decorators import get_current_user_db_id, require_auth
 from backend.constants.anthropic_models import CLAUDE_SONNET_MODEL
+from backend.models.side_income_commitment import UserSideIncomeCommitment
+from backend.services.side_income_integration_service import (
+    IntegrationError,
+    SideIncomeIntegrationService,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -133,6 +139,70 @@ def _generate_jobs(user_prompt: str) -> list[dict[str, Any]] | None:
     return _parse_jobs_json(raw)
 
 
+_ACTIVE_ICC_COMMITMENT_STATUSES = ("selected", "setup_started")
+
+
+def notify_icc_first_income(
+    user_id: int,
+    earned_amount: float,
+    *,
+    earned_date: datetime | None = None,
+) -> dict[str, Any] | None:
+    """Notify ICC when DF1 confirms first side-income earnings for a user."""
+    commitment = (
+        UserSideIncomeCommitment.query.filter(
+            UserSideIncomeCommitment.user_id == user_id,
+            UserSideIncomeCommitment.status.in_(_ACTIVE_ICC_COMMITMENT_STATUSES),
+        )
+        .order_by(UserSideIncomeCommitment.created_at.desc())
+        .first()
+    )
+    if commitment is None:
+        logger.debug("No active ICC side income commitment for user_id=%s", user_id)
+        return None
+
+    recorded_at = earned_date or datetime.utcnow()
+    integration_service = SideIncomeIntegrationService()
+    try:
+        result = integration_service.record_df1_milestone(
+            commitment_id=commitment.id,
+            milestone_type="first_income",
+            income_amount=float(earned_amount),
+            income_date=recorded_at,
+            user_id=user_id,
+        )
+    except IntegrationError as exc:
+        logger.error(
+            "Failed to record ICC milestone for user_id=%s commitment_id=%s: %s",
+            user_id,
+            commitment.id,
+            exc.message,
+        )
+        return None
+    except Exception as exc:
+        logger.exception(
+            "Error calling ICC milestone for user_id=%s commitment_id=%s: %s",
+            user_id,
+            commitment.id,
+            exc,
+        )
+        return None
+
+    if result.get("success"):
+        logger.info(
+            "ICC milestone recorded for user_id=%s: timeline now %s months",
+            user_id,
+            result.get("independence_timeline_with_income_months"),
+        )
+    else:
+        logger.error(
+            "ICC milestone call returned failure for user_id=%s: %s",
+            user_id,
+            result,
+        )
+    return result
+
+
 @second_job_advisor_bp.route("/suggest", methods=["POST"])
 @require_auth
 def suggest():
@@ -197,5 +267,52 @@ def suggest():
             "jobs": jobs,
             "monthly_potential": monthly_potential,
             "disclaimer": _DISCLAIMER,
+        }
+    ), 200
+
+
+@second_job_advisor_bp.route("/record-earnings", methods=["POST"])
+@require_auth
+def record_earnings():
+    """Record confirmed DF1 earnings and notify ICC to recalculate timeline."""
+    user_id = get_current_user_db_id()
+    if user_id is None:
+        return jsonify({"error": "Authentication required"}), 401
+
+    body = request.get_json(silent=True) or {}
+    amount_raw = body.get("amount")
+    if amount_raw is None:
+        return jsonify({"error": "amount is required"}), 400
+    try:
+        earned_amount = float(amount_raw)
+    except (TypeError, ValueError):
+        return jsonify({"error": "amount must be a number"}), 400
+    if earned_amount < 0:
+        return jsonify({"error": "amount must be non-negative"}), 400
+
+    earned_at: datetime | None = None
+    if body.get("earned_at"):
+        raw = str(body["earned_at"]).strip()
+        if raw.endswith("Z"):
+            raw = raw[:-1] + "+00:00"
+        try:
+            earned_at = datetime.fromisoformat(raw)
+        except ValueError:
+            return jsonify({"error": "earned_at must be a valid ISO datetime"}), 400
+
+    job_id = (body.get("job_id") or "").strip() or None
+    icc_result = notify_icc_first_income(
+        user_id,
+        earned_amount,
+        earned_date=earned_at,
+    )
+
+    return jsonify(
+        {
+            "success": True,
+            "amount": round(earned_amount, 2),
+            "job_id": job_id,
+            "icc_milestone_recorded": bool(icc_result and icc_result.get("success")),
+            "icc": icc_result,
         }
     ), 200
