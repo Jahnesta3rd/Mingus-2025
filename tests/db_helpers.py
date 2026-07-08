@@ -208,6 +208,22 @@ def verify_users_table() -> None:
     verify_ci_schema(("users",))
 
 
+def ensure_alembic_version_table_for_ci() -> None:
+    """Widen alembic_version.version_num before stamp (Alembic defaults to 32)."""
+    from sqlalchemy import create_engine
+
+    from migrations.alembic_version import ensure_alembic_version_table
+
+    ensure_libpq_env()
+    engine = create_engine(get_test_database_uri())
+    try:
+        with engine.connect() as conn:
+            ensure_alembic_version_table(conn)
+            conn.commit()
+    finally:
+        engine.dispose()
+
+
 def init_ci_database_schema() -> None:
     """Bootstrap CI Postgres: create_all from models, then stamp Alembic at head.
 
@@ -218,6 +234,7 @@ def init_ci_database_schema() -> None:
     ensure_libpq_env()
     ensure_postgres_extensions()
     initialize_shared_schema()
+    ensure_alembic_version_table_for_ci()
     stamp_alembic_head()
     verify_ci_schema()
 

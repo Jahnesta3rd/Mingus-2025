@@ -8,6 +8,8 @@ from alembic import context
 # Add the project root to the Python path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+from migrations.alembic_version import ensure_alembic_version_table
+
 # Import your models here (must load all models for autogenerate)
 from backend.models.database import db
 from backend.models.user_models import User
@@ -100,7 +102,6 @@ def run_migrations_offline():
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
-        version_table_column_length=64,
     )
 
     with context.begin_transaction():
@@ -118,10 +119,11 @@ def run_migrations_online():
     connectable = create_engine(url, poolclass=pool.NullPool)
 
     with connectable.connect() as connection:
+        ensure_alembic_version_table(connection)
+        connection.commit()
         context.configure(
             connection=connection,
             target_metadata=target_metadata,
-            version_table_column_length=64,
         )
 
         with context.begin_transaction():
