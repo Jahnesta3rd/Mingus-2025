@@ -687,8 +687,14 @@ def leads():
     days = int(request.args.get("days", "14") or "14")
 
     conditions = [
-        "(l.responded = FALSE OR l.source = 'instagram')",
-        "l.ingested_at >= NOW() - (%s || ' days')::INTERVAL",
+        (
+            "(l.source = 'instagram') "
+            "OR (l.source != 'instagram' AND l.responded = FALSE)"
+        ),
+        (
+            "(l.source = 'instagram') "
+            "OR (l.ingested_at >= NOW() - (%s || ' days')::INTERVAL)"
+        ),
     ]
     params: list = [str(days)]
     if domain_filter:
@@ -697,6 +703,11 @@ def leads():
     if subreddit_filter:
         conditions.append("c.name ILIKE %s")
         params.append(f"%{subreddit_filter}%")
+    if community_filter == "instagram_follows":
+        conditions.append("l.source = 'instagram'")
+    elif community_filter:
+        conditions.append("c.name = %s")
+        params.append(community_filter)
     if min_score:
         conditions.append("l.composite_score >= %s")
         params.append(min_score)
@@ -711,7 +722,7 @@ def leads():
         f"{_lead_attempt_history_sql()} "
         f"FROM leads l LEFT JOIN communities c ON c.id = l.community_id "
         f"WHERE {where} "
-        f"ORDER BY CASE WHEN l.source = 'instagram' THEN 1 ELSE 0 END, "
+        f"ORDER BY CASE WHEN l.source = 'instagram' THEN 0 ELSE 1 END, "
         f"l.composite_score DESC NULLS LAST, l.ingested_at DESC NULLS LAST "
         f"LIMIT 500",
         params,
