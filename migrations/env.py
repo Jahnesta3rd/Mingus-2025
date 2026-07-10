@@ -57,6 +57,14 @@ from backend.models.health_insurance_recommendation import HealthInsuranceRecomm
 from backend.models.quick_spend import QuickSpendEntry  # noqa: F401
 from backend.models.assessment_token import AssessmentToken  # noqa: F401
 from backend.models.assessment_event import AssessmentEvent  # noqa: F401
+from backend.models.product import Product  # noqa: F401
+from backend.models.bts import (  # noqa: F401
+    BackToSchoolSession,
+    BackToSchoolPurchasePlan,
+    BackToSchoolRecommendation,
+)
+from backend.models.order import Order  # noqa: F401
+from backend.models.job_commitment import JobCommitment  # noqa: F401
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

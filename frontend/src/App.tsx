@@ -51,6 +51,10 @@ import HealthInsuranceAdvisor from './components/HealthInsuranceAdvisor';
 import { useAuth } from './hooks/useAuth';
 import { LeadGenAssessment } from './pages/LeadGenAssessment';
 import { PublicAssessmentResults } from './pages/PublicAssessmentResults';
+import PurchasePlanView from './components/BackToSchool/PurchasePlanView';
+import BTSSetupPage from './components/BackToSchool/BTSSetupPage';
+import ProductPickerUI from './components/BackToSchool/ProductPickerUI';
+import CheckoutUI from './components/BackToSchool/CheckoutUI';
 
 function localCalendarDateYmd(): string {
   const d = new Date();
@@ -251,6 +255,47 @@ const router = createBrowserRouter([
       <AuthGuard>
         <TermsCheckGuard>
           <SettingsPage />
+        </TermsCheckGuard>
+      </AuthGuard>
+    ),
+  },
+
+  {
+    path: '/bts/setup',
+    element: (
+      <AuthGuard>
+        <TermsCheckGuard>
+          <BTSSetupPage />
+        </TermsCheckGuard>
+      </AuthGuard>
+    ),
+  },
+  {
+    path: '/bts/:sessionId/plan',
+    element: (
+      <AuthGuard>
+        <TermsCheckGuard>
+          <PurchasePlanView />
+        </TermsCheckGuard>
+      </AuthGuard>
+    ),
+  },
+  {
+    path: '/bts/:sessionId/shop/:tier',
+    element: (
+      <AuthGuard>
+        <TermsCheckGuard>
+          <ProductPickerUI />
+        </TermsCheckGuard>
+      </AuthGuard>
+    ),
+  },
+  {
+    path: '/bts/:sessionId/checkout',
+    element: (
+      <AuthGuard>
+        <TermsCheckGuard>
+          <CheckoutUI />
         </TermsCheckGuard>
       </AuthGuard>
     ),

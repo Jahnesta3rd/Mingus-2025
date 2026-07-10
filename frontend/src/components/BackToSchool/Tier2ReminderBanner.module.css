@@ -1,0 +1,106 @@
+.banner {
+  margin-bottom: 1.25rem;
+  padding: 1.15rem 1.1rem;
+  border-radius: 0.85rem;
+  border: 1px solid rgba(88, 63, 188, 0.28);
+  background:
+    linear-gradient(135deg, rgba(88, 63, 188, 0.1), rgba(47, 122, 79, 0.08)),
+    #fff;
+}
+
+.content {
+  max-width: 100%;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.eyebrow {
+  margin: 0 0 0.25rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--mingus-purple, #583fbc);
+}
+
+.header h2 {
+  margin: 0;
+  font-family: Fraunces, Georgia, serif;
+  font-size: 1.25rem;
+  color: var(--ink, #1a1a2e);
+  line-height: 1.25;
+}
+
+.dismissButton {
+  flex-shrink: 0;
+  padding: 0.4rem 0.7rem;
+  border-radius: 0.5rem;
+  border: 1px solid #d8d8e4;
+  background: #fff;
+  color: var(--ink-mid, #5c5c7a);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.dismissButton:hover:not(:disabled) {
+  background: #f5f5f8;
+}
+
+.dismissButton:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.earnings {
+  margin-bottom: 0.85rem;
+}
+
+.earnings p,
+.noBudget {
+  margin: 0 0 0.35rem;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: var(--ink, #1a1a2e);
+}
+
+.budget {
+  color: var(--ink-mid, #5c5c7a) !important;
+}
+
+.noBudget {
+  margin-bottom: 0.85rem;
+}
+
+.shopButton {
+  width: 100%;
+  min-height: 2.6rem;
+  padding: 0.7rem 1rem;
+  border: none;
+  border-radius: 0.65rem;
+  background: var(--mingus-purple, #583fbc);
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.shopButton:hover {
+  opacity: 0.92;
+}
+
+@media (max-width: 480px) {
+  .banner {
+    padding: 1rem 0.9rem;
+  }
+
+  .header h2 {
+    font-size: 1.1rem;
+  }
+}

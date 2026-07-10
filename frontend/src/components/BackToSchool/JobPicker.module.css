@@ -1,0 +1,153 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(26, 26, 46, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.modal {
+  width: 100%;
+  max-width: 28rem;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: #fff;
+  border-radius: 1rem;
+  padding: 1.35rem 1.25rem;
+  box-sizing: border-box;
+}
+
+.modal h2 {
+  margin: 0 0 0.5rem;
+  font-family: Fraunces, Georgia, serif;
+  font-size: 1.35rem;
+  color: var(--ink, #1a1a2e);
+}
+
+.description {
+  margin: 0 0 1.15rem;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: var(--ink-mid, #5c5c7a);
+}
+
+.section {
+  margin-bottom: 1.15rem;
+}
+
+.label {
+  display: block;
+  margin: 0 0 0.55rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--ink, #1a1a2e);
+}
+
+.jobOptions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+}
+
+.jobOption {
+  padding: 0.7rem 0.65rem;
+  background: #fafafa;
+  border: 1.5px solid #e0e0ea;
+  border-radius: 0.6rem;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--ink, #1a1a2e);
+  text-align: center;
+}
+
+.jobOption:hover {
+  border-color: rgba(88, 63, 188, 0.45);
+}
+
+.jobOption.selected {
+  background: rgba(88, 63, 188, 0.1);
+  border-color: var(--mingus-purple, #583fbc);
+  color: var(--mingus-purple, #583fbc);
+  font-weight: 600;
+}
+
+.input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid #d8d8e4;
+  border-radius: 0.55rem;
+  font-size: 0.95rem;
+  font-family: inherit;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--mingus-purple, #583fbc);
+  box-shadow: 0 0 0 3px rgba(88, 63, 188, 0.12);
+}
+
+.note {
+  margin: 0.55rem 0 0;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: var(--ink-mid, #5c5c7a);
+}
+
+.error {
+  margin: 0 0 0.75rem;
+  padding: 0.65rem 0.75rem;
+  border-radius: 0.5rem;
+  background: #fef2f2;
+  color: #991b1b;
+  font-size: 0.85rem;
+}
+
+.actions {
+  display: flex;
+  gap: 0.65rem;
+  margin-top: 0.5rem;
+}
+
+.primaryButton,
+.secondaryButton {
+  flex: 1;
+  min-height: 2.6rem;
+  padding: 0.7rem 0.85rem;
+  border-radius: 0.6rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.primaryButton {
+  background: var(--mingus-purple, #583fbc);
+  color: #fff;
+  border: none;
+}
+
+.primaryButton:disabled,
+.secondaryButton:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.secondaryButton {
+  background: #fff;
+  color: var(--ink, #1a1a2e);
+  border: 1px solid #d8d8e4;
+}
+
+@media (max-width: 400px) {
+  .jobOptions {
+    grid-template-columns: 1fr;
+  }
+
+  .actions {
+    flex-direction: column;
+  }
+}

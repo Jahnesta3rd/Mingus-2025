@@ -1,0 +1,376 @@
+.container {
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 1.5rem 1.25rem 2.5rem;
+  background: var(--surface-0, #ffffff);
+  color: var(--ink, #1a1a2e);
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+.content {
+  background: #fafafa;
+  border: 1px solid #ececf4;
+  border-radius: 0.85rem;
+  padding: 1.35rem 1.25rem;
+}
+
+.eyebrow {
+  margin: 0 0 0.35rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--mingus-purple, #583fbc);
+}
+
+.heading {
+  margin: 0 0 1.25rem;
+  font-family: Fraunces, Georgia, serif;
+  font-size: 1.75rem;
+  line-height: 1.2;
+  color: var(--ink, #1a1a2e);
+}
+
+.content h2,
+.orderSummary h2,
+.shippingForm h2,
+.paymentForm h2,
+.nextSteps h2 {
+  margin: 0 0 0.85rem;
+  font-family: Fraunces, Georgia, serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--ink, #1a1a2e);
+}
+
+/* Order summary */
+.orderSummary {
+  background: #fff;
+  border: 1px solid #ececf4;
+  border-radius: 0.75rem;
+  padding: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.retailerGroup {
+  margin-bottom: 1rem;
+}
+
+.retailerGroup h3 {
+  margin: 0 0 0.55rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-mid, #5c5c7a);
+}
+
+.retailerGroup ul {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 0.45rem;
+}
+
+.lineItem {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  font-size: 0.9rem;
+  color: var(--ink, #1a1a2e);
+  padding: 0.4rem 0;
+}
+
+.retailerTotal {
+  text-align: right;
+  font-weight: 600;
+  padding-top: 0.45rem;
+  border-top: 1px solid #ececf4;
+  font-size: 0.9rem;
+}
+
+.totals {
+  background: #f5f5f8;
+  border-radius: 0.65rem;
+  padding: 0.75rem 0.85rem;
+  margin-top: 0.85rem;
+}
+
+.totalRow {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  color: var(--ink-mid, #5c5c7a);
+  margin-bottom: 0.4rem;
+}
+
+.totalRow.total {
+  font-weight: 600;
+  color: var(--ink, #1a1a2e);
+  border-top: 1px solid #e0e0ea;
+  padding-top: 0.5rem;
+  margin-top: 0.35rem;
+  margin-bottom: 0;
+}
+
+.discount {
+  color: var(--color-success, #2f7a4f);
+}
+
+/* Shipping */
+.shippingForm {
+  margin-bottom: 1.25rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  margin-bottom: 0.75rem;
+}
+
+.label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--ink-mid, #5c5c7a);
+}
+
+.input,
+.couponInput {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid #d8d8e4;
+  border-radius: 0.55rem;
+  font-size: 0.95rem;
+  font-family: inherit;
+  background: #fff;
+  color: var(--ink, #1a1a2e);
+}
+
+.input:focus,
+.couponInput:focus {
+  outline: none;
+  border-color: var(--mingus-purple, #583fbc);
+  box-shadow: 0 0 0 3px rgba(88, 63, 188, 0.12);
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.fullWidth {
+  grid-column: 1 / -1;
+}
+
+/* Coupon */
+.couponSection {
+  background: #fff;
+  border: 1px solid #ececf4;
+  border-radius: 0.65rem;
+  padding: 0.75rem;
+  margin-bottom: 0.75rem;
+  display: flex;
+  gap: 0.5rem;
+  align-items: stretch;
+}
+
+.couponInput {
+  flex: 1;
+  margin: 0;
+}
+
+.couponButton {
+  padding: 0.7rem 1rem;
+  background: var(--mingus-purple, #583fbc);
+  color: #fff;
+  border: none;
+  border-radius: 0.55rem;
+  cursor: pointer;
+  font-size: 0.88rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.couponButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.success {
+  color: var(--color-success, #2f7a4f);
+  font-size: 0.85rem;
+  margin: 0 0 0.75rem;
+}
+
+/* Payment */
+.paymentForm {
+  margin-bottom: 1.25rem;
+}
+
+.paymentNote {
+  font-size: 0.8rem;
+  color: var(--ink-mid, #5c5c7a);
+  margin: 0 0 0.75rem;
+  line-height: 1.4;
+}
+
+.cardElement {
+  border: 1px solid #d8d8e4;
+  border-radius: 0.55rem;
+  padding: 0.85rem;
+  margin-bottom: 0.85rem;
+  background: #fff;
+}
+
+.payButton {
+  width: 100%;
+  min-height: 2.85rem;
+  padding: 0.8rem 1rem;
+  background: var(--mingus-purple, #583fbc);
+  color: #fff;
+  border: none;
+  border-radius: 0.7rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.payButton:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* Confirmation */
+.confirmation {
+  text-align: center;
+  padding: 0.5rem 0;
+}
+
+.successIcon {
+  display: inline-block;
+  margin-bottom: 0.75rem;
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  background: rgba(47, 122, 79, 0.12);
+  color: var(--color-success, #2f7a4f);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.orderDetails,
+.nextSteps {
+  background: #fafafa;
+  border: 1px solid #ececf4;
+  border-radius: 0.75rem;
+  padding: 1rem;
+  margin: 0 0 1rem;
+  text-align: left;
+}
+
+.orderDetails p {
+  margin: 0 0 0.45rem;
+  font-size: 0.92rem;
+}
+
+.orderDetails p:last-child {
+  margin-bottom: 0;
+}
+
+.nextSteps ul {
+  list-style: none;
+  padding: 0;
+  margin: 0.65rem 0 0;
+}
+
+.nextSteps li {
+  font-size: 0.9rem;
+  color: var(--ink, #1a1a2e);
+  padding: 0.4rem 0;
+  border-bottom: 1px solid #ececf4;
+}
+
+.nextSteps li:last-child {
+  border-bottom: none;
+}
+
+/* Actions */
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  margin-top: 1.25rem;
+}
+
+.primaryButton,
+.secondaryButton {
+  min-height: 2.75rem;
+  padding: 0.8rem 1rem;
+  border-radius: 0.7rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.primaryButton {
+  background: var(--mingus-purple, #583fbc);
+  color: #fff;
+  border: none;
+}
+
+.primaryButton:hover:not(:disabled) {
+  opacity: 0.92;
+}
+
+.primaryButton:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.secondaryButton {
+  background: #fff;
+  color: var(--ink, #1a1a2e);
+  border: 1px solid #d8d8e4;
+}
+
+.secondaryButton:hover {
+  background: #f5f5f8;
+}
+
+.error {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #991b1b;
+  padding: 0.75rem 0.85rem;
+  border-radius: 0.55rem;
+  font-size: 0.88rem;
+  margin-bottom: 0.85rem;
+  line-height: 1.4;
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 1.15rem 1rem 2rem;
+  }
+
+  .content {
+    padding: 1.1rem 1rem;
+  }
+
+  .row {
+    grid-template-columns: 1fr;
+  }
+
+  .couponSection {
+    flex-direction: column;
+  }
+
+  .couponButton {
+    width: 100%;
+  }
+}

@@ -86,6 +86,10 @@ from .health_insurance_recommendation import HealthInsuranceRecommendation
 from .assessment_token import AssessmentToken
 from .assessment_event import AssessmentEvent
 from .quick_spend import QuickSpendEntry
+from .product import Product
+from .bts import BackToSchoolSession, BackToSchoolPurchasePlan, BackToSchoolRecommendation
+from .order import Order
+from .job_commitment import JobCommitment
 
 __all__ = [
     'db',
@@ -179,4 +183,10 @@ __all__ = [
     'QuickSpendEntry',
     'AssessmentToken',
     'AssessmentEvent',
+    'Product',
+    'BackToSchoolSession',
+    'BackToSchoolPurchasePlan',
+    'BackToSchoolRecommendation',
+    'Order',
+    'JobCommitment',
 ]

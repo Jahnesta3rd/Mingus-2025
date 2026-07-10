@@ -23,6 +23,7 @@ celery = Celery(
         "backend.tasks.spirit_reminder",
         "backend.tasks.vibe_financial_alert_tasks",
         "backend.tasks.assessment_followup_tasks",
+        "backend.tasks.bts_job_tasks",
     ],
 )
 
@@ -48,6 +49,14 @@ celery.conf.beat_schedule = {
     "assessment-followup-scan": {
         "task": "backend.tasks.assessment_followup_tasks.scan_assessment_followups",
         "schedule": crontab(minute=0),
+    },
+    "bts-sync-job-earnings": {
+        "task": "bts.sync_job_earnings",
+        "schedule": crontab(minute="*/5"),
+    },
+    "bts-send-tier2-reminders": {
+        "task": "bts.send_tier2_reminders",
+        "schedule": crontab(hour=9, minute=0),  # 9 AM UTC daily
     },
 }
 
