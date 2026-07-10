@@ -24,8 +24,8 @@ from .notification_models import (
     DeliveryStatus,
     InteractionType
 )
+from .checkin import WeeklyCheckin
 from .wellness import (
-    WeeklyCheckin,
     WellnessScore,
     WellnessFinanceCorrelation,
     WellnessCheckinStreak,
@@ -90,6 +90,7 @@ from .product import Product
 from .bts import BackToSchoolSession, BackToSchoolPurchasePlan, BackToSchoolRecommendation
 from .order import Order
 from .job_commitment import JobCommitment
+from .todo import Todo
 
 __all__ = [
     'db',
@@ -189,4 +190,5 @@ __all__ = [
     'BackToSchoolRecommendation',
     'Order',
     'JobCommitment',
+    'Todo',
 ]

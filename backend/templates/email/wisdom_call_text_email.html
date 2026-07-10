@@ -1,0 +1,35 @@
+Good morning {{ user_name }},
+
+Your Mingus Wisdom Call for Week {{ week_number }} is ready.
+
+────────────────────────────────────────
+THIS WEEK'S SCRIPT
+────────────────────────────────────────
+
+{{ script }}
+
+{% if milestones %}
+────────────────────────────────────────
+YOUR FINANCIAL MILESTONES
+────────────────────────────────────────
+{% for m in milestones %}
+├─ {{ m.name }}
+{% if m.current_label or m.target_label %}│  Current: {{ m.current_label }} / Target: {{ m.target_label }}
+{% endif %}{% if m.progress_text %}│  Progress: {{ m.progress_text }}
+{% endif %}│  └─ {{ m.projected_line or 'Projection coming soon' }}
+{% if m.shortfall_message %}│     {{ m.shortfall_message }}
+{% endif %}
+{% endfor %}
+{% endif %}
+────────────────────────────────────────
+VIEW IN DASHBOARD
+────────────────────────────────────────
+
+{{ dashboard_url }}
+
+────────────────────────────────────────
+
+You're receiving this because you completed your weekly Mingus check-in.
+Audio wisdom calls are coming soon. Until then, this email is your written call for Week {{ week_number }}.
+
+Mingus · Clarity for your money and life

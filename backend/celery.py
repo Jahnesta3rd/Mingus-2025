@@ -24,6 +24,7 @@ celery = Celery(
         "backend.tasks.vibe_financial_alert_tasks",
         "backend.tasks.assessment_followup_tasks",
         "backend.tasks.bts_job_tasks",
+        "backend.tasks.wisdom_call_scheduler",
     ],
 )
 
@@ -57,6 +58,11 @@ celery.conf.beat_schedule = {
     "bts-send-tier2-reminders": {
         "task": "bts.send_tier2_reminders",
         "schedule": crontab(hour=9, minute=0),  # 9 AM UTC daily
+    },
+    # Celery crontab: Monday=1 (0=Sunday). Prompt comment said Monday; use 1.
+    "generate-wisdom-calls": {
+        "task": "backend.tasks.wisdom_call_scheduler.generate_and_send_weekly_wisdom",
+        "schedule": crontab(day_of_week=1, hour=9, minute=0),  # Monday 9 AM UTC
     },
 }
 

@@ -60,6 +60,7 @@ from backend.routes.payment_routes import payment_bp
 from backend.api.admin_assessment_analytics import admin_assessment_analytics_bp
 from backend.api.bts_routes import bts_bp
 from backend.api.products_routes import products_bp
+from backend.api.wisdom_routes import wisdom_bp
 from backend.cli.employer_refresh import register_employer_cli
 from backend.cli.hprs_refresh import register_hprs_cli
 from backend.cli.warn_scan import scan_warn_notices
@@ -139,6 +140,7 @@ def register_backend_blueprints(app):
     app.register_blueprint(admin_assessment_analytics_bp)
     app.register_blueprint(bts_bp)
     app.register_blueprint(products_bp)
+    app.register_blueprint(wisdom_bp)
     register_employer_cli(app)
     register_hprs_cli(app)
     app.cli.add_command(scan_warn_notices)

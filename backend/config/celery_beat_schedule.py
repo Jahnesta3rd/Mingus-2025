@@ -109,12 +109,16 @@ NOTIFICATION_BEAT_SCHEDULE = {
 
 # Additional periodic tasks for the broader Mingus application
 MINGUS_BEAT_SCHEDULE = {
-    # Add other periodic tasks here as needed
-    # Example:
-    # 'update-user-recommendations': {
-    #     'task': 'backend.tasks.recommendation_tasks.update_user_recommendations',
-    #     'schedule': crontab(hour=1, minute=0),  # 1:00 AM UTC daily
-    # },
+    # Monday 9:00 AM UTC — weekly wisdom call generate + deliver
+    # Celery crontab: Monday = 1 (0 = Sunday).
+    'generate-wisdom-calls': {
+        'task': 'backend.tasks.wisdom_call_scheduler.generate_and_send_weekly_wisdom',
+        'schedule': crontab(day_of_week=1, hour=9, minute=0),
+        'options': {
+            'queue': 'celery',
+            'priority': 5,
+        },
+    },
 }
 
 # Combined beat schedule
