@@ -30,6 +30,10 @@ jobs:
   test:
     name: User Acceptance Tests
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      checks: write
+      pull-requests: write
 
     strategy:
       fail-fast: false
@@ -158,6 +162,7 @@ jobs:
     - name: Publish test results
       uses: EnricoMi/publish-unit-test-result-action@v2
       if: always()
+      continue-on-error: true
       with:
         files: junit.xml
         check_name: User Acceptance Tests Results (${{ matrix.python-version }})
