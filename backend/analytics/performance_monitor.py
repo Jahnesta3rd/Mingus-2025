@@ -128,14 +128,15 @@ class PerformanceMonitor:
         logger.info("PerformanceMonitor initialized successfully")
     
     def _init_database(self):
-        """Verify PostgreSQL database connection"""
+        """Verify PostgreSQL database connection (best-effort at construct time)."""
         try:
             conn = get_pg_connection()
             conn.close()
             logger.info("Performance monitoring database initialized successfully")
         except Exception as e:
             logger.error(f"Error initializing performance monitoring database: {e}")
-            raise
+            # Do not raise — allow module import / app boot without a live DB
+            # (tests and CI set DATABASE_URL before endpoints are exercised).
     
     def track_api_performance(
         self,

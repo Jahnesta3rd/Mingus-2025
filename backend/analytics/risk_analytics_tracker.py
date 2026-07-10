@@ -140,14 +140,14 @@ class RiskAnalyticsTracker:
         logger.info("RiskAnalyticsTracker initialized successfully")
     
     def _init_database(self):
-        """Verify PostgreSQL database connection"""
+        """Verify PostgreSQL database connection (best-effort at construct time)."""
         try:
             conn = get_pg_connection()
             conn.close()
             logger.info("Risk analytics database initialized successfully")
         except Exception as e:
             logger.error(f"Error initializing risk analytics database: {e}")
-            raise
+            # Do not raise — allow module import / app boot without a live DB.
     
     def assess_user_risk(
         self,

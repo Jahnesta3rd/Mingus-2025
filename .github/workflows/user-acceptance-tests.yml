@@ -7,6 +7,9 @@ on:
       - 'tests/user_acceptance/**'
       - 'backend/**'
       - 'tests/api/test_daily_outlook_api.py'
+      - 'tests/conftest.py'
+      - 'tests/db_helpers.py'
+      - 'scripts/ci_init_test_db.py'
       - '.github/workflows/user-acceptance-tests.yml'
   pull_request:
     branches: [ main, develop ]
@@ -14,6 +17,10 @@ on:
       - 'tests/user_acceptance/**'
       - 'backend/**'
       - 'tests/api/test_daily_outlook_api.py'
+      - 'tests/conftest.py'
+      - 'tests/db_helpers.py'
+      - 'scripts/ci_init_test_db.py'
+      - '.github/workflows/user-acceptance-tests.yml'
   schedule:
     # Run nightly at 2 AM UTC
     - cron: '0 2 * * *'
@@ -23,33 +30,92 @@ jobs:
   test:
     name: User Acceptance Tests
     runs-on: ubuntu-latest
-    
+
     strategy:
+      fail-fast: false
       matrix:
         python-version: ['3.11', '3.12']
-    
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: root
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: mingus_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U root -d mingus_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+
+    env:
+      DATABASE_URL: postgresql://root:test@localhost:5432/mingus_test
+      PGUSER: root
+      PGPASSWORD: test
+      PGHOST: localhost
+      PGPORT: 5432
+      PGDATABASE: mingus_test
+      SECRET_KEY: ci-test-secret-key-not-for-production
+      FLASK_ENV: testing
+      PYTHONPATH: ./
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-    
+
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
         cache: 'pip'
-    
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-        pip install pytest pytest-cov pytest-html pytest-xdist
-    
+        pip install pytest pytest-cov pytest-html pytest-xdist psycopg2-binary
+
     - name: Create backend package init file
       run: |
         if [ ! -f backend/__init__.py ]; then
           echo "# Mingus Backend Package" > backend/__init__.py
         fi
-    
+
+    - name: Wait for Postgres to be ready
+      run: |
+        python - <<'PY'
+        import os, time
+        import psycopg2
+        url = os.environ["DATABASE_URL"]
+        for i in range(60):
+            try:
+                conn = psycopg2.connect(url)
+                conn.close()
+                print("Postgres ready")
+                break
+            except Exception as exc:
+                print(f"waiting for postgres ({i + 1}/60): {exc}")
+                time.sleep(2)
+        else:
+            raise SystemExit("Postgres did not become ready in time")
+        PY
+
+    - name: Ensure root role exists (CI workaround)
+      run: |
+        python - <<'PY'
+        import os, sys
+        sys.path.insert(0, os.getcwd())
+        from tests.db_helpers import ensure_libpq_env, ensure_root_role
+        ensure_libpq_env()
+        ensure_root_role()
+        PY
+
+    - name: Initialize test database schema
+      run: python scripts/ci_init_test_db.py
+
     - name: Run user acceptance tests
       run: |
         python -m pytest tests/user_acceptance/test_daily_outlook_personas.py \
@@ -59,10 +125,10 @@ jobs:
           --cov-report=html \
           --cov-report=xml \
           --cov-report=term \
-          --junit-xml=junit.xml \
+          --junitxml=junit.xml \
           --html=test-report.html \
           --self-contained-html
-    
+
     - name: Upload coverage reports
       uses: codecov/codecov-action@v4
       with:
@@ -70,7 +136,7 @@ jobs:
         flags: user_acceptance_tests
         name: user-acceptance-tests-${{ matrix.python-version }}
         fail_ci_if_error: false
-    
+
     - name: Upload test results
       uses: actions/upload-artifact@v4
       if: always()
@@ -80,41 +146,41 @@ jobs:
           junit.xml
           test-report.html
           htmlcov/
-    
+
     - name: Publish test results
       uses: EnricoMi/publish-unit-test-result-action@v2
       if: always()
       with:
         files: junit.xml
-        check_name: User Acceptance Tests Results
+        check_name: User Acceptance Tests Results (${{ matrix.python-version }})
 
   lint:
     name: Code Quality Checks
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-    
+
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
         python-version: '3.12'
         cache: 'pip'
-    
+
     - name: Install linting dependencies
       run: |
         python -m pip install --upgrade pip
         pip install flake8 pylint black isort mypy
-    
+
     - name: Run flake8
       run: |
         flake8 tests/user_acceptance/ --max-line-length=120 --extend-ignore=E203,W503
-    
+
     - name: Check code formatting with black
       run: |
         black --check tests/user_acceptance/
-    
+
     - name: Check import sorting with isort
       run: |
         isort --check-only tests/user_acceptance/
@@ -122,29 +188,29 @@ jobs:
   security:
     name: Security Scan
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-    
+
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
         python-version: '3.12'
-    
+
     - name: Install security scanning tools
       run: |
         python -m pip install --upgrade pip
         pip install bandit safety
-    
+
     - name: Run Bandit security scan
       run: |
         bandit -r tests/user_acceptance/ -f json -o bandit-report.json || true
-    
+
     - name: Check dependencies for vulnerabilities
       run: |
         safety check --json || true
-    
+
     - name: Upload security reports
       uses: actions/upload-artifact@v4
       if: always()
@@ -152,4 +218,3 @@ jobs:
         name: security-reports
         path: |
           bandit-report.json
-

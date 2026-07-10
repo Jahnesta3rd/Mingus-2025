@@ -12,9 +12,8 @@ from decimal import Decimal
 from unittest.mock import patch
 from flask import Flask
 
-from backend.api.daily_outlook_api import daily_outlook_api
-from backend.models.daily_outlook import DailyOutlook
-from backend.models.database import db
+# Ensure DATABASE_URL / PG* are set before any backend.api imports (several
+# modules attempt schema init at import time).
 from tests.db_helpers import (
     cleanup_test_data,
     configure_app_for_tests,
@@ -22,6 +21,12 @@ from tests.db_helpers import (
     initialize_shared_schema,
     persist_test_user,
 )
+
+ensure_libpq_env()
+
+from backend.api.daily_outlook_api import daily_outlook_api
+from backend.models.daily_outlook import DailyOutlook
+from backend.models.database import db
 
 
 @pytest.fixture(scope="session", autouse=True)

@@ -487,5 +487,9 @@ def calculate_commute_costs(distance: float, vehicle: Dict[str, Any], days_per_w
         logger.error(f"Failed to calculate commute costs: {e}")
         return {}
 
-# Initialize database on module load
-init_commute_database()
+# Best-effort schema init on import; never block module load (tests/CI may
+# import before DATABASE_URL is available).
+try:
+    init_commute_database()
+except Exception as e:
+    logger.warning("Skipping commute DB init at import time: %s", e)

@@ -1743,5 +1743,9 @@ def get_resume_analytics():
         logger.error(f"Error in get_resume_analytics: {e}")
         return jsonify({'success': False, 'error': 'Internal server error'}), 500
 
-# Initialize database when module is imported
-init_resume_database()
+# Best-effort schema init on import; never block module load (tests/CI may
+# import before DATABASE_URL is available).
+try:
+    init_resume_database()
+except Exception as e:
+    logger.warning("Skipping resume DB init at import time: %s", e)

@@ -601,5 +601,9 @@ def mark_vibe_moment_shown():
         db.session.rollback()
         return jsonify({'success': False, 'error': 'Internal server error'}), 500
 
-# Initialize database when module is imported
-init_profile_database()
+# Best-effort schema init on import; never block module load (tests/CI may
+# import before DATABASE_URL is available).
+try:
+    init_profile_database()
+except Exception as e:
+    logger.warning("Skipping profile DB init at import time: %s", e)

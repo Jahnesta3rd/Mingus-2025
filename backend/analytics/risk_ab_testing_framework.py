@@ -227,7 +227,7 @@ class RiskABTestFramework:
                 
         except Exception as e:
             logger.error(f"Error initializing risk A/B testing tables: {e}")
-            raise
+            # Do not raise — allow module import / app boot without a live DB.
     
     async def create_risk_threshold_test(
         self, 
