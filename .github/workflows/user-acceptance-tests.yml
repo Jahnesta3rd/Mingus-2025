@@ -76,7 +76,15 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-        pip install pytest pytest-cov pytest-html pytest-xdist psycopg2-binary
+        pip install \
+          pytest \
+          pytest-cov \
+          pytest-html \
+          pytest-xdist \
+          psycopg2-binary \
+          alembic \
+          flask-login \
+          marshmallow
 
     - name: Create backend package init file
       run: |
